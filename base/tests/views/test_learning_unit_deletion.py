@@ -71,6 +71,7 @@ class LearningUnitDelete(TestCase):
         self.learning_unit_year_list = self.create_learning_unit_years_and_dependencies()
 
     def create_learning_unit_years_and_dependencies(self):
+        acronym = "LDROI1004"
         l1 = LearningUnitFactory(start_year=2015)
 
         learning_unit_years = []
@@ -79,7 +80,7 @@ class LearningUnitDelete(TestCase):
             l_containeryear = LearningContainerYearFactory(academic_year=ac_year)
             EntityContainerYearFactory(learning_container_year=l_containeryear, entity=self.entity_version.entity,
                                        type=entity_container_year_link_type.REQUIREMENT_ENTITY)
-            learning_unit_year = LearningUnitYearFactory(learning_unit=l1, academic_year=ac_year,
+            learning_unit_year = LearningUnitYearFactory(acronym=acronym, learning_unit=l1, academic_year=ac_year,
                                                          learning_container_year=l_containeryear)
             learning_unit_years.append(learning_unit_year)
 
@@ -95,8 +96,6 @@ class LearningUnitDelete(TestCase):
     def test_delete_all_learning_units_year_method_not_allowed(self):
         learning_unit_years = self.learning_unit_year_list
 
-        from base.views.learning_units.delete import delete_all_learning_units_year
-
         request_factory = RequestFactory()
         request = request_factory.get(reverse(delete_all_learning_units_year, args=[learning_unit_years[1].id]))
         request.user = self.user
@@ -106,8 +105,6 @@ class LearningUnitDelete(TestCase):
 
     def test_delete_all_learning_units_year_case_success(self):
         learning_unit_years = self.learning_unit_year_list
-
-        from base.views.learning_units.delete import delete_all_learning_units_year
 
         request_factory = RequestFactory()
 
@@ -159,8 +156,6 @@ class LearningUnitDelete(TestCase):
         learning_unit_years = self.learning_unit_year_list
         ly1 = learning_unit_years[1]
         LearningUnitEnrollmentFactory(learning_unit_year=ly1)
-
-        from base.views.learning_units.delete import delete_all_learning_units_year
 
         request_factory = RequestFactory()
 

@@ -29,7 +29,8 @@ from django.views.generic.edit import FormMixin
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 
 import base.models.entity
-from base.models import academic_year, entity_version
+from base.models import academic_year
+
 from assistant.forms import MandatesArchivesForm
 from assistant.models import assistant_mandate
 from assistant.utils import manager_access

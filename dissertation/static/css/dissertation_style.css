@@ -26,3 +26,16 @@
 ul.ui-autocomplete {
     z-index: 1050;
 }
+
+.div_in_datatable{
+    height:42px;
+}
+
+.search_select_filter{
+    margin-left: 0.5em;
+    width: auto;
+    width: 75px;
+    display: inline-block;
+}
+
+

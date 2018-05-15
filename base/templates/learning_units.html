@@ -34,10 +34,10 @@
 
 {% block content %}
 {% if request.GET.academic_year_id and request.GET.academic_year_id != '0' %}
-    {% url 'learning_unit_create' academic_year=request.GET.academic_year_id as create_learning_unit_url%}
+    {% url 'learning_unit_create' academic_year_id=request.GET.academic_year_id as create_learning_unit_url%}
     {% url 'proposal_learning_unit_creation_form' academic_year=request.GET.academic_year_id as create_proposal_url%}
 {% else %}
-    {% url 'learning_unit_create' academic_year=current_academic_year.id as create_learning_unit_url%}
+    {% url 'learning_unit_create' academic_year_id=current_academic_year.id as create_learning_unit_url%}
     {% url 'proposal_learning_unit_creation_form' academic_year=current_academic_year.id as create_proposal_url%}
 {% endif %}
 
@@ -80,6 +80,11 @@
             {% trans 'service_course_search'%}
         </a>
     </li>
+    <li role="presentation" {% if search_type == 5 %} class="active" {% endif %}>
+        <a href="{% url 'learning_units_borrowed_course'%}" role="tab" id="lnk_borrowed_course_search">
+            {% trans 'borrowed_course_search'%}
+        </a>
+    </li>
     <li role="presentation" {% if search_type == 3 %} class="active" {% endif %}>
         <a href="{% url 'learning_units_proposal'%}" role="tab" id="lnk_proposal_search">
             {% trans 'proposals_search'%}
@@ -87,7 +92,7 @@
     </li>
     {% if is_faculty_manager %}
         <li role="presentation" {% if search_type == 4 %} class="active" {% endif %}>
-            <a href="{% url 'learning_units_summary'%}" role="tab" id="lnk_summary_list">
+            <a href="{% url 'learning_units_summary' %}" role="tab" id="lnk_summary_list">
                 {% trans 'summary_list' %}
             </a>
         </li>
@@ -95,12 +100,10 @@
 </ul>
 {% if search_type == 3 %}
     {% include 'learning_unit/by_proposal.html' %}
-{% else %}
-    {% if search_type == 4 %}
+{% elif search_type == 4 %}
         {% include 'learning_unit/summary_list.html' %}
-    {% else %}
-        {% include 'learning_unit/by_activity.html' %}
-    {% endif %}
+{% else %}
+    {% include 'learning_unit/by_activity.html' %}
 {% endif %}
 
 {% endblock %}
@@ -135,6 +138,14 @@
         e.preventDefault();
         var status = $("#xls_status");
         status.val('xls');
+        $("#search_form").submit();
+        status.val('');
+    });
+
+    $("#btn_produce_xls_attributions").click(function(e) {
+        e.preventDefault();
+        var status = $("#xls_status");
+        status.val('xls_attribution');
         $("#search_form").submit();
         status.val('');
     });

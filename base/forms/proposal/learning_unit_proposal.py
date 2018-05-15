@@ -33,9 +33,9 @@ from django.utils.translation import ugettext_lazy as _
 
 from base import models as mdl
 from base.business.learning_unit_year_with_context import append_latest_entities
-from base.forms import learning_units as learning_units_form
+from base.forms.learning_unit import search_form as learning_units_form
 from base.forms.common import get_clean_data, TooManyResultsException
-from base.forms.learning_unit_search import SearchForm
+from base.forms.learning_unit.search_form import SearchForm
 from base.models import entity_version
 from base.models.enums import entity_container_year_link_type, proposal_type, proposal_state
 from base.models.proposal_learning_unit import ProposalLearningUnit
@@ -126,87 +126,21 @@ class LearningUnitProposalForm(SearchForm):
 
         return proposal
 
+    def get_research_criteria(self):
+        tuples_label_value = []
+        for field_name, field in self.fields.items():
+            if not self.cleaned_data[field_name]:
+                continue
+            tuple_to_append = (str(field.label), self.cleaned_data[field_name])
+            if type(field) == forms.ChoiceField:
+                dict_choices = {str(key): value for key, value in field.choices}
+                label_choice = dict_choices[self.cleaned_data[field_name]]
+                tuple_to_append = (str(field.label), label_choice)
+            tuples_label_value.append(tuple_to_append)
+        return tuples_label_value
+
 
 class ProposalStateModelForm(forms.ModelForm):
     class Meta:
         model = ProposalLearningUnit
         fields = ['state']
-
-
-class ProposalRowForm(ProposalStateModelForm):
-    check = forms.BooleanField(required=False)
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.id = self.instance.id
-        self.url = reverse('learning_unit', args=[self.instance.learning_unit_year.id])
-
-    @property
-    def folder(self):
-        last_entity = entity_version.get_last_version(self.instance.entity)
-        folder = last_entity.acronym if last_entity else ''
-        folder += str(self.instance.folder_id)
-
-        return folder
-
-    @property
-    def acronym(self):
-        return self.instance.learning_unit_year.acronym
-
-    @property
-    def validity(self):
-        return self.instance.learning_unit_year.academic_year
-
-    @property
-    def title(self):
-        return self.instance.learning_unit_year.complete_title
-
-    @property
-    def container_type(self):
-        container = self.instance.learning_unit_year.learning_container_year
-        return _(container.container_type) if container.container_type else '-'
-
-    @property
-    def requirement_entity(self):
-        requirement_entity = self.instance.learning_unit_year.entities.get('REQUIREMENT_ENTITY', '')
-        return requirement_entity.acronym if requirement_entity else ''
-
-    @property
-    def proposal_type(self):
-        return _(self.instance.type)
-
-    @property
-    def proposal_state(self):
-        return _(self.instance.state)
-
-    def clean(self):
-        cleaned_data = super().clean()
-        if not cleaned_data.get('check'):
-            del cleaned_data['state']
-        return cleaned_data
-
-    def save(self, commit=True):
-        if self.cleaned_data.get('check'):
-            super().save(commit)
-
-
-class ProposalListFormset(forms.BaseFormSet):
-
-    def __init__(self, *args, **kwargs):
-        self.list_proposal_learning = kwargs.pop("list_proposal_learning")
-        self.action = kwargs.pop("action")
-        super().__init__(*args, **kwargs)
-
-    def get_form_kwargs(self, index):
-        kwargs = super().get_form_kwargs(index)
-        kwargs['instance'] = self.list_proposal_learning[index]
-        return kwargs
-
-    def save(self):
-        with transaction.atomic():
-            for form in self.forms:
-                form.save()
-
-    def get_checked_proposals(self):
-        return [form.instance for form in self.forms if form.cleaned_data.get('check')]

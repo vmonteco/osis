@@ -31,6 +31,7 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, logout
 from django.contrib.auth.decorators import login_required, permission_required, user_passes_test
 from django.contrib.auth.views import login as django_login
+from django.contrib.messages import ERROR, SUCCESS
 from django.shortcuts import redirect
 from django.utils import translation
 from django.utils.translation import ugettext_lazy as _
@@ -189,19 +190,32 @@ def display_error_messages(request, messages_to_display):
     display_messages(request, messages_to_display, messages.ERROR)
 
 
-def display_success_messages(request, messages_to_display):
-    display_messages(request, messages_to_display, messages.SUCCESS)
+def display_success_messages(request, messages_to_display, extra_tags=None):
+    display_messages(request, messages_to_display, messages.SUCCESS, extra_tags=extra_tags)
 
 
-def display_messages(request, messages_to_display, level):
+def display_info_messages(request, messages_to_display, extra_tags=None):
+    display_messages(request, messages_to_display, messages.INFO, extra_tags=extra_tags)
+
+
+def display_warning_messages(request, messages_to_display, extra_tags=None):
+    display_messages(request, messages_to_display, messages.WARNING, extra_tags=extra_tags)
+
+
+def display_messages(request, messages_to_display, level, extra_tags=None):
     if not isinstance(messages_to_display, (tuple, list)):
         messages_to_display = [messages_to_display]
 
     for msg in messages_to_display:
-        messages.add_message(request, level, _(msg))
+        messages.add_message(request, level, _(msg), extra_tags=extra_tags)
 
 
 def check_if_display_message(request, results):
     if not results:
         messages.add_message(request, messages.WARNING, _('no_result'))
     return True
+
+
+def display_messages_by_level(request, messages_by_level):
+    for level, msgs in messages_by_level.items():
+        display_messages(request, msgs, level, extra_tags='safe')

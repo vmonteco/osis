@@ -25,16 +25,16 @@
 ##############################################################################
 from django.db import models
 
-from osis_common.models.auditable_serializable_model import AuditableSerializableModel, AuditableSerializableModelAdmin
+from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
 
 
-class LearningContainerAdmin(AuditableSerializableModelAdmin):
+class LearningContainerAdmin(SerializableModelAdmin):
     list_display = ('external_id',)
     fieldsets = ((None, {'fields': ('external_id',)}),)
     search_fields = ['external_id', 'learningcontaineryear__acronym']
 
 
-class LearningContainer(AuditableSerializableModel):
+class LearningContainer(SerializableModel):
     external_id = models.CharField(max_length=100, blank=True, null=True)
     changed = models.DateTimeField(null=True, auto_now=True)
 

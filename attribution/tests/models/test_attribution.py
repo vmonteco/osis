@@ -93,20 +93,3 @@ class AttributionTest(TestCase):
 
     def test_is_score_responsible_without_attribution(self):
         self.assertFalse(attribution.is_score_responsible(self.user, self.learning_unit_year_without_attribution))
-
-    def test_attribution_deleted_field(self):
-        attribution_id = self.attribution.id
-
-        with connection.cursor() as cursor:
-            cursor.execute("update attribution_attribution set deleted='2004-10-19 10:23:54' where id=%s", [attribution_id])
-
-        with self.assertRaises(ObjectDoesNotExist):
-            attribution.Attribution.objects.get(id=attribution_id)
-
-        with connection.cursor() as cursor:
-            cursor.execute("select id, deleted from attribution_attribution where id=%s", [attribution_id])
-            row = cursor.fetchone()
-            db_attribution_id = row[0]
-            db_attribution_deleted = row[1]
-        self.assertEqual(db_attribution_id, attribution_id)
-        self.assertTrue(db_attribution_deleted)

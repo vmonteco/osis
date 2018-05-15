@@ -23,6 +23,8 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from django.utils.translation import ugettext_lazy as _
+
 SECTOR = "SECTOR"
 FACULTY = "FACULTY"
 SCHOOL = "SCHOOL"
@@ -34,14 +36,14 @@ LOGISTICS_ENTITY = "LOGISTICS_ENTITY"
 
 
 ENTITY_TYPES = (
-    (SECTOR, SECTOR),
-    (FACULTY, FACULTY),
-    (SCHOOL, SCHOOL),
-    (INSTITUTE, INSTITUTE),
-    (POLE, POLE),
-    (DOCTORAL_COMMISSION, DOCTORAL_COMMISSION),
-    (PLATFORM, PLATFORM),
-    (LOGISTICS_ENTITY, LOGISTICS_ENTITY),
+    (SECTOR, _(SECTOR)),
+    (FACULTY, _(FACULTY)),
+    (SCHOOL, _(SCHOOL)),
+    (INSTITUTE, _(INSTITUTE)),
+    (POLE, _(POLE)),
+    (DOCTORAL_COMMISSION, _(DOCTORAL_COMMISSION)),
+    (PLATFORM, _(PLATFORM)),
+    (LOGISTICS_ENTITY, _(LOGISTICS_ENTITY)),
 )
 
 

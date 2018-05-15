@@ -46,3 +46,14 @@ class Bibliography(models.Model):
 
     class Meta:
         verbose_name_plural = 'bibliographies'
+
+
+def find_by_learning_unit_year(learning_unit_year):
+    return Bibliography.objects.filter(learning_unit_year=learning_unit_year)
+
+
+def build_list_of_bibliography_content_by_learning_unit_year(learning_unit_year):
+    return [
+        (bib.title, bib.mandatory)
+        for bib in find_by_learning_unit_year(learning_unit_year)
+    ]

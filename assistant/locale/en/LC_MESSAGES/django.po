@@ -40,6 +40,9 @@ msgstr "Add a teaching unit"
 msgid "address"
 msgstr "Address"
 
+msgid "administrative_data"
+msgstr "Administrative data"
+
 msgid "advice"
 msgstr "Opinion"
 
@@ -109,6 +112,9 @@ msgstr "Prize(s) and/or distinction(s)"
 msgid "bad_filename"
 msgstr "Filename can not contains : ( ) % $ , ; : / = +"
 
+msgid "bad_person_msg"
+msgstr "Please enter the last name and first name of the person you are looking for and select the corresponding choice in the drop-down list"
+
 msgid "beginning"
 msgstr "Beginning"
 
@@ -150,6 +156,9 @@ msgstr "Are you sure you want to accept the renewal request? This action is irre
 
 msgid "confirm_decline"
 msgstr "Are you sure you want to decline the renewal request? This action is irreversible."
+
+msgid "confirm_mandate_step_back"
+msgstr "Are you sure you want to step back the mandate? This action is irreversible."
 
 msgid "confirm_removal"
 msgstr "Are you sure you want to delete this course?"
@@ -671,6 +680,9 @@ msgstr "Special"
 msgid "startup_precedure"
 msgstr "Startup procedure"
 
+msgid "step_back"
+msgstr "Accomplish a workflow step back"
+
 msgid "students_service"
 msgstr "Information for future students (CIO, shows, Campus Days, Midi Masters,...)"
 
@@ -772,6 +784,9 @@ msgstr "DAS/CAS"
 
 msgid "view"
 msgstr "View"
+
+msgid "workflow_and_reviews"
+msgstr "Workflow and reviews"
 
 msgid "yes"
 msgstr "Yes"

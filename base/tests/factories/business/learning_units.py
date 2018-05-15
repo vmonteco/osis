@@ -24,17 +24,19 @@
 #
 ##############################################################################
 import datetime
+import factory.fuzzy
 
 from decimal import Decimal
 
-from base.business.learning_unit import LEARNING_UNIT_CREATION_SPAN_YEARS, compute_max_academic_year_adjournment
 from base.models import academic_year as mdl_academic_year
-from base.models.academic_year import AcademicYear
+from base.models.academic_year import AcademicYear, LEARNING_UNIT_CREATION_SPAN_YEARS, \
+    compute_max_academic_year_adjournment
 from base.models.enums import entity_container_year_link_type, learning_container_year_types, \
     learning_unit_periodicity, learning_unit_year_subtypes, component_type
 from base.models.enums import learning_unit_year_quadrimesters
 from base.models.enums import learning_unit_year_session
 from base.tests.factories.academic_year import AcademicYearFactory
+from base.tests.factories.bibliography import BibliographyFactory
 from base.tests.factories.campus import CampusFactory
 from base.tests.factories.entity_component_year import EntityComponentYearFactory
 from base.tests.factories.entity_container_year import EntityContainerYearFactory
@@ -46,6 +48,7 @@ from base.tests.factories.learning_container_year import LearningContainerYearFa
 from base.tests.factories.learning_unit import LearningUnitFactory
 from base.tests.factories.learning_unit_component import LearningUnitComponentFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
+from cms.tests.factories.translated_text import TranslatedTextFactory
 from reference.tests.factories.language import LanguageFactory
 
 
@@ -106,8 +109,9 @@ class LearningUnitsMixin:
         results = None
         if start_year and end_year:
             results = [AcademicYearFactory.build(year=year) for year in range(start_year, end_year + 1)]
-            for result in results:
-                super(AcademicYear, result).save()
+            [super(AcademicYear, result).save() for result in results
+             if not AcademicYear.objects.filter(year=result.year).exists()]
+
         return results
 
     @staticmethod
@@ -152,7 +156,6 @@ class LearningUnitsMixin:
                     )
 
                 result = LearningUnitYearFactory(
-                    acronym=learning_unit.acronym,
                     academic_year=academic_year,
                     learning_unit=learning_unit,
                     learning_container_year=learning_container_year,
@@ -206,6 +209,12 @@ class LearningUnitsMixin:
                     results.append(learning_unit_year_partim)
 
         return results
+
+    @staticmethod
+    def setup_educational_information(learning_unit_years_list):
+        for luy in learning_unit_years_list:
+            _create_fixed_educational_information_for_luy(luy)
+        return learning_unit_years_list
 
 
 class GenerateAcademicYear:
@@ -378,7 +387,8 @@ def _get_default_common_value_learning_unit_year(learning_container_year, subtyp
         'specific_title_english': 'Title Specific English',
         'credits': Decimal(5),
         'session': learning_unit_year_session.SESSION_1X3,
-        'quadrimester': learning_unit_year_quadrimesters.Q1
+        'quadrimester': learning_unit_year_quadrimesters.Q1,
+        'internship_subtype': None
     }
     if subtype == learning_unit_year_subtypes.PARTIM:
         common_data['acronym'] += 'A'
@@ -424,3 +434,20 @@ def _setup_entity_component_year(learning_component_year, entity_container_year)
 def _setup_classes(learning_component_year, number_classes=5):
     for i in range(number_classes):
         LearningClassYearFactory(learning_component_year=learning_component_year)
+
+
+def _create_fixed_educational_information_for_luy(luy):
+    luy.mobility_modality = factory.fuzzy.FuzzyText(length=150).fuzz()
+    luy.save()
+    _create_bibliography_for_luy(luy)
+    _create_cms_data_for_luy(luy)
+
+
+def _create_bibliography_for_luy(luy, quantity=10):
+    for _ in range(quantity):
+        BibliographyFactory(learning_unit_year=luy)
+
+
+def _create_cms_data_for_luy(luy, quantity=10):
+    for _ in range(quantity):
+        TranslatedTextFactory(reference=luy.id, text=factory.fuzzy.FuzzyText(length=255).fuzz())

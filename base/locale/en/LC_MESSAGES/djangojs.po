@@ -44,8 +44,11 @@ msgstr "Please enter a value greater than or equal to 0."
 msgid "max_for_field"
 msgstr "Please enter a value less than or equal to 500."
 
-msgid "add another"
+msgid "Add another"
 msgstr ""
 
 msgid "remove"
-msgstr ""
+msgstr "Remove"
+
+msgid "confirm_achievement_delete"
+msgstr "Are you sure you want to delete the achievement?"

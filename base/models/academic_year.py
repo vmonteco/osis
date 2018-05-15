@@ -23,9 +23,14 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+import datetime
+
 from django.db import models
 from django.utils import timezone
+
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
+
+LEARNING_UNIT_CREATION_SPAN_YEARS = 6
 
 
 class AcademicYearAdmin(SerializableModelAdmin):
@@ -112,3 +117,13 @@ def current_academic_year():
 def starting_academic_year():
     """ If we have two academic year [2015-2016] [2016-2017]. It will return [2016-2017] """
     return current_academic_years().last()
+
+
+def compute_max_academic_year_adjournment():
+    return starting_academic_year().year + LEARNING_UNIT_CREATION_SPAN_YEARS
+
+
+def get_last_academic_years(last_years=10):
+    today = datetime.date.today()
+    date_ten_years_before = today.replace(year=today.year - last_years)
+    return find_academic_years().filter(start_date__gte=date_ten_years_before)

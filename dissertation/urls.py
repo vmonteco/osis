@@ -109,6 +109,7 @@ urlpatterns = [
         name='manager_dissertations_role_delete_by_ajax'),
     url(r'^manager_dissertations_jury_new_ajax/', dissertation.manager_dissertations_jury_new_ajax,
         name='manager_dissertations_jury_new_ajax'),
+    url(r'^manager_students_list/$', dissertation.manager_students_list, name='manager_students_list'),
 
     url(r'^manager_informations/$', information.manager_informations, name='manager_informations'),
     url(r'^manager_informations_add/$', information.manager_informations_add, name='manager_informations_add'),
