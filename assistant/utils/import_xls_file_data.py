@@ -231,11 +231,10 @@ def retrieve_learning_units_year_from_previous_mandate(assistant, new_mandate):
         previous_tutoring_learning_units_year = assistant_mdl.tutoring_learning_unit_year.find_by_mandate(
             previous_mandates[0]
         )
-        if previous_tutoring_learning_units_year:
-            for previous_tutoring_learning_unit_year in previous_tutoring_learning_units_year:
-                previous_tutoring_learning_unit_year.pk = None
-                previous_tutoring_learning_unit_year.mandate = new_mandate
-                previous_tutoring_learning_unit_year.save()
+        for previous_tutoring_learning_unit_year in previous_tutoring_learning_units_year:
+            previous_tutoring_learning_unit_year.pk = None
+            previous_tutoring_learning_unit_year.mandate = new_mandate
+            previous_tutoring_learning_unit_year.save()
 
 
 def link_mandate_to_entity(mandate, entity=None):
