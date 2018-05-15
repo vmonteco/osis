@@ -2897,3 +2897,9 @@ msgstr "Type de recherche"
 
 msgid "COURSE_ENROLLMENT"
 msgstr "Inscription aux cours"
+
+msgid "missing_internship_subtype"
+msgstr "Il est nécessaire d'indiquer le sous-type de stage"
+
+msgid "different_status_with_parent"
+msgstr "L'UE parent est inactif"
