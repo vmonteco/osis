@@ -39,7 +39,7 @@ from django.views.decorators.http import require_http_methods
 from attribution.business import attribution_charge_new
 from base import models as mdl
 from base.business.learning_unit import get_cms_label_data, \
-    get_same_container_year_components, get_components_identification, get_organization_from_learning_unit_year,\
+    get_same_container_year_components, get_components_identification, get_organization_from_learning_unit_year, \
     get_campus_from_learning_unit_year, \
     get_all_attributions, find_language_in_settings, \
     CMS_LABEL_SPECIFICATIONS, get_achievements_group_by_language
