@@ -97,12 +97,16 @@ def read_xls_mandates(request, file_name):
             assistant = create_academic_assistant_if_not_exists(current_record)
             if assistant:
                 mandate = create_assistant_mandate_if_not_exists(current_record, assistant, entry_date, end_date)
-                sector = search_entity_by_acronym_and_type(current_record.get('SECTOR'),
-                                                            entity_type.SECTOR)
+                sector = search_entity_by_acronym_and_type(
+                    current_record.get('SECTOR'),
+                    entity_type.SECTOR
+                )
                 if sector:
                     link_mandate_to_entity(mandate, sector)
-                logistic_entity = search_entity_by_acronym_and_type(current_record.get('LOGISTICS_ENTITY'),
-                                                           entity_type.LOGISTICS_ENTITY)
+                logistic_entity = search_entity_by_acronym_and_type(
+                    current_record.get('LOGISTICS_ENTITY'),
+                    entity_type.LOGISTICS_ENTITY
+                )
                 if logistic_entity:
                     link_mandate_to_entity(mandate, logistic_entity)
                 faculty = search_entity_by_acronym_and_type(current_record.get('FACULTY'),
@@ -219,15 +223,13 @@ def create_assistant_mandate_if_not_exists(record, assistant, entry_date, end_da
 
 
 def retrieve_learning_units_year_from_previous_mandate(assistant, new_mandate):
-    current_academic_year = mdl.academic_year.current_academic_year()
     previous_mandates = assistant_mdl.assistant_mandate.find_before_year_for_assistant(
-        current_academic_year.year,
+        new_mandate.academic_year.year,
         assistant
     )
     if previous_mandates:
-        previous_mandate = previous_mandates[0]
         previous_tutoring_learning_units_year = assistant_mdl.tutoring_learning_unit_year.find_by_mandate(
-            previous_mandate
+            previous_mandates[0]
         )
         if previous_tutoring_learning_units_year:
             for previous_tutoring_learning_unit_year in previous_tutoring_learning_units_year:

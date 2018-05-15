@@ -25,10 +25,12 @@
 ##############################################################################
 import datetime
 
+from django.utils import timezone
 from django.core.files import File
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, TestCase
 
+from base.models import academic_year
 from base.models import entity
 from base.models.enums import entity_type
 from base.tests.factories.entity_version import EntityVersionFactory
@@ -36,9 +38,11 @@ from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.person import PersonFactory
 
 from assistant.models.mandate_entity import find_by_mandate_and_entity
+from assistant.models.tutoring_learning_unit_year import find_by_mandate
 from assistant.tests.factories.academic_assistant import AcademicAssistantFactory
 from assistant.tests.factories.assistant_mandate import AssistantMandateFactory
 from assistant.tests.factories.manager import ManagerFactory
+from assistant.tests.factories.tutoring_learning_unit_year import TutoringLearningUnitYearFactory
 from assistant.utils.import_xls_file_data import check_date_format
 from assistant.utils.import_xls_file_data import check_file_format
 from assistant.utils.import_xls_file_data import create_academic_assistant_if_not_exists
@@ -61,13 +65,9 @@ class ExportImportXlsFile(TestCase):
         self.manager = ManagerFactory()
         self.client.force_login(self.manager.person.user)
         self.request.user = self.manager.person.user
-        today = datetime.date.today()
-        self.current_academic_year = AcademicYearFactory(start_date=today,
-                                                         end_date=today.replace(year=today.year + 1),
-                                                         year=today.year)
-        self.previous_academic_year = AcademicYearFactory(start_date=today.replace(year=today.year - 1),
-                                                         end_date=today,
-                                                         year=today.year-1)
+        now = timezone.now()
+        AcademicYearFactory.produce_in_past()
+        self.previous_academic_year = academic_year.find_academic_year_by_year(now.year - 2)
         self.person1 = PersonFactory(global_id='00201968')
         self.assistant1 = AcademicAssistantFactory(person=self.person1)
         self.record1 = {
@@ -97,7 +97,6 @@ class ExportImportXlsFile(TestCase):
             'CONTRACT_DURATION_FTE': '4', 'RENEWAL_TYPE': 'SPECIAL', 'ABSENCES': None, 'COMMENT': None,
             'OTHER_STATUS': None, 'EMAIL': None, 'FGS': None
         }
-        self.assistant_mandate1 = AssistantMandateFactory(assistant=self.assistant1)
         self.entity_version1 = EntityVersionFactory(entity_type=entity_type.SECTOR,
                                                     acronym='SST',
                                                     title='Secteur des Sciences et Technologies',
@@ -105,9 +104,22 @@ class ExportImportXlsFile(TestCase):
         self.entity_version2 = EntityVersionFactory(entity_type=entity_type.SECTOR,
                                                     acronym='SSH',
                                                     end_date=datetime.datetime(datetime.date.today().year + 1, 9, 14))
+        self.assistant_mandate3 = AssistantMandateFactory(assistant=self.assistant2)
         self.assistant_mandate2 = AssistantMandateFactory(
             assistant=self.assistant1,
             academic_year=self.previous_academic_year
+        )
+        self.tutoring_learning_unit_year1 = TutoringLearningUnitYearFactory(mandate=self.assistant_mandate2)
+        self.tutoring_learning_unit_year2 = TutoringLearningUnitYearFactory(mandate=self.assistant_mandate2)
+        self.assistant_mandate1 = AssistantMandateFactory(
+            assistant=self.assistant1
+        )
+        self.assistant_mandate4 = AssistantMandateFactory(
+            assistant=self.assistant2,
+            academic_year=self.previous_academic_year
+        )
+        self.assistant_mandate5 = AssistantMandateFactory(
+            assistant=self.assistant2
         )
 
     def test_upload_mandates_file(self):
@@ -201,7 +213,14 @@ class ExportImportXlsFile(TestCase):
         self.assertEqual(import_xls_file_data.MANDATES_UPDATED, nbr_mandates_updated + 1)
 
     def test_retrieve_learning_units_year_from_previous_mandate(self):
-        self.assertTrue(retrieve_learning_units_year_from_previous_mandate(self.assistant1))
+        retrieve_learning_units_year_from_previous_mandate(self.assistant1, self.assistant_mandate1)
+        self.assertEqual(len(find_by_mandate(self.assistant_mandate1)), 2)
+
+        retrieve_learning_units_year_from_previous_mandate(self.assistant2, self.assistant_mandate5)
+        self.assertEqual(len(find_by_mandate(self.assistant_mandate5)), 0)
+
+        retrieve_learning_units_year_from_previous_mandate(self.assistant2, self.assistant_mandate3)
+        self.assertEqual(len(find_by_mandate(self.assistant_mandate3)), 0)
 
     def test_link_mandate_to_entity(self):
         self.assertEqual(
