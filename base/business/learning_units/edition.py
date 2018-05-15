@@ -50,7 +50,7 @@ from cms.models import translated_text
 FIELDS_TO_EXCLUDE_WITH_REPORT = ("is_vacant", "type_declaration_vacant", "attribution_procedure")
 
 
-#TODO :: Use LearningUnitPostponementForm to extend/shorten a LearningUnit and remove all this code
+# TODO :: Use LearningUnitPostponementForm to extend/shorten a LearningUnit and remove all this code
 def edit_learning_unit_end_date(learning_unit_to_edit, new_academic_year, propagate_end_date_to_luy=True):
     result = []
     new_end_year = _get_new_end_year(new_academic_year)
@@ -71,7 +71,7 @@ def _update_learning_unit_year_end_date(learning_unit_to_edit, new_academic_year
     return []
 
 
-#TODO :: Use LearningUnitPostponementForm to extend/shorten a LearningUnit and remove all this code
+# TODO :: Use LearningUnitPostponementForm to extend/shorten a LearningUnit and remove all this code
 def shorten_learning_unit(learning_unit_to_edit, new_academic_year):
     _check_shorten_partims(learning_unit_to_edit, new_academic_year)
 
@@ -92,7 +92,7 @@ def shorten_learning_unit(learning_unit_to_edit, new_academic_year):
     return result
 
 
-#TODO :: Use LearningUnitPostponementForm to extend/shorten a LearningUnit and remove all this code
+# TODO :: Use LearningUnitPostponementForm to extend/shorten a LearningUnit and remove all this code
 def extend_learning_unit(learning_unit_to_edit, new_academic_year):
     result = []
     last_learning_unit_year = LearningUnitYear.objects.filter(learning_unit=learning_unit_to_edit
@@ -270,7 +270,7 @@ def filter_biennial(queryset, periodicity):
     return result
 
 
-#TODO :: Use LearningUnitPostponementForm to extend/shorten a LearningUnit and remove all this code
+# TODO :: Use LearningUnitPostponementForm to extend/shorten a LearningUnit and remove all this code
 def update_learning_unit_year_with_report(luy_to_update, fields_to_update, entities_by_type_to_update, **kwargs):
     with_report = kwargs.get('with_report', True)
     override_postponement_consistency = kwargs.get('override_postponement_consistency', False)
@@ -294,7 +294,7 @@ def update_learning_unit_year_with_report(luy_to_update, fields_to_update, entit
     check_postponement_conflict_report_errors(conflict_report)
 
 
-#TODO :: Use LearningUnitPostponementForm to extend/shorten a LearningUnit and remove all this code
+# TODO :: Use LearningUnitPostponementForm to extend/shorten a LearningUnit and remove all this code
 def get_postponement_conflict_report(luy_start, override_postponement_consistency=False):
     """
     This function will return a list of learning unit year (luy_without_conflict) ( > luy_start)
@@ -310,7 +310,7 @@ def get_postponement_conflict_report(luy_start, override_postponement_consistenc
     return result
 
 
-#TODO :: Use LearningUnitPostponementForm to extend/shorten a LearningUnit and remove all this code
+# TODO :: Use LearningUnitPostponementForm to extend/shorten a LearningUnit and remove all this code
 def check_postponement_conflict_report_errors(conflict_report):
     if conflict_report.get('errors'):
         last_instance_updated = conflict_report.get('luy_without_conflict', [])[-1]
