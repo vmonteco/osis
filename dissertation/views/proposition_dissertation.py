@@ -38,6 +38,7 @@ from openpyxl import Workbook
 from django.contrib.auth.decorators import user_passes_test
 from base.views import layout
 import time
+
 from django.http import HttpResponse
 
 
@@ -256,7 +257,7 @@ def manager_proposition_dissertations_search(request):
         worksheet1 = workbook.active
         worksheet1.title = "proposition_dissertation"
         worksheet1.append(['Date_de_création', 'Teacher', 'Title',
-                           'Type', 'Level', 'Collaboration', 'Max_number_student', 'Visibility',
+                           'Type', 'Level', 'Collaboration', 'Places', 'Visibility',
                            'Active', 'Programme(s)', 'Description'])
         types_choices = dict(PropositionDissertation.TYPES_CHOICES)
         levels_choices = dict(PropositionDissertation.LEVELS_CHOICES)
@@ -271,7 +272,7 @@ def manager_proposition_dissertations_search(request):
                                str(types_choices[proposition.type]),
                                str(levels_choices[proposition.level]),
                                str(collaboration_choices[proposition.collaboration]),
-                               proposition.max_number_student,
+                               str(proposition.get_count_use())+'/'+str(proposition.max_number_student),
                                proposition.visibility,
                                proposition.active,
                                offers,
