@@ -48,7 +48,7 @@ from base.business.learning_units import perms as business_perms
 from base.business.learning_units.perms import learning_unit_year_permissions, learning_unit_proposal_permissions, \
     can_update_learning_achievement
 from base.forms.learning_class import LearningClassEditForm
-from base.forms.learning_unit.learning_unit_create_2 import FullForm, ExternalForm, LearningUnitExternalBaseForm
+from base.forms.learning_unit.learning_unit_create_2 import FullForm, ExternalForm, LearningUnitExternalForm
 from base.forms.learning_unit_component import LearningUnitComponentEditForm
 from base.forms.learning_unit_pedagogy import LearningUnitPedagogyEditForm
 from base.forms.learning_unit_specifications import LearningUnitSpecificationsForm, LearningUnitSpecificationsEditForm
@@ -64,7 +64,6 @@ from osis_common.decorators.ajax import ajax_required
 from base.views import layout
 from base.forms.learning_unit.learning_unit_create_2 import CreationExternalBaseForm
 from base.models.enums.learning_container_year_types import EXTERNAL
-from base.forms.learning_unit.learning_unit_external import LearningUnitExternalForm
 
 @login_required
 @permission_required('base.can_propose_learningunit', raise_exception=True)
@@ -91,16 +90,11 @@ def get_external_learning_unit_creation_form(request, academic_year):
         # learning_unit_form_container = LearningUnitExternalBaseForm()
 
 
-
-        postponement_form = LearningUnitExternalForm(
-            person=person,
-            start_postponement=academic_year,
-            data=request.POST or None
-        )
+        postponement_form = LearningUnitExternalForm(person, get_object_or_404(AcademicYear, pk=academic_year.id))
 
 
 
-        return layout.render(request, "learning_unit/simple/creation_external.html", learning_unit_form_container.get_context())
+        return layout.render(request, "learning_unit/simple/creation_external.html", postponement_form.get_context())
 
 
 

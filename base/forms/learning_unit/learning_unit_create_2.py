@@ -29,6 +29,7 @@ from collections import OrderedDict
 from django.db import transaction
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
+from django import forms
 
 from base.business.utils.model import merge_two_dicts
 from base.forms.learning_unit.learning_unit_create import LearningUnitModelForm, LearningUnitYearModelForm, \
@@ -72,16 +73,7 @@ class LearningUnitBaseForm(metaclass=ABCMeta):
     _warnings = None
 
     def __init__(self, instances_data, *args, **kwargs):
-        print('_init')
-
-        self.forms = OrderedDict({
-            LearningContainerModelForm: LearningContainerModelForm(*args, **instances_data[LearningContainerModelForm]),
-            LearningContainerYearModelForm: LearningContainerYearModelForm(*args, **instances_data[
-                LearningContainerYearModelForm]),
-            LearningUnitModelForm: LearningUnitModelForm(*args, **instances_data[LearningUnitModelForm]),
-            LearningUnitYearModelForm: LearningUnitYearModelForm(*args, **instances_data[LearningUnitYearModelForm]),
-            EntityContainerBaseForm: EntityContainerBaseForm(*args, **instances_data[EntityContainerBaseForm])
-        })
+        self.forms = OrderedDict({cls: cls(*args, **instances_data[cls]) for cls in self.form_cls_to_validate})
 
     def is_valid(self):
         if any([not form_instance.is_valid() for cls, form_instance in self.forms.items()
@@ -487,56 +479,83 @@ class ExternalForm(LearningUnitBaseForm):
 
 
 
-
-class LearningUnitExternalBaseForm(metaclass=ABCMeta):
-    form_cls_to_validate = [
-        LearningUnitModelForm,
-        LearningUnitYearModelForm,
-        LearningContainerModelForm,
-        LearningContainerYearModelForm
-    ]
-
-    forms = OrderedDict()
-
-
-
-    academic_year = None
-
-
-    def __init__(self, instances_data, *args, **kwargs):
-        print('_init')
-
-        self.forms = OrderedDict({
-            LearningContainerModelForm: LearningContainerModelForm(*args, **instances_data[LearningContainerModelForm]),
-            LearningContainerYearModelForm: LearningContainerYearModelForm(*args, **instances_data[
-                LearningContainerYearModelForm]),
-            LearningUnitModelForm: LearningUnitModelForm(*args, **instances_data[LearningUnitModelForm]),
-            LearningUnitYearModelForm: LearningUnitYearModelForm(*args, **instances_data[LearningUnitYearModelForm]),
-
-        })
-
-    @property
-    def learning_unit_form(self):
-        return self.forms[LearningUnitModelForm]
-
-    @property
-    def learning_unit_year_form(self):
-        return self.forms[LearningUnitYearModelForm]
-
-    @property
-    def learning_container_year_form(self):
-        return self.forms[LearningContainerYearModelForm]
-
-
-
-
 class LearningUnitExternalModelForm(forms.ModelForm):
 
     class Meta:
         model = ExternalLearningUnitYear
-        fields = ('acronym', 'credits', 'url', 'learning_unit_year')
+        fields = ('acronym', 'credits', 'url', 'learning_unit_year', 'entity')
 
-        widgets = {
-            'faculty_remark': forms.Textarea(attrs={'rows': '5'}),
-            'other_remark': forms.Textarea(attrs={'rows': '5'})
+
+class LearningUnitExternalForm(LearningUnitBaseForm):
+    forms = OrderedDict()
+    academic_year = None
+
+
+    def __init__(self, person, instances_data=None, academic_year=None, *args, **kwargs):
+        print('_init')
+        self.form_cls_to_validate = [
+            LearningUnitModelForm,
+            LearningUnitYearModelForm,
+            LearningContainerModelForm,
+            LearningContainerYearModelForm,
+            LearningUnitExternalModelForm
+        ]
+        self.academic_year = academic_year
+        self.person = person
+
+        instances_data = self._build_instance_data(None, academic_year, None)
+        super().__init__(instances_data, *args, **kwargs)
+        # self.forms = OrderedDict({
+        #     LearningContainerModelForm: LearningContainerModelForm(),
+        #     LearningContainerYearModelForm: LearningContainerYearModelForm(*args, **instances_data[
+        #         LearningContainerYearModelForm]),
+        #     LearningUnitModelForm: LearningUnitModelForm(*args, **instances_data[LearningUnitModelForm]),
+        #     LearningUnitYearModelForm: LearningUnitYearModelForm(*args, **instances_data[LearningUnitYearModelForm]),
+        #     LearningUnitExternalModelForm : LearningUnitExternalForm()
+        #
+        # })
+
+    def _build_instance_data(self, data, default_ac_year, proposal):
+        return {
+            LearningUnitModelForm: {
+                'data': data,
+                'instance': self.instance.learning_unit if self.instance else None,
+            },
+            LearningContainerModelForm: {
+                'data': data,
+                'instance': self.instance.learning_container_year.learning_container if self.instance else None,
+            },
+            LearningUnitYearModelForm: self._build_instance_data_learning_unit_year(data, default_ac_year),
+            LearningContainerYearModelForm: self._build_instance_data_learning_container_year(data, proposal),
+            LearningUnitExternalModelForm: {}
+        }
+
+    def _build_instance_data_learning_unit_year(self, data, inherit_luy_values):
+        return {
+            'data': merge_data(data, inherit_luy_values),
+            'instance': self.instance,
+            'initial': None,
+            'person': self.person,
+            'subtype': self.subtype
+        }
+
+    def _build_instance_data_learning_unit(self, data, inherit_lu_values):
+        return {
+            'data': merge_data(data, inherit_lu_values),
+            'instance': None,
+            'initial': inherit_lu_values if not self.instance else None,
+        }
+
+    def _build_instance_data_learning_container_year(self, data, proposal):
+        return {
+            'data': data,
+            'instance': self.instance.learning_container_year if self.instance else None,
+            'proposal': proposal,
+            'initial': {
+                # Default campus selected 'Louvain-la-Neuve' if exist
+                'campus': Campus.objects.filter(name='Louvain-la-Neuve').first(),
+                # Default language French
+                'language': language.find_by_code('FR')
+            } if not self.instance else None,
+            'person': self.person
         }
