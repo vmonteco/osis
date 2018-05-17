@@ -39,6 +39,9 @@ from base.models.campus import Campus
 from base.models.enums import learning_unit_year_subtypes
 from base.models.learning_unit import LearningUnit
 from reference.models import language
+from base.models.enums import learning_container_year_types
+from base.models.external_learning_unit_year import ExternalLearningUnitYear
+
 
 FULL_READ_ONLY_FIELDS = {"acronym", "academic_year", "container_type"}
 FULL_PROPOSAL_READ_ONLY_FIELDS = {"academic_year", "container_type"}
@@ -69,6 +72,8 @@ class LearningUnitBaseForm(metaclass=ABCMeta):
     _warnings = None
 
     def __init__(self, instances_data, *args, **kwargs):
+        print('_init')
+
         self.forms = OrderedDict({
             LearningContainerModelForm: LearningContainerModelForm(*args, **instances_data[LearningContainerModelForm]),
             LearningContainerYearModelForm: LearningContainerYearModelForm(*args, **instances_data[
@@ -434,3 +439,104 @@ class PartimForm(LearningUnitBaseForm):
 
     def _get_entity_container_year(self):
         return self.learning_unit_year_full.learning_container_year.entitycontaineryear_set.all()
+
+
+class CreationExternalBaseForm(LearningUnitBaseForm):
+
+    subtype = learning_unit_year_subtypes.FULL
+    container_type = learning_container_year_types.EXTERNAL
+
+    def __init__(self, data, person, default_ac_year=None):
+        print('init CreationExternalBaseForm')
+        instances_data = self._build_instance_data({}, current_academic_year(), None)
+        super().__init__(instances_data, *args, **kwargs)
+
+        # super().__init__(data, person, default_ac_year=default_ac_year)
+
+        # if not default_ac_year:
+        #     default_ac_year = current_academic_year()
+
+
+
+
+    def _create(self, commit, postponement):
+        academic_year = self.academic_year
+        return None
+
+    def get_context(self):
+        return {
+            'subtype': self.subtype,
+            'learning_unit_form': self.learning_unit_form,
+            'learning_unit_year_form': self.learning_unit_year_form,
+            'learning_container_year_form': self.learning_container_year_form,
+            'entity_container_form': self.entity_container_form
+        }
+
+
+
+
+class ExternalForm(LearningUnitBaseForm):
+
+
+
+    def __init__(self, data, person, default_ac_year=None, container_type=None, instance=None, proposal=False, *args, **kwargs):
+        print('__init__')
+        super().__init__(self, data,person,default_ac_year,container_type,instance,proposal, *args, **kwargs)
+        if container_type:
+            self.fields['campus'].queryset = Campus.objects.all().order_by('name')
+
+
+
+
+class LearningUnitExternalBaseForm(metaclass=ABCMeta):
+    form_cls_to_validate = [
+        LearningUnitModelForm,
+        LearningUnitYearModelForm,
+        LearningContainerModelForm,
+        LearningContainerYearModelForm
+    ]
+
+    forms = OrderedDict()
+
+
+
+    academic_year = None
+
+
+    def __init__(self, instances_data, *args, **kwargs):
+        print('_init')
+
+        self.forms = OrderedDict({
+            LearningContainerModelForm: LearningContainerModelForm(*args, **instances_data[LearningContainerModelForm]),
+            LearningContainerYearModelForm: LearningContainerYearModelForm(*args, **instances_data[
+                LearningContainerYearModelForm]),
+            LearningUnitModelForm: LearningUnitModelForm(*args, **instances_data[LearningUnitModelForm]),
+            LearningUnitYearModelForm: LearningUnitYearModelForm(*args, **instances_data[LearningUnitYearModelForm]),
+
+        })
+
+    @property
+    def learning_unit_form(self):
+        return self.forms[LearningUnitModelForm]
+
+    @property
+    def learning_unit_year_form(self):
+        return self.forms[LearningUnitYearModelForm]
+
+    @property
+    def learning_container_year_form(self):
+        return self.forms[LearningContainerYearModelForm]
+
+
+
+
+class LearningUnitExternalModelForm(forms.ModelForm):
+
+    class Meta:
+        model = ExternalLearningUnitYear
+        fields = ('acronym', 'credits', 'url', 'learning_unit_year')
+
+        widgets = {
+            'faculty_remark': forms.Textarea(attrs={'rows': '5'}),
+            'other_remark': forms.Textarea(attrs={'rows': '5'})
+        }
