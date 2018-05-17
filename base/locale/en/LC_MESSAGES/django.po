@@ -2856,9 +2856,6 @@ msgstr "Borrowed courses - search"
 msgid "add_another"
 msgstr "Add another"
 
-msgid "The linked entity does not exist at the start date of the academic year linked to this learning unit"
-msgstr ""
-
 msgid "There is at least one partim active, so the parent must be active"
 msgstr ""
 
@@ -2889,8 +2886,17 @@ msgstr "Proposals date"
 msgid "search_type"
 msgstr "Search type"
 
+msgid "The linked entity does not exist at the start date of the academic year linked to this learning unit"
+msgstr ""
+
 msgid "COURSE_ENROLLMENT"
 msgstr "Course enrollment"
+
+msgid "missing_internship_subtype"
+msgstr "It is necessary to indicate the internship subtype"
+
+msgid "different_status_with_parent"
+msgstr "The learning unit's parent is inactive"
 
 msgid "new_external_learning_unit"
 msgstr "Create a new external learning unit"
@@ -2900,3 +2906,4 @@ msgstr "External"
 
 msgid "comment_title"
 msgstr "Comment"
+

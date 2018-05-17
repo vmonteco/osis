@@ -23,10 +23,9 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import datetime
-from collections import defaultdict
 
 import itertools
+
 from django import forms
 from django.core.exceptions import ValidationError
 from django.db.models import OuterRef, Subquery
@@ -44,7 +43,6 @@ from base.models.entity_container_year import EntityContainerYear
 from base.models.entity_version import EntityVersion, build_current_entity_version_structure_in_memory
 from base.models.enums import entity_container_year_link_type, learning_container_year_types, \
     learning_unit_year_subtypes, active_status, entity_type
-from base.models.group_element_year import GroupElementYear
 from base.models.learning_unit_year import convert_status_bool
 from base.models.offer_year_entity import OfferYearEntity
 
@@ -203,8 +201,8 @@ class LearningUnitYearForm(SearchForm):
 
     def _filter_borrowed_learning_units(self, learning_units):
         try:
-            faculty_borrowing_id = EntityVersion.objects.get(
-                acronym=self.cleaned_data["faculty_borrowing_acronym"]).entity.id
+            faculty_borrowing_id = EntityVersion.objects.current(self.cleaned_data["academic_year_id"].start_date).\
+                get(acronym=self.cleaned_data["faculty_borrowing_acronym"]).entity.id
         except EntityVersion.DoesNotExist:
             faculty_borrowing_id = None
         return filter_is_borrowed_learning_unit_year(learning_units, self.cleaned_data["academic_year_id"].start_date,
@@ -248,6 +246,23 @@ def get_filter_learning_container_ids(filter_data):
     return entities_id_list if entities_id_list else None
 
 
+def filter_is_borrowed_learning_unit_year(learning_unit_year_qs, date, faculty_borrowing=None):
+    entities = build_current_entity_version_structure_in_memory(date)
+    entities_borrowing_allowed = []
+    if faculty_borrowing in entities:
+        entities_borrowing_allowed.extend(entities[faculty_borrowing]["all_children"])
+        entities_borrowing_allowed.append(entities[faculty_borrowing]["entity_version"])
+        entities_borrowing_allowed = [entity_version.entity.id for entity_version in entities_borrowing_allowed]
+    entities_faculty = compute_faculty_for_entities(entities)
+    map_luy_entity = map_learning_unit_year_with_requirement_entity(learning_unit_year_qs)
+    map_luy_education_group_entities = \
+        map_learning_unit_year_with_entities_of_education_groups(learning_unit_year_qs)
+
+    return filter(lambda luy: __is_borrowed_learning_unit(luy, entities_faculty, map_luy_entity,
+                                                          map_luy_education_group_entities, entities_borrowing_allowed),
+                  learning_unit_year_qs)
+
+
 def compute_faculty_for_entities(entities):
     return {entity_id: __search_faculty_for_entity(entity_id, entities) for entity_id in entities.keys()}
 
@@ -287,23 +302,6 @@ def map_learning_unit_year_with_entities_of_education_groups(learning_unit_year_
         dict_education_group_year_entities_for_learning_unit_year[luy_id] = \
             [dict_entity_of_education_group.get(formation_id) for formation_id in formations_ids]
     return dict_education_group_year_entities_for_learning_unit_year
-
-
-def filter_is_borrowed_learning_unit_year(learning_unit_year_qs, date, faculty_borrowing=None):
-    entities = build_current_entity_version_structure_in_memory(date)
-    entities_borrowing_allowed = []
-    if faculty_borrowing in entities:
-        entities_borrowing_allowed.extend(entities[faculty_borrowing]["all_children"])
-        entities_borrowing_allowed.append(entities[faculty_borrowing]["entity_version"])
-        entities_borrowing_allowed = [entity_version.entity.id for entity_version in entities_borrowing_allowed]
-    entities_faculty = compute_faculty_for_entities(entities)
-    map_luy_entity = map_learning_unit_year_with_requirement_entity(learning_unit_year_qs)
-    map_luy_education_group_entities = \
-        map_learning_unit_year_with_entities_of_education_groups(learning_unit_year_qs)
-
-    return filter(lambda luy: __is_borrowed_learning_unit(luy, entities_faculty, map_luy_entity,
-                                                          map_luy_education_group_entities, entities_borrowing_allowed),
-                  learning_unit_year_qs)
 
 
 def __is_borrowed_learning_unit(luy, map_entity_faculty, map_luy_entity, map_luy_education_group_entities,
