@@ -33,6 +33,7 @@ from openpyxl.writer.excel import save_virtual_workbook
 from base.models.enums import entity_type
 from base.models import academic_year, entity, person
 from base.views import layout
+from assistant.utils import manager_access
 from assistant.utils.send_email import send_message
 from assistant.forms import MandateForm, entity_inline_formset
 from assistant import models as assistant_mdl
@@ -40,15 +41,7 @@ from assistant.models import assistant_mandate, review
 from assistant.models.enums import reviewer_role, assistant_mandate_state
 
 
-def user_is_manager(user):
-    try:
-        if user.is_authenticated():
-            return assistant_mdl.manager.Manager.objects.get(person=user.person)
-    except ObjectDoesNotExist:
-        return False
-    
-
-@user_passes_test(user_is_manager, login_url='assistants_home')
+@user_passes_test(manager_access.user_is_manager, login_url='assistants_home')
 def mandate_edit(request):
     mandate_id = request.POST.get("mandate_id")
     mandate = assistant_mdl.assistant_mandate.find_mandate_by_id(mandate_id)
@@ -67,7 +60,7 @@ def mandate_edit(request):
                                                         'supervisor': supervisor})
 
 
-@user_passes_test(user_is_manager, login_url='access_denied')
+@user_passes_test(manager_access.user_is_manager, login_url='access_denied')
 def mandate_save(request):
     mandate_id = request.POST.get("mandate_id")
     mandate = assistant_mdl.assistant_mandate.find_mandate_by_id(mandate_id)
@@ -99,12 +92,12 @@ def mandate_save(request):
         return layout.render(request, "mandate_form.html", {'mandate': mandate, 'form': form, 'formset': formset})
 
 
-@user_passes_test(user_is_manager, login_url='access_denied')
+@user_passes_test(manager_access.user_is_manager, login_url='access_denied')
 def load_mandates(request):
     return layout.render(request, "load_mandates.html", {})
 
 
-@user_passes_test(user_is_manager, login_url='access_denied')
+@user_passes_test(manager_access.user_is_manager, login_url='access_denied')
 def export_mandates(request):
     xls = generate_xls()
     filename = 'assistants_mandates_{}.xlsx'.format(time.strftime("%Y%m%d_%H%M"))
@@ -121,6 +114,7 @@ def generate_xls():
                       _(entity_type.FACULTY),
                       _(entity_type.LOGISTICS_ENTITY),
                       _(entity_type.INSTITUTE),
+                      ("FGS"),
                       _("matricule"),
                       _("name"),
                       _("firstname"),
@@ -132,6 +126,7 @@ def generate_xls():
                       _("fulltime_equivalent"),
                       _("contract_duration_fte"),
                       _("contract_duration"),
+                      _("entry_date_contract"),
                       _("end_date"),
                       _("comment"),
                       _("absences"),
@@ -150,6 +145,7 @@ def generate_xls():
 def construct_line(mandate):
     line = get_entities_for_mandate(mandate)
     line += [
+        mandate.assistant.person.global_id,
         mandate.sap_id,
         str(mandate.assistant.person.last_name),
         str(mandate.assistant.person.first_name),
@@ -165,6 +161,7 @@ def construct_line(mandate):
         mandate.fulltime_equivalent,
         mandate.contract_duration_fte,
         mandate.contract_duration,
+        mandate.entry_date,
         mandate.end_date,
         mandate.comment,
         mandate.absences if mandate.absences != 'None' else '',
@@ -194,9 +191,11 @@ def get_entities_for_mandate(mandate):
 def get_reviews(mandate):
     reviews_details = []
     vrs_review = review.find_review_for_mandate_by_role(mandate.id, reviewer_role.VICE_RECTOR)
+    print(vrs_review)
     if vrs_review:
         reviews_details += [_(vrs_review.advice)] if vrs_review.advice is not None else ['']
         reviews_details += [vrs_review.justification] if vrs_review.justification is not None else ['']
         reviews_details += [vrs_review.remark] if vrs_review.remark is not None else ['']
         reviews_details += [vrs_review.confidential] if vrs_review.confidential is not None else ['']
+    print(reviews_details)
     return reviews_details

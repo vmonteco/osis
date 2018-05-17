@@ -86,7 +86,7 @@ class ReviewersManagementViewTestCase(TestCase):
                                                          year=today.year)
 
     def test_reviewers_index(self):
-        response = self.client.post('/assistants/manager/reviewers/')
+        response = self.client.get('/assistants/manager/reviewers/')
         self.assertEqual(response.status_code, HTTP_OK)
 
     def test_reviewer_action(self):
