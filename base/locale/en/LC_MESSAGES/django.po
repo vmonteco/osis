@@ -2891,3 +2891,12 @@ msgstr "Search type"
 
 msgid "COURSE_ENROLLMENT"
 msgstr "Course enrollment"
+
+msgid "new_external_learning_unit"
+msgstr "Create a new external learning unit"
+
+msgid "external"
+msgstr "External"
+
+msgid "comment_title"
+msgstr "Comment"

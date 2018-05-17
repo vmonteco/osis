@@ -2897,3 +2897,12 @@ msgstr "Type de recherche"
 
 msgid "COURSE_ENROLLMENT"
 msgstr "Inscription aux cours"
+
+msgid "new_external_learning_unit"
+msgstr "Nouvelle UE externe"
+
+msgid "external"
+msgstr "Externe"
+
+msgid "comment_title"
+msgstr "Commentaire"

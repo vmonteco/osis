@@ -40,6 +40,10 @@ from base.models.campus import Campus
 from base.models.enums import learning_unit_year_subtypes
 from base.models.learning_unit_year import LearningUnitYear
 from reference.models import language
+from base.models.academic_year import current_academic_year
+from base.models.enums import learning_container_year_types
+from base.models.campus import find_main_campuses
+
 
 FULL_READ_ONLY_FIELDS = {"acronym", "academic_year", "container_type"}
 FULL_PROPOSAL_READ_ONLY_FIELDS = {"academic_year", "container_type"}
@@ -72,8 +76,9 @@ class LearningUnitBaseForm(metaclass=ABCMeta):
     _warnings = None
 
     def __init__(self, instances_data, *args, **kwargs):
-        for form_class in self.form_classes:
-            self.forms[form_class] = form_class(*args, **instances_data[form_class])
+        if instances_data:
+            for form_class in self.form_classes:
+                self.forms[form_class] = form_class(*args, **instances_data[form_class])
 
     def _is_update_action(self):
         return self.instance
@@ -215,7 +220,7 @@ class FullForm(LearningUnitBaseForm):
 
     subtype = learning_unit_year_subtypes.FULL
 
-    def __init__(self, data, person, default_ac_year=None, instance=None, proposal=False, *args, **kwargs):
+    def __init__(self, data, person, default_ac_year=None, container_type=None, instance=None, proposal=False, *args, **kwargs):
         check_learning_unit_year_instance(instance)
         self.instance = instance
         self.person = person
@@ -224,11 +229,18 @@ class FullForm(LearningUnitBaseForm):
         self.postponement = bool(int(data.get('postponement', 1))) if data else False
 
         self.academic_year = instance.academic_year if instance else default_ac_year
-        instances_data = self._build_instance_data(data, default_ac_year, instance, proposal)
+        self.container_type = container_type
+
+        instances_data = self._build_instance_data(data, default_ac_year, instance, proposal, container_type)
         super().__init__(instances_data, *args, **kwargs)
 
         if self._is_update_action():
             self._disable_fields()
+
+        if container_type:
+            self.fields['campus'].queryset = Campus.objects.all().order_by('name')
+            self.fields['campus'].label = _('institution')
+            self.fields['faculty_remark'].label = _('comment')
 
     def _disable_fields(self):
         if self.person.is_faculty_manager():
@@ -248,7 +260,7 @@ class FullForm(LearningUnitBaseForm):
         else:
             self.disable_fields(FULL_READ_ONLY_FIELDS)
 
-    def _build_instance_data(self, data, default_ac_year, instance, proposal):
+    def _build_instance_data(self, data, default_ac_year, instance, proposal, container_type):
         return{
             LearningUnitModelForm: {
                 'data': data,
@@ -259,7 +271,7 @@ class FullForm(LearningUnitBaseForm):
                 'instance': instance.learning_container_year.learning_container if instance else None,
             },
             LearningUnitYearModelForm: self._build_instance_data_learning_unit_year(data, default_ac_year, instance),
-            LearningContainerYearModelForm: self._build_instance_data_learning_container_year(data, instance, proposal),
+            LearningContainerYearModelForm: self._build_instance_data_learning_container_year(data, instance, proposal, container_type),
             EntityContainerFormset: {
                 'data': data,
                 'instance': instance.learning_container_year if instance else None,
@@ -267,16 +279,22 @@ class FullForm(LearningUnitBaseForm):
             }
         }
 
-    def _build_instance_data_learning_container_year(self, data, instance, proposal):
+    def _build_instance_data_learning_container_year(self, data, instance, proposal, container_type):
+        if container_type:
+            # External
+            campus = None
+        else:
+            campus = Campus.objects.filter(name='Louvain-la-Neuve').first()
         return {
             'data': data,
             'instance': instance.learning_container_year if instance else None,
             'proposal': proposal,
             'initial': {
                 # Default campus selected 'Louvain-la-Neuve' if exist
-                'campus': Campus.objects.filter(name='Louvain-la-Neuve').first(),
+                'campus': campus,
                 # Default language French
-                'language': language.find_by_code('FR')
+                'language': language.find_by_code('FR'),
+                'container_type': container_type,
             } if not instance else None,
             'person': self.person
         }
@@ -362,6 +380,7 @@ class PartimForm(LearningUnitBaseForm):
         self.disable_fields(self._get_fields_to_disabled())
 
     def _build_instance_data(self, data, inherit_lu_values, inherit_luy_values):
+        print('_build_instance_data')
         return {
             LearningUnitModelForm: self._build_instance_data_learning_unit(data, inherit_lu_values),
             LearningUnitYearModelForm: self._build_instance_data_learning_unit_year(data, inherit_luy_values),
@@ -457,3 +476,44 @@ class PartimForm(LearningUnitBaseForm):
 
     def _get_entity_container_year(self):
         return self.learning_unit_year_full.learning_container_year.entitycontaineryear_set.all()
+
+
+# class ExternalForm(LearningUnitBaseForm):
+#
+#
+#     def __init__(self, person, *args, **kwargs):
+#         self.person = person
+#         instances_data = None
+#         super().__init__( instances_data, *args, **kwargs)
+#
+#
+#     def _create(self, commit, postponement):
+#         pass
+
+
+class CreationExternalBaseForm(LearningUnitBaseForm):
+
+    subtype = learning_unit_year_subtypes.FULL
+    container_type = learning_container_year_types.EXTERNAL
+
+    def __init__(self, data, person, default_ac_year=None):
+        print('init')
+        if not default_ac_year:
+            default_ac_year = current_academic_year()
+
+        super().__init__(data, person, default_ac_year=default_ac_year)
+
+
+    def _create(self, commit, postponement):
+        academic_year = self.academic_year
+        return None
+
+
+class ExternalForm(FullForm):
+
+
+
+    def __init__(self, data, person, default_ac_year=None, container_type=None, instance=None, proposal=False, *args, **kwargs):
+        super().__init__(self, data,person,default_ac_year,container_type,instance,proposal, *args, **kwargs)
+        if container_type:
+            self.fields['campus'].queryset = Campus.objects.all().order_by('name')

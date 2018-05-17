@@ -36,6 +36,7 @@ import base.views.learning_units.update
 from attribution.views import attribution, tutor_application
 from base.views import learning_unit, offer, common, institution, organization, academic_calendar, \
     my_osis, entity, student, education_group
+from base.views.learning_units.external import create as create_external
 from base.views.learning_units.proposal import create, update
 from base.views.learning_units.update import update_learning_unit, learning_unit_edition_end_date
 from base.views import learning_achievement
@@ -103,7 +104,13 @@ urlpatterns = [
             url(r'^proposal/academic_year_id=(?P<academic_year>[0-9]+)$',
                 create.get_proposal_learning_unit_creation_form,
                 name="proposal_learning_unit_creation_form"),
+            url(r'^external/academic_year_id=(?P<academic_year>[0-9]+)$',
+                create_external.get_external_learning_unit_creation_form,
+                name="learning_unit_create_external"),
         ])),
+        # url(r'^external/', include([
+        #     url(r'^new/$', external.create_external_form, name="learning_unit_create_external"),
+        # ])),
         url(r'^(?P<learning_unit_year_id>[0-9]+)/', include([
             url(r'^$', learning_unit.learning_unit_identification, name='learning_unit'),
             url(r'^formations/$', learning_unit.learning_unit_formations, name="learning_unit_formations"),
