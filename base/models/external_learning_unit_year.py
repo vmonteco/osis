@@ -34,9 +34,9 @@ from base.models.learning_unit_year import MINIMUM_CREDITS, MAXIMUM_CREDITS
 
 
 class ExternalLearningUnitYearAdmin(SerializableModelAdmin):
-    list_display = ('external_id', 'acronym', 'credits', 'url', 'learning_unit_year')
-    fieldsets = ((None, {'fields': ('acronym', 'credits', 'url', 'learning_unit_year')}),)
-    raw_id_fields = ('learning_unit_year', )
+    list_display = ('external_id', 'acronym', 'credits', 'url', 'learning_unit_year', 'entity')
+    fieldsets = ((None, {'fields': ('acronym', 'credits', 'url', 'learning_unit_year', 'entity')}),)
+    raw_id_fields = ('learning_unit_year', 'entity')
     search_fields = ['acronym', 'learning_unit_year__acronym']
 
 
@@ -49,6 +49,7 @@ class ExternalLearningUnitYear(SerializableModel):
                                   validators=[MinValueValidator(MINIMUM_CREDITS), MaxValueValidator(MAXIMUM_CREDITS)])
     url = models.URLField(max_length=255)
     learning_unit_year = models.OneToOneField('LearningUnitYear')
+    entity = models.ForeignKey('Entity', blank=True, null=True)
 
     class Meta:
         unique_together = ('learning_unit_year', 'acronym',)

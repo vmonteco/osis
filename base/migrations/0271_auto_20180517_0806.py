@@ -26,6 +26,7 @@ class Migration(migrations.Migration):
                 ('credits', models.DecimalField(decimal_places=2, max_digits=5, validators=[django.core.validators.MinValueValidator(0.0), django.core.validators.MaxValueValidator(500)])),
                 ('url', models.URLField(max_length=255)),
                 ('learning_unit_year', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='base.LearningUnitYear')),
+                ('entity', ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='base.Entity')),
             ],
         ),
         migrations.AlterUniqueTogether(
