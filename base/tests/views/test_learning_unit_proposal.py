@@ -158,14 +158,10 @@ class TestLearningUnitModificationProposal(TestCase):
             "entity": self.entity_version.id,
             "folder_id": "1",
             "state": proposal_state.ProposalState.FACULTY.name,
-            'entitycontaineryear_set-0-entity': self.entity_version.id,
-            'entitycontaineryear_set-1-entity': self.entity_version.id,
-            'entitycontaineryear_set-2-entity': self.entity_version.id,
-            'entitycontaineryear_set-3-entity': self.entity_version.id,
-            'entitycontaineryear_set-INITIAL_FORMS': '0',
-            'entitycontaineryear_set-MAX_NUM_FORMS': '4',
-            'entitycontaineryear_set-MIN_NUM_FORMS': '3',
-            'entitycontaineryear_set-TOTAL_FORMS': '4',
+            'requirement_entity-entity': self.entity_version.id,
+            'allocation_entity-entity': self.entity_version.id,
+            'additional_requirement_entity_1-entity': self.entity_version.id,
+            'additional_requirement_entity_2-entity': self.entity_version.id,
         }
 
     def test_user_not_logged(self):
@@ -797,7 +793,7 @@ class TestEditProposal(TestCase):
         self.entity = EntityFactory(organization=self.organization)
         self.entity_version = EntityVersionFactory(entity=self.entity, entity_type=entity_type.SCHOOL,
                                                    start_date=today.replace(year=1900),
-                                                   end_date=today.replace(year=today.year + 1))
+                                                   end_date=None)
 
         self.generated_container = GenerateContainer(start_year, end_year)
         self.generated_container_first_year = self.generated_container.generated_container_years[0]
@@ -869,13 +865,9 @@ class TestEditProposal(TestCase):
             "periodicity": learning_unit_periodicity.ANNUAL,
             "entity": self.entity_version.id,
             "folder_id": 1,
-            'entitycontaineryear_set-0-entity': self.entity_version.id,
-            'entitycontaineryear_set-1-entity': self.entity_version.id,
-            'entitycontaineryear_set-2-entity': '',
-            'entitycontaineryear_set-INITIAL_FORMS': '0',
-            'entitycontaineryear_set-MAX_NUM_FORMS': '4',
-            'entitycontaineryear_set-MIN_NUM_FORMS': '3',
-            'entitycontaineryear_set-TOTAL_FORMS': '4',
+            'requirement_entity-entity': self.entity_version.id,
+            'allocation_entity-entity': self.entity_version.id,
+            'additional_requirement_entity_1-entity': '',
         }
 
     def get_modify_data(self):
@@ -1018,7 +1010,7 @@ class TestLearningUnitProposalDisplay(TestCase):
         }}
         proposal.learning_unit_year.credits = self.learning_unit_yr.credits
 
-        differences = proposal_business.get_difference_of_proposal(proposal)
+        differences = proposal_business.get_difference_of_proposal(proposal.initial_data, proposal.learning_unit_year)
 
         self.assertEqual(differences.get('credits'), self.initial_credits)
 
