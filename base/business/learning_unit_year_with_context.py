@@ -117,7 +117,7 @@ def _append_components(learning_unit):
             volume_global = vol_req_entity + vol_add_req_entity_1 + vol_add_req_entity_2
             volume_partial_component = float(component.hourly_volume_partial) if component.hourly_volume_partial else 0
             planned_classes = component.planned_classes or 1
-            volume_total = round(volume_global / planned_classes, 2)
+            volume_total = volume_global / planned_classes
 
             learning_unit.components[component] = {
                 'VOLUME_TOTAL': volume_total,
@@ -162,7 +162,7 @@ def volume_learning_component_year(learning_component_year, entity_components_ye
     volume_total_charge = vol_req_entity + vol_add_req_entity_1 + vol_add_req_entity_2
     volume_partial = learning_component_year.hourly_volume_partial
     planned_classes = learning_component_year.planned_classes or 1
-    volume_total = Decimal(volume_total_charge / planned_classes)
+    volume_total = round(Decimal(volume_total_charge / planned_classes), 2)
     distribution = component_volume_distribution(volume_total, volume_partial)
 
     if distribution is None:
