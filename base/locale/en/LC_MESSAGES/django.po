@@ -2897,3 +2897,6 @@ msgstr "It is necessary to indicate the internship subtype"
 
 msgid "different_status_with_parent"
 msgstr "The learning unit's parent is inactive"
+
+msgid "external_code"
+msgstr "External code"
