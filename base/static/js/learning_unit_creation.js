@@ -162,7 +162,6 @@ $(document).ready(function() {
 
     $('#id_academic_year').change(validate_acronym);
     $("#LearningUnitYearForm").submit(function( event ) {
-        alert('ici');
         if (!window.valid_acronym) {
             $("#id_acronym_1").focus();
         }
@@ -171,7 +170,6 @@ $(document).ready(function() {
 
     $('#learning_unit_year_add').click(function() {
         if(window.acronym_already_used){
-            alert('if');
             $form = $("#LearningUnitYearForm");
             $form.validate();
             var formIsValid = $form.valid();
@@ -179,19 +177,16 @@ $(document).ready(function() {
               $("#prolongOrCreateModal").modal();
             }
         } else {
-            alert('else 9999');
             $("#LearningUnitYearForm").submit();
         }
     });
 
-    $('#external_learning_unit_year_add').click(function() {
-        if(window.acronym_already_used){
-            alert('if');
-            $form = $("#LearningUnitYearExternalForm");
-            $form.validate();
-        } else {
-            alert('elssse');
-            $("#LearningUnitYearForm").submit();
-        }
-    });
+    //$('#external_learning_unit_year_add').click(function() {
+    //    if(window.acronym_already_used){
+    //        $form = $("#LearningUnitYearForm");
+    //        $form.validate();
+    //    } else {
+    //        $("#LearningUnitYearForm").submit();
+    //    }
+    //});
 });

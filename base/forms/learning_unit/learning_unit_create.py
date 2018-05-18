@@ -407,5 +407,3 @@ class LearningContainerYearModelForm(forms.ModelForm):
 
 class LearningContainerYearExternalModelForm(LearningContainerYearModelForm):
     campus = CampusChoiceField(queryset=find_main_campuses().order_by('organization__name'))
-
-
