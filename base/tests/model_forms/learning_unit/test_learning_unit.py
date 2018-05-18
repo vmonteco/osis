@@ -24,12 +24,15 @@
 #
 ##############################################################################
 from django.test import TestCase
+from django.utils.translation import ugettext_lazy as _
 
 from base.forms.learning_unit.learning_unit_create import LearningUnitModelForm
-from base.models.enums.learning_unit_periodicity import BIENNIAL_EVEN
+from base.models.enums import learning_unit_year_subtypes
+from base.models.enums.learning_unit_periodicity import BIENNIAL_EVEN, ANNUAL
 from base.tests.factories.academic_year import create_current_academic_year
 from base.tests.factories.learning_container import LearningContainerFactory
 from base.tests.factories.learning_unit import LearningUnitFactory
+from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 
 
 class TestLearningUnitModelFormInit(TestCase):
@@ -62,7 +65,7 @@ class TestLearningUnitModelFormSave(TestCase):
         self.learning_container = LearningContainerFactory()
         self.form = LearningUnitModelForm(self.post_data)
         self.save_kwargs = {'learning_container': self.learning_container,
-                            'academic_year': self.current_academic_year}
+                            'start_year': self.current_academic_year.year}
 
     def test_case_missing_learning_container_kwarg(self):
         with self.assertRaises(KeyError):
@@ -87,3 +90,30 @@ class TestLearningUnitModelFormSave(TestCase):
         self.assertEqual(lu.periodicity, BIENNIAL_EVEN)
         self.assertEqual(lu.faculty_remark, self.quote_1)
         self.assertEqual(lu.other_remark, self.quote_2)
+
+    def test_full_periodicity_biannual_with_partim_annual(self):
+        a_new_learning_unit_full = LearningUnitYearFactory(
+            academic_year=self.current_academic_year,
+            subtype=learning_unit_year_subtypes.FULL,
+            credits=20)
+        a_new_learning_unit_partim = LearningUnitYearFactory(
+            academic_year=self.current_academic_year,
+            subtype=learning_unit_year_subtypes.PARTIM,
+            credits=12)
+
+        a_new_learning_unit_partim.learning_unit.learning_container = a_new_learning_unit_full.\
+            learning_unit.learning_container
+        a_new_learning_unit_partim.learning_container_year = a_new_learning_unit_full.learning_container_year
+        a_new_learning_unit_partim.learning_unit.save()
+        a_new_learning_unit_partim.save()
+
+        a_new_learning_unit_partim.learning_unit.periodicity = ANNUAL
+        a_new_learning_unit_partim.learning_unit.save()
+
+        post_data = {'periodicity': BIENNIAL_EVEN}
+        form = LearningUnitModelForm(data=post_data, instance=a_new_learning_unit_full.learning_unit)
+
+        # The form should be valid
+        self.assertFalse(form.is_valid(), form.errors)
+        self.assertEqual(form.errors.get('periodicity'),
+                         [_('The periodicity of the parent and the partims do not match')])

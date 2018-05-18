@@ -24,8 +24,11 @@
 #
 ##############################################################################
 
+import itertools
+
 from django import forms
 from django.core.exceptions import ValidationError
+from django.db.models import OuterRef, Subquery
 from django.utils.translation import ugettext_lazy as _
 
 from base import models as mdl
@@ -34,11 +37,14 @@ from base.business.entity_version import SERVICE_COURSE
 from base.business.learning_unit_year_with_context import append_latest_entities
 from base.forms.common import get_clean_data, treat_empty_or_str_none_as_none, TooManyResultsException
 from base.forms.utils.uppercase import convert_to_uppercase
-from base.models import learning_unit_year
+from base.models import learning_unit_year, group_element_year
 from base.models.academic_year import AcademicYear, current_academic_year
+from base.models.entity_container_year import EntityContainerYear
+from base.models.entity_version import EntityVersion, build_current_entity_version_structure_in_memory
 from base.models.enums import entity_container_year_link_type, learning_container_year_types, \
-    learning_unit_year_subtypes, active_status
+    learning_unit_year_subtypes, active_status, entity_type
 from base.models.learning_unit_year import convert_status_bool
+from base.models.offer_year_entity import OfferYearEntity
 
 MAX_RECORDS = 1000
 
@@ -113,9 +119,21 @@ class LearningUnitYearForm(SearchForm):
 
     with_entity_subordinated = forms.BooleanField(label=_('with_entity_subordinated_small'))
 
+    faculty_borrowing_acronym = forms.CharField(
+        max_length=20,
+        label=_("faculty_borrowing")
+    )
+
     def __init__(self, *args, **kwargs):
         self.service_course_search = kwargs.pop('service_course_search', False)
+        self.borrowed_course_search = kwargs.pop('borrowed_course_search', False)
         super().__init__(*args, **kwargs)
+
+        if self.borrowed_course_search:
+            self.fields["with_entity_subordinated"].initial = True
+            self.fields["with_entity_subordinated"].disabled = True
+            self.fields["academic_year_id"].required = True
+            self.fields["academic_year_id"].empty_label = None
 
     def clean_acronym(self):
         data_cleaned = self.cleaned_data.get('acronym')
@@ -156,14 +174,15 @@ class LearningUnitYearForm(SearchForm):
             raise TooManyResultsException
 
         learning_units = mdl.learning_unit_year.search(**clean_data) \
-            .select_related('academic_year', 'learning_container_year',
-                            'learning_container_year__academic_year') \
+            .select_related('academic_year', 'learning_container_year', 'learning_container_year__academic_year') \
             .prefetch_related(build_entity_container_prefetch()) \
             .order_by('academic_year__year', 'acronym')
 
+        if self.borrowed_course_search:
+            learning_units = self._filter_borrowed_learning_units(learning_units)
+
         # FIXME We must keep a queryset
-        return [append_latest_entities(learning_unit, service_course_search) for learning_unit in
-                learning_units]
+        return [append_latest_entities(learning_unit, service_course_search) for learning_unit in learning_units]
 
     def _set_status(self, luy_status):
         return convert_status_bool(luy_status) if luy_status else self.cleaned_data['status']
@@ -179,6 +198,15 @@ class LearningUnitYearForm(SearchForm):
                 service_courses.append(learning_unit)
 
         return service_courses
+
+    def _filter_borrowed_learning_units(self, learning_units):
+        try:
+            faculty_borrowing_id = EntityVersion.objects.current(self.cleaned_data["academic_year_id"].start_date).\
+                get(acronym=self.cleaned_data["faculty_borrowing_acronym"]).entity.id
+        except EntityVersion.DoesNotExist:
+            faculty_borrowing_id = None
+        return filter_is_borrowed_learning_unit_year(learning_units, self.cleaned_data["academic_year_id"].start_date,
+                                                     faculty_borrowing=faculty_borrowing_id)
 
     def _is_matching_learning_unit(self, learning_unit):
         allocation_entity_acronym = self.cleaned_data['allocation_entity_acronym']
@@ -216,3 +244,80 @@ def get_filter_learning_container_ids(filter_data):
                                                      entity_container_year_link_type.ALLOCATION_ENTITY)
 
     return entities_id_list if entities_id_list else None
+
+
+def filter_is_borrowed_learning_unit_year(learning_unit_year_qs, date, faculty_borrowing=None):
+    entities = build_current_entity_version_structure_in_memory(date)
+    entities_borrowing_allowed = []
+    if faculty_borrowing in entities:
+        entities_borrowing_allowed.extend(entities[faculty_borrowing]["all_children"])
+        entities_borrowing_allowed.append(entities[faculty_borrowing]["entity_version"])
+        entities_borrowing_allowed = [entity_version.entity.id for entity_version in entities_borrowing_allowed]
+    entities_faculty = compute_faculty_for_entities(entities)
+    map_luy_entity = map_learning_unit_year_with_requirement_entity(learning_unit_year_qs)
+    map_luy_education_group_entities = \
+        map_learning_unit_year_with_entities_of_education_groups(learning_unit_year_qs)
+
+    return filter(lambda luy: __is_borrowed_learning_unit(luy, entities_faculty, map_luy_entity,
+                                                          map_luy_education_group_entities, entities_borrowing_allowed),
+                  learning_unit_year_qs)
+
+
+def compute_faculty_for_entities(entities):
+    return {entity_id: __search_faculty_for_entity(entity_id, entities) for entity_id in entities.keys()}
+
+
+def __search_faculty_for_entity(entity_id, entities):
+    entity_data = entities[entity_id]
+    if entity_data["entity_version"].entity_type == entity_type.FACULTY:
+        return entity_id
+
+    entity_version_parent = entity_data["entity_version_parent"]
+    if entity_version_parent is None or entity_version_parent.entity.id not in entities:
+        return entity_id
+
+    new_current = entity_version_parent.entity.id
+    return __search_faculty_for_entity(new_current, entities)
+
+
+def map_learning_unit_year_with_requirement_entity(learning_unit_year_qs):
+    entity_container_years = EntityContainerYear.objects.\
+        filter(learning_container_year__pk=OuterRef("learning_container_year__pk"),
+               type=entity_container_year_link_type.REQUIREMENT_ENTITY)
+    learning_unit_years_with_entity = learning_unit_year_qs.values_list("id").\
+        annotate(entity=Subquery(entity_container_years.values("entity")))
+    return {luy_id: entity_id for luy_id, entity_id in learning_unit_years_with_entity}
+
+
+def map_learning_unit_year_with_entities_of_education_groups(learning_unit_year_qs):
+    formations = group_element_year.find_learning_unit_formations(learning_unit_year_qs, parents_as_instances=False)
+    education_group_ids = list(itertools.chain.from_iterable(formations.values()))
+    offer_year_entity = OfferYearEntity.objects.filter(education_group_year__in=education_group_ids).\
+        values_list("education_group_year", "entity")
+    dict_entity_of_education_group = {education_group_year_id: entity_id for education_group_year_id, entity_id
+                                      in offer_year_entity}
+
+    dict_education_group_year_entities_for_learning_unit_year = {}
+    for luy_id, formations_ids in formations.items():
+        dict_education_group_year_entities_for_learning_unit_year[luy_id] = \
+            [dict_entity_of_education_group.get(formation_id) for formation_id in formations_ids]
+    return dict_education_group_year_entities_for_learning_unit_year
+
+
+def __is_borrowed_learning_unit(luy, map_entity_faculty, map_luy_entity, map_luy_education_group_entities,
+                                entities_borrowing_allowed):
+    luy_entity = map_luy_entity.get(luy.id)
+    luy_faculty = map_entity_faculty.get(luy_entity)
+
+    if luy_faculty is None:
+        return False
+
+    def is_entity_allowed(entity):
+        return not entities_borrowing_allowed or map_entity_faculty.get(entity) in entities_borrowing_allowed
+
+    entities_allowed = filter(is_entity_allowed, map_luy_education_group_entities.get(luy.id, []))
+    for education_group_entity in entities_allowed:
+        if luy_faculty != map_entity_faculty.get(education_group_entity) \
+                and map_entity_faculty.get(education_group_entity) is not None:
+            return True
+    return False

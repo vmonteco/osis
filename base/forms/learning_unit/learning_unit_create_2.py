@@ -23,23 +23,21 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import abc
+from abc import ABCMeta
 from collections import OrderedDict
 
 from django.db import transaction
+from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
-from base.business.learning_units import edition as edition_business
 from base.business.utils.model import merge_two_dicts
 from base.forms.learning_unit.learning_unit_create import LearningUnitModelForm, LearningUnitYearModelForm, \
-    LearningContainerModelForm, EntityContainerFormset, LearningContainerYearModelForm
+    LearningContainerModelForm, LearningContainerYearModelForm, EntityContainerBaseForm
 from base.forms.utils.acronym_field import split_acronym
-from base.models.academic_year import compute_max_academic_year_adjournment, AcademicYear
+from base.models import learning_unit_year
 from base.models.campus import Campus
 from base.models.enums import learning_unit_year_subtypes
-from base.models.enums.entity_container_year_link_type import ENTITY_TYPE_LIST
-from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES_MUST_HAVE_SAME_ENTITIES
-from base.models.learning_unit_year import LearningUnitYear
+from base.models.learning_unit import LearningUnit
 from reference.models import language
 
 FULL_READ_ONLY_FIELDS = {"acronym", "academic_year", "container_type"}
@@ -50,60 +48,93 @@ PARTIM_FORM_READ_ONLY_FIELD = {'acronym_0', 'acronym_1', 'common_title', 'common
                                'academic_year', 'container_type', 'internship_subtype',
                                'additional_requirement_entity_1', 'additional_requirement_entity_2'}
 
-FACULTY_OPEN_FIELDS = {'quadrimester', 'session', 'team', "faculty_remark", "other_remark"}
+FACULTY_OPEN_FIELDS = {'quadrimester', 'session', 'team', "faculty_remark", "other_remark", 'common_title_english',
+                       'specific_title_english', "status"}
 
 
-class LearningUnitBaseForm:
+class LearningUnitBaseForm(metaclass=ABCMeta):
+    form_cls_to_validate = [
+        LearningUnitModelForm,
+        LearningUnitYearModelForm,
+        LearningContainerModelForm,
+        LearningContainerYearModelForm,
+        EntityContainerBaseForm
+    ]
 
-    form_classes = [LearningUnitModelForm, LearningUnitYearModelForm, LearningContainerModelForm,
-                    LearningContainerYearModelForm, EntityContainerFormset]
-
-    forms = {}
+    forms = OrderedDict()
+    data = {}
     subtype = None
-    _postponement = None
-    instance = None
+    learning_unit_instance = None
+    academic_year = None
+    _warnings = None
 
     def __init__(self, instances_data, *args, **kwargs):
-        for form_class in self.form_classes:
-            self.forms[form_class] = form_class(*args, **instances_data[form_class])
+        self.forms = OrderedDict({
+            LearningContainerModelForm: LearningContainerModelForm(*args, **instances_data[LearningContainerModelForm]),
+            LearningContainerYearModelForm: LearningContainerYearModelForm(*args, **instances_data[
+                LearningContainerYearModelForm]),
+            LearningUnitModelForm: LearningUnitModelForm(*args, **instances_data[LearningUnitModelForm]),
+            LearningUnitYearModelForm: LearningUnitYearModelForm(*args, **instances_data[LearningUnitYearModelForm]),
+            EntityContainerBaseForm: EntityContainerBaseForm(*args, **instances_data[EntityContainerBaseForm])
+        })
 
-    def _is_update_action(self):
-        return self.instance
-
-    @abc.abstractmethod
     def is_valid(self):
-        return False
+        if any([not form_instance.is_valid() for cls, form_instance in self.forms.items()
+                if cls in self.form_cls_to_validate]):
+            return False
+
+        self.learning_container_year_form.post_clean(self.learning_unit_year_form.cleaned_data["specific_title"])
+
+        return not self.errors
 
     @transaction.atomic
-    def save(self, commit=True, postponement=True):
-        if self._is_update_action():
-            return self._update_with_postponement(postponement)
-        else:
-            return self._create(commit, postponement)
+    def save(self, commit=True):
+        pass
+
+    @cached_property
+    def instance(self):
+        if self.learning_unit_instance:
+            return learning_unit_year.search(
+                academic_year_id=self.academic_year.id,
+                learning_unit=self.learning_unit_instance,
+                subtype=self.subtype
+            ).get()
+        return None
 
     @property
     def errors(self):
-        return [form.errors for form in self.forms.values()]
+        return [form.errors for form in self.forms.values() if any(form.errors)]
 
     @property
     def fields(self):
-        return self.get_all_fields()
+        fields = OrderedDict()
+        for cls, form_instance in self.forms.items():
+            fields.update(form_instance.fields)
+        return fields
 
     @property
     def cleaned_data(self):
         return [form.cleaned_data for form in self.forms.values()]
 
     @property
+    def instances_data(self):
+        data = {}
+        for form_instance in self.forms.values():
+            columns = form_instance.fields.keys()
+            data.update({col: getattr(form_instance.instance, col, None) for col in columns})
+        return data
+
+    @property
     def changed_data(self):
         return [form.changed_data for form in self.forms.values()]
 
     def disable_fields(self, fields_to_disable):
-        for key, value in self.get_all_fields().items():
+        for key, value in self.fields.items():
             if key in fields_to_disable:
                 self._disable_field(value)
 
     def disable_all_fields_except(self, fields_not_to_disable):
-        for key, value in self.get_all_fields().items():
+        for key, value in self.fields.items():
             if key not in fields_not_to_disable:
                 self._disable_field(value)
 
@@ -112,97 +143,71 @@ class LearningUnitBaseForm:
         field.disabled = True
         field.required = False
 
-    def get_all_fields(self):
-        fields = OrderedDict()
-        for cls, form_instance in self.forms.items():
-            fields.update(self._get_formset_fields(form_instance) if cls == EntityContainerFormset
-                          else form_instance.fields)
-        return fields
-
-    @staticmethod
-    def _get_formset_fields(form_instance):
-        return {
-            ENTITY_TYPE_LIST[index].lower(): form.fields['entity'] for index, form in enumerate(form_instance.forms)
-        }
-
     def get_context(self):
         return {
             'subtype': self.subtype,
-            'learning_unit_form': self.forms[LearningUnitModelForm],
-            'learning_unit_year_form': self.forms[LearningUnitYearModelForm],
-            'learning_container_year_form': self.forms[LearningContainerYearModelForm],
-            'entity_container_form': self.forms[EntityContainerFormset]
+            'learning_unit_form': self.learning_unit_form,
+            'learning_unit_year_form': self.learning_unit_year_form,
+            'learning_container_year_form': self.learning_container_year_form,
+            'entity_container_form': self.entity_container_form
         }
 
     def _validate_no_empty_title(self, common_title):
-        specific_title = self.forms[LearningUnitYearModelForm].cleaned_data["specific_title"]
+        specific_title = self.learning_unit_year_form.cleaned_data["specific_title"]
         if not common_title and not specific_title:
-            self.forms[LearningContainerYearModelForm].add_error(
+            self.learning_container_year_form.add_error(
                 "common_title", _("must_set_common_title_or_specific_title"))
             return False
         return True
 
-    @staticmethod
-    def _create_with_postponement(start_luy):
-        new_luys = [start_luy]
-        for ac_year in range(start_luy.learning_unit.start_year + 1, compute_max_academic_year_adjournment() + 1):
-            new_luys.append(edition_business.duplicate_learning_unit_year(new_luys[0],
-                                                                          AcademicYear.objects.get(year=ac_year)))
-        return new_luys
+    @property
+    def learning_unit_form(self):
+        return self.forms[LearningUnitModelForm]
 
-    # TODO :: should reuse duplicate_learning_unit_year() function
-    def _update_with_postponement(self, postponement=True):
-        postponement = self._postponement or postponement
+    @property
+    def learning_unit_year_form(self):
+        return self.forms[LearningUnitYearModelForm]
 
-        entities_data = self._get_entities_data()
-        lu_type_full_data = self._get_flat_cleaned_data_apart_from_entities()
-        edition_business.update_learning_unit_year_with_report(self.instance, lu_type_full_data,
-                                                               entities_data,
-                                                               with_report=postponement,
-                                                               override_postponement_consistency=True)
+    @property
+    def learning_container_year_form(self):
+        return self.forms[LearningContainerYearModelForm]
 
-    @abc.abstractmethod
-    def _create(self, commit, postponement):
-        pass
+    @property
+    def entity_container_form(self):
+        return self.forms[EntityContainerBaseForm]
 
-    def _get_entities_data(self):
-        entities_data = {}
-        all_data_cleaned = self.forms[EntityContainerFormset].cleaned_data
-        for index, data_cleaned in enumerate(all_data_cleaned):
-            entities_data[ENTITY_TYPE_LIST[index]] = data_cleaned.get('entity')
-        return entities_data
+    def __iter__(self):
+        """Yields the forms in the order they should be rendered"""
+        return iter(self.forms.values())
 
-    def _get_flat_cleaned_data_apart_from_entities(self):
-        all_clean_data = {}
-        for cls, form_instance in self.forms.items():
-            if cls != EntityContainerFormset:
-                all_clean_data.update({field: value for field, value in form_instance.cleaned_data.items()
-                                       if field not in FULL_READ_ONLY_FIELDS})
-        return all_clean_data
-
-    def make_postponement(self, learning_unit_year, postponement):
-        if postponement:
-            return self._create_with_postponement(learning_unit_year)
-        return [learning_unit_year]
+    @property
+    def warnings(self):
+        if self._warnings is None:
+            self._warnings = []
+            for form in self.forms.values():
+                if hasattr(form, 'warnings'):
+                    self._warnings.extend(form.warnings)
+        return self._warnings
 
 
 class FullForm(LearningUnitBaseForm):
 
     subtype = learning_unit_year_subtypes.FULL
 
-    def __init__(self, data, person, default_ac_year=None, instance=None, proposal=False, *args, **kwargs):
-        check_learning_unit_year_instance(instance)
-        self.instance = instance
+    def __init__(self, person, academic_year, learning_unit_instance=None, data=None, start_year=None, proposal=False,
+                 *args, **kwargs):
+        if not learning_unit_instance and not start_year:
+            raise AttributeError("Should set at least learning_unit_instance or start_year instance.")
+        self.academic_year = academic_year
+        self.learning_unit_instance = learning_unit_instance
         self.person = person
         self.proposal = proposal
+        self.data = data
+        self.start_year = self.instance.learning_unit.start_year if self.instance else start_year
 
-        self.postponement = bool(int(data.get('postponement', 1))) if data else False
-
-        self.academic_year = instance.academic_year if instance else default_ac_year
-        instances_data = self._build_instance_data(data, default_ac_year, instance, proposal)
+        instances_data = self._build_instance_data(self.data, academic_year, proposal)
         super().__init__(instances_data, *args, **kwargs)
-
-        if self._is_update_action():
+        if self.instance:
             self._disable_fields()
 
     def _disable_fields(self):
@@ -223,98 +228,85 @@ class FullForm(LearningUnitBaseForm):
         else:
             self.disable_fields(FULL_READ_ONLY_FIELDS)
 
-    def _build_instance_data(self, data, default_ac_year, instance, proposal):
-        return{
+    def _build_instance_data(self, data, default_ac_year, proposal):
+        return {
             LearningUnitModelForm: {
                 'data': data,
-                'instance': instance.learning_unit if instance else None,
+                'instance': self.instance.learning_unit if self.instance else None,
             },
             LearningContainerModelForm: {
                 'data': data,
-                'instance': instance.learning_container_year.learning_container if instance else None,
+                'instance': self.instance.learning_container_year.learning_container if self.instance else None,
             },
-            LearningUnitYearModelForm: self._build_instance_data_learning_unit_year(data, default_ac_year, instance),
-            LearningContainerYearModelForm: self._build_instance_data_learning_container_year(data, instance, proposal),
-            EntityContainerFormset: {
+            LearningUnitYearModelForm: self._build_instance_data_learning_unit_year(data, default_ac_year),
+            LearningContainerYearModelForm: self._build_instance_data_learning_container_year(data, proposal),
+            EntityContainerBaseForm: {
                 'data': data,
-                'instance': instance.learning_container_year if instance else None,
-                'form_kwargs': {'person': self.person}
+                'learning_container_year': self.instance.learning_container_year if self.instance else None,
+                'person': self.person
             }
         }
 
-    def _build_instance_data_learning_container_year(self, data, instance, proposal):
+    def _build_instance_data_learning_container_year(self, data, proposal):
         return {
             'data': data,
-            'instance': instance.learning_container_year if instance else None,
+            'instance': self.instance.learning_container_year if self.instance else None,
             'proposal': proposal,
             'initial': {
                 # Default campus selected 'Louvain-la-Neuve' if exist
                 'campus': Campus.objects.filter(name='Louvain-la-Neuve').first(),
                 # Default language French
                 'language': language.find_by_code('FR')
-            } if not instance else None,
+            } if not self.instance else None,
             'person': self.person
         }
 
-    def _build_instance_data_learning_unit_year(self, data, default_ac_year, instance):
+    def _build_instance_data_learning_unit_year(self, data, default_ac_year):
         return {
             'data': data,
-            'instance': instance,
+            'instance': self.instance,
             'initial': {
                 'status': True, 'academic_year': default_ac_year,
-            } if not instance else None,
+            } if not self.instance else None,
             'person': self.person,
             'subtype': self.subtype
         }
 
     def is_valid(self):
-        if any([not form_instance.is_valid() for form_instance in self.forms.values()]):
-            return False
-        common_title = self.forms[LearningContainerYearModelForm].cleaned_data["common_title"]
-        return self._validate_no_empty_title(common_title) and self._validate_same_entities_container()
+        result = super().is_valid()
+        if result:
+            result = self.entity_container_form.post_clean(
+                self.learning_container_year_form.cleaned_data['container_type'],
+                self.learning_unit_year_form.instance.academic_year)
 
-    def _validate_same_entities_container(self):
-        container_type = self.forms[LearningContainerYearModelForm].cleaned_data["container_type"]
-        requirement_entity = self.forms[EntityContainerFormset][0].cleaned_data["entity"]
-        allocation_entity = self.forms[EntityContainerFormset][1].cleaned_data["entity"]
-        if container_type in LEARNING_CONTAINER_YEAR_TYPES_MUST_HAVE_SAME_ENTITIES:
-            if requirement_entity != allocation_entity:
-                self.forms[EntityContainerFormset][1].add_error(
-                    "entity", _("requirement_and_allocation_entities_cannot_be_different"))
-                return False
-        return True
+        return result
 
-    def _create(self, commit, postponement):
+    def save(self, commit=True):
         academic_year = self.academic_year
 
         learning_container = self.forms[LearningContainerModelForm].save(commit)
-        learning_unit = self.forms[LearningUnitModelForm].save(academic_year=academic_year,
-                                                               learning_container=learning_container,
-                                                               commit=commit)
-
+        learning_unit = self.forms[LearningUnitModelForm].save(
+            start_year=self.start_year,
+            learning_container=learning_container,
+            commit=commit
+        )
         container_year = self.forms[LearningContainerYearModelForm].save(
             academic_year=academic_year,
             learning_container=learning_container,
             acronym=self.forms[LearningUnitYearModelForm].instance.acronym,
-            commit=commit)
+            commit=commit
+        )
 
-        entity_container_years = self.forms[EntityContainerFormset].save(
-            learning_container_year=container_year,
-            commit=commit)
+        entity_container_years = self.entity_container_form.save(commit=commit, learning_container_year=container_year)
 
         # Save learning unit year (learning_unit_component +  learning_component_year + entity_component_year)
         learning_unit_year = self.forms[LearningUnitYearModelForm].save(
             learning_container_year=container_year,
             learning_unit=learning_unit,
             entity_container_years=entity_container_years,
-            commit=commit)
-
-        return self.make_postponement(learning_unit_year, postponement)
-
-
-def check_learning_unit_year_instance(instance):
-    if instance and not isinstance(instance, LearningUnitYear):
-        raise AttributeError('instance arg should be an instance of {}'.format(LearningUnitYear))
+            commit=commit
+        )
+        return learning_unit_year
 
 
 def merge_data(data, inherit_lu_values):
@@ -325,24 +317,31 @@ class PartimForm(LearningUnitBaseForm):
     subtype = learning_unit_year_subtypes.PARTIM
     form_cls_to_validate = [LearningUnitModelForm, LearningUnitYearModelForm]
 
-    def __init__(self, data, person, learning_unit_year_full, instance=None, *args, **kwargs):
-        check_learning_unit_year_instance(instance)
-        self.instance = instance
+    def __init__(self, person, learning_unit_full_instance, academic_year, learning_unit_instance=None,
+                 data=None, *args, **kwargs):
+        if not isinstance(learning_unit_full_instance, LearningUnit):
+            raise AttributeError('learning_unit_full arg should be an instance of {}'.format(LearningUnit))
+        if learning_unit_instance is not None and not isinstance(learning_unit_instance, LearningUnit):
+            raise AttributeError('learning_unit_partim_instance arg should be an instance of {}'.format(LearningUnit))
+
         self.person = person
-        if not isinstance(learning_unit_year_full, LearningUnitYear):
-            raise AttributeError('learning_unit_year_full arg should be an instance of {}'.format(LearningUnitYear))
-        if learning_unit_year_full.subtype != learning_unit_year_subtypes.FULL:
-            error_args = 'learning_unit_year_full arg should have a subtype {}'.format(learning_unit_year_subtypes.FULL)
-            raise AttributeError(error_args)
-        self.learning_unit_year_full = learning_unit_year_full
+        self.academic_year = academic_year
+        self.learning_unit_full_instance = learning_unit_full_instance
+        self.learning_unit_instance = learning_unit_instance
 
         # Inherit values cannot be changed by user
         inherit_lu_values = self._get_inherit_learning_unit_full_value()
         inherit_luy_values = self._get_inherit_learning_unit_year_full_value()
         instances_data = self._build_instance_data(data, inherit_lu_values, inherit_luy_values)
 
-        super().__init__(instances_data, *args, **kwargs)
-        self.disable_fields(self._get_fields_to_disabled())
+        super(PartimForm, self).__init__(instances_data, *args, **kwargs)
+        self.disable_fields(PARTIM_FORM_READ_ONLY_FIELD)
+
+    @cached_property
+    def learning_unit_year_full(self):
+        return learning_unit_year.search(academic_year_id=self.academic_year.id,
+                                         learning_unit=self.learning_unit_full_instance.id,
+                                         subtype=learning_unit_year_subtypes.FULL).get()
 
     def _build_instance_data(self, data, inherit_lu_values, inherit_luy_values):
         return {
@@ -356,9 +355,9 @@ class PartimForm(LearningUnitBaseForm):
                 'instance': self.learning_unit_year_full.learning_container_year,
                 'person': self.person
             },
-            EntityContainerFormset: {
-                'instance': self.learning_unit_year_full.learning_container_year,
-                'form_kwargs': {'person': self.person}
+            EntityContainerBaseForm: {
+                'learning_container_year': self.learning_unit_year_full.learning_container_year,
+                'person': self.person
             }
         }
 
@@ -378,14 +377,10 @@ class PartimForm(LearningUnitBaseForm):
             'initial': inherit_lu_values if not self.instance else None,
         }
 
-    def _get_fields_to_disabled(self):
-        field_to_disabled = PARTIM_FORM_READ_ONLY_FIELD.copy()
-        return field_to_disabled
-
     def _get_inherit_learning_unit_year_full_value(self):
         """This function will return the inherit value come from learning unit year FULL"""
         return {field: value for field, value in self._get_initial_learning_unit_year_form().items() if
-                field in self._get_fields_to_disabled()}
+                field in PARTIM_FORM_READ_ONLY_FIELD}
 
     def _get_initial_learning_unit_year_form(self):
         acronym = self.instance.acronym if self.instance else self.learning_unit_year_full.acronym
@@ -410,25 +405,17 @@ class PartimForm(LearningUnitBaseForm):
 
     def _get_inherit_learning_unit_full_value(self):
         """This function will return the inherit value come from learning unit FULL"""
-        learning_unit_full = self.learning_unit_year_full.learning_unit
         return {
-            'periodicity': learning_unit_full.periodicity
+            'periodicity': self.learning_unit_full_instance.periodicity
         }
 
-    def is_valid(self):
-        if any([not form_instance.is_valid() for cls, form_instance in self.forms.items()
-               if cls in self.form_cls_to_validate]):
-            return False
-
-        common_title = self.learning_unit_year_full.learning_container_year.common_title
-        return self._validate_no_empty_title(common_title)
-
-    def _create(self, commit, postponement):
-        academic_year = self.learning_unit_year_full.academic_year
+    def save(self, commit=True):
+        start_year = self.instance.learning_unit.start_year if self.instance else \
+                        self.learning_unit_full_instance.start_year
 
         # Save learning unit
         learning_unit = self.forms[LearningUnitModelForm].save(
-            academic_year=academic_year,
+            start_year=start_year,
             learning_container=self.learning_unit_year_full.learning_container_year.learning_container,
             commit=commit
         )
@@ -443,22 +430,7 @@ class PartimForm(LearningUnitBaseForm):
             entity_container_years=entity_container_years,
             commit=commit
         )
-
-        return self.make_postponement(learning_unit_year, postponement)
+        return learning_unit_year
 
     def _get_entity_container_year(self):
         return self.learning_unit_year_full.learning_container_year.entitycontaineryear_set.all()
-
-    def _get_entities_data(self):
-        learning_container_year_full = self.learning_unit_year_full.learning_container_year
-        entity_container_years = learning_container_year_full.entitycontaineryear_set.all()
-        return {entity_container.type.upper(): entity_container.entity for entity_container in
-                entity_container_years}
-
-    def _get_flat_cleaned_data_apart_from_entities(self):
-        all_clean_data = {}
-        for cls, form_instance in self.forms.items():
-            if cls in self.form_cls_to_validate:
-                all_clean_data.update({field: value for field, value in form_instance.cleaned_data.items()
-                                      if field not in FULL_READ_ONLY_FIELDS})
-        return all_clean_data

@@ -25,10 +25,15 @@
 ##############################################################################
 import factory
 import datetime
+
 from django.test import TestCase
+
 from base.tests.factories.academic_year import AcademicYearFactory
-from assistant.tests.factories.assistant_mandate import AssistantMandateFactory
+
+from assistant.models.assistant_mandate import find_by_academic_year_by_excluding_declined
+from assistant.models.enums import assistant_mandate_state
 from assistant.models import assistant_mandate
+from assistant.tests.factories.assistant_mandate import AssistantMandateFactory
 
 class TestAssistantMandateFactory(TestCase):
 
@@ -38,10 +43,23 @@ class TestAssistantMandateFactory(TestCase):
         self.mandate2 = AssistantMandateFactory(
             academic_year=factory.SubFactory(AcademicYearFactory, year=datetime.date.today().year))
         self.researched_academic_year = self.mandate.academic_year
+        self.mandate3 = AssistantMandateFactory(
+            academic_year=factory.SubFactory(AcademicYearFactory, year=datetime.date.today().year),
+            state=assistant_mandate_state.DECLINED
+        )
 
     def test_find_mandate_by_id(self):
         self.assertEqual(self.mandate, assistant_mandate.find_mandate_by_id(self.mandate.id))
+        self.mandate.delete()
+        self.assertEqual(None, assistant_mandate.find_mandate_by_id(self.mandate.id))
 
     def test_find_by_academic_year(self):
         for current_mandate in assistant_mandate.find_by_academic_year(self.researched_academic_year):
             self.assertEqual(self.researched_academic_year, current_mandate.academic_year)
+
+    def test_find_by_academic_year_by_excluding_declined(self):
+        self.assertEqual(
+            list(find_by_academic_year_by_excluding_declined(self.researched_academic_year)),
+            [self.mandate]
+        )
+
