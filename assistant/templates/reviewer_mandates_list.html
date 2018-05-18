@@ -79,9 +79,7 @@
         <th>{% trans 'fulltime_equivalent_percentage' %}</th>
         <th>{% trans 'state' %}</th>
         <th>{% trans 'reviews' %}</th>
-        <th>{% trans 'edit' %}</th>
-        <th>{% trans 'view' %}</th>
-
+        <th>{% trans 'action' %}</th>
         </tr>
         </thead>
         <tbody>
@@ -142,11 +140,9 @@
                         </button>
                     </form>
                 </td>
-                <td></td>
             {% elif mandate.view %}
-                <td></td>
                 <td align="center">
-                    <form method="POST" action="{% url 'review_view' %}">
+                    <form method="POST" action="{% url 'pst_form_view' %}">
                         {% csrf_token %}
                         <input type="hidden" name="mandate_id" value="{{ mandate.id }}">
                         <input type="hidden" name="role" value="{{ reviewer.role }}">
@@ -157,8 +153,7 @@
                     </form>
                 </td>
             {% else %}
-                <td></td>
-                <td></td>
+                <td align="center"><span class="glyphicon glyphicon-ban-circle" aria-hidden="true"></span></td>
             {% endif %}
             </tr>
         {% endfor %}
