@@ -280,6 +280,7 @@ def learning_class_year_edit(request, learning_unit_year_id):
 @login_required
 @permission_required('base.can_create_learningunit', raise_exception=True)
 def learning_unit_create(request, academic_year_id):
+    print('learning_unit_create')
     person = get_object_or_404(Person, user=request.user)
     if request.POST.get('academic_year'):
         academic_year_id = request.POST.get('academic_year')
@@ -295,6 +296,7 @@ def learning_unit_create(request, academic_year_id):
         for luy in new_luys:
             show_success_learning_unit_year_creation_message(request, luy, 'learning_unit_successfuly_created')
         return redirect('learning_unit', learning_unit_year_id=new_luys[0].pk)
+    print(postponement_form.get_context())
     return render(request, "learning_unit/simple/creation.html", postponement_form.get_context())
 
 

@@ -145,12 +145,15 @@ $(document).ready(function() {
     });
 
     showInternshipSubtype();
-    document.getElementById('id_additional_requirement_entity_1').disabled = !isLearningUnitSubtypeFull()
-        || isValueEmpty('id_requirement_entity')
-        || isDisabledField('id_requirement_entity');
-    document.getElementById('id_additional_requirement_entity_2').disabled = !isLearningUnitSubtypeFull()
-        || isValueEmpty('id_additional_requirement_entity_1')
-        || isDisabledField('id_additional_requirement_entity_1');
+
+    if(document.getElementById('id_container_type').value != 'EXTERNAL'){
+        document.getElementById('id_additional_requirement_entity_1').disabled = !isLearningUnitSubtypeFull()
+            || isValueEmpty('id_requirement_entity')
+            || isDisabledField('id_requirement_entity');
+        document.getElementById('id_additional_requirement_entity_2').disabled = !isLearningUnitSubtypeFull()
+            || isValueEmpty('id_additional_requirement_entity_1')
+            || isDisabledField('id_additional_requirement_entity_1');
+    }
 
     $('#id_acronym_0').change(validate_acronym);
     $('#id_acronym_1').change(validate_acronym);
@@ -159,6 +162,7 @@ $(document).ready(function() {
 
     $('#id_academic_year').change(validate_acronym);
     $("#LearningUnitYearForm").submit(function( event ) {
+        alert('ici');
         if (!window.valid_acronym) {
             $("#id_acronym_1").focus();
         }
@@ -167,6 +171,7 @@ $(document).ready(function() {
 
     $('#learning_unit_year_add').click(function() {
         if(window.acronym_already_used){
+            alert('if');
             $form = $("#LearningUnitYearForm");
             $form.validate();
             var formIsValid = $form.valid();
@@ -174,6 +179,18 @@ $(document).ready(function() {
               $("#prolongOrCreateModal").modal();
             }
         } else {
+            alert('else 9999');
+            $("#LearningUnitYearForm").submit();
+        }
+    });
+
+    $('#external_learning_unit_year_add').click(function() {
+        if(window.acronym_already_used){
+            alert('if');
+            $form = $("#LearningUnitYearExternalForm");
+            $form.validate();
+        } else {
+            alert('elssse');
             $("#LearningUnitYearForm").submit();
         }
     });

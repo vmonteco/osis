@@ -2912,3 +2912,10 @@ msgstr "Externe"
 
 msgid "comment_title"
 msgstr "Commentaire"
+
+msgid "requesting_entity"
+msgstr "Entité demandeuse"
+
+msgid "local_credits"
+msgstr "Crédits locaux"
+

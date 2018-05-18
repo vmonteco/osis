@@ -27,10 +27,10 @@
 <div class="panel panel-default">
     <div class="panel-heading">
         <label>{% trans 'basic_informations_title' %}</label>
-        {% bootstrap_form_errors learning_unit_year_form %}
+       a {% bootstrap_form_errors learning_unit_year_form %}
         {% bootstrap_form_errors learning_unit_form %}
         {% bootstrap_form_errors learning_container_year_form %}
-
+        {% bootstrap_form_errors learning_unit_external_form %}b
     </div>
     <div class="panel-body">
         <div class="row">
@@ -47,7 +47,7 @@
             {% bootstrap_field learning_unit_year_form.academic_year form_group_class="col-md-3" %}
             {% bootstrap_field learning_container_year_form.language form_group_class="col-md-3" %}
             {% bootstrap_field learning_unit_year_form.credits form_group_class="col-md-2" %}
-            {% bootstrap_field learning_unit_year_form.credits form_group_class="col-md-2" %}
+            {% bootstrap_field learning_unit_external_form.credits form_group_class="col-md-2" %}
             {% bootstrap_field learning_unit_year_form.status form_group_class="col-md-1" %}
         </div>
     </div>
@@ -64,12 +64,12 @@
 <div class="panel panel-default">
     <div class="panel-body">
         <div class="row">
-            {% bootstrap_field learning_unit_year_form.credits form_group_class="col-md-3"%}
-            {% bootstrap_field learning_unit_year_form.credits form_group_class="col-md-9"%}
+            {% bootstrap_field learning_unit_external_form.acronym form_group_class="col-md-3"%}
+            {% bootstrap_field learning_unit_external_form.url form_group_class="col-md-9"%}
         </div>
         <br>
         <div class="row">
-            {% bootstrap_field entity_container_form.0.entity form_group_class="col-md-6" %}
+            {% bootstrap_field learning_unit_external_form.entity form_group_class="col-md-6" %}
         </div>
         <br>
         {% bootstrap_field learning_unit_form.faculty_remark %}

@@ -57,7 +57,7 @@ def find_by_organization(organization):
 
 
 def find_main_campuses():
-    return Campus.objects.filter(organization__type=MAIN).order_by('name')
+    return Campus.objects.filter(organization__type=MAIN, name__contains='vain').order_by('name').select_related('organization')
 
 
 def find_by_id(campus_id):

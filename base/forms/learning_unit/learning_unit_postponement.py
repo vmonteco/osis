@@ -152,6 +152,7 @@ class LearningUnitPostponementForm:
         return management_form
 
     def is_valid(self):
+        print('is_val')
         if any([not form_instance.is_valid() for form_instance in self._forms_to_upsert]):
             return False
         if self.check_consistency:

@@ -48,7 +48,7 @@ from base.business.learning_units import perms as business_perms
 from base.business.learning_units.perms import learning_unit_year_permissions, learning_unit_proposal_permissions, \
     can_update_learning_achievement
 from base.forms.learning_class import LearningClassEditForm
-from base.forms.learning_unit.learning_unit_create_2 import FullForm, ExternalForm, LearningUnitExternalForm
+from base.forms.learning_unit.learning_unit_create_2 import FullForm, LearningUnitExternalForm
 from base.forms.learning_unit_component import LearningUnitComponentEditForm
 from base.forms.learning_unit_pedagogy import LearningUnitPedagogyEditForm
 from base.forms.learning_unit_specifications import LearningUnitSpecificationsForm, LearningUnitSpecificationsEditForm
@@ -62,39 +62,28 @@ from base.views.learning_units.common import show_success_learning_unit_year_cre
 from cms.models import text_label
 from osis_common.decorators.ajax import ajax_required
 from base.views import layout
-from base.forms.learning_unit.learning_unit_create_2 import CreationExternalBaseForm
 from base.models.enums.learning_container_year_types import EXTERNAL
 
 @login_required
 @permission_required('base.can_propose_learningunit', raise_exception=True)
 def get_external_learning_unit_creation_form(request, academic_year):
-    print('get_external_learning_unit_creation_form')
     person = get_object_or_404(Person, user=request.user)
     academic_year = get_object_or_404(AcademicYear, pk=academic_year)
+
     if request.POST:
-        print('post')
-        external_form = CreationExternalBaseForm(request.POST or None, person, academic_year)
-
+        external_form = LearningUnitExternalForm( person,
+                                                  academic_year,
+                                                  request.POST or None)
         if external_form.is_valid():
-            print('is_valid')
-            proposal = external_form.save()
-            show_success_learning_unit_year_creation_message(request, proposal.learning_unit_year,
+            external_lu = external_form.save()
+            show_success_learning_unit_year_creation_message(request, external_lu.learning_unit_year,
                                                              'proposal_learning_unit_successfuly_created')
-            return redirect('learning_unit', learning_unit_year_id=proposal.learning_unit_year.pk)
-
+            return redirect('learning_unit', learning_unit_year_id=external_lu.learning_unit_year.pk)
+        print( external_form.get_context())
         return layout.render(request, "learning_unit/simple/creation_external.html", external_form.get_context())
     else:
-        print('get')
-        # learning_unit_form_container = CreationExternalBaseForm(None, person,
-        #                                         default_ac_year=get_object_or_404(AcademicYear, pk=academic_year.id))
-        # learning_unit_form_container = LearningUnitExternalBaseForm()
-
-
-        postponement_form = LearningUnitExternalForm(person, get_object_or_404(AcademicYear, pk=academic_year.id))
-
-
-
-        return layout.render(request, "learning_unit/simple/creation_external.html", postponement_form.get_context())
+        learning_unit_external_form = LearningUnitExternalForm(person, academic_year)
+        return layout.render(request, "learning_unit/simple/creation_external.html", learning_unit_external_form.get_context())
 
 
 
