@@ -13,13 +13,14 @@ from base.models.offer_year_entity import OfferYearEntity
 from cms.models.translated_text import TranslatedText
 from cms.models.translated_text_label import TranslatedTextLabel
 
-
 LANGUAGES = {'fr': 'fr-be', 'en': 'en'}
 ENTITY = 'offer_year'
 
 Context = collections.namedtuple(
     'Context',
-    ['year', 'language', 'acronym', 'title', 'academic_year', 'education_group_year']
+    ['year', 'language', 'acronym',
+     'title', 'description', 'translated_labels',
+     'academic_year', 'education_group_year']
 )
 
 
@@ -71,6 +72,7 @@ def get_entity(education_group_year):
         k: v for k, v in result.items() if k in keeps
     }
 
+
 def get_cleaned_parameters(type_acronym):
     def get_cleaned_parameters(function):
         def wrapper(request, year, language, acronym):
@@ -90,6 +92,12 @@ def get_cleaned_parameters(type_acronym):
             iso_language = LANGUAGES[language]
 
             title = get_title_of_education_group_year(education_group_year, iso_language)
+            translated_labels = find_translated_labels_for_entity_and_language(ENTITY, iso_language)
+            
+            description = get_description(education_group_year, language, title, year)
+
+            if type_acronym == 'partial':
+                description['partial_acronym'] = education_group_year.partial_acronym
 
             context = Context(
                 year=year,
@@ -97,12 +105,12 @@ def get_cleaned_parameters(type_acronym):
                 acronym=acronym,
                 title=title,
                 academic_year=academic_year,
-                education_group_year=education_group_year
+                education_group_year=education_group_year,
+                translated_labels=translated_labels,
+                description=description
             )
 
             return function(request, context)
-
-
         return wrapper
     return get_cleaned_parameters
 
@@ -115,28 +123,25 @@ def to_int_or_404(year):
 
 
 @api_view(['GET'])
-@renderer_classes((JSONRenderer, ))
+@renderer_classes((JSONRenderer,))
 @get_cleaned_parameters(type_acronym='acronym')
 def ws_catalog_offer(request, context):
-    translated_labels = find_translated_labels_for_entity_and_language(ENTITY, context.language)
-    description = get_description(context.education_group_year, context.language, context.title, context.year)
-
     common_terms = get_common_education_group(context.academic_year, context.language, 'common')
-    section_append = description['sections'].append
 
     has_section = collections.defaultdict(bool)
 
-    queryset = find_translated_texts_by_entity_and_language(context.education_group_year,ENTITY, context.language)
+    queryset = find_translated_texts_by_entity_and_language(context.education_group_year, ENTITY, context.language)
 
     for translated_text in queryset:
-        insert_section(common_terms, has_section, section_append, translated_labels, translated_text)
+        insert_section(common_terms, has_section, translated_text, context)
 
-    insert_missing_sections(common_terms, context, has_section, section_append)
+    insert_missing_sections(common_terms, has_section, context)
 
-    return Response(description, content_type='application/json')
+    return Response(context.description, content_type='application/json')
 
 
-def insert_missing_sections(common_terms, context, has_section, section_append):
+def insert_missing_sections(common_terms, has_section, context):
+    section_append = context.description['sections'].append
     sections = [
         ('programme', 'agregations', 'programme', 'Programme'),
         ('caap', 'caap', 'caap', 'Caap'),
@@ -161,8 +166,8 @@ def insert_missing_sections(common_terms, context, has_section, section_append):
         })
 
 
-def insert_section(common_terms, has_section, section_append, translated_labels, translated_text):
-    label = get_label(translated_labels, translated_text)
+def insert_section(common_terms, has_section, translated_text, context):
+    label = get_label(context.translated_labels, translated_text)
     name = translated_text.text_label.label
     content = translated_text.text
     if name in ('caap', 'prerequis'):
@@ -173,7 +178,8 @@ def insert_section(common_terms, has_section, section_append, translated_labels,
 
     elif name == 'module_complementaire':
         content = normalize_module_complementaire(common_terms, content, has_section, name)
-    section_append({
+
+    context.description['sections'].append({
         'id': name,
         'label': label,
         'content': content,
@@ -255,16 +261,7 @@ def get_label(translated_labels, translated_text):
 @renderer_classes((JSONRenderer,))
 @get_cleaned_parameters(type_acronym='partial')
 def ws_catalog_group(request, context):
-    translated_labels = find_translated_labels_for_entity_and_language(ENTITY, context.language)
-
-    description = get_description(context.education_group_year,
-                                  context.language,
-                                  context.title,
-                                  context.year)
-
-    description['partial_acronym'] = context.education_group_year.partial_acronym
-
-    section_append = description['sections'].append
+    section_append = context.description['sections'].append
 
     queryset = find_translated_texts_by_entity_and_language(context.education_group_year,
                                                             ENTITY,
@@ -273,7 +270,7 @@ def ws_catalog_group(request, context):
     for translated_text in queryset:
         insert_section_group(section_append, translated_labels, translated_text)
 
-    return Response(description, content_type='application/json')
+    return Response(context.description, content_type='application/json')
 
 
 def insert_section_group(section_append, translated_labels, translated_text):
