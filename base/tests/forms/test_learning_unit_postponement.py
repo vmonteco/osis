@@ -27,6 +27,7 @@ from collections import OrderedDict
 from unittest import mock
 
 from django.test import TestCase
+from django.utils.translation import ugettext_lazy as _
 
 from base.forms.learning_unit.learning_unit_create import LearningUnitYearModelForm
 from base.forms.learning_unit.learning_unit_create_2 import PartimForm, FullForm
@@ -41,6 +42,7 @@ from base.tests.factories.business.learning_units import GenerateContainer, Gene
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.person_entity import PersonEntityFactory
+from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
 
 FULL_ACRONYM = 'LAGRO1000'
 SUBDIVISION_ACRONYM = 'C'
@@ -288,12 +290,20 @@ class TestLearningUnitPostponementFormFindConsistencyErrors(LearningUnitPostpone
         next_academic_year_2 = AcademicYear.objects.get(year=self.learning_unit_year_full.academic_year.year + 2)
         initial_credits_value_2, new_credits_value_2 = self._change_credits_value(next_academic_year)
         expected_result = OrderedDict({
-            next_academic_year: {
-                'credits': {'current': initial_credits_value, 'new': new_credits_value}
-            },
-            next_academic_year_2: {
-                'credits': {'current': initial_credits_value_2, 'new': new_credits_value_2}
-            },
+            next_academic_year: [
+                _("%(col_name)s has been already modified. ({%(new_value)s} instead of {%(current_value)s})") % {
+                    'col_name': "credits",
+                    'current_value': initial_credits_value,
+                    'new_value': new_credits_value
+                }
+            ],
+            next_academic_year_2: [
+                _("%(col_name)s has been already modified. ({%(new_value)s} instead of {%(current_value)s})") % {
+                    'col_name': "credits",
+                    'current_value': initial_credits_value_2,
+                    'new_value': new_credits_value_2
+                }
+            ],
         })
 
         instance_luy_base_form = _instanciate_base_learning_unit_form(self.learning_unit_year_full, self.person)
@@ -301,10 +311,36 @@ class TestLearningUnitPostponementFormFindConsistencyErrors(LearningUnitPostpone
                                               learning_unit_instance=instance_luy_base_form.learning_unit_instance,
                                               data=instance_luy_base_form.data)
 
-        self.assertFalse(form.is_valid())
+        self.assertTrue(form.is_valid(), form.errors)
         result = form.consistency_errors
         self.assertIsInstance(result, OrderedDict) # Need to be ordered by academic_year
-        self.assertDictEqual(expected_result[next_academic_year], result[next_academic_year])
+        self.assertEqual(expected_result[next_academic_year], result[next_academic_year])
+
+    def test_postponement_with_proposal(self):
+        next_academic_year = AcademicYear.objects.get(year=self.learning_unit_year_full.academic_year.year + 2)
+        luy = LearningUnitYear.objects.filter(
+            academic_year=next_academic_year, learning_unit=self.learning_unit_year_full.learning_unit
+        ).get()
+
+        ProposalLearningUnitFactory(learning_unit_year=luy)
+
+        msg_proposal = _("learning_unit_in_proposal_cannot_save") % {
+            'luy': luy.acronym, 'academic_year': next_academic_year
+        }
+
+        expected_result = OrderedDict({
+            next_academic_year: [msg_proposal],
+        })
+
+        instance_luy_base_form = _instanciate_base_learning_unit_form(self.learning_unit_year_full, self.person)
+        form = _instanciate_postponement_form(self.person, self.learning_unit_year_full.academic_year,
+                                              learning_unit_instance=instance_luy_base_form.learning_unit_instance,
+                                              data=instance_luy_base_form.data)
+
+        self.assertTrue(form.is_valid(), form.errors)
+        result = form.consistency_errors
+        self.assertIsInstance(result, OrderedDict)  # Need to be ordered by academic_year
+        self.assertEqual(expected_result[next_academic_year], result[next_academic_year])
 
 
 def _instanciate_base_learning_unit_form(learning_unit_year_instance, person):
