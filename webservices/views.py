@@ -17,6 +17,11 @@ from cms.models.translated_text_label import TranslatedTextLabel
 LANGUAGES = {'fr': 'fr-be', 'en': 'en'}
 ENTITY = 'offer_year'
 
+Context = collections.namedtuple(
+    'Context',
+    ['year', 'language', 'acronym', 'title', 'academic_year', 'education_group_year']
+)
+
 
 class JSONNotFoundResponse(Response):
     def __init__(self):
@@ -69,25 +74,16 @@ def get_entity(education_group_year):
 def get_cleaned_parameters(type_acronym):
     def get_cleaned_parameters(function):
         def wrapper(request, year, language, acronym):
-            try:
-                year = int(year)
-            except:
-                raise Http404
+            year = to_int_or_404(year)
 
             if language not in LANGUAGES:
                 raise Http404
 
-            Context = collections.namedtuple(
-                'Context',
-                ['year', 'language', 'acronym', 'title', 'academic_year', 'education_group_year']
-            )
-
             academic_year = get_object_or_404(AcademicYear, year=year)
-            key = 'partial_acronym__iexact' if type_acronym == 'partial' else 'acronym__iexact'
 
             parameters = {
                 'academic_year': academic_year,
-                key: acronym
+                'partial_acronym__iexact' if type_acronym == 'partial' else 'acronym__iexact': acronym
             }
 
             education_group_year = get_object_or_404(EducationGroupYear, **parameters)
@@ -96,7 +92,7 @@ def get_cleaned_parameters(type_acronym):
             title = get_title_of_education_group_year(education_group_year, iso_language)
 
             context = Context(
-                year=int(year),
+                year=year,
                 language=iso_language,
                 acronym=acronym,
                 title=title,
@@ -106,8 +102,16 @@ def get_cleaned_parameters(type_acronym):
 
             return function(request, context)
 
+
         return wrapper
     return get_cleaned_parameters
+
+
+def to_int_or_404(year):
+    try:
+        return int(year)
+    except:
+        raise Http404
 
 
 @api_view(['GET'])
