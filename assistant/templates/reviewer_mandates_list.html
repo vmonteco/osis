@@ -131,7 +131,7 @@
                     {% endif %}
                 {% endfor %}
             </td>
-	        {% if mandate.state in reviewer.role %}
+	        {% if mandate.edit %}
                 <td align="center">
                     <form method="POST" action="{% url 'review_edit' %}">
                         {% csrf_token %}
@@ -143,33 +143,7 @@
                     </form>
                 </td>
                 <td></td>
-            {% elif "RESEARCH" in reviewer.role and mandate.state in research_list %}
-                <td></td>
-                <td align="center">
-                    <form method="POST" action="{% url 'review_view' %}">
-                        {% csrf_token %}
-                        <input type="hidden" name="mandate_id" value="{{ mandate.id }}">
-                        <input type="hidden" name="role" value="{{ reviewer.role }}">
-                        <button type="submit" class="btn btn-link" title="{% trans 'view'%}">
-                            <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
-                            {% trans 'view'%}
-                        </button>
-                    </form>
-                </td>
-            {% elif "SUPERVISION" in reviewer.role and mandate.state in supervision_list %}
-                <td></td>
-                <td align="center">
-                    <form method="POST" action="{% url 'review_view' %}">
-                        {% csrf_token %}
-                        <input type="hidden" name="mandate_id" value="{{ mandate.id }}">
-                        <input type="hidden" name="role" value="{{ reviewer.role }}">
-                        <button type="submit" class="btn btn-link" title="{% trans 'view'%}">
-                            <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
-                            {% trans 'view'%}
-                        </button>
-                    </form>
-                </td>
-            {% elif "VICE_RECTOR" in reviewer.role and mandate.state in vice_rector_list %}
+            {% elif mandate.view %}
                 <td></td>
                 <td align="center">
                     <form method="POST" action="{% url 'review_view' %}">

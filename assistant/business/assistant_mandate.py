@@ -86,3 +86,18 @@ def find_review_and_change_status(mandate, role):
     if review:
         review.status = review_status.IN_PROGRESS
         review.save()
+
+
+def add_actions_to_mandates_list(context, reviewer):
+    for mandate in context['object_list']:
+        if mandate.state != assistant_mandate_state.TO_DO \
+                and mandate.state != assistant_mandate_state.DECLINED \
+                and mandate.state != assistant_mandate_state.TRTS:
+            mandate.view = True
+        else:
+            mandate.view = False
+        if mandate.state in reviewer.role:
+            mandate.edit = True
+        else:
+            mandate.edit = False
+    return context
