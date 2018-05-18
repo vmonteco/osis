@@ -31,6 +31,7 @@ from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from attribution.business.xls_build import create_xls_attribution
+from base.utils.cache import cache_filter
 from base.business.learning_unit import create_xls
 from base.business.proposal_xls import create_xls_proposal
 from base.forms.common import TooManyResultsException
@@ -85,24 +86,28 @@ def learning_units_search(request, search_type):
 
 @login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
+@cache_filter()
 def learning_units(request):
     return learning_units_search(request, SIMPLE_SEARCH)
 
 
 @login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
+@cache_filter()
 def learning_units_service_course(request):
     return learning_units_search(request, SERVICE_COURSES_SEARCH)
 
 
 @login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
+@cache_filter()
 def learning_units_borrowed_course(request):
     return learning_units_search(request, BORROWED_COURSE)
 
 
 @login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
+@cache_filter()
 def learning_units_proposal_search(request):
     search_form = LearningUnitProposalForm(request.GET or None)
     user_person = get_object_or_404(Person, user=request.user)
