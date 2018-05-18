@@ -29,7 +29,6 @@ from django.views.generic import ListView
 from django.views.generic.edit import FormMixin
 
 from base.models import academic_year, entity_version
-from base.models.entity import find_versions_from_entites
 
 from assistant.business.users_access import user_is_reviewer_and_procedure_is_open
 from assistant.business.assistant_mandate import add_actions_to_mandates_list
@@ -97,7 +96,7 @@ class MandatesListView(LoginRequiredMixin, UserPassesTestMixin, ListView, FormMi
         context['filter'] = self.kwargs.get("filter", None)
         context['year'] = academic_year.find_academic_year_by_id(
             self.request.session.get('selected_academic_year')).year
-        context= add_entities_version_to_mandates_list(context)
+        context = add_entities_version_to_mandates_list(context)
         return add_actions_to_mandates_list(context, current_reviewer)
 
     def get_initial(self):
