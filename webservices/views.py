@@ -1,6 +1,7 @@
 import collections
 
 import bs4
+from django.http import Http404
 from rest_framework.decorators import api_view, renderer_classes
 from rest_framework.generics import get_object_or_404
 from rest_framework.renderers import JSONRenderer
@@ -14,6 +15,7 @@ from cms.models.translated_text_label import TranslatedTextLabel
 
 
 LANGUAGES = {'fr': 'fr-be', 'en': 'en'}
+ENTITY = 'offer_year'
 
 
 class JSONNotFoundResponse(Response):
@@ -64,79 +66,78 @@ def get_entity(education_group_year):
         k: v for k, v in result.items() if k in keeps
     }
 
+def get_cleaned_parameters(type_acronym):
+    def get_cleaned_parameters(function):
+        def wrapper(request, year, language, acronym):
+            try:
+                year = int(year)
+            except:
+                raise Http404
+
+            if language not in LANGUAGES:
+                raise Http404
+
+            Context = collections.namedtuple(
+                'Context',
+                ['year', 'language', 'acronym', 'title', 'academic_year', 'education_group_year']
+            )
+
+            academic_year = get_object_or_404(AcademicYear, year=year)
+            key = 'partial_acronym__iexact' if type_acronym == 'partial' else 'acronym__iexact'
+
+            parameters = {
+                'academic_year': academic_year,
+                key: acronym
+            }
+
+            education_group_year = get_object_or_404(EducationGroupYear, **parameters)
+            iso_language = LANGUAGES[language]
+
+            title = get_title_of_education_group_year(education_group_year, iso_language)
+
+            context = Context(
+                year=int(year),
+                language=iso_language,
+                acronym=acronym,
+                title=title,
+                academic_year=academic_year,
+                education_group_year=education_group_year
+            )
+
+            return function(request, context)
+
+        return wrapper
+    return get_cleaned_parameters
+
 
 @api_view(['GET'])
 @renderer_classes((JSONRenderer, ))
-def ws_catalog_offer(request, year, language, acronym):
-    if language not in LANGUAGES:
-        return JSONNotFoundResponse()
+@get_cleaned_parameters(type_acronym='acronym')
+def ws_catalog_offer(request, context):
+    translated_labels = find_translated_labels_for_entity_and_language(ENTITY, context.language)
+    description = get_description(context.education_group_year, context.language, context.title, context.year)
 
-    year = int(year)
-
-    entity = 'offer_year'
-    iso_language = LANGUAGES[language]
-
-    academic_year = get_object_or_404(AcademicYear, year=year)
-
-    education_group_year = get_object_or_404(
-        EducationGroupYear,
-        academic_year=academic_year,
-        acronym__iexact=acronym)
-
-    translated_labels = find_translated_labels_for_entity_and_language(entity, iso_language)
-
-    queryset = TranslatedText.objects.filter(
-        entity=entity,
-        reference=education_group_year.id,
-        language=iso_language)
-
-    if iso_language == 'fr-be':
-        title = education_group_year.title
-    else:
-        title = education_group_year.title_english
-
-    description = {
-        'language': language,
-        'acronym': education_group_year.acronym,
-        'title': title,
-        'year': year,
-        'sections': [],
-        # 'entity': get_entity(education_group_year)
-    }
-    common_terms = get_common_education_group(academic_year, iso_language,
-                                              'common')
+    common_terms = get_common_education_group(context.academic_year, context.language, 'common')
     section_append = description['sections'].append
 
     has_section = collections.defaultdict(bool)
 
-    for translated_text in queryset.order_by('text_label__order'):
-        label = get_label(translated_labels, translated_text)
+    queryset = find_translated_texts_by_entity_and_language(context.education_group_year,ENTITY, context.language)
 
-        name = translated_text.text_label.label
+    for translated_text in queryset:
+        insert_section(common_terms, has_section, section_append, translated_labels, translated_text)
 
-        content = translated_text.text
+    insert_missing_sections(common_terms, context, has_section, section_append)
 
-        if name in ('caap', 'prerequis'):
-            content = normalize_caap_or_prerequis(common_terms, content, has_section, name)
+    return Response(description, content_type='application/json')
 
-        elif name == 'programme':
-            content = normalize_program(common_terms, content, has_section, name)
 
-        elif name == 'module_complementaire':
-            content = normalize_module_complementaire(common_terms, content, has_section, name)
-
-        section_append({
-            'id': name,
-            'label': label,
-            'content': content,
-        })
-
+def insert_missing_sections(common_terms, context, has_section, section_append):
     sections = [
         ('programme', 'agregations', 'programme', 'Programme'),
         ('caap', 'caap', 'caap', 'Caap'),
         ('prerequis', 'prerequis', 'prerequis', 'Prerequis')
     ]
-
     for section, common_term, name, label in sections:
         if has_section[section]:
             continue
@@ -148,15 +149,50 @@ def ws_catalog_offer(request, year, language, acronym):
                 'label': label,
                 'content': term,
             })
-
-    if acronym.lower().endswith('2m'):
+    if context.acronym.lower().endswith('2m'):
         section_append({
             'id': 'finalite-didactique-commun',
             'label': 'Finalite Didactique',
             'content': common_terms['finalites_didactiques']
         })
 
-    return Response(description, content_type='application/json')
+
+def insert_section(common_terms, has_section, section_append, translated_labels, translated_text):
+    label = get_label(translated_labels, translated_text)
+    name = translated_text.text_label.label
+    content = translated_text.text
+    if name in ('caap', 'prerequis'):
+        content = normalize_caap_or_prerequis(common_terms, content, has_section, name)
+
+    elif name == 'programme':
+        content = normalize_program(common_terms, content, has_section, name)
+
+    elif name == 'module_complementaire':
+        content = normalize_module_complementaire(common_terms, content, has_section, name)
+    section_append({
+        'id': name,
+        'label': label,
+        'content': content,
+    })
+
+
+def find_translated_texts_by_entity_and_language(education_group_year, entity, iso_language):
+    queryset = TranslatedText.objects.filter(
+        entity=entity,
+        reference=education_group_year.id,
+        language=iso_language)
+
+    return queryset.order_by('text_label__order')
+
+
+def get_description(education_group_year, language, title, year):
+    return {
+        'language': language,
+        'acronym': education_group_year.acronym,
+        'title': title,
+        'year': year,
+        'sections': [],
+    }
 
 
 def normalize_module_complementaire(common_terms, content, has_section, name):
@@ -213,50 +249,43 @@ def get_label(translated_labels, translated_text):
 
 @api_view(['GET'])
 @renderer_classes((JSONRenderer,))
-def ws_catalog_group(request, year, language, acronym):
-    if language not in LANGUAGES:
-        return JSONNotFoundResponse()
+@get_cleaned_parameters(type_acronym='partial')
+def ws_catalog_group(request, context):
+    translated_labels = find_translated_labels_for_entity_and_language(ENTITY, context.language)
 
-    year = int(year)
+    description = get_description(context.education_group_year,
+                                  context.language,
+                                  context.title,
+                                  context.year)
 
-    entity = 'offer_year'
-    iso_language = LANGUAGES[language]
-
-    academic_year = get_object_or_404(AcademicYear, year=year)
-    education_group_year = get_object_or_404(
-        EducationGroupYear,
-        academic_year=academic_year,
-        partial_acronym__iexact=acronym)
-
-    translated_labels = find_translated_labels_for_entity_and_language(
-        entity, iso_language)
-
-    queryset = TranslatedText.objects.filter(
-        entity=entity,
-        reference=education_group_year.id,
-        language=iso_language)
-
-    description = {
-        'language': language,
-        'acronym': education_group_year.acronym,
-        'partial_acronym': education_group_year.partial_acronym,
-        'title': education_group_year.title if iso_language == 'fr-be' else education_group_year.title_english,
-        'year': year,
-        'sections': [],
-    }
+    description['partial_acronym'] = context.education_group_year.partial_acronym
 
     section_append = description['sections'].append
 
-    for translated_text in queryset.order_by('text_label__order'):
-        label = translated_labels.get(translated_text.text_label.label)
+    queryset = find_translated_texts_by_entity_and_language(context.education_group_year,
+                                                            ENTITY,
+                                                            context.language)
 
-        content = translated_text.text
-        name = translated_text.text_label.label
-
-        section_append({
-            'id': name,
-            'label': label,
-            'content': content,
-        })
+    for translated_text in queryset:
+        insert_section_group(section_append, translated_labels, translated_text)
 
     return Response(description, content_type='application/json')
+
+
+def insert_section_group(section_append, translated_labels, translated_text):
+    label = translated_labels.get(translated_text.text_label.label)
+    content = translated_text.text
+    name = translated_text.text_label.label
+    section_append({
+        'id': name,
+        'label': label,
+        'content': content,
+    })
+
+
+def get_title_of_education_group_year(education_group_year, iso_language):
+    if iso_language == 'fr-be':
+        title = education_group_year.title
+    else:
+        title = education_group_year.title_english
+    return title
