@@ -104,22 +104,8 @@ class ExportImportXlsFile(TestCase):
         self.entity_version2 = EntityVersionFactory(entity_type=entity_type.SECTOR,
                                                     acronym='SSH',
                                                     end_date=datetime.datetime(datetime.date.today().year + 1, 9, 14))
-        self.assistant_mandate3 = AssistantMandateFactory(assistant=self.assistant2)
-        self.assistant_mandate2 = AssistantMandateFactory(
-            assistant=self.assistant1,
-            academic_year=self.previous_academic_year
-        )
-        self.tutoring_learning_unit_year1 = TutoringLearningUnitYearFactory(mandate=self.assistant_mandate2)
-        self.tutoring_learning_unit_year2 = TutoringLearningUnitYearFactory(mandate=self.assistant_mandate2)
         self.assistant_mandate1 = AssistantMandateFactory(
             assistant=self.assistant1
-        )
-        self.assistant_mandate4 = AssistantMandateFactory(
-            assistant=self.assistant2,
-            academic_year=self.previous_academic_year
-        )
-        self.assistant_mandate5 = AssistantMandateFactory(
-            assistant=self.assistant2
         )
 
     def test_upload_mandates_file(self):
@@ -213,6 +199,16 @@ class ExportImportXlsFile(TestCase):
         self.assertEqual(import_xls_file_data.MANDATES_UPDATED, nbr_mandates_updated + 1)
 
     def test_retrieve_learning_units_year_from_previous_mandate(self):
+        self.assistant_mandate3 = AssistantMandateFactory(assistant=self.assistant2)
+        self.assistant_mandate2 = AssistantMandateFactory(
+            assistant=self.assistant1,
+            academic_year=self.previous_academic_year
+        )
+        self.tutoring_learning_unit_year1 = TutoringLearningUnitYearFactory(mandate=self.assistant_mandate2)
+        self.tutoring_learning_unit_year2 = TutoringLearningUnitYearFactory(mandate=self.assistant_mandate2)
+        self.assistant_mandate5 = AssistantMandateFactory(
+            assistant=self.assistant2
+        )
         retrieve_learning_units_year_from_previous_mandate(self.assistant1, self.assistant_mandate1)
         self.assertEqual(len(find_by_mandate(self.assistant_mandate1)), 2)
 
