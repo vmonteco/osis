@@ -2903,3 +2903,6 @@ msgstr ""
 
 msgid "%(col_name)s has been already modified. ({%(new_value)s} instead of {%(current_value)s})"
 msgstr ""
+
+msgid "external_code"
+msgstr "External code"

@@ -981,7 +981,7 @@ msgid "reuse_address_entity"
 msgstr "Réutiliser l'adresse de"
 
 msgid "save"
-msgstr "Sauvegarder"
+msgstr "Enregistrer"
 
 msgid "saved"
 msgstr "Enregistré"
@@ -2909,3 +2909,6 @@ msgstr "Erreur de consistance en %(academic_year)s : %(error)s"
 
 msgid "%(col_name)s has been already modified. ({%(new_value)s} instead of {%(current_value)s})"
 msgstr "%(col_name)s a déjà été modifié. ({%(new_value)s} à la place de {%(current_value)s})"
+
+msgid "external_code"
+msgstr "Code local"
