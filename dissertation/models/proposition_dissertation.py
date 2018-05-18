@@ -24,8 +24,6 @@
 #
 ##############################################################################
 from django.core.exceptions import ObjectDoesNotExist
-
-from base.models import academic_year
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
 from django.db import models
 from django.db.models import Q

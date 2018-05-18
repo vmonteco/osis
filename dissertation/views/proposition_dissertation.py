@@ -272,7 +272,7 @@ def manager_proposition_dissertations_search(request):
                                str(types_choices[proposition.type]),
                                str(levels_choices[proposition.level]),
                                str(collaboration_choices[proposition.collaboration]),
-                               str(proposition.get_count_use())+'/'+str(proposition.max_number_student),
+                               '{}/{}'.format(proposition.get_count_use(), proposition.max_number_student),
                                proposition.visibility,
                                proposition.active,
                                offers,
