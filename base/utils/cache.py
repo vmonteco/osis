@@ -19,7 +19,7 @@ def cache_filter(param_list=None):
                     _save_filter_to_cache(request, param_list)
                 _restore_filter_from_cache(request, param_list)
             except Exception:
-                logger.exception('An error occured with cache system')
+                logger.exception('An error occurred with cache system')
             return func(request, *args, **kwargs)
         return inner
     return decorator
