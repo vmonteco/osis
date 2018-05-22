@@ -202,6 +202,7 @@ class TestLearningUnitPostponementFormSave(LearningUnitPostponementFormContextMi
                                               learning_unit_instance=instance_luy_base_form.learning_unit_instance,
                                               data=instance_luy_base_form.data)
         self.assertEqual(len(form._forms_to_upsert), 1)
+        self.assertEqual(len(form._forms_to_delete), 0)
 
         form.save()
         self.assertEqual(mock_baseform_save.call_count, 1)
