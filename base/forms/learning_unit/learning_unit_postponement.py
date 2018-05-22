@@ -245,7 +245,9 @@ class LearningUnitPostponementForm:
 
         differences = [
             _("%(col_name)s has been already modified. ({%(new_value)s} instead of {%(current_value)s})") % {
-                'col_name': col_name, 'new_value': next_form.instances_data[col_name], 'current_value': value
+                'col_name': next_form.label_fields[col_name],
+                'new_value': next_form.instances_data[col_name],
+                'current_value': value
             } for col_name, value in current_form.instances_data.items()
             if next_form.instances_data[col_name] != value and col_name not in FIELDS_TO_NOT_CHECK
         ]
