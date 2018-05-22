@@ -63,8 +63,14 @@ class LearningUnitPostponementForm:
         self.start_postponement = start_postponement
         self.person = person
         self.check_consistency = check_consistency
+
+        # We do not need postponement for learning unit in the past
+        if self.start_postponement.is_past():
+            end_postponement = self.start_postponement
+
         if end_postponement is None and self.learning_unit_instance and self.learning_unit_instance.end_year:
             end_postponement = academic_year.find_academic_year_by_year(self.learning_unit_instance.end_year)
+
         self.end_postponement = end_postponement
         self._init_forms(data)
 
@@ -73,7 +79,7 @@ class LearningUnitPostponementForm:
            forms_to_upsert: LearningUnitBaseForm which must be created/updated
            forms_to_delete: LearningUnitBaseForm which must be deleted
         """
-        if self.end_postponement:
+        if self.end_postponement and self.learning_unit_instance:
             # CASE end year specify in learning unit
             self._forms_to_delete = self._get_forms_to_delete(self.end_postponement.year, self.learning_unit_instance)
 

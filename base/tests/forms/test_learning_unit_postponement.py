@@ -37,7 +37,7 @@ from base.models.academic_year import AcademicYear
 from base.models.enums import entity_container_year_link_type
 from base.models.enums import learning_unit_year_subtypes
 from base.models.learning_unit_year import LearningUnitYear
-from base.tests.factories.academic_year import create_current_academic_year
+from base.tests.factories.academic_year import create_current_academic_year, AcademicYearFactory
 from base.tests.factories.business.learning_units import GenerateContainer, GenerateAcademicYear
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from base.tests.factories.person import PersonFactory
@@ -190,6 +190,21 @@ class TestLearningUnitPostponementFormSave(LearningUnitPostponementFormContextMi
 
         form.save()
         self.assertEqual(mock_baseform_save.call_count, 7)
+
+    @mock.patch('base.forms.learning_unit.learning_unit_create_2.FullForm.save', side_effect=None)
+    def test_save_luy_in_past(self, mock_baseform_save):
+        """ Check if there is no postponement when the learning_unit_year is in the past """
+
+        self.learning_unit_year_full.academic_year = AcademicYearFactory(year=2010)
+        self.learning_unit_year_full.save()
+        instance_luy_base_form = _instanciate_base_learning_unit_form(self.learning_unit_year_full, self.person)
+        form = _instanciate_postponement_form(self.person, self.learning_unit_year_full.academic_year,
+                                              learning_unit_instance=instance_luy_base_form.learning_unit_instance,
+                                              data=instance_luy_base_form.data)
+        self.assertEqual(len(form._forms_to_upsert), 1)
+
+        form.save()
+        self.assertEqual(mock_baseform_save.call_count, 1)
 
     @mock.patch('base.forms.learning_unit.learning_unit_create_2.FullForm.save', side_effect=None)
     def test_save_with_luy_to_upsert(self, mock_baseform_save):
