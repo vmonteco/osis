@@ -26,12 +26,14 @@
 from collections import OrderedDict
 
 from django.db import transaction
+from django.utils.translation import ugettext_lazy as _
 
-from base.forms.learning_unit.learning_unit_create import LearningUnitModelForm
 from base.forms.learning_unit.learning_unit_create_2 import PartimForm, FullForm
 from base.models import academic_year, learning_unit_year
 from base.models.enums import learning_unit_year_subtypes, entity_container_year_link_type
 from base.models.learning_unit import LearningUnit
+
+FIELDS_TO_NOT_CHECK = ['academic_year']
 
 
 # @TODO: Use LearningUnitPostponementForm to manage END_DATE of learning unit year
@@ -43,7 +45,9 @@ class LearningUnitPostponementForm:
     check_consistency = True
     _forms_to_upsert = []
     _forms_to_delete = []
+    _warnings = None
     consistency_errors = OrderedDict()
+    _luy_upserted = []
 
     def __init__(self, person, start_postponement, end_postponement=None, learning_unit_instance=None,
                  learning_unit_full_instance=None, data=None, check_consistency=True):
@@ -154,8 +158,10 @@ class LearningUnitPostponementForm:
     def is_valid(self):
         if any([not form_instance.is_valid() for form_instance in self._forms_to_upsert]):
             return False
+
         if self.check_consistency:
-            return self._check_consistency()
+            self._check_consistency()
+
         return True
 
     @property
@@ -164,15 +170,20 @@ class LearningUnitPostponementForm:
 
     @transaction.atomic
     def save(self):
-        luy_upserted = []
         if self._forms_to_upsert:
             current_learn_unit_year = self._forms_to_upsert[0].save()
             learning_unit = current_learn_unit_year.learning_unit
+            self._luy_upserted.append(current_learn_unit_year)
+
             if len(self._forms_to_upsert) > 1:
                 for form in self._forms_to_upsert[1:]:
-                    form.forms[LearningUnitModelForm].instance = learning_unit
-                    luy_upserted.append(form.save())
-        return luy_upserted
+                    if form.academic_year in self.consistency_errors:
+                        break
+
+                    form.learning_unit_form.instance = learning_unit
+                    self._luy_upserted.append(form.save())
+
+        return self._luy_upserted
 
     def _check_consistency(self):
         if not self.learning_unit_instance or not self._forms_to_upsert or len(self._forms_to_upsert) == 1:
@@ -190,14 +201,54 @@ class LearningUnitPostponementForm:
         current_form = self._get_learning_unit_base_form(self.start_postponement, **form_kwargs)
         academic_years = sorted([form.instance.academic_year for form in self._forms_to_upsert],
                                 key=lambda ac_year: ac_year.year)
-        consistency_errors = OrderedDict()
-        FIELDS_TO_NOT_CHECK = ['academic_year']
+
+        self.consistency_errors = OrderedDict()
         for ac_year in academic_years:
             next_form = self._get_learning_unit_base_form(ac_year, **form_kwargs)
-            differences = {col_name: {'current': value, 'new': next_form.instances_data[col_name]}
-                           for col_name, value in current_form.instances_data.items()
-                           if next_form.instances_data[col_name] != value and col_name not in FIELDS_TO_NOT_CHECK}
-            if differences:
-                consistency_errors[ac_year] = differences
-        self.consistency_errors = consistency_errors
+            self._check_postponement_proposal_state(next_form.learning_unit_year_form.instance, ac_year)
+            self._check_differences(current_form, next_form, ac_year)
+
         return self.consistency_errors
+
+    @property
+    def warnings(self):
+        """ Warnings can be call only after saving the forms"""
+        if self._warnings is None and self._luy_upserted:
+            self._warnings = []
+            # Add the warnings of the current year
+            for form in self._forms_to_upsert[0]:
+                if hasattr(form, 'warnings'):
+                    self._warnings.extend(form.warnings)
+
+            if self.consistency_errors:
+                self._warnings.append(_('The learning unit has been updated until %(year)s.') % {
+                    'year': self._luy_upserted[-1].academic_year
+                })
+                for ac, errors in self.consistency_errors.items():
+                    for error in errors:
+                        self._warnings.append(
+                            _("Consistency error in %(academic_year)s : %(error)s") % {
+                                'academic_year': ac, 'error': error}
+                        )
+
+        return self._warnings
+
+    def _check_postponement_proposal_state(self, luy, ac_year):
+        if luy.is_in_proposal():
+            self.consistency_errors.setdefault(ac_year, []).append(
+                _("learning_unit_in_proposal_cannot_save") % {
+                    'luy': luy.acronym, 'academic_year': ac_year
+                }
+            )
+
+    def _check_differences(self, current_form, next_form, ac_year):
+
+        differences = [
+            _("%(col_name)s has been already modified. ({%(new_value)s} instead of {%(current_value)s})") % {
+                'col_name': col_name, 'new_value': next_form.instances_data[col_name], 'current_value': value
+            } for col_name, value in current_form.instances_data.items()
+            if next_form.instances_data[col_name] != value and col_name not in FIELDS_TO_NOT_CHECK
+        ]
+
+        if differences:
+            self.consistency_errors.setdefault(ac_year, []).extend(differences)

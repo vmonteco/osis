@@ -2904,5 +2904,11 @@ msgstr "Il est nécessaire d'indiquer le sous-type de stage"
 msgid "different_status_with_parent"
 msgstr "L'UE parent est inactif"
 
+msgid "Consistency error in %(academic_year)s : %(error)s"
+msgstr "Erreur de consistance en %(academic_year)s : %(error)s"
+
+msgid "%(col_name)s has been already modified. ({%(new_value)s} instead of {%(current_value)s})"
+msgstr "%(col_name)s a déjà été modifié. ({%(new_value)s} à la place de {%(current_value)s})"
+
 msgid "external_code"
 msgstr "Code local"
