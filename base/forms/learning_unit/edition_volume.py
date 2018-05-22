@@ -52,14 +52,10 @@ class VolumeEditionForm(forms.Form):
     additional_requirement_entity_1_key = 'volume_' + entity_types.ADDITIONAL_REQUIREMENT_ENTITY_1.lower()
     additional_requirement_entity_2_key = 'volume_' + entity_types.ADDITIONAL_REQUIREMENT_ENTITY_2.lower()
 
-    volume_total = VolumeField(label=_('total_volume_voltot'), help_text=_('total_volume'))
-    equal_field_1 = EmptyField(label='=')
     volume_q1 = VolumeField(label=_('partial_volume_1Q'), help_text=_('partial_volume_1'))
-    add_field = EmptyField(label='+')
     volume_q2 = VolumeField(label=_('partial_volume_2Q'), help_text=_('partial_volume_2'))
-    mult_field = EmptyField(label='*')
+    volume_total = VolumeField(label=_('total_volume_voltot'), help_text=_('total_volume'))
     planned_classes = forms.IntegerField(label=_('planned_classes_pc'), help_text=_('planned_classes'), min_value=0)
-    equal_field_2 = EmptyField(label='=')
 
     _post_errors = []
     _parent_data = {}
@@ -81,10 +77,8 @@ class VolumeEditionForm(forms.Form):
         for key in ENTITY_TYPES_VOLUME:
             self._add_entity_fields(key)
 
-        self.fields['equal_field_3'] = EmptyField(label='=')
-
         self.fields['volume_total_requirement_entities'] = VolumeField(
-            label=_('vol_charge'), help_text=_('total_volume_charge'))
+            label=_('vol_global'), help_text=_('volume_global'))
 
         if self.is_faculty_manager and self.learning_unit_year.is_full():
             self._disable_central_manager_fields()
@@ -98,6 +92,11 @@ class VolumeEditionForm(forms.Form):
         if key in self.entities:
             entity = self.entities[key]
             self.fields["volume_"+key.lower()] = VolumeField(label=entity.acronym, help_text=entity.title)
+
+    def get_entity_fields(self):
+        entity_keys = [self.requirement_entity_key, self.additional_requirement_entity_1_key,
+                       self.additional_requirement_entity_2_key]
+        return [self.fields[key] for key in entity_keys if key in self.fields]
 
     def clean(self):
         cleaned_data = super().clean().copy()
@@ -123,7 +122,7 @@ class VolumeEditionForm(forms.Form):
 
         if cleaned_data.get('volume_total_requirement_entities') != total:
             error_msg = ' + '.join([self.entities.get(t).acronym for t in ENTITY_TYPES_VOLUME if self.entities.get(t)])
-            error_msg += ' = {}'.format(_('vol_charge'))
+            error_msg += ' = {}'.format(_('vol_global'))
             self.add_error("volume_total_requirement_entities", error_msg)
 
     def _check_tot_req_entities_equal_to_tot_annual_mult_cp(self, cleaned_data):
