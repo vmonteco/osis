@@ -91,7 +91,6 @@ class VolumeEditionForm(forms.Form):
             if i != len(entities_to_add) - 1:
                 self.fields["add" + key.lower()] = EmptyField(label='+')
 
-
         if self.is_faculty_manager and self.learning_unit_year.is_full():
             self._disable_central_manager_fields()
 
@@ -99,7 +98,6 @@ class VolumeEditionForm(forms.Form):
         for key, field in self.fields.items():
             if key not in self._faculty_manager_fields:
                 field.disabled = True
-
 
     def get_entity_fields(self):
         entity_keys = [self.requirement_entity_key, self.additional_requirement_entity_1_key,
