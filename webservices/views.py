@@ -24,13 +24,6 @@ Context = collections.namedtuple(
 )
 
 
-class JSONNotFoundResponse(Response):
-    def __init__(self):
-        super().__init__({'detail': 'Not found.'},
-                         content_type='application/json',
-                         status=404)
-
-
 def find_translated_labels_for_entity_and_language(entity, language):
     queryset = TranslatedTextLabel.objects.filter(
         text_label__entity=entity, language=language)
@@ -54,23 +47,6 @@ def get_common_education_group(academic_year, language, acronym):
 
             values[label] = translated_text.text
     return values
-
-
-def get_entity(education_group_year):
-    from base.models.enums.offer_year_entity_type import ENTITY_ADMINISTRATION
-    offer_year_entity = OfferYearEntity.objects.filter(education_group_year=education_group_year,
-                                                       type=ENTITY_ADMINISTRATION)
-    entity = offer_year_entity.first().entity
-
-    from django.forms import model_to_dict
-
-    result = model_to_dict(entity)
-    result['acronym'] = entity.most_recent_acronym
-
-    keeps = ('city', 'fax', 'location', 'phone', 'postal_code', 'website', 'acronym')
-    return {
-        k: v for k, v in result.items() if k in keeps
-    }
 
 
 def get_cleaned_parameters(type_acronym):
