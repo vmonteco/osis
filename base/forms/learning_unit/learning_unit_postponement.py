@@ -262,11 +262,16 @@ class LearningUnitPostponementForm:
         differences = [
             _("%(col_name)s has been already modified. ({%(new_value)s} instead of {%(current_value)s})") % {
                 'col_name': next_form.label_fields[col_name],
-                'new_value': next_form.instances_data[col_name],
-                'current_value': value
+                'new_value': self._get_translated_value(next_form.instances_data[col_name]),
+                'current_value': self._get_translated_value(value)
             } for col_name, value in current_form.instances_data.items()
             if next_form.instances_data[col_name] != value and col_name not in FIELDS_TO_NOT_CHECK
         ]
 
         if differences:
             self.consistency_errors.setdefault(ac_year, []).extend(differences)
+
+    def _get_translated_value(self, value):
+        if isinstance(value, bool):
+            return _("yes") if value else _("no")
+        return value
