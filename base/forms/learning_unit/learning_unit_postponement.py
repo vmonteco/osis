@@ -41,6 +41,7 @@ FIELDS_TO_NOT_POSTPONE = {
 }
 FIELDS_TO_NOT_CHECK = ['academic_year'] + list(FIELDS_TO_NOT_POSTPONE.keys())
 
+
 # @TODO: Use LearningUnitPostponementForm to manage END_DATE of learning unit year
 # TODO :: Maybe could we move this code to LearningUnitModelForm class?
 class LearningUnitPostponementForm:
@@ -135,7 +136,7 @@ class LearningUnitPostponementForm:
 
     def _get_data_to_postpone(self, lunit_year, data):
         """This function will return data form to postpone"""
-        data_to_postpone = {key:data[key] for key in data if key not in FIELDS_TO_NOT_POSTPONE.keys()}
+        data_to_postpone = {key: data[key] for key in data if key not in FIELDS_TO_NOT_POSTPONE.keys()}
         for key, attr_path in FIELDS_TO_NOT_POSTPONE.items():
             data_to_postpone[key] = operator.attrgetter(attr_path)(lunit_year)
         return data_to_postpone
