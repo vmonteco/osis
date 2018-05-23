@@ -30,17 +30,24 @@ from django import forms
 from base.forms.utils.choice_field import add_blank
 from base.models.enums import learning_unit_year_subtypes
 from base.models.enums.learning_unit_management_sites import LearningUnitManagementSite
+from base.models.learning_unit import LEARNING_UNIT_ACRONYM_REGEX_EXTERNAL
+
+
+def _create_first_letter_choices():
+    return add_blank(LearningUnitManagementSite.choices())
 
 
 class AcronymInput(forms.MultiWidget):
     template_name = 'learning_unit/blocks/widget/acronym_widget.html'
+    choices = _create_first_letter_choices()
 
     def __init__(self, attrs=None):
         attrs = attrs or {}
         attrs['class'] = 'text-uppercase'
         widgets = (
-            forms.Select(attrs=attrs, choices=_create_first_letter_choices()),
-            forms.TextInput(attrs=attrs))
+            forms.Select(attrs=attrs, choices=self.choices),
+            forms.TextInput(attrs=attrs)
+        )
 
         super().__init__(widgets)
 
@@ -63,6 +70,19 @@ class AcronymField(forms.MultiValueField):
 
     def compress(self, data_list):
         return ''.join(data_list).upper()
+
+
+class ExternalAcronymField(forms.RegexField):
+
+    def __init__(self):
+        super().__init__(regex=LEARNING_UNIT_ACRONYM_REGEX_EXTERNAL)
+
+    def to_python(self, value):
+        return 'X' + value
+
+    def prepare_value(self, value):
+        if value:
+            return value[1:] if value[0] == 'X' else value
 
 
 class PartimAcronymInput(forms.MultiWidget):
@@ -110,8 +130,7 @@ class PartimAcronymField(forms.MultiValueField):
         return ''.join(data_list).upper()
 
 
-def _create_first_letter_choices():
-    return add_blank(LearningUnitManagementSite.choices())
+
 
 
 def split_acronym(value, subtype=learning_unit_year_subtypes.PARTIM):

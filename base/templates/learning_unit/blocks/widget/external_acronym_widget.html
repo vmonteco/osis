@@ -1,0 +1,9 @@
+{% load i18n %}
+
+{% spaceless %}
+    <abbr title="{% trans 'acronym_rules' %}">
+        <span class="glyphicon glyphicon-question-sign " title="{% trans 'acronym_rules' %}" style="font-size: 14pt;">
+        </span>
+    </abbr>
+        {% include widget.template_name %}
+{% endspaceless %}

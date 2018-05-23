@@ -27,11 +27,11 @@
 from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import redirect, get_object_or_404
 
-from base.forms.learning_unit.learning_unit_create_2 import  LearningUnitExternalForm
+from base.forms.learning_unit.learning_unit_external import LearningUnitExternalForm
 from base.models.academic_year import AcademicYear
 from base.models.person import Person
-from base.views.learning_units.common import show_success_learning_unit_year_creation_message
 from base.views import layout
+from base.views.learning_units.common import show_success_learning_unit_year_creation_message
 
 
 @login_required
@@ -40,24 +40,13 @@ def get_external_learning_unit_creation_form(request, academic_year):
     person = get_object_or_404(Person, user=request.user)
     academic_year = get_object_or_404(AcademicYear, pk=academic_year)
 
-    if request.POST:
-        external_form = LearningUnitExternalForm(person,
-                                                 academic_year,
-                                                 request.POST or None)
+    external_form = LearningUnitExternalForm(person, academic_year, request.POST or None)
 
-        if external_form.is_valid():
-            print('valid')
-            external_lu = external_form.save()
-            show_success_learning_unit_year_creation_message(request, external_lu.learning_unit_year,
-                                                             'proposal_learning_unit_successfuly_created')
-            return redirect('learning_unit', learning_unit_year_id=external_lu.learning_unit_year.pk)
+    if external_form.is_valid():
+        print('valid')
+        learning_unit_year = external_form.save()
+        show_success_learning_unit_year_creation_message(request, learning_unit_year,
+                                                         'learning_unit_successfuly_created')
+        return redirect('learning_unit', learning_unit_year_id=learning_unit_year.pk)
 
-        return layout.render(request, "learning_unit/simple/creation_external.html", external_form.get_context())
-    else:
-        learning_unit_external_form = LearningUnitExternalForm(person, academic_year)
-        return layout.render(request, "learning_unit/simple/creation_external.html", learning_unit_external_form.get_context())
-
-
-
-
-
+    return layout.render(request, "learning_unit/simple/creation_external.html", external_form.get_context())

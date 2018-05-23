@@ -48,7 +48,6 @@ from base.models.learning_container_year import LearningContainerYear
 from base.models.learning_unit import LearningUnit
 from base.models.learning_unit_component import LearningUnitComponent
 from base.models.learning_unit_year import LearningUnitYear
-from django.forms import ModelChoiceField
 
 DEFAULT_ACRONYM_COMPONENT = {
     LECTURING: "CM1",
@@ -363,11 +362,6 @@ class EntityContainerBaseForm:
         return {key: self.get_clean_data_entity(key) for key in ENTITY_TYPE_LIST}
 
 
-class CampusChoiceField(ModelChoiceField):
-    def label_from_instance(self, obj):
-        return "{}".format(obj.organization.name)
-
-
 class LearningContainerYearModelForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         person = kwargs.pop('person')
@@ -384,8 +378,8 @@ class LearningContainerYearModelForm(forms.ModelForm):
         if self.initial.get('subtype') == learning_unit_year_subtypes.PARTIM:
             self.fields["container_type"].choices = _create_learning_container_year_type_list()
 
-        if self.initial.get('container_type'):
-            self.fields["container_type"].choices = self.initial.get('container_type')
+        # if self.initial.get('container_type'):
+        #     self.fields["container_type"].choices = self.initial.get('container_type')
 
     def save(self, **kwargs):
         self.instance.learning_container = kwargs.pop('learning_container')
@@ -403,7 +397,3 @@ class LearningContainerYearModelForm(forms.ModelForm):
             self.add_error("common_title", _("must_set_common_title_or_specific_title"))
 
         return not self.errors
-
-
-class LearningContainerYearExternalModelForm(LearningContainerYearModelForm):
-    campus = CampusChoiceField(queryset=find_main_campuses().order_by('organization__name'))
