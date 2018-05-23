@@ -63,8 +63,10 @@ class LearningUnitPostponementForm:
         self.start_postponement = start_postponement
         self.person = person
         self.check_consistency = check_consistency
+
         if end_postponement is None and self.learning_unit_instance and self.learning_unit_instance.end_year:
             end_postponement = academic_year.find_academic_year_by_year(self.learning_unit_instance.end_year)
+
         self.end_postponement = end_postponement
         self._init_forms(data)
 
@@ -73,7 +75,7 @@ class LearningUnitPostponementForm:
            forms_to_upsert: LearningUnitBaseForm which must be created/updated
            forms_to_delete: LearningUnitBaseForm which must be deleted
         """
-        if self.end_postponement:
+        if self.end_postponement and self.learning_unit_instance:
             # CASE end year specify in learning unit
             self._forms_to_delete = self._get_forms_to_delete(self.end_postponement.year, self.learning_unit_instance)
 
@@ -88,13 +90,21 @@ class LearningUnitPostponementForm:
 
     def _get_forms_to_upsert(self, data, start_academic_year):
         end_academic_year = self.end_postponement
-
         luy_to_upsert_qs = learning_unit_year.find_by_learning_unit(self.learning_unit_instance) \
                                              .filter(academic_year__year__gte=start_academic_year.year)\
                                              .select_related('academic_year')\
                                              .order_by('academic_year__year')
+
+        # We do not need postponement for learning unit in the past
+        if start_academic_year.is_past():
+            luy = luy_to_upsert_qs.first()
+            return [self._get_learning_unit_base_form(luy.academic_year,
+                                                      learning_unit_instance=luy.learning_unit,
+                                                      data=data)]
+
         if end_academic_year:
             luy_to_upsert_qs = luy_to_upsert_qs.filter(academic_year__year__lte=end_academic_year.year)
+
         # Learning unit base form with instance [TO UPDATE]
         luy_base_forms_update = [self._get_learning_unit_base_form(luy_to_upsert.academic_year,
                                                                    learning_unit_instance=luy_to_upsert.learning_unit,
@@ -106,6 +116,7 @@ class LearningUnitPostponementForm:
         start_insert_year = lastest_luy.academic_year.year + 1 if lastest_luy else start_academic_year.year
         end_insert_year = end_academic_year.year if end_academic_year else None
         luy_base_forms_insert = self._get_forms_to_insert(start_insert_year, end_year=end_insert_year, data=data)
+
         return luy_base_forms_update + luy_base_forms_insert
 
     def _get_forms_to_insert(self, start_insert_year, end_year=None, data=None):
