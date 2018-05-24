@@ -65,7 +65,6 @@ class TestSearchForm(TestCase):
         self.assertListEqual(expected_research_criteria, actual_research_criteria)
 
 
-
 class TestFilterIsBorrowedLearningUnitYear(TestCase):
     @classmethod
     def setUpTestData(cls):

@@ -24,6 +24,7 @@
 #
 ##############################################################################
 import collections
+import itertools
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
@@ -161,18 +162,10 @@ def apply_action_on_proposals(proposals, author, post_data, research_criteria):
 
 
 def _get_filter(form, search_type):
-    research_criterias = form.get_research_criteria()
-    filter_data = collections.OrderedDict()
-    filter_data[_('search_type')] = _get_search_type_label(search_type)
-    for key, value in research_criterias:
-        filter_data[key] = value
-    return filter_data
+    criterias = itertools.chain([(_('search_type'), _get_search_type_label(search_type))], form.get_research_criteria())
+    return collections.OrderedDict(criterias)
 
 
 def _get_search_type_label(search_type):
-    map_search_type_to_translation = {
-        PROPOSAL_SEARCH: _('proposals_search'),
-        SERVICE_COURSES_SEARCH: _('service_course_search'),
-        BORROWED_COURSE: _('borrowed_course_search'),
-    }
-    return map_search_type_to_translation.get(search_type, _('activity_search'))
+    return {PROPOSAL_SEARCH: _('proposals_search'), SERVICE_COURSES_SEARCH: _('service_course_search'),
+            BORROWED_COURSE: _('borrowed_course_search')}.get(search_type, _('activity_search'))
