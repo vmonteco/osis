@@ -2921,3 +2921,6 @@ msgstr "List of proposals"
 
 msgid "List_activities"
 msgstr "List of activities"
+
+msgid "learning_units_filename"
+msgstr "learning_units"
