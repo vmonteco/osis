@@ -163,18 +163,17 @@ def apply_action_on_proposals(proposals, author, post_data, research_criteria):
 def _get_filter(form, search_type):
     research_criterias = form.get_research_criteria()
     filter_data = collections.OrderedDict()
-    if search_type:
-        filter_data[_('search_type')] = _get_search_type_label(search_type)
+    filter_data[_('search_type')] = _get_search_type_label(search_type)
     for key, value in research_criterias:
         filter_data[key] = value
     return filter_data
 
 
 def _get_search_type_label(search_type):
-    if search_type == PROPOSAL_SEARCH:
-        return _('proposals_search')
-    if search_type == SERVICE_COURSES_SEARCH:
-        return _('service_course_search')
-    if search_type == BORROWED_COURSE:
-        return _('borrowed_course_search')
-    return _('activity_search')
+    map_search_type_to_translation = {
+        PROPOSAL_SEARCH: _('proposals_search'),
+        SERVICE_COURSES_SEARCH: _('service_course_search'),
+        BORROWED_COURSE: _('borrowed_course_search'),
+    }
+    return map_search_type_to_translation.get(search_type, _('activity_search'))
+
