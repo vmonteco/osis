@@ -26,12 +26,15 @@
 from base.models import *
 from django.contrib import admin
 
+from base.models.bibliography import Bibliography, BibliographyAdmin
 
 admin.site.register(academic_calendar.AcademicCalendar,
                     academic_calendar.AcademicCalendarAdmin)
 
 admin.site.register(academic_year.AcademicYear,
                     academic_year.AcademicYearAdmin)
+
+admin.site.register(Bibliography, BibliographyAdmin)
 
 admin.site.register(campus.Campus,
                     campus.CampusAdmin)
@@ -54,6 +57,9 @@ admin.site.register(education_group_year.EducationGroupYear,
 admin.site.register(entity.Entity,
                     entity.EntityAdmin)
 
+admin.site.register(entity_calendar.EntityCalendar,
+                    entity_calendar.EntityCalendarAdmin)
+
 admin.site.register(entity_component_year.EntityComponentYear,
                     entity_component_year.EntityComponentYearAdmin)
 
@@ -72,11 +78,17 @@ admin.site.register(exam_enrollment.ExamEnrollment,
 admin.site.register(exam_enrollment.ExamEnrollmentHistory,
                     exam_enrollment.ExamEnrollmentHistoryAdmin)
 
+admin.site.register(external_learning_unit_year.ExternalLearningUnitYear,
+                    external_learning_unit_year.ExternalLearningUnitYearAdmin)
+
 admin.site.register(external_offer.ExternalOffer,
                     external_offer.ExternalOfferAdmin)
 
 admin.site.register(group_element_year.GroupElementYear,
                     group_element_year.GroupElementYearAdmin)
+
+admin.site.register(learning_achievement.LearningAchievement,
+                    learning_achievement.LearningAchievementAdmin)
 
 admin.site.register(learning_class_year.LearningClassYear,
                     learning_class_year.LearningClassYearAdmin)
@@ -149,9 +161,6 @@ admin.site.register(person_entity.PersonEntity,
 
 admin.site.register(program_manager.ProgramManager,
                     program_manager.ProgramManagerAdmin)
-
-admin.site.register(proposal_folder.ProposalFolder,
-                    proposal_folder.ProposalFolderAdmin)
 
 admin.site.register(proposal_learning_unit.ProposalLearningUnit,
                     proposal_learning_unit.ProposalLearningUnitAdmin)

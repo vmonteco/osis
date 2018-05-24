@@ -25,16 +25,19 @@
 ##############################################################################
 from datetime import datetime
 
+from decimal import Decimal
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError
 from django.forms import model_to_dict
 from django.test import TestCase
 from django.utils.translation import ugettext_lazy as _
 
-from base.business.learning_unit import compute_max_academic_year_adjournment
+from base.models.academic_year import compute_max_academic_year_adjournment
 from base.business.learning_units.edition import edit_learning_unit_end_date, update_learning_unit_year_with_report, \
-    update_learning_unit_year_entities_with_report
+    ConsistencyError
 from base.models import academic_year
+from base.models import learning_unit_year as mdl_luy
+from base.models import bibliography as mdl_bibliography
 from base.models.entity_component_year import EntityComponentYear
 from base.models.entity_container_year import EntityContainerYear
 from base.models.enums import learning_component_year_type
@@ -44,9 +47,8 @@ from base.models.enums import learning_unit_year_subtypes, learning_unit_periodi
 from base.models.learning_class_year import LearningClassYear
 from base.models.learning_unit_component import LearningUnitComponent
 from base.models.learning_unit_year import LearningUnitYear
-from base.tests.factories.academic_year import create_current_academic_year
-from base.tests.factories.campus import CampusFactory
 from base.tests.factories.business.learning_units import LearningUnitsMixin, GenerateContainer
+from base.tests.factories.campus import CampusFactory
 from base.tests.factories.entity import EntityFactory
 from base.tests.factories.entity_component_year import EntityComponentYearFactory
 from base.tests.factories.entity_container_year import EntityContainerYearFactory
@@ -54,9 +56,10 @@ from base.tests.factories.entity_version import EntityVersionFactory
 from base.tests.factories.learning_class_year import LearningClassYearFactory
 from base.tests.factories.learning_component_year import LearningComponentYearFactory
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
-from base.tests.factories.learning_unit import LearningUnitFactory
 from base.tests.factories.learning_unit_component import LearningUnitComponentFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
+from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
+from cms.models import translated_text
 from reference.tests.factories.language import LanguageFactory
 
 
@@ -199,7 +202,7 @@ class TestLearningUnitEdition(TestCase, LearningUnitsMixin):
         list_of_expected_learning_unit_years_full = []
         list_of_expected_learning_unit_years_partim = []
         for learning_unit_year_expected in list_of_learning_unit_years_annual:
-            if learning_unit_year_expected.subtype == learning_unit_year_subtypes.PARTIM:
+            if learning_unit_year_expected.is_partim():
                 list_of_expected_learning_unit_years_partim.append(learning_unit_year_expected.academic_year.year)
             else:
                 list_of_expected_learning_unit_years_full.append(learning_unit_year_expected.academic_year.year)
@@ -372,7 +375,7 @@ class TestLearningUnitEdition(TestCase, LearningUnitsMixin):
         list_of_expected_learning_unit_years_full = []
         list_of_expected_learning_unit_years_partim = []
         for learning_unit_year_expected in list_of_learning_unit_years_annual:
-            if learning_unit_year_expected.subtype == learning_unit_year_subtypes.PARTIM:
+            if learning_unit_year_expected.is_partim():
                 list_of_expected_learning_unit_years_partim.append(learning_unit_year_expected.academic_year.year)
             else:
                 list_of_expected_learning_unit_years_full.append(learning_unit_year_expected.academic_year.year)
@@ -417,7 +420,7 @@ class TestLearningUnitEdition(TestCase, LearningUnitsMixin):
         self.assertEqual(str(context.exception),
                          _('partim_greater_than_parent') % {
                              'learning_unit': learning_unit_full_annual.acronym,
-                             'partim': list_partims[-1].acronym,
+                             'partim': list_partims[1].acronym,
                              'year': academic_year_of_new_end_date}
                          )
 
@@ -446,7 +449,7 @@ class TestLearningUnitEdition(TestCase, LearningUnitsMixin):
         self.assertEqual(str(context.exception),
                          _('partim_greater_than_parent') % {
                              'learning_unit': learning_unit_full_annual.acronym,
-                             'partim': list_partims[-1].acronym,
+                             'partim': list_partims[1].acronym,
                              'year': academic_year_of_new_end_date}
                          )
 
@@ -475,7 +478,7 @@ class TestLearningUnitEdition(TestCase, LearningUnitsMixin):
         self.assertEqual(str(context.exception),
                          _('partim_greater_than_parent') % {
                              'learning_unit': learning_unit_full_annual.acronym,
-                             'partim': list_partims[-1].acronym,
+                             'partim': list_partims[1].acronym,
                              'year': academic_year_of_new_end_date}
                          )
 
@@ -691,6 +694,37 @@ class TestLearningUnitEdition(TestCase, LearningUnitsMixin):
         self.assertEqual(list_of_years_learning_unit, list_of_expected_years)
         self.assertEqual(learning_unit_annual.end_year, excepted_end_year)
 
+    def test_postpone_end_date_with_cms_data_and_bibliography(self):
+        start_year_full = self.current_academic_year.year - 1
+        end_year_full = self.current_academic_year.year + 1
+        expected_end_year_full = end_year_full + 2
+        academic_year_of_new_end_date = academic_year.find_academic_year_by_year(expected_end_year_full)
+
+        learning_unit_full_annual = self.setup_learning_unit(start_year=start_year_full, end_year=end_year_full)
+
+        luy_list = self.setup_list_of_learning_unit_years_full(
+            list_of_academic_years=self.list_of_academic_years,
+            learning_unit_full=learning_unit_full_annual
+        )
+
+        self.setup_educational_information(luy_list)
+
+        last_luy = mdl_luy.find_latest_by_learning_unit(learning_unit_full_annual)
+        last_luy_bibliography = mdl_bibliography.build_list_of_bibliography_content_by_learning_unit_year(last_luy)
+        last_luy_mobility_modalities = last_luy.mobility_modality
+        last_luy_educational_information = translated_text.build_list_of_cms_content_by_reference(last_luy.id)
+
+        edit_learning_unit_end_date(learning_unit_full_annual, academic_year_of_new_end_date)
+
+        new_luy = mdl_luy.find_latest_by_learning_unit(learning_unit_full_annual)
+        new_luy_bibliography = mdl_bibliography.build_list_of_bibliography_content_by_learning_unit_year(new_luy)
+        new_luy_mobility_modalities = new_luy.mobility_modality
+        new_luy_educational_information = translated_text.build_list_of_cms_content_by_reference(new_luy.id)
+
+        self.assertCountEqual(last_luy_bibliography, new_luy_bibliography)
+        self.assertEquals(last_luy_mobility_modalities, new_luy_mobility_modalities)
+        self.assertCountEqual(last_luy_educational_information, new_luy_educational_information)
+
 
 def _create_classes(learning_component_year, number_classes):
     for i in range(number_classes):
@@ -738,7 +772,7 @@ class TestModifyLearningUnit(TestCase, LearningUnitsMixin):
         old_luy_values = model_to_dict(self.learning_unit_year)
         old_lc_values = model_to_dict(self.learning_container_year)
 
-        update_learning_unit_year_with_report(self.learning_unit_year, {})
+        update_learning_unit_year_with_report(self.learning_unit_year, {}, {})
 
         self.learning_unit_year.refresh_from_db()
         self.learning_container_year.refresh_from_db()
@@ -754,7 +788,7 @@ class TestModifyLearningUnit(TestCase, LearningUnitsMixin):
             "faculty_remark": "Faculty remark",
             "other_remark": "Other remark"
         }
-        update_learning_unit_year_with_report(self.learning_unit_year, fields_to_update)
+        update_learning_unit_year_with_report(self.learning_unit_year, fields_to_update, {})
 
         self.assert_fields_updated(self.learning_unit_year.learning_unit, fields_to_update)
 
@@ -762,7 +796,7 @@ class TestModifyLearningUnit(TestCase, LearningUnitsMixin):
         fields_to_update = {
             "specific_title": "Mon cours",
             "specific_title_english": "My course",
-            "credits": 45,
+            "credits": Decimal('45.00'),
             "internship_subtype": internship_subtypes.PROFESSIONAL_INTERNSHIP,
             "status": False,
             "session": learning_unit_year_session.SESSION_123,
@@ -770,7 +804,7 @@ class TestModifyLearningUnit(TestCase, LearningUnitsMixin):
             "attribution_procedure": attribution_procedure.EXTERNAL
         }
 
-        update_learning_unit_year_with_report(self.learning_unit_year, fields_to_update)
+        update_learning_unit_year_with_report(self.learning_unit_year, fields_to_update, {})
 
         self.assert_fields_updated(self.learning_unit_year, fields_to_update)
 
@@ -785,12 +819,12 @@ class TestModifyLearningUnit(TestCase, LearningUnitsMixin):
             "type_declaration_vacant": vacant_declaration_type.VACANT_NOT_PUBLISH
         }
 
-        update_learning_unit_year_with_report(self.learning_unit_year, fields_to_update)
+        update_learning_unit_year_with_report(self.learning_unit_year, fields_to_update, {})
         self.learning_container_year.refresh_from_db()
 
         new_lcy_values = model_to_dict(self.learning_container_year, fields=fields_to_update.keys())
         expected_model_dict_values = fields_to_update
-        expected_model_dict_values["language"] = fields_to_update["language"].id
+        expected_model_dict_values["language"] = fields_to_update["language"].pk
         expected_model_dict_values["campus"] = fields_to_update["campus"].id
 
         self.assertDictEqual(expected_model_dict_values, new_lcy_values)
@@ -818,8 +852,8 @@ class TestModifyLearningUnit(TestCase, LearningUnitsMixin):
         fields_to_update.update(learning_unit_fields_to_update)
         fields_to_update.update(learning_unit_year_fields_to_update)
         fields_to_update.update(learning_container_year_fields_to_update)
-
-        update_learning_unit_year_with_report(learning_unit_years[1], fields_to_update)
+        update_learning_unit_year_with_report(learning_unit_years[1], fields_to_update, {},
+                                              override_postponement_consistency=True)
 
         self.assert_fields_not_updated(learning_unit_years[0])
         self.assert_fields_not_updated(learning_unit_years[0].learning_container_year)
@@ -831,10 +865,47 @@ class TestModifyLearningUnit(TestCase, LearningUnitsMixin):
                 self.assert_fields_updated(luy.learning_container_year, learning_container_year_fields_to_update)
             else:
                 self.assert_fields_updated(luy.learning_container_year, learning_container_year_fields_to_update,
-                                           exclude=["is_vacant", "type_declaration_vacant"])
+                                           exclude=["is_vacant", "type_declaration_vacant", 'team'])
                 self.assert_fields_not_updated(luy.learning_container_year, fields=["team"])
                 self.assert_fields_updated(luy, learning_unit_year_fields_to_update, exclude=["attribution_procedure"])
                 self.assert_fields_not_updated(luy, fields=["attribution_procedure"])
+
+    def test_apply_updates_on_next_learning_unit_years_until_proposal(self):
+        a_learning_unit = self.setup_learning_unit(self.current_academic_year.year)
+        learning_unit_years = self.setup_list_of_learning_unit_years_full(
+            self.list_of_academic_years_after_now, a_learning_unit)
+
+        luy_in_proposal = learning_unit_years[2]
+        ProposalLearningUnitFactory(learning_unit_year=luy_in_proposal)
+
+        learning_unit_fields_to_update = {
+            "faculty_remark": "Faculty remark"
+        }
+        learning_unit_year_fields_to_update = {
+            "specific_title_english": "My course",
+            "credits": 45,
+            "attribution_procedure": attribution_procedure.EXTERNAL
+        }
+        learning_container_year_fields_to_update = {
+            "team": True,
+            "is_vacant": True,
+            "type_declaration_vacant": vacant_declaration_type.VACANT_NOT_PUBLISH
+        }
+
+        fields_to_update = dict()
+        fields_to_update.update(learning_unit_fields_to_update)
+        fields_to_update.update(learning_unit_year_fields_to_update)
+        fields_to_update.update(learning_container_year_fields_to_update)
+
+        error_msg = _('learning_unit_in_proposal_cannot_save') % {
+            'luy': luy_in_proposal.acronym,
+            'academic_year': luy_in_proposal.academic_year
+        }
+
+        with self.assertRaises(ConsistencyError) as context:
+            update_learning_unit_year_with_report(learning_unit_years[1], fields_to_update, {})
+
+        self.assertIn(error_msg, context.exception.error_list)
 
     def test_when_not_reporting(self):
         a_learning_unit = self.setup_learning_unit(self.current_academic_year.year)
@@ -860,7 +931,7 @@ class TestModifyLearningUnit(TestCase, LearningUnitsMixin):
         fields_to_update.update(learning_unit_year_fields_to_update)
         fields_to_update.update(learning_container_year_fields_to_update)
 
-        update_learning_unit_year_with_report(learning_unit_years[0], fields_to_update, with_report=False)
+        update_learning_unit_year_with_report(learning_unit_years[0], fields_to_update, {}, with_report=False)
 
         self.assert_fields_updated(learning_unit_years[0].learning_unit, learning_unit_fields_to_update)
         self.assert_fields_updated(learning_unit_years[0], learning_unit_year_fields_to_update)
@@ -902,7 +973,7 @@ class TestUpdateLearningUnitEntities(TestCase, LearningUnitsMixin):
             attribution_procedure=attribution_procedure.INTERNAL_TEAM)
         self.learning_component_year = LearningComponentYearFactory(
             learning_container_year=self.learning_container_year,
-            acronym="CM",
+            acronym="PM",
             type=learning_component_year_type.LECTURING)
 
         self.requirement_entity_container = EntityContainerYearFactory(
@@ -930,7 +1001,7 @@ class TestUpdateLearningUnitEntities(TestCase, LearningUnitsMixin):
                                    learning_component_year=self.learning_component_year)
 
     def test_with_no_entities_to_update(self):
-        update_learning_unit_year_entities_with_report(self.learning_unit_year, {})
+        update_learning_unit_year_with_report(self.learning_unit_year, {}, {})
 
         self.assert_entity_has_not_changed(self.requirement_entity_container)
         self.assert_entity_has_not_changed(self.allocation_entity_container)
@@ -940,7 +1011,7 @@ class TestUpdateLearningUnitEntities(TestCase, LearningUnitsMixin):
     def test_with_one_entity_to_update(self):
         a_new_requirement_entity = EntityFactory()
         entities_to_update = {entity_container_year_link_type.REQUIREMENT_ENTITY: a_new_requirement_entity}
-        update_learning_unit_year_entities_with_report(self.learning_unit_year, entities_to_update)
+        update_learning_unit_year_with_report(self.learning_unit_year, {}, entities_to_update)
         self.assert_entity_has_not_changed(self.allocation_entity_container)
         self.assert_entity_has_not_changed(self.additional_entity_container_1)
         self.assert_entity_has_not_changed(self.additional_entity_container_2)
@@ -959,7 +1030,7 @@ class TestUpdateLearningUnitEntities(TestCase, LearningUnitsMixin):
             entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2: a_new_additional_entity_2
         }
 
-        update_learning_unit_year_entities_with_report(self.learning_unit_year, entities_to_update)
+        update_learning_unit_year_with_report(self.learning_unit_year, {}, entities_to_update)
 
         self.assert_entity_has_been_modified(self.requirement_entity_container, a_new_requirement_entity)
         self.assert_entity_has_been_modified(self.allocation_entity_container, a_new_allocation_entity)
@@ -968,7 +1039,7 @@ class TestUpdateLearningUnitEntities(TestCase, LearningUnitsMixin):
 
     def test_with_entity_set_to_none(self):
         entities_to_update = {entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2: None}
-        update_learning_unit_year_entities_with_report(self.learning_unit_year, entities_to_update)
+        update_learning_unit_year_with_report(self.learning_unit_year, {}, entities_to_update)
         self.assert_entity_has_not_changed(self.requirement_entity_container)
         self.assert_entity_has_not_changed(self.allocation_entity_container)
         self.assert_entity_has_not_changed(self.additional_entity_container_1)
@@ -989,7 +1060,7 @@ class TestUpdateLearningUnitEntities(TestCase, LearningUnitsMixin):
         entities_to_update = {
             entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2: a_new_additional_requirement_entity
         }
-        update_learning_unit_year_entities_with_report(self.learning_unit_year, entities_to_update)
+        update_learning_unit_year_with_report(self.learning_unit_year, {}, entities_to_update)
 
         self.assertTrue(EntityComponentYear.objects.filter(
             entity_container_year__entity=a_new_additional_requirement_entity,
@@ -1009,7 +1080,8 @@ class TestUpdateLearningUnitEntities(TestCase, LearningUnitsMixin):
         a_new_requirement_entity = EntityFactory()
         entities_to_update = {entity_container_year_link_type.REQUIREMENT_ENTITY: a_new_requirement_entity}
 
-        update_learning_unit_year_entities_with_report(learning_unit_years[1], entities_to_update)
+        update_learning_unit_year_with_report(learning_unit_years[1], {}, entities_to_update,
+                                              override_postponement_consistency=True)
 
         entity_container_luy_0 = EntityContainerYear.objects.get(
             learning_container_year=learning_unit_years[0].learning_container_year)
@@ -1034,7 +1106,7 @@ class TestUpdateLearningUnitEntities(TestCase, LearningUnitsMixin):
         a_new_requirement_entity = EntityFactory()
         entities_to_update = {entity_container_year_link_type.REQUIREMENT_ENTITY: a_new_requirement_entity}
 
-        update_learning_unit_year_entities_with_report(learning_unit_years[0], entities_to_update, with_report=False)
+        update_learning_unit_year_with_report(learning_unit_years[0], {}, entities_to_update, with_report=False)
 
         entity_container_luy_0 = EntityContainerYear.objects.get(
             learning_container_year=learning_unit_years[0].learning_container_year)

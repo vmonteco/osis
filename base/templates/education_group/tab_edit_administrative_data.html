@@ -35,9 +35,7 @@
 
 
 {% block style %}
-    <link rel="stylesheet" href="{% static 'css/bootstrap-datetimepicker.min.css' %}" type='text/css'>
-    <link rel="stylesheet" href="{% static 'css/bootstrap-datepicker3.min.css' %}" type='text/css'>
-    <link rel="stylesheet" href="{% static 'css/daterangepicker.css' %}" type='text/css'>
+    {% include "education_group/blocks/datetimepicker_imports_css.html" %}
 {% endblock style %}
 
 {% block content %}
@@ -81,7 +79,7 @@
                     </div>
                 </div>
                 <div class="pull-right">
-                    {% bootstrap_button _("Save") button_type="submit" button_class="btn-primary" %}
+                    {% bootstrap_button _("Save") button_type="submit" button_class="btn-primary" icon="glyphicon glyphicon-floppy-save" %}
                     {% bootstrap_button _("cancel") button_type="reset"  %}
                 </div>
             </form>
@@ -91,78 +89,5 @@
 {% endblock %}
 
 {% block script %}
-    <script src="{% static 'js/moment.min.js' %}"></script>
-    <script src="{% static 'js/bootstrap-datetimepicker.min.js' %}"></script>
-    <script src="{% static 'js/daterangepicker.js' %}"></script>
-
-    <script>
-        function set_config(config, input) {
-            config.minDate = input.data("mindate");
-            config.maxDate = input.data("maxdate");
-            config.format = input.data('format');
-            config.showToday = false;
-            config.useCurrent = false;
-        }
-
-        $(document).ready(function() {
-
-            $('.datepicker').each(function () {
-                var config = {
-                    pickTime: false,
-                    language: '{{ LANGUAGE_CODE }}'
-                };
-
-                set_config(config, $(this));
-
-                $(this).datetimepicker(config);
-            });
-            $('.timepicker').each(function () {
-                var config = {
-                    pickDate: false,
-                    language: '{{ LANGUAGE_CODE }}'
-                };
-
-                set_config(config, $(this));
-
-                $(this).datetimepicker(config);
-            });
-
-            $('.datetimepicker').each(function () {
-                var config = {
-                    language: '{{ LANGUAGE_CODE }}'
-                };
-                set_config(config, $(this));
-
-                $(this).datetimepicker(config);
-
-            });
-
-            $('.daterange').each(function () {
-
-                var format =  $(this).data('format');
-
-                var config = {
-                    autoUpdateInput: false,
-                    locale: {
-                        format: format,
-                        language: '{{ LANGUAGE_CODE }}',
-                        cancelLabel: 'Clear'
-                    }
-                };
-
-                set_config(config, $(this));
-
-                $(this).daterangepicker(config);
-
-                $(this).on('apply.daterangepicker', function(ev, picker) {
-                    $(this).val(picker.startDate.format(format)
-                        + ' - ' + picker.endDate.format(format)
-                    );
-                });
-                $(this).on('cancel.daterangepicker', function(ev, picker) {
-                    $(this).val('');
-                });
-            });
-        });
-    </script>
+    {% include "education_group/blocks/datetimepicker_imports_js.html" %}
 {% endblock script %}

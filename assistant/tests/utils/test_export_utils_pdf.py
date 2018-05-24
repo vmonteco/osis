@@ -25,36 +25,45 @@
 ##############################################################################
 import datetime
 from django.utils.translation import ugettext_lazy as _
-from django.test import TestCase, RequestFactory
+from django.test import TestCase, RequestFactory, Client
+from reportlab.lib.enums import TA_LEFT
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.platypus import Paragraph, PageBreak
+from reportlab.platypus import Paragraph
 from reportlab.lib.units import mm
-from reportlab.lib.enums import TA_JUSTIFY, TA_LEFT
 from base.models.entity import find_versions_from_entites
 from base.models.entity_version import get_last_version
+
 from base.tests.factories.entity_version import EntityVersionFactory
-from assistant.models import  tutoring_learning_unit_year
+from base.tests.factories.person import PersonFactory
+from assistant.models import tutoring_learning_unit_year
 from assistant.models.review import find_by_mandate
 from assistant.utils import export_utils_pdf
 from assistant.tests.factories.academic_assistant import AcademicAssistantFactory
 from assistant.tests.factories.assistant_mandate import AssistantMandateFactory
+from assistant.tests.factories.manager import ManagerFactory
 from assistant.tests.factories.mandate_entity import MandateEntityFactory
 from assistant.tests.factories.reviewer import ReviewerFactory
 from assistant.tests.factories.review import ReviewFactory
+from assistant.tests.factories.tutoring_learning_unit_year import TutoringLearningUnitYearFactory
 from assistant.models.enums import assistant_type, assistant_mandate_renewal, review_status
 
 COLS_WIDTH_FOR_REVIEWS = [35*mm, 20*mm, 70*mm, 30*mm, 30*mm]
 COLS_WIDTH_FOR_TUTORING = [40*mm, 15*mm, 15*mm, 15*mm, 15*mm, 15*mm, 15*mm, 15*mm, 40*mm]
+HTTP_OK = 200
+
 
 class ExportPdfTestCase(TestCase):
     def setUp(self):
-        self.maxDiff = None
+        self.client = Client()
+        self.manager = ManagerFactory()
         self.factory = RequestFactory()
+        self.supervisor = PersonFactory()
         self.assistant = AcademicAssistantFactory(
             phd_inscription_date=datetime.date(2015, 10, 2),
             thesis_title='Data fitting on manifolds',
             confirmation_test_date=datetime.date(2017, 9, 25),
-            remark="Deux co-promoteurs (l'application ne m'autorise à n'en renseigner qu'un)"
+            remark="Deux co-promoteurs (l'application ne m'autorise à n'en renseigner qu'un)",
+            supervisor=self.supervisor
         )
         self.mandate = AssistantMandateFactory(
             assistant=self.assistant,
@@ -71,26 +80,65 @@ class ExportPdfTestCase(TestCase):
             external_contract='',
             external_functions='',
         )
+        self.tutoring_learning_unit_year = TutoringLearningUnitYearFactory(mandate=self.mandate)
+        self.review3 = ReviewFactory(
+            mandate=self.mandate,
+            reviewer=None
+        )
         self.entity_version = EntityVersionFactory()
         self.mandate_entity = MandateEntityFactory(
             assistant_mandate=self.mandate,
             entity=self.entity_version.entity
         )
+        self.entity_version2 = EntityVersionFactory()
+        self.mandate_entity2 = MandateEntityFactory(
+            assistant_mandate=self.mandate,
+            entity=self.entity_version2.entity
+        )
         self.reviewer = ReviewerFactory(
             entity=self.mandate_entity.entity
         )
+
+        self.reviewer2 = ReviewerFactory(
+            entity=self.mandate_entity2.entity
+        )
         self.styles = getSampleStyleSheet()
+        self.styles.add(ParagraphStyle(
+            name='Tiny',
+            fontSize=6,
+            font='Helvetica',
+            leading=8,
+            leftIndent=0,
+            rightIndent=0,
+            firstLineIndent=0,
+            alignment=TA_LEFT,
+            spaceBefore=0,
+            spaceAfter=0,
+            splitLongWords=1,
+        ))
         self.review1 = ReviewFactory(
             mandate=self.mandate,
             reviewer=self.reviewer
         )
+        self.review2 = ReviewFactory(
+            mandate=self.mandate,
+            reviewer=self.reviewer2,
+            status=review_status.IN_PROGRESS
+        )
+        self.review3 = ReviewFactory(
+            mandate=self.mandate,
+            reviewer=None
+        )
 
+    def test_export_mandates(self):
+        self.client.force_login(self.manager.person.user)
+        response = self.client.post('/assistants/manager/mandates/export_pdf/')
+        self.assertEqual(HTTP_OK, response.status_code)
 
     def test_format_data(self):
         data = 'good example of data.'
         title = 'formations'
         self.assertEqual("<strong>%s :</strong> %s<br />" % (_(title), data), export_utils_pdf.format_data(data, title))
-
 
     def test_create_paragraph(self):
         data = 'good example of data.'
@@ -101,45 +149,48 @@ class ExportPdfTestCase(TestCase):
                               subtitle + "<br />" + data, style)
         self.assertEqual(str(export_utils_pdf.create_paragraph(title, data, style, subtitle)), str(paragraph))
 
-
     def test_get_administrative_data(self):
         assistant_type = export_utils_pdf.format_data(_(self.mandate.assistant_type), 'assistant_type')
         matricule = export_utils_pdf.format_data(self.mandate.sap_id, 'matricule_number')
         entry_date = export_utils_pdf.format_data(self.mandate.entry_date, 'entry_date_contract')
         end_date = export_utils_pdf.format_data(self.mandate.end_date, 'end_date_contract')
         contract_duration = export_utils_pdf.format_data(self.mandate.contract_duration, 'contract_duration')
-        contract_duration_fte = export_utils_pdf.format_data(self.mandate.contract_duration_fte, 'contract_duration_fte')
+        contract_duration_fte = export_utils_pdf.format_data(
+            self.mandate.contract_duration_fte,
+            'contract_duration_fte'
+        )
         fulltime_equivalent = export_utils_pdf.format_data(int(self.mandate.fulltime_equivalent * 100),
                                                            'fulltime_equivalent_percentage')
         other_status = export_utils_pdf.format_data(self.mandate.other_status, 'other_status')
         renewal_type = export_utils_pdf.format_data(_(self.mandate.renewal_type), 'renewal_type')
         justification = export_utils_pdf.format_data(self.mandate.justification, 'exceptional_justification')
         external_contract = export_utils_pdf.format_data(self.mandate.external_contract, 'external_post')
-        external_functions = export_utils_pdf.format_data(self.mandate.external_functions, 'function_outside_university')
-        self.assertEqual( assistant_type + matricule + entry_date + end_date + contract_duration + contract_duration_fte \
-           + fulltime_equivalent + other_status + renewal_type + justification + external_contract + external_functions,
-                          export_utils_pdf.get_administrative_data(self.mandate))
-
+        external_functions = export_utils_pdf.format_data(
+            self.mandate.external_functions,
+            'function_outside_university'
+        )
+        self.assertEqual(
+            assistant_type + matricule + entry_date + end_date + contract_duration + contract_duration_fte
+            + fulltime_equivalent + other_status + renewal_type + justification + external_contract +
+            external_functions,
+            export_utils_pdf.get_administrative_data(self.mandate)
+        )
 
     def test_get_entities(self):
         entities_id = self.mandate.mandateentity_set.all().order_by('id').values_list('entity', flat=True)
         entities = find_versions_from_entites(entities_id, self.mandate.academic_year.start_date)
         entities_data = ""
         for entity in entities:
-            type = "%s" % (_(entity.entity_type))
-            entities_data += "<strong>" + type + " :</strong> " + entity.acronym + "<br />"
+            entities_data += "<strong>{} : </strong>{}<br />".format(_(entity.entity_type), entity.acronym)
         self.assertEqual(entities_data, export_utils_pdf.get_entities(self.mandate))
-
 
     def test_get_absences(self):
         self.assertEqual(self.mandate.absences if self.mandate.absences else "",
                          export_utils_pdf.get_absences(self.mandate))
 
-
     def test_get_comment(self):
         self.assertEqual(self.mandate.comment if self.mandate.comment else "",
                          export_utils_pdf.get_comment(self.mandate))
-
 
     def test_get_phd_data(self):
         thesis_title = export_utils_pdf.format_data(self.assistant.thesis_title, 'thesis_title')
@@ -151,9 +202,8 @@ class ExportPdfTestCase(TestCase):
         inscription = export_utils_pdf.format_data(_(self.assistant.inscription)
                                                    if self.assistant.inscription else None, 'registered_phd')
         remark = export_utils_pdf.format_data(self.assistant.remark, 'remark')
-        self.assertEqual(inscription + phd_inscription_date + expected_phd_date + confirmation_test_date + thesis_title \
-               + thesis_date + remark, export_utils_pdf.get_phd_data(self.assistant))
-
+        self.assertEqual(inscription + phd_inscription_date + expected_phd_date + confirmation_test_date
+                         + thesis_title + thesis_date + remark, export_utils_pdf.get_phd_data(self.assistant))
 
     def test_get_research_data(self):
         internships = export_utils_pdf.format_data(self.mandate.internships, 'scientific_internships')
@@ -165,52 +215,61 @@ class ExportPdfTestCase(TestCase):
         self.assertEqual(internships + conferences + publications + awards + framing + remark,
                          export_utils_pdf.get_research_data(self.mandate))
 
-
     def test_get_representation_activities(self):
-        faculty_representation = export_utils_pdf.format_data(str(self.mandate.faculty_representation),
-                                                              'faculty_representation')
-        institute_representation = export_utils_pdf.format_data(str(self.mandate.institute_representation),
-                                                                'institute_representation')
-        sector_representation = export_utils_pdf.format_data(str(self.mandate.sector_representation),
-                                                             'sector_representation')
-        governing_body_representation = export_utils_pdf.format_data(str(self.mandate.governing_body_representation),
-                                                    'governing_body_representation')
+        faculty_representation = export_utils_pdf.format_data(
+            str(self.mandate.faculty_representation),
+            'faculty_representation'
+        )
+        institute_representation = export_utils_pdf.format_data(
+            str(self.mandate.institute_representation),
+            'institute_representation'
+        )
+        sector_representation = export_utils_pdf.format_data(
+            str(self.mandate.sector_representation),
+            'sector_representation'
+        )
+        governing_body_representation = export_utils_pdf.format_data(
+            str(self.mandate.governing_body_representation),
+            'governing_body_representation'
+        )
         corsci_representation = export_utils_pdf.format_data(str(self.mandate.corsci_representation),
                                                              'corsci_representation')
         self.assertEqual(faculty_representation + institute_representation + sector_representation +
                          governing_body_representation + corsci_representation,
                          export_utils_pdf.get_representation_activities(self.mandate))
 
-
     def test_get_summary(self):
         report_remark = export_utils_pdf.format_data(self.mandate.activities_report_remark, 'activities_report_remark')
         self.assertEqual(report_remark, export_utils_pdf.get_summary(self.mandate))
 
-
     def test_get_service_activities(self):
-        students_service = export_utils_pdf.format_data(str(self.mandate.students_service), 'students_service')
-        infrastructure_mgmt_service = export_utils_pdf.format_data(str(self.mandate.infrastructure_mgmt_service),
-                                                  'infrastructure_mgmt_service')
-        events_organisation_service = export_utils_pdf.format_data(str(self.mandate.events_organisation_service),
-                                                  'events_organisation_service')
-        publishing_field_service = export_utils_pdf.format_data(str(self.mandate.publishing_field_service),
-                                                                'publishing_field_service')
-        scientific_jury_service = export_utils_pdf.format_data(str(self.mandate.scientific_jury_service),
-                                                               'scientific_jury_service')
+        students_service = export_utils_pdf.format_data(
+            str(self.mandate.students_service),
+            'students_service'
+        )
+        infrastructure_mgmt_service = export_utils_pdf.format_data(
+            str(self.mandate.infrastructure_mgmt_service),
+            'infrastructure_mgmt_service'
+        )
+        events_organisation_service = export_utils_pdf.format_data(
+            str(self.mandate.events_organisation_service),
+            'events_organisation_service'
+        )
+        publishing_field_service = export_utils_pdf.format_data(
+            str(self.mandate.publishing_field_service),
+            'publishing_field_service'
+        )
+        scientific_jury_service = export_utils_pdf.format_data(
+            str(self.mandate.scientific_jury_service),
+            'scientific_jury_service'
+        )
         self.assertEqual(students_service + infrastructure_mgmt_service + events_organisation_service +
                          publishing_field_service + scientific_jury_service,
                          export_utils_pdf.get_service_activities(self.mandate))
 
-
     def test_get_formation_activities(self):
         formations = export_utils_pdf.format_data(self.mandate.formations, 'formations')
         self.assertEqual(formations, export_utils_pdf.get_formation_activities(self.mandate))
-
-
-    def test_export_mandates(self):
-        file = export_utils_pdf.export_mandates
-        self.assertTrue(file)
-
 
     def test_generate_headers(self):
         style = self.styles['BodyText']
@@ -223,9 +282,8 @@ class ExportPdfTestCase(TestCase):
             data.append(Paragraph("%s" % _(title), style))
         self.assertEqual(str([data]), str(export_utils_pdf.generate_headers(titles, style)))
 
-
     def test_get_tutoring_learning_unit_year(self):
-        style = self.styles['BodyText']
+        style = self.styles['Tiny']
         data = export_utils_pdf.generate_headers([
             'tutoring_learning_units', 'academic_year', 'sessions_number', 'sessions_duration', 'series_number',
             'face_to_face_duration', 'attendees', 'exams_supervision_duration', 'others_delivery'
@@ -233,9 +291,9 @@ class ExportPdfTestCase(TestCase):
         tutoring_learning_units_year = tutoring_learning_unit_year.find_by_mandate(self.mandate)
         for this_tutoring_learning_unit_year in tutoring_learning_units_year:
             academic_year = str(this_tutoring_learning_unit_year.learning_unit_year.academic_year)
-            data.append([Paragraph(this_tutoring_learning_unit_year.learning_unit_year.title + " (" +
+            data.append([Paragraph(this_tutoring_learning_unit_year.learning_unit_year.complete_title + " (" +
                                    this_tutoring_learning_unit_year.learning_unit_year.acronym + ")", style),
-                         Paragraph(academic_year, self.styles['Tiny']),
+                         Paragraph(academic_year, style),
                          Paragraph(str(this_tutoring_learning_unit_year.sessions_number), style),
                          Paragraph(str(this_tutoring_learning_unit_year.sessions_duration), style),
                          Paragraph(str(this_tutoring_learning_unit_year.series_number), style),
@@ -246,7 +304,6 @@ class ExportPdfTestCase(TestCase):
                          ])
         self.assertEqual(str(data), str(export_utils_pdf.get_tutoring_learning_unit_year(self.mandate, style)))
 
-
     def test_get_reviews_for_mandate(self):
         style = self.styles['BodyText']
         data = export_utils_pdf.generate_headers(['reviewer', 'review', 'remark', 'justification', 'confidential'],
@@ -256,12 +313,17 @@ class ExportPdfTestCase(TestCase):
             if rev.status == review_status.IN_PROGRESS:
                 break
             if rev.reviewer is None:
-                supervisor = "<br/>(%s)" % (str(_('supervisor')))
-                person = self.mandate.assistant.supervisor.first_name + " " \
-                         + self.mandate.assistant.supervisor.last_name + supervisor
+                person = "{} {}<br/>({})".format(
+                    self.mandate.assistant.supervisor.first_name,
+                    self.mandate.assistant.supervisor.last_name,
+                    str(_('supervisor'))
+                )
             else:
-                entity = get_last_version(rev.reviewer.entity).acronym
-                person = rev.reviewer.person.first_name + " " + rev.reviewer.person.last_name + "<br/>(" + entity + ")"
+                person = "{} {}<br/>({})".format(
+                    rev.reviewer.person.first_name,
+                    rev.reviewer.person.last_name,
+                    get_last_version(rev.reviewer.entity).acronym
+                )
             data.append([Paragraph(person, style),
                          Paragraph(_(rev.advice), style),
                          Paragraph(rev.remark or '', style),

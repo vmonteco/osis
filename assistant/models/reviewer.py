@@ -24,12 +24,11 @@
 #
 ##############################################################################
 from django.contrib import admin
-from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 
+from assistant.models.enums import reviewer_role
 from base.models import entity_version
 from base.models.enums import entity_type
-from assistant.models.enums import reviewer_role
 
 
 class ReviewerAdmin(admin.ModelAdmin):
@@ -43,11 +42,11 @@ class ReviewerAdmin(admin.ModelAdmin):
     def get_form(self, request, obj=None, **kwargs):
         form = super(ReviewerAdmin, self).get_form(request, obj, **kwargs)
         form.base_fields['entity'].queryset = \
-            entity_version.search_entities(type=entity_type.INSTITUTE) | \
-            entity_version.search_entities(type=entity_type.FACULTY) | \
-            entity_version.search_entities(type=entity_type.SECTOR) | \
-            entity_version.search_entities(type=entity_type.POLE) | \
-            entity_version.search_entities(type=entity_type.SCHOOL)
+            entity_version.search_entities(entity_type=entity_type.INSTITUTE) | \
+            entity_version.search_entities(entity_type=entity_type.FACULTY) | \
+            entity_version.search_entities(entity_type=entity_type.SECTOR) | \
+            entity_version.search_entities(entity_type=entity_type.POLE) | \
+            entity_version.search_entities(entity_type=entity_type.SCHOOL)
         return form
 
 
@@ -97,7 +96,20 @@ def can_delegate_to_entity(reviewer, entity):
 
 
 def can_delegate(reviewer):
-    if reviewer.role != reviewer_role.SUPERVISION and reviewer.role != reviewer_role.RESEARCH:
-        return False
-    else:
-        return True
+    roles_who_can_delegate = [reviewer_role.SUPERVISION, reviewer_role.RESEARCH, reviewer_role.SUPERVISION_DAF]
+    return reviewer.role in roles_who_can_delegate
+
+
+def can_validate(reviewer):
+    roles_who_can_validate = [reviewer_role.SUPERVISION, reviewer_role.RESEARCH, reviewer_role.RESEARCH_ASSISTANT,
+                              reviewer_role.PHD_SUPERVISOR, reviewer_role.VICE_RECTOR,
+                              reviewer_role.VICE_RECTOR_ASSISTANT]
+    return reviewer.role in roles_who_can_validate
+
+
+def get_delegate_for_entity(reviewer, entity):
+    delegate_role = reviewer.role + '_ASSISTANT'
+    try:
+        return Reviewer.objects.get(role=delegate_role, entity=entity)
+    except Reviewer.DoesNotExist:
+        return None

@@ -24,10 +24,10 @@
 #
 ##############################################################################
 import datetime
-import factory
 import factory.fuzzy
 import string
-from base.models.learning_unit_year import LearningUnitYear
+from base.tests.factories.learning_unit_year import LearningUnitYearFactory
+from base.tests.factories.offer_year import OfferYearFactory
 from osis_common.utils.datetime import get_tzinfo
 
 
@@ -39,4 +39,5 @@ class SessionExamFactory(factory.DjangoModelFactory):
     changed = factory.fuzzy.FuzzyDateTime(datetime.datetime(2016, 1, 1, tzinfo=get_tzinfo()),
                                           datetime.datetime(2017, 3, 1, tzinfo=get_tzinfo()))
     number_session = factory.fuzzy.FuzzyInteger(1000)
-    learning_unit_year = factory.SubFactory(LearningUnitYear)
+    learning_unit_year = factory.SubFactory(LearningUnitYearFactory)
+    offer_year = factory.SubFactory(OfferYearFactory)

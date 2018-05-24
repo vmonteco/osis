@@ -1,7 +1,6 @@
 {% extends "layout.html" %}
 {% load staticfiles %}
 {% load i18n %}
-{% load components_classes %}
 {% load bootstrap3 %}
 {% comment "License" %}
 * OSIS stands for Open Student Information System. It's an application
@@ -37,15 +36,13 @@
 
 {% block content %}
 
-{% bootstrap_messages %}
-
 <div class="panel panel-default">
     <div class="panel-body" id="tabs">
         <div class="tab-content" id="tab_content">
             <div role="tabpanel" class="tab-pane active" id="components">
 
                 <h4 class="text-center">{% trans 'volumes_management' %}</h4>
-                {% include "learning_unit/components/volumes_management_form.html" %}
+                {% include "learning_unit/blocks/form/volumes_management_form.html" %}
             </div>
         </div>
     </div>

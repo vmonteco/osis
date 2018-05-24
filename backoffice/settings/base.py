@@ -67,7 +67,9 @@ INSTALLED_APPS = (
     'statici18n',
     'rest_framework',
     'rest_framework.authtoken',
-    'bootstrap3'
+    'bootstrap3',
+    'ordered_model',
+    'waffle',
 )
 
 MIDDLEWARE = (
@@ -80,7 +82,8 @@ MIDDLEWARE = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
-    'base.middlewares.extra_http_responses_midleware.ExtraHttpResponsesMiddleware'
+    'base.middlewares.extra_http_responses_midleware.ExtraHttpResponsesMiddleware',
+    'waffle.middleware.WaffleMiddleware',
 )
 
 # check if we are testing right now
@@ -107,6 +110,7 @@ TEMPLATES = [
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
+                'django.template.context_processors.i18n',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'base.views.common.common_context_processor',
@@ -123,7 +127,7 @@ DATABASES = {
         'PASSWORD': os.environ.get("POSTGRES_PASSWORD", 'osis'),
         'HOST': os.environ.get("POSTGRES_HOST", '127.0.0.1'),
         'PORT': os.environ.get("POSTGRES_PORT", '5432'),
-        'ATOMIC_REQUEST':  os.environ.get('DATABASE_ATOMIC_REQUEST', 'False').lower() == 'true'
+        'ATOMIC_REQUESTS':  os.environ.get('DATABASE_ATOMIC_REQUEST', 'True').lower() == 'true'
     },
 }
 

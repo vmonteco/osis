@@ -27,17 +27,21 @@ from django.test import TestCase
 from django.utils import timezone
 from unittest.mock import patch
 
+from attribution.tests.factories.attribution import AttributionNewFactory
+from attribution.tests.factories.attribution_charge_new import AttributionChargeNewFactory
 from base.business.learning_unit_year_with_context import is_service_course
 from base.forms.common import TooManyResultsException
 from base.tests.factories.academic_year import AcademicYearFactory
+from base.tests.factories.learning_unit_component import LearningUnitComponentFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
 from base.tests.factories.entity_container_year import EntityContainerYearFactory
 from base.tests.factories.entity_version import EntityVersionFactory
 from base.models.enums import entity_container_year_link_type, entity_type
 from reference.tests.factories.country import CountryFactory
-from base.forms import learning_units
-from base.forms.learning_unit_search import SearchForm
+from base.tests.factories.tutor import TutorFactory
+from base.forms.learning_unit import search_form
+from base.forms.learning_unit.search_form import SearchForm
 
 
 class TestLearningUnitForm(TestCase):
@@ -54,6 +58,12 @@ class TestLearningUnitForm(TestCase):
         self.list_entity_container_year = self._create_list_entity_container_years(
             self.list_entity_version,
             self.list_learning_unit_container_year)
+        self.tutor = TutorFactory()
+        self.attribution = AttributionNewFactory(tutor=self.tutor)
+        self.learning_unit_component = LearningUnitComponentFactory(learning_unit_year=self.list_learning_unit_year[0])
+        self.attribution_charge_new = \
+            AttributionChargeNewFactory(attribution=self.attribution,
+                                        learning_component_year=self.learning_unit_component.learning_component_year)
 
     def _create_list_containers(self, number_of_containers):
         list_lu_container_year = [
@@ -180,7 +190,7 @@ class TestLearningUnitForm(TestCase):
     @patch("base.models.learning_unit_year.count_search_results")
     def test_case_maximum_results_reached(self, mock_count):
         mock_count.return_value = SearchForm.MAX_RECORDS + 1
-        form = learning_units.LearningUnitYearForm(data=self.get_valid_data())
+        form = search_form.LearningUnitYearForm(data=self.get_valid_data())
         form.is_valid()
 
         with self.assertRaises(TooManyResultsException):
@@ -189,7 +199,7 @@ class TestLearningUnitForm(TestCase):
     def test_get_service_courses_by_empty_requirement_and_allocation_entity(self):
         form_data = {}
 
-        form = learning_units.LearningUnitYearForm(form_data, service_course_search=True)
+        form = search_form.LearningUnitYearForm(form_data, service_course_search=True)
         self.assertTrue(form.is_valid())
         self.assertEqual(form.get_activity_learning_units(), [self.list_learning_unit_year[0],
                                                               self.list_learning_unit_year[1]])
@@ -199,7 +209,7 @@ class TestLearningUnitForm(TestCase):
             "allocation_entity_acronym": self.list_entity_version[1].acronym
         }
 
-        form = learning_units.LearningUnitYearForm(form_data, service_course_search=True)
+        form = search_form.LearningUnitYearForm(form_data, service_course_search=True)
         self.assertTrue(form.is_valid())
         self.assertEqual(form.get_activity_learning_units(), [self.list_learning_unit_year[0]])
 
@@ -209,7 +219,7 @@ class TestLearningUnitForm(TestCase):
             "allocation_entity_acronym": self.list_entity_version[5].acronym
         }
 
-        form = learning_units.LearningUnitYearForm(form_data, service_course_search=True)
+        form = search_form.LearningUnitYearForm(form_data, service_course_search=True)
         self.assertTrue(form.is_valid())
         self.assertEqual(form.get_activity_learning_units(), [])
 
@@ -218,7 +228,7 @@ class TestLearningUnitForm(TestCase):
             "requirement_entity_acronym": self.list_entity_version[0].acronym
         }
 
-        form = learning_units.LearningUnitYearForm(form_data, service_course_search=True)
+        form = search_form.LearningUnitYearForm(form_data, service_course_search=True)
         self.assertTrue(form.is_valid())
         self.assertEqual(form.get_activity_learning_units(), [self.list_learning_unit_year[0]])
 
@@ -228,7 +238,7 @@ class TestLearningUnitForm(TestCase):
             "allocation_entity_acronym": self.list_entity_version[1].acronym
         }
 
-        form = learning_units.LearningUnitYearForm(form_data, service_course_search=True)
+        form = search_form.LearningUnitYearForm(form_data, service_course_search=True)
         self.assertTrue(form.is_valid())
         self.assertEqual(len(form.get_activity_learning_units()), 1)
 
@@ -238,7 +248,15 @@ class TestLearningUnitForm(TestCase):
             "allocation_entity_acronym": self.list_entity_version[3].acronym
         }
 
-        form = learning_units.LearningUnitYearForm(form_data, service_course_search=True)
+        form = search_form.LearningUnitYearForm(form_data, service_course_search=True)
         self.assertTrue(form.is_valid())
         self.assertEqual(form.get_activity_learning_units(), [])
 
+    def test_search_learning_units_by_tutor(self):
+        form_data = {
+            "tutor": self.tutor.person.first_name,
+        }
+
+        form = search_form.LearningUnitYearForm(form_data)
+        self.assertTrue(form.is_valid())
+        self.assertEqual(form.get_activity_learning_units(), [self.list_learning_unit_year[0]])

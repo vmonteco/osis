@@ -156,6 +156,16 @@
                 </div>
             </div>
             <br>
+            <div class="row">
+                <div class="col-md-1">
+                    <input class="form-control" id="txt_global_email_to_commission"  name="global_email_to_commission"
+                           style="margin:-6px;" type="checkbox" {% if form.global_email_to_commission.value %} checked {% endif %}>
+                </div>
+                <div class="col-md-5">
+                    <label for="txt_global_email_to_commission">{% trans 'send_email_to_commission_accepted' %}</label>
+                </div>
+            </div>
+            <br>
             <button type="submit" class="save btn btn-primary">{% trans 'save' %}</button>
         </form>
     </div>

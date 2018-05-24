@@ -27,7 +27,7 @@ from decimal import *
 
 from django.db import models
 from django.db.models import When, Case, Q, Sum, Count, IntegerField, F
-from django.contrib import admin
+from django.db.models.functions import Concat
 from django.utils.translation import ugettext as _
 
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -38,7 +38,6 @@ from attribution.models import attribution
 from base.models.enums import exam_enrollment_state as enrollment_states, exam_enrollment_justification_type as justification_types
 from base.models.exceptions import JustificationValueException
 from base.models.utils.admin_extentions import remove_delete_action
-from osis_common.models.auditable_model import AuditableModel
 from base.models.osis_model_admin import OsisModelAdmin
 
 JUSTIFICATION_ABSENT_FOR_TUTOR = _('absent')
@@ -56,7 +55,7 @@ class ExamEnrollmentAdmin(OsisModelAdmin):
                      'learning_unit_enrollment__offer_enrollment__offer_year__acronym']
 
 
-class ExamEnrollment(AuditableModel):
+class ExamEnrollment(models.Model):
     external_id = models.CharField(max_length=100, blank=True, null=True)
     changed = models.DateTimeField(null=True, auto_now=True)
     score_draft = models.DecimalField(max_digits=4, decimal_places=2, blank=True, null=True,
@@ -303,26 +302,30 @@ def get_progress_by_learning_unit_years_and_offer_years(user,
                                         academic_year=academic_year,
                                         with_session_exam_deadline=False)
 
-    return queryset.values('session_exam',
-                           'learning_unit_enrollment__learning_unit_year',
+    return queryset.values('session_exam','learning_unit_enrollment__learning_unit_year',
                            'learning_unit_enrollment__offer_enrollment__offer_year')\
-                       .annotate(total_exam_enrollments=Count('id'),
-                                 learning_unit_enrollment__learning_unit_year__acronym=
-                                        F('learning_unit_enrollment__learning_unit_year__acronym'),
-                                 learning_unit_enrollment__learning_unit_year__title=
-                                                F('learning_unit_enrollment__learning_unit_year__specific_title'),
-                                 exam_enrollments_encoded=Sum(Case(
-                                          When(Q(score_final__isnull=False)|Q(justification_final__isnull=False),then=1),
-                                          default=0,
-                                          output_field=IntegerField()
-                                 )),
-                                 scores_not_yet_submitted=Sum(Case(
-                                     When((Q(score_draft__isnull=False) & Q(score_final__isnull=True) & Q(justification_final__isnull=True)) |
-                                          (Q(justification_draft__isnull=False) & Q(score_final__isnull=True) & Q(justification_final__isnull=True))
-                                          ,then=1),
-                                          default=0,
-                                          output_field=IntegerField()
-                                 )))
+        .annotate(total_exam_enrollments=Count('id'),
+                  learning_unit_enrollment__learning_unit_year__acronym=
+                  F('learning_unit_enrollment__learning_unit_year__acronym'),
+                  learning_unit_enrollment__learning_unit_year__title= Concat(
+                      'learning_unit_enrollment__learning_unit_year__learning_container_year__common_title',
+                      'learning_unit_enrollment__learning_unit_year__specific_title'
+                  ),
+                  exam_enrollments_encoded=Sum(Case(
+                      When(Q(score_final__isnull=False)|Q(justification_final__isnull=False),then=1),
+                      default=0,
+                      output_field=IntegerField())
+                  ),
+                  scores_not_yet_submitted=Sum(Case(
+                      When((Q(score_draft__isnull=False) &
+                            Q(score_final__isnull=True) &
+                            Q(justification_final__isnull=True)) | (Q(justification_draft__isnull=False) &
+                                                                    Q(score_final__isnull=True) &
+                                                                    Q(justification_final__isnull=True))
+                           ,then=1),
+                      default=0,
+                      output_field=IntegerField()))
+                  )
 
 
 def find_for_score_encodings(session_exam_number,

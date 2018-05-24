@@ -33,10 +33,10 @@
 
 {% block content %}
 
-{% include "learning_unit/header.html" %}
+{% include "learning_unit/blocks/header.html" %}
 <div class="panel panel-default" >
     <div class="panel-body" id="tabs" >
-        {% include "learning_unit/tabs.html" %}
+        {% include "learning_unit/blocks/tabs.html" %}
 
         <div class="tab-content" id="tab_content">
             <div role="tabpanel" class="tab-pane active" id="specifications">
@@ -58,7 +58,7 @@
                             <label> {{ label_translated }} </label>
                         </div>
                         <div class="col-md-5">
-                            {% if perms.base.can_edit_learningunit_specification %}
+                            {% if perms.base.can_edit_learningunit_specification and can_update_learning_achievement%}
                             <a class="specification-edit-btn pull-right" href="#"
                                data-form="{% url 'learning_unit_specifications_edit' learning_unit_year_id=learning_unit_year.id %}?language={{form_french.language.0}}&label={{label_key}}"
                                title="{% trans 'edit' %}">
@@ -69,7 +69,7 @@
                             {{ form_french|getattr:label_key }}
                         </div>
                         <div class="col-md-5">
-                            {% if perms.base.can_edit_learningunit_specification %}
+                            {% if perms.base.can_edit_learningunit_specification and can_update_learning_achievement %}
                             <a class="specification-edit-btn pull-right" href="#"
                                data-form="{% url 'learning_unit_specifications_edit' learning_unit_year_id=learning_unit_year.id %}?language={{form_english.language.0}}&label={{label_key}}"
                                title="{% trans 'edit' %}">
@@ -82,6 +82,7 @@
                     </div>
                     <hr/>
                 {% endfor %}
+            {% include 'learning_unit/achievements.html' %}
             </div>
         </div>
     </div>

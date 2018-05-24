@@ -24,6 +24,8 @@
 {% endcomment %}
 
 {% block messages %}
+    <!-- div to display message coming from Javascript function -->
+    <div id="message_info_container" class="alert alert-info" role="alert" style="visibility: hidden; display: none;"></div>
 
     {% as_messages_error as messages_error %}
     {% if messages_error %}
@@ -38,21 +40,6 @@
             {% endfor %}
         </ul>
     </div>
-    {% endif %}
-
-    {% as_messages_info as messages_info %}
-    {%if messages_info %}
-        <div id="pnl_info_messages" class="alert alert-info" role="alert">
-            <ul>
-                {% for message in messages %}
-                    {% if 'info' in message.tags %}
-                        <li>
-                            {% if 'safe' in message.tags %}{{ message|safe }}{% else %}{{ message }}{% endif %}
-                        </li>
-                    {% endif %}
-                {% endfor %}
-            </ul>
-        </div>
     {% endif %}
 
     {% as_messages_warning as messages_warning %}
@@ -80,6 +67,21 @@
                             {% if 'safe' in message.tags %}{{ message|safe }}{% else %}{{ message }}{% endif %}
                         </li>
                     {%endif%}
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+
+    {% as_messages_info as messages_info %}
+    {%if messages_info %}
+        <div id="pnl_info_messages" class="alert alert-info" role="alert">
+            <ul>
+                {% for message in messages %}
+                    {% if 'info' in message.tags %}
+                        <li>
+                            {% if 'safe' in message.tags %}{{ message|safe }}{% else %}{{ message }}{% endif %}
+                        </li>
+                    {% endif %}
                 {% endfor %}
             </ul>
         </div>

@@ -26,6 +26,7 @@
 from django import template
 from django.utils.translation import ugettext_lazy as _
 from django.utils.safestring import mark_safe
+from base.models.proposal_learning_unit import ProposalLearningUnit
 register = template.Library()
 
 
@@ -54,9 +55,46 @@ def academic_year(year):
 
 
 @register.filter
-def get_difference_css(differences, parameter):
-    if differences.get(parameter, None):
-        return mark_safe(" data-toggle=tooltip title='{} : {}' class={} ".format(_("value_before_proposal"),
-                                                                                 differences.get(parameter),
-                                                                                 "proposal_value"))
+def get_difference_css(differences, parameter, default_if_none=""):
+    if parameter in differences:
+        return mark_safe(
+            " data-toggle=tooltip title='{} : {}' class={} ".format(_("value_before_proposal"),
+                                                                    differences[parameter] or default_if_none,
+                                                                    "proposal_value"))
     return None
+
+
+@register.filter
+def has_proposal(luy):
+    return ProposalLearningUnit.objects.filter(learning_unit_year=luy).exists()
+
+
+@register.simple_tag
+def dl_tooltip(differences, key, **kwargs):
+    title = kwargs.get('title', '')
+    label_text = _(str(kwargs.get('label_text', '')))
+    url = kwargs.get('url', '')
+    default_if_none = kwargs.get('default_if_none', '')
+    value = kwargs.get('value', '')
+    inherited = kwargs.get('inherited', '')
+    annualized = kwargs.get('annualized', '')
+
+    if not label_text:
+        label_text = _(str(key.lower()))
+
+    if not value:
+        value = default_if_none
+
+    difference = get_difference_css(differences, key, default_if_none) or 'title="{}"'.format(_(title))
+
+    if url:
+        value = "<a href='{url}'>{value}</a>".format(value=_(str(value)), url=url)
+
+    if inherited == "PARTIM":
+        label_text += "<span title={inherited_title}> [H]</span>".format(inherited_title=_("inherited"))
+
+    if annualized:
+        label_text += "<span title={annualized_title}> [A]</span>".format(annualized_title=_("annualized"))
+
+    return mark_safe("<dl><dt {difference}>{label_text}</dt><dd {difference}>{value}</dd></dl>".format(
+        difference=difference, label_text=label_text, value=_(str(value))))

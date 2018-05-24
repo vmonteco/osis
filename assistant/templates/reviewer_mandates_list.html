@@ -78,14 +78,16 @@
         <th>{% trans 'eq_fte' %}</th>
         <th>{% trans 'fulltime_equivalent_percentage' %}</th>
         <th>{% trans 'state' %}</th>
+        <th>{% trans 'reviews' %}</th>
         <th>{% trans 'edit' %}</th>
         <th>{% trans 'view' %}</th>
+
         </tr>
         </thead>
         <tbody>
         {% for mandate in object_list %}
             <tr>
-            <td>{{ mandate.assistant.person }}</td>
+            <td>{{ mandate.assistant }}</td>
             <td>
                 <ul>
                     {% for entity in mandate.entities %}
@@ -101,6 +103,34 @@
             <td>{{ mandate.contract_duration_fte }}</td>
             <td>{% widthratio mandate.fulltime_equivalent 1 100 %}%</td>
             <td>{% trans mandate.state %}</td>
+            <td>
+                {% for review in mandate.review_set.all|dictsort:"changed" %}
+                    {% if review.status == review_status.DONE %}
+                        {% if not review.reviewer %}
+                            <i id="rev" class="fa fa-battery-1" style="font-size: 100%;
+                        {% elif "RESEARCH" in review.reviewer.role %}
+                            <i class="fa fa-battery-2" style="font-size: 100%;
+                        {% elif "SUPERVISION" in review.reviewer.role %}
+                            <i class="fa fa-battery-3" style="font-size: 100%;
+                        {% elif "VICE_RECTOR" in review.reviewer.role %}
+                            <i class="fa fa-battery-4" style="font-size: 100%;
+                        {% endif %}
+                        {% if review.advice == "FAVORABLE" %}
+                             color: #79C84F;"
+                        {% elif review.advice == review_advice_choices.UNFAVOURABLE %}
+                             color: #E06D5A;"
+                        {% else %}
+                             color: #EFC345;"
+                        {% endif %}
+                        {% if review.reviewer %}
+                            title="{% trans review.reviewer.role %} : {{ review.reviewer.person }}">
+                        {% else %}
+                            title="{% trans 'PHD_SUPERVISOR' %} : {{ mandate.assistant.supervisor }}">
+                        {% endif %}
+                        </i>
+                    {% endif %}
+                {% endfor %}
+            </td>
 	        {% if mandate.state in reviewer.role %}
                 <td align="center">
                     <form method="POST" action="{% url 'review_edit' %}">

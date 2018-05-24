@@ -289,6 +289,9 @@ msgstr "Settings of the Dissertation application"
 msgid "desc_lnk_manager_proposition_dissertations"
 msgstr "Dissertation subjects submitted by teachers"
 
+msgid "desc_lnk_manager_students_list"
+msgstr "List of students"
+
 msgid "desc_lnk_propositions_dissertations"
 msgstr "Dissertation subjects submitted by myself and others teachers"
 
@@ -384,6 +387,9 @@ msgstr "First year evaluation"
 
 msgid "export_search_as_xls"
 msgstr "Export search as XLS"
+
+msgid "filtre_by_offer"
+msgstr "filter by offer"
 
 msgid "first_name"
 msgstr "First name"
@@ -840,6 +846,9 @@ msgstr "Check the programs related to this topic"
 
 msgid "select_program_first"
 msgstr "Please select Start Program/Year first"
+
+msgid "send_email_to_commission_accepted"
+msgstr "Send an email to reading commission when acceptation of evaluation commission"
 
 msgid "september"
 msgstr "September"

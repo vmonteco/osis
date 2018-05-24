@@ -25,7 +25,9 @@
 ##############################################################################
 from django.test import TestCase
 from django.utils.translation import ugettext_lazy as _
-from base.templatetags.learning_unit import get_difference_css
+from base.templatetags.learning_unit import get_difference_css, has_proposal
+from base.tests.factories.learning_unit_year import LearningUnitYearFactory
+from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
 
 
 LABEL_VALUE_BEFORE_PROPROSAL = _('value_before_proposal')
@@ -48,3 +50,9 @@ class LearningUnitTagTest(TestCase):
     def test_get_no_differences_css(self):
         differences = {'parameter1': 'tooltip1'}
         self.assertIsNone(get_difference_css(differences, 'parameter_10'))
+
+    def test_has_proposal(self):
+        luy = LearningUnitYearFactory()
+        self.assertFalse(has_proposal(luy))
+        ProposalLearningUnitFactory(learning_unit_year=luy)
+        self.assertTrue(has_proposal(luy))

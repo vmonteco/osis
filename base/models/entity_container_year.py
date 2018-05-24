@@ -29,10 +29,11 @@ from django.db.models import Prefetch
 
 from base.models import entity_version
 from base.models.enums import entity_container_year_link_type
-from osis_common.models.auditable_serializable_model import AuditableSerializableModel, AuditableSerializableModelAdmin
+from base.models.enums.entity_container_year_link_type import REQUIREMENT_ENTITIES
+from osis_common.models.serializable_model import SerializableModelAdmin, SerializableModel
 
 
-class EntityContainerYearAdmin(AuditableSerializableModelAdmin):
+class EntityContainerYearAdmin(SerializableModelAdmin):
     list_display = ('external_id', 'learning_container_year', 'entity', 'type')
     fieldsets = ((None, {'fields': ('entity', 'learning_container_year', 'type')}),)
     search_fields = ['learning_container_year__acronym', 'type']
@@ -40,7 +41,7 @@ class EntityContainerYearAdmin(AuditableSerializableModelAdmin):
     raw_id_fields = ('entity', 'learning_container_year')
 
 
-class EntityContainerYear(AuditableSerializableModel):
+class EntityContainerYear(SerializableModel):
     external_id = models.CharField(max_length=255, blank=True, null=True)
     changed = models.DateTimeField(null=True, auto_now=True)
     entity = models.ForeignKey('Entity')
@@ -48,7 +49,7 @@ class EntityContainerYear(AuditableSerializableModel):
     type = models.CharField(max_length=35, choices=entity_container_year_link_type.ENTITY_CONTAINER_YEAR_LINK_TYPES)
 
     class Meta:
-        unique_together = ('entity', 'learning_container_year', 'type', 'deleted')
+        unique_together = ('learning_container_year', 'type',)
 
     def __str__(self):
         return u"%s - %s - %s" % (self.entity, self.learning_container_year, self.type)
@@ -133,10 +134,14 @@ def find_by_learning_container_year_and_linktype(a_learning_container_year, link
         return None
 
 
-def get_entity_container_year(an_entity_version, a_learning_container_year, a_type_entity_container_year):
+def get_entity_container_year(a_learning_container_year, a_type_entity_container_year):
     try:
-        return EntityContainerYear.objects.get(entity=an_entity_version,
-                                               learning_container_year=a_learning_container_year,
+        return EntityContainerYear.objects.get(learning_container_year=a_learning_container_year,
                                                type=a_type_entity_container_year)
     except ObjectDoesNotExist:
         return None
+
+
+def find_requirement_entities(learning_container_year):
+    return EntityContainerYear.objects.filter(learning_container_year=learning_container_year,
+                                              type__in=REQUIREMENT_ENTITIES)

@@ -27,14 +27,18 @@ from django.conf import settings
 from django.conf.urls import url, include
 from django.conf.urls.static import static
 
-import base.views.learning_unit_deletion
-import base.views.learning_units.edition
+import base.views.learning_units.delete
+import base.views.learning_units.educational_information
+import base.views.learning_units.proposal.consolidate
+import base.views.learning_units.proposal.delete
 import base.views.learning_units.search
+import base.views.learning_units.update
 from attribution.views import attribution, tutor_application
 from base.views import learning_unit, offer, common, institution, organization, academic_calendar, \
-    my_osis, entity, student, education_group, learning_unit_proposal
-from base.views.learning_units import edition
-from base.views.learning_units.proposal import creation
+    my_osis, entity, student, education_group
+from base.views.learning_units.proposal import create, update
+from base.views.learning_units.update import update_learning_unit, learning_unit_edition_end_date
+from base.views import learning_achievement
 
 urlpatterns = [
     url(r'^$', common.home, name='home'),
@@ -68,8 +72,7 @@ urlpatterns = [
     url(r'^catalog/$', common.catalog, name='catalog'),
 
     url(r'^entities/', include([
-        url(r'^$', institution.entities, name='entities'),
-        url(r'^search$', institution.entities_search, name='entities_search'),
+        url(r'^$', institution.entities_search, name='entities'),
         url(r'^(?P<entity_version_id>[0-9]+)/', include([
             url(r'^$', institution.entity_read, name='entity_read'),
             url(r'^address/$', institution.get_entity_address, name='entity_address'),
@@ -90,53 +93,67 @@ urlpatterns = [
             name='learning_units_service_course'),
         url(r'^by_proposal/', base.views.learning_units.search.learning_units_proposal_search,
             name='learning_units_proposal'),
+        url(r'^by_borrowed_course/', base.views.learning_units.search.learning_units_borrowed_course,
+            name='learning_units_borrowed_course'),
+        url(r'^by_summary/', base.views.learning_units.educational_information.learning_units_summary_list,
+            name='learning_units_summary'),
         url(r'^new/', include([
-            url(r'^academic_year_id=(?P<academic_year>[0-9]+)$', learning_unit.learning_unit_create,
+            url(r'^academic_year_id=(?P<academic_year_id>[0-9]+)$', learning_unit.learning_unit_create,
                 name="learning_unit_create"),
-            url(r'^learning_unit_year_add/$', learning_unit.learning_unit_year_add, name='learning_unit_year_add'),
             url(r'^proposal/academic_year_id=(?P<academic_year>[0-9]+)$',
-                creation.get_proposal_learning_unit_creation_form,
+                create.get_proposal_learning_unit_creation_form,
                 name="proposal_learning_unit_creation_form"),
-            url(r'^proposal_learning_unit_add/$', creation.proposal_learning_unit_add,
-                name='proposal_learning_unit_add'),
         ])),
         url(r'^(?P<learning_unit_year_id>[0-9]+)/', include([
             url(r'^$', learning_unit.learning_unit_identification, name='learning_unit'),
             url(r'^formations/$', learning_unit.learning_unit_formations, name="learning_unit_formations"),
             url(r'^components/$', learning_unit.learning_unit_components, name="learning_unit_components"),
-            url(r'^pedagogy/$', learning_unit.learning_unit_pedagogy, name="learning_unit_pedagogy"),
+            url(r'^pedagogy/$', base.views.learning_units.update.learning_unit_pedagogy, name="learning_unit_pedagogy"),
             url(r'^pedagogy/edit/$', learning_unit.learning_unit_pedagogy_edit, name="learning_unit_pedagogy_edit"),
             url(r'^attributions/$', learning_unit.learning_unit_attributions,
                 name="learning_unit_attributions"),
             url(r'^proposal/', include([
-                url(r'^modification/$', learning_unit_proposal.propose_modification_of_learning_unit,
+                url(r'^modification/$', update.learning_unit_modification_proposal,
                     name="learning_unit_modification_proposal"),
-                url(r'^edit/$', learning_unit_proposal.edit_learning_unit_proposal, name="edit_proposal"),
-                url(r'^cancel/$', learning_unit_proposal.cancel_proposal_of_learning_unit,
+                url(r'^suppression/$', update.learning_unit_suppression_proposal,
+                    name="learning_unit_suppression_proposal"),
+                url(r'^edit/$', update.update_learning_unit_proposal, name="edit_proposal"),
+                url(r'^cancel/$', base.views.learning_units.proposal.delete.cancel_proposal_of_learning_unit,
                     name="learning_unit_cancel_proposal"),
             ])),
-            url(r'^edit/$', edition.learning_unit_edition, name="learning_unit_edition"),
-            url(r'^modify/$', edition.modify_learning_unit, name="edit_learning_unit"),
+            url(r'^update_end_date/$', learning_unit_edition_end_date, name="learning_unit_edition"),
+            url(r'^update/$', update_learning_unit, name="edit_learning_unit"),
             url(r'^specifications/$', learning_unit.learning_unit_specifications, name="learning_unit_specifications"),
             url(r'^specifications/edit/$', learning_unit.learning_unit_specifications_edit,
                 name="learning_unit_specifications_edit"),
             url(r'^component/edit/$', learning_unit.learning_unit_component_edit, name="learning_unit_component_edit"),
             url(r'^class/edit/$', learning_unit.learning_class_year_edit, name="learning_class_year_edit"),
-            url(r'^volumes/', base.views.learning_units.edition.learning_unit_volumes_management,
+            url(r'^volumes/', base.views.learning_units.update.learning_unit_volumes_management,
                 name="learning_unit_volumes_management"),
-            url(r'^delete/$', base.views.learning_unit_deletion.delete_from_given_learning_unit_year,
-                name="learning_unit_delete"),
-            url(r'^delete_full/$', base.views.learning_unit_deletion.delete_all_learning_units_year,
+            url(r'^delete_full/$', base.views.learning_units.delete.delete_all_learning_units_year,
                 name="learning_unit_delete_all"),
-            url(r'^summary/$', learning_unit.learning_unit_summary, name="learning_unit_summary"),
-            url(r'^summary/edit/$', learning_unit.summary_edit, name="learning_unit_summary_edit"),
             url(r'^partim/', include([
-                url(r'^new/$', learning_unit.get_partim_creation_form, name="learning_unit_create_partim"),
-                url(r'^add/$', learning_unit.learning_unit_year_partim_add, name='learning_unit_year_partim_add')
+                url(r'^new/$', learning_unit.create_partim_form, name="learning_unit_create_partim"),
+            ])),
+            url(r'^achievements/', include([
+                url(r'^management/', learning_achievement.management, name="achievement_management"),
+                url(r'^(?P<learning_achievement_id>[0-9]+)/edit/', learning_achievement.update,
+                    name="achievement_edit"),
+                url(r'^create/', learning_achievement.create_first,
+                    name="achievement_create_first"),
+
+                url(r'^(?P<learning_achievement_id>[0-9]+)/create/', learning_achievement.create,
+                    name="achievement_create"),
+
             ])),
         ])),
-        url(r'^check/(?P<type>[A-Z]+)$', learning_unit.check_acronym, name="check_acronym"),
+        url(r'^check/(?P<subtype>[A-Z]+)$', learning_unit.check_acronym, name="check_acronym"),
         url(r'^outside_period/$', learning_unit.outside_period, name='outside_summary_submission_period'),
+        url(r'^email_educational_information_update/$',
+            base.views.learning_units.educational_information.send_email_educational_information_needs_update,
+            name='email_educational_information_update'),
+        url(r'^proposal/consolidate/$', base.views.learning_units.proposal.consolidate.consolidate_proposal,
+            name="learning_unit_consolidate_proposal"),
     ])),
     url(r'^proposals/search/$', base.views.learning_units.search.learning_units_proposal_search,
         name="learning_unit_proposal_search"),

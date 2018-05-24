@@ -29,9 +29,11 @@ from django.contrib import admin
 from assistant.models.enums import assistant_mandate_state, assistant_type, assistant_mandate_renewal
 from assistant.models.enums import assistant_mandate_appeal
 
+
 class AssistantMandateAdmin(admin.ModelAdmin):
     list_display = ('assistant', 'renewal_type', 'academic_year')
     raw_id_fields = ('assistant',)
+
 
 class AssistantMandate(models.Model):
 
@@ -61,8 +63,8 @@ class AssistantMandate(models.Model):
     tutoring_percent = models.PositiveIntegerField(validators=[MinValueValidator(0), MaxValueValidator(100)], default=0)
     service_activities_percent = models.PositiveIntegerField(validators=[MinValueValidator(0),
                                                                          MaxValueValidator(100)], default=0)
-    formation_activities_percent  = models.PositiveIntegerField(validators=[MinValueValidator(0),
-                                                                            MaxValueValidator(100)], default=0)
+    formation_activities_percent = models.PositiveIntegerField(validators=[MinValueValidator(0),
+                                                                           MaxValueValidator(100)], default=0)
     internships = models.TextField(null=True, blank=True)
     conferences = models.TextField(null=True, blank=True)
     publications = models.TextField(null=True, blank=True)
@@ -107,8 +109,15 @@ def find_by_academic_year(academic_year):
     return AssistantMandate.objects.filter(academic_year=academic_year).order_by('assistant__person__last_name')
 
 
+def find_by_academic_year_by_excluding_declined(academic_year):
+    return AssistantMandate.objects.filter(academic_year=academic_year).\
+        exclude(state=assistant_mandate_state.DECLINED).\
+        order_by('assistant__person__last_name')
+
+
 def find_before_year_for_assistant(year, assistant):
-    return AssistantMandate.objects.filter(academic_year__year__lt=year).filter(assistant=assistant)
+    return AssistantMandate.objects.filter(academic_year__year__lt=year).\
+        filter(assistant=assistant).order_by('-academic_year')
 
 
 def find_for_supervisor_for_academic_year(supervisor, academic_year):
@@ -116,5 +125,5 @@ def find_for_supervisor_for_academic_year(supervisor, academic_year):
 
 
 def find_mandate(assistant, academic_year, contract_number):
-    return AssistantMandate.objects.filter(academic_year=academic_year).filter(assistant = assistant).\
-        filter(sap_id = contract_number)
+    return AssistantMandate.objects.filter(academic_year=academic_year).filter(assistant=assistant).\
+        filter(sap_id=contract_number)

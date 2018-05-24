@@ -25,13 +25,18 @@
 ##############################################################################
 import datetime
 from unittest import mock
+
+from django.forms import model_to_dict
 from django.test import TestCase
 from django.utils import timezone
 from base.models import academic_calendar
+from base.models.academic_calendar import find_dates_for_current_academic_year
+from base.models.enums import academic_calendar_type
 from base.models.exceptions import StartDateHigherThanEndDateException
 from base.signals.publisher import compute_all_scores_encodings_deadlines
 from base.tests.factories.academic_calendar import AcademicCalendarFactory
-from base.tests.factories.academic_year import AcademicYearFactory, AcademicYearFakerFactory
+from base.tests.factories.academic_year import AcademicYearFactory, AcademicYearFakerFactory, \
+    create_current_academic_year
 
 
 class AcademicCalendarTest(TestCase):
@@ -98,3 +103,21 @@ class AcademicCalendarTest(TestCase):
         an_academic_year = AcademicYearFactory(year=timezone.now().year)
         self.assertIsNone(academic_calendar.find_academic_calendar(an_academic_year, None, timezone.now()))
         self.assertIsNone(academic_calendar.find_academic_calendar(None, "EVENT_CALENDAR", timezone.now()))
+
+
+class TestFindDatesForCurrentAcademicYear(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+
+        cls.current_academic_calendar = AcademicCalendarFactory(academic_year=create_current_academic_year(),
+                                                                reference=academic_calendar_type.EXAM_ENROLLMENTS)
+
+    def test_when_no_matching_reference(self):
+        dates = find_dates_for_current_academic_year(academic_calendar_type.TEACHING_CHARGE_APPLICATION)
+        self.assertFalse(dates)
+
+    def test_when_matched(self):
+        dates = find_dates_for_current_academic_year(academic_calendar_type.EXAM_ENROLLMENTS)
+        self.assertEqual(dates,
+                         model_to_dict(self.current_academic_calendar,
+                                       fields=("start_date", "end_date")))

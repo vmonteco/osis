@@ -27,12 +27,11 @@
 {% endcomment %}
 
 {% block breadcrumb %}
-<li><a href="{% url 'institution' %}" id="lnk_institution">{% trans 'institution' %}</a></li>
-<li class="active">{% trans 'organizations' %}</li>
+    <li><a href="{% url 'institution' %}" id="lnk_institution">{% trans 'institution' %}</a></li>
+    <li class="active">{% trans 'organizations' %}</li>
 {% endblock %}
-{% block content %}
-{% include "template_messages.html" %}
 
+{% block content %}
 <div class="page-header">
     <h2>{% trans 'organizations' %}</h2>
 </div>
@@ -89,12 +88,11 @@
                         <td><a href="{% url 'organization_read' organization_id=organization.id %}"
                                id="lnk_organization_read_{{organization.id}}">{{ organization.acronym | default_if_none:'-' }}</a></td>
                         <td>{{ organization.name }}</td>
-                        <td>{% if organization.type %}  {% trans organization.type %} {% else %} - {% endif %}</td>
+                        <td>{% if organization.type and organization.type != "UNKNOWN" %}  {% trans organization.type %} {% else %} - {% endif %}</td>
                     </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
-
 </div>
 {% endblock %}

@@ -33,6 +33,7 @@ from factory import DjangoModelFactory
 class LanguageFactory(DjangoModelFactory):
     class Meta:
         model = 'reference.Language'
+        django_get_or_create = ('code',)
 
     external_id = factory.fuzzy.FuzzyText(length=10, chars=string.digits)
     code = factory.Sequence(lambda n: str(n))

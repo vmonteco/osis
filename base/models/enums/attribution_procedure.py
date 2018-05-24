@@ -24,13 +24,15 @@
 #
 ##############################################################################
 from base.models.utils.utils import ChoiceEnum
+from django.utils.translation import ugettext_lazy as _
+
 
 INTERNAL_TEAM = "INTERNAL_TEAM"
 EXTERNAL = "EXTERNAL"
 
 ATTRIBUTION_PROCEDURES = (
-    (INTERNAL_TEAM, INTERNAL_TEAM),
-    (EXTERNAL, EXTERNAL))
+    (INTERNAL_TEAM, _(INTERNAL_TEAM)),
+    (EXTERNAL, _(EXTERNAL)))
 
 
 class AttributionProcedures(ChoiceEnum):

@@ -119,7 +119,8 @@ def education_group_general_informations(request, education_group_year_id):
     assert_category_of_education_group_year(
         education_group_year, (education_group_categories.TRAINING, education_group_categories.MINI_TRAINING))
 
-    CMS_LABEL = mdl_cms.translated_text.find_by_entity_reference(entity_name.OFFER_YEAR, education_group_year_id)
+    CMS_LABEL = mdl_cms.translated_text.find_labels_list_by_label_entity_and_reference(entity_name.OFFER_YEAR,
+                                                                                       education_group_year_id)
 
     fr_language = next((lang for lang in settings.LANGUAGES if lang[0] == 'fr-be'), None)
     en_language = next((lang for lang in settings.LANGUAGES if lang[0] == 'en'), None)
@@ -174,8 +175,8 @@ def education_group_administrative_data(request, education_group_year_id):
                                                        education_group_year)})
     context.update({'scores_exam_diffusion': get_sessions_dates(academic_calendar_type.SCORES_EXAM_DIFFUSION,
                                                                 education_group_year)})
-    context.update({"can_edit_administrative_data":  education_group_business.can_user_edit_administrative_data(
-                                                                                request.user, education_group_year)})
+    context.update({"can_edit_administrative_data": education_group_business.can_user_edit_administrative_data(
+        request.user, education_group_year)})
     return layout.render(request, "education_group/tab_administrative_data.html", context)
 
 
@@ -193,8 +194,9 @@ def education_group_edit_administrative_data(request, education_group_year_id):
     formset_session = AdministrativeDataFormset(request.POST or None,
                                                 form_kwargs={'education_group_year': education_group_year})
 
-    offer_year_calendar = mdl.offer_year_calendar.search(education_group_year_id=education_group_year_id,
-                                                         academic_calendar_reference=academic_calendar_type.COURSE_ENROLLMENT).first()
+    offer_year_calendar = mdl.offer_year_calendar.search(
+        education_group_year_id=education_group_year_id,
+        academic_calendar_reference=academic_calendar_type.COURSE_ENROLLMENT).first()
 
     course_enrollment = CourseEnrollmentForm(request.POST or None, instance=offer_year_calendar)
 
@@ -214,9 +216,10 @@ def get_sessions_dates(an_academic_calendar_type, an_education_group_year):
     date_dict = {}
 
     for session_number in range(NUMBER_SESSIONS):
-        session = mdl.session_exam_calendar.get_by_session_reference_and_academic_year(session_number+1,
-                                                                                       an_academic_calendar_type,
-                                                                                       an_education_group_year.academic_year)
+        session = mdl.session_exam_calendar.get_by_session_reference_and_academic_year(
+            session_number + 1,
+            an_academic_calendar_type,
+            an_education_group_year.academic_year)
         if session:
             dates = mdl.offer_year_calendar.get_by_education_group_year_and_academic_calendar(session.academic_calendar,
                                                                                               an_education_group_year)
@@ -269,7 +272,7 @@ def _group_elements(education_group_yr):
 def _get_group_elements_data(group_elements):
     group_elements_data = []
     for group_element in group_elements:
-        group_element_values={'group_element': group_element}
+        group_element_values = {'group_element': group_element}
         if group_element.child_leaf:
             _get_learning_unit_detail(group_element_values, group_element)
         elif group_element.child_branch:
@@ -287,18 +290,18 @@ def _sorting(group_elements_data):
 
 def _get_education_group_detail(dict_param, group_element):
     dict_param.update({CODE_SCS: group_element.child_branch.partial_acronym,
-                 TITLE: group_element.child_branch.title,
-                 CREDITS_MIN: group_element.min_credits,
-                 CREDITS_MAX: group_element.max_credits,
-                 BLOCK: None})
+                       TITLE: group_element.child_branch.title,
+                       CREDITS_MIN: group_element.min_credits,
+                       CREDITS_MAX: group_element.max_credits,
+                       BLOCK: None})
     return dict_param
 
 
 def _get_learning_unit_detail(dict_param, group_element):
     dict_param.update({CODE_SCS: group_element.child_leaf.acronym,
-                 TITLE: group_element.child_leaf.title,
-                 CREDITS_MIN: None,
-                 CREDITS_MAX: None,
-                 BLOCK: group_element.block,
-                 SESSIONS_DEROGATION: group_element.sessions_derogation})
+                       TITLE: group_element.child_leaf.specific_title,
+                       CREDITS_MIN: None,
+                       CREDITS_MAX: None,
+                       BLOCK: group_element.block,
+                       SESSIONS_DEROGATION: group_element.sessions_derogation})
     return dict_param

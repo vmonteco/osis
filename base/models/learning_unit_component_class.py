@@ -24,9 +24,9 @@
 #
 ##############################################################################
 from django.db import models
-from osis_common.models.auditable_model import AuditableModel, AuditableModelAdmin
+from django.contrib import admin
 
-class LearningUnitComponentClassAdmin(AuditableModelAdmin):
+class LearningUnitComponentClassAdmin(admin.ModelAdmin):
     list_display = ('learning_unit_component', 'learning_class_year')
     fieldsets = ((None, {'fields': ('learning_unit_component', 'learning_class_year')}),)
     raw_id_fields = ('learning_class_year', 'learning_unit_component')
@@ -34,7 +34,7 @@ class LearningUnitComponentClassAdmin(AuditableModelAdmin):
     search_fields = ['learning_unit_component__learning_unit_year__acronym']
 
 
-class LearningUnitComponentClass(AuditableModel):
+class LearningUnitComponentClass(models.Model):
     learning_unit_component = models.ForeignKey('LearningUnitComponent')
     learning_class_year = models.ForeignKey('LearningClassYear')
 

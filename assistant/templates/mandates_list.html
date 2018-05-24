@@ -72,7 +72,7 @@
                     {{ form.non_field_errors }}
  		            {% csrf_token %}
                     <input type="hidden" name="mandate_id" value="{{ mandate.id }}">
-                    <a href="mailto:{{ mandate.assistant.person.email }}">{{ mandate.assistant.person }}</a>
+                    <a href="mailto:{{ mandate.assistant.person.email }}">{{ mandate.assistant }}</a>
                     <button type="submit" class="btn btn-link" title="{% trans 'edit'%}">
                         <span class="glyphicon glyphicon-edit" aria-hidden="true"></span> {% trans 'edit'%}
                     </button></form>
