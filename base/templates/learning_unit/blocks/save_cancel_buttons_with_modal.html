@@ -10,7 +10,7 @@
 
         {# We do not need postponement for learning unit in the past #}
         {% if learning_unit_year.is_past %}
-            <button type="submit" class="btn btn-primary pull-right">
+            <button onclick="submit()" class="btn btn-primary pull-right">
                 <span class="glyphicon glyphicon-floppy-save" aria-hidden="true"></span> {% trans 'save' %}
             </button>
         {% else %}
@@ -20,3 +20,9 @@
         {% endif %}
     </div>
 </div>
+
+<script>
+function submit(){
+    $('form').submit()
+}
+</script>
