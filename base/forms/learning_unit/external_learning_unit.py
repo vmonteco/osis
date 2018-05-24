@@ -31,7 +31,7 @@ from django.forms import ModelChoiceField
 from django.utils.translation import ugettext_lazy as _
 
 from base.forms.learning_unit.learning_unit_create import LearningUnitModelForm, LearningUnitYearModelForm, \
-    LearningContainerModelForm, EntitiesVersionChoiceField
+    LearningContainerModelForm, EntitiesVersionChoiceField, LearningContainerYearModelForm
 from base.forms.learning_unit.learning_unit_create_2 import LearningUnitBaseForm, merge_data
 from base.forms.utils.acronym_field import ExternalAcronymField
 from base.models import entity_version
@@ -40,7 +40,6 @@ from base.models.entity_version import get_last_version, EntityVersion
 from base.models.enums import learning_unit_year_subtypes
 from base.models.enums.learning_container_year_types import EXTERNAL
 from base.models.external_learning_unit_year import ExternalLearningUnitYear
-from base.models.learning_container_year import LearningContainerYear
 from reference.models import language
 from reference.models.country import Country
 
@@ -50,34 +49,13 @@ class CampusChoiceField(ModelChoiceField):
         return "{}".format(obj.organization.name)
 
 
-class LearningContainerYearExternalModelForm(forms.ModelForm):
+class LearningContainerYearExternalModelForm(LearningContainerYearModelForm):
     country = ModelChoiceField(queryset=Country.objects.all().order_by('name'), required=False, label=_("country"))
     campus = CampusChoiceField(queryset=Campus.objects.none())
 
-    def __init__(self, *args, **kwargs):
-        kwargs.pop('person')
-        kwargs.pop('proposal')
-        super().__init__(*args, **kwargs)
-
+    def prepare_fields(self):
         self.fields['campus'].queryset = Campus.objects.order_by('organization__name').distinct('organization__name')
         self.fields["container_type"].choices = ((EXTERNAL, _(EXTERNAL)),)
-
-    class Meta:
-        model = LearningContainerYear
-        fields = ('container_type', 'common_title', 'common_title_english', 'language', 'campus',
-                  'type_declaration_vacant', 'team', 'is_vacant')
-
-    def save(self, **kwargs):
-        self.instance.learning_container = kwargs.pop('learning_container')
-        self.instance.acronym = kwargs.pop('acronym')
-        self.instance.academic_year = kwargs.pop('academic_year')
-        return super().save(**kwargs)
-
-    def post_clean(self, specific_title):
-        if not self.instance.common_title and not specific_title:
-            self.add_error("common_title", _("must_set_common_title_or_specific_title"))
-
-        return not self.errors
 
 
 class ExternalLearningUnitModelForm(forms.ModelForm):
@@ -129,7 +107,7 @@ class ExternalLearningUnitBaseForm(LearningUnitBaseForm):
 
     entity_version = None
 
-    form_cls_to_validate = [
+    form_cls = form_cls_to_validate = [
         LearningUnitModelForm,
         LearningUnitYearModelForm,
         LearningContainerModelForm,
@@ -140,7 +118,7 @@ class ExternalLearningUnitBaseForm(LearningUnitBaseForm):
     def __init__(self, person, academic_year=None, data=None, *args, **kwargs):
         self.academic_year = academic_year
         self.person = person
-        instances_data = self._build_instance_data(data, academic_year, None)
+        instances_data = self._build_instance_data(data, academic_year)
         super().__init__(instances_data, *args, **kwargs)
         self.disable_fields('container_type')
         self.learning_unit_year_form.fields['acronym'] = ExternalAcronymField()
@@ -153,7 +131,7 @@ class ExternalLearningUnitBaseForm(LearningUnitBaseForm):
     def learning_container_year_form(self):
         return self.forms[LearningContainerYearExternalModelForm]
 
-    def _build_instance_data(self, data, default_ac_year, proposal):
+    def _build_instance_data(self, data, default_ac_year):
         return {
             LearningUnitModelForm: {
                 'data': merge_data(data, {'start_year': default_ac_year.year, 'periodicity': 'ANNUAL'}),
@@ -164,7 +142,7 @@ class ExternalLearningUnitBaseForm(LearningUnitBaseForm):
                 'instance': self.instance.learning_container_year.learning_container if self.instance else None,
             },
             LearningUnitYearModelForm: self._build_instance_data_learning_unit_year(data, default_ac_year),
-            LearningContainerYearExternalModelForm: self._build_instance_data_learning_container_year(data, proposal),
+            LearningContainerYearExternalModelForm: self._build_instance_data_learning_container_year(data),
             ExternalLearningUnitModelForm: self._build_instance_data_external_learning_unit(data)
         }
 
@@ -192,11 +170,10 @@ class ExternalLearningUnitBaseForm(LearningUnitBaseForm):
             'initial': inherit_lu_values if not self.instance else None,
         }
 
-    def _build_instance_data_learning_container_year(self, data, proposal):
+    def _build_instance_data_learning_container_year(self, data):
         return {
             'data': data,
             'instance': self.instance.learning_container_year if self.instance else None,
-            'proposal': proposal,
             'initial': {
                 # Default language French
                 'language': language.find_by_code('FR'),

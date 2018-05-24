@@ -364,15 +364,17 @@ class EntityContainerBaseForm:
 
 class LearningContainerYearModelForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
-        person = kwargs.pop('person')
-        proposal = kwargs.pop('proposal', False)
+        self.person = kwargs.pop('person')
+        self.proposal = kwargs.pop('proposal', False)
         super().__init__(*args, **kwargs)
+        self.prepare_fields()
 
+    def prepare_fields(self):
         self.fields['campus'].queryset = find_main_campuses()
         self.fields['container_type'].widget.attrs = {'onchange': 'showInternshipSubtype()'}
 
         # Limit types for faculty_manager only if simple creation of learning_unit
-        if person.is_faculty_manager() and not proposal and not self.instance:
+        if self.person.is_faculty_manager() and not self.proposal and not self.instance:
             self.fields["container_type"].choices = _create_faculty_learning_container_type_list()
 
         if self.initial.get('subtype') == learning_unit_year_subtypes.PARTIM:
