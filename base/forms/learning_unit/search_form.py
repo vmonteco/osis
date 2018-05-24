@@ -250,13 +250,11 @@ def get_filter_learning_container_ids(filter_data):
         entities_id_list_allocation += get_entity_container_list(entity_ids,
                                                                  entity_container_year_link_type.ALLOCATION_ENTITY)
 
-    if requirement_entity_acronym and allocation_entity_acronym:
+    if _has_both_entity_acronyms(requirement_entity_acronym, allocation_entity_acronym):
         return _get_common_entities(entities_id_list_allocation, entities_id_list_requirement)
     else:
-        if requirement_entity_acronym:
-            return entities_id_list_requirement
-        elif allocation_entity_acronym:
-            return entities_id_list_allocation
+        return _get_entity_ids_list(allocation_entity_acronym, entities_id_list_allocation,
+                                    entities_id_list_requirement, requirement_entity_acronym)
 
 
 def _get_common_entities(entities_id_list_allocation, entities_id_list_requirement):
@@ -342,3 +340,17 @@ def __is_borrowed_learning_unit(luy, map_entity_faculty, map_luy_entity, map_luy
                 and map_entity_faculty.get(education_group_entity) is not None:
             return True
     return False
+
+
+def _has_both_entity_acronyms(requirement_entity_acronym, allocation_entity_acronym):
+    return requirement_entity_acronym and allocation_entity_acronym
+
+
+def _get_entity_ids_list(allocation_entity_acronym, entities_id_list_allocation, entities_id_list_requirement,
+                         requirement_entity_acronym):
+    if requirement_entity_acronym:
+        return entities_id_list_requirement
+    elif allocation_entity_acronym:
+        return entities_id_list_allocation
+    else:
+        return []
