@@ -47,7 +47,7 @@ from osis_common.utils.datetime import convert_date_to_datetime
 
 # List of key that a user can modify
 WORKSHEET_TITLE = 'learning_units'
-XLS_FILENAME = 'learning_units'
+XLS_FILENAME = 'learning_units_filename'
 XLS_DESCRIPTION = "List_activities"
 LEARNING_UNIT_TITLES = [str(_('academic_year_small')), str(_('code')), str(_('title')), str(_('type')),
                         str(_('subtype')), str(_('requirement_entity_small')), str(_('allocation_entity_small')),
