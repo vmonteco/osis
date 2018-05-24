@@ -1,4 +1,4 @@
-##############################################################################
+
 #
 #    OSIS stands for Open Student Information System. It's an application
 #    designed to manage the core business of higher education institutions,
@@ -353,4 +353,4 @@ def _get_entity_ids_list(allocation_entity_acronym, entities_id_list_allocation,
     elif allocation_entity_acronym:
         return entities_id_list_allocation
     else:
-        return []
+        return None
