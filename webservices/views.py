@@ -50,8 +50,8 @@ def get_common_education_group(academic_year, language, acronym):
 
 
 def get_cleaned_parameters(type_acronym):
-    def get_cleaned_parameters(function):
-        def wrapper(request, year, language, acronym):
+    def wrapper(function):
+        def inner_wrapper(request, year, language, acronym):
             year = to_int_or_404(year)
 
             if language not in LANGUAGES:
@@ -87,8 +87,8 @@ def get_cleaned_parameters(type_acronym):
             )
 
             return function(request, context)
-        return wrapper
-    return get_cleaned_parameters
+        return inner_wrapper
+    return wrapper
 
 
 def to_int_or_404(year):
