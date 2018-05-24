@@ -1,10 +1,8 @@
-from django.conf.urls import url, include
-from django.views.decorators.cache import cache_page
-
-from webservices.views import ws_catalog_offer
-from webservices.views import ws_catalog_group
-
+from django.conf.urls import url
 from rest_framework_swagger.views import get_swagger_view
+
+from webservices.views import ws_catalog_group
+from webservices.views import ws_catalog_offer
 
 schema_view = get_swagger_view(title='Training Catalog API')
 
@@ -15,10 +13,5 @@ urlpatterns = [
     url('^v0.1/catalog/group/(?P<year>[0-9]{4})/(?P<language>[a-zA-Z]{2})/(?P<acronym>[a-zA-Z0-9]+)$',
         ws_catalog_group,
         name='v0.1-ws_catalog_group'),
-    # url('^(?P<year>[0-9]{4})/(?P<language>[a-zA-Z]{2})/(?P<acronym>[a-zA-Z0-9]+)$',
-    #     cache_page(60 * 15)(reddot_webservice),
-    #     name='reddot'),
-    # url('^academic_years$', cache_page(60 * 15)(reddot_academic_years), name='reddot-academic_years')
     url(r'^doc$', schema_view),
-    # url(r'^openapi/', include('drf_openapi.urls'))
 ]
