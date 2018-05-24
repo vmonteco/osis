@@ -33,10 +33,12 @@ from base.models.osis_model_admin import OsisModelAdmin
 
 
 class ExternalLearningUnitYearAdmin(OsisModelAdmin):
-    list_display = ('external_id', 'external_acronym', 'external_credits', 'url', 'learning_unit_year', 'buyer')
-    fieldsets = ((None, {'fields': ('external_acronym', 'external_credits', 'url', 'learning_unit_year', 'buyer')}),)
-    raw_id_fields = ('learning_unit_year', 'buyer')
-    search_fields = ['acronym', 'learning_unit_year__acronym']
+    list_display = ('external_id', 'external_acronym', 'external_credits', 'url', 'learning_unit_year', 'buyer',
+                    "author", "date")
+    fieldsets = ((None, {'fields': ('external_acronym', 'external_credits', 'url', 'learning_unit_year', 'buyer', 'author'
+                                    )}),)
+    raw_id_fields = ('learning_unit_year', 'buyer', 'author')
+    search_fields = ['acronym', 'learning_unit_year__acronym', 'author']
 
 
 class ExternalLearningUnitYear(models.Model):
@@ -49,6 +51,10 @@ class ExternalLearningUnitYear(models.Model):
     url = models.URLField(max_length=255, blank=True, null=True)
     learning_unit_year = models.OneToOneField('LearningUnitYear')
     buyer = models.ForeignKey('Entity', verbose_name=_('requesting_entity'))
+
+    author = models.ForeignKey('Person', null=True)
+    date = models.DateTimeField(auto_now=True)
+
 
     class Meta:
         unique_together = ('learning_unit_year', 'external_acronym',)

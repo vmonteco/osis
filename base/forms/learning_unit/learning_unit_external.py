@@ -31,7 +31,7 @@ from django.forms import ModelChoiceField
 from django.utils.translation import ugettext_lazy as _
 
 from base.forms.learning_unit.learning_unit_create import LearningUnitModelForm, LearningUnitYearModelForm, \
-    LearningContainerModelForm, LearningContainerYearModelForm, EntitiesVersionChoiceField
+    LearningContainerModelForm, EntitiesVersionChoiceField
 from base.forms.learning_unit.learning_unit_create_2 import LearningUnitBaseForm, merge_data
 from base.forms.utils.acronym_field import ExternalAcronymField
 from base.models import entity_version
@@ -40,7 +40,9 @@ from base.models.entity_version import get_last_version, EntityVersion
 from base.models.enums import learning_unit_year_subtypes
 from base.models.enums.learning_container_year_types import EXTERNAL
 from base.models.external_learning_unit_year import ExternalLearningUnitYear
+from base.models.learning_container_year import LearningContainerYear
 from reference.models import language
+from reference.models.country import Country
 
 
 class CampusChoiceField(ModelChoiceField):
@@ -48,22 +50,44 @@ class CampusChoiceField(ModelChoiceField):
         return "{}".format(obj.organization.name)
 
 
-class LearningContainerYearExternalModelForm(LearningContainerYearModelForm):
+class LearningContainerYearExternalModelForm(forms.ModelForm):
+    country = ModelChoiceField(queryset=Country.objects.all().order_by('name'), required=False, label=_("country"))
     campus = CampusChoiceField(queryset=Campus.objects.none())
 
     def __init__(self, *args, **kwargs):
+        kwargs.pop('person')
+        kwargs.pop('proposal')
         super().__init__(*args, **kwargs)
+
         self.fields['campus'].queryset = Campus.objects.order_by('organization__name').distinct('organization__name')
         self.fields["container_type"].choices = ((EXTERNAL, _(EXTERNAL)),)
+
+    class Meta:
+        model = LearningContainerYear
+        fields = ('container_type', 'common_title', 'common_title_english', 'language', 'campus',
+                  'type_declaration_vacant', 'team', 'is_vacant')
+
+    def save(self, **kwargs):
+        self.instance.learning_container = kwargs.pop('learning_container')
+        self.instance.acronym = kwargs.pop('acronym')
+        self.instance.academic_year = kwargs.pop('academic_year')
+        return super().save(**kwargs)
+
+    def post_clean(self, specific_title):
+        if not self.instance.common_title and not specific_title:
+            self.add_error("common_title", _("must_set_common_title_or_specific_title"))
+
+        return not self.errors
 
 
 class LearningUnitExternalModelForm(forms.ModelForm):
     buyer = EntitiesVersionChoiceField(queryset=EntityVersion.objects.none())
     entity_version = None
 
-    def __init__(self, *args, **kwargs):
-        self.person = kwargs.pop('person')
-        super().__init__(*args, **kwargs)
+    def __init__(self, data, person, *args, **kwargs):
+        self.person = person
+
+        super().__init__(data, *args, **kwargs)
         self.fields['buyer'].queryset = self.person.find_main_entities_version
         self.fields['external_credits'].label = _('local_credits')
 
@@ -92,6 +116,10 @@ class LearningUnitExternalModelForm(forms.ModelForm):
             self.entity_version = entity_v
 
         return not self.errors
+
+    def save(self, commit=True):
+        self.instance.author = self.person
+        return super().save(commit)
 
 
 class LearningUnitExternalForm(LearningUnitBaseForm):

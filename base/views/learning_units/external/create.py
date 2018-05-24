@@ -25,13 +25,16 @@
 ##############################################################################
 
 from django.contrib.auth.decorators import login_required, permission_required
+from django.http import JsonResponse
 from django.shortcuts import redirect, get_object_or_404
 
 from base.forms.learning_unit.learning_unit_external import LearningUnitExternalForm
 from base.models.academic_year import AcademicYear
+from base.models.campus import Campus
 from base.models.person import Person
 from base.views import layout
 from base.views.learning_units.common import show_success_learning_unit_year_creation_message
+from osis_common.decorators.ajax import ajax_required
 
 
 @login_required
@@ -43,10 +46,19 @@ def get_external_learning_unit_creation_form(request, academic_year):
     external_form = LearningUnitExternalForm(person, academic_year, request.POST or None)
 
     if external_form.is_valid():
-        print('valid')
         learning_unit_year = external_form.save()
         show_success_learning_unit_year_creation_message(request, learning_unit_year,
                                                          'learning_unit_successfuly_created')
         return redirect('learning_unit', learning_unit_year_id=learning_unit_year.pk)
 
     return layout.render(request, "learning_unit/simple/creation_external.html", external_form.get_context())
+
+
+@ajax_required
+def filter_organization_by_country(request):
+    country = request.GET.get('country')
+    organizations = Campus.objects.filter(
+        organization__organizationaddress__country=country
+    ).distinct('organization__name').order_by('organization__name').values('pk', 'organization__name')
+
+    return JsonResponse(list(organizations), safe=False)
