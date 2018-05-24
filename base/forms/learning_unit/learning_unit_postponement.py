@@ -283,4 +283,6 @@ class LearningUnitPostponementForm:
     def _get_translated_value(self, value):
         if isinstance(value, bool):
             return _("yes") if value else _("no")
+        elif value is None:
+            return "-"
         return value
