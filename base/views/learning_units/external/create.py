@@ -28,7 +28,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.http import JsonResponse
 from django.shortcuts import redirect, get_object_or_404
 
-from base.forms.learning_unit.learning_unit_external import LearningUnitExternalForm
+from base.forms.learning_unit.external_learning_unit import ExternalLearningUnitBaseForm
 from base.models.academic_year import AcademicYear
 from base.models.campus import Campus
 from base.models.person import Person
@@ -43,7 +43,7 @@ def get_external_learning_unit_creation_form(request, academic_year):
     person = get_object_or_404(Person, user=request.user)
     academic_year = get_object_or_404(AcademicYear, pk=academic_year)
 
-    external_form = LearningUnitExternalForm(person, academic_year, request.POST or None)
+    external_form = ExternalLearningUnitBaseForm(person, academic_year, request.POST or None)
 
     if external_form.is_valid():
         learning_unit_year = external_form.save()

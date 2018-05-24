@@ -111,9 +111,7 @@ urlpatterns = [
             url(r'^filter_organization_by_country$', filter_organization_by_country, name="filter_organization_by_country"),
 
         ])),
-        # url(r'^external/', include([
-        #     url(r'^new/$', external.create_external_form, name="learning_unit_create_external"),
-        # ])),
+
         url(r'^(?P<learning_unit_year_id>[0-9]+)/', include([
             url(r'^$', learning_unit.learning_unit_identification, name='learning_unit'),
             url(r'^formations/$', learning_unit.learning_unit_formations, name="learning_unit_formations"),

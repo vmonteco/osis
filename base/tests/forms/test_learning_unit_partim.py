@@ -106,6 +106,7 @@ class TestPartimFormInit(LearningUnitPartimFormContextMixin):
                                  LearningContainerYearModelForm, EntityContainerBaseForm]
         form = _instanciate_form(learning_unit_full=self.learning_unit_year_full.learning_unit,
                                  academic_year=self.current_academic_year)
+        print(form.forms.keys())
         for cls in form_classes_expected:
             self.assertIsInstance(form.forms[cls], cls)
 

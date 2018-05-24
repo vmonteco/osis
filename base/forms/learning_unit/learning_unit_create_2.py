@@ -54,7 +54,7 @@ FACULTY_OPEN_FIELDS = {'quadrimester', 'session', 'team', "faculty_remark", "oth
 
 
 class LearningUnitBaseForm(metaclass=ABCMeta):
-    form_cls_to_validate = [
+    form_cls = form_cls_to_validate = [
         LearningUnitModelForm,
         LearningUnitYearModelForm,
         LearningContainerModelForm,
@@ -70,7 +70,7 @@ class LearningUnitBaseForm(metaclass=ABCMeta):
     _warnings = None
 
     def __init__(self, instances_data, *args, **kwargs):
-        self.forms = OrderedDict({cls: cls(*args, **instances_data[cls]) for cls in self.form_cls_to_validate})
+        self.forms = OrderedDict({cls: cls(*args, **instances_data[cls]) for cls in self.form_cls})
 
     def is_valid(self):
         if any([not form_instance.is_valid() for cls, form_instance in self.forms.items()
@@ -155,7 +155,7 @@ class LearningUnitBaseForm(metaclass=ABCMeta):
 
     @property
     def learning_container_form(self):
-        return self.forms[LearningContainerModelForm]
+        return self.forms.get(LearningContainerModelForm)
 
     @property
     def learning_unit_form(self):
@@ -171,7 +171,7 @@ class LearningUnitBaseForm(metaclass=ABCMeta):
 
     @property
     def entity_container_form(self):
-        return self.forms.get(EntityContainerBaseForm, None)
+        return self.forms.get(EntityContainerBaseForm)
 
     def __iter__(self):
         """Yields the forms in the order they should be rendered"""

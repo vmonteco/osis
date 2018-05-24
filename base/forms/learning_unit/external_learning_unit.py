@@ -80,7 +80,7 @@ class LearningContainerYearExternalModelForm(forms.ModelForm):
         return not self.errors
 
 
-class LearningUnitExternalModelForm(forms.ModelForm):
+class ExternalLearningUnitModelForm(forms.ModelForm):
     buyer = EntitiesVersionChoiceField(queryset=EntityVersion.objects.none())
     entity_version = None
 
@@ -122,7 +122,7 @@ class LearningUnitExternalModelForm(forms.ModelForm):
         return super().save(commit)
 
 
-class LearningUnitExternalForm(LearningUnitBaseForm):
+class ExternalLearningUnitBaseForm(LearningUnitBaseForm):
     forms = OrderedDict()
     academic_year = None
     subtype = learning_unit_year_subtypes.FULL
@@ -134,7 +134,7 @@ class LearningUnitExternalForm(LearningUnitBaseForm):
         LearningUnitYearModelForm,
         LearningContainerModelForm,
         LearningContainerYearExternalModelForm,
-        LearningUnitExternalModelForm
+        ExternalLearningUnitModelForm
     ]
 
     def __init__(self, person, academic_year=None, data=None, *args, **kwargs):
@@ -147,7 +147,7 @@ class LearningUnitExternalForm(LearningUnitBaseForm):
 
     @property
     def learning_unit_external_form(self):
-        return self.forms[LearningUnitExternalModelForm]
+        return self.forms[ExternalLearningUnitModelForm]
 
     @property
     def learning_container_year_form(self):
@@ -165,7 +165,7 @@ class LearningUnitExternalForm(LearningUnitBaseForm):
             },
             LearningUnitYearModelForm: self._build_instance_data_learning_unit_year(data, default_ac_year),
             LearningContainerYearExternalModelForm: self._build_instance_data_learning_container_year(data, proposal),
-            LearningUnitExternalModelForm: self._build_instance_data_external_learning_unit(data)
+            ExternalLearningUnitModelForm: self._build_instance_data_external_learning_unit(data)
         }
 
     def _build_instance_data_external_learning_unit(self, data):

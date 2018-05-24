@@ -378,9 +378,6 @@ class LearningContainerYearModelForm(forms.ModelForm):
         if self.initial.get('subtype') == learning_unit_year_subtypes.PARTIM:
             self.fields["container_type"].choices = _create_learning_container_year_type_list()
 
-        # if self.initial.get('container_type'):
-        #     self.fields["container_type"].choices = self.initial.get('container_type')
-
     def save(self, **kwargs):
         self.instance.learning_container = kwargs.pop('learning_container')
         self.instance.acronym = kwargs.pop('acronym')
