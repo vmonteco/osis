@@ -159,24 +159,13 @@ def apply_action_on_proposals(proposals, author, post_data, research_criteria):
 
 
 def _get_filter(form, search_type):
-    form_data = form.cleaned_data
+    research_criterias = form.get_research_criteria()
 
-    filter_data = {
-        form[key].label: _get_filter_value(form, key, value)
-        for key, value in form_data.items()
-        if value
-        }
+    filter_data = {key: value for key, value in research_criterias}
 
     if search_type:
         filter_data.update({_('search_type'): _get_search_type_label(search_type)})
     return filter_data
-
-
-def _get_filter_value(form, key, value):
-    value_translated = value
-    if form[key].field.__class__.__name__ == 'ChoiceField' and form[key].field.choices:
-        value_translated = dict(form.fields[key].choices)[value]
-    return value_translated
 
 
 def _get_search_type_label(search_type):
