@@ -167,5 +167,8 @@ def _get_filter(form, search_type):
 
 
 def _get_search_type_label(search_type):
-    return {PROPOSAL_SEARCH: _('proposals_search'), SERVICE_COURSES_SEARCH: _('service_course_search'),
-            BORROWED_COURSE: _('borrowed_course_search')}.get(search_type, _('activity_search'))
+    return {
+        PROPOSAL_SEARCH: _('proposals_search'),
+        SERVICE_COURSES_SEARCH: _('service_course_search'),
+        BORROWED_COURSE: _('borrowed_course_search')
+    }.get(search_type, _('activity_search'))
