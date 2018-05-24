@@ -56,15 +56,10 @@
                             </div>
                         </div>
                         <div class="panel panel-default">
-                            <div class="panel-heading">
-                                <label>{% trans 'Author' %}</label>
-                            </div>
                             <div class="panel-body">
-                                <dt>{% trans 'introduced_by' %}</dt>
-                                <dd>{{ learning_unit_external_form.person }}</dd><br>
-
-                                <dt>{% trans 'the' %}</dt>
-                                <dd>{% now "SHORT_DATE_FORMAT" %}</dd>
+                                {% trans 'introduced_by' %} {{ learning_unit_external_form.person }}
+                                <br><br>
+                                {% trans 'the' %} {% now "SHORT_DATE_FORMAT" %}
                             </div>
                         </div>
                     </div>
@@ -84,6 +79,7 @@
     <script type="text/javascript" src="{% static 'js/learning_unit_creation.js' %}"></script>
     <script>
 
+        // Ajax request to update the campus list
         $("select#id_country").change(function(){
             $.getJSON("{% url "filter_organization_by_country" %}",{country: $(this).val(), ajax: 'true'}, function(j){
                 var options = '';
