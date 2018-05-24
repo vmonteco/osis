@@ -238,6 +238,8 @@ class LearningUnitYear(SerializableModel):
         if self._warnings is None:
             self._warnings = []
             self._warnings.extend(self._check_partim_parent_credits())
+            self._warnings.extend(self._check_internship_subtype())
+            self._warnings.extend(self._check_partim_parent_status())
         return self._warnings
 
     def _check_partim_parent_credits(self):
@@ -253,14 +255,14 @@ class LearningUnitYear(SerializableModel):
             learning_unit_years = learning_unit_years.exclude(learning_unit=self.learning_unit)
 
         self.clean_acronym(learning_unit_years)
-        self.clean_internship_subtype()
-        self.clean_status()
 
-    def clean_internship_subtype(self):
+    def _check_internship_subtype(self):
+        warnings = []
         if getattr(self, 'learning_container_year', None):
             if (self.learning_container_year.container_type == learning_container_year_types.INTERNSHIP and
                     not self.internship_subtype):
-                raise ValidationError({'internship_subtype': _('field_is_required')})
+                return warnings.append(_('missing_internship_subtype'))
+        return []
 
     def clean_acronym(self, learning_unit_years):
         if self.acronym in learning_unit_years.values_list('acronym', flat=True):
@@ -268,15 +270,16 @@ class LearningUnitYear(SerializableModel):
         if not re.match(REGEX_BY_SUBTYPE[self.subtype], self.acronym):
             raise ValidationError({'acronym': _('invalid_acronym')})
 
-    def clean_status(self):
+    def _check_partim_parent_status(self):
         # If the parent is inactive, the partim can be only inactive
+        warnings = []
         if self.parent:
             if not self.parent.status and self.status:
-                raise ValidationError({'status': _('The partim must be inactive because the parent is inactive')})
+                warnings.append(_('The partim must be inactive because the parent is inactive'))
         else:
             if self.status is False and find_partims_with_active_status(self).exists():
-                raise ValidationError(
-                    {'status': _("There is at least one partim active, so the parent must be active")})
+                warnings.append(_("There is at least one partim active, so the parent must be active"))
+        return warnings
 
 
 def get_by_id(learning_unit_year_id):
