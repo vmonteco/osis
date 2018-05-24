@@ -146,7 +146,7 @@ $(document).ready(function() {
 
     showInternshipSubtype();
 
-    if(document.getElementById('id_container_type').value != 'EXTERNAL'){
+    if(document.getElementById('id_container_type').value !== 'EXTERNAL'){
         document.getElementById('id_additional_requirement_entity_1').disabled = !isLearningUnitSubtypeFull()
             || isValueEmpty('id_requirement_entity')
             || isDisabledField('id_requirement_entity');
@@ -180,13 +180,4 @@ $(document).ready(function() {
             $("#LearningUnitYearForm").submit();
         }
     });
-
-    //$('#external_learning_unit_year_add').click(function() {
-    //    if(window.acronym_already_used){
-    //        $form = $("#LearningUnitYearForm");
-    //        $form.validate();
-    //    } else {
-    //        $("#LearningUnitYearForm").submit();
-    //    }
-    //});
 });

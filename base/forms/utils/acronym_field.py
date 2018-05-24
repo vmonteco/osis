@@ -30,7 +30,6 @@ from django import forms
 from base.forms.utils.choice_field import add_blank
 from base.models.enums import learning_unit_year_subtypes
 from base.models.enums.learning_unit_management_sites import LearningUnitManagementSite
-from base.models.learning_unit import LEARNING_UNIT_ACRONYM_REGEX_EXTERNAL
 
 
 def _create_first_letter_choices():
@@ -57,6 +56,14 @@ class AcronymInput(forms.MultiWidget):
         return ['', '']
 
 
+class ExternalAcronymInput(AcronymInput):
+    choices = (('X', 'X'),)
+
+    def __init__(self, attrs=None):
+        super().__init__(attrs)
+        self.widgets[0].attrs['readonly'] = True
+
+
 class AcronymField(forms.MultiValueField):
     widget = AcronymInput
 
@@ -72,17 +79,8 @@ class AcronymField(forms.MultiValueField):
         return ''.join(data_list).upper()
 
 
-class ExternalAcronymField(forms.RegexField):
-
-    def __init__(self):
-        super().__init__(regex=LEARNING_UNIT_ACRONYM_REGEX_EXTERNAL)
-
-    def to_python(self, value):
-        return 'X' + value
-
-    def prepare_value(self, value):
-        if value:
-            return value[1:] if value[0] == 'X' else value
+class ExternalAcronymField(AcronymField):
+    widget = ExternalAcronymInput
 
 
 class PartimAcronymInput(forms.MultiWidget):

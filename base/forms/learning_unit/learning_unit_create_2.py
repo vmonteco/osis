@@ -34,7 +34,6 @@ from base.business.utils.model import merge_two_dicts
 from base.forms.learning_unit.learning_unit_create import LearningUnitModelForm, LearningUnitYearModelForm, \
     LearningContainerModelForm, LearningContainerYearModelForm, EntityContainerBaseForm
 from base.forms.utils.acronym_field import split_acronym
-# from base.models.entity_version import EntityVersion
 from base.models import learning_unit_year
 from base.models.campus import Campus
 from base.models.enums import learning_unit_year_subtypes
