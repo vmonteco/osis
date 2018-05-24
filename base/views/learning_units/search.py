@@ -176,4 +176,3 @@ def _get_search_type_label(search_type):
         BORROWED_COURSE: _('borrowed_course_search'),
     }
     return map_search_type_to_translation.get(search_type, _('activity_search'))
-
