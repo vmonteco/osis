@@ -129,11 +129,11 @@ class LearningUnitYearModelForm(forms.ModelForm):
         field_classes = {'acronym': AcronymField}
         error_messages = {
             'credits': {
-                ## Override unwanted DecimalField standard error messages
-                'max_digits': _('Ensure this value is less than or equal to {max_value}.')
-                    .format(max_value=MAXIMUM_CREDITS),
-                'max_whole_digits': _('Ensure this value is less than or equal to {max_value}.')
-                    .format(max_value=MAXIMUM_CREDITS)
+                # Override unwanted DecimalField standard error messages
+                'max_digits': _('Ensure this value is less than or equal to {max_value}.').format(
+                    max_value=MAXIMUM_CREDITS),
+                'max_whole_digits': _('Ensure this value is less than or equal to {max_value}.').format(
+                    max_value=MAXIMUM_CREDITS)
             }
         }
 
