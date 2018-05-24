@@ -25,6 +25,7 @@
 ##############################################################################
 import collections
 import datetime
+import factory.fuzzy
 from unittest import mock
 
 from django.test import TestCase
@@ -50,7 +51,7 @@ from base.models.learning_container import LearningContainer
 from base.models.learning_container_year import LearningContainerYear
 from base.models.learning_unit import LearningUnit
 from base.models.learning_unit_component import LearningUnitComponent
-from base.models.learning_unit_year import LearningUnitYear
+from base.models.learning_unit_year import LearningUnitYear, MAXIMUM_CREDITS
 from base.tests.factories.academic_year import create_current_academic_year, AcademicYearFactory
 from base.tests.factories.business.entities import create_entities_hierarchy
 from base.tests.factories.business.learning_units import GenerateContainer, GenerateAcademicYear
@@ -358,6 +359,29 @@ class TestFullFormIsValid(LearningUnitFullFormContextMixin):
                          [_("Requirement and allocation entities must be linked "
                             "to the same faculty for this learning unit type.")])
 
+    def test_update_case_credits_too_high_3_digits(self):
+        post_data = dict(self.post_data)
+        post_data['credits'] = factory.fuzzy.FuzzyDecimal(MAXIMUM_CREDITS  + 0.01, 999, 2).fuzz()
+
+        form = _instanciate_form(self.learning_unit_year.academic_year, post_data=post_data, person=self.person,
+                                 learning_unit_instance=self.learning_unit_year.learning_unit)
+        self.assertFalse(form.is_valid(), form.errors)
+        self.assertEqual(
+            form.errors[0]['credits'],
+            [_('Ensure this value is less than or equal to {max_value}.').format(max_value=MAXIMUM_CREDITS)]
+        )
+
+    def test_update_case_credits_too_high_4_digits(self):
+        post_data = dict(self.post_data)
+        post_data['credits'] = factory.fuzzy.FuzzyDecimal(1000, 100000, 2).fuzz()
+
+        form = _instanciate_form(self.learning_unit_year.academic_year, post_data=post_data, person=self.person,
+                                 learning_unit_instance=self.learning_unit_year.learning_unit)
+        self.assertFalse(form.is_valid(), form.errors)
+        self.assertEqual(
+            form.errors[0]['credits'],
+            [_('Ensure this value is less than or equal to {max_value}.').format(max_value=MAXIMUM_CREDITS)]
+        )
 
 class TestFullFormSave(LearningUnitFullFormContextMixin):
     """Unit tests for save() """
