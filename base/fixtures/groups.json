@@ -3159,6 +3159,11 @@
                 "can_access_structure",
                 "base",
                 "structure"
+            ],
+            [
+                "add_externallearningunityear",
+                "base",
+                "externallearningunityear"
             ]
         ]
     }
