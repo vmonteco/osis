@@ -2925,5 +2925,5 @@ msgstr "Liste d'attributions"
 msgid "List_proposals"
 msgstr "Liste de propositions"
 
-msgid "List_activity"
+msgid "List_activities"
 msgstr "Liste d'activités"

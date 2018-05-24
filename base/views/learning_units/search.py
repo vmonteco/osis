@@ -23,6 +23,8 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+import collections
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.messages import WARNING
@@ -160,11 +162,11 @@ def apply_action_on_proposals(proposals, author, post_data, research_criteria):
 
 def _get_filter(form, search_type):
     research_criterias = form.get_research_criteria()
-
-    filter_data = {key: value for key, value in research_criterias}
-
+    filter_data = collections.OrderedDict()
     if search_type:
-        filter_data.update({_('search_type'): _get_search_type_label(search_type)})
+        filter_data[_('search_type')] = _get_search_type_label(search_type)
+    for key, value in research_criterias:
+        filter_data[key] = value
     return filter_data
 
 
