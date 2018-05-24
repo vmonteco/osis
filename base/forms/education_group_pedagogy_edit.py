@@ -23,31 +23,33 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from ckeditor.widgets import CKEditorWidget
 from django import forms
 
-from base.forms.common import set_trans_txt
 from cms.enums import entity_name
 from cms.models import translated_text
 
 
-class EducationGroupGeneralInformationsForm(forms.Form):
-    education_group_year = language = None
-    text_labels_name = None
+class EducationGroupPedagogyEditForm(forms.Form):
+    trans_text = forms.CharField(widget=CKEditorWidget(config_name='reddot'), required=False)
+    cms_id = forms.IntegerField(widget=forms.HiddenInput, required=True)
 
     def __init__(self, *args, **kwargs):
         self.education_group_year = kwargs.pop('education_group_year', None)
-        self.language = kwargs.pop('language', None)
-        self.text_labels_name = kwargs.pop('text_labels_name', None)
-        self.load_initial()
+        self.language_iso = kwargs.pop('language', None)
+        self.text_label = kwargs.pop('text_label', None)
         super().__init__(*args, **kwargs)
 
     def load_initial(self):
-        translated_texts_list = self._get_all_translated_text_related()
-        set_trans_txt(self, translated_texts_list)
+        value = translated_text.get_or_create(entity=entity_name.OFFER_YEAR,
+                                              reference=self.education_group_year.id,
+                                              language=self.language_iso,
+                                              text_label=self.text_label)
+        self.fields['cms_id'].initial = value.id
+        self.fields['trans_text'].initial = value.text
 
-    def _get_all_translated_text_related(self):
-        language_iso = self.language[0]
-        return translated_text.search(entity=entity_name.OFFER_YEAR,
-                                      reference=self.education_group_year.id,
-                                      language=language_iso,
-                                      text_labels_name=self.text_labels_name)
+    def save(self):
+        cleaned_data = self.cleaned_data
+        trans_text = translated_text.find_by_id(cleaned_data['cms_id'])
+        trans_text.text = cleaned_data.get('trans_text')
+        trans_text.save()
