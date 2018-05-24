@@ -55,13 +55,13 @@ def extract_xls_data_from_proposal(proposal):
 
 
 def prepare_xls_parameters_list(user, working_sheets_data):
-    return {xls_build.LIST_DESCRIPTION_KEY: "Liste de propositions",
-            xls_build.FILENAME_KEY: 'Proposals',
+    return {xls_build.LIST_DESCRIPTION_KEY: _("List_proposals"),
+            xls_build.FILENAME_KEY: _('Proposals'),
             xls_build.USER_KEY: get_name_or_username(user),
             xls_build.WORKSHEETS_DATA:
                 [{xls_build.CONTENT_KEY: working_sheets_data,
                   xls_build.HEADER_TITLES_KEY: PROPOSAL_TITLES,
-                  xls_build.WORKSHEET_TITLE_KEY: 'Proposals',
+                  xls_build.WORKSHEET_TITLE_KEY: _('Proposals'),
                   }
                  ]}
 
