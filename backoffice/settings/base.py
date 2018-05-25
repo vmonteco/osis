@@ -357,3 +357,20 @@ BOOTSTRAP3 = {
     'set_placeholder': False,
     'success_css_class': ''
 }
+
+CACHE_ENABLED = os.environ.get("CACHE_ENABLED", "False").lower() == 'true'
+if CACHE_ENABLED:
+    CACHES = {
+        "default": {
+            "BACKEND": "django_redis.cache.RedisCache",
+            "LOCATION": os.environ.get("REDIS_LOCATIONS", "redis://127.0.0.1:6379").split(),
+            "OPTIONS": {
+                "CLIENT_CLASS": "django_redis.client.DefaultClient",
+                "SERIALIZER": "django_redis.serializers.json.JSONSerializer",
+                "SOCKET_CONNECT_TIMEOUT": 2,
+                "SOCKET_TIMEOUT": 2,
+                "PASSWORD": os.environ.get("REDIS_PASSWORD", "")
+            },
+            "KEY_PREFIX": os.environ.get("REDIS_PREFIX", 'osis')
+        }
+    }
