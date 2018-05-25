@@ -113,6 +113,7 @@ def _attribution_new_is_linked_to_learning_unit_year(attribution_new, learning_u
         learningunitcomponent__learning_unit_year=learning_unit_year
     ).exists()
 
+
 def _check_learning_unit_component_deletion(l_unit_component):
     msg = {}
 
