@@ -600,7 +600,7 @@ class FunctionalTest(SeleniumTestCase, BusinessMixin):
 
         self.click_on('bt_submit_upload_score_modal')
 
-        self.assertElementTextEqual('luy_progression', '0 / 10')
+        self.assertElementTextEqual('luy_progression', '10 / 10')
         self.driver.save_screenshot(os.path.join(self.full_path_temp_dir, 'scenario5-final.png'))
 
         for enrollment_id, (key, value) in updated_values.items():
@@ -636,7 +636,7 @@ class FunctionalTest(SeleniumTestCase, BusinessMixin):
 
             for noma, info in nomas.items():
                 left_or_right = bool(random.getrandbits(1))
-                selected_column = 'H' if left_or_right else 'I'
+                selected_column = 'I' if left_or_right else 'J'
 
                 if left_or_right:
                     value = random.randint(0, 20)
