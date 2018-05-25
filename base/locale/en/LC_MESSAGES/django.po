@@ -2898,6 +2898,21 @@ msgstr "It is necessary to indicate the internship subtype"
 msgid "different_status_with_parent"
 msgstr "The learning unit's parent is inactive"
 
+msgid "new_external_learning_unit"
+msgstr "Create a new external learning unit"
+
+msgid "external"
+msgstr "External"
+
+msgid "comment_title"
+msgstr "Comment"
+
+msgid "requesting_entity"
+msgstr "Requesting entity"
+
+msgid "local_credits"
+msgstr "Local credits"
+
 msgid "Consistency error in %(academic_year)s : %(error)s"
 msgstr ""
 
