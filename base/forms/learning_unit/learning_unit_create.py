@@ -72,8 +72,15 @@ def _create_faculty_learning_container_type_list():
 
 
 class EntitiesVersionChoiceField(forms.ModelChoiceField):
+    entity_version = None
+
     def label_from_instance(self, obj):
         return obj.acronym
+
+    def clean(self, value):
+        ev_data = super().clean(value)
+        self.entity_version = ev_data
+        return ev_data.entity if ev_data else None
 
 
 class LearningUnitModelForm(forms.ModelForm):
@@ -104,7 +111,6 @@ class LearningUnitYearModelForm(forms.ModelForm):
 
     def __init__(self, data, person, subtype, *args, **kwargs):
         super().__init__(data, *args, **kwargs)
-
         if person.is_faculty_manager():
             self.fields.pop('internship_subtype')
 
@@ -201,7 +207,6 @@ class LearningUnitYearPartimModelForm(LearningUnitYearModelForm):
 
 class EntityContainerYearModelForm(forms.ModelForm):
     entity = EntitiesVersionChoiceField(find_main_entities_version())
-    entity_version = None
     entity_type = ''
 
     def __init__(self, *args, **kwargs):
@@ -219,11 +224,6 @@ class EntityContainerYearModelForm(forms.ModelForm):
         model = EntityContainerYear
         fields = ['entity']
 
-    def clean_entity(self):
-        ev_data = self.cleaned_data['entity']
-        self.entity_version = ev_data
-        return ev_data.entity if ev_data else None
-
     def pre_save(self, learning_container_year):
         self.instance.learning_container_year = learning_container_year
 
@@ -233,6 +233,10 @@ class EntityContainerYearModelForm(forms.ModelForm):
         elif self.instance.pk:
             # if the instance has no entity, it must be deleted
             self.instance.delete()
+
+    @property
+    def entity_version(self):
+        return self.fields["entity"].entity_version
 
     def post_clean(self, start_date):
         entity = self.cleaned_data.get('entity')
@@ -380,15 +384,17 @@ class EntityContainerBaseForm:
 
 class LearningContainerYearModelForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
-        person = kwargs.pop('person')
-        proposal = kwargs.pop('proposal', False)
+        self.person = kwargs.pop('person')
+        self.proposal = kwargs.pop('proposal', False)
         super().__init__(*args, **kwargs)
+        self.prepare_fields()
 
+    def prepare_fields(self):
         self.fields['campus'].queryset = find_main_campuses()
         self.fields['container_type'].widget.attrs = {'onchange': 'showInternshipSubtype()'}
 
         # Limit types for faculty_manager only if simple creation of learning_unit
-        if person.is_faculty_manager() and not proposal and not self.instance:
+        if self.person.is_faculty_manager() and not self.proposal and not self.instance:
             self.fields["container_type"].choices = _create_faculty_learning_container_type_list()
 
         if self.initial.get('subtype') == learning_unit_year_subtypes.PARTIM:
