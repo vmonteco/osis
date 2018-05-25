@@ -96,22 +96,16 @@ def _check_attribution_deletion(learning_unit_year):
             'year': learning_unit_year.academic_year}
 
     for attribution_new in AttributionNew.objects.filter(
-            learning_container_year=learning_unit_year.learning_container_year):
-        if _attribution_new_is_linked_to_learning_unit_year(attribution_new, learning_unit_year):
-            msg[attribution_new] = _(error_attribution) % {
-                'subtype': _str_partim_or_full(learning_unit_year),
-                'acronym': learning_unit_year.acronym,
-                'tutor': attribution_new.tutor,
-                'year': learning_unit_year.academic_year}
+            learning_container_year=learning_unit_year.learning_container_year,
+            attributionchargenew__learning_component_year__learningunitcomponent__learning_unit_year=learning_unit_year
+    ):
+        msg[attribution_new] = _(error_attribution) % {
+            'subtype': _str_partim_or_full(learning_unit_year),
+            'acronym': learning_unit_year.acronym,
+            'tutor': attribution_new.tutor,
+            'year': learning_unit_year.academic_year}
 
     return msg
-
-
-def _attribution_new_is_linked_to_learning_unit_year(attribution_new, learning_unit_year):
-    return LearningComponentYear.objects.filter(
-        attributionchargenew__attribution=attribution_new,
-        learningunitcomponent__learning_unit_year=learning_unit_year
-    ).exists()
 
 
 def _check_learning_unit_component_deletion(l_unit_component):
