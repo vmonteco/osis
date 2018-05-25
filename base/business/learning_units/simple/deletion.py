@@ -33,7 +33,6 @@ from base.business.learning_unit import CMS_LABEL_SPECIFICATIONS, CMS_LABEL_PEDA
 from base.models import learning_unit_enrollment, learning_unit_component, learning_class_year, \
     learning_unit_year as learn_unit_year_model
 from base.models import proposal_learning_unit
-from base.models.learning_component_year import LearningComponentYear
 from base.views.learning_units.common import create_learning_unit_year_deletion_message
 from cms.enums import entity_name
 from cms.models import translated_text
