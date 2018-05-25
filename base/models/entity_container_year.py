@@ -49,7 +49,7 @@ class EntityContainerYear(SerializableModel):
     type = models.CharField(max_length=35, choices=entity_container_year_link_type.ENTITY_CONTAINER_YEAR_LINK_TYPES)
 
     class Meta:
-        unique_together = ('entity', 'learning_container_year', 'type',)
+        unique_together = ('learning_container_year', 'type',)
 
     def __str__(self):
         return u"%s - %s - %s" % (self.entity, self.learning_container_year, self.type)
