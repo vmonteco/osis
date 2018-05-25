@@ -58,11 +58,7 @@
     <div class="col-md-2">
         {% bootstrap_field form.requirement_entity_acronym %}
     </div>
-    {% if search_type == 1 %}
-        <div class="col-md-2">
-            {% bootstrap_field form.with_entity_subordinated %}
-        </div>
-    {% elif search_type == 2 %}
+    {% if search_type == 2 %}
         <div class="col-md-2">
             {% bootstrap_field form.allocation_entity_acronym %}
         </div>
@@ -71,11 +67,17 @@
             {% bootstrap_field form.faculty_borrowing_acronym %}
         </div>
     {% endif %}
-    {% if search_type == 1 or search_type == 5%}
+    {% if search_type == 1 or search_type == 5 %}
         <div class="col-md-2">
             {% bootstrap_field form.allocation_entity_acronym %}
         </div>
     {% endif %}
+    {% if search_type == 1 or search_type == 2 or search_type == 5 %}
+        <div class="col-md-2">
+            {% bootstrap_field form.with_entity_subordinated %}
+        </div>
+    {% endif %}
+
     <input type="hidden" id="xls_status" name="xls_status">
 
 {% endblock %}

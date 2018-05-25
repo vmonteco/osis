@@ -85,6 +85,8 @@ class SearchForm(forms.Form):
         label=_('allocation_entity_small')
     )
 
+    with_entity_subordinated = forms.BooleanField(label=_('with_entity_subordinated_small'))
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['academic_year_id'].initial = current_academic_year()
@@ -125,8 +127,6 @@ class LearningUnitYearForm(SearchForm):
         label=_('allocation_entity_small')
     )
 
-    with_entity_subordinated = forms.BooleanField(label=_('with_entity_subordinated_small'))
-
     faculty_borrowing_acronym = forms.CharField(
         max_length=20,
         label=_("faculty_borrowing")
@@ -139,7 +139,6 @@ class LearningUnitYearForm(SearchForm):
 
         if self.borrowed_course_search:
             self.fields["with_entity_subordinated"].initial = True
-            self.fields["with_entity_subordinated"].disabled = True
             self.fields["academic_year_id"].required = True
             self.fields["academic_year_id"].empty_label = None
 
@@ -202,8 +201,7 @@ class LearningUnitYearForm(SearchForm):
             if not learning_unit.entities.get(SERVICE_COURSE):
                 continue
 
-            if self._is_matching_learning_unit(learning_unit):
-                service_courses.append(learning_unit)
+            service_courses.append(learning_unit)
 
         return service_courses
 
@@ -215,22 +213,6 @@ class LearningUnitYearForm(SearchForm):
             faculty_borrowing_id = None
         return filter_is_borrowed_learning_unit_year(learning_units, self.cleaned_data["academic_year_id"].start_date,
                                                      faculty_borrowing=faculty_borrowing_id)
-
-    def _is_matching_learning_unit(self, learning_unit):
-        allocation_entity_acronym = self.cleaned_data['allocation_entity_acronym']
-        requirement_entity_acronym = self.cleaned_data['requirement_entity_acronym']
-
-        allocation_entity_service_course = learning_unit.entities. \
-            get(entity_container_year_link_type.ALLOCATION_ENTITY)
-
-        requirement_entity_service_course = learning_unit.entities. \
-            get(entity_container_year_link_type.REQUIREMENT_ENTITY)
-
-        return allocation_entity_acronym in (
-            allocation_entity_service_course.acronym, None
-        ) and requirement_entity_acronym in (
-            requirement_entity_service_course.acronym, None
-        )
 
 
 def get_filter_learning_container_ids(filter_data):
@@ -246,7 +228,7 @@ def get_filter_learning_container_ids(filter_data):
                                                                   entity_container_year_link_type.REQUIREMENT_ENTITY)
 
     if allocation_entity_acronym:
-        entity_ids = get_entities_ids(allocation_entity_acronym, False)
+        entity_ids = get_entities_ids(allocation_entity_acronym, with_entity_subordinated)
         entities_id_list_allocation += get_entity_container_list(entity_ids,
                                                                  entity_container_year_link_type.ALLOCATION_ENTITY)
 
