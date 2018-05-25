@@ -47,7 +47,7 @@ from base.models.learning_container import LearningContainer
 from base.models.learning_container_year import LearningContainerYear
 from base.models.learning_unit import LearningUnit
 from base.models.learning_unit_component import LearningUnitComponent
-from base.models.learning_unit_year import LearningUnitYear
+from base.models.learning_unit_year import LearningUnitYear, MAXIMUM_CREDITS
 
 DEFAULT_ACRONYM_COMPONENT = {
     LECTURING: "CM1",
@@ -126,8 +126,16 @@ class LearningUnitYearModelForm(forms.ModelForm):
         model = LearningUnitYear
         fields = ('academic_year', 'acronym', 'specific_title', 'specific_title_english', 'credits',
                   'session', 'quadrimester', 'status', 'internship_subtype', 'attribution_procedure', )
-
         field_classes = {'acronym': AcronymField}
+        error_messages = {
+            'credits': {
+                # Override unwanted DecimalField standard error messages
+                'max_digits': _('Ensure this value is less than or equal to {max_value}.').format(
+                    max_value=MAXIMUM_CREDITS),
+                'max_whole_digits': _('Ensure this value is less than or equal to {max_value}.').format(
+                    max_value=MAXIMUM_CREDITS)
+            }
+        }
 
     # TODO :: Move assignment to self.instance from save into __init__
     # TODO :: Make these kwarg to args (learning_container_year, learning_unit, ... are required args)
@@ -171,7 +179,7 @@ class LearningUnitYearModelForm(forms.ModelForm):
     def warnings(self):
         if self._warnings is None and self.instance:
             parent = self.instance.parent or self.instance
-            children = self.instance.get_partims_related() or [self.instance]
+            children = parent.get_partims_related()
             self._warnings = [
                 _('The credits value of the partim %(acronym)s is greater or equal than the credits value of the '
                   'parent learning unit.') % {'acronym': child.acronym}
@@ -321,6 +329,13 @@ class EntityContainerBaseForm:
     def fields(self):
         return OrderedDict(
             (ENTITY_TYPE_LIST[index].lower(), form.fields['entity']) for index, form in enumerate(self.forms)
+        )
+
+    @property
+    def instances_data(self):
+        return OrderedDict(
+            (ENTITY_TYPE_LIST[index].lower(), getattr(form.instance, 'entity', None))
+            for index, form in enumerate(self.forms)
         )
 
     def post_clean(self, container_type, academic_year):
