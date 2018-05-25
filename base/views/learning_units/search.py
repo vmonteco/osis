@@ -53,6 +53,7 @@ SERVICE_COURSES_SEARCH = 2
 PROPOSAL_SEARCH = 3
 SUMMARY_LIST = 4
 BORROWED_COURSE = 5
+EXTERNAL_SEARCH = 6
 
 ACTION_BACK_TO_INITIAL = "back_to_initial"
 ACTION_CONSOLIDATE = "consolidate"
@@ -177,3 +178,44 @@ def _get_search_type_label(search_type):
         SERVICE_COURSES_SEARCH: _('service_course_search'),
         BORROWED_COURSE: _('borrowed_course_search')
     }.get(search_type, _('activity_search'))
+
+
+@login_required
+@permission_required('base.can_access_externallearningunityear', raise_exception=True)
+@cache_filter()
+def learning_units_external_search(request):
+    if request.GET:
+        print('get')
+    if request.POST:
+        print('post')
+    search_form = LearningUnitProposalForm(request.GET or None)
+    user_person = get_object_or_404(Person, user=request.user)
+    proposals = []
+    research_criteria = []
+    try:
+        if search_form.is_valid():
+            print('ific')
+            research_criteria = search_form.get_research_criteria()
+            proposals = search_form.get_proposal_learning_units()
+            check_if_display_message(request, proposals)
+    except TooManyResultsException:
+        display_error_messages(request, 'too_many_results')
+
+    if request.POST:
+        selected_proposals_id = request.POST.getlist("selected_action", default=[])
+        selected_proposals = ProposalLearningUnit.objects.filter(id__in=selected_proposals_id)
+        messages_by_level = apply_action_on_proposals(selected_proposals, user_person, request.POST, research_criteria)
+        display_messages_by_level(request, messages_by_level)
+        return redirect(reverse("learning_unit_proposal_search") + "?{}".format(request.GET.urlencode()))
+
+    context = {
+        'form': search_form,
+        'form_proposal_state': ProposalStateModelForm(),
+        'academic_years': get_last_academic_years(),
+        'current_academic_year': current_academic_year(),
+        'experimental_phase': True,
+        'search_type': EXTERNAL_SEARCH,
+        'proposals': proposals,
+        'is_faculty_manager': user_person.is_faculty_manager()
+    }
+    return layout.render(request, "learning_units.html", context)

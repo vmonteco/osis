@@ -2930,3 +2930,6 @@ msgstr "Liste d'activités"
 
 msgid "learning_units_filename"
 msgstr "unite_enseignements"
+
+msgid "external_search"
+msgstr "Recherche - UE externe"

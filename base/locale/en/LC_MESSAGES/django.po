@@ -2924,3 +2924,6 @@ msgstr "List of activities"
 
 msgid "learning_units_filename"
 msgstr "learning_units"
+
+msgid "external_search"
+msgstr "External - Search"

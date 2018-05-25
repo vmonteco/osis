@@ -97,6 +97,8 @@ urlpatterns = [
             name='learning_units_borrowed_course'),
         url(r'^by_summary/', base.views.learning_units.educational_information.learning_units_summary_list,
             name='learning_units_summary'),
+        url(r'^by_external/', base.views.learning_units.search.learning_units_external_search,
+            name='learning_units_external'),
         url(r'^new/', include([
             url(r'^academic_year_id=(?P<academic_year_id>[0-9]+)$', learning_unit.learning_unit_create,
                 name="learning_unit_create"),

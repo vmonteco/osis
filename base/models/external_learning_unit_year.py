@@ -56,3 +56,29 @@ class ExternalLearningUnitYear(models.Model):
 
     def __str__(self):
         return u"%s" % self.external_acronym
+
+
+def search(academic_year_id=None, acronym=None, learning_unit=None,
+           title=None, container_type=None, requirement_entities=None, *args, **kwargs):
+    queryset = LearningUnitYear.objects
+
+    if academic_year_id:
+        queryset = queryset.filter(academic_year=academic_year_id)
+
+    if acronym:
+        if _is_regex(acronym):
+            queryset = queryset.filter(acronym__iregex=r"(" + acronym + ")")
+        else:
+            queryset = queryset.filter(acronym__icontains=acronym)
+
+    if learning_unit:
+        queryset = queryset.filter(learning_unit_year__learning_unit=learning_unit)
+
+    if title:
+        queryset = queryset. \
+            filter(Q(learning_unit_year__specific_title__icontains=title) | Q(learning_unit_year__learning_container_year__common_title__icontains=title))
+
+    if container_type:
+        queryset = queryset.filter(learning_unit_year__learning_container_year__container_type=container_type)
+
+    return queryset.select_related('academic_year')
