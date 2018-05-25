@@ -112,8 +112,21 @@ class LearningUnitBaseForm(metaclass=ABCMeta):
     def instances_data(self):
         data = {}
         for form_instance in self.forms.values():
-            columns = form_instance.fields.keys()
-            data.update({col: getattr(form_instance.instance, col, None) for col in columns})
+            if isinstance(form_instance, EntityContainerBaseForm):
+                data.update(form_instance.instances_data)
+            else:
+                columns = form_instance.fields.keys()
+                data.update({col: getattr(form_instance.instance, col, None) for col in columns})
+        return data
+
+    @property
+    def label_fields(self):
+        """ Return a dictionary with the label of all fields """
+        data = {}
+        for form_instance in self.forms.values():
+            data.update({
+                key: field.label for key, field in form_instance.fields.items()
+            })
         return data
 
     @property
