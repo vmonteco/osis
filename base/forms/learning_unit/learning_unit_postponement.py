@@ -86,46 +86,46 @@ class LearningUnitPostponementForm:
         max_postponement_year = self._compute_max_postponement_year()
         ac_year_postponement_range = academic_year.find_academic_years(start_year=self.start_postponement.year,
                                                                        end_year=max_postponement_year)
-        luy_queryset = learning_unit_year.LearningUnitYear.objects\
-            .filter(academic_year__year__gte=self.start_postponement.year) \
+        existing_learn_unit_years = learning_unit_year.LearningUnitYear.objects \
+            .filter(academic_year__year__gte=self.start_postponement.year)\
+            .filter(learning_unit=self.learning_unit_instance) \
             .select_related('learning_container_year', 'learning_unit', 'academic_year') \
             .order_by('academic_year__year')
+        to_delete = to_update = to_insert = []
         if self.start_postponement.is_past():
-            self._init_forms_in_past(luy_queryset, data)
+            to_update = self._init_forms_in_past(existing_learn_unit_years, data)
         else:
-            to_delete = to_update = to_insert = []
             if self._is_update_action():
-                existing_learn_unit_years = luy_queryset.filter(learning_unit=self.learning_unit_instance)
                 to_delete = [
                     self._instanciate_base_form_as_update(luy, index=index)
                     for index, luy in enumerate(existing_learn_unit_years)
                     if luy.academic_year.year > max_postponement_year
-                ]
+                    ]
                 to_update = [
                     self._instanciate_base_form_as_update(luy, index=index, data=data)
                     for index, luy in enumerate(existing_learn_unit_years)
                     if luy.academic_year.year <= max_postponement_year
-                ]
+                    ]
                 existing_ac_years = [luy.academic_year for luy in existing_learn_unit_years]
                 to_insert = [
                     self._instanciate_base_form_as_insert(ac_year, data)
                     for index, ac_year in enumerate(ac_year_postponement_range) if ac_year not in existing_ac_years
-                ]
+                    ]
             else:
                 to_insert = [
                     self._instanciate_base_form_as_insert(ac_year, data)
                     for index, ac_year in enumerate(ac_year_postponement_range)
-                ]
+                    ]
 
-            self._forms_to_delete = to_delete
-            self._forms_to_upsert = to_update + to_insert
+        self._forms_to_delete = to_delete
+        self._forms_to_upsert = to_update + to_insert
 
     def _init_forms_in_past(self, luy_queryset, data):
         if self._is_update_action():
             first_luy = luy_queryset.first()
-            self._forms_to_upsert = [self._instanciate_base_form_as_update(first_luy, data=data)]
+            return [self._instanciate_base_form_as_update(first_luy, data=data)]
         else:
-            self._forms_to_upsert = [self._instanciate_base_form_as_insert(self.start_postponement, data)]
+            return [self._instanciate_base_form_as_insert(self.start_postponement, data)]
 
     def _instanciate_base_form_as_update(self, luy_to_update, index=0, data=None):
 
