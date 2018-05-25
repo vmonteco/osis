@@ -364,14 +364,7 @@ def get_learning_unit_identification_context(learning_unit_year_id, person):
     context = get_common_context_learning_unit_year(learning_unit_year_id, person)
 
     learning_unit_year = context['learning_unit_year']
-    if learning_unit_year.subtype == learning_unit_year_subtypes.FULL:
-        context['warnings'] = FullForm(person, learning_unit_year.academic_year,
-                                       learning_unit_instance=learning_unit_year.learning_unit).warnings
-    else:
-        context['warnings'] = PartimForm(person,
-                                         learning_unit_full_instance=learning_unit_year.parent.learning_unit,
-                                         academic_year=learning_unit_year.academic_year,
-                                         learning_unit_instance=learning_unit_year.learning_unit).warnings
+    set_warnings_context(context, learning_unit_year, person)
     proposal = proposal_learning_unit.find_by_learning_unit(learning_unit_year.learning_unit)
 
     context['learning_container_year_partims'] = learning_unit_year.get_partims_related()
@@ -396,3 +389,14 @@ def get_learning_unit_identification_context(learning_unit_year_id, person):
     context.update(learning_unit_proposal_permissions(proposal, person, learning_unit_year))
 
     return context
+
+
+def set_warnings_context(context, learning_unit_year, person):
+    if learning_unit_year.subtype == learning_unit_year_subtypes.FULL:
+        context['warnings'] = FullForm(person, learning_unit_year.academic_year,
+                                       learning_unit_instance=learning_unit_year.learning_unit).warnings
+    else:
+        context['warnings'] = PartimForm(person,
+                                         learning_unit_full_instance=learning_unit_year.parent.learning_unit,
+                                         academic_year=learning_unit_year.academic_year,
+                                         learning_unit_instance=learning_unit_year.learning_unit).warnings
