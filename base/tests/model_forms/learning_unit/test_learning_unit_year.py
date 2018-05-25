@@ -59,14 +59,6 @@ class TestLearningUnitYearModelFormInit(TestCase):
         self.faculty_manager = PersonFactory()
         self.faculty_manager.user.groups.add(Group.objects.get(name=FACULTY_MANAGER_GROUP))
 
-    def test_internship_subtype_removed_when_user_is_faculty_manager(self):
-
-        self.form = LearningUnitYearModelForm(data=None, person=self.central_manager, subtype=FULL)
-        self.assertIsInstance(self.form.fields.get('internship_subtype'), forms.TypedChoiceField)
-
-        self.form = LearningUnitYearModelForm(data=None, person=self.faculty_manager, subtype=FULL)
-        self.assertIsNone(self.form.fields.get('internship_subtype'))
-
     def test_acronym_field_case_partim(self):
         self.form = LearningUnitYearModelForm(data=None, person=self.central_manager, subtype=PARTIM)
         self.assertIsInstance(self.form.fields.get('acronym'),
