@@ -56,7 +56,7 @@ class TestFilterCampusByCountry(TestCase):
         get_data = {'country': self.country.pk,}
 
         response = self.client.get(url, get_data, **kwargs)
-        self.assertJSONEqual(response.content, [
+        self.assertJSONEqual(response.content.decode('utf-8'), [
             {
                 'pk': campus.id, 'organization__name': campus.organization.name
              }])
