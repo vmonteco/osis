@@ -53,7 +53,7 @@ FACULTY_OPEN_FIELDS = {'quadrimester', 'session', 'team', "faculty_remark", "oth
 
 
 class LearningUnitBaseForm(metaclass=ABCMeta):
-    form_cls_to_validate = [
+    form_cls = form_cls_to_validate = [
         LearningUnitModelForm,
         LearningUnitYearModelForm,
         LearningContainerModelForm,
@@ -69,14 +69,7 @@ class LearningUnitBaseForm(metaclass=ABCMeta):
     _warnings = None
 
     def __init__(self, instances_data, *args, **kwargs):
-        self.forms = OrderedDict({
-            LearningContainerModelForm: LearningContainerModelForm(*args, **instances_data[LearningContainerModelForm]),
-            LearningContainerYearModelForm: LearningContainerYearModelForm(*args, **instances_data[
-                LearningContainerYearModelForm]),
-            LearningUnitModelForm: LearningUnitModelForm(*args, **instances_data[LearningUnitModelForm]),
-            LearningUnitYearModelForm: LearningUnitYearModelForm(*args, **instances_data[LearningUnitYearModelForm]),
-            EntityContainerBaseForm: EntityContainerBaseForm(*args, **instances_data[EntityContainerBaseForm])
-        })
+        self.forms = OrderedDict({cls: cls(*args, **instances_data[cls]) for cls in self.form_cls})
 
     def is_valid(self):
         if any([not form_instance.is_valid() for cls, form_instance in self.forms.items()
@@ -84,7 +77,6 @@ class LearningUnitBaseForm(metaclass=ABCMeta):
             return False
 
         self.learning_container_year_form.post_clean(self.learning_unit_year_form.cleaned_data["specific_title"])
-
         return not self.errors
 
     @transaction.atomic
@@ -174,6 +166,10 @@ class LearningUnitBaseForm(metaclass=ABCMeta):
         return True
 
     @property
+    def learning_container_form(self):
+        return self.forms.get(LearningContainerModelForm)
+
+    @property
     def learning_unit_form(self):
         return self.forms[LearningUnitModelForm]
 
@@ -187,7 +183,7 @@ class LearningUnitBaseForm(metaclass=ABCMeta):
 
     @property
     def entity_container_form(self):
-        return self.forms[EntityContainerBaseForm]
+        return self.forms.get(EntityContainerBaseForm)
 
     def __iter__(self):
         """Yields the forms in the order they should be rendered"""
@@ -323,7 +319,7 @@ class FullForm(LearningUnitBaseForm):
 
 
 def merge_data(data, inherit_lu_values):
-    return merge_two_dicts(data.dict(), inherit_lu_values) if data else None
+    return merge_two_dicts(dict(data), inherit_lu_values) if data else None
 
 
 class PartimForm(LearningUnitBaseForm):

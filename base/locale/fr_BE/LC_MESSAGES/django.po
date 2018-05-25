@@ -2931,5 +2931,20 @@ msgstr "Liste d'activités"
 msgid "learning_units_filename"
 msgstr "unite_enseignements"
 
+msgid "new_external_learning_unit"
+msgstr "Nouvelle UE externe"
+
+msgid "external"
+msgstr "Externe"
+
+msgid "comment_title"
+msgstr "Commentaire"
+
+msgid "requesting_entity"
+msgstr "Entité demandeuse"
+
+msgid "local_credits"
+msgstr "Crédits locaux"
+
 msgid "external_search"
 msgstr "Recherche - UE externe"

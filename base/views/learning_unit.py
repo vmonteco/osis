@@ -23,14 +23,12 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import re
 
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
-from django.http import JsonResponse
 from django.shortcuts import redirect, get_object_or_404
 from django.shortcuts import render
 from django.utils.translation import ugettext_lazy as _
@@ -55,13 +53,11 @@ from base.forms.learning_unit_specifications import LearningUnitSpecificationsFo
 from base.models import proposal_learning_unit, education_group_year
 from base.models.academic_year import AcademicYear
 from base.models.enums.learning_container_year_types import INTERNSHIP
-from base.models.learning_unit import REGEX_BY_SUBTYPE
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
 from base.views.learning_units import perms
 from base.views.learning_units.common import show_success_learning_unit_year_creation_message
 from cms.models import text_label
-from osis_common.decorators.ajax import ajax_required
 from . import layout
 
 
@@ -296,36 +292,6 @@ def learning_unit_create(request, academic_year_id):
             show_success_learning_unit_year_creation_message(request, luy, 'learning_unit_successfuly_created')
         return redirect('learning_unit', learning_unit_year_id=new_luys[0].pk)
     return render(request, "learning_unit/simple/creation.html", postponement_form.get_context())
-
-
-@login_required
-@ajax_required
-@permission_required('base.can_access_learningunit', raise_exception=True)
-def check_acronym(request, subtype):
-    acronym = request.GET['acronym']
-    academic_yr = mdl.academic_year.find_academic_year_by_id(request.GET['year_id'])
-    existed_acronym = False
-    existing_acronym = False
-    first_using = ""
-    last_using = ""
-    learning_unit_year = mdl.learning_unit_year.find_gte_year_acronym(academic_yr, acronym).first()
-    old_learning_unit_year = mdl.learning_unit_year.find_lt_year_acronym(academic_yr, acronym).last()
-    # FIXME there is the same check in the models
-    if old_learning_unit_year:
-        last_using = str(old_learning_unit_year.academic_year)
-        existed_acronym = True
-
-    if learning_unit_year:
-        first_using = str(learning_unit_year.academic_year)
-        existing_acronym = True
-
-    if subtype not in REGEX_BY_SUBTYPE:
-        valid = False
-    else:
-        valid = bool(re.match(REGEX_BY_SUBTYPE[subtype], acronym))
-
-    return JsonResponse({'valid': valid, 'existing_acronym': existing_acronym, 'existed_acronym': existed_acronym,
-                         'first_using': first_using, 'last_using': last_using}, safe=False)
 
 
 @login_required

@@ -27,6 +27,7 @@ from django.conf import settings
 from django.conf.urls import url, include
 from django.conf.urls.static import static
 
+import base.views.learning_units.common
 import base.views.learning_units.delete
 import base.views.learning_units.educational_information
 import base.views.learning_units.proposal.consolidate
@@ -34,11 +35,13 @@ import base.views.learning_units.proposal.delete
 import base.views.learning_units.search
 import base.views.learning_units.update
 from attribution.views import attribution, tutor_application
+from base.views import learning_achievement
 from base.views import learning_unit, offer, common, institution, organization, academic_calendar, \
     my_osis, entity, student, education_group
+from base.views.learning_units.external import create as create_external
+from base.views.learning_units.external.create import filter_campus_by_country
 from base.views.learning_units.proposal import create, update
 from base.views.learning_units.update import update_learning_unit, learning_unit_edition_end_date
-from base.views import learning_achievement
 
 urlpatterns = [
     url(r'^$', common.home, name='home'),
@@ -105,7 +108,13 @@ urlpatterns = [
             url(r'^proposal/academic_year_id=(?P<academic_year>[0-9]+)$',
                 create.get_proposal_learning_unit_creation_form,
                 name="proposal_learning_unit_creation_form"),
+            url(r'^external/academic_year_id=(?P<academic_year>[0-9]+)$',
+                create_external.get_external_learning_unit_creation_form,
+                name="learning_unit_create_external"),
+            url(r'^filter_campus_by_country$', filter_campus_by_country, name="filter_campus_by_country"),
+
         ])),
+
         url(r'^(?P<learning_unit_year_id>[0-9]+)/', include([
             url(r'^$', learning_unit.learning_unit_identification, name='learning_unit'),
             url(r'^formations/$', learning_unit.learning_unit_formations, name="learning_unit_formations"),
@@ -149,7 +158,7 @@ urlpatterns = [
 
             ])),
         ])),
-        url(r'^check/(?P<subtype>[A-Z]+)$', learning_unit.check_acronym, name="check_acronym"),
+        url(r'^check/(?P<subtype>[A-Z]+)$', base.views.learning_units.common.check_acronym, name="check_acronym"),
         url(r'^outside_period/$', learning_unit.outside_period, name='outside_summary_submission_period'),
         url(r'^email_educational_information_update/$',
             base.views.learning_units.educational_information.send_email_educational_information_needs_update,
