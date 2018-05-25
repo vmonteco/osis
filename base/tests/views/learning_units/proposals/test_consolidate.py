@@ -34,6 +34,7 @@ from waffle.testutils import override_flag
 from base.models.enums import proposal_state, entity_container_year_link_type
 from base.tests.factories.academic_year import create_current_academic_year
 from base.tests.factories.entity_container_year import EntityContainerYearFactory
+from base.tests.factories.entity_version import EntityVersionFactory
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.person_entity import PersonEntityFactory
 from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
@@ -52,12 +53,11 @@ class TestConsolidate(TestCase):
         cls.person.user.user_permissions.add(Permission.objects.get(codename="can_access_learningunit"))
         cls.person.user.user_permissions.add(Permission.objects.get(codename="can_consolidate_learningunit_proposal"))
 
-        PersonEntityFactory(person=cls.person,
-                            entity=EntityContainerYearFactory(
-                                learning_container_year=cls.learning_unit_year.learning_container_year,
-                                type=entity_container_year_link_type.REQUIREMENT_ENTITY).entity
-                            )
-
+        person_entity = PersonEntityFactory(person=cls.person,
+                                            entity=EntityContainerYearFactory(
+                                                learning_container_year=cls.learning_unit_year.learning_container_year,
+                                                type=entity_container_year_link_type.REQUIREMENT_ENTITY).entity)
+        EntityVersionFactory(entity=person_entity.entity)
         cls.url = reverse("learning_unit_consolidate_proposal")
         cls.post_data = {"learning_unit_year_id": cls.learning_unit_year.id}
 
