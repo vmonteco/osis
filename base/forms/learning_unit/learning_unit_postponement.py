@@ -133,10 +133,13 @@ class LearningUnitPostponementForm:
                     for index, ac_year in enumerate(academic_years) if ac_year not in existing_ac_years
                 ]
         else:
-            to_insert = [
-                self._instanciate_base_form_as_insert(ac_year, data)
-                for index, ac_year in enumerate(academic_years)
-            ]
+            if self.start_postponement.is_past():
+                to_insert = [self._instanciate_base_form_as_insert(self.start_postponement, data)]
+            else:
+                to_insert = [
+                    self._instanciate_base_form_as_insert(ac_year, data)
+                    for index, ac_year in enumerate(academic_years)
+                ]
 
         self._forms_to_delete = to_delete
         self._forms_to_upsert = to_update + to_insert
@@ -162,76 +165,63 @@ class LearningUnitPostponementForm:
         return self._get_learning_unit_base_form(ac_year, data=data, start_year=self.start_postponement.year)
 
 
-        # last_existing_learn_unit_year = learning_unit_year.find_by_learning_unit(self.learning_unit_instance) \
-        #     .filter(academic_year__year__lte=self.end_postponement.year).select_related('academic_year').last()
-        # max_postponement_year = self._compute_max_postponement_year()
-        # to_delete = filter(lambda ac_year: ac_year.year >= max_postponement_year, academic_years)
-        # to_update = filter(
-        #     lambda ac_year: last_existing_learn_unit_year.year < ac_year.year < self.end_postponement, academic_years)
-        # to_insert = filter(lambda ac_year: ac_year.year < last_existing_learn_unit_year.year, academic_years)
-        # return {
-        #     'to_delete': to_delete,
-        #     'to_update': to_update,
-        #     'to_insert': to_insert
-        # }
-
-    def _init_forms(self, data=None):
-        """This function will init two forms var:
-           forms_to_upsert: LearningUnitBaseForm which must be created/updated
-           forms_to_delete: LearningUnitBaseForm which must be deleted
-        """
-        if self.end_postponement and self.learning_unit_instance:
-            # CASE end year specify in learning unit
-            self._forms_to_delete = self._get_forms_to_delete(self.end_postponement.year, self.learning_unit_instance)
-
-        if self.learning_unit_instance:
-            # Update case
-            self._forms_to_upsert = self._get_forms_to_upsert(data, self.start_postponement)
-        else:
-            # Creation case
-            start_year = self.start_postponement.year
-            end_year = self.end_postponement.year if self.end_postponement else None
-            self._forms_to_upsert = self._get_forms_to_insert(start_year, end_year, data)
-
-    def _get_forms_to_upsert(self, data, start_academic_year):
-        end_academic_year = self.end_postponement
-        luy_to_upsert_qs = learning_unit_year.find_by_learning_unit(self.learning_unit_instance) \
-                                             .filter(academic_year__year__gte=start_academic_year.year)\
-                                             .select_related('academic_year')\
-                                             .order_by('academic_year__year')
-
-        # We do not need postponement for learning unit in the past
-        if start_academic_year.is_past():
-            luy = luy_to_upsert_qs.first()
-            return [self._get_learning_unit_base_form(luy.academic_year,
-                                                      learning_unit_instance=luy.learning_unit,
-                                                      data=data)]
-
-        if end_academic_year:
-            luy_to_upsert_qs = luy_to_upsert_qs.filter(academic_year__year__lte=end_academic_year.year)
-
-        # Learning unit base form with instance [TO UPDATE]
-        luy_base_forms_update = self._get_forms_to_update(luy_to_upsert_qs, data)
-
-        # Learning unit base form without instance [TO INSERT]
-        lastest_luy = luy_to_upsert_qs.last()
-        start_insert_year = lastest_luy.academic_year.year + 1 if lastest_luy else start_academic_year.year
-        end_insert_year = end_academic_year.year if end_academic_year else None
-        luy_base_forms_insert = self._get_forms_to_insert(start_insert_year, end_year=end_insert_year, data=data)
-
-        return luy_base_forms_update + luy_base_forms_insert
-
-    def _get_forms_to_update(self, luy_to_updates, data=None):
-        luy_base_forms_update = []
-        for index, luy_to_update in enumerate(luy_to_updates):
-            data_to_postpone = data if data is None or index == 0 else self._get_data_to_postpone(luy_to_update, data)
-            luy_base_form_update = self._get_learning_unit_base_form(
-                academic_year=luy_to_update.academic_year,
-                learning_unit_instance=luy_to_update.learning_unit,
-                data=data_to_postpone
-            )
-            luy_base_forms_update.append(luy_base_form_update)
-        return luy_base_forms_update
+    # def _init_forms(self, data=None):
+    #     """This function will init two forms var:
+    #        forms_to_upsert: LearningUnitBaseForm which must be created/updated
+    #        forms_to_delete: LearningUnitBaseForm which must be deleted
+    #     """
+    #     if self.end_postponement and self.learning_unit_instance:
+    #         # CASE end year specify in learning unit
+    #         self._forms_to_delete = self._get_forms_to_delete(self.end_postponement.year, self.learning_unit_instance)
+    #
+    #     if self.learning_unit_instance:
+    #         # Update case
+    #         self._forms_to_upsert = self._get_forms_to_upsert(data, self.start_postponement)
+    #     else:
+    #         # Creation case
+    #         start_year = self.start_postponement.year
+    #         end_year = self.end_postponement.year if self.end_postponement else None
+    #         self._forms_to_upsert = self._get_forms_to_insert(start_year, end_year, data)
+    #
+    # def _get_forms_to_upsert(self, data, start_academic_year):
+    #     end_academic_year = self.end_postponement
+    #     luy_to_upsert_qs = learning_unit_year.find_by_learning_unit(self.learning_unit_instance) \
+    #                                          .filter(academic_year__year__gte=start_academic_year.year)\
+    #                                          .select_related('academic_year')\
+    #                                          .order_by('academic_year__year')
+    #
+    #     # We do not need postponement for learning unit in the past
+    #     if start_academic_year.is_past():
+    #         luy = luy_to_upsert_qs.first()
+    #         return [self._get_learning_unit_base_form(luy.academic_year,
+    #                                                   learning_unit_instance=luy.learning_unit,
+    #                                                   data=data)]
+    #
+    #     if end_academic_year:
+    #         luy_to_upsert_qs = luy_to_upsert_qs.filter(academic_year__year__lte=end_academic_year.year)
+    #
+    #     # Learning unit base form with instance [TO UPDATE]
+    #     luy_base_forms_update = self._get_forms_to_update(luy_to_upsert_qs, data)
+    #
+    #     # Learning unit base form without instance [TO INSERT]
+    #     lastest_luy = luy_to_upsert_qs.last()
+    #     start_insert_year = lastest_luy.academic_year.year + 1 if lastest_luy else start_academic_year.year
+    #     end_insert_year = end_academic_year.year if end_academic_year else None
+    #     luy_base_forms_insert = self._get_forms_to_insert(start_insert_year, end_year=end_insert_year, data=data)
+    #
+    #     return luy_base_forms_update + luy_base_forms_insert
+    #
+    # def _get_forms_to_update(self, luy_to_updates, data=None):
+    #     luy_base_forms_update = []
+    #     for index, luy_to_update in enumerate(luy_to_updates):
+    #         data_to_postpone = data if data is None or index == 0 else self._get_data_to_postpone(luy_to_update, data)
+    #         luy_base_form_update = self._get_learning_unit_base_form(
+    #             academic_year=luy_to_update.academic_year,
+    #             learning_unit_instance=luy_to_update.learning_unit,
+    #             data=data_to_postpone
+    #         )
+    #         luy_base_forms_update.append(luy_base_form_update)
+    #     return luy_base_forms_update
 
     def _get_data_to_postpone(self, lunit_year, data):
         """This function will return data form to postpone"""
@@ -241,24 +231,24 @@ class LearningUnitPostponementForm:
             data_to_postpone[key] = operator.attrgetter(attr_path)(lunit_year)
         return data_to_postpone
 
-    def _get_forms_to_insert(self, start_insert_year, end_year=None, data=None):
-        luy_base_form_insert = []
-        max_postponement_year = academic_year.compute_max_academic_year_adjournment()
-        end_year = min(end_year,  max_postponement_year) if end_year else max_postponement_year
+    # def _get_forms_to_insert(self, start_insert_year, end_year=None, data=None):
+    #     luy_base_form_insert = []
+    #     max_postponement_year = academic_year.compute_max_academic_year_adjournment()
+    #     end_year = min(end_year,  max_postponement_year) if end_year else max_postponement_year
+    #
+    #     if start_insert_year <= end_year:
+    #         ac_years = academic_year.find_academic_years(start_year=start_insert_year, end_year=end_year)
+    #         luy_base_form_insert = [self._get_learning_unit_base_form(ac_year, data=data, start_year=start_insert_year)
+    #                                 for ac_year in ac_years]
+    #
+    #     return luy_base_form_insert
 
-        if start_insert_year <= end_year:
-            ac_years = academic_year.find_academic_years(start_year=start_insert_year, end_year=end_year)
-            luy_base_form_insert = [self._get_learning_unit_base_form(ac_year, data=data, start_year=start_insert_year)
-                                    for ac_year in ac_years]
-
-        return luy_base_form_insert
-
-    def _get_forms_to_delete(self, start_year, learning_unit_instance):
-        end_year = self.end_postponement.year
-        luy_to_delete_qs = learning_unit_year.find_by_learning_unit(self.learning_unit_instance)\
-                                             .filter(academic_year__year__gt=end_year).select_related('academic_year')
-        return [self._get_learning_unit_base_form(luy.academic_year, learning_unit_instance=learning_unit_instance)
-                for luy in luy_to_delete_qs]
+    # def _get_forms_to_delete(self, start_year, learning_unit_instance):
+    #     end_year = self.end_postponement.year
+    #     luy_to_delete_qs = learning_unit_year.find_by_learning_unit(self.learning_unit_instance)\
+    #                                          .filter(academic_year__year__gt=end_year).select_related('academic_year')
+    #     return [self._get_learning_unit_base_form(luy.academic_year, learning_unit_instance=learning_unit_instance)
+    #             for luy in luy_to_delete_qs]
 
     def _get_learning_unit_base_form(self, academic_year, learning_unit_instance=None, data=None, start_year=None):
         form_kwargs = {
