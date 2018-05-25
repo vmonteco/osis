@@ -38,7 +38,7 @@ from base.utils.cache import cache_filter
 from base.business.learning_unit import create_xls
 from base.business.proposal_xls import create_xls_proposal
 from base.forms.common import TooManyResultsException
-from base.forms.learning_unit.search_form import LearningUnitYearForm
+from base.forms.learning_unit.search_form import LearningUnitYearForm, ExternalLearningUnitYearForm
 from base.forms.proposal.learning_unit_proposal import LearningUnitProposalForm, ProposalStateModelForm
 from base.models.academic_year import current_academic_year, get_last_academic_years
 from base.models.enums import learning_container_year_types, learning_unit_year_subtypes
@@ -184,38 +184,26 @@ def _get_search_type_label(search_type):
 @permission_required('base.can_access_externallearningunityear', raise_exception=True)
 @cache_filter()
 def learning_units_external_search(request):
-    if request.GET:
-        print('get')
-    if request.POST:
-        print('post')
-    search_form = LearningUnitProposalForm(request.GET or None)
+    search_form = ExternalLearningUnitYearForm(request.GET or None)
     user_person = get_object_or_404(Person, user=request.user)
-    proposals = []
-    research_criteria = []
+    learning_units = []
     try:
         if search_form.is_valid():
-            print('ific')
-            research_criteria = search_form.get_research_criteria()
-            proposals = search_form.get_proposal_learning_units()
-            check_if_display_message(request, proposals)
+            learning_units = search_form.get_learning_units()
+            check_if_display_message(request, learning_units)
     except TooManyResultsException:
         display_error_messages(request, 'too_many_results')
 
     if request.POST:
-        selected_proposals_id = request.POST.getlist("selected_action", default=[])
-        selected_proposals = ProposalLearningUnit.objects.filter(id__in=selected_proposals_id)
-        messages_by_level = apply_action_on_proposals(selected_proposals, user_person, request.POST, research_criteria)
-        display_messages_by_level(request, messages_by_level)
         return redirect(reverse("learning_unit_proposal_search") + "?{}".format(request.GET.urlencode()))
 
     context = {
         'form': search_form,
-        'form_proposal_state': ProposalStateModelForm(),
         'academic_years': get_last_academic_years(),
         'current_academic_year': current_academic_year(),
         'experimental_phase': True,
         'search_type': EXTERNAL_SEARCH,
-        'proposals': proposals,
+        'learning_units': learning_units,
         'is_faculty_manager': user_person.is_faculty_manager()
     }
     return layout.render(request, "learning_units.html", context)

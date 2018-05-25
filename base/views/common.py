@@ -212,6 +212,7 @@ def display_messages(request, messages_to_display, level, extra_tags=None):
 
 def check_if_display_message(request, results):
     if not results:
+        print('no result')
         messages.add_message(request, messages.WARNING, _('no_result'))
     return True
 

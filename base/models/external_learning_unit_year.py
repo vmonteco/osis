@@ -30,6 +30,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from base.models.learning_unit_year import MINIMUM_CREDITS, MAXIMUM_CREDITS
 from base.models.osis_model_admin import OsisModelAdmin
+from django.db.models import Q
 
 
 class ExternalLearningUnitYearAdmin(OsisModelAdmin):
@@ -62,18 +63,16 @@ class ExternalLearningUnitYear(models.Model):
         return u"%s" % self.external_acronym
 
 
-def search(academic_year_id=None, acronym=None, learning_unit=None,
-           title=None, container_type=None, requirement_entities=None, *args, **kwargs):
-    queryset = LearningUnitYear.objects
-
+def search(academic_year_id=None, code_local=None, learning_unit=None,
+           title=None,  *args, **kwargs):
+    queryset = ExternalLearningUnitYear.objects
+    print(academic_year_id)
+    print(code_local)
     if academic_year_id:
-        queryset = queryset.filter(academic_year=academic_year_id)
+        queryset = queryset.filter(learning_unit_year__academic_year=academic_year_id)
 
-    if acronym:
-        if _is_regex(acronym):
-            queryset = queryset.filter(acronym__iregex=r"(" + acronym + ")")
-        else:
-            queryset = queryset.filter(acronym__icontains=acronym)
+    if code_local:
+        queryset = queryset.filter(external_acronym__icontains=external_acronym)
 
     if learning_unit:
         queryset = queryset.filter(learning_unit_year__learning_unit=learning_unit)
@@ -82,7 +81,4 @@ def search(academic_year_id=None, acronym=None, learning_unit=None,
         queryset = queryset. \
             filter(Q(learning_unit_year__specific_title__icontains=title) | Q(learning_unit_year__learning_container_year__common_title__icontains=title))
 
-    if container_type:
-        queryset = queryset.filter(learning_unit_year__learning_container_year__container_type=container_type)
-
-    return queryset.select_related('academic_year')
+    return queryset

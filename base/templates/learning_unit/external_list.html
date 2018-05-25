@@ -45,45 +45,26 @@
                         <th>{% trans 'academic_year_small'%}</th>
                         <th>{% trans 'code'%}</th>
                         <th  id="lu_title_sort">{% trans 'title'%}</th>
-                        <th>{% trans 'type'%}</th>
-                        <th>{% trans 'subtype'%}</th>
-                        <th>{% trans 'summary_responsible' %}</th>
-                        <th>{% trans 'updated' %}</th>
+                        <th>{% trans 'institution'%}</th>
+                        <th>{% trans 'credits'%}</th>
+                        <th>{% trans 'status'%}</th>
                     </tr>
                     </thead>
-                    {% for learning_unit in learning_units %}
-                        <tr data-id="{{learning_unit.id}}" data-value="{{learning_unit.acronym}}">
-                            <td>{{learning_unit.academic_year.name}}</td>
+                    {% for external_learning_unit_yr in learning_units %}
+                        <tr data-id="{{external_learning_unit_yr.id}}" data-value="{{external_learning_unit_yr.code_local}}">
+                            <td>{{ external_learning_unit_yr.learning_unit_year.academic_year.name }}</td>
+                            <td>{{ external_learning_unit_yr.external_acronym}}</td>
+                            <td>{{ external_learning_unit_yr.learning_unit_year.complete_title|default_if_none:'' }}</td>
+                            <td>{{ external_learning_unit_yr.learning_unit_year.learning_container_year.campus.organization.name |default_if_none:''}}</td>
+                            <td>{{ external_learning_unit_yr.external_credits |default_if_none:''}}</td>
                             <td>
-                                <a href="{% url 'learning_unit' learning_unit.id %}"
-                                   id="lnk_learning_unit_{{learning_unit.id}}">{{ learning_unit.acronym }}</a>
-                            </td>
-                            <td>{{ learning_unit.complete_title|default_if_none:'' }}</td>
-                            <td>
-                                {% with learning_unit.learning_container_year.container_type|default_if_none:'-' as type %}
-                                    {% trans type %}
-                                {% endwith %}
-                            </td>
-                            <td>
-                                {% with learning_unit.subtype|default_if_none:'-' as subtype %}
-                                    {% trans subtype %}
-                                {% endwith %}
-                            </td>
-                            <td>{% for responsible in learning_unit.summary_responsibles%}
-                                    {% if forloop.counter0 > 0 %}
-                                        ,
-                                    {% endif %}
-                                    {{responsible.tutor.person.last_name}} {{responsible.tutor.person.first_name|default_if_none:'' }}
-                                {% endfor %}
-                            </td>
-                            <td>
-                                {% if learning_unit.summary_status %}
+                                {% if external_learning_unit_yr.learning_unit_year.status %}
                                     <span class="glyphicon glyphicon-ok-circle" aria-hidden="true" style="color:green;"
-                                          title="{% trans  'updated' %}"></span>
+                                          title="{% trans  'active' %}"></span>
                                     <div style="display:none;">1</div>
                                 {% else %}
                                     <span class="glyphicon glyphicon-ok-circle" aria-hidden="true" style="color:gray;"
-                                          title="{% trans  'unupdated' %}"></span>
+                                          title="{% trans  'inactive' %}"></span>
                                     <div style="display:none;">0</div>
                                 {% endif %}
                             </td>
@@ -93,30 +74,6 @@
             {% else %}
                 <label class="alert alert-info" style="margin:5px">{% trans 'no_result' %}</label>
             {% endif %}
-            <form method="post" action="{% url 'email_educational_information_update' %}">
-                {% csrf_token %}
-                {% include "learning_unit/blocks/modal/modal_mail_summary_reminder.html" %}
-            </form>
         </div>
     </div>
-{% endblock %}
-{% block script %}
-    <script>
-        $("#btn_modal_mail_summary_reminder").click(function(e) {
-            console.log('btn_modal_mail_summary_reminder');
-
-            var form = $(this).closest("form");
-            $.ajax({
-                data: form.serialize(),
-                type: 'post',
-                url: '../email_educational_information_update/',
-                success: function (data) {
-                    $('#message_info_container').css( "visibility", "visible" );
-                    $('#message_info_container').css( "display", "block" );
-                    $('#message_info_container').append(data.as_messages_info);
-                    $('#btn_modal_mail_summary_reminder_cancel').trigger( "click" );
-                }
-            });
-        });
-    </script>
 {% endblock %}

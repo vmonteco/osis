@@ -359,3 +359,16 @@ def _get_entity_ids_list(allocation_entity_acronym, entities_id_list_allocation,
         return entities_id_list_allocation
     else:
         return None
+
+
+class ExternalLearningUnitYearForm(LearningUnitYearForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def get_learning_units(self):
+        clean_data = self.cleaned_data
+        learning_units = mdl.external_learning_unit_year.search(**clean_data) \
+            .select_related('learning_unit_year__academic_year', ) \
+            .order_by('learning_unit_year__academic_year__year', 'learning_unit_year__acronym')
+
+        return learning_units
