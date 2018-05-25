@@ -129,7 +129,6 @@ class LearningUnitPostponementForm:
 
     def _instanciate_base_form_as_update(self, luy_to_update, index=0, data=None):
 
-        # Filter_data_to_postpone()
         def is_first_form(index):
             return index == 0
 
@@ -148,7 +147,6 @@ class LearningUnitPostponementForm:
         return self._get_learning_unit_base_form(ac_year, data=data, start_year=self.start_postponement.year)
 
     def _get_data_to_postpone(self, lunit_year, data):
-        """This function will return data form to postpone"""
         data_to_postpone = QueryDict('', mutable=True)
         data_to_postpone.update({key: data[key] for key in data if key not in FIELDS_TO_NOT_POSTPONE.keys()})
         for key, attr_path in FIELDS_TO_NOT_POSTPONE.items():
