@@ -81,7 +81,7 @@
 
         // Ajax request to update the campus list
         $("select#id_country").change(function(){
-            $.getJSON("{% url "filter_organization_by_country" %}",{country: $(this).val(), ajax: 'true'}, function(j){
+            $.getJSON("{% url "filter_campus_by_country" %}",{country: $(this).val(), ajax: 'true'}, function(j){
                 let options = '';
                 for (let i = 0; i < j.length; i++) {
                     options += '<option value="' + j[i].pk + '">' + j[i].organization__name + '</option>';

@@ -55,7 +55,7 @@ def get_external_learning_unit_creation_form(request, academic_year):
 
 
 @ajax_required
-def filter_organization_by_country(request):
+def filter_campus_by_country(request):
     """ Ajax request to filter the campus choice field """
     country = request.GET.get('country')
     campuses = Campus.objects.filter(

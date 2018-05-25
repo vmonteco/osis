@@ -28,11 +28,11 @@ from django.urls import reverse
 
 from base.tests.factories.campus import CampusFactory
 from base.tests.factories.organization_address import OrganizationAddressFactory
-from base.views.learning_units.external.create import filter_organization_by_country
+from base.views.learning_units.external.create import filter_campus_by_country
 from reference.tests.factories.country import CountryFactory
 
 
-class TestFilterOrganizationByCountry(TestCase):
+class TestFilterCampusByCountry(TestCase):
     def setUp(self):
         self.country = CountryFactory()
 
@@ -43,7 +43,7 @@ class TestFilterOrganizationByCountry(TestCase):
             for campus in self.campuses
         ]
 
-    def test_filter_organization_by_country(self):
+    def test_filter_campus_by_country(self):
 
         self.organization_addresses[0].country = self.country
         self.organization_addresses[0].save()
@@ -51,7 +51,7 @@ class TestFilterOrganizationByCountry(TestCase):
         campus = self.campuses[0]
 
         kwargs = {'HTTP_X_REQUESTED_WITH': 'XMLHttpRequest'}
-        url = reverse(filter_organization_by_country)
+        url = reverse(filter_campus_by_country)
 
         get_data = {'country': self.country.pk,}
 
