@@ -11,7 +11,6 @@ import faker
 import magic
 import parse
 import pendulum
-import pyvirtualdisplay
 from django.conf import settings
 from django.contrib.auth.models import Group, Permission
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
@@ -78,9 +77,6 @@ class SeleniumTestCase(StaticLiveServerTestCase):
         print("### Virtual Display : {}".format(cls.sel_settings.get('SELENIUM_HEADLESS')))
         cls.screen_size = (cls.sel_settings.get('SCREEN_WIDTH'), cls.sel_settings.get('SCREEN_HIGH'))
         cls.full_path_temp_dir = tempfile.mkdtemp('osis-selenium')
-        if cls.sel_settings.get('VIRTUAL_DISPLAY'):
-            cls.display = pyvirtualdisplay.Display(visible=0, size=cls.screen_size)
-            cls.display.start()
 
         if cls.sel_settings.get('WEB_BROWSER').upper() == 'FIREFOX':
             fp = webdriver.FirefoxProfile()
@@ -93,7 +89,8 @@ class SeleniumTestCase(StaticLiveServerTestCase):
                            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet']
             fp.set_preference('browser.helperApps.neverAsk.saveToDisk', ','.join(known_mimes))
             options = Options()
-            options.add_argument('-headless')
+            if cls.sel_settings.get('VIRTUAL_DISPLAY'):
+                options.add_argument('-headless')
             cls.driver = webdriver.Firefox(executable_path=cls.sel_settings.get('GECKO_DRIVER'),
                                            firefox_profile=fp, firefox_options=options)
 
