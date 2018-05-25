@@ -69,9 +69,6 @@ class ProposalLearningUnitForm(forms.ModelForm):
         self.fields[field].disabled = False
         self.fields[field].required = True
 
-    # def clean_entity(self):
-    #     return self.cleaned_data['entity'].entity
-
     class Meta:
         model = ProposalLearningUnit
         fields = ['entity', 'folder_id', 'state', 'type']
