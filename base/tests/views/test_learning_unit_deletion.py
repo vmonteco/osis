@@ -232,7 +232,7 @@ class LearningUnitDelete(TestCase):
 
     def test_delete_all_learning_units_year_case_success_have_attribution_new_without_charge(self):
         learning_unit_years = self.learning_unit_year_list
-        AttributionNewFactory(learning_container_year=learning_unit_years[0].learning_container_year)
+        AttributionNewFactory(learning_container_year=learning_unit_years[1].learning_container_year)
         request_factory = RequestFactory()
 
         request = request_factory.post(reverse(delete_all_learning_units_year, args=[learning_unit_years[1].id]))
