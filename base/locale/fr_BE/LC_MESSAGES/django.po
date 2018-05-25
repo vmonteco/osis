@@ -1642,7 +1642,7 @@ msgid "LECTURING"
 msgstr "Partie magistrale"
 
 msgid "PRACTICAL_EXERCISES"
-msgstr "Travaux pratiques"
+msgstr "Partie pratique"
 
 msgid "lecturing"
 msgstr "Cours magistral"
