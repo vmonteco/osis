@@ -72,8 +72,15 @@ def _create_faculty_learning_container_type_list():
 
 
 class EntitiesVersionChoiceField(forms.ModelChoiceField):
+    entity_version = None
+
     def label_from_instance(self, obj):
         return obj.acronym
+
+    def clean(self, value):
+        ev_data = super().clean(value)
+        self.entity_version = ev_data
+        return ev_data.entity if ev_data else None
 
 
 class LearningUnitModelForm(forms.ModelForm):
@@ -200,7 +207,6 @@ class LearningUnitYearPartimModelForm(LearningUnitYearModelForm):
 
 class EntityContainerYearModelForm(forms.ModelForm):
     entity = EntitiesVersionChoiceField(find_main_entities_version())
-    entity_version = None
     entity_type = ''
 
     def __init__(self, *args, **kwargs):
@@ -218,11 +224,6 @@ class EntityContainerYearModelForm(forms.ModelForm):
         model = EntityContainerYear
         fields = ['entity']
 
-    def clean_entity(self):
-        ev_data = self.cleaned_data['entity']
-        self.entity_version = ev_data
-        return ev_data.entity if ev_data else None
-
     def pre_save(self, learning_container_year):
         self.instance.learning_container_year = learning_container_year
 
@@ -232,6 +233,10 @@ class EntityContainerYearModelForm(forms.ModelForm):
         elif self.instance.pk:
             # if the instance has no entity, it must be deleted
             self.instance.delete()
+
+    @property
+    def entity_version(self):
+        return self.fields["entity"].entity_version
 
     def post_clean(self, start_date):
         entity = self.cleaned_data.get('entity')

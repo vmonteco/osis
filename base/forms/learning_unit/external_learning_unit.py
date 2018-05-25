@@ -81,11 +81,6 @@ class ExternalLearningUnitModelForm(forms.ModelForm):
         model = ExternalLearningUnitYear
         fields = ('external_acronym', 'external_credits', 'url', 'buyer')
 
-    def clean_buyer(self):
-        ev_data = self.cleaned_data['buyer']
-        self.entity_version = ev_data
-        return ev_data.entity if ev_data else None
-
     def post_clean(self, start_date):
         entity = self.cleaned_data.get('buyer')
         if not entity:

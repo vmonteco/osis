@@ -42,7 +42,6 @@ from base.models.proposal_learning_unit import ProposalLearningUnit
 
 
 class ProposalLearningUnitForm(forms.ModelForm):
-    # TODO entity must be EntitiesChoiceField
     entity = EntitiesVersionChoiceField(queryset=find_main_entities_version())
 
     def __init__(self, data, person, *args, initial=None, **kwargs):
@@ -70,8 +69,8 @@ class ProposalLearningUnitForm(forms.ModelForm):
         self.fields[field].disabled = False
         self.fields[field].required = True
 
-    def clean_entity(self):
-        return self.cleaned_data['entity'].entity
+    # def clean_entity(self):
+    #     return self.cleaned_data['entity'].entity
 
     class Meta:
         model = ProposalLearningUnit

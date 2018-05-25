@@ -93,8 +93,6 @@ class TestExternalLearningUnitForm(TestCase):
         self.academic_year = create_current_academic_year()
         self.language = LanguageFactory(code='FR')
 
-
-
     def test_external_learning_unit_form_init(self):
         form = ExternalLearningUnitBaseForm(person=self.person, academic_year=self.academic_year)
 
@@ -127,5 +125,3 @@ class TestExternalLearningUnitForm(TestCase):
         self.assertEqual(luy.learning_container_year.container_type, EXTERNAL)
         self.assertEqual(luy.acronym[0], 'X')
         self.assertEqual(luy.externallearningunityear.author, self.person)
-
-
