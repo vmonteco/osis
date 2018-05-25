@@ -56,6 +56,11 @@ class LearningContainerYearExternalModelForm(LearningContainerYearModelForm):
     def prepare_fields(self):
         self.fields['campus'].queryset = Campus.objects.order_by('organization__name').distinct('organization__name')
         self.fields["container_type"].choices = ((EXTERNAL, _(EXTERNAL)),)
+        self.fields['container_type'].disabled = True
+        self.fields['container_type'].required = False
+
+    def clean_container_type(self):
+        return EXTERNAL
 
 
 class ExternalLearningUnitModelForm(forms.ModelForm):
@@ -66,8 +71,8 @@ class ExternalLearningUnitModelForm(forms.ModelForm):
         self.person = person
 
         super().__init__(data, *args, **kwargs)
+        self.instance.author = person
         self.fields['buyer'].queryset = self.person.find_main_entities_version
-        self.fields['external_credits'].label = _('local_credits')
 
         if hasattr(self.instance, 'buyer'):
             self.initial['buyer'] = get_last_version(self.instance.buyer)
@@ -95,10 +100,6 @@ class ExternalLearningUnitModelForm(forms.ModelForm):
 
         return not self.errors
 
-    def save(self, commit=True):
-        self.instance.author = self.person
-        return super().save(commit)
-
 
 class ExternalLearningUnitBaseForm(LearningUnitBaseForm):
     forms = OrderedDict()
@@ -115,12 +116,11 @@ class ExternalLearningUnitBaseForm(LearningUnitBaseForm):
         ExternalLearningUnitModelForm
     ]
 
-    def __init__(self, person, academic_year=None, data=None, *args, **kwargs):
+    def __init__(self, person, academic_year, data=None, *args, **kwargs):
         self.academic_year = academic_year
         self.person = person
         instances_data = self._build_instance_data(data, academic_year)
         super().__init__(instances_data, *args, **kwargs)
-        self.disable_fields('container_type')
         self.learning_unit_year_form.fields['acronym'] = ExternalAcronymField()
 
     @property
@@ -134,7 +134,7 @@ class ExternalLearningUnitBaseForm(LearningUnitBaseForm):
     def _build_instance_data(self, data, default_ac_year):
         return {
             LearningUnitModelForm: {
-                'data': merge_data(data, {'start_year': default_ac_year.year, 'periodicity': 'ANNUAL'}),
+                'data': merge_data(data, {'periodicity': 'ANNUAL'}),
                 'instance': self.instance.learning_unit if self.instance else None,
             },
             LearningContainerModelForm: {
@@ -155,19 +155,12 @@ class ExternalLearningUnitBaseForm(LearningUnitBaseForm):
 
     def _build_instance_data_learning_unit_year(self, data, default_ac_year):
         return {
-            'data': merge_data(data, {'periodicity': 'ANNUAL'}),
+            'data': data,
             'instance': self.instance,
             'initial': {'status': True,
                         'academic_year': default_ac_year},
             'person': self.person,
             'subtype': self.subtype
-        }
-
-    def _build_instance_data_learning_unit(self, data, inherit_lu_values):
-        return {
-            'data': merge_data(data, inherit_lu_values),
-            'instance': None,
-            'initial': inherit_lu_values if not self.instance else None,
         }
 
     def _build_instance_data_learning_container_year(self, data):

@@ -27,6 +27,7 @@ from django.conf import settings
 from django.conf.urls import url, include
 from django.conf.urls.static import static
 
+import base.views.learning_units.common
 import base.views.learning_units.delete
 import base.views.learning_units.educational_information
 import base.views.learning_units.proposal.consolidate
@@ -155,7 +156,7 @@ urlpatterns = [
 
             ])),
         ])),
-        url(r'^check/(?P<subtype>[A-Z]+)$', learning_unit.check_acronym, name="check_acronym"),
+        url(r'^check/(?P<subtype>[A-Z]+)$', base.views.learning_units.common.check_acronym, name="check_acronym"),
         url(r'^outside_period/$', learning_unit.outside_period, name='outside_summary_submission_period'),
         url(r'^email_educational_information_update/$',
             base.views.learning_units.educational_information.send_email_educational_information_needs_update,

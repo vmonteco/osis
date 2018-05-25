@@ -306,7 +306,7 @@ class FullForm(LearningUnitBaseForm):
 
 
 def merge_data(data, inherit_lu_values):
-    return merge_two_dicts(data.dict(), inherit_lu_values) if data else None
+    return merge_two_dicts(dict(data), inherit_lu_values) if data else None
 
 
 class PartimForm(LearningUnitBaseForm):

@@ -28,7 +28,6 @@ from unittest import mock
 import factory
 import factory.fuzzy
 from django.forms import model_to_dict
-from django.http import QueryDict
 from django.test import TestCase
 from django.utils.translation import ugettext_lazy as _
 
@@ -106,7 +105,6 @@ class TestPartimFormInit(LearningUnitPartimFormContextMixin):
                                  LearningContainerYearModelForm, EntityContainerBaseForm]
         form = _instanciate_form(learning_unit_full=self.learning_unit_year_full.learning_unit,
                                  academic_year=self.current_academic_year)
-        print(form.forms.keys())
         for cls in form_classes_expected:
             self.assertIsInstance(form.forms[cls], cls)
 
@@ -466,7 +464,7 @@ class TestPartimFormSave(LearningUnitPartimFormContextMixin):
 
 def get_valid_form_data(learning_unit_year_partim):
     acronym_splited = acronym_field.split_acronym(learning_unit_year_partim.acronym)
-    post_data = {
+    return {
         # Learning unit year data model form
         'acronym_2': acronym_splited[2],
         'subtype': learning_unit_year_partim.subtype,
@@ -482,9 +480,6 @@ def get_valid_form_data(learning_unit_year_partim):
         'faculty_remark': learning_unit_year_partim.learning_unit.faculty_remark,
         'other_remark': learning_unit_year_partim.learning_unit.other_remark,
     }
-    qdict = QueryDict('', mutable=True)
-    qdict.update(post_data)
-    return qdict
 
 
 def _instanciate_form(learning_unit_full, academic_year, post_data=None, instance=None):

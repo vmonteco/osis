@@ -26,6 +26,8 @@
 import re
 
 from django import forms
+from django.core.exceptions import ValidationError
+from django.utils.translation import ugettext_lazy as _
 
 from base.forms.utils.choice_field import add_blank
 from base.models.enums import learning_unit_year_subtypes
@@ -82,6 +84,11 @@ class AcronymField(forms.MultiValueField):
 class ExternalAcronymField(AcronymField):
     widget = ExternalAcronymInput
 
+    def clean(self, value):
+        if value[0] != 'X':
+            raise ValidationError(_('invalid_acronym'))
+        return super().clean(value)
+
 
 class PartimAcronymInput(forms.MultiWidget):
     template_name = 'learning_unit/blocks/widget/partim_widget.html'
@@ -126,9 +133,6 @@ class PartimAcronymField(forms.MultiValueField):
 
     def compress(self, data_list):
         return ''.join(data_list).upper()
-
-
-
 
 
 def split_acronym(value, subtype=learning_unit_year_subtypes.PARTIM):
