@@ -33,6 +33,7 @@ from base.business.learning_unit import CMS_LABEL_SPECIFICATIONS, CMS_LABEL_PEDA
 from base.models import learning_unit_enrollment, learning_unit_component, learning_class_year, \
     learning_unit_year as learn_unit_year_model
 from base.models import proposal_learning_unit
+from base.models.learning_component_year import LearningComponentYear
 from base.views.learning_units.common import create_learning_unit_year_deletion_message
 from cms.enums import entity_name
 from cms.models import translated_text
@@ -96,15 +97,21 @@ def _check_attribution_deletion(learning_unit_year):
 
     for attribution_new in AttributionNew.objects.filter(
             learning_container_year=learning_unit_year.learning_container_year):
-
-        msg[attribution_new] = _(error_attribution) % {
-            'subtype': _str_partim_or_full(learning_unit_year),
-            'acronym': learning_unit_year.acronym,
-            'tutor': attribution_new.tutor,
-            'year': learning_unit_year.academic_year}
+        if _attribution_new_is_linked_to_learning_unit_year(attribution_new, learning_unit_year):
+            msg[attribution_new] = _(error_attribution) % {
+                'subtype': _str_partim_or_full(learning_unit_year),
+                'acronym': learning_unit_year.acronym,
+                'tutor': attribution_new.tutor,
+                'year': learning_unit_year.academic_year}
 
     return msg
 
+
+def _attribution_new_is_linked_to_learning_unit_year(attribution_new, learning_unit_year):
+    return LearningComponentYear.objects.filter(
+        attributionchargenew__attribution=attribution_new,
+        learningunitcomponent__learning_unit_year=learning_unit_year
+    ).exists()
 
 def _check_learning_unit_component_deletion(l_unit_component):
     msg = {}
