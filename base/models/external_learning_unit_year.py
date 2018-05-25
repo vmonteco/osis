@@ -35,8 +35,8 @@ from base.models.osis_model_admin import OsisModelAdmin
 class ExternalLearningUnitYearAdmin(OsisModelAdmin):
     list_display = ('external_id', 'external_acronym', 'external_credits', 'url', 'learning_unit_year', 'buyer',
                     "author", "date")
-    fieldsets = ((None, {'fields': ('external_acronym', 'external_credits', 'url', 'learning_unit_year', 'buyer', 'author'
-                                    )}),)
+    fieldsets = ((None, {'fields': ('external_acronym', 'external_credits', 'url', 'learning_unit_year', 'buyer',
+                                    'author')}),)
     raw_id_fields = ('learning_unit_year', 'buyer', 'author')
     search_fields = ['acronym', 'learning_unit_year__acronym', 'author']
 
@@ -54,7 +54,6 @@ class ExternalLearningUnitYear(models.Model):
 
     author = models.ForeignKey('Person', null=True)
     date = models.DateTimeField(auto_now=True)
-
 
     class Meta:
         unique_together = ('learning_unit_year', 'external_acronym',)
