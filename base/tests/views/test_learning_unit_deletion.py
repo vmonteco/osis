@@ -232,15 +232,16 @@ class LearningUnitDelete(TestCase):
 
     def test_delete_all_learning_units_year_case_success_have_attribution_new_without_charge(self):
         learning_unit_years = self.learning_unit_year_list
-        AttributionNewFactory(learning_container_year=learning_unit_years[1].learning_container_year)
+        ly1 = learning_unit_years[1]
+        AttributionNewFactory(learning_container_year=ly1.learning_container_year)
         request_factory = RequestFactory()
 
-        request = request_factory.post(reverse(delete_all_learning_units_year, args=[learning_unit_years[1].id]))
+        request = request_factory.post(reverse(delete_all_learning_units_year, args=[ly1.id]))
         request.user = self.user
         setattr(request, 'session', 'session')
         setattr(request, '_messages', FallbackStorage(request))
 
-        response = delete_all_learning_units_year(request, learning_unit_years[1].id)
+        response = delete_all_learning_units_year(request, ly1.id)
 
         msg_level = [m.level for m in get_messages(request)]
         msg = [m.message for m in get_messages(request)]
