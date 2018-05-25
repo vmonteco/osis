@@ -1,19 +1,26 @@
 import json
+import unittest
 
 from django.test import TestCase
-# Create your tests here.
+from prettyprinter import cpprint
 
 from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.education_group_year import EducationGroupYearFactory
 from cms.enums.entity_name import OFFER_YEAR
+from cms.models.translated_text_label import TranslatedTextLabel
 from cms.tests.factories.text_label import TextLabelFactory
-from cms.tests.factories.translated_text import TranslatedTextFactory
+from cms.tests.factories.translated_text import TranslatedTextFactory, TranslatedTextRandomFactory
 from cms.tests.factories.translated_text_label import TranslatedTextLabelFactory
 from webservices.tests.helper import Helper
 
 
+# Create your tests here.
+from webservices.views import get_translated_label_from_translated_text, convert_sections_list_of_dict_to_dict
+
+
 class CatalogOfferWebServiceTestCase(TestCase, Helper):
     URL_NAME = 'v0.1-ws_catalog_offer'
+    maxDiff = None
 
     def test_year_not_found(self):
         response = self._get_response(1990, 'fr', 'actu2m')
@@ -27,6 +34,7 @@ class CatalogOfferWebServiceTestCase(TestCase, Helper):
         response = self._get_response(2017, 'fr', 'XYZ')
         self.assertEqual(response.status_code, 404)
 
+    @unittest.skip(reason="Writing the new tests")
     def test_basic_education_group_year(self):
         academic_year = AcademicYearFactory()
         education_group_year = EducationGroupYearFactory(academic_year=academic_year)
@@ -102,3 +110,115 @@ class CatalogOfferWebServiceTestCase(TestCase, Helper):
 
     def test_education_group_year_with_translation_en(self):
         self._test_education_group_year_with_translation('en', 'en')
+
+    def test_education_group_year_endswith_2m(self):
+        iso_language, language = 'fr-be', 'fr'
+
+        education_group_year = EducationGroupYearFactory(acronym='ACTU2M')
+
+        common_education_group_year = EducationGroupYearFactory(
+            acronym='common',
+            academic_year=education_group_year.academic_year
+        )
+
+        common_text_label = TextLabelFactory(entity=OFFER_YEAR, label='finalites_didactiques')
+        common_translated_text_label = TranslatedTextLabelFactory(text_label=common_text_label, language=iso_language, label='Finalités Didactiques')
+
+        finalite_didactiques_translated_text = TranslatedTextRandomFactory(
+            language=iso_language,
+            text_label=common_text_label,
+            entity=OFFER_YEAR,
+            reference=common_education_group_year.id,
+            text='<tag>finalites didactiques</tag>'
+        )
+
+        response = self._get_response(education_group_year.academic_year.year, language, education_group_year.acronym)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content_type, 'application/json')
+        response_json = json.loads(response.content.decode('utf-8'))
+
+        self.maxDiff = None
+
+        response_sections = convert_sections_list_of_dict_to_dict(response_json.pop('sections', []))
+
+        self.assertDictEqual(response_json, {
+            'acronym': education_group_year.acronym,
+            'language': 'fr',
+            'title': education_group_year.title,
+            'year': education_group_year.academic_year.year,
+        })
+
+        sections = [{
+            'id': finalite_didactiques_translated_text.text_label.label.replace('_', '-') + '-commun',
+            'label': common_translated_text_label.label,
+            'content': finalite_didactiques_translated_text.text,
+        }]
+
+        sections = convert_sections_list_of_dict_to_dict(sections)
+
+        self.assertDictEqual(response_sections, sections)
+
+    def test_education_group_year_caap(self):
+        iso_language, language = 'fr-be', 'fr'
+
+        education_group_year = EducationGroupYearFactory(acronym='ACTU2M')
+
+        common_education_group_year = EducationGroupYearFactory(
+            acronym='common',
+            academic_year=education_group_year.academic_year
+        )
+
+        text_label = TextLabelFactory(entity=OFFER_YEAR, label='caap')
+        translated_text_label = TranslatedTextLabelFactory(text_label=text_label,
+                                                           language=iso_language,
+                                                           label='Caap')
+
+        common_translated_text = TranslatedTextRandomFactory(
+            language=iso_language,
+            text_label=text_label,
+            entity=OFFER_YEAR,
+            reference=common_education_group_year.id,
+        )
+
+        translated_text = TranslatedTextRandomFactory(
+            text_label=text_label,
+            entity=text_label.entity,
+            reference=education_group_year.id,
+            language=iso_language,
+        )
+
+        response = self._get_response(education_group_year.academic_year.year, language, education_group_year.acronym)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content_type, 'application/json')
+
+        response_json = json.loads(response.content.decode('utf-8'))
+
+        response_sections = convert_sections_list_of_dict_to_dict(response_json.pop('sections', []))
+
+        self.assertDictEqual(response_json, {
+            'acronym': education_group_year.acronym,
+            'language': 'fr',
+            'title': education_group_year.title,
+            'year': education_group_year.academic_year.year,
+        })
+
+        sections = [
+            {
+                'content': translated_text.text,
+                'id': translated_text.text_label.label,
+                'label': translated_text_label.label,
+            },
+            {
+                'content': common_translated_text.text,
+                'id': common_translated_text.text_label.label + '-commun',
+                'label': get_translated_label_from_translated_text(common_translated_text),
+            }
+        ]
+
+        sections = convert_sections_list_of_dict_to_dict(sections)
+
+        self.assertDictEqual(response_sections, sections)
+
+

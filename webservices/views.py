@@ -2,6 +2,7 @@ import collections
 
 import bs4
 from django.http import Http404
+from prettyprinter import cpprint
 from rest_framework.decorators import api_view, renderer_classes
 from rest_framework.generics import get_object_or_404
 from rest_framework.renderers import JSONRenderer
@@ -45,7 +46,8 @@ def get_common_education_group(academic_year, language, acronym):
         for translated_text in queryset.order_by('text_label__order'):
             label = translated_text.text_label.label
 
-            values[label] = translated_text.text
+            values[label] = translated_text
+
     return values
 
 
@@ -98,23 +100,76 @@ def to_int_or_404(year):
         raise Http404
 
 
+def convert_sections_to_list_of_dict(sections):
+    return [{
+        'id': key,
+        'label': value['label'],
+        'content': value['content']
+    } for key, value in sections.items()]
+
+
+def convert_sections_list_of_dict_to_dict(sections):
+    return {
+        item['id']: {
+            'label': item['label'],
+            'content': item['content']
+        }
+        for item in sections
+    }
+
+
 @api_view(['GET'])
 @renderer_classes((JSONRenderer,))
 @get_cleaned_parameters(type_acronym='acronym')
 def ws_catalog_offer(request, context):
+
+    # insert_missing_sections(common_terms, has_section, context)
+
+    # insert_common_sections(common_terms)
+    description = dict(context.description)
+
+    sections = compute_sections_for_offer(context)
+    description['sections'] = convert_sections_to_list_of_dict(sections)
+
+    return Response(description, content_type='application/json')
+
+
+def compute_sections_for_offer(context):
+    sections = {}
+
     common_terms = get_common_education_group(context.academic_year, context.language, 'common')
+    cpprint(common_terms)
 
-    has_section = collections.defaultdict(bool)
-
-    queryset = find_translated_texts_by_entity_and_language(context.education_group_year, ENTITY, context.language)
+    queryset = find_translated_texts_by_entity_and_language(
+        context.education_group_year,
+        ENTITY,
+        context.language
+    )
 
     for translated_text in queryset:
-        insert_section(common_terms, has_section, translated_text, context)
+        insert_section(sections, translated_text, context)
 
-    insert_missing_sections(common_terms, has_section, context)
+    for name in ('caap',):
+        if name in sections and name in common_terms:
+            term = common_terms[name]
+            common_name = '{name}-commun'.format(name=name)
+            sections[common_name] = {
+                'label': get_translated_label_from_translated_text(term),
+                'content': term.text,
+            }
 
-    return Response(context.description, content_type='application/json')
+    if context.acronym.lower().endswith('2m') and 'finalites_didactiques' in common_terms:
+        term = common_terms['finalites_didactiques']
+        sections['finalites-didactiques-commun'] = {
+            'label': get_translated_label_from_translated_text(term),
+            'content': term.text,
+        }
 
+    return sections
+
+
+def insert_common_sections(common_terms, context):
+    pass
 
 def insert_missing_sections(common_terms, has_section, context):
     section_append = context.description['sections'].append
@@ -142,7 +197,18 @@ def insert_missing_sections(common_terms, has_section, context):
         })
 
 
-def insert_section(common_terms, has_section, translated_text, context):
+def insert_section(sections, translated_text, context):
+    translated_label = get_label(context.translated_labels, translated_text)
+    name = translated_text.text_label.label
+    content = translated_text.text
+
+    sections[name] = {
+        'label': translated_label,
+        'content': content
+    }
+
+
+def insert_section_old(common_terms, has_section, translated_text, context):
     label = get_label(context.translated_labels, translated_text)
     name = translated_text.text_label.label
     content = translated_text.text
@@ -244,7 +310,7 @@ def ws_catalog_group(request, context):
                                                             context.language)
 
     for translated_text in queryset:
-        insert_section_group(section_append, translated_labels, translated_text)
+        insert_section_group(section_append, context.translated_labels, translated_text)
 
     return Response(context.description, content_type='application/json')
 
@@ -266,3 +332,12 @@ def get_title_of_education_group_year(education_group_year, iso_language):
     else:
         title = education_group_year.title_english
     return title
+
+
+def get_translated_label_from_translated_text(translated_text):
+    record = TranslatedTextLabel.objects.filter(text_label=translated_text.text_label).first()
+
+    if record:
+        return record.label
+    else:
+        return 'Unknown'
