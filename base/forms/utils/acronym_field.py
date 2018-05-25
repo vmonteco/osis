@@ -76,6 +76,7 @@ class AcronymField(forms.MultiValueField):
             forms.CharField(*args, max_length=max_length, **kwargs)
         ]
         super().__init__(list_fields, *args, **kwargs)
+        self.label = _("acronym")
 
     def compress(self, data_list):
         return ''.join(data_list).upper()
@@ -126,6 +127,7 @@ class PartimAcronymField(forms.MultiValueField):
         kwargs['require_all_fields'] = kwargs.pop('required', True)
         super().__init__(list_fields, *args, **kwargs)
         self.apply_attrs_to_widgets('disabled', disabled)
+        self.label = _("acronym")
 
     def apply_attrs_to_widgets(self, property, values):
         for index, subwidget in enumerate(self.widget.widgets):
