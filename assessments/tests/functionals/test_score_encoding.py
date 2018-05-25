@@ -9,7 +9,6 @@ from urllib import request
 
 import faker
 import magic
-import parse
 import pendulum
 from django.conf import settings
 from django.contrib.auth.models import Group, Permission
@@ -74,7 +73,7 @@ class SeleniumTestCase(StaticLiveServerTestCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.sel_settings = settings.SELENIUM_SETTINGS
-        print("### Virtual Display : {}".format(cls.sel_settings.get('SELENIUM_HEADLESS')))
+        print("### Virtual Display : {}".format(cls.sel_settings.get('VIRTUAL_DISPLAY')))
         cls.screen_size = (cls.sel_settings.get('SCREEN_WIDTH'), cls.sel_settings.get('SCREEN_HIGH'))
         cls.full_path_temp_dir = tempfile.mkdtemp('osis-selenium')
 
@@ -96,6 +95,8 @@ class SeleniumTestCase(StaticLiveServerTestCase):
 
         if cls.sel_settings.get('WEB_BROWSER').upper() == 'CHROME':
             options = webdriver.ChromeOptions()
+            if cls.sel_settings.get('VIRTUAL_DISPLAY'):
+                options.add_argument('-headless')
             options.add_experimental_option('prefs', {
                  'download.default_directory': cls.full_path_temp_dir,
                  'download.prompt_for_download': False,
@@ -111,8 +112,6 @@ class SeleniumTestCase(StaticLiveServerTestCase):
     def tearDownClass(cls):
         shutil.rmtree(cls.full_path_temp_dir)
         cls.driver.quit()
-        if cls.sel_settings.get('VIRTUAL_DISPLAY'):
-            cls.display.stop()
 
         super().tearDownClass()
 
@@ -201,8 +200,6 @@ class FunctionalTest(SeleniumTestCase, BusinessMixin):
 
         self.assertElementTextEqual('ac_end_date', new_date_str)
 
-
-# class Scenario3FunctionalTest(SeleniumTestCase, BusinessMixin):
     def test_03(self):
         user = self.create_user()
         self.add_group(user, 'program_managers')
@@ -232,17 +229,12 @@ class FunctionalTest(SeleniumTestCase, BusinessMixin):
 
         warning_messages = self.driver.find_element_by_id('pnl_warning_messages')
 
-        result = parse.parse(
-            "La période d'encodage des notes pour la session {session:d} sera ouverte à partir du {date}",
-            warning_messages.text
+        self.assertEqual(
+            warning_messages.text,
+            "La période d'encodage des notes pour la session {} sera ouverte à partir du {}".
+                format(str(sec.number_session), academic_calendar.start_date.strftime('%d/%m/%Y'))
         )
 
-        self.assertIsNotNone(result)
-
-        self.assertEqual(result['date'], academic_calendar.start_date.strftime('%d/%m/%Y'))
-
-
-# class Scenario4FunctionalTest(SeleniumTestCase, BusinessMixin):
     def test_04(self):
         user = self.create_user()
         self.add_group(user, 'program_managers')
@@ -434,8 +426,6 @@ class FunctionalTest(SeleniumTestCase, BusinessMixin):
         for enrollment_id in note_enrollments:
             self.assertElementTextEqual('enrollment_note_{}'.format(enrollment_id), '-')
 
-
-# class Scenario5FunctionalTest(SeleniumTestCase, BusinessMixin):
     def test_05(self):
         user = self.create_user()
         self.add_group(user, 'program_managers', 'tutors')
@@ -494,7 +484,6 @@ class FunctionalTest(SeleniumTestCase, BusinessMixin):
         offer_enrollment4 = OfferEnrollmentFactory(offer_year=offers['ECON2M1'], student=student1)
         offer_enrollment5 = OfferEnrollmentFactory(offer_year=offers['ECON2M1'], student=student2)
 
-        # unité d'enseignement = learning_unit_year
         learning_unit = LearningUnitFactory()
         learning_unit_year_1 = LearningUnitYearFactory(academic_year=academic_year, learning_unit=learning_unit)
         tutor = TutorFactory(person=person)
@@ -606,7 +595,6 @@ class FunctionalTest(SeleniumTestCase, BusinessMixin):
 
             self.assertElementTextEqual(element_id, str(value))
 
-
     def update_xlsx(self, filename, exam_enrollments):
         fake = faker.Faker()
 
@@ -649,8 +637,6 @@ class FunctionalTest(SeleniumTestCase, BusinessMixin):
         wb.save(filename=filename)
         return enrollments
 
-
-# class Scenario6FunctionalTest(SeleniumTestCase, BusinessMixin):
     def test_06(self):
         user = self.create_user()
         self.add_group(user, 'program_managers', 'tutors')
@@ -831,7 +817,6 @@ class FunctionalTest(SeleniumTestCase, BusinessMixin):
         for enrollment_id, value in note_enrollments.items():
             self.assertElementTextEqualInt('enrollment_note_{}'.format(enrollment_id), value + 2)
 
-# class Scenario7FunctionalTest(SeleniumTestCase, BusinessMixin):
     def test_07(self):
         user = self.create_user()
         self.add_group(user, 'program_managers', 'tutors')
@@ -991,6 +976,7 @@ class FunctionalTest(SeleniumTestCase, BusinessMixin):
 
         mimetype = magic.from_file(full_path, mime=True)
         self.assertEqual(mimetype, 'application/pdf')
+
 
 class Scenario7FunctionalTest(SeleniumTestCase, BusinessMixin):
     def test(self):
