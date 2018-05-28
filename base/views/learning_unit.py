@@ -46,13 +46,14 @@ from base.business.learning_units import perms as business_perms
 from base.business.learning_units.perms import learning_unit_year_permissions, learning_unit_proposal_permissions, \
     can_update_learning_achievement
 from base.forms.learning_class import LearningClassEditForm
+from base.forms.learning_unit.learning_unit_create_2 import FullForm, PartimForm
 from base.forms.learning_unit.learning_unit_postponement import LearningUnitPostponementForm
 from base.forms.learning_unit_component import LearningUnitComponentEditForm
 from base.forms.learning_unit_pedagogy import LearningUnitPedagogyEditForm
 from base.forms.learning_unit_specifications import LearningUnitSpecificationsForm, LearningUnitSpecificationsEditForm
 from base.models import proposal_learning_unit, education_group_year
 from base.models.academic_year import AcademicYear
-from base.models.enums.learning_container_year_types import INTERNSHIP
+from base.models.enums import learning_unit_year_subtypes
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
 from base.views.learning_units import perms
@@ -70,7 +71,8 @@ def learning_unit_identification(request, learning_unit_year_id):
 
 
 def get_common_context_learning_unit_year(learning_unit_year_id, person):
-    learning_unit_year = get_object_or_404(LearningUnitYear, pk=learning_unit_year_id)
+    query_set = LearningUnitYear.objects.all().select_related('learning_unit', 'learning_container_year')
+    learning_unit_year = get_object_or_404(query_set, pk=learning_unit_year_id)
     return {
         'learning_unit_year': learning_unit_year,
         'current_academic_year': mdl.academic_year.current_academic_year(),
@@ -328,6 +330,7 @@ def get_learning_unit_identification_context(learning_unit_year_id, person):
     context = get_common_context_learning_unit_year(learning_unit_year_id, person)
 
     learning_unit_year = context['learning_unit_year']
+    set_warnings_context(context, learning_unit_year, person)
     proposal = proposal_learning_unit.find_by_learning_unit(learning_unit_year.learning_unit)
 
     context['learning_container_year_partims'] = learning_unit_year.get_partims_related()
@@ -346,7 +349,6 @@ def get_learning_unit_identification_context(learning_unit_year_id, person):
     context['differences'] = get_difference_of_proposal(proposal.initial_data, learning_unit_year) \
         if proposal and proposal.learning_unit_year == learning_unit_year \
         else {}
-    get_warnings_messages(context, learning_unit_year)
 
     # append permissions
     context.update(learning_unit_year_permissions(learning_unit_year, person))
@@ -355,11 +357,12 @@ def get_learning_unit_identification_context(learning_unit_year_id, person):
     return context
 
 
-def get_warnings_messages(context, learning_unit_year):
-    warnings = []
-    if learning_unit_year.learning_container_year.container_type == INTERNSHIP and \
-            not learning_unit_year.internship_subtype:
-        warnings.append(_('missing_internship_subtype'))
-    if learning_unit_year.parent and (not learning_unit_year.parent.status and learning_unit_year.status):
-        warnings.append(_('different_status_with_parent'))
-    context['warnings'] = warnings
+def set_warnings_context(context, learning_unit_year, person):
+    if learning_unit_year.subtype == learning_unit_year_subtypes.FULL:
+        context['warnings'] = FullForm(person, learning_unit_year.academic_year,
+                                       learning_unit_instance=learning_unit_year.learning_unit).warnings
+    else:
+        context['warnings'] = PartimForm(person,
+                                         learning_unit_full_instance=learning_unit_year.parent.learning_unit,
+                                         academic_year=learning_unit_year.academic_year,
+                                         learning_unit_instance=learning_unit_year.learning_unit).warnings
