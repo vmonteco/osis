@@ -432,19 +432,16 @@ class ExternalLearningUnitYearForm(LearningUnitYearForm):
         return learning_units
 
     def clean_city(self):
-        data_cleaned = self.cleaned_data.get('city')
-        if data_cleaned == SearchForm.NO_SELECTION:
-            return None
-        return data_cleaned
+        return _get_value(self.cleaned_data.get('city'))
 
     def clean_country(self):
-        data_cleaned = self.cleaned_data.get('country')
-        if data_cleaned == SearchForm.NO_SELECTION:
-            return None
-        return data_cleaned
+        return _get_value(self.cleaned_data.get('country'))
 
     def clean_campus(self):
-        data_cleaned = self.cleaned_data.get('campus')
-        if data_cleaned == SearchForm.NO_SELECTION:
-            return None
-        return data_cleaned
+        return _get_value(self.cleaned_data.get('campus'))
+
+
+def _get_value(data_cleaned):
+    if data_cleaned == SearchForm.NO_SELECTION:
+        return None
+    return data_cleaned
