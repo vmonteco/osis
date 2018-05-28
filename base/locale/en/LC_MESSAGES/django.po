@@ -2940,5 +2940,8 @@ msgstr "List of activities"
 msgid "learning_units_filename"
 msgstr "learning_units"
 
+msgid "warnigns_detected"
+msgstr "We detected inconsistencies in the following data :"
+
 msgid "external_search"
 msgstr "External - Search"
