@@ -554,6 +554,7 @@ class LearningUnitViewTestCase(TestCase):
                                                      subtype=learning_unit_year_subtypes.FULL)
         entity_container = EntityContainerYearFactory(learning_container_year=learning_container_year,
                                                       type=entity_container_year_link_type.REQUIREMENT_ENTITY)
+        EntityVersionFactory(entity=entity_container.entity)
 
         learning_unit_year.learning_unit.end_year = None
         learning_unit_year.learning_unit.save()
@@ -577,7 +578,7 @@ class LearningUnitViewTestCase(TestCase):
                                                      subtype=learning_unit_year_subtypes.PARTIM)
         entity_container = EntityContainerYearFactory(learning_container_year=learning_container_year,
                                                       type=entity_container_year_link_type.REQUIREMENT_ENTITY)
-
+        EntityVersionFactory(entity=entity_container.entity)
         learning_unit_year.learning_unit.end_year = None
         learning_unit_year.learning_unit.save()
 
@@ -599,7 +600,7 @@ class LearningUnitViewTestCase(TestCase):
                                                      subtype=learning_unit_year_subtypes.FULL)
         entity_container = EntityContainerYearFactory(learning_container_year=learning_container_year,
                                                       type=entity_container_year_link_type.REQUIREMENT_ENTITY)
-
+        EntityVersionFactory(entity=entity_container.entity)
         learning_unit_year.learning_unit.end_year = None
         learning_unit_year.learning_unit.save()
 
