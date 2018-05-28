@@ -51,7 +51,6 @@ class ExternalLearningUnitYearFactory(DjangoModelFactory):
     external_credits = factory.fuzzy.FuzzyDecimal(MINIMUM_CREDITS, MAXIMUM_CREDITS)
 
     learning_unit_year = factory.SubFactory(LearningUnitYearFactory)
-    buyer = factory.SubFactory(EntityFactory)
     author = factory.SubFactory(PersonFactory)
 
 
