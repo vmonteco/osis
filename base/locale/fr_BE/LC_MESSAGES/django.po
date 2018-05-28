@@ -2942,4 +2942,3 @@ msgstr "Entité demandeuse"
 
 msgid "local_credits"
 msgstr "Crédits locaux"
-

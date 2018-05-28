@@ -27,6 +27,7 @@ from abc import ABCMeta
 from collections import OrderedDict
 
 from django.db import transaction
+from django.http import QueryDict
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
@@ -36,8 +37,8 @@ from base.forms.learning_unit.learning_unit_create import LearningUnitModelForm,
 from base.forms.utils.acronym_field import split_acronym
 from base.models import learning_unit_year
 from base.models.campus import Campus
-from base.models.enums import learning_unit_year_subtypes
 from base.models.enums import learning_container_year_types
+from base.models.enums import learning_unit_year_subtypes
 from base.models.learning_unit import LearningUnit
 from reference.models import language
 
@@ -318,7 +319,9 @@ class FullForm(LearningUnitBaseForm):
 
 
 def merge_data(data, inherit_lu_values):
-    return merge_two_dicts(dict(data), inherit_lu_values) if data else None
+    if isinstance(data, QueryDict):
+        data = data.dict()
+    return merge_two_dicts(data, inherit_lu_values) if data else None
 
 
 class PartimForm(LearningUnitBaseForm):
