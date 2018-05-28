@@ -30,7 +30,8 @@ from django.db import transaction
 from django.http import QueryDict
 from django.utils.translation import ugettext_lazy as _
 
-from base.forms.learning_unit.learning_unit_create_2 import PartimForm, FullForm
+from base.forms.learning_unit.learning_unit_create_2 import FullForm
+from base.forms.learning_unit.learning_unit_partim import PartimForm
 from base.models import academic_year, learning_unit_year
 from base.models.enums import learning_unit_year_subtypes
 from base.models.learning_unit import LearningUnit
@@ -70,6 +71,11 @@ class LearningUnitPostponementForm:
         self.start_postponement = start_postponement
         self.person = person
         self.check_consistency = check_consistency
+
+        # end_year can be given by the request (eg: for partims)
+        end_year = data and data.get('end_year')
+        if end_year:
+            end_postponement = academic_year.find_academic_year_by_year(end_year)
 
         if end_postponement is None and self.learning_unit_instance and self.learning_unit_instance.end_year:
             end_postponement = academic_year.find_academic_year_by_year(self.learning_unit_instance.end_year)

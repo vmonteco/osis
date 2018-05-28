@@ -46,18 +46,15 @@ from base.business.learning_units import perms as business_perms
 from base.business.learning_units.perms import learning_unit_year_permissions, learning_unit_proposal_permissions, \
     can_update_learning_achievement
 from base.forms.learning_class import LearningClassEditForm
-from base.forms.learning_unit.learning_unit_create_2 import FullForm, PartimForm
-from base.forms.learning_unit.learning_unit_postponement import LearningUnitPostponementForm
+from base.forms.learning_unit.learning_unit_create_2 import FullForm
+from base.forms.learning_unit.learning_unit_partim import PartimForm
 from base.forms.learning_unit_component import LearningUnitComponentEditForm
 from base.forms.learning_unit_pedagogy import LearningUnitPedagogyEditForm
 from base.forms.learning_unit_specifications import LearningUnitSpecificationsForm, LearningUnitSpecificationsEditForm
 from base.models import proposal_learning_unit, education_group_year
-from base.models.academic_year import AcademicYear
 from base.models.enums import learning_unit_year_subtypes
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
-from base.views.learning_units import perms
-from base.views.learning_units.common import show_success_learning_unit_year_creation_message
 from cms.models import text_label
 from . import layout
 
@@ -276,54 +273,10 @@ def learning_class_year_edit(request, learning_unit_year_id):
 
 
 @login_required
-@permission_required('base.can_create_learningunit', raise_exception=True)
-def learning_unit_create(request, academic_year_id):
-    person = get_object_or_404(Person, user=request.user)
-    if request.POST.get('academic_year'):
-        academic_year_id = request.POST.get('academic_year')
-
-    academic_year = get_object_or_404(AcademicYear, pk=academic_year_id)
-    postponement_form = LearningUnitPostponementForm(
-        person=person,
-        start_postponement=academic_year,
-        data=request.POST or None
-    )
-    if postponement_form.is_valid():
-        new_luys = postponement_form.save()
-        for luy in new_luys:
-            show_success_learning_unit_year_creation_message(request, luy, 'learning_unit_successfuly_created')
-        return redirect('learning_unit', learning_unit_year_id=new_luys[0].pk)
-    return render(request, "learning_unit/simple/creation.html", postponement_form.get_context())
-
-
-@login_required
 def outside_period(request):
     text = _('summary_responsible_denied')
     messages.add_message(request, messages.WARNING, "%s" % text)
     return render(request, "access_denied.html")
-
-
-@login_required
-@permission_required('base.can_create_learningunit', raise_exception=True)
-@require_http_methods(["POST", "GET"])
-@perms.can_create_partim
-def create_partim_form(request, learning_unit_year_id):
-    person = get_object_or_404(Person, user=request.user)
-    learning_unit_year_full = get_object_or_404(LearningUnitYear, pk=learning_unit_year_id)
-
-    postponement_form = LearningUnitPostponementForm(
-        person=person,
-        learning_unit_full_instance=learning_unit_year_full.learning_unit,
-        start_postponement=learning_unit_year_full.academic_year,
-        data=request.POST or None
-    )
-
-    if postponement_form.is_valid():
-        new_luys = postponement_form.save()
-        for luy in new_luys:
-            show_success_learning_unit_year_creation_message(request, luy, 'learning_unit_successfuly_created')
-        return redirect('learning_unit', learning_unit_year_id=new_luys[0].pk)
-    return render(request, "learning_unit/simple/creation_partim.html", postponement_form.get_context())
 
 
 def get_learning_unit_identification_context(learning_unit_year_id, person):
@@ -355,7 +308,6 @@ def get_learning_unit_identification_context(learning_unit_year_id, person):
     context.update(learning_unit_proposal_permissions(proposal, person, learning_unit_year))
 
     return context
-
 
 def set_warnings_context(context, learning_unit_year, person):
     if learning_unit_year.subtype == learning_unit_year_subtypes.FULL:
