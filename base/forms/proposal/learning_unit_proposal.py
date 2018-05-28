@@ -42,10 +42,10 @@ from base.models.proposal_learning_unit import ProposalLearningUnit
 
 
 def _get_entity_folder_id_ordered_by_acronym():
-    entities = mdl.proposal_learnSearchForm.ALL_LABELing_unit.find_distinct_folder_entities()
+    entities = mdl.proposal_learning_unit.find_distinct_folder_entities()
     entities_sorted_by_acronym = sorted(list(entities), key=lambda t: t.most_recent_acronym)
 
-    return [] + [(ent.pk, ent.most_recent_acronym) for ent in entities_sorted_by_acronym]
+    return [SearchForm.ALL_LABEL] + [(ent.pk, ent.most_recent_acronym) for ent in entities_sorted_by_acronym]
 
 
 def _get_sorted_choices(tuple_of_choices):
