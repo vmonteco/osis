@@ -71,7 +71,7 @@ class LearningUnitViewTestCase(TestCase):
         self.entity = EntityFactory(organization=self.organization)
         self.entity_version = EntityVersionFactory(entity=self.entity, entity_type=entity_type.SCHOOL,
                                                    start_date=today.replace(year=1900),
-                                                   end_date=self.academic_years[-1].end_date)
+                                                   end_date=None)
 
         PersonEntityFactory(person=self.faculty_person, entity=self.entity)
         PersonEntityFactory(person=self.person, entity=self.entity)
@@ -91,13 +91,9 @@ class LearningUnitViewTestCase(TestCase):
             "periodicity": learning_unit_periodicity.ANNUAL,
             "entity": self.entity_version.id,
             "folder_id": 1,
-            'entitycontaineryear_set-0-entity': self.entity_version.id,
-            'entitycontaineryear_set-1-entity': self.entity_version.id,
-            'entitycontaineryear_set-2-entity': '',
-            'entitycontaineryear_set-INITIAL_FORMS': '0',
-            'entitycontaineryear_set-MAX_NUM_FORMS': '4',
-            'entitycontaineryear_set-MIN_NUM_FORMS': '3',
-            'entitycontaineryear_set-TOTAL_FORMS': '4',
+            'requirement_entity-entity': self.entity_version.id,
+            'allocation_entity-entity': self.entity_version.id,
+            'additional_requirement_entity_1-entity': '',
         }
 
     def test_get_proposal_learning_unit_creation_form(self):

@@ -33,12 +33,13 @@ from base.models.enums.learning_unit_year_subtypes import PARTIM, FULL
 from base.models.proposal_learning_unit import ProposalLearningUnit
 from osis_common.models.serializable_model import SerializableModelAdmin, SerializableModel
 
-LEARNING_UNIT_ACRONYM_REGEX_BASE = "^[BLMW][A-Z]{2,4}\d{4}"
+LEARNING_UNIT_ACRONYM_REGEX_BASE = "^[BLMWX][A-Z]{2,4}\d{4}"
 LETTER_OR_DIGIT = "[A-Z0-9]"
 STRING_END = "$"
 LEARNING_UNIT_ACRONYM_REGEX_ALL = LEARNING_UNIT_ACRONYM_REGEX_BASE + LETTER_OR_DIGIT + "{0,1}" + STRING_END
 LEARNING_UNIT_ACRONYM_REGEX_FULL = LEARNING_UNIT_ACRONYM_REGEX_BASE + STRING_END
 LEARNING_UNIT_ACRONYM_REGEX_PARTIM = LEARNING_UNIT_ACRONYM_REGEX_BASE + LETTER_OR_DIGIT + STRING_END
+LEARNING_UNIT_ACRONYM_REGEX_EXTERNAL = "^X[A-Z]{2,4}\d{4}$"
 
 REGEX_BY_SUBTYPE = {
     PARTIM: LEARNING_UNIT_ACRONYM_REGEX_PARTIM,
@@ -114,6 +115,7 @@ class LearningUnit(SerializableModel):
 
     @property
     def parent(self):
+        # TODO :: rename "parent" into "learning_unit_full"
         # TODO The subtype must move in learning_unit model !
         luy = self.learningunityear_set.last()
         if luy and luy.subtype == PARTIM:
@@ -124,6 +126,7 @@ class LearningUnit(SerializableModel):
 
     @property
     def children(self):
+        # TODO :: rename "children" into "partims"
         # TODO The subtype must move in learning_unit model !
         luy = self.learningunityear_set.last()
         if luy and luy.subtype == FULL:

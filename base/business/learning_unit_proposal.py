@@ -51,18 +51,17 @@ NO_PREVIOUS_VALUE = '-'
 VALUES_WHICH_NEED_TRANSLATION = ["periodicity", "container_type", "internship_subtype"]
 LABEL_ACTIVE = _('active')
 LABEL_INACTIVE = _('inactive')
-INITIAL_DATA_FIELDS = {'learning_container_year': ["id", "acronym", "common_title", "common_title_english",
-                                                   "container_type", "campus", "language", "in_charge"],
+INITIAL_DATA_FIELDS = {'learning_container_year': ["id", "acronym", "common_title", "container_type",
+                                                   "campus", "language", "in_charge"],
                        'learning_unit': ["id", "periodicity", "end_year"],
-                       'learning_unit_year': ["id", "acronym", "specific_title", "specific_title_english",
-                                              "internship_subtype", "status", "credits"]
+                       'learning_unit_year': ["id", "acronym", "specific_title", "internship_subtype", "credits"]
                        }
 
 
-def compute_proposal_type(proposal_learning_unit_year):
+def compute_proposal_type(proposal_learning_unit_year, learning_unit_year):
     if proposal_learning_unit_year.type in [ProposalType.CREATION.name, ProposalType.SUPPRESSION.name]:
         return proposal_learning_unit_year.type
-    differences = get_difference_of_proposal(proposal_learning_unit_year)
+    differences = get_difference_of_proposal(proposal_learning_unit_year.initial_data, learning_unit_year)
     if differences.get('acronym') and len(differences) == 1:
         return ProposalType.TRANSFORMATION.name
     elif differences.get('acronym'):
@@ -119,9 +118,8 @@ def delete_learning_unit_proposal(learning_unit_proposal):
         lu.delete()
 
 
-def get_difference_of_proposal(learning_unit_yr_proposal):
-    initial_data = learning_unit_yr_proposal.initial_data
-    actual_data = copy_learning_unit_data(learning_unit_yr_proposal.learning_unit_year)
+def get_difference_of_proposal(initial_data, learning_unit_year):
+    actual_data = copy_learning_unit_data(learning_unit_year)
     differences = {}
     for model in ['learning_unit', 'learning_unit_year', 'learning_container_year', 'entities']:
         initial_data_by_model = initial_data.get(model)

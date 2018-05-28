@@ -37,8 +37,6 @@ function showInternshipSubtype(){
             $('#id_internship_subtype')[0].selectedIndex = 0;
             $('#lbl_internship_subtype_error').empty(); // Remove error message if exist
             labelElem.text(labelElem.text().replace('*','')) // Remove asterix in order to indicate field not required
-        } else {
-             labelElem.append('*'); // Add asterix in order to indicate field required
         }
     }
 }
@@ -145,12 +143,15 @@ $(document).ready(function() {
     });
 
     showInternshipSubtype();
-    document.getElementById('id_additional_requirement_entity_1').disabled = !isLearningUnitSubtypeFull()
-        || isValueEmpty('id_requirement_entity')
-        || isDisabledField('id_requirement_entity');
-    document.getElementById('id_additional_requirement_entity_2').disabled = !isLearningUnitSubtypeFull()
-        || isValueEmpty('id_additional_requirement_entity_1')
-        || isDisabledField('id_additional_requirement_entity_1');
+
+    if(document.getElementById('id_container_type').value !== 'EXTERNAL'){
+        document.getElementById('id_additional_requirement_entity_1').disabled = !isLearningUnitSubtypeFull()
+            || isValueEmpty('id_requirement_entity')
+            || isDisabledField('id_requirement_entity');
+        document.getElementById('id_additional_requirement_entity_2').disabled = !isLearningUnitSubtypeFull()
+            || isValueEmpty('id_additional_requirement_entity_1')
+            || isDisabledField('id_additional_requirement_entity_1');
+    }
 
     $('#id_acronym_0').change(validate_acronym);
     $('#id_acronym_1').change(validate_acronym);
@@ -165,7 +166,7 @@ $(document).ready(function() {
         return window.valid_acronym;
     });
 
-    $('#learning_unit_year_add').click(function() {
+    $("button[name='learning_unit_year_add']").click(function() {
         if(window.acronym_already_used){
             $form = $("#LearningUnitYearForm");
             $form.validate();

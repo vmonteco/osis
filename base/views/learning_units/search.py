@@ -23,6 +23,9 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+import collections
+import itertools
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.messages import WARNING
@@ -31,6 +34,7 @@ from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from attribution.business.xls_build import create_xls_attribution
+from base.utils.cache import cache_filter
 from base.business.learning_unit import create_xls
 from base.business.proposal_xls import create_xls_proposal
 from base.forms.common import TooManyResultsException
@@ -85,24 +89,28 @@ def learning_units_search(request, search_type):
 
 @login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
+@cache_filter()
 def learning_units(request):
     return learning_units_search(request, SIMPLE_SEARCH)
 
 
 @login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
+@cache_filter()
 def learning_units_service_course(request):
     return learning_units_search(request, SERVICE_COURSES_SEARCH)
 
 
 @login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
+@cache_filter()
 def learning_units_borrowed_course(request):
     return learning_units_search(request, BORROWED_COURSE)
 
 
 @login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
+@cache_filter()
 def learning_units_proposal_search(request):
     search_form = LearningUnitProposalForm(request.GET or None)
     user_person = get_object_or_404(Person, user=request.user)
@@ -159,31 +167,13 @@ def apply_action_on_proposals(proposals, author, post_data, research_criteria):
 
 
 def _get_filter(form, search_type):
-    form_data = form.cleaned_data
-
-    filter_data = {
-        form[key].label: _get_filter_value(form, key, value)
-        for key, value in form_data.items()
-        if value
-        }
-
-    if search_type:
-        filter_data.update({_('search_type'): _get_search_type_label(search_type)})
-    return filter_data
-
-
-def _get_filter_value(form, key, value):
-    value_translated = value
-    if form[key].field.__class__.__name__ == 'ChoiceField' and form[key].field.choices:
-        value_translated = dict(form.fields[key].choices)[value]
-    return value_translated
+    criterias = itertools.chain([(_('search_type'), _get_search_type_label(search_type))], form.get_research_criteria())
+    return collections.OrderedDict(criterias)
 
 
 def _get_search_type_label(search_type):
-    if search_type == PROPOSAL_SEARCH:
-        return _('proposals_search')
-    if search_type == SERVICE_COURSES_SEARCH:
-        return _('service_course_search')
-    if search_type == BORROWED_COURSE:
-        return _('borrowed_course_search')
-    return _('activity_search')
+    return {
+        PROPOSAL_SEARCH: _('proposals_search'),
+        SERVICE_COURSES_SEARCH: _('service_course_search'),
+        BORROWED_COURSE: _('borrowed_course_search')
+    }.get(search_type, _('activity_search'))
