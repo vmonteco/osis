@@ -186,11 +186,11 @@ def _get_search_type_label(search_type):
 def learning_units_external_search(request):
     search_form = ExternalLearningUnitYearForm(request.GET or None)
     user_person = get_object_or_404(Person, user=request.user)
-    learning_units = []
+    external_learning_units = []
     try:
         if search_form.is_valid():
-            learning_units = search_form.get_learning_units()
-            check_if_display_message(request, learning_units)
+            external_learning_units = search_form.get_learning_units()
+            check_if_display_message(request, external_learning_units)
     except TooManyResultsException:
         display_error_messages(request, 'too_many_results')
 
@@ -203,7 +203,7 @@ def learning_units_external_search(request):
         'current_academic_year': current_academic_year(),
         'experimental_phase': True,
         'search_type': EXTERNAL_SEARCH,
-        'learning_units': learning_units,
+        'learning_units': external_learning_units,
         'is_faculty_manager': user_person.is_faculty_manager()
     }
     return layout.render(request, "learning_units.html", context)
