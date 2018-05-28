@@ -31,6 +31,7 @@ from django.utils.translation import ugettext_lazy as _
 from base.models.learning_unit_year import MINIMUM_CREDITS, MAXIMUM_CREDITS
 from base.models.osis_model_admin import OsisModelAdmin
 from django.db.models import Q
+from base.models.organization_address import OrganizationAddress
 
 
 class ExternalLearningUnitYearAdmin(OsisModelAdmin):
@@ -63,22 +64,40 @@ class ExternalLearningUnitYear(models.Model):
         return u"%s" % self.external_acronym
 
 
-def search(academic_year_id=None, code_local=None, learning_unit=None,
-           title=None,  *args, **kwargs):
+def search(academic_year_id=None, acronym=None, title=None, country=None, city=None, campus=None,  *args, **kwargs):
+
     queryset = ExternalLearningUnitYear.objects
-    print(academic_year_id)
-    print(code_local)
+
     if academic_year_id:
         queryset = queryset.filter(learning_unit_year__academic_year=academic_year_id)
 
-    if code_local:
-        queryset = queryset.filter(external_acronym__icontains=external_acronym)
-
-    if learning_unit:
-        queryset = queryset.filter(learning_unit_year__learning_unit=learning_unit)
+    if acronym:
+        queryset = queryset.filter(external_acronym__icontains=acronym)
 
     if title:
         queryset = queryset. \
-            filter(Q(learning_unit_year__specific_title__icontains=title) | Q(learning_unit_year__learning_container_year__common_title__icontains=title))
+            filter(Q(learning_unit_year__specific_title__icontains=title) |
+                   Q(learning_unit_year__learning_container_year__common_title__icontains=title))
+
+    if campus:
+        queryset = queryset.filter(learning_unit_year__learning_container_year__campus=campus)
+    else:
+        organization_ids = None
+        if city:
+            organization_ids = _get_organization_ids(OrganizationAddress.objects.filter(city=city))
+        else:
+            if country:
+                organization_ids = _get_organization_ids(OrganizationAddress.objects.filter(country=country))
+        if organization_ids:
+            queryset = queryset\
+                .filter(learning_unit_year__learning_container_year__campus__organization__id__in=organization_ids)
 
     return queryset
+
+
+def _get_organization_ids(organization_addresses):
+    organizations = []
+    for organization_adr in organization_addresses:
+        if organization_adr.organization not in organizations:
+            organizations.append(organization_adr.organization.id)
+    return organizations

@@ -42,10 +42,10 @@ from base.models.proposal_learning_unit import ProposalLearningUnit
 
 
 def _get_entity_folder_id_ordered_by_acronym():
-    entities = mdl.proposal_learning_unit.find_distinct_folder_entities()
+    entities = mdl.proposal_learnSearchForm.ALL_LABELing_unit.find_distinct_folder_entities()
     entities_sorted_by_acronym = sorted(list(entities), key=lambda t: t.most_recent_acronym)
 
-    return [SearchForm.ALL_LABEL] + [(ent.pk, ent.most_recent_acronym) for ent in entities_sorted_by_acronym]
+    return [] + [(ent.pk, ent.most_recent_acronym) for ent in entities_sorted_by_acronym]
 
 
 def _get_sorted_choices(tuple_of_choices):
@@ -84,14 +84,6 @@ class LearningUnitProposalForm(SearchForm):
             self.add_error(None, _('minimum_one_criteria'))
             return False
         return True
-
-    def _has_criteria(self):
-        criteria_present = False
-        for name, field in self.fields.items():
-            if self.cleaned_data[name]:
-                criteria_present = True
-                break
-        return criteria_present
 
     def clean(self):
         if self.cleaned_data \

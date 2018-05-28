@@ -23,34 +23,27 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.db import models
 
-from base.models.osis_model_admin import OsisModelAdmin
+from django.http import JsonResponse
 
-
-class OrganizationAddressAdmin(OsisModelAdmin):
-    list_display = ('organization', 'label', 'location', 'postal_code', 'city', 'country')
-
-
-class OrganizationAddress(models.Model):
-    external_id = models.CharField(max_length=100, blank=True, null=True)
-    changed = models.DateTimeField(null=True, auto_now=True)
-    organization = models.ForeignKey('Organization')
-    label = models.CharField(max_length=20)
-    location = models.CharField(max_length=255)
-    postal_code = models.CharField(max_length=20, blank=True, null=True)
-    city = models.CharField(max_length=255)
-    country = models.ForeignKey('reference.Country')
+from base.models.campus import Campus
+from base.models.organization_address import find_distinct_by_country
+from osis_common.decorators.ajax import ajax_required
 
 
-def find_by_organization(organization):
-    return OrganizationAddress.objects.filter(organization=organization).order_by('label')
+@ajax_required
+def filter_cities_by_country(request):
+    """ Ajax request to filter the cities choice field """
+    country = request.GET.get('country')
+    cities = find_distinct_by_country(country)
+    return JsonResponse(list(cities), safe=False)
 
 
-def find_by_id(organization_address_id):
-    return OrganizationAddress.objects.get(pk=organization_address_id)
-
-
-def find_distinct_by_country(a_country):
-    return OrganizationAddress.objects.filter(country=a_country).distinct('city').order_by('city').values('city')
-
+@ajax_required
+def filter_campus_by_city(request):
+    """ Ajax request to filter the campus choice field """
+    city = request.GET.get('city')
+    campuses = Campus.objects.filter(
+        organization__organizationaddress__city=city
+    ).distinct('organization__name').order_by('organization__name').values('pk', 'organization__name')
+    return JsonResponse(list(campuses), safe=False)

@@ -45,6 +45,11 @@ from base.models.enums import entity_container_year_link_type, learning_containe
     learning_unit_year_subtypes, active_status, entity_type
 from base.models.learning_unit_year import convert_status_bool
 from base.models.offer_year_entity import OfferYearEntity
+from base.forms.learning_unit.external_learning_unit import CampusChoiceField
+from reference.models.country import Country
+from base.models.campus import Campus
+from django.forms import ModelChoiceField
+from base.models.organization_address import find_distinct_by_country
 
 MAX_RECORDS = 1000
 
@@ -52,6 +57,8 @@ MAX_RECORDS = 1000
 class SearchForm(forms.Form):
     MAX_RECORDS = 1000
     ALL_LABEL = (None, _('all_label'))
+    NO_SELECTION = '---'
+    NO_SELECTION_LABEL = (None, NO_SELECTION)
     ALL_CHOICES = (ALL_LABEL,)
 
     academic_year_id = forms.ModelChoiceField(
@@ -110,6 +117,14 @@ class SearchForm(forms.Form):
                 tuple_to_append = (str(field.label), label_choice)
             tuples_label_value.append(tuple_to_append)
         return tuples_label_value
+
+    def _has_criteria(self):
+        criteria_present = False
+        for name, field in self.fields.items():
+            if self.cleaned_data[name]:
+                criteria_present = True
+                break
+        return criteria_present
 
 
 class LearningUnitYearForm(SearchForm):
@@ -361,9 +376,53 @@ def _get_entity_ids_list(allocation_entity_acronym, entities_id_list_allocation,
         return None
 
 
+class DynamicChoiceField(forms.ChoiceField):
+    def validate(self, value):
+        if self.required and not value:
+            ValidationError(self.error_messages['required'])
+
+
 class ExternalLearningUnitYearForm(LearningUnitYearForm):
+    country = ModelChoiceField(queryset=Country.objects.all().order_by('name'), required=False, label=_("country"))
+    campus = DynamicChoiceField(choices=[SearchForm.NO_SELECTION_LABEL], required=False, label=_("institution"))
+    city = DynamicChoiceField(choices=[SearchForm.NO_SELECTION_LABEL], required=False, label=_("city"))
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        self._init_dropdown_list()
+
+    def _init_dropdown_list(self):
+        if self.data.get('country', None):
+            if self.data.get('city', None):
+                self._get_cities()
+                if self.data.get('campus', None):
+                    self._get_campus_list()
+
+    def _get_campus_list(self):
+        campus_list = Campus.objects.filter(
+            organization__organizationaddress__city=self.data['city']
+        ).distinct('organization__name').order_by('organization__name').values('pk', 'organization__name')
+        campus_choice_list = [SearchForm.NO_SELECTION_LABEL]
+        for c in campus_list:
+            campus_choice_list.append(((c['pk']), (c['organization__name'])))
+        self.fields['campus'].choices = campus_choice_list
+
+    def _get_cities(self):
+        cities = find_distinct_by_country(self.data['country'])
+        cities_choice_list = [SearchForm.NO_SELECTION_LABEL]
+        for c in cities:
+            cities_choice_list.append(((c['city']), (c['city'])))
+        self.fields['city'].choices = cities_choice_list
+
+    def is_valid(self):
+        if not super().is_valid():
+            return False
+
+        if not self._has_criteria():
+            self.add_error(None, _('minimum_one_criteria'))
+            return False
+        return True
 
     def get_learning_units(self):
         clean_data = self.cleaned_data
@@ -372,3 +431,21 @@ class ExternalLearningUnitYearForm(LearningUnitYearForm):
             .order_by('learning_unit_year__academic_year__year', 'learning_unit_year__acronym')
 
         return learning_units
+
+    def clean_city(self):
+        data_cleaned = self.cleaned_data.get('city')
+        if data_cleaned == SearchForm.NO_SELECTION:
+            return None
+        return data_cleaned
+
+    def clean_country(self):
+        data_cleaned = self.cleaned_data.get('country')
+        if data_cleaned == SearchForm.NO_SELECTION:
+            return None
+        return data_cleaned
+
+    def clean_campus(self):
+        data_cleaned = self.cleaned_data.get('campus')
+        if data_cleaned == SearchForm.NO_SELECTION:
+            return None
+        return data_cleaned
