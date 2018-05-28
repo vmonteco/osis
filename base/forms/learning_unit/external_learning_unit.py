@@ -89,7 +89,7 @@ class ExternalLearningUnitModelForm(forms.ModelForm):
         entity_v = entity_version.get_by_entity_and_date(entity, start_date)
         if not entity_v:
             self.add_error('requesting_entity', _("The linked entity does not exist at the start date of the "
-                                      "academic year linked to this learning unit"))
+                                                  "academic year linked to this learning unit"))
         else:
             self.entity_version = entity_v
 
