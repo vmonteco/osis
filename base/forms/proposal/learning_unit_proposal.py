@@ -77,6 +77,7 @@ class LearningUnitProposalForm(SearchForm):
     )
 
     def is_valid(self):
+        print('is_val lu p')
         if not super().is_valid():
             return False
 

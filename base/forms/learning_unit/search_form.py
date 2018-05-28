@@ -389,15 +389,14 @@ class ExternalLearningUnitYearForm(LearningUnitYearForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        self._init_dropdown_list()
+        if self.data.get('country', None):
+            self._init_dropdown_list()
 
     def _init_dropdown_list(self):
-        if self.data.get('country', None):
-            if self.data.get('city', None):
-                self._get_cities()
-                if self.data.get('campus', None):
-                    self._get_campus_list()
+        if self.data.get('city', None):
+            self._get_cities()
+        if self.data.get('campus', None):
+            self._get_campus_list()
 
     def _get_campus_list(self):
         campus_list = Campus.objects.filter(
