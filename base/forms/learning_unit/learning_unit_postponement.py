@@ -59,10 +59,7 @@ class LearningUnitPostponementForm:
 
     def __init__(self, person, start_postponement, end_postponement=None, learning_unit_instance=None,
                  learning_unit_full_instance=None, data=None, check_consistency=True):
-        if learning_unit_instance and not isinstance(learning_unit_instance, LearningUnit):
-            raise AttributeError('learning_unit_instance arg should be an instance of {}'.format(LearningUnit))
-        if learning_unit_full_instance and not isinstance(learning_unit_full_instance, LearningUnit):
-            raise AttributeError('learning_unit_full_instance arg should be an instance of {}'.format(LearningUnit))
+        self.check_input_instance(learning_unit_full_instance, learning_unit_instance)
 
         self.learning_unit_instance = learning_unit_instance
         self.learning_unit_full_instance = learning_unit_full_instance
@@ -79,6 +76,12 @@ class LearningUnitPostponementForm:
 
         self.end_postponement = self._get_academic_end_year(end_postponement)
         self._compute_forms_to_insert_update_delete(data)
+
+    def check_input_instance(self, learning_unit_full_instance, learning_unit_instance):
+        if learning_unit_instance and not isinstance(learning_unit_instance, LearningUnit):
+            raise AttributeError('learning_unit_instance arg should be an instance of {}'.format(LearningUnit))
+        if learning_unit_full_instance and not isinstance(learning_unit_full_instance, LearningUnit):
+            raise AttributeError('learning_unit_full_instance arg should be an instance of {}'.format(LearningUnit))
 
     def _get_academic_end_year(self, end_postponement):
         if end_postponement is None:

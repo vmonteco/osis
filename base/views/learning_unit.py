@@ -309,6 +309,7 @@ def get_learning_unit_identification_context(learning_unit_year_id, person):
 
     return context
 
+
 def set_warnings_context(context, learning_unit_year, person):
     if learning_unit_year.subtype == learning_unit_year_subtypes.FULL:
         context['warnings'] = FullForm(person, learning_unit_year.academic_year,

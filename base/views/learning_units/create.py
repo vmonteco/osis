@@ -49,10 +49,8 @@ def create_learning_unit(request, academic_year_id):
         data=request.POST or None
     )
     if postponement_form.is_valid():
-        new_luys = postponement_form.save()
-        for luy in new_luys:
-            show_success_learning_unit_year_creation_message(request, luy, 'learning_unit_successfuly_created')
-        return redirect('learning_unit', learning_unit_year_id=new_luys[0].pk)
+        return _save_and_redirect(postponement_form, request)
+
     return render(request, "learning_unit/simple/creation.html", postponement_form.get_context())
 
 
@@ -72,8 +70,13 @@ def create_partim_form(request, learning_unit_year_id):
     )
 
     if postponement_form.is_valid():
-        new_luys = postponement_form.save()
-        for luy in new_luys:
-            show_success_learning_unit_year_creation_message(request, luy, 'learning_unit_successfuly_created')
-        return redirect('learning_unit', learning_unit_year_id=new_luys[0].pk)
+        return _save_and_redirect(postponement_form, request)
+
     return render(request, "learning_unit/simple/creation_partim.html", postponement_form.get_context())
+
+
+def _save_and_redirect(postponement_form, request):
+    new_luys = postponement_form.save()
+    for luy in new_luys:
+        show_success_learning_unit_year_creation_message(request, luy, 'learning_unit_successfuly_created')
+    return redirect('learning_unit', learning_unit_year_id=new_luys[0].pk)
