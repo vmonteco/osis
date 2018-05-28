@@ -65,7 +65,7 @@ class LearningContainerYearExternalModelForm(LearningContainerYearModelForm):
 
 
 class ExternalLearningUnitModelForm(forms.ModelForm):
-    buyer = EntitiesVersionChoiceField(queryset=EntityVersion.objects.none())
+    requesting_entity = EntitiesVersionChoiceField(queryset=EntityVersion.objects.none(), label=_('requesting_entity'))
     entity_version = None
 
     def __init__(self, data, person, *args, **kwargs):
@@ -73,24 +73,24 @@ class ExternalLearningUnitModelForm(forms.ModelForm):
 
         super().__init__(data, *args, **kwargs)
         self.instance.author = person
-        self.fields['buyer'].queryset = self.person.find_main_entities_version
+        self.fields['requesting_entity'].queryset = self.person.find_main_entities_version
 
-        if hasattr(self.instance, 'buyer'):
-            self.initial['buyer'] = get_last_version(self.instance.buyer)
+        if hasattr(self.instance, 'requesting_entity'):
+            self.initial['requesting_entity'] = get_last_version(self.instance.requesting_entity)
 
     class Meta:
         model = ExternalLearningUnitYear
-        fields = ('external_acronym', 'external_credits', 'url', 'buyer')
+        fields = ('external_acronym', 'external_credits', 'url', 'requesting_entity')
 
     def post_clean(self, start_date):
-        entity = self.cleaned_data.get('buyer')
+        entity = self.cleaned_data.get('requesting_entity')
         if not entity:
             return True
 
         entity_v = entity_version.get_by_entity_and_date(entity, start_date)
         if not entity_v:
-            self.add_error('buyer', _("The linked entity does not exist at the start date of the "
-                                      "academic year linked to this learning unit"))
+            self.add_error('requesting_entity', _("The linked entity does not exist at the start date of the "
+                                                  "academic year linked to this learning unit"))
         else:
             self.entity_version = entity_v
 

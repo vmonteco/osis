@@ -77,11 +77,16 @@ class LearningUnitPostponementForm:
         if end_year:
             end_postponement = academic_year.find_academic_year_by_year(end_year)
 
-        if end_postponement is None and self.learning_unit_instance and self.learning_unit_instance.end_year:
-            end_postponement = academic_year.find_academic_year_by_year(self.learning_unit_instance.end_year)
-
-        self.end_postponement = end_postponement
+        self.end_postponement = self._get_academic_end_year(end_postponement)
         self._compute_forms_to_insert_update_delete(data)
+
+    def _get_academic_end_year(self, end_postponement):
+        if end_postponement is None:
+            if self.learning_unit_instance and self.learning_unit_instance.end_year:
+                end_postponement = academic_year.find_academic_year_by_year(self.learning_unit_instance.end_year)
+            elif self.learning_unit_full_instance and self.learning_unit_full_instance.end_year:
+                end_postponement = academic_year.find_academic_year_by_year(self.learning_unit_full_instance.end_year)
+        return end_postponement
 
     def _compute_max_postponement_year(self):
         max_postponement_year = academic_year.compute_max_academic_year_adjournment()

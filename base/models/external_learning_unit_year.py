@@ -33,11 +33,11 @@ from base.models.osis_model_admin import OsisModelAdmin
 
 
 class ExternalLearningUnitYearAdmin(OsisModelAdmin):
-    list_display = ('external_id', 'external_acronym', 'external_credits', 'url', 'learning_unit_year', 'buyer',
-                    "author", "date")
-    fieldsets = ((None, {'fields': ('external_acronym', 'external_credits', 'url', 'learning_unit_year', 'buyer',
-                                    'author')}),)
-    raw_id_fields = ('learning_unit_year', 'buyer', 'author')
+    list_display = ('external_id', 'external_acronym', 'external_credits', 'url', 'learning_unit_year',
+                    'requesting_entity', "author", "date")
+    fieldsets = ((None, {'fields': ('external_acronym', 'external_credits', 'url', 'learning_unit_year',
+                                    'requesting_entity', 'author')}),)
+    raw_id_fields = ('learning_unit_year', 'requesting_entity', 'author')
     search_fields = ['acronym', 'learning_unit_year__acronym', 'author']
 
 
@@ -50,7 +50,7 @@ class ExternalLearningUnitYear(models.Model):
                                                        MaxValueValidator(MAXIMUM_CREDITS)])
     url = models.URLField(max_length=255, blank=True, null=True)
     learning_unit_year = models.OneToOneField('LearningUnitYear')
-    buyer = models.ForeignKey('Entity', verbose_name=_('requesting_entity'))
+    requesting_entity = models.ForeignKey('Entity', verbose_name=_('requesting_entity'))
 
     author = models.ForeignKey('Person', null=True)
     date = models.DateTimeField(auto_now=True)

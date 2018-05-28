@@ -156,6 +156,19 @@ class TestLearningUnitPostponementFormInit(LearningUnitPostponementFormContextMi
         diff = expected_keys ^ set(FIELDS_TO_NOT_POSTPONE.keys())
         self.assertFalse(diff)
 
+    def test_get_end_postponement_partim(self):
+        self.learn_unit_structure.learning_unit_partim.end_year = self.current_academic_year.year
+        self.learn_unit_structure.learning_unit_partim.save()
+        instance_luy_base_form = _instanciate_base_learning_unit_form(self.learning_unit_year_partim, self.person)
+        form = _instanciate_postponement_form(self.person, self.learning_unit_year_partim.academic_year,
+                                              learning_unit_instance=instance_luy_base_form.learning_unit_instance,
+                                              learning_unit_full_instance=self.learning_unit_year_full.learning_unit,
+                                              data=instance_luy_base_form.data)
+        self.assertEqual(len(form._forms_to_upsert), 1)  # The current need to be updated
+        self.assertEqual(form._forms_to_upsert[0].forms[LearningUnitYearModelForm].instance,
+                         self.learning_unit_year_partim)
+        self.assertEqual(len(form._forms_to_delete), 6)
+
 
 class TestLearningUnitPostponementFormIsValid(LearningUnitPostponementFormContextMixin):
     """Unit tests for LearningUnitPostponementForm.is_valid()"""
@@ -623,8 +636,8 @@ def _instanciate_base_learning_unit_form(learning_unit_year_instance, person):
     return form(**form_args)
 
 
-def _instanciate_postponement_form(person, start_postponement, end_postponement=None, learning_unit_instance=None,
-                                   data=None):
-    # full_subtype = learning_unit_year_subtypes.FULL
+def _instanciate_postponement_form(person, start_postponement, end_postponement=None,
+                                   learning_unit_instance=None, data=None, learning_unit_full_instance=None):
     return LearningUnitPostponementForm(person, start_postponement, learning_unit_instance=learning_unit_instance,
+                                        learning_unit_full_instance=learning_unit_full_instance,
                                         end_postponement=end_postponement, data=data)

@@ -48,7 +48,7 @@ from reference.tests.factories.language import LanguageFactory
 def get_valid_external_learning_unit_form_data(academic_year, person, learning_unit_year=None):
     entities = create_entities_hierarchy()
     PersonEntityFactory(person=person, entity=entities['root_entity'], with_child=True)
-    buyer = entities['child_one_entity_version']
+    requesting_entity = entities['child_one_entity_version']
     organization = OrganizationFactory(type=organization_type.MAIN)
     campus = CampusFactory(organization=organization)
 
@@ -81,7 +81,7 @@ def get_valid_external_learning_unit_form_data(academic_year, person, learning_u
         'is_vacant': learning_unit_year.learning_container_year.is_vacant,
 
         # External learning unit model form
-        'buyer': buyer.id,
+        'requesting_entity': requesting_entity.id,
         'external_acronym': 'Gorzyne',
         'external_credits': '5.5',
     }
