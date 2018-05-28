@@ -139,7 +139,8 @@ $(document).ready(function() {
     $.extend($.validator.messages, {
         required: trans_field_required,
         min: trans_field_min,
-        max: trans_field_max
+        max: trans_field_max,
+        url: gettext("Please enter a valid URL."),
     });
 
     showInternshipSubtype();
