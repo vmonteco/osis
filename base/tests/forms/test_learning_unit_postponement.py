@@ -76,6 +76,11 @@ class LearningUnitPostponementFormContextMixin(TestCase):
             academic_year=self.current_academic_year
         )
 
+        self.learning_unit_year_partim = LearningUnitYear.objects.get(
+            learning_unit=self.learn_unit_structure.learning_unit_partim,
+            academic_year=self.current_academic_year
+        )
+
         self.person = PersonFactory()
         for entity in self.learn_unit_structure.entities:
             PersonEntityFactory(person=self.person, entity=entity)
@@ -197,6 +202,41 @@ class TestLearningUnitPostponementFormSave(LearningUnitPostponementFormContextMi
 
         form.save()
         self.assertEqual(mock_baseform_save.call_count, 7)
+
+    @mock.patch('base.forms.learning_unit.learning_unit_partim.PartimForm.save', side_effect=None)
+    def test_save_with_all_luy_to_create_partim(self, mock_baseform_save):
+        LearningUnitYear.objects.filter(
+            learning_unit=self.learn_unit_structure.learning_unit_partim,
+            academic_year__year__gt=self.current_academic_year.year
+        ).delete()
+        instance_luy_base_form = _instanciate_base_learning_unit_form(self.learning_unit_year_partim, self.person)
+        form = LearningUnitPostponementForm(self.person, self.learning_unit_year_full.academic_year,
+                                            learning_unit_full_instance=self.learning_unit_year_full.learning_unit,
+                                            data=instance_luy_base_form.data)
+
+        self.assertEqual(len(form._forms_to_upsert), 7)
+
+        form.save()
+        self.assertEqual(mock_baseform_save.call_count, 7)
+
+    @mock.patch('base.forms.learning_unit.learning_unit_partim.PartimForm.save', side_effect=None)
+    def test_save_with_all_luy_to_create_partim_with_end_year(self, mock_baseform_save):
+        LearningUnitYear.objects.filter(
+            learning_unit=self.learn_unit_structure.learning_unit_partim,
+            academic_year__year__gt=self.current_academic_year.year
+        ).delete()
+
+        instance_luy_base_form = _instanciate_base_learning_unit_form(self.learning_unit_year_partim, self.person)
+        instance_luy_base_form.data['end_year'] = self.learning_unit_year_full.academic_year.year + 2
+        form = LearningUnitPostponementForm(self.person, self.learning_unit_year_full.academic_year,
+                                            learning_unit_full_instance=self.learning_unit_year_full.learning_unit,
+                                            data=instance_luy_base_form.data)
+
+        self.assertEqual(len(form._forms_to_upsert), 3)
+
+        form.save()
+        self.assertEqual(mock_baseform_save.call_count, 3)
+
 
     @mock.patch('base.forms.learning_unit.learning_unit_create_2.FullForm.save', side_effect=None)
     def test_update_luy_in_past(self, mock_baseform_save):
