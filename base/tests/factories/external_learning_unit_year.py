@@ -26,9 +26,9 @@
 import datetime
 import string
 
+import factory
+
 import factory.fuzzy
-from factory.django import DjangoModelFactory
-from faker import Faker
 
 from base.models.learning_unit_year import MINIMUM_CREDITS, MAXIMUM_CREDITS
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
@@ -36,10 +36,8 @@ from base.tests.factories.entity import EntityFactory
 from osis_common.utils.datetime import get_tzinfo
 from base.tests.factories.person import PersonFactory
 
-fake = Faker()
 
-
-class ExternalLearningUnitYearFactory(DjangoModelFactory):
+class ExternalLearningUnitYearFactory(factory.DjangoModelFactory):
     class Meta:
         model = "base.ExternalLearningUnitYear"
 
