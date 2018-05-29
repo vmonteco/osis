@@ -14,6 +14,7 @@ except InvalidCacheBackendError:
     logger.exception("Rolled back to default cache")
     cache = caches["default"]
 
+
 def cache_filter(param_list=None):
     def decorator(func):
         @wraps(func)
