@@ -47,10 +47,9 @@ class ExternalLearningUnitYearFactory(DjangoModelFactory):
     external_id = factory.fuzzy.FuzzyText(length=10, chars=string.digits)
     changed = factory.fuzzy.FuzzyDateTime(datetime.datetime(2016, 1, 1, tzinfo=get_tzinfo()),
                                           datetime.datetime(2017, 3, 1, tzinfo=get_tzinfo()))
-    external_acronym = factory.Sequence(lambda n: 'LFAC%04d' % n)
+    external_acronym = factory.Sequence(lambda n: 'XFAC%04d' % n)
     external_credits = factory.fuzzy.FuzzyDecimal(MINIMUM_CREDITS, MAXIMUM_CREDITS)
 
     learning_unit_year = factory.SubFactory(LearningUnitYearFactory)
+    buyer = factory.SubFactory(EntityFactory)
     author = factory.SubFactory(PersonFactory)
-
-
