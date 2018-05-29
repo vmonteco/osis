@@ -179,14 +179,6 @@ class LearningUnitYearModelForm(forms.ModelForm):
             EntityComponentYear.objects.get_or_create(entity_container_year=requirement_entity_container,
                                                       learning_component_year=component)
 
-    @property
-    def warnings(self):
-        if self._warnings is None:
-            self._warnings = []
-            if self.instance:
-                self._warnings = self.instance.warnings
-        return self._warnings
-
 
 class LearningUnitYearPartimModelForm(LearningUnitYearModelForm):
     class Meta(LearningUnitYearModelForm.Meta):
