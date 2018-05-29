@@ -50,6 +50,7 @@ from reference.tests.factories.country import CountryFactory
 from base.forms.learning_unit.search_form import ExternalLearningUnitYearForm
 from base.tests.factories.academic_year import create_current_academic_year
 from django.utils.translation import ugettext_lazy as _
+from base.tests.factories.entity import EntityFactory
 
 NAMEN = 'Namur'
 
@@ -139,11 +140,13 @@ class TestExternalLearningUnitForm(TestCase):
 class TestExternalLearningUnitSearchForm(TestCase):
     def setUp(self):
         self.academic_year = create_current_academic_year()
+        entity_buyer = EntityFactory()
         self.learning_unit_year_1 = LearningUnitYearFactory(academic_year=self.academic_year)
         self.external_lu_1 = ExternalLearningUnitYearFactory(external_acronym='XLDR1001',
                                                              learning_unit_year=self.learning_unit_year_1)
         self.learning_unit_year_2 = LearningUnitYearFactory(academic_year=self.academic_year)
         self.external_lu_2 = ExternalLearningUnitYearFactory(external_acronym='XLDR1002',
+                                                             buyer=entity_buyer,
                                                              learning_unit_year=self.learning_unit_year_2)
 
         self.a_be_country = CountryFactory(iso_code='BE')
@@ -153,7 +156,8 @@ class TestExternalLearningUnitSearchForm(TestCase):
                                                                     campus=self.be_campus_1)
         self.learning_unit_year_3 = LearningUnitYearFactory(learning_container_year=self.learning_container_year,
                                                             academic_year=self.academic_year)
-        self.external_lu_BE_1 = ExternalLearningUnitYearFactory(learning_unit_year=self.learning_unit_year_3)
+        self.external_lu_BE_1 = ExternalLearningUnitYearFactory(learning_unit_year=self.learning_unit_year_3,
+                                                                buyer=entity_buyer)
 
         self.be_organization_adr_city2 = OrganizationAddressFactory(country=self.a_be_country, city='Bruxelles')
         self.be_campus_2 = CampusFactory(organization=self.be_organization_adr_city2.organization)
@@ -161,7 +165,8 @@ class TestExternalLearningUnitSearchForm(TestCase):
                                                                       campus=self.be_campus_2)
         self.external_lu_BE_2 = ExternalLearningUnitYearFactory(
             learning_unit_year=LearningUnitYearFactory(learning_container_year=self.learning_container_year_4,
-                                                       academic_year=self.academic_year))
+                                                       academic_year=self.academic_year),
+            buyer=entity_buyer)
 
     def test_search_learning_units_on_acronym(self):
         form_data = {

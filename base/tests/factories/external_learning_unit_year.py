@@ -28,7 +28,6 @@ import string
 
 import factory.fuzzy
 from factory.django import DjangoModelFactory
-
 from faker import Faker
 
 from base.models.learning_unit_year import MINIMUM_CREDITS, MAXIMUM_CREDITS
