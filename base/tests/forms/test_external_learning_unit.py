@@ -147,7 +147,7 @@ class TestExternalLearningUnitSearchForm(TestCase):
                                                              learning_unit_year=self.learning_unit_year_1)
         self.learning_unit_year_2 = LearningUnitYearFactory(academic_year=self.academic_year)
         self.external_lu_2 = ExternalLearningUnitYearFactory(external_acronym='XLDR1002',
-                                                             buyer=entity_buyer,
+                                                             buyer=entity_buyer.entity,
                                                              learning_unit_year=self.learning_unit_year_2)
 
         self.a_be_country = CountryFactory(iso_code='BE')
@@ -158,7 +158,7 @@ class TestExternalLearningUnitSearchForm(TestCase):
         self.learning_unit_year_3 = LearningUnitYearFactory(learning_container_year=self.learning_container_year,
                                                             academic_year=self.academic_year)
         self.external_lu_BE_1 = ExternalLearningUnitYearFactory(learning_unit_year=self.learning_unit_year_3,
-                                                                buyer=entity_buyer)
+                                                                buyer=entity_buyer.entity)
 
         self.be_organization_adr_city2 = OrganizationAddressFactory(country=self.a_be_country, city='Bruxelles')
         self.be_campus_2 = CampusFactory(organization=self.be_organization_adr_city2.organization)
@@ -167,7 +167,7 @@ class TestExternalLearningUnitSearchForm(TestCase):
         self.external_lu_BE_2 = ExternalLearningUnitYearFactory(
             learning_unit_year=LearningUnitYearFactory(learning_container_year=self.learning_container_year_4,
                                                        academic_year=self.academic_year),
-            buyer=entity_buyer)
+            buyer=entity_buyer.entity)
 
     def test_search_learning_units_on_acronym(self):
         form_data = {

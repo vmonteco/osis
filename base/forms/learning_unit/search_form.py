@@ -45,10 +45,8 @@ from base.models.enums import entity_container_year_link_type, learning_containe
     learning_unit_year_subtypes, active_status, entity_type
 from base.models.learning_unit_year import convert_status_bool
 from base.models.offer_year_entity import OfferYearEntity
-from base.forms.learning_unit.external_learning_unit import CampusChoiceField
 from reference.models.country import Country
 from base.models.campus import Campus
-from django.forms import ModelChoiceField
 from base.models.organization_address import find_distinct_by_country
 
 MAX_RECORDS = 1000
@@ -383,7 +381,7 @@ class DynamicChoiceField(forms.ChoiceField):
 
 
 class ExternalLearningUnitYearForm(LearningUnitYearForm):
-    country = ModelChoiceField(queryset=Country.objects.all().order_by('name'), required=False, label=_("country"))
+    country = forms.ModelChoiceField(queryset=Country.objects.all().order_by('name'), required=False, label=_("country"))
     campus = DynamicChoiceField(choices=[SearchForm.NO_SELECTION_LABEL], required=False, label=_("institution"))
     city = DynamicChoiceField(choices=[SearchForm.NO_SELECTION_LABEL], required=False, label=_("city"))
 
