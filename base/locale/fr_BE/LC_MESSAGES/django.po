@@ -1903,7 +1903,7 @@ msgid "end_date_gt_begin_date"
 msgstr "L'année de fin doit etre égale ou supérieur à l'année de départ"
 
 msgid "session_title"
-msgstr "Sessions"
+msgstr "Sessions dérogations"
 
 msgid "remarks_title"
 msgstr "Remarques"

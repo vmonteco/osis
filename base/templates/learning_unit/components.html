@@ -34,13 +34,24 @@
 
 {% block content %}
 
-    {% include "learning_unit/blocks/header.html" %}
+{% include "learning_unit/blocks/header.html" %}
 <div class="panel panel-default">
     <div class="panel-body" id="tabs">
         {% include "learning_unit/blocks/tabs.html" %}
+    <br>
+        <div class="row" style="padding-left: 43px">
+            <div class="col-md-2">
+                <label>{% trans 'quadrimester'%}</label><br>
+                {{ learning_unit_year.quadrimester }}
+            </div>
+            <div class="col-md-9">
+                <label>{% trans 'session_title'%}</label><br>
+                {{ learning_unit_year.session }}
+            </div>
+        </div>
         <div class="tab-content" id="tab_content">
             <div role="tabpanel" class="tab-pane active" id="components">
-                <table class="table">
+                <table class="table volumes_read">
                     <thead class="components">
                         <tr>
                             <th></th>

@@ -1897,7 +1897,7 @@ msgid "end_date_gt_begin_date"
 msgstr "The end year must be equals or upper than the start year"
 
 msgid "session_title"
-msgstr "Sessions"
+msgstr "Sessions derogations"
 
 msgid "remarks_title"
 msgstr "Remarks"
