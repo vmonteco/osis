@@ -90,8 +90,7 @@ urlpatterns = [
     ])),
 
     url(r'^learning_units/', include([
-        url(r'^$', base.views.learning_units.search.learning_units, name='learning_units'),
-        url(r'^by_activity/', base.views.learning_units.search.learning_units, name='learning_units_activity'),
+        url(r'^by_activity/', base.views.learning_units.search.learning_units, name='learning_units'),
         url(r'^by_service_course/', base.views.learning_units.search.learning_units_service_course,
             name='learning_units_service_course'),
         url(r'^by_proposal/', base.views.learning_units.search.learning_units_proposal_search,
