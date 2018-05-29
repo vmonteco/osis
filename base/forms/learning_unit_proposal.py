@@ -32,7 +32,8 @@ from django.db import transaction
 from base.business.learning_unit_proposal import compute_proposal_type, \
     compute_proposal_state, copy_learning_unit_data
 from base.forms.learning_unit.learning_unit_create import EntitiesVersionChoiceField
-from base.forms.learning_unit.learning_unit_create_2 import FullForm, PartimForm
+from base.forms.learning_unit.learning_unit_create_2 import FullForm
+from base.forms.learning_unit.learning_unit_partim import PartimForm
 from base.models.academic_year import current_academic_year
 from base.models.entity_version import find_main_entities_version, get_last_version
 from base.models.enums import learning_unit_year_subtypes

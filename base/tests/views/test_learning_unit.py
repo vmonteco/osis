@@ -81,9 +81,9 @@ from base.tests.factories.organization import OrganizationFactory
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.person_entity import PersonEntityFactory
 from base.tests.factories.user import SuperUserFactory, UserFactory
-from base.views.learning_unit import learning_unit_components, learning_class_year_edit, learning_unit_specifications, \
-    create_partim_form
+from base.views.learning_unit import learning_unit_components, learning_class_year_edit, learning_unit_specifications
 from base.views.learning_unit import learning_unit_identification
+from base.views.learning_units.create import create_partim_form
 from base.views.learning_units.search import learning_units
 from base.views.learning_units.search import learning_units_service_course
 from base.views.learning_units.update import learning_unit_pedagogy
@@ -262,7 +262,8 @@ class LearningUnitViewCreatePartimTestCase(TestCase):
 
     @mock.patch('base.views.learning_units.perms.business_perms.is_person_linked_to_entity_in_charge_of_learning_unit',
                 side_effect=lambda *args: True)
-    @mock.patch('base.forms.learning_unit.learning_unit_create_2.PartimForm.is_valid', side_effect=lambda *args: False)
+
+    @mock.patch('base.forms.learning_unit.learning_unit_partim.PartimForm.is_valid', side_effect=lambda *args : False)
     def test_create_partim_when_invalid_form_no_redirection(self, mock_is_valid, mock_is_pers_linked_to_entity_charge):
         response = self.client.post(self.url, data={})
         self.assertTemplateUsed(response, "learning_unit/simple/creation_partim.html")
@@ -270,8 +271,8 @@ class LearningUnitViewCreatePartimTestCase(TestCase):
 
     @mock.patch('base.views.learning_units.perms.business_perms.is_person_linked_to_entity_in_charge_of_learning_unit',
                 side_effect=lambda *args: True)
-    @mock.patch('base.forms.learning_unit.learning_unit_create_2.PartimForm.is_valid', side_effect=lambda *args: True)
-    @mock.patch('base.forms.learning_unit.learning_unit_create_2.PartimForm.save')
+    @mock.patch('base.forms.learning_unit.learning_unit_partim.PartimForm.is_valid', side_effect=lambda *args: True)
+    @mock.patch('base.forms.learning_unit.learning_unit_partim.PartimForm.save')
     @mock.patch('base.forms.learning_unit.learning_unit_postponement.LearningUnitPostponementForm.__init__',
                 side_effect=lambda *args, **kwargs: None)
     @mock.patch('base.forms.learning_unit.learning_unit_postponement.LearningUnitPostponementForm.is_valid',

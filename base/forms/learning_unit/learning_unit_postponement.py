@@ -30,7 +30,8 @@ from django.db import transaction
 from django.http import QueryDict
 from django.utils.translation import ugettext_lazy as _
 
-from base.forms.learning_unit.learning_unit_create_2 import PartimForm, FullForm
+from base.forms.learning_unit.learning_unit_create_2 import FullForm
+from base.forms.learning_unit.learning_unit_partim import PartimForm
 from base.models import academic_year, learning_unit_year
 from base.models.enums import learning_unit_year_subtypes
 from base.models.learning_unit import LearningUnit
@@ -58,10 +59,7 @@ class LearningUnitPostponementForm:
 
     def __init__(self, person, start_postponement, end_postponement=None, learning_unit_instance=None,
                  learning_unit_full_instance=None, data=None, check_consistency=True):
-        if learning_unit_instance and not isinstance(learning_unit_instance, LearningUnit):
-            raise AttributeError('learning_unit_instance arg should be an instance of {}'.format(LearningUnit))
-        if learning_unit_full_instance and not isinstance(learning_unit_full_instance, LearningUnit):
-            raise AttributeError('learning_unit_full_instance arg should be an instance of {}'.format(LearningUnit))
+        self.check_input_instance(learning_unit_full_instance, learning_unit_instance)
 
         self.learning_unit_instance = learning_unit_instance
         self.learning_unit_full_instance = learning_unit_full_instance
@@ -70,8 +68,20 @@ class LearningUnitPostponementForm:
         self.start_postponement = start_postponement
         self.person = person
         self.check_consistency = check_consistency
+
+        # end_year can be given by the request (eg: for partims)
+        end_year = data and data.get('end_year')
+        if end_year:
+            end_postponement = academic_year.find_academic_year_by_year(end_year)
+
         self.end_postponement = self._get_academic_end_year(end_postponement)
         self._compute_forms_to_insert_update_delete(data)
+
+    def check_input_instance(self, learning_unit_full_instance, learning_unit_instance):
+        if learning_unit_instance and not isinstance(learning_unit_instance, LearningUnit):
+            raise AttributeError('learning_unit_instance arg should be an instance of {}'.format(LearningUnit))
+        if learning_unit_full_instance and not isinstance(learning_unit_full_instance, LearningUnit):
+            raise AttributeError('learning_unit_full_instance arg should be an instance of {}'.format(LearningUnit))
 
     def _get_academic_end_year(self, end_postponement):
         if end_postponement is None:
