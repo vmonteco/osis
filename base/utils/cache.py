@@ -1,14 +1,17 @@
 import logging
 
 from django.conf import settings
-from django.core.cache import cache
+from django.core.cache import caches, InvalidCacheBackendError
 from functools import wraps
 
 CACHE_FILTER_TIMEOUT = None
 PREFIX_CACHE_KEY = 'cache_filter'
 
 logger = logging.getLogger(settings.DEFAULT_LOGGER)
-
+try:
+    cache = caches["redis"]
+except InvalidCacheBackendError:
+    cache = caches["default"]
 
 def cache_filter(param_list=None):
     def decorator(func):
