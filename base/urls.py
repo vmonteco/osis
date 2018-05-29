@@ -28,6 +28,7 @@ from django.conf.urls import url, include
 from django.conf.urls.static import static
 
 import base.views.learning_units.common
+import base.views.learning_units.create
 import base.views.learning_units.delete
 import base.views.learning_units.educational_information
 import base.views.learning_units.proposal.consolidate
@@ -91,8 +92,7 @@ urlpatterns = [
     ])),
 
     url(r'^learning_units/', include([
-        url(r'^$', base.views.learning_units.search.learning_units, name='learning_units'),
-        url(r'^by_activity/', base.views.learning_units.search.learning_units, name='learning_units_activity'),
+        url(r'^by_activity/', base.views.learning_units.search.learning_units, name='learning_units'),
         url(r'^by_service_course/', base.views.learning_units.search.learning_units_service_course,
             name='learning_units_service_course'),
         url(r'^by_proposal/', base.views.learning_units.search.learning_units_proposal_search,
@@ -104,7 +104,8 @@ urlpatterns = [
         url(r'^by_external/', base.views.learning_units.search.learning_units_external_search,
             name='learning_units_external'),
         url(r'^new/', include([
-            url(r'^academic_year_id=(?P<academic_year_id>[0-9]+)$', learning_unit.learning_unit_create,
+            url(r'^academic_year_id=(?P<academic_year_id>[0-9]+)$',
+                base.views.learning_units.create.create_learning_unit,
                 name="learning_unit_create"),
             url(r'^proposal/academic_year_id=(?P<academic_year>[0-9]+)$',
                 create.get_proposal_learning_unit_creation_form,
@@ -146,7 +147,7 @@ urlpatterns = [
             url(r'^delete_full/$', base.views.learning_units.delete.delete_all_learning_units_year,
                 name="learning_unit_delete_all"),
             url(r'^partim/', include([
-                url(r'^new/$', learning_unit.create_partim_form, name="learning_unit_create_partim"),
+                url(r'^new/$', base.views.learning_units.create.create_partim_form, name="learning_unit_create_partim"),
             ])),
             url(r'^achievements/', include([
                 url(r'^management/', learning_achievement.management, name="achievement_management"),
