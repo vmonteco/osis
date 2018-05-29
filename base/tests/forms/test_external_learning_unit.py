@@ -108,13 +108,6 @@ class TestExternalLearningUnitForm(TestCase):
         form = ExternalLearningUnitBaseForm(person=self.person, academic_year=self.academic_year, data=data)
         self.assertTrue(form.is_valid(), form.errors)
 
-    def test_external_learning_unit_form_invalid_acronym(self):
-        data = get_valid_external_learning_unit_form_data(self.academic_year, self.person)
-        data['acronym_0'] = 'L'
-        form = ExternalLearningUnitBaseForm(person=self.person, academic_year=self.academic_year, data=data)
-        self.assertFalse(form.is_valid(), form.errors)
-        self.assertEqual(list(form.errors[0].keys()), ['acronym'])
-
     def test_external_learning_unit_form_save(self):
         data = get_valid_external_learning_unit_form_data(self.academic_year, self.person)
         form = ExternalLearningUnitBaseForm(person=self.person, academic_year=self.academic_year, data=data)
