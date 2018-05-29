@@ -25,18 +25,17 @@
 ##############################################################################
 
 from django.test import TestCase
+from django.utils.translation import ugettext_lazy as _
 
 from base.forms.learning_unit.external_learning_unit import ExternalLearningUnitBaseForm, \
     LearningContainerYearExternalModelForm, ExternalLearningUnitModelForm
 from base.forms.learning_unit.learning_unit_create import LearningUnitYearModelForm, \
     LearningUnitModelForm
-from base.models.enums import learning_unit_year_subtypes, organization_type
+from base.models.enums import learning_unit_year_subtypes
 from base.models.enums.learning_container_year_types import EXTERNAL
 from base.models.enums.learning_unit_year_subtypes import FULL
 from base.models.learning_unit_year import LearningUnitYear
-from base.tests.factories.academic_year import create_current_academic_year
 from base.tests.factories.business.entities import create_entities_hierarchy
-from base.tests.factories.campus import CampusFactory
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from base.tests.factories.organization import OrganizationFactory
@@ -49,8 +48,6 @@ from base.tests.factories.organization_address import OrganizationAddressFactory
 from reference.tests.factories.country import CountryFactory
 from base.forms.learning_unit.search_form import ExternalLearningUnitYearForm
 from base.tests.factories.academic_year import create_current_academic_year
-from django.utils.translation import ugettext_lazy as _
-from base.tests.factories.entity import EntityFactory
 from base.models.enums import organization_type
 
 NAMEN = 'Namur'
@@ -140,11 +137,6 @@ class TestExternalLearningUnitForm(TestCase):
 
 class TestExternalLearningUnitSearchForm(TestCase):
     def setUp(self):
-
-        # self.organization = OrganizationFactory(type=organization_type.MAIN)
-        # self.country = CountryFactory()
-        # entity_buyer = EntityFactory(country=self.country, organization=self.organization)
-
         self.academic_year = create_current_academic_year()
         self.learning_unit_year_1 = LearningUnitYearFactory(academic_year=self.academic_year)
         self.external_lu_1 = ExternalLearningUnitYearFactory(external_acronym='XLDR1001',
