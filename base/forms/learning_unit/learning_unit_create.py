@@ -88,11 +88,11 @@ class LearningUnitModelForm(forms.ModelForm):
     def save(self, **kwargs):
         self.instance.learning_container = kwargs.pop('learning_container')
         self.instance.start_year = kwargs.pop('start_year')
-        return super(LearningUnitModelForm, self).save(**kwargs)
+        return super().save(**kwargs)
 
     class Meta:
         model = LearningUnit
-        fields = ('periodicity', 'faculty_remark', 'other_remark', )
+        fields = ('periodicity', 'faculty_remark', 'other_remark')
         widgets = {
             'faculty_remark': forms.Textarea(attrs={'rows': '5'}),
             'other_remark': forms.Textarea(attrs={'rows': '5'})
