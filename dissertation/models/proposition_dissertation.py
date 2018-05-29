@@ -24,6 +24,9 @@
 #
 ##############################################################################
 from django.core.exceptions import ObjectDoesNotExist
+
+from base.models import academic_year
+from dissertation.models import dissertation
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
 from django.db import models
 from django.db.models import Q
@@ -96,9 +99,14 @@ class PropositionDissertation(SerializableModel):
         self.author = adviser
         self.save()
 
-    def get_count_use(self):
-        from dissertation.models.dissertation import count_by_proposition
-        return count_by_proposition(self)
+    def count_dissertations(self):
+        current_academic_year = academic_year.starting_academic_year()
+        return dissertation.Dissertation.objects.filter(proposition_dissertation=self) \
+            .filter(active=True) \
+            .filter(offer_year_start__academic_year=current_academic_year) \
+            .exclude(status='DRAFT') \
+            .exclude(status='DIR_KO') \
+            .count()
 
     class Meta:
         ordering = ["author__person__last_name", "author__person__middle_name", "author__person__first_name", "title"]

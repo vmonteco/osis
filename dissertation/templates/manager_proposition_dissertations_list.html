@@ -79,7 +79,7 @@
                   <td><a href="{% url 'manager_proposition_dissertation_detail' pk=proposition_dissertation.pk %}">{{ proposition_dissertation.title }}</a></td>
                   <td>{{ proposition_dissertation.author }}</td>
                   <td>{{ proposition_dissertation.creator }}</td>
-                  <td>{{ proposition_dissertation.get_count_use }} {% trans 'of' %} {{ proposition_dissertation.max_number_student }} </td>
+                  <td>{{ proposition_dissertation.count_dissertations }} {% trans 'of' %} {{ proposition_dissertation.max_number_student }} </td>
                   <td>
                       {% if proposition_dissertation.visibility == True %}
                       <span class="label label-success">{% trans 'visible' %}</span>

@@ -113,7 +113,7 @@ def manager_proposition_dissertation_detail(request, pk):
     offer_propositions = proposition_offer.find_by_proposition_dissertation(proposition)
     person = mdl.person.find_by_user(request.user)
     adv = adviser.search_by_person(person)
-    count_use = dissertation.count_by_proposition(proposition)
+    count_use = proposition.count_dissertations()
     percent = count_use * 100 / proposition.max_number_student if proposition.max_number_student else 0
     count_proposition_role = proposition_role.count_by_proposition(proposition)
     files = proposition_document_file.find_by_proposition(proposition)
@@ -272,7 +272,7 @@ def manager_proposition_dissertations_search(request):
                                str(types_choices[proposition.type]),
                                str(levels_choices[proposition.level]),
                                str(collaboration_choices[proposition.collaboration]),
-                               '{}/{}'.format(proposition.get_count_use(), proposition.max_number_student),
+                               '{}/{}'.format(proposition.count_dissertations(), proposition.max_number_student),
                                proposition.visibility,
                                proposition.active,
                                offers,
@@ -323,7 +323,7 @@ def proposition_dissertation_detail(request, pk):
     if proposition is None:
         return redirect('proposition_dissertations')
     offer_propositions = proposition_offer.find_by_proposition_dissertation(proposition)
-    count_use = dissertation.count_by_proposition(proposition)
+    count_use = proposition.count_dissertations()
     percent = count_use * 100 / proposition.max_number_student if proposition.max_number_student else 0
     count_proposition_role = proposition_role.count_by_proposition(proposition)
     files = proposition_document_file.find_by_proposition(proposition)

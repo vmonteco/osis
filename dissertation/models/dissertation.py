@@ -168,16 +168,6 @@ def search_by_offer_and_status(offers, status):
     return search_by_offer(offers).filter(status=status)
 
 
-def count_by_proposition(prop_dissert):
-    current_academic_year = academic_year.starting_academic_year()
-    return Dissertation.objects.filter(proposition_dissertation=prop_dissert)\
-        .filter(active=True)\
-        .filter(offer_year_start__academic_year=current_academic_year)\
-        .exclude(status='DRAFT') \
-        .exclude(status='DIR_KO') \
-        .count()
-
-
 def get_next_status(dissert, operation):
     if operation == "go_forward":
         if dissert.status == 'DRAFT' or dissert.status == 'DIR_KO':
