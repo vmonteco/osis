@@ -24,7 +24,6 @@
 #
 ##############################################################################
 
-from django import forms
 from django.contrib.auth.models import Group
 from django.test import TestCase
 from django.utils.translation import ugettext_lazy as _
@@ -214,7 +213,7 @@ class TestLearningUnitYearModelFormSave(TestCase):
                                          instance=learning_unit_year_to_update)
         self.assertTrue(form.is_valid(), form.errors)
 
-        self.assertEqual(form.warnings, [_("The credits value of the partim %(acronym)s is greater or "
+        self.assertEqual(form.instance.warnings, [_("The credits value of the partim %(acronym)s is greater or "
                                            "equal than the credits value of the parent learning unit.") % {
             'acronym': partim.acronym}])
 
@@ -231,4 +230,4 @@ class TestLearningUnitYearModelFormSave(TestCase):
         form = LearningUnitYearModelForm(data=self.post_data, person=self.central_manager, subtype=FULL,
                                          instance=learning_unit_year_to_update)
         self.assertTrue(form.is_valid(), form.errors)
-        self.assertFalse(form.warnings)
+        self.assertFalse(form.instance.warnings)

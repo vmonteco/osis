@@ -92,7 +92,7 @@ class LearningComponentYear(SerializableModel):
         _warnings = []
         vol_global = self.entitycomponentyear_set.aggregate(Sum('repartition_volume'))['repartition_volume__sum']
 
-        if (self.hourly_volume_partial or 0) * (self.planned_classes or 0) > vol_global:
+        if (self.hourly_volume_partial or 0) * (self.planned_classes or 0) > (vol_global or 0):
             _warnings.append(_('Volumes are inconsistent'))
         if self.planned_classes == 0:
             _warnings.append(_('Volumes are inconsistent (planned classes should not be 0)'))
