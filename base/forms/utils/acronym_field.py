@@ -26,7 +26,6 @@
 import re
 
 from django import forms
-from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 
 from base.forms.utils.choice_field import add_blank
@@ -63,7 +62,7 @@ class ExternalAcronymInput(AcronymInput):
 
     def __init__(self, attrs=None):
         super().__init__(attrs)
-        self.widgets[0].attrs['readonly'] = True
+        self.widgets[0].attrs['disabled'] = True
 
 
 class AcronymField(forms.MultiValueField):
@@ -86,8 +85,7 @@ class ExternalAcronymField(AcronymField):
     widget = ExternalAcronymInput
 
     def clean(self, value):
-        if value[0] != 'X':
-            raise ValidationError(_('invalid_acronym'))
+        value[0] = 'X'
         return super().clean(value)
 
 
