@@ -83,9 +83,7 @@ class LearningComponentYear(SerializableModel):
     @property
     def warnings(self):
         if self._warnings is None:
-            self._warnings = []
-            self._warnings.extend(self._check_volumes_consistency())
-
+            self._warnings = self._check_volumes_consistency()
         return self._warnings
 
     def _check_volumes_consistency(self):
