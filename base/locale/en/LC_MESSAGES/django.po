@@ -2942,3 +2942,9 @@ msgstr "learning_units"
 
 msgid "warnigns_detected"
 msgstr "We detected inconsistencies in the following data :"
+
+msgid "Volumes are inconsistent"
+msgstr ""
+
+msgid "planned classes cannot be 0"
+msgstr ""
