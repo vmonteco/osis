@@ -25,6 +25,9 @@
     * see http://www.gnu.org/licenses/.
 {% endcomment %}
 
+{% with activity_search_type=1 %}
+{% with service_search_type=2 %}
+{% with borrowed_search_type=5 %}
 
 {% block search_form_row_1 %}
     <div class="col-md-2">
@@ -72,7 +75,7 @@
             {% bootstrap_field form.allocation_entity_acronym %}
         </div>
     {% endif %}
-    {% if search_type == 1 or search_type == 2 or search_type == 5 %}
+    {% if search_type == activity_search_type or search_type == service_search_type or search_type == borrowed_search_type %}
         <div class="col-md-2">
             {% bootstrap_field form.with_entity_subordinated %}
         </div>
