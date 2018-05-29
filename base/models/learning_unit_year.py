@@ -264,6 +264,7 @@ class LearningUnitYear(SerializableModel):
             self._warnings.extend(self._check_partim_parent_credits())
             self._warnings.extend(self._check_internship_subtype())
             self._warnings.extend(self._check_partim_parent_status())
+            self._warnings.extend(self._check_learning_component_year_warnings())
         return self._warnings
 
     def _check_partim_parent_credits(self):
@@ -289,6 +290,13 @@ class LearningUnitYear(SerializableModel):
             if self.status is False and find_partims_with_active_status(self).exists():
                 warnings.append(_("There is at least one partim active, so the parent must be active"))
         return warnings
+
+    def _check_learning_component_year_warnings(self):
+        _warnings = []
+        for learning_unit_component in self.learningunitcomponent_set.all().select_related('learning_component_year'):
+            _warnings.extend(learning_unit_component.learning_component_year.warnings)
+
+        return _warnings
 
 
 def get_by_id(learning_unit_year_id):

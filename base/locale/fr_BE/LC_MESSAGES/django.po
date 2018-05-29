@@ -2945,3 +2945,9 @@ msgstr "Crédits locaux"
 
 msgid "warnigns_detected"
 msgstr "Nous avons détecté des incohérences dans les données suivantes :"
+
+msgid "Volumes are inconsistent"
+msgstr "Les volumes sont inconsistants"
+
+msgid "planned classes cannot be 0"
+msgstr "le nombre de classes prévues ne peut être 0"

@@ -240,11 +240,6 @@ class LearningUnitPostponementForm:
         """ Warnings can be call only after saving the forms"""
         if self._warnings is None and self._luy_upserted:
             self._warnings = []
-            # Add the warnings of the current year
-            for form in self._forms_to_upsert[0]:
-                if hasattr(form, 'warnings'):
-                    self._warnings.extend(form.warnings)
-
             if self.consistency_errors:
                 self._warnings.append(_('The learning unit has been updated until %(year)s.') % {
                     'year': self._luy_upserted[-1].academic_year
