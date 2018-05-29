@@ -381,7 +381,8 @@ class DynamicChoiceField(forms.ChoiceField):
 
 
 class ExternalLearningUnitYearForm(LearningUnitYearForm):
-    country = forms.ModelChoiceField(queryset=Country.objects.all().order_by('name'), required=False, label=_("country"))
+    country = forms.ModelChoiceField(queryset=Country.objects.all().order_by('name'),
+                                     required=False, label=_("country"))
     campus = DynamicChoiceField(choices=[SearchForm.NO_SELECTION_LABEL], required=False, label=_("institution"))
     city = DynamicChoiceField(choices=[SearchForm.NO_SELECTION_LABEL], required=False, label=_("city"))
 

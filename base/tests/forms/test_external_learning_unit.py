@@ -144,7 +144,8 @@ class TestExternalLearningUnitSearchForm(TestCase):
         self.academic_year = create_current_academic_year()
         self.learning_unit_year_1 = LearningUnitYearFactory(academic_year=self.academic_year)
         self.external_lu_1 = ExternalLearningUnitYearFactory(external_acronym='XLDR1001',
-                                                             learning_unit_year=self.learning_unit_year_1)
+                                                             learning_unit_year=self.learning_unit_year_1,
+                                                             buyer=entity_buyer.entity,)
         self.learning_unit_year_2 = LearningUnitYearFactory(academic_year=self.academic_year)
         self.external_lu_2 = ExternalLearningUnitYearFactory(external_acronym='XLDR1002',
                                                              buyer=entity_buyer.entity,
