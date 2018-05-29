@@ -2945,3 +2945,6 @@ msgstr "Crédits locaux"
 
 msgid "warnigns_detected"
 msgstr "Nous avons détecté des incohérences dans les données suivantes :"
+
+msgid "professional_integration"
+msgstr "Intégration professionnelle"

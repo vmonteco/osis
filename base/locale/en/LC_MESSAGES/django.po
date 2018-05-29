@@ -2942,3 +2942,6 @@ msgstr "learning_units"
 
 msgid "warnigns_detected"
 msgstr "We detected inconsistencies in the following data :"
+
+msgid "professional_integration"
+msgstr "Professional integration"
