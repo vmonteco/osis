@@ -38,6 +38,9 @@ msgstr "Invalid code"
 msgid "field_is_required"
 msgstr "This field is required"
 
+msgid "Please enter a valid URL."
+msgstr ""
+
 msgid "min_for_field"
 msgstr "Please enter a value greater than or equal to 0."
 

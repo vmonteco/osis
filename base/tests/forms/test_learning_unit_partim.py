@@ -28,14 +28,14 @@ from unittest import mock
 import factory
 import factory.fuzzy
 from django.forms import model_to_dict
-from django.http import QueryDict
 from django.test import TestCase
 from django.utils.translation import ugettext_lazy as _
 
 from base.forms.learning_unit.learning_unit_create import EntityContainerBaseForm
 from base.forms.learning_unit.learning_unit_create import LearningUnitYearModelForm, \
     LearningUnitModelForm, LearningContainerYearModelForm, LearningContainerModelForm
-from base.forms.learning_unit.learning_unit_create_2 import PartimForm, PARTIM_FORM_READ_ONLY_FIELD
+from base.forms.learning_unit.learning_unit_partim import PARTIM_FORM_READ_ONLY_FIELD, PartimForm, \
+    LearningUnitPartimModelForm
 from base.forms.utils import acronym_field
 from base.models.enums import learning_unit_year_subtypes
 from base.models.enums.learning_unit_periodicity import ANNUAL, BIENNIAL_EVEN
@@ -102,7 +102,7 @@ class TestPartimFormInit(LearningUnitPartimFormContextMixin):
                               instance=wrong_instance)
 
     def test_model_forms_case_creation(self):
-        form_classes_expected = [LearningUnitModelForm, LearningUnitYearModelForm, LearningContainerModelForm,
+        form_classes_expected = [LearningUnitPartimModelForm, LearningUnitYearModelForm, LearningContainerModelForm,
                                  LearningContainerYearModelForm, EntityContainerBaseForm]
         form = _instanciate_form(learning_unit_full=self.learning_unit_year_full.learning_unit,
                                  academic_year=self.current_academic_year)
@@ -112,7 +112,7 @@ class TestPartimFormInit(LearningUnitPartimFormContextMixin):
     def test_inherit_initial_values(self):
         """This test will check if field are pre-full in by value of full learning unit year"""
         expected_initials = {
-            LearningUnitModelForm: {
+            LearningUnitPartimModelForm: {
                 'periodicity': self.learning_unit_year_full.learning_unit.periodicity
             },
             LearningUnitYearModelForm: {
@@ -167,7 +167,7 @@ class TestPartimFormInit(LearningUnitPartimFormContextMixin):
            in form_cls_to_validate"""
         partim_form = _instanciate_form(learning_unit_full=self.learning_unit_year_full.learning_unit,
                                         academic_year=self.learning_unit_year_full.academic_year)
-        expected_form_cls = [LearningUnitModelForm, LearningUnitYearModelForm]
+        expected_form_cls = [LearningUnitPartimModelForm, LearningUnitYearModelForm]
         self.assertEqual(partim_form.form_cls_to_validate, expected_form_cls)
 
 
@@ -274,7 +274,7 @@ class TestPartimFormIsValid(LearningUnitPartimFormContextMixin):
         self.assertTrue(form.is_valid(), form.errors)
 
     def _test_learning_unit_model_form_instance(self, partim_form, post_data):
-        form_instance = partim_form.forms[LearningUnitModelForm]
+        form_instance = partim_form.forms[LearningUnitPartimModelForm]
         fields_to_validate = ['faculty_remark', 'other_remark']
         self._assert_equal_values(form_instance.instance, post_data, fields_to_validate)
         # Periodicity inherit from parent [Cannot be modify by user]
@@ -339,7 +339,7 @@ class TestPartimFormSave(LearningUnitPartimFormContextMixin):
     """Unit tests for save() for save"""
     @mock.patch('base.forms.learning_unit.learning_unit_create.LearningUnitModelForm.save')
     @mock.patch('base.forms.learning_unit.learning_unit_create.LearningUnitYearModelForm.save')
-    @mock.patch('base.forms.learning_unit.learning_unit_create_2.PartimForm._get_entity_container_year',
+    @mock.patch('base.forms.learning_unit.learning_unit_partim.PartimForm._get_entity_container_year',
                 side_effect=lambda *args: [])
     def test_save_method_mocked(self, mock_get_entity_container_year, mock_luy_form_save, mock_lu_form_save):
         learning_container_year_full = self.learning_unit_year_full.learning_container_year
@@ -465,7 +465,7 @@ class TestPartimFormSave(LearningUnitPartimFormContextMixin):
 
 def get_valid_form_data(learning_unit_year_partim):
     acronym_splited = acronym_field.split_acronym(learning_unit_year_partim.acronym)
-    post_data = {
+    return {
         # Learning unit year data model form
         'acronym_2': acronym_splited[2],
         'subtype': learning_unit_year_partim.subtype,
@@ -481,9 +481,6 @@ def get_valid_form_data(learning_unit_year_partim):
         'faculty_remark': learning_unit_year_partim.learning_unit.faculty_remark,
         'other_remark': learning_unit_year_partim.learning_unit.other_remark,
     }
-    qdict = QueryDict('', mutable=True)
-    qdict.update(post_data)
-    return qdict
 
 
 def _instanciate_form(learning_unit_full, academic_year, post_data=None, instance=None):

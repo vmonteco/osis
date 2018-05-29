@@ -32,7 +32,8 @@ from django.db import transaction
 from base.business.learning_unit_proposal import compute_proposal_type, \
     compute_proposal_state, copy_learning_unit_data
 from base.forms.learning_unit.learning_unit_create import EntitiesVersionChoiceField
-from base.forms.learning_unit.learning_unit_create_2 import FullForm, PartimForm
+from base.forms.learning_unit.learning_unit_create_2 import FullForm
+from base.forms.learning_unit.learning_unit_partim import PartimForm
 from base.models.academic_year import current_academic_year
 from base.models.entity_version import find_main_entities_version, get_last_version
 from base.models.enums import learning_unit_year_subtypes
@@ -42,7 +43,6 @@ from base.models.proposal_learning_unit import ProposalLearningUnit
 
 
 class ProposalLearningUnitForm(forms.ModelForm):
-    # TODO entity must be EntitiesChoiceField
     entity = EntitiesVersionChoiceField(queryset=find_main_entities_version())
 
     def __init__(self, data, person, *args, initial=None, **kwargs):
@@ -69,9 +69,6 @@ class ProposalLearningUnitForm(forms.ModelForm):
     def enable_field(self, field):
         self.fields[field].disabled = False
         self.fields[field].required = True
-
-    def clean_entity(self):
-        return self.cleaned_data['entity'].entity
 
     class Meta:
         model = ProposalLearningUnit

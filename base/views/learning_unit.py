@@ -23,14 +23,12 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import re
 
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
-from django.http import JsonResponse
 from django.shortcuts import redirect, get_object_or_404
 from django.shortcuts import render
 from django.utils.translation import ugettext_lazy as _
@@ -48,20 +46,16 @@ from base.business.learning_units import perms as business_perms
 from base.business.learning_units.perms import learning_unit_year_permissions, learning_unit_proposal_permissions, \
     can_update_learning_achievement
 from base.forms.learning_class import LearningClassEditForm
-from base.forms.learning_unit.learning_unit_postponement import LearningUnitPostponementForm
+from base.forms.learning_unit.learning_unit_create_2 import FullForm
+from base.forms.learning_unit.learning_unit_partim import PartimForm
 from base.forms.learning_unit_component import LearningUnitComponentEditForm
 from base.forms.learning_unit_pedagogy import LearningUnitPedagogyEditForm
 from base.forms.learning_unit_specifications import LearningUnitSpecificationsForm, LearningUnitSpecificationsEditForm
 from base.models import proposal_learning_unit, education_group_year
-from base.models.academic_year import AcademicYear
-from base.models.enums.learning_container_year_types import INTERNSHIP
-from base.models.learning_unit import REGEX_BY_SUBTYPE
+from base.models.enums import learning_unit_year_subtypes
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
-from base.views.learning_units import perms
-from base.views.learning_units.common import show_success_learning_unit_year_creation_message
 from cms.models import text_label
-from osis_common.decorators.ajax import ajax_required
 from . import layout
 
 
@@ -74,7 +68,8 @@ def learning_unit_identification(request, learning_unit_year_id):
 
 
 def get_common_context_learning_unit_year(learning_unit_year_id, person):
-    learning_unit_year = get_object_or_404(LearningUnitYear, pk=learning_unit_year_id)
+    query_set = LearningUnitYear.objects.all().select_related('learning_unit', 'learning_container_year')
+    learning_unit_year = get_object_or_404(query_set, pk=learning_unit_year_id)
     return {
         'learning_unit_year': learning_unit_year,
         'current_academic_year': mdl.academic_year.current_academic_year(),
@@ -278,90 +273,17 @@ def learning_class_year_edit(request, learning_unit_year_id):
 
 
 @login_required
-@permission_required('base.can_create_learningunit', raise_exception=True)
-def learning_unit_create(request, academic_year_id):
-    person = get_object_or_404(Person, user=request.user)
-    if request.POST.get('academic_year'):
-        academic_year_id = request.POST.get('academic_year')
-
-    academic_year = get_object_or_404(AcademicYear, pk=academic_year_id)
-    postponement_form = LearningUnitPostponementForm(
-        person=person,
-        start_postponement=academic_year,
-        data=request.POST or None
-    )
-    if postponement_form.is_valid():
-        new_luys = postponement_form.save()
-        for luy in new_luys:
-            show_success_learning_unit_year_creation_message(request, luy, 'learning_unit_successfuly_created')
-        return redirect('learning_unit', learning_unit_year_id=new_luys[0].pk)
-    return render(request, "learning_unit/simple/creation.html", postponement_form.get_context())
-
-
-@login_required
-@ajax_required
-@permission_required('base.can_access_learningunit', raise_exception=True)
-def check_acronym(request, subtype):
-    acronym = request.GET['acronym']
-    academic_yr = mdl.academic_year.find_academic_year_by_id(request.GET['year_id'])
-    existed_acronym = False
-    existing_acronym = False
-    first_using = ""
-    last_using = ""
-    learning_unit_year = mdl.learning_unit_year.find_gte_year_acronym(academic_yr, acronym).first()
-    old_learning_unit_year = mdl.learning_unit_year.find_lt_year_acronym(academic_yr, acronym).last()
-    # FIXME there is the same check in the models
-    if old_learning_unit_year:
-        last_using = str(old_learning_unit_year.academic_year)
-        existed_acronym = True
-
-    if learning_unit_year:
-        first_using = str(learning_unit_year.academic_year)
-        existing_acronym = True
-
-    if subtype not in REGEX_BY_SUBTYPE:
-        valid = False
-    else:
-        valid = bool(re.match(REGEX_BY_SUBTYPE[subtype], acronym))
-
-    return JsonResponse({'valid': valid, 'existing_acronym': existing_acronym, 'existed_acronym': existed_acronym,
-                         'first_using': first_using, 'last_using': last_using}, safe=False)
-
-
-@login_required
 def outside_period(request):
     text = _('summary_responsible_denied')
     messages.add_message(request, messages.WARNING, "%s" % text)
     return render(request, "access_denied.html")
 
 
-@login_required
-@permission_required('base.can_create_learningunit', raise_exception=True)
-@require_http_methods(["POST", "GET"])
-@perms.can_create_partim
-def create_partim_form(request, learning_unit_year_id):
-    person = get_object_or_404(Person, user=request.user)
-    learning_unit_year_full = get_object_or_404(LearningUnitYear, pk=learning_unit_year_id)
-
-    postponement_form = LearningUnitPostponementForm(
-        person=person,
-        learning_unit_full_instance=learning_unit_year_full.learning_unit,
-        start_postponement=learning_unit_year_full.academic_year,
-        data=request.POST or None
-    )
-
-    if postponement_form.is_valid():
-        new_luys = postponement_form.save()
-        for luy in new_luys:
-            show_success_learning_unit_year_creation_message(request, luy, 'learning_unit_successfuly_created')
-        return redirect('learning_unit', learning_unit_year_id=new_luys[0].pk)
-    return render(request, "learning_unit/simple/creation_partim.html", postponement_form.get_context())
-
-
 def get_learning_unit_identification_context(learning_unit_year_id, person):
     context = get_common_context_learning_unit_year(learning_unit_year_id, person)
 
     learning_unit_year = context['learning_unit_year']
+    set_warnings_context(context, learning_unit_year, person)
     proposal = proposal_learning_unit.find_by_learning_unit(learning_unit_year.learning_unit)
 
     context['learning_container_year_partims'] = learning_unit_year.get_partims_related()
@@ -380,7 +302,6 @@ def get_learning_unit_identification_context(learning_unit_year_id, person):
     context['differences'] = get_difference_of_proposal(proposal.initial_data, learning_unit_year) \
         if proposal and proposal.learning_unit_year == learning_unit_year \
         else {}
-    get_warnings_messages(context, learning_unit_year)
 
     # append permissions
     context.update(learning_unit_year_permissions(learning_unit_year, person))
@@ -389,11 +310,12 @@ def get_learning_unit_identification_context(learning_unit_year_id, person):
     return context
 
 
-def get_warnings_messages(context, learning_unit_year):
-    warnings = []
-    if learning_unit_year.learning_container_year.container_type == INTERNSHIP and \
-            not learning_unit_year.internship_subtype:
-        warnings.append(_('missing_internship_subtype'))
-    if learning_unit_year.parent and (not learning_unit_year.parent.status and learning_unit_year.status):
-        warnings.append(_('different_status_with_parent'))
-    context['warnings'] = warnings
+def set_warnings_context(context, learning_unit_year, person):
+    if learning_unit_year.subtype == learning_unit_year_subtypes.FULL:
+        context['warnings'] = FullForm(person, learning_unit_year.academic_year,
+                                       learning_unit_instance=learning_unit_year.learning_unit).warnings
+    else:
+        context['warnings'] = PartimForm(person,
+                                         learning_unit_full_instance=learning_unit_year.parent.learning_unit,
+                                         academic_year=learning_unit_year.academic_year,
+                                         learning_unit_instance=learning_unit_year.learning_unit).warnings
