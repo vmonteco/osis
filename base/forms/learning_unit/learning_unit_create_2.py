@@ -27,6 +27,7 @@ from abc import ABCMeta
 from collections import OrderedDict
 
 from django.db import transaction
+from django.http import QueryDict
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
@@ -36,6 +37,7 @@ from base.forms.learning_unit.learning_unit_create import LearningUnitModelForm,
 from base.forms.utils.acronym_field import split_acronym
 from base.models import learning_unit_year
 from base.models.campus import Campus
+from base.models.enums import learning_container_year_types
 from base.models.enums import learning_unit_year_subtypes
 from base.models.learning_unit import LearningUnit
 from reference.models import language
@@ -53,7 +55,7 @@ FACULTY_OPEN_FIELDS = {'quadrimester', 'session', 'team', "faculty_remark", "oth
 
 
 class LearningUnitBaseForm(metaclass=ABCMeta):
-    form_cls_to_validate = [
+    form_cls = form_cls_to_validate = [
         LearningUnitModelForm,
         LearningUnitYearModelForm,
         LearningContainerModelForm,
@@ -69,14 +71,7 @@ class LearningUnitBaseForm(metaclass=ABCMeta):
     _warnings = None
 
     def __init__(self, instances_data, *args, **kwargs):
-        self.forms = OrderedDict({
-            LearningContainerModelForm: LearningContainerModelForm(*args, **instances_data[LearningContainerModelForm]),
-            LearningContainerYearModelForm: LearningContainerYearModelForm(*args, **instances_data[
-                LearningContainerYearModelForm]),
-            LearningUnitModelForm: LearningUnitModelForm(*args, **instances_data[LearningUnitModelForm]),
-            LearningUnitYearModelForm: LearningUnitYearModelForm(*args, **instances_data[LearningUnitYearModelForm]),
-            EntityContainerBaseForm: EntityContainerBaseForm(*args, **instances_data[EntityContainerBaseForm])
-        })
+        self.forms = OrderedDict({cls: cls(*args, **instances_data[cls]) for cls in self.form_cls})
 
     def is_valid(self):
         if any([not form_instance.is_valid() for cls, form_instance in self.forms.items()
@@ -84,7 +79,6 @@ class LearningUnitBaseForm(metaclass=ABCMeta):
             return False
 
         self.learning_container_year_form.post_clean(self.learning_unit_year_form.cleaned_data["specific_title"])
-
         return not self.errors
 
     @transaction.atomic
@@ -120,8 +114,11 @@ class LearningUnitBaseForm(metaclass=ABCMeta):
     def instances_data(self):
         data = {}
         for form_instance in self.forms.values():
-            columns = form_instance.fields.keys()
-            data.update({col: getattr(form_instance.instance, col, None) for col in columns})
+            if isinstance(form_instance, EntityContainerBaseForm):
+                data.update(form_instance.instances_data)
+            else:
+                columns = form_instance.fields.keys()
+                data.update({col: getattr(form_instance.instance, col, None) for col in columns})
         return data
 
     @property
@@ -141,11 +138,6 @@ class LearningUnitBaseForm(metaclass=ABCMeta):
     def disable_fields(self, fields_to_disable):
         for key, value in self.fields.items():
             if key in fields_to_disable:
-                self._disable_field(value)
-
-    def disable_all_fields_except(self, fields_not_to_disable):
-        for key, value in self.fields.items():
-            if key not in fields_not_to_disable:
                 self._disable_field(value)
 
     @staticmethod
@@ -171,6 +163,10 @@ class LearningUnitBaseForm(metaclass=ABCMeta):
         return True
 
     @property
+    def learning_container_form(self):
+        return self.forms.get(LearningContainerModelForm)
+
+    @property
     def learning_unit_form(self):
         return self.forms[LearningUnitModelForm]
 
@@ -184,7 +180,7 @@ class LearningUnitBaseForm(metaclass=ABCMeta):
 
     @property
     def entity_container_form(self):
-        return self.forms[EntityContainerBaseForm]
+        return self.forms.get(EntityContainerBaseForm)
 
     def __iter__(self):
         """Yields the forms in the order they should be rendered"""
@@ -220,6 +216,9 @@ class FullForm(LearningUnitBaseForm):
         if self.instance:
             self._disable_fields()
 
+        self.fields['internship_subtype'].disabled =\
+            not self.instance or self.instances_data["container_type"] != learning_container_year_types.INTERNSHIP
+
     def _disable_fields(self):
         if self.person.is_faculty_manager():
             self._disable_fields_as_faculty_manager()
@@ -230,7 +229,7 @@ class FullForm(LearningUnitBaseForm):
         if self.proposal:
             self.disable_fields(FACULTY_OPEN_FIELDS)
         else:
-            self.disable_all_fields_except(FACULTY_OPEN_FIELDS)
+            self.disable_fields(self.fields.keys() - set(FACULTY_OPEN_FIELDS))
 
     def _disable_fields_as_central_manager(self):
         if self.proposal:
@@ -320,7 +319,9 @@ class FullForm(LearningUnitBaseForm):
 
 
 def merge_data(data, inherit_lu_values):
-    return merge_two_dicts(data.dict(), inherit_lu_values) if data else None
+    if isinstance(data, QueryDict):
+        data = data.dict()
+    return merge_two_dicts(data, inherit_lu_values) if data else None
 
 
 class PartimForm(LearningUnitBaseForm):

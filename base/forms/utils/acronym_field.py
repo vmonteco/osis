@@ -26,21 +26,29 @@
 import re
 
 from django import forms
+from django.core.exceptions import ValidationError
+from django.utils.translation import ugettext_lazy as _
 
 from base.forms.utils.choice_field import add_blank
 from base.models.enums import learning_unit_year_subtypes
 from base.models.enums.learning_unit_management_sites import LearningUnitManagementSite
 
 
+def _create_first_letter_choices():
+    return add_blank(LearningUnitManagementSite.choices())
+
+
 class AcronymInput(forms.MultiWidget):
     template_name = 'learning_unit/blocks/widget/acronym_widget.html'
+    choices = _create_first_letter_choices()
 
     def __init__(self, attrs=None):
         attrs = attrs or {}
         attrs['class'] = 'text-uppercase'
         widgets = (
-            forms.Select(attrs=attrs, choices=_create_first_letter_choices()),
-            forms.TextInput(attrs=attrs))
+            forms.Select(attrs=attrs, choices=self.choices),
+            forms.TextInput(attrs=attrs)
+        )
 
         super().__init__(widgets)
 
@@ -48,6 +56,14 @@ class AcronymInput(forms.MultiWidget):
         if value:
             return [value[0], value[1:]]
         return ['', '']
+
+
+class ExternalAcronymInput(AcronymInput):
+    choices = (('X', 'X'),)
+
+    def __init__(self, attrs=None):
+        super().__init__(attrs)
+        self.widgets[0].attrs['readonly'] = True
 
 
 class AcronymField(forms.MultiValueField):
@@ -60,9 +76,19 @@ class AcronymField(forms.MultiValueField):
             forms.CharField(*args, max_length=max_length, **kwargs)
         ]
         super().__init__(list_fields, *args, **kwargs)
+        self.label = _("acronym")
 
     def compress(self, data_list):
         return ''.join(data_list).upper()
+
+
+class ExternalAcronymField(AcronymField):
+    widget = ExternalAcronymInput
+
+    def clean(self, value):
+        if value[0] != 'X':
+            raise ValidationError(_('invalid_acronym'))
+        return super().clean(value)
 
 
 class PartimAcronymInput(forms.MultiWidget):
@@ -101,6 +127,7 @@ class PartimAcronymField(forms.MultiValueField):
         kwargs['require_all_fields'] = kwargs.pop('required', True)
         super().__init__(list_fields, *args, **kwargs)
         self.apply_attrs_to_widgets('disabled', disabled)
+        self.label = _("acronym")
 
     def apply_attrs_to_widgets(self, property, values):
         for index, subwidget in enumerate(self.widget.widgets):
@@ -108,10 +135,6 @@ class PartimAcronymField(forms.MultiValueField):
 
     def compress(self, data_list):
         return ''.join(data_list).upper()
-
-
-def _create_first_letter_choices():
-    return add_blank(LearningUnitManagementSite.choices())
 
 
 def split_acronym(value, subtype=learning_unit_year_subtypes.PARTIM):

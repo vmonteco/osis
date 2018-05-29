@@ -1642,7 +1642,7 @@ msgid "LECTURING"
 msgstr "Partie magistrale"
 
 msgid "PRACTICAL_EXERCISES"
-msgstr "Travaux pratiques"
+msgstr "Partie pratique"
 
 msgid "lecturing"
 msgstr "Cours magistral"
@@ -2901,9 +2901,6 @@ msgstr "volume total global"
 msgid "missing_internship_subtype"
 msgstr "Il est nécessaire d'indiquer le sous-type de stage"
 
-msgid "different_status_with_parent"
-msgstr "L'UE parent est inactif"
-
 msgid "Consistency error in %(academic_year)s : %(error)s"
 msgstr "Erreur de consistance en %(academic_year)s : %(error)s"
 
@@ -2912,3 +2909,39 @@ msgstr "%(col_name)s a déjà été modifié. ({%(new_value)s} à la place de {%
 
 msgid "external_code"
 msgstr "Code local"
+
+msgid "Proposals"
+msgstr "Propositions"
+
+msgid "learning_units_and_attributions_filename"
+msgstr "unites_enseignements_et_attributions"
+
+msgid "attribution_list"
+msgstr "Liste d'attributions"
+
+msgid "List_proposals"
+msgstr "Liste de propositions"
+
+msgid "List_activities"
+msgstr "Liste d'activités"
+
+msgid "learning_units_filename"
+msgstr "unite_enseignements"
+
+msgid "new_external_learning_unit"
+msgstr "Nouvelle UE externe"
+
+msgid "external"
+msgstr "Externe"
+
+msgid "comment_title"
+msgstr "Commentaire"
+
+msgid "requesting_entity"
+msgstr "Entité demandeuse"
+
+msgid "local_credits"
+msgstr "Crédits locaux"
+
+msgid "warnigns_detected"
+msgstr "Nous avons détecté des incohérences dans les données suivantes :"

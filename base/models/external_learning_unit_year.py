@@ -24,32 +24,36 @@
 #
 ##############################################################################
 
-from django.core.validators import MinValueValidator, MaxValueValidator, RegexValidator
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
-from base.models.learning_unit import LEARNING_UNIT_ACRONYM_REGEX_ALL
 from base.models.learning_unit_year import MINIMUM_CREDITS, MAXIMUM_CREDITS
 from base.models.osis_model_admin import OsisModelAdmin
 
 
 class ExternalLearningUnitYearAdmin(OsisModelAdmin):
-    list_display = ('external_id', 'external_acronym', 'external_credits', 'url', 'learning_unit_year', 'buyer')
-    fieldsets = ((None, {'fields': ('external_acronym', 'external_credits', 'url', 'learning_unit_year', 'buyer')}),)
-    raw_id_fields = ('learning_unit_year', 'buyer')
-    search_fields = ['acronym', 'learning_unit_year__acronym']
+    list_display = ('external_id', 'external_acronym', 'external_credits', 'url', 'learning_unit_year',
+                    'requesting_entity', "author", "date")
+    fieldsets = ((None, {'fields': ('external_acronym', 'external_credits', 'url', 'learning_unit_year',
+                                    'requesting_entity', 'author')}),)
+    raw_id_fields = ('learning_unit_year', 'requesting_entity', 'author')
+    search_fields = ['acronym', 'learning_unit_year__acronym', 'author']
 
 
 class ExternalLearningUnitYear(models.Model):
     external_id = models.CharField(max_length=100, blank=True, null=True)
     changed = models.DateTimeField(null=True, auto_now=True)
     external_acronym = models.CharField(max_length=15, db_index=True, verbose_name=_('external_code'))
-    external_credits = models.DecimalField(max_digits=5, decimal_places=2,
+    external_credits = models.DecimalField(max_digits=5, decimal_places=2, verbose_name=_('local_credits'),
                                            validators=[MinValueValidator(MINIMUM_CREDITS),
                                                        MaxValueValidator(MAXIMUM_CREDITS)])
     url = models.URLField(max_length=255, blank=True, null=True)
     learning_unit_year = models.OneToOneField('LearningUnitYear')
-    buyer = models.ForeignKey('Entity')
+    requesting_entity = models.ForeignKey('Entity', verbose_name=_('requesting_entity'))
+
+    author = models.ForeignKey('Person', null=True)
+    date = models.DateTimeField(auto_now=True)
 
     class Meta:
         unique_together = ('learning_unit_year', 'external_acronym',)

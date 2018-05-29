@@ -2898,6 +2898,21 @@ msgstr "It is necessary to indicate the internship subtype"
 msgid "different_status_with_parent"
 msgstr "The learning unit's parent is inactive"
 
+msgid "new_external_learning_unit"
+msgstr "Create a new external learning unit"
+
+msgid "external"
+msgstr "External"
+
+msgid "comment_title"
+msgstr "Comment"
+
+msgid "requesting_entity"
+msgstr "Requesting entity"
+
+msgid "local_credits"
+msgstr "Local credits"
+
 msgid "Consistency error in %(academic_year)s : %(error)s"
 msgstr ""
 
@@ -2906,3 +2921,24 @@ msgstr ""
 
 msgid "external_code"
 msgstr "External code"
+
+msgid "Proposals"
+msgstr ""
+
+msgid "learning_units_and_attributions_filename"
+msgstr "learning_units_and_attributions"
+
+msgid "attribution_list"
+msgstr "List of attributions"
+
+msgid "List_proposals"
+msgstr "List of proposals"
+
+msgid "List_activities"
+msgstr "List of activities"
+
+msgid "learning_units_filename"
+msgstr "learning_units"
+
+msgid "warnigns_detected"
+msgstr "We detected inconsistencies in the following data :"

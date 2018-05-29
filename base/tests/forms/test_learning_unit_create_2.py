@@ -27,22 +27,25 @@ import collections
 import datetime
 from unittest import mock
 
+import factory.fuzzy
+from django.contrib.auth.models import Group
 from django.test import TestCase
 from django.utils.translation import ugettext_lazy as _
 
 from base.forms.learning_unit.learning_unit_create import LearningUnitYearModelForm, \
     LearningUnitModelForm, LearningContainerYearModelForm, LearningContainerModelForm, EntityContainerBaseForm
-from base.forms.learning_unit.learning_unit_create_2 import FullForm, FULL_READ_ONLY_FIELDS, \
-    FULL_PROPOSAL_READ_ONLY_FIELDS
+from base.forms.learning_unit.learning_unit_create_2 import FullForm, FULL_PROPOSAL_READ_ONLY_FIELDS, \
+    FACULTY_OPEN_FIELDS
 from base.models.academic_year import AcademicYear
 from base.models.entity_component_year import EntityComponentYear
 from base.models.entity_container_year import EntityContainerYear
 from base.models.entity_version import EntityVersion
-from base.models.enums import learning_unit_year_subtypes, learning_container_year_types, organization_type
+from base.models.enums import learning_unit_year_subtypes, learning_container_year_types, organization_type, \
+    learning_unit_periodicity
 from base.models.enums.entity_container_year_link_type import ADDITIONAL_REQUIREMENT_ENTITY_1, \
     ADDITIONAL_REQUIREMENT_ENTITY_2
 from base.models.enums.entity_type import FACULTY
-from base.models.enums.learning_container_year_types import MASTER_THESIS
+from base.models.enums.learning_container_year_types import MASTER_THESIS, INTERNSHIP
 from base.models.enums.learning_unit_periodicity import ANNUAL
 from base.models.enums.organization_type import MAIN
 from base.models.learning_component_year import LearningComponentYear
@@ -50,13 +53,16 @@ from base.models.learning_container import LearningContainer
 from base.models.learning_container_year import LearningContainerYear
 from base.models.learning_unit import LearningUnit
 from base.models.learning_unit_component import LearningUnitComponent
-from base.models.learning_unit_year import LearningUnitYear
+from base.models.learning_unit_year import LearningUnitYear, MAXIMUM_CREDITS
+from base.models.person import FACULTY_MANAGER_GROUP
 from base.tests.factories.academic_year import create_current_academic_year, AcademicYearFactory
 from base.tests.factories.business.entities import create_entities_hierarchy
 from base.tests.factories.business.learning_units import GenerateContainer, GenerateAcademicYear
 from base.tests.factories.campus import CampusFactory
 from base.tests.factories.entity_version import EntityVersionFactory
+from base.tests.factories.learning_container import LearningContainerFactory
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
+from base.tests.factories.learning_unit import LearningUnitFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from base.tests.factories.organization import OrganizationFactory
 from base.tests.factories.person import PersonFactory
@@ -79,8 +85,16 @@ def get_valid_form_data(academic_year, person, learning_unit_year=None):
     campus = CampusFactory(organization=organization)
 
     if not learning_unit_year:
-        container_year = LearningContainerYearFactory(academic_year=academic_year, campus=campus)
+        learning_container = LearningContainerFactory()
+        container_year = LearningContainerYearFactory(academic_year=academic_year,
+                                                      learning_container=learning_container,
+                                                      campus=campus)
+        learning_unit_full = LearningUnitFactory(learning_container=learning_container,
+                                                 start_year=academic_year.year,
+                                                 end_year=academic_year.year,
+                                                 periodicity=learning_unit_periodicity.ANNUAL)
         learning_unit_year = LearningUnitYearFactory.build(academic_year=academic_year,
+                                                           learning_unit=learning_unit_full,
                                                            learning_container_year=container_year,
                                                            subtype=learning_unit_year_subtypes.FULL)
     return {
@@ -96,11 +110,11 @@ def get_valid_form_data(academic_year, person, learning_unit_year=None):
         'session': learning_unit_year.session,
         'quadrimester': learning_unit_year.quadrimester,
         'status': learning_unit_year.status,
-        'internship_subtype': learning_unit_year.internship_subtype,
+        'internship_subtype': None,
         'attribution_procedure': learning_unit_year.attribution_procedure,
 
         # Learning unit data model form
-        'periodicity': learning_unit_year.learning_unit.periodicity,
+        'periodicity': ANNUAL,
         'faculty_remark': learning_unit_year.learning_unit.faculty_remark,
         'other_remark': learning_unit_year.learning_unit.other_remark,
 
@@ -129,7 +143,7 @@ class LearningUnitFullFormContextMixin(TestCase):
         self.current_academic_year = create_current_academic_year()
         self.person = PersonFactory()
         self.post_data = get_valid_form_data(self.current_academic_year, person=self.person)
-        # Creation of a LearingContainerYear and all related models
+        # Creation of a LearningContainerYear and all related models
         self.learn_unit_structure = GenerateContainer(self.current_academic_year.year, self.current_academic_year.year)
         self.learning_unit_year = LearningUnitYear.objects.get(
             learning_unit=self.learn_unit_structure.learning_unit_full,
@@ -153,13 +167,40 @@ class TestFullFormInit(LearningUnitFullFormContextMixin):
         form = FullForm(self.person, self.learning_unit_year.academic_year,
                         learning_unit_instance=self.learning_unit_year.learning_unit)
         disabled_fields = {key for key, value in form.fields.items() if value.disabled}
-        self.assertEqual(disabled_fields, FULL_READ_ONLY_FIELDS)
+        self.assertTrue('internship_subtype' in disabled_fields)
+
+    def test_disable_fields_full_with_faculty_manager(self):
+        self.person.user.groups.add(Group.objects.get(name=FACULTY_MANAGER_GROUP))
+        form = FullForm(self.person, self.learning_unit_year.academic_year,
+                        learning_unit_instance=self.learning_unit_year.learning_unit)
+        disabled_fields = {key for key, value in form.fields.items() if value.disabled}
+        self.assertTrue(FACULTY_OPEN_FIELDS not in disabled_fields)
 
     def test_disable_fields_full_proposal(self):
         form = FullForm(self.person, self.learning_unit_year.academic_year,
                         learning_unit_instance=self.learning_unit_year.learning_unit, proposal=True)
-        disabled_fields = {key for key, value in form.fields.items() if value.disabled}
-        self.assertEqual(disabled_fields, FULL_PROPOSAL_READ_ONLY_FIELDS)
+        self.assertEqual(form.fields['academic_year'].disabled, True)
+        self.assertEqual(form.fields['container_type'].disabled, True)
+        self.assertEqual(form.fields['internship_subtype'].disabled, True)
+
+    def test_disable_fields_full_proposal_with_faculty_manager(self):
+        self.person.user.groups.add(Group.objects.get(name=FACULTY_MANAGER_GROUP))
+        form = FullForm(self.person, self.learning_unit_year.academic_year,
+                        learning_unit_instance = self.learning_unit_year.learning_unit, proposal = True)
+        for elem in FACULTY_OPEN_FIELDS:
+            self.assertEqual(form.fields[elem].disabled, True)
+            self.assertEqual(form.fields['academic_year'].disabled, True)
+            self.assertEqual(form.fields['internship_subtype'].disabled, True)
+
+    def test_disable_internship_subtype(self):
+        form = FullForm(self.person, self.learning_unit_year.academic_year,
+                        learning_unit_instance = self.learning_unit_year.learning_unit)
+        self.assertEqual(form.fields['internship_subtype'].disabled, True)
+        self.learning_unit_year.learning_container_year.container_type = INTERNSHIP
+        self.learning_unit_year.learning_container_year.save()
+        form_with_internship = FullForm(self.person, self.learning_unit_year.academic_year,
+                                        learning_unit_instance = self.learning_unit_year.learning_unit)
+        self.assertEqual(form_with_internship.fields['internship_subtype'].disabled, False)
 
     def test_subtype_is_full(self):
         learn_unit_year = LearningUnitYearFactory(subtype=learning_unit_year_subtypes.FULL)
@@ -358,6 +399,29 @@ class TestFullFormIsValid(LearningUnitFullFormContextMixin):
                          [_("Requirement and allocation entities must be linked "
                             "to the same faculty for this learning unit type.")])
 
+    def test_update_case_credits_too_high_3_digits(self):
+        post_data = dict(self.post_data)
+        post_data['credits'] = factory.fuzzy.FuzzyDecimal(MAXIMUM_CREDITS  + 0.01, 999, 2).fuzz()
+
+        form = _instanciate_form(self.learning_unit_year.academic_year, post_data=post_data, person=self.person,
+                                 learning_unit_instance=self.learning_unit_year.learning_unit)
+        self.assertFalse(form.is_valid(), form.errors)
+        self.assertEqual(
+            form.errors[0]['credits'],
+            [_('Ensure this value is less than or equal to {max_value}.').format(max_value=MAXIMUM_CREDITS)]
+        )
+
+    def test_update_case_credits_too_high_4_digits(self):
+        post_data = dict(self.post_data)
+        post_data['credits'] = factory.fuzzy.FuzzyDecimal(1000, 100000, 2).fuzz()
+
+        form = _instanciate_form(self.learning_unit_year.academic_year, post_data=post_data, person=self.person,
+                                 learning_unit_instance=self.learning_unit_year.learning_unit)
+        self.assertFalse(form.is_valid(), form.errors)
+        self.assertEqual(
+            form.errors[0]['credits'],
+            [_('Ensure this value is less than or equal to {max_value}.').format(max_value=MAXIMUM_CREDITS)]
+        )
 
 class TestFullFormSave(LearningUnitFullFormContextMixin):
     """Unit tests for save() """

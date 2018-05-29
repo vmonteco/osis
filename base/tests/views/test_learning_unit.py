@@ -625,6 +625,7 @@ class LearningUnitViewTestCase(TestCase):
                                                      subtype=learning_unit_year_subtypes.FULL)
         entity_container = EntityContainerYearFactory(learning_container_year=learning_container_year,
                                                       type=entity_container_year_link_type.REQUIREMENT_ENTITY)
+        EntityVersionFactory(entity=entity_container.entity)
 
         learning_unit_year.learning_unit.end_year = None
         learning_unit_year.learning_unit.save()
@@ -648,7 +649,7 @@ class LearningUnitViewTestCase(TestCase):
                                                      subtype=learning_unit_year_subtypes.PARTIM)
         entity_container = EntityContainerYearFactory(learning_container_year=learning_container_year,
                                                       type=entity_container_year_link_type.REQUIREMENT_ENTITY)
-
+        EntityVersionFactory(entity=entity_container.entity)
         learning_unit_year.learning_unit.end_year = None
         learning_unit_year.learning_unit.save()
 
@@ -670,7 +671,7 @@ class LearningUnitViewTestCase(TestCase):
                                                      subtype=learning_unit_year_subtypes.FULL)
         entity_container = EntityContainerYearFactory(learning_container_year=learning_container_year,
                                                       type=entity_container_year_link_type.REQUIREMENT_ENTITY)
-
+        EntityVersionFactory(entity=entity_container.entity)
         learning_unit_year.learning_unit.end_year = None
         learning_unit_year.learning_unit.save()
 
@@ -1494,8 +1495,8 @@ class TestCreateXls(TestCase):
 
 def _generate_xls_build_parameter(xls_data, user):
     return {
-        xls_build.LIST_DESCRIPTION_KEY: "Liste d'activités",
-        xls_build.FILENAME_KEY: 'Learning_units',
+        xls_build.LIST_DESCRIPTION_KEY: _(learning_unit_business.XLS_DESCRIPTION),
+        xls_build.FILENAME_KEY: _(learning_unit_business.XLS_FILENAME),
         xls_build.USER_KEY: user.username,
         xls_build.WORKSHEETS_DATA: [{
             xls_build.CONTENT_KEY: xls_data,
@@ -1508,7 +1509,7 @@ def _generate_xls_build_parameter(xls_data, user):
                                           str(_('allocation_entity_small')),
                                           str(_('credits')),
                                           str(_('active_title'))],
-            xls_build.WORKSHEET_TITLE_KEY: 'Learning_units',
+            xls_build.WORKSHEET_TITLE_KEY: _(learning_unit_business.WORKSHEET_TITLE),
         }]
     }
 
