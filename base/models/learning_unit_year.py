@@ -78,9 +78,9 @@ class LearningUnitYear(SerializableModel):
     acronym = models.CharField(max_length=15, db_index=True, verbose_name=_('code'),
                                validators=[RegexValidator(LEARNING_UNIT_ACRONYM_REGEX_ALL)])
     specific_title = models.CharField(max_length=255, blank=True, null=True,
-                                      verbose_name=_('official_title_proper_to_UE'))
+                                      verbose_name=_('title_proper_to_UE'))
     specific_title_english = models.CharField(max_length=250, blank=True, null=True,
-                                              verbose_name=_('official_english_title_proper_to_UE'))
+                                              verbose_name=_('english_title_proper_to_UE'))
     subtype = models.CharField(max_length=50, choices=learning_unit_year_subtypes.LEARNING_UNIT_YEAR_SUBTYPES,
                                default=learning_unit_year_subtypes.FULL)
     credits = models.DecimalField(max_digits=5, decimal_places=2, null=True,

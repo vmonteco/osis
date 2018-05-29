@@ -468,7 +468,7 @@ class TestLearningUnitPostponementFormFindConsistencyErrors(LearningUnitPostpone
         expected_result = OrderedDict({
             next_academic_year: [
                 _("%(col_name)s has been already modified. ({%(new_value)s} instead of {%(current_value)s})") % {
-                    'col_name': _('official_title_proper_to_UE'),
+                    'col_name': _('title_proper_to_UE'),
                     'new_value': '-',
                     'current_value': instance_luy_base_form.data['specific_title']
                 }
