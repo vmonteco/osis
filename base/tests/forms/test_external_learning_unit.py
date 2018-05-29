@@ -139,8 +139,9 @@ class TestExternalLearningUnitForm(TestCase):
 
 class TestExternalLearningUnitSearchForm(TestCase):
     def setUp(self):
+        entities = create_entities_hierarchy()
+        entity_buyer = entities['child_one_entity_version']
         self.academic_year = create_current_academic_year()
-        entity_buyer = EntityFactory()
         self.learning_unit_year_1 = LearningUnitYearFactory(academic_year=self.academic_year)
         self.external_lu_1 = ExternalLearningUnitYearFactory(external_acronym='XLDR1001',
                                                              learning_unit_year=self.learning_unit_year_1)
