@@ -33,7 +33,6 @@ from base.business.learning_unit import CMS_LABEL_SPECIFICATIONS, CMS_LABEL_PEDA
 from base.models import learning_unit_enrollment, learning_unit_component, learning_class_year, \
     learning_unit_year as learn_unit_year_model
 from base.models import proposal_learning_unit
-from base.views.learning_units.common import create_learning_unit_year_deletion_message
 from cms.enums import entity_name
 from cms.models import translated_text
 
@@ -261,3 +260,8 @@ def check_tutorings_deletion(learning_unit_year):
     for tutoring in tutoring_learning_unit_year.find_learning_unit_year(learning_unit_year=learning_unit_year):
             msg.update(_check_tutoring_learning_unit_year(tutoring))
     return msg
+
+
+def create_learning_unit_year_deletion_message(learning_unit_year_deleted):
+    return _('learning_unit_successfuly_deleted').format(acronym=learning_unit_year_deleted.acronym,
+                                                         academic_year=learning_unit_year_deleted.academic_year)

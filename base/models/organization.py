@@ -57,6 +57,13 @@ class Organization(SerializableModel):
             ("can_access_organization", "Can access organization"),
         )
 
+    @property
+    def country(self):
+        # FIXME : Workaround, the address must be directly selectable
+        qs = self.organizationaddress_set
+        if qs.exists():
+            return qs.first().country
+        return None
 
 def find_by_id(organization_id):
     return Organization.objects.get(pk=organization_id)

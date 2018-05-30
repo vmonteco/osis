@@ -287,6 +287,8 @@ class LearningUnitYear(SerializableModel):
 
         return _warnings
 
+    def is_external(self):
+        return hasattr(self, "externallearningunityear")
 
 def get_by_id(learning_unit_year_id):
     return LearningUnitYear.objects.select_related('learning_container_year__learning_container') \

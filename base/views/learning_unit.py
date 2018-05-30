@@ -37,24 +37,18 @@ from django.views.decorators.http import require_http_methods
 from attribution.business import attribution_charge_new
 from base import models as mdl
 from base.business.learning_unit import get_cms_label_data, \
-    get_same_container_year_components, get_components_identification, get_organization_from_learning_unit_year, \
-    get_campus_from_learning_unit_year, \
-    get_all_attributions, find_language_in_settings, \
+    get_same_container_year_components, find_language_in_settings, \
     CMS_LABEL_SPECIFICATIONS, get_achievements_group_by_language
-from base.business.learning_unit_proposal import get_difference_of_proposal
 from base.business.learning_units import perms as business_perms
-from base.business.learning_units.perms import learning_unit_year_permissions, learning_unit_proposal_permissions, \
-    can_update_learning_achievement
+from base.business.learning_units.perms import can_update_learning_achievement
 from base.forms.learning_class import LearningClassEditForm
-from base.forms.learning_unit.learning_unit_create_2 import FullForm
-from base.forms.learning_unit.learning_unit_partim import PartimForm
 from base.forms.learning_unit_component import LearningUnitComponentEditForm
 from base.forms.learning_unit_pedagogy import LearningUnitPedagogyEditForm
 from base.forms.learning_unit_specifications import LearningUnitSpecificationsForm, LearningUnitSpecificationsEditForm
-from base.models import proposal_learning_unit, education_group_year
-from base.models.enums import learning_unit_year_subtypes
-from base.models.learning_unit_year import LearningUnitYear
+from base.models import education_group_year
 from base.models.person import Person
+from base.views.learning_units.common import get_learning_unit_identification_context, \
+    get_common_context_learning_unit_year
 from cms.models import text_label
 from . import layout
 
@@ -64,18 +58,12 @@ from . import layout
 def learning_unit_identification(request, learning_unit_year_id):
     person = get_object_or_404(Person, user=request.user)
     context = get_learning_unit_identification_context(learning_unit_year_id, person)
+
+    learning_unit_year = context['learning_unit_year']
+
+    if learning_unit_year.is_external:
+        return layout.render(request, "learning_unit/external/read.html", context)
     return layout.render(request, "learning_unit/identification.html", context)
-
-
-def get_common_context_learning_unit_year(learning_unit_year_id, person):
-    query_set = LearningUnitYear.objects.all().select_related('learning_unit', 'learning_container_year')
-    learning_unit_year = get_object_or_404(query_set, pk=learning_unit_year_id)
-    return {
-        'learning_unit_year': learning_unit_year,
-        'current_academic_year': mdl.academic_year.current_academic_year(),
-        'is_person_linked_to_entity': person.is_linked_to_entity_in_charge_of_learning_unit_year(learning_unit_year),
-        'experimental_phase': True
-    }
 
 
 @login_required
@@ -277,34 +265,3 @@ def outside_period(request):
     text = _('summary_responsible_denied')
     messages.add_message(request, messages.WARNING, "%s" % text)
     return render(request, "access_denied.html")
-
-
-def get_learning_unit_identification_context(learning_unit_year_id, person):
-    context = get_common_context_learning_unit_year(learning_unit_year_id, person)
-
-    learning_unit_year = context['learning_unit_year']
-    context['warnings'] = learning_unit_year.warnings
-    proposal = proposal_learning_unit.find_by_learning_unit(learning_unit_year.learning_unit)
-
-    context['learning_container_year_partims'] = learning_unit_year.get_partims_related()
-    context['organization'] = get_organization_from_learning_unit_year(learning_unit_year)
-    context['campus'] = get_campus_from_learning_unit_year(learning_unit_year)
-    context['experimental_phase'] = True
-    context.update(get_all_attributions(learning_unit_year))
-    components = get_components_identification(learning_unit_year)
-    context['components'] = components.get('components')
-    context['REQUIREMENT_ENTITY'] = components.get('REQUIREMENT_ENTITY')
-    context['ADDITIONAL_REQUIREMENT_ENTITY_1'] = components.get('ADDITIONAL_REQUIREMENT_ENTITY_1')
-    context['ADDITIONAL_REQUIREMENT_ENTITY_2'] = components.get('ADDITIONAL_REQUIREMENT_ENTITY_2')
-    context['proposal'] = proposal
-    context['proposal_folder_entity_version'] = mdl.entity_version.get_by_entity_and_date(
-        proposal.entity, None) if proposal else None
-    context['differences'] = get_difference_of_proposal(proposal.initial_data, learning_unit_year) \
-        if proposal and proposal.learning_unit_year == learning_unit_year \
-        else {}
-
-    # append permissions
-    context.update(learning_unit_year_permissions(learning_unit_year, person))
-    context.update(learning_unit_proposal_permissions(proposal, person, learning_unit_year))
-
-    return context
