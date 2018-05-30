@@ -384,11 +384,12 @@ def get_mapping_label_texts(context, labels):
     for label in labels:
         text_label = get_text_label(context.entity, label)
 
-        TranslatedTextLabel.objects.get_or_create(
-            text_label=text_label,
-            language=context.language,
-            label=find_translated_label(context.language, label)
-        )
+        records = TranslatedTextLabel.objects.filter(text_label=text_label, language=context.language)
+        if not records.count():
+            TranslatedTextLabel.objects.create(
+                text_label=text_label,
+                language=context.language,
+                label=find_translated_label(context.language, label))
 
         mapping_label_text_label[label] = text_label
     return mapping_label_text_label
