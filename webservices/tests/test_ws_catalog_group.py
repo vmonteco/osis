@@ -4,6 +4,10 @@ from django.test import TestCase
 
 from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.education_group_year import EducationGroupYearFactory
+from cms.enums.entity_name import OFFER_YEAR
+from cms.tests.factories.text_label import TextLabelFactory
+from cms.tests.factories.translated_text import TranslatedTextRandomFactory
+from cms.tests.factories.translated_text_label import TranslatedTextLabelFactory
 from webservices.tests.helper import Helper
 
 
@@ -40,4 +44,47 @@ class CatalogGroupWebServiceTestCase(TestCase, Helper):
             'year': academic_year.year,
             'language': 'fr',
             'sections': []
+        })
+
+    def test_education_group_year_group_with_sections(self):
+        education_group_year = EducationGroupYearFactory()
+
+        text_label = TextLabelFactory(entity=OFFER_YEAR,
+                                      label='intro')
+
+        translated_text_label = TranslatedTextLabelFactory(
+            text_label=text_label,
+            language='fr-be',
+            label='Introduction'
+        )
+
+        translated_text = TranslatedTextRandomFactory(
+            language='fr-be',
+            text_label=text_label,
+            entity=OFFER_YEAR,
+            reference=education_group_year.id,
+            text='<tag>intro</tag>'
+        )
+
+        response = self._get_response(
+            education_group_year.academic_year.year,
+            'fr',
+            education_group_year.partial_acronym
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content_type, 'application/json')
+        response_json = json.loads(response.content.decode('utf-8'))
+
+        self.assertDictEqual(response_json, {
+            'acronym': education_group_year.acronym,
+            'partial_acronym': education_group_year.partial_acronym,
+            'title': education_group_year.title,
+            'year': education_group_year.academic_year.year,
+            'language': 'fr',
+            'sections': [{
+                'content': translated_text.text,
+                'id': text_label.label,
+                'label': translated_text_label.label,
+            }]
         })

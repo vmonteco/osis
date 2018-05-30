@@ -1,8 +1,6 @@
 import collections
 
-import bs4
 from django.http import Http404
-from prettyprinter import cpprint
 from rest_framework.decorators import api_view, renderer_classes
 from rest_framework.generics import get_object_or_404
 from rest_framework.renderers import JSONRenderer
@@ -10,9 +8,9 @@ from rest_framework.response import Response
 
 from base.models.academic_year import AcademicYear
 from base.models.education_group_year import EducationGroupYear
-from base.models.offer_year_entity import OfferYearEntity
 from cms.models.translated_text import TranslatedText
 from cms.models.translated_text_label import TranslatedTextLabel
+from webservices.utils import to_int_or_404, convert_sections_to_list_of_dict
 
 LANGUAGES = {'fr': 'fr-be', 'en': 'en'}
 ENTITY = 'offer_year'
@@ -72,7 +70,7 @@ def get_cleaned_parameters(type_acronym):
             title = get_title_of_education_group_year(education_group_year, iso_language)
             translated_labels = find_translated_labels_for_entity_and_language(ENTITY, iso_language)
             
-            description = get_description(education_group_year, language, title, year)
+            description = new_description(education_group_year, language, title, year)
 
             if type_acronym == 'partial':
                 description['partial_acronym'] = education_group_year.partial_acronym
@@ -93,39 +91,10 @@ def get_cleaned_parameters(type_acronym):
     return wrapper
 
 
-def to_int_or_404(year):
-    try:
-        return int(year)
-    except:
-        raise Http404
-
-
-def convert_sections_to_list_of_dict(sections):
-    return [{
-        'id': key,
-        'label': value['label'],
-        'content': value['content']
-    } for key, value in sections.items()]
-
-
-def convert_sections_list_of_dict_to_dict(sections):
-    return {
-        item['id']: {
-            'label': item['label'],
-            'content': item['content']
-        }
-        for item in sections
-    }
-
-
 @api_view(['GET'])
 @renderer_classes((JSONRenderer,))
 @get_cleaned_parameters(type_acronym='acronym')
 def ws_catalog_offer(request, context):
-
-    # insert_missing_sections(common_terms, has_section, context)
-
-    # insert_common_sections(common_terms)
     description = dict(context.description)
 
     sections = compute_sections_for_offer(context)
@@ -138,7 +107,6 @@ def compute_sections_for_offer(context):
     sections = {}
 
     common_terms = get_common_education_group(context.academic_year, context.language, 'common')
-    cpprint(common_terms)
 
     queryset = find_translated_texts_by_entity_and_language(
         context.education_group_year,
@@ -149,10 +117,19 @@ def compute_sections_for_offer(context):
     for translated_text in queryset:
         insert_section(sections, translated_text, context)
 
-    for name in ('caap',):
-        if name in sections and name in common_terms:
-            term = common_terms[name]
-            common_name = '{name}-commun'.format(name=name)
+    common_sections = [
+        ('caap', 'caap'),
+        ('programme', 'agregations'),
+        ('prerequis', 'prerequis'),
+        ('module_complementaire', 'module_complementaire')
+    ]
+    for name, common_term in common_sections:
+        if name in sections and common_term in common_terms:
+            term = common_terms[common_term]
+            if name == 'programme':
+                common_name = common_term
+            else:
+                common_name = '{name}-commun'.format(name=name)
             sections[common_name] = {
                 'label': get_translated_label_from_translated_text(term),
                 'content': term.text,
@@ -160,42 +137,12 @@ def compute_sections_for_offer(context):
 
     if context.acronym.lower().endswith('2m') and 'finalites_didactiques' in common_terms:
         term = common_terms['finalites_didactiques']
-        sections['finalites-didactiques-commun'] = {
+        sections['finalites_didactiques-commun'] = {
             'label': get_translated_label_from_translated_text(term),
             'content': term.text,
         }
 
     return sections
-
-
-def insert_common_sections(common_terms, context):
-    pass
-
-def insert_missing_sections(common_terms, has_section, context):
-    section_append = context.description['sections'].append
-    sections = [
-        ('programme', 'agregations', 'programme', 'Programme'),
-        ('caap', 'caap', 'caap', 'Caap'),
-        ('prerequis', 'prerequis', 'prerequis', 'Prerequis')
-    ]
-    for section, common_term, name, label in sections:
-        if has_section[section]:
-            continue
-
-        term = common_terms.get(common_term)
-        if term:
-            section_append({
-                'id': name,
-                'label': label,
-                'content': term,
-            })
-    if context.acronym.lower().endswith('2m'):
-        section_append({
-            'id': 'finalite-didactique-commun',
-            'label': 'Finalite Didactique',
-            'content': common_terms['finalites_didactiques']
-        })
-
 
 def insert_section(sections, translated_text, context):
     translated_label = get_label(context.translated_labels, translated_text)
@@ -208,26 +155,6 @@ def insert_section(sections, translated_text, context):
     }
 
 
-def insert_section_old(common_terms, has_section, translated_text, context):
-    label = get_label(context.translated_labels, translated_text)
-    name = translated_text.text_label.label
-    content = translated_text.text
-    if name in ('caap', 'prerequis'):
-        content = normalize_caap_or_prerequis(common_terms, content, has_section, name)
-
-    elif name == 'programme':
-        content = normalize_program(common_terms, content, has_section, name)
-
-    elif name == 'module_complementaire':
-        content = normalize_module_complementaire(common_terms, content, has_section, name)
-
-    context.description['sections'].append({
-        'id': name,
-        'label': label,
-        'content': content,
-    })
-
-
 def find_translated_texts_by_entity_and_language(education_group_year, entity, iso_language):
     queryset = TranslatedText.objects.filter(
         entity=entity,
@@ -237,7 +164,7 @@ def find_translated_texts_by_entity_and_language(education_group_year, entity, i
     return queryset.order_by('text_label__order')
 
 
-def get_description(education_group_year, language, title, year):
+def new_description(education_group_year, language, title, year):
     return {
         'language': language,
         'acronym': education_group_year.acronym,
@@ -245,48 +172,6 @@ def get_description(education_group_year, language, title, year):
         'year': year,
         'sections': [],
     }
-
-
-def normalize_module_complementaire(common_terms, content, has_section, name):
-    has_section[name] = True
-    term = common_terms.get('module_compl')
-    if term:
-        soup_term = bs4.BeautifulSoup(term, 'html.parser')
-        new_tag = soup_term.new_tag('div', **{'class': 'info'})
-        new_tag.append(soup_term)
-        soup = bs4.BeautifulSoup(content, 'html.parser')
-        soup.insert(0, new_tag)
-
-        content = str(soup)
-    return content
-
-
-def normalize_program(common_terms, content, has_section, name):
-    has_section[name] = True
-    term = common_terms.get('agregations')
-    if term:
-        soup_term = bs4.BeautifulSoup(term, 'html.parser')
-        soup = bs4.BeautifulSoup(content, 'html.parser')
-        soup.insert(0, soup_term)
-
-        content = str(soup)
-    return content
-
-
-def normalize_caap_or_prerequis(common_terms, content, has_section, name):
-    has_section[name] = True
-    term = common_terms.get(name)
-    if term:
-        soup_term = bs4.BeautifulSoup(term, 'html.parser')
-        soup = bs4.BeautifulSoup(content, 'html.parser')
-        nodes = soup.select('div.part2')
-        if nodes:
-            part = nodes[0]
-            part.insert_before(soup_term)
-        else:
-            soup.append(soup_term)
-        content = str(soup)
-    return content
 
 
 def get_label(translated_labels, translated_text):
