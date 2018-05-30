@@ -156,7 +156,7 @@ def insert_common_sections(sections, context):
     for name, common_term in common_sections:
         if name in sections and common_term in common_terms:
             term = common_terms[common_term]
-            if name == 'programme':
+            if name != common_term:
                 common_name = common_term
             else:
                 common_name = '{name}-commun'.format(name=name)
