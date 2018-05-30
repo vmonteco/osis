@@ -25,7 +25,6 @@
     * see http://www.gnu.org/licenses/.
 {% endcomment %}
 
-
 {% block search_form_row_1 %}
     <div class="col-md-2">
         {% bootstrap_field form.academic_year_id %}
@@ -49,6 +48,7 @@
 {% endblock %}
 
 {% block search_form_row_2 %}
+    {% with activity_search_type=1 service_search_type=2 borrowed_search_type=5 %}
     <div class="col-md-2">
         {% bootstrap_field form.status %}
     </div>
@@ -58,24 +58,27 @@
     <div class="col-md-2">
         {% bootstrap_field form.requirement_entity_acronym %}
     </div>
-    {% if search_type == 1 %}
-        <div class="col-md-2">
-            {% bootstrap_field form.with_entity_subordinated %}
-        </div>
-    {% elif search_type == 2 %}
+    {% if search_type == service_search_type %}
         <div class="col-md-2">
             {% bootstrap_field form.allocation_entity_acronym %}
         </div>
-    {% elif search_type == 5 %}
+    {% elif search_type == borrowed_search_type %}
         <div class="col-md-3">
             {% bootstrap_field form.faculty_borrowing_acronym %}
         </div>
     {% endif %}
-    {% if search_type == 1 or search_type == 5%}
+
+    {% if search_type == activity_search_type or search_type == borrowed_search_type %}
         <div class="col-md-2">
             {% bootstrap_field form.allocation_entity_acronym %}
         </div>
     {% endif %}
+    {% if search_type == activity_search_type or search_type == service_search_type or search_type == borrowed_search_type %}
+        <div class="col-md-2">
+            {% bootstrap_field form.with_entity_subordinated %}
+        </div>
+    {% endif %}
+    {% endwith %}
     <input type="hidden" id="xls_status" name="xls_status">
 
 {% endblock %}
