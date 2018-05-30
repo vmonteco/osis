@@ -65,6 +65,7 @@ class Organization(SerializableModel):
             return qs.first().country
         return None
 
+
 def find_by_id(organization_id):
     return Organization.objects.get(pk=organization_id)
 
