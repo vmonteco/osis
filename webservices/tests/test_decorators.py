@@ -25,7 +25,7 @@
 ##############################################################################
 from unittest.mock import Mock
 
-from django.http import HttpRequest, Http404
+from django.http import Http404
 from django.test import TestCase
 
 from base.tests.factories.academic_year import AcademicYearFactory

@@ -23,11 +23,8 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import json
-
 from django.test import TestCase
 
-from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.education_group_year import EducationGroupYearFactory
 from cms.enums.entity_name import OFFER_YEAR
 from cms.models.text_label import TextLabel
@@ -66,7 +63,7 @@ class CatalogOfferWebServiceTestCase(TestCase, Helper):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content_type, 'application/json')
-        response_json = json.loads(response.content.decode('utf-8'))
+        response_json = response.json()
 
         context['language'] = language
 

@@ -23,8 +23,6 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import json
-
 from django.test import TestCase
 
 from base.tests.factories.academic_year import AcademicYearFactory
@@ -60,7 +58,7 @@ class CatalogGroupWebServiceTestCase(TestCase, Helper):
                                       education_group_year.partial_acronym)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content_type, 'application/json')
-        response_json = json.loads(response.content.decode('utf-8'))
+        response_json = response.json()
 
         self.assertDictEqual(response_json, {
             'acronym': education_group_year.acronym,
@@ -99,7 +97,8 @@ class CatalogGroupWebServiceTestCase(TestCase, Helper):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content_type, 'application/json')
-        response_json = json.loads(response.content.decode('utf-8'))
+
+        response_json = response.json()
 
         self.assertDictEqual(response_json, {
             'acronym': education_group_year.acronym,
