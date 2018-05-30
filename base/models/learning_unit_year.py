@@ -239,23 +239,12 @@ class LearningUnitYear(SerializableModel):
             learning_unit_years = learning_unit_years.exclude(learning_unit=self.learning_unit)
 
         self.clean_acronym(learning_unit_years)
-        self.clean_status()
 
     def clean_acronym(self, learning_unit_years):
         if self.acronym in learning_unit_years.values_list('acronym', flat=True):
             raise ValidationError({'acronym': _('already_existing_acronym')})
         if not re.match(REGEX_BY_SUBTYPE[self.subtype], self.acronym):
             raise ValidationError({'acronym': _('invalid_acronym')})
-
-    def clean_status(self):
-        # If the parent is inactive, the partim can be only inactive
-        if self.parent:
-            if not self.parent.status and self.status:
-                raise ValidationError({'status': _('The partim must be inactive because the parent is inactive')})
-        else:
-            if self.status is False and find_partims_with_active_status(self).exists():
-                raise ValidationError(
-                    {'status': _("There is at least one partim active, so the parent must be active")})
 
     @property
     def warnings(self):
