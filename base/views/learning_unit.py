@@ -61,7 +61,7 @@ def learning_unit_identification(request, learning_unit_year_id):
 
     learning_unit_year = context['learning_unit_year']
 
-    if learning_unit_year.is_external:
+    if learning_unit_year.is_external():
         return layout.render(request, "learning_unit/external/read.html", context)
     return layout.render(request, "learning_unit/identification.html", context)
 

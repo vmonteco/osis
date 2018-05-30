@@ -83,7 +83,8 @@ from base.tests.factories.organization import OrganizationFactory
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.person_entity import PersonEntityFactory
 from base.tests.factories.user import SuperUserFactory, UserFactory
-from base.views.learning_unit import learning_unit_components, learning_class_year_edit, learning_unit_specifications
+from base.views.learning_unit import learning_unit_components, learning_class_year_edit, learning_unit_specifications, \
+    learning_unit_formations
 from base.views.learning_unit import learning_unit_identification
 from base.views.learning_units.create import create_partim_form
 from base.views.learning_units.search import learning_units
@@ -756,9 +757,6 @@ class LearningUnitViewTestCase(TestCase):
         )
 
         request = self.create_learning_unit_request(learning_unit_year)
-
-        from base.views.learning_unit import learning_unit_identification
-
         learning_unit_identification(request, learning_unit_year.id)
 
         self.assertTrue(mock_render.called)
@@ -793,8 +791,6 @@ class LearningUnitViewTestCase(TestCase):
 
         request = request_factory.get(reverse('learning_unit_formations', args=[learning_unit_year.id]))
         request.user = self.a_superuser
-
-        from base.views.learning_unit import learning_unit_formations
 
         learning_unit_formations(request, learning_unit_year.id)
 
