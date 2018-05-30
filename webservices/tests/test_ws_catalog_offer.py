@@ -24,6 +24,7 @@
 #
 ##############################################################################
 from django.test import TestCase
+from prettyprinter import prettyprinter
 
 from base.tests.factories.education_group_year import EducationGroupYearFactory
 from cms.enums.entity_name import OFFER_YEAR
@@ -204,6 +205,7 @@ class CommonHelper:
 
 
 class WsCatalogOfferCommonTestCase(CommonHelper, TestCase, Helper):
+    maxDiff = None
     URL_NAME = 'v0.1-ws_catalog_offer'
 
     TERMS = [
@@ -254,12 +256,16 @@ class WsCatalogOfferCommonTestCase(CommonHelper, TestCase, Helper):
             response_json.pop('sections', [])
         )
 
+        # prettyprinter.cpprint(response_sections)
+
         sections = [
             self.get_section_for_term(translated_text_label, translated_text),
             self.get_section_for_common_term('caap'),
         ]
 
         sections = convert_sections_list_of_dict_to_dict(sections)
+
+        # prettyprinter.cpprint(sections)
 
         self.assertDictEqual(response_sections, sections)
 
@@ -433,3 +439,97 @@ class WsCatalogOfferCommonTestCaseFor2M(CommonHelper, TestCase, Helper):
         sections = convert_sections_list_of_dict_to_dict(sections)
 
         self.assertDictEqual(response_sections, sections)
+
+
+class WsCatalogOfferPostTestCase(TestCase, Helper):
+    URL_NAME = 'v0.1-ws_catalog_offer_post'
+
+    def test_post(self):
+        education_group_year = EducationGroupYearFactory(acronym='ACTU2M')
+
+        common_education_group_year = EducationGroupYearFactory(
+            acronym='common',
+            academic_year=education_group_year.academic_year
+        )
+
+        iso_language, language = 'fr-be', 'fr'
+
+        message = {
+            "sections": [
+                "welcome_job",
+                "welcome_profil",
+                "welcome_programme",
+                "welcome_introduction",
+                "cond_admission",
+                "infos_pratiques",
+                "caap",
+                "caap-commun",
+                "contacts",
+                "structure",
+                "acces_professions",
+                "comp_acquis",
+                "pedagogie",
+                "formations_accessibles",
+                "evaluation",
+                "mobilite",
+                "programme_detaille",
+                "certificats",
+                "module_complementaire",
+                "module_compl-commun",
+                "prerequis",
+                "prerequis-commun",
+                "intro-2018-lactu200t",
+                "intro-2018-lactu200s",
+                "options",
+                "intro-2018-lactu200o",
+                "intro-2018-lsst100o"
+            ]
+        }
+
+        ega = EducationGroupYearFactory(partial_acronym='lactu200t',
+                                        academic_year=education_group_year.academic_year)
+        text_label = TextLabelFactory(entity='offer_year', label='intro')
+        TranslatedTextLabelFactory(text_label=text_label,
+                                   language=iso_language)
+        TranslatedTextRandomFactory(text_label=text_label,
+                                    language=iso_language,
+                                    reference=ega.id,
+                                    entity=text_label.entity)
+
+        text_label = TextLabelFactory(entity='offer_year', label='prerequis')
+        TranslatedTextLabelFactory(text_label=text_label,
+                                   language=iso_language)
+        TranslatedTextRandomFactory(text_label=text_label,
+                                    language=iso_language,
+                                    reference=education_group_year.id,
+                                    entity=text_label.entity)
+
+        TranslatedTextRandomFactory(text_label=text_label,
+                                    language=iso_language,
+                                    reference=common_education_group_year.id,
+                                    entity=text_label.entity)
+
+        text_label = TextLabelFactory(entity='offer_year', label='caap')
+        TranslatedTextLabelFactory(text_label=text_label,
+                                   language=iso_language)
+        TranslatedTextRandomFactory(text_label=text_label,
+                                    language=iso_language,
+                                    reference=education_group_year.id,
+                                    entity=text_label.entity)
+
+        TranslatedTextRandomFactory(text_label=text_label,
+                                    language=iso_language,
+                                    reference=common_education_group_year.id,
+                                    entity=text_label.entity)
+
+        response = self.post(
+            education_group_year.academic_year.year,
+            language,
+            education_group_year.acronym,
+            data=message,
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content_type, 'application/json')
+
+        # prettyprinter.cpprint(response.json())

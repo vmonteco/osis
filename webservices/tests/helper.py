@@ -23,6 +23,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+import json
 
 from django.urls import reverse
 
@@ -34,3 +35,8 @@ class Helper:
 
     def _get_response(self, year, language, acronym):
         return self.client.get(self._get_url(year, language, acronym), format='json')
+
+    def post(self, year, language, acronym, data):
+        return self.client.post(self._get_url(year, language, acronym),
+                                data=json.dumps(data),
+                                content_type='application/json')
