@@ -24,4 +24,3 @@ def convert_sections_list_of_dict_to_dict(sections):
         }
         for item in sections
     }
-
