@@ -94,7 +94,6 @@ def get_cleaned_parameters(type_acronym):
 
             title = get_title_of_education_group_year(education_group_year, iso_language)
             translated_labels = find_translated_labels_for_entity_and_language(ENTITY, iso_language)
-            
             description = new_description(education_group_year, language, title, year)
 
             if type_acronym == 'partial':
@@ -131,8 +130,6 @@ def ws_catalog_offer(request, context):
 def compute_sections_for_offer(context):
     sections = {}
 
-    common_terms = get_common_education_group(context.academic_year, context.language)
-
     queryset = find_translated_texts_by_entity_and_language(
         context.education_group_year,
         ENTITY,
@@ -141,6 +138,14 @@ def compute_sections_for_offer(context):
 
     for translated_text in queryset:
         insert_section(sections, translated_text, context)
+
+    insert_common_sections(sections, context)
+
+    return sections
+
+
+def insert_common_sections(sections, context):
+    common_terms = get_common_education_group(context.academic_year, context.language)
 
     common_sections = [
         ('caap', 'caap'),
@@ -167,7 +172,6 @@ def compute_sections_for_offer(context):
             'content': term.text,
         }
 
-    return sections
 
 def insert_section(sections, translated_text, context):
     name = translated_text.text_label.label
