@@ -274,10 +274,10 @@ class LearningUnitYear(SerializableModel):
         warnings = []
         if self.parent:
             if not self.parent.status and self.status:
-                warnings.append(_('The partim must be inactive because the parent is inactive'))
+                warnings.append(_('This partim is active and the parent is inactive'))
         else:
             if self.status is False and find_partims_with_active_status(self).exists():
-                warnings.append(_("There is at least one partim active, so the parent must be active"))
+                warnings.append(_("The parent is inactive and there is at least one partim active"))
         return warnings
 
     def _check_learning_component_year_warnings(self):
