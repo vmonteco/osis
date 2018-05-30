@@ -95,6 +95,245 @@ class CatalogOfferWebServiceTestCase(TestCase, Helper):
 class WsCatalogOfferCommonTestCase(TestCase, Helper):
     URL_NAME = 'v0.1-ws_catalog_offer'
 
+    TERMS = [
+        ('finalites_didactiques', 'Finalités Didactiques'),
+        ('caap', 'Caap'),
+        ('prerequis', 'Prérequis'),
+        ('module_complementaire', 'Module Complémentaire'),
+        ('agregations', 'Agregations')
+    ]
+
+    def setUp(self):
+        super().setUp()
+
+        self.iso_language, self.language = 'fr-be', 'fr'
+
+        self.education_group_year = EducationGroupYearFactory()
+
+        self.common_education_group_year = EducationGroupYearFactory(
+            acronym='common',
+            academic_year=self.education_group_year.academic_year
+        )
+
+        self.setup_common_terms()
+
+    def setup_common_terms(self):
+        for term, label in self.TERMS:
+            text_label = TextLabelFactory(entity=OFFER_YEAR, label=term)
+            TranslatedTextLabelFactory(
+                text_label=text_label,
+                language=self.iso_language,
+                label=label
+            )
+
+            TranslatedTextRandomFactory(
+                language=self.iso_language,
+                text_label=text_label,
+                entity=OFFER_YEAR,
+                reference=self.common_education_group_year.id,
+                text='<tag>{term}</tag>'.format(term=term)
+            )
+
+    def get_common_text_label(self, term):
+        return TextLabel.objects.get(entity=OFFER_YEAR, label=term)
+
+    def get_common_translated_text(self, term):
+        return TranslatedText.objects.get(
+            language=self.iso_language,
+            text_label__label=term,
+            entity=OFFER_YEAR,
+            reference=self.common_education_group_year.id
+        )
+
+    def get_common_translated_text_label(self, term):
+        return TranslatedTextLabel.objects.get(
+            text_label__label=term,
+            language=self.iso_language,
+        )
+
+    def get_section_for_common_term(self, term):
+        key_id = term
+        if term != 'agregations':
+            key_id = self.get_common_text_label(term).label + '-commun'
+
+        return {
+            'label': self.get_common_translated_text_label(term).label,
+            'content': self.get_common_translated_text(term).text,
+            'id': key_id,
+        }
+
+    def create_text_label_and_translation(self, term, label):
+        text_label = TextLabelFactory(entity=OFFER_YEAR, label=term)
+        translated_text_label = TranslatedTextLabelFactory(
+            text_label=text_label,
+            language=self.iso_language,
+            label=label
+        )
+
+        translated_text = TranslatedTextRandomFactory(
+            text_label=text_label,
+            entity=text_label.entity,
+            reference=self.education_group_year.id,
+            language=self.iso_language
+        )
+
+        return translated_text_label, translated_text
+
+    def get_section_for_term(self, translated_text_label, translated_text):
+        return {
+            'content': translated_text.text,
+            'id': translated_text.text_label.label,
+            'label': translated_text_label.label,
+        }
+
+    def test_header_of_message(self):
+        response = self._get_response(self.education_group_year.academic_year.year,
+                                      self.language,
+                                      self.education_group_year.acronym)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content_type, 'application/json')
+
+        response_json = response.json()
+
+        self.assertDictEqual(response_json, {
+            'acronym': self.education_group_year.acronym,
+            'language': self.language,
+            'title': self.education_group_year.title,
+            'year': self.education_group_year.academic_year.year,
+            'sections': [],
+        })
+
+    def test_education_group_year_caap(self):
+        text_label = self.get_common_text_label('caap')
+        translated_text_label = self.get_common_translated_text_label('caap')
+
+        translated_text = TranslatedTextRandomFactory(
+            text_label=text_label,
+            entity=text_label.entity,
+            reference=self.education_group_year.id,
+            language=self.iso_language,
+        )
+
+        response = self._get_response(
+            self.education_group_year.academic_year.year,
+            self.language,
+            self.education_group_year.acronym
+        )
+
+        response_json = response.json()
+
+        response_sections = convert_sections_list_of_dict_to_dict(
+            response_json.pop('sections', [])
+        )
+
+        sections = [
+            self.get_section_for_term(translated_text_label, translated_text),
+            self.get_section_for_common_term('caap'),
+        ]
+
+        sections = convert_sections_list_of_dict_to_dict(sections)
+
+        self.assertDictEqual(response_sections, sections)
+
+    def test_education_group_year_prerequis(self):
+        text_label = self.get_common_text_label('prerequis')
+        translated_text_label = self.get_common_translated_text_label('prerequis')
+
+        translated_text = TranslatedTextRandomFactory(
+            text_label=text_label,
+            entity=text_label.entity,
+            reference=self.education_group_year.id,
+            language=self.iso_language
+        )
+
+        response = self._get_response(
+            self.education_group_year.academic_year.year,
+            self.language,
+            self.education_group_year.acronym
+        )
+
+        response_json = response.json()
+
+        response_sections = convert_sections_list_of_dict_to_dict(
+            response_json.pop('sections', [])
+        )
+
+        sections = [
+            self.get_section_for_term(translated_text_label, translated_text),
+            self.get_section_for_common_term('prerequis'),
+        ]
+
+        sections = convert_sections_list_of_dict_to_dict(sections)
+
+        self.assertDictEqual(response_sections, sections)
+
+    def test_education_group_year_module_complementaire(self):
+        text_label = self.get_common_text_label('module_complementaire')
+        translated_text_label = self.get_common_translated_text_label('module_complementaire')
+
+        translated_text = TranslatedTextRandomFactory(
+            text_label=text_label,
+            language=self.iso_language,
+            entity=OFFER_YEAR,
+            reference=self.education_group_year.id,
+        )
+
+        response = self._get_response(
+            self.education_group_year.academic_year.year,
+            self.language,
+            self.education_group_year.acronym,
+        )
+
+        response_json = response.json()
+
+        response_sections = convert_sections_list_of_dict_to_dict(
+            response_json.pop('sections', [])
+        )
+
+        sections = [
+            self.get_section_for_term(translated_text_label, translated_text),
+            self.get_section_for_common_term('module_complementaire'),
+        ]
+
+        sections = convert_sections_list_of_dict_to_dict(sections)
+
+        self.assertDictEqual(response_sections, sections)
+
+
+    def test_education_group_year_programme(self):
+        translated_text_label, translated_text = self.create_text_label_and_translation('programme', 'Programme')
+
+        response = self._get_response(
+            self.education_group_year.academic_year.year,
+            self.language,
+            self.education_group_year.acronym
+        )
+
+        response_json = response.json()
+
+        response_sections = convert_sections_list_of_dict_to_dict(
+            response_json.pop('sections', [])
+        )
+
+        sections = [
+            self.get_section_for_term(translated_text_label, translated_text),
+            self.get_section_for_common_term('agregations'),
+        ]
+
+        sections = convert_sections_list_of_dict_to_dict(sections)
+
+        self.assertDictEqual(response_sections, sections)
+
+
+class WsCatalogOfferCommonTestCaseFor2M(TestCase, Helper):
+    URL_NAME = 'v0.1-ws_catalog_offer'
+
+    TERMS = [
+        ('finalites_didactiques', 'Finalités Didactiques'),
+        ('caap', 'Caap'),
+    ]
+
     def setUp(self):
         super().setUp()
 
@@ -110,15 +349,7 @@ class WsCatalogOfferCommonTestCase(TestCase, Helper):
         self.setup_common_terms()
 
     def setup_common_terms(self):
-        TERMS = [
-            ('finalites_didactiques', 'Finalités Didactiques'),
-            ('caap', 'Caap'),
-            ('prerequis', 'Prérequis'),
-            ('module_complementaire', 'Module Complémentaire'),
-            ('agregations', 'Agregations')
-        ]
-
-        for term, label in TERMS:
+        for term, label in self.TERMS:
             text_label = TextLabelFactory(entity=OFFER_YEAR, label=term)
             TranslatedTextLabelFactory(
                 text_label=text_label,
@@ -252,98 +483,6 @@ class WsCatalogOfferCommonTestCase(TestCase, Helper):
             self.get_section_for_term(translated_text_label, translated_text),
             self.get_section_for_common_term('caap'),
             self.get_section_for_common_term('finalites_didactiques')
-        ]
-
-        sections = convert_sections_list_of_dict_to_dict(sections)
-
-        self.assertDictEqual(response_sections, sections)
-
-    def test_education_group_year_prerequis(self):
-        text_label = self.get_common_text_label('prerequis')
-        translated_text_label = self.get_common_translated_text_label('prerequis')
-
-        translated_text = TranslatedTextRandomFactory(
-            text_label=text_label,
-            entity=text_label.entity,
-            reference=self.education_group_year.id,
-            language=self.iso_language
-        )
-
-        response = self._get_response(
-            self.education_group_year.academic_year.year,
-            self.language,
-            self.education_group_year.acronym
-        )
-
-        response_json = response.json()
-
-        response_sections = convert_sections_list_of_dict_to_dict(
-            response_json.pop('sections', [])
-        )
-
-        sections = [
-            self.get_section_for_term(translated_text_label, translated_text),
-            self.get_section_for_common_term('prerequis'),
-            self.get_section_for_common_term('finalites_didactiques')
-        ]
-
-        sections = convert_sections_list_of_dict_to_dict(sections)
-
-        self.assertDictEqual(response_sections, sections)
-
-    def test_education_group_year_module_complementaire(self):
-        text_label = self.get_common_text_label('module_complementaire')
-        translated_text_label = self.get_common_translated_text_label('module_complementaire')
-
-        translated_text = TranslatedTextRandomFactory(
-            text_label=text_label,
-            language=self.iso_language,
-            entity=OFFER_YEAR,
-            reference=self.education_group_year.id,
-        )
-
-        response = self._get_response(
-            self.education_group_year.academic_year.year,
-            self.language,
-            self.education_group_year.acronym,
-        )
-
-        response_json = response.json()
-
-        response_sections = convert_sections_list_of_dict_to_dict(
-            response_json.pop('sections', [])
-        )
-
-        sections = [
-            self.get_section_for_term(translated_text_label, translated_text),
-            self.get_section_for_common_term('module_complementaire'),
-            self.get_section_for_common_term('finalites_didactiques')
-        ]
-
-        sections = convert_sections_list_of_dict_to_dict(sections)
-
-        self.assertDictEqual(response_sections, sections)
-
-
-    def test_education_group_year_programme(self):
-        translated_text_label, translated_text = self.create_text_label_and_translation('programme', 'Programme')
-
-        response = self._get_response(
-            self.education_group_year.academic_year.year,
-            self.language,
-            self.education_group_year.acronym
-        )
-
-        response_json = response.json()
-
-        response_sections = convert_sections_list_of_dict_to_dict(
-            response_json.pop('sections', [])
-        )
-
-        sections = [
-            self.get_section_for_term(translated_text_label, translated_text),
-            self.get_section_for_common_term('agregations'),
-            self.get_section_for_common_term('finalites_didactiques'),
         ]
 
         sections = convert_sections_list_of_dict_to_dict(sections)
