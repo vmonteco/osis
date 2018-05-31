@@ -445,6 +445,22 @@ class WsCatalogOfferCommonTestCaseFor2M(CommonHelper, TestCase, Helper):
 class WsCatalogOfferPostTestCase(TestCase, Helper):
     URL_NAME = 'v0.1-ws_catalog_offer_post'
 
+    def test_year_not_found(self):
+        response = self.post(1990, 'fr', 'actu2m', data={})
+        self.assertEqual(response.status_code, 404)
+
+    def test_year_not_found(self):
+        response = self.post('1990', 'fr', 'actu2m', data={})
+        self.assertEqual(response.status_code, 404)
+
+    def test_language_not_found(self):
+        response = self.post(2017, 'ch', 'actu2m', data={})
+        self.assertEqual(response.status_code, 404)
+
+    def test_acronym_not_found(self):
+        response = self.post(2017, 'fr', 'XYZ', data={})
+        self.assertEqual(response.status_code, 404)
+
     def test_01(self):
         education_group_year = EducationGroupYearFactory(acronym='ACTU2M')
 
@@ -804,5 +820,54 @@ class WsCatalogOfferPostTestCase(TestCase, Helper):
         for section in intro_set:
             if 'intro-' + section in response_sections:
                 response_sections.pop('intro-' + section)
+
+        self.assertEqual(len(response_sections), 0)
+
+    def test_no_translation_for_term(self):
+        education_group_year = EducationGroupYearFactory()
+
+        iso_language, language = 'fr-be', 'fr'
+
+        text_label = TextLabelFactory(entity='offer_year')
+        translated_text_label = TranslatedTextLabelFactory(text_label=text_label, language=iso_language)
+
+        message = {
+            'sections': [text_label.label]
+        }
+
+        response = self.post(
+            year=education_group_year.academic_year.year,
+            language=language,
+            acronym=education_group_year.acronym,
+            data=message
+        )
+        response_json = response.json()
+        response_sections = convert_sections_list_of_dict_to_dict(response_json.pop('sections', []))
+
+        sections = convert_sections_list_of_dict_to_dict([{
+            'id': text_label.label,
+            'label': translated_text_label.label,
+            'content': None
+        }])
+
+        self.assertEqual(response_sections, sections)
+
+    def test_no_corresponding_term(self):
+        education_group_year = EducationGroupYearFactory()
+
+        iso_language, language = 'fr-be', 'fr'
+
+        message = {
+            'sections': ['demo']
+        }
+
+        response = self.post(
+            year=education_group_year.academic_year.year,
+            language=language,
+            acronym=education_group_year.acronym,
+            data=message
+        )
+        response_json = response.json()
+        response_sections = convert_sections_list_of_dict_to_dict(response_json.pop('sections', []))
 
         self.assertEqual(len(response_sections), 0)
