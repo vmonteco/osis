@@ -443,7 +443,7 @@ class WsCatalogOfferCommonTestCaseFor2M(CommonHelper, TestCase, Helper):
 
 
 class WsCatalogOfferPostTestCase(TestCase, Helper):
-    URL_NAME = 'v0.1-ws_catalog_offer_post'
+    URL_NAME = 'v0.1-ws_catalog_offer'
 
     def test_year_not_found(self):
         response = self.post(1990, 'fr', 'actu2m', data={})
