@@ -109,18 +109,6 @@ def get_cleaned_parameters(function):
     return inner_wrapper
 
 
-# @api_view(['GET'])
-# @renderer_classes((JSONRenderer,))
-# @get_cleaned_parameters
-# def ws_catalog_offer(request, context):
-#     description = dict(context.description)
-#
-#     sections = compute_sections_for_offer(context)
-#     description['sections'] = convert_sections_to_list_of_dict(sections)
-#
-#     return Response(description, content_type='application/json')
-
-
 def compute_sections_for_offer(context):
     sections = {}
 
