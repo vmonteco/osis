@@ -47,9 +47,7 @@ class GetCleanedParametersDecorator_TestCase(TestCase):
         type_acronym, year, language, acronym = \
             'acronym', self.academic_year.year, 'it', self.education_group_year.acronym
 
-        decorator = get_cleaned_parameters(type_acronym=type_acronym)
-
-        decorated_function = decorator(self.mocked_function)
+        decorated_function = get_cleaned_parameters(self.mocked_function)
 
         with self.assertRaises(Http404):
             result = decorated_function(self.request, year, language, acronym)
@@ -59,9 +57,8 @@ class GetCleanedParametersDecorator_TestCase(TestCase):
         year, language = self.academic_year.year, 'fr'
 
         education_group_year = EducationGroupYearFactory(academic_year=self.academic_year)
-        decorator = get_cleaned_parameters('acronym')
 
-        decorated_function = decorator(self.mocked_function)
+        decorated_function = get_cleaned_parameters(self.mocked_function)
 
         acronym = education_group_year.acronym
 

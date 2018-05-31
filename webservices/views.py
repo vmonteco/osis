@@ -76,47 +76,42 @@ def get_common_education_group(academic_year, language):
     return values
 
 
-def get_cleaned_parameters(type_acronym):
-    def wrapper(function):
-        def inner_wrapper(request, year, language, acronym):
-            year = to_int_or_404(year)
+def get_cleaned_parameters(function):
+    def inner_wrapper(request, year, language, acronym):
+        year = to_int_or_404(year)
 
-            if language not in LANGUAGES:
-                raise Http404
+        if language not in LANGUAGES:
+            raise Http404
 
-            academic_year = get_object_or_404(AcademicYear, year=year)
+        academic_year = get_object_or_404(AcademicYear, year=year)
 
-            education_group_year = get_object_or_404(EducationGroupYear,
-                                                     academic_year=academic_year,
-                                                     acronym__iexact=acronym)
-            iso_language = LANGUAGES[language]
+        education_group_year = get_object_or_404(EducationGroupYear,
+                                                 academic_year=academic_year,
+                                                 acronym__iexact=acronym)
+        iso_language = LANGUAGES[language]
 
-            title = get_title_of_education_group_year(education_group_year, iso_language)
-            translated_labels = find_translated_labels_for_entity_and_language(ENTITY, iso_language)
-            description = new_description(education_group_year, language, title, year)
+        title = get_title_of_education_group_year(education_group_year, iso_language)
+        translated_labels = find_translated_labels_for_entity_and_language(ENTITY, iso_language)
+        description = new_description(education_group_year, language, title, year)
 
-            if type_acronym == 'partial':
-                description['partial_acronym'] = education_group_year.partial_acronym
+        context = Context(
+            year=year,
+            language=iso_language,
+            acronym=acronym,
+            title=title,
+            academic_year=academic_year,
+            education_group_year=education_group_year,
+            translated_labels=translated_labels,
+            description=description
+        )
 
-            context = Context(
-                year=year,
-                language=iso_language,
-                acronym=acronym,
-                title=title,
-                academic_year=academic_year,
-                education_group_year=education_group_year,
-                translated_labels=translated_labels,
-                description=description
-            )
-
-            return function(request, context)
-        return inner_wrapper
-    return wrapper
+        return function(request, context)
+    return inner_wrapper
 
 
 @api_view(['GET'])
 @renderer_classes((JSONRenderer,))
-@get_cleaned_parameters(type_acronym='acronym')
+@get_cleaned_parameters
 def ws_catalog_offer(request, context):
     description = dict(context.description)
 
