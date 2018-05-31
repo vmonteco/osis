@@ -449,7 +449,7 @@ class WsCatalogOfferPostTestCase(TestCase, Helper):
         response = self.post(1990, 'fr', 'actu2m', data={})
         self.assertEqual(response.status_code, 404)
 
-    def test_year_not_found(self):
+    def test_string_year_not_found(self):
         response = self.post('1990', 'fr', 'actu2m', data={})
         self.assertEqual(response.status_code, 404)
 
