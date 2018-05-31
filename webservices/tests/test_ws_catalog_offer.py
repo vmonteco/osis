@@ -543,15 +543,13 @@ class WsCatalogOfferPostTestCase(TestCase, Helper):
     def test_no_corresponding_term(self):
         education_group_year = EducationGroupYearFactory()
 
-        iso_language, language = 'fr-be', 'fr'
-
         message = {
             'sections': ['demo']
         }
 
         response = self.post(
             year=education_group_year.academic_year.year,
-            language=language,
+            language='fr',
             acronym=education_group_year.acronym,
             data=message
         )
