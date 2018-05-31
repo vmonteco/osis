@@ -109,16 +109,16 @@ def get_cleaned_parameters(function):
     return inner_wrapper
 
 
-@api_view(['GET'])
-@renderer_classes((JSONRenderer,))
-@get_cleaned_parameters
-def ws_catalog_offer(request, context):
-    description = dict(context.description)
-
-    sections = compute_sections_for_offer(context)
-    description['sections'] = convert_sections_to_list_of_dict(sections)
-
-    return Response(description, content_type='application/json')
+# @api_view(['GET'])
+# @renderer_classes((JSONRenderer,))
+# @get_cleaned_parameters
+# def ws_catalog_offer(request, context):
+#     description = dict(context.description)
+#
+#     sections = compute_sections_for_offer(context)
+#     description['sections'] = convert_sections_to_list_of_dict(sections)
+#
+#     return Response(description, content_type='application/json')
 
 
 def compute_sections_for_offer(context):
@@ -150,15 +150,6 @@ def insert_common_sections(sections, context):
                 'label': get_translated_label_from_translated_text(term, context.language),
                 'content': term.text,
             }
-
-    name = 'finalites_didactiques'
-    if context.acronym.lower().endswith('2m') and name in common_terms:
-        term = common_terms[name]
-        sections[name + '-commun'] = {
-            'label': get_translated_label_from_translated_text(term, context.language),
-            'content': term.text,
-        }
-
 
 def insert_section(sections, translated_text, context):
     name = translated_text.text_label.label
@@ -202,7 +193,7 @@ def get_translated_label_from_translated_text(translated_text, language):
     return record.label
 
 
-INTRO_PATTERN = 'intro-(?P<year>\d{4})-(?P<acronym>\w+)'
+INTRO_PATTERN = 'intro-(?P<acronym>\w+)'
 COMMON_PATTERN = '(?P<section_name>\w+)-commun'
 
 
@@ -257,7 +248,10 @@ def ws_catalog_offer_post(request, year, language, acronym):
                                                    language=context.language,
                                                    entity=text_label.entity,
                                                    reference=egy.id).first()
-                sections[item] = {'label': ttl.label, 'content': tt.text}
+                if ttl and tt:
+                    sections[item] = {'label': ttl.label, 'content': tt.text}
+                else:
+                    sections[item] = {'label': ttl.label, 'content': None}
             else:
                 sections[item] = {'label': None, 'content': None}
         elif not m_common:
@@ -270,8 +264,10 @@ def ws_catalog_offer_post(request, year, language, acronym):
                                                language=context.language,
                                                entity=text_label.entity,
                                                reference=education_group_year.id).first()
-
-            sections[item] = {'label': ttl.label, 'content': tt.text}
+            if ttl and tt:
+                sections[item] = {'label': ttl.label, 'content': tt.text}
+            elif ttl:
+                sections[item] = {'label': ttl.label, 'content': None}
 
     insert_common_sections(sections, context)
 

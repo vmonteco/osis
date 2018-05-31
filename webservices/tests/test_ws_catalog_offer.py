@@ -26,7 +26,6 @@
 import unittest
 
 from django.test import TestCase
-from prettyprinter import prettyprinter
 
 from base.tests.factories.education_group_year import EducationGroupYearFactory
 from cms.enums.entity_name import OFFER_YEAR
@@ -40,6 +39,7 @@ from webservices.tests.helper import Helper
 from webservices.utils import convert_sections_list_of_dict_to_dict
 
 
+@unittest.skip('Disable this test because we stop to use it')
 class CatalogOfferWebServiceTestCase(TestCase, Helper):
     URL_NAME = 'v0.1-ws_catalog_offer'
 
@@ -206,6 +206,7 @@ class CommonHelper:
         }
 
 
+@unittest.skip('Disable this test because we stop to use it')
 class WsCatalogOfferCommonTestCase(CommonHelper, TestCase, Helper):
     maxDiff = None
     URL_NAME = 'v0.1-ws_catalog_offer'
@@ -258,16 +259,12 @@ class WsCatalogOfferCommonTestCase(CommonHelper, TestCase, Helper):
             response_json.pop('sections', [])
         )
 
-        # prettyprinter.cpprint(response_sections)
-
         sections = [
             self.get_section_for_term(translated_text_label, translated_text),
             self.get_section_for_common_term('caap'),
         ]
 
         sections = convert_sections_list_of_dict_to_dict(sections)
-
-        # prettyprinter.cpprint(sections)
 
         self.assertDictEqual(response_sections, sections)
 
@@ -362,6 +359,7 @@ class WsCatalogOfferCommonTestCase(CommonHelper, TestCase, Helper):
         self.assertDictEqual(response_sections, sections)
 
 
+@unittest.skip('Disable this test because we stop to use it')
 class WsCatalogOfferCommonTestCaseFor2M(CommonHelper, TestCase, Helper):
     URL_NAME = 'v0.1-ws_catalog_offer'
     ACRONYM = 'ACTU2M'
@@ -447,7 +445,7 @@ class WsCatalogOfferCommonTestCaseFor2M(CommonHelper, TestCase, Helper):
 class WsCatalogOfferPostTestCase(TestCase, Helper):
     URL_NAME = 'v0.1-ws_catalog_offer_post'
 
-    def test_post(self):
+    def test_01(self):
         education_group_year = EducationGroupYearFactory(acronym='ACTU2M')
 
         common_education_group_year = EducationGroupYearFactory(
@@ -478,14 +476,14 @@ class WsCatalogOfferPostTestCase(TestCase, Helper):
                 "programme_detaille",
                 "certificats",
                 "module_complementaire",
-                "module_compl-commun",
+                "module_complementaire-commun",
                 "prerequis",
                 "prerequis-commun",
-                "intro-2018-lactu200t",
-                "intro-2018-lactu200s",
+                "intro-lactu200t",
+                "intro-lactu200s",
                 "options",
-                "intro-2018-lactu200o",
-                "intro-2018-lsst100o"
+                "intro-lactu200o",
+                "intro-lsst100o"
             ]
         }
 
@@ -535,4 +533,276 @@ class WsCatalogOfferPostTestCase(TestCase, Helper):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content_type, 'application/json')
 
-        # prettyprinter.cpprint(response.json())
+    def test_without_any_sections(self):
+        education_group_year = EducationGroupYearFactory()
+
+        common_education_group_year = EducationGroupYearFactory(
+            acronym='common',
+            academic_year=education_group_year.academic_year,
+        )
+
+        text_label = TextLabelFactory(entity='offer_year')
+
+        for iso_language, language in [('fr-be', 'fr'), ('en', 'en')]:
+            with self.subTest(iso_language=iso_language, language=language):
+                TranslatedTextLabelFactory(text_label=text_label,
+                                           language=iso_language)
+                TranslatedTextRandomFactory(text_label=text_label,
+                                            language=iso_language,
+                                            reference=common_education_group_year.id,
+                                            entity=text_label.entity)
+                message = {
+                    'sections': [
+                        'welcome_job',
+                    ]
+                }
+
+                response = self.post(
+                    education_group_year.academic_year.year,
+                    language,
+                    education_group_year.acronym,
+                    data=message
+                )
+
+                response_json = response.json()
+
+                self.assertEqual(response.status_code, 200)
+                self.assertEqual(response.content_type, 'application/json')
+
+                title_to_test = education_group_year.title if language == 'fr' else education_group_year.title_english
+                self.assertDictEqual(response_json, {
+                    'acronym': education_group_year.acronym,
+                    'language': language,
+                    'sections': [],
+                    'title': title_to_test,
+                    'year': education_group_year.academic_year.year,
+                })
+
+    def test_with_one_section(self):
+        education_group_year = EducationGroupYearFactory()
+
+        text_label = TextLabelFactory(entity='offer_year', label='caap')
+
+        for iso_language, language in [('fr-be', 'fr'), ('en', 'en')]:
+            with self.subTest(iso_language=iso_language, language=language):
+                ttl = TranslatedTextLabelFactory(text_label=text_label,
+                                                 language=iso_language)
+                tt = TranslatedTextRandomFactory(text_label=text_label,
+                                                 language=iso_language,
+                                                 reference=education_group_year.id,
+                                                 entity=text_label.entity)
+
+                message = {
+                    'sections': [
+                        text_label.label,
+                    ]
+                }
+
+                response = self.post(
+                    education_group_year.academic_year.year,
+                    language,
+                    education_group_year.acronym,
+                    data=message
+                )
+
+                response_json = response.json()
+
+                self.assertEqual(response.status_code, 200)
+                self.assertEqual(response.content_type, 'application/json')
+
+                title_to_test = education_group_year.title if language == 'fr' else education_group_year.title_english
+
+                self.assertDictEqual(response_json, {
+                    'acronym': education_group_year.acronym,
+                    'language': language,
+                    'title': title_to_test,
+                    'year': education_group_year.academic_year.year,
+                    'sections': [{
+                        'label': ttl.label,
+                        'id': tt.text_label.label,
+                        'content': tt.text,
+                    }]
+                })
+
+    def test_with_one_section_with_common(self):
+        education_group_year = EducationGroupYearFactory()
+
+        common_education_group_year = EducationGroupYearFactory(
+            acronym='common',
+            academic_year=education_group_year.academic_year,
+        )
+
+        text_label = TextLabelFactory(entity='offer_year', label='caap')
+
+        for iso_language, language in [('fr-be', 'fr'), ('en', 'en')]:
+            with self.subTest(iso_language=iso_language, language=language):
+                ttl = TranslatedTextLabelFactory(text_label=text_label,
+                                                 language=iso_language)
+                tt = TranslatedTextRandomFactory(text_label=text_label,
+                                                 language=iso_language,
+                                                 reference=education_group_year.id,
+                                                 entity=text_label.entity)
+
+                tt2 = TranslatedTextRandomFactory(text_label=text_label,
+                                                  language=iso_language,
+                                                  reference=common_education_group_year.id,
+                                                  entity=text_label.entity)
+
+                message = {
+                    'sections': [
+                        text_label.label,
+                        text_label.label + '-commun'
+                    ]
+                }
+
+                response = self.post(
+                    education_group_year.academic_year.year,
+                    language,
+                    education_group_year.acronym,
+                    data=message
+                )
+
+                response_json = response.json()
+
+                self.assertEqual(response.status_code, 200)
+                self.assertEqual(response.content_type, 'application/json')
+
+                title_to_test = education_group_year.title if language == 'fr' else education_group_year.title_english
+
+                response_sections = convert_sections_list_of_dict_to_dict(
+                    response_json.pop('sections', [])
+                )
+
+                self.assertDictEqual(response_json, {
+                    'acronym': education_group_year.acronym,
+                    'language': language,
+                    'title': title_to_test,
+                    'year': education_group_year.academic_year.year,
+                })
+
+                sections = [{
+                    'id': tt.text_label.label,
+                    'label': ttl.label,
+                    'content': tt.text,
+                }, {
+                    'id': tt.text_label.label + '-commun',
+                    'label': ttl.label,
+                    'content': tt2.text,
+                }]
+                sections = convert_sections_list_of_dict_to_dict(sections)
+
+                self.assertDictEqual(response_sections, sections)
+
+    def test_02(self):
+        education_group_year = EducationGroupYearFactory(acronym='ACTU2M')
+
+        common_education_group_year = EducationGroupYearFactory(
+            acronym='common',
+            academic_year=education_group_year.academic_year
+        )
+
+        iso_language, language = 'fr-be', 'fr'
+
+        sections = [
+            "welcome_job",
+            "welcome_profil",
+            "welcome_programme",
+            "welcome_introduction",
+            "cond_admission",
+            "infos_pratiques",
+            "caap",
+            "caap-commun",
+            "contacts",
+            "structure",
+            "acces_professions",
+            "comp_acquis",
+            "pedagogie",
+            "formations_accessibles",
+            "evaluation",
+            "mobilite",
+            "programme_detaille",
+            "certificats",
+            "module_complementaire",
+            "module_complementaire-commun",
+            "prerequis",
+            "prerequis-commun",
+            "intro-lactu200t",
+            "intro-lactu200s",
+            "options",
+            "intro-lactu200o",
+            "intro-lsst100o"
+        ]
+
+        sections_set, common_sections_set, intro_set = set(), set(), set()
+
+        for section in sections:
+            if section.startswith('intro-'):
+                intro_set.add(section[len('intro-'):])
+                continue
+            if section.endswith('-commun'):
+                section = section[:-len('-commun')]
+                common_sections_set.add(section)
+            sections_set.add(section)
+
+        for section in sections_set:
+            text_label = TextLabelFactory(entity='offer_year', label=section)
+            TranslatedTextLabelFactory(text_label=text_label, language=iso_language)
+
+            TranslatedTextRandomFactory(text_label=text_label,
+                                        language=iso_language,
+                                        reference=education_group_year.id,
+                                        entity=text_label.entity,
+                                        text='<tag>{section}</tag>'.format(section=section))
+
+            if section in common_sections_set:
+                TranslatedTextRandomFactory(text_label=text_label,
+                                            language=iso_language,
+                                            reference=common_education_group_year.id,
+                                            entity=text_label.entity,
+                                            text='<tag>{section}-commun</tag>'.format(section=section))
+
+        text_label = TextLabelFactory(entity='offer_year', label='intro')
+        TranslatedTextLabelFactory(text_label=text_label,
+                                   language=iso_language)
+
+        for section in intro_set:
+            ega = EducationGroupYearFactory(partial_acronym=section, academic_year=education_group_year.academic_year)
+            TranslatedTextRandomFactory(text_label=text_label,
+                                        language=iso_language,
+                                        reference=ega.id,
+                                        entity=text_label.entity,
+                                        text='<tag>intro-{section}</tag>'.format(section=section))
+
+        message = {
+            "sections": sections,
+        }
+
+        response = self.post(
+            education_group_year.academic_year.year,
+            language,
+            education_group_year.acronym,
+            data=message,
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content_type, 'application/json')
+
+        response_json = response.json()
+
+        response_sections = convert_sections_list_of_dict_to_dict(response_json.pop('sections', []))
+
+        for section in sections_set:
+            if section in response_sections:
+                response_sections.pop(section)
+
+        self.assertEqual(len(response_sections), len(intro_set) + len(common_sections_set))
+        for section in common_sections_set:
+            if section + '-commun' in response_sections:
+                response_sections.pop(section + '-commun')
+
+        self.assertEqual(len(response_sections), len(intro_set))
+        for section in intro_set:
+            if 'intro-' + section in response_sections:
+                response_sections.pop('intro-' + section)
+
+        self.assertEqual(len(response_sections), 0)
