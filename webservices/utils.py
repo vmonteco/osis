@@ -23,16 +23,6 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.http import Http404
-
-
-def to_int_or_404(year):
-    try:
-        return int(year)
-    except:
-        raise Http404
-
-
 def convert_sections_to_list_of_dict(sections):
     return [{
         'id': key,

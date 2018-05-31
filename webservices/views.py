@@ -37,7 +37,7 @@ from base.models.education_group_year import EducationGroupYear
 from cms.models.text_label import TextLabel
 from cms.models.translated_text import TranslatedText
 from cms.models.translated_text_label import TranslatedTextLabel
-from webservices.utils import to_int_or_404, convert_sections_to_list_of_dict
+from webservices.utils import convert_sections_to_list_of_dict
 
 LANGUAGES = {'fr': 'fr-be', 'en': 'en'}
 ENTITY = 'offer_year'
@@ -191,7 +191,7 @@ COMMON_PATTERN = '(?P<section_name>\w+)-commun'
 # TODO: Ne pas oublier de verifier les params
 def ws_catalog_offer_post(request, year, language, acronym):
     # Validation
-    year = to_int_or_404(year)
+    year = int(year)
 
     iso_language = LANGUAGES.get(language)
     if not iso_language:
