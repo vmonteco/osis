@@ -193,7 +193,7 @@ class WsCatalogOfferPostTestCase(TestCase, Helper):
 
         ega = EducationGroupYearFactory(partial_acronym='lactu200t',
                                         academic_year=education_group_year.academic_year)
-        text_label = TextLabelFactory(entity='offer_year', label='intro')
+        text_label = TextLabelFactory(entity=OFFER_YEAR, label='intro')
         TranslatedTextLabelFactory(text_label=text_label,
                                    language=iso_language)
         TranslatedTextRandomFactory(text_label=text_label,
@@ -201,7 +201,7 @@ class WsCatalogOfferPostTestCase(TestCase, Helper):
                                     reference=ega.id,
                                     entity=text_label.entity)
 
-        text_label = TextLabelFactory(entity='offer_year', label='prerequis')
+        text_label = TextLabelFactory(entity=OFFER_YEAR, label='prerequis')
         TranslatedTextLabelFactory(text_label=text_label,
                                    language=iso_language)
         TranslatedTextRandomFactory(text_label=text_label,
@@ -214,7 +214,7 @@ class WsCatalogOfferPostTestCase(TestCase, Helper):
                                     reference=common_education_group_year.id,
                                     entity=text_label.entity)
 
-        text_label = TextLabelFactory(entity='offer_year', label='caap')
+        text_label = TextLabelFactory(entity=OFFER_YEAR, label='caap')
         TranslatedTextLabelFactory(text_label=text_label,
                                    language=iso_language)
         TranslatedTextRandomFactory(text_label=text_label,
@@ -245,7 +245,7 @@ class WsCatalogOfferPostTestCase(TestCase, Helper):
             academic_year=education_group_year.academic_year,
         )
 
-        text_label = TextLabelFactory(entity='offer_year')
+        text_label = TextLabelFactory(entity=OFFER_YEAR)
 
         for iso_language, language in [('fr-be', 'fr'), ('en', 'en')]:
             with self.subTest(iso_language=iso_language, language=language):
@@ -285,7 +285,7 @@ class WsCatalogOfferPostTestCase(TestCase, Helper):
     def test_with_one_section(self):
         education_group_year = EducationGroupYearFactory()
 
-        text_label = TextLabelFactory(entity='offer_year', label='caap')
+        text_label = TextLabelFactory(entity=OFFER_YEAR, label='caap')
 
         for iso_language, language in [('fr-be', 'fr'), ('en', 'en')]:
             with self.subTest(iso_language=iso_language, language=language):
@@ -336,7 +336,7 @@ class WsCatalogOfferPostTestCase(TestCase, Helper):
             academic_year=education_group_year.academic_year,
         )
 
-        text_label = TextLabelFactory(entity='offer_year', label='caap')
+        text_label = TextLabelFactory(entity=OFFER_YEAR, label='caap')
 
         for iso_language, language in [('fr-be', 'fr'), ('en', 'en')]:
             with self.subTest(iso_language=iso_language, language=language):
@@ -449,7 +449,7 @@ class WsCatalogOfferPostTestCase(TestCase, Helper):
             sections_set.add(section)
 
         for section in sections_set:
-            text_label = TextLabelFactory(entity='offer_year', label=section)
+            text_label = TextLabelFactory(entity=OFFER_YEAR, label=section)
             TranslatedTextLabelFactory(text_label=text_label, language=iso_language)
 
             TranslatedTextRandomFactory(text_label=text_label,
@@ -465,7 +465,7 @@ class WsCatalogOfferPostTestCase(TestCase, Helper):
                                             entity=text_label.entity,
                                             text='<tag>{section}-commun</tag>'.format(section=section))
 
-        text_label = TextLabelFactory(entity='offer_year', label='intro')
+        text_label = TextLabelFactory(entity=OFFER_YEAR, label='intro')
         TranslatedTextLabelFactory(text_label=text_label,
                                    language=iso_language)
 
@@ -516,7 +516,7 @@ class WsCatalogOfferPostTestCase(TestCase, Helper):
 
         iso_language, language = 'fr-be', 'fr'
 
-        text_label = TextLabelFactory(entity='offer_year')
+        text_label = TextLabelFactory(entity=OFFER_YEAR)
         translated_text_label = TranslatedTextLabelFactory(text_label=text_label, language=iso_language)
 
         message = {
