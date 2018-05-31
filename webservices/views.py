@@ -133,38 +133,19 @@ def compute_sections_for_offer(context):
     for translated_text in queryset:
         insert_section(sections, translated_text, context)
 
-    # insert_missing_sections(sections, context)
-
     insert_common_sections(sections, context)
 
     return sections
 
 
-def insert_missing_sections(sections, context):
-    for text_label in TextLabel.objects.filter(entity=ENTITY):
-        if text_label.label not in sections:
-            sections[text_label.label] = {
-                'label': TranslatedTextLabel.objects.get(text_label=text_label, language=context.language).label,
-                'content': None
-            }
-
-
 def insert_common_sections(sections, context):
     common_terms = get_common_education_group(context.academic_year, context.language)
 
-    common_sections = [
-        ('caap', 'caap'),
-        ('programme', 'agregations'),
-        ('prerequis', 'prerequis'),
-        ('module_complementaire', 'module_complementaire')
-    ]
-    for name, common_term in common_sections:
-        if name in sections and common_term in common_terms:
-            term = common_terms[common_term]
-            if name != common_term:
-                common_name = common_term
-            else:
-                common_name = '{name}-commun'.format(name=name)
+    common_sections = ['caap', 'agregations', 'prerequis', 'module_complementaire']
+    for name in common_sections:
+        common_name = '{name}-commun'.format(name=name)
+        if name in sections and name in common_terms and common_name not in sections:
+            term = common_terms[name]
             sections[common_name] = {
                 'label': get_translated_label_from_translated_text(term, context.language),
                 'content': term.text,
