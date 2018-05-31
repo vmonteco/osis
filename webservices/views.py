@@ -242,7 +242,23 @@ def ws_catalog_offer(request, year, language, acronym):
                     sections[item] = {'label': ttl.label, 'content': None}
             else:
                 sections[item] = {'label': None, 'content': None}
-        elif not m_common:
+        elif m_common:
+            egy = EducationGroupYear.objects.filter(acronym__iexact='common',
+                                                    academic_year__year=year).first()
+            if egy:
+                text_label = TextLabel.objects.filter(entity='offer_year', label=m_common.group('section_name'))
+                ttl = TranslatedTextLabel.objects.filter(text_label=text_label,
+                                                         language=context.language).first()
+
+                tt = TranslatedText.objects.filter(text_label=text_label,
+                                                   language=context.language,
+                                                   entity='offer_year',
+                                                   reference=egy.id).first()
+                if ttl and tt:
+                    sections[item] = {'label': ttl.label, 'content': tt.text}
+                else:
+                    sections[item] = {'label': None, 'content': None}
+        else:
             text_label = TextLabel.objects.filter(entity='offer_year', label=item).first()
             if not text_label:
                 continue
@@ -256,8 +272,6 @@ def ws_catalog_offer(request, year, language, acronym):
                 sections[item] = {'label': ttl.label, 'content': tt.text}
             elif ttl:
                 sections[item] = {'label': ttl.label, 'content': None}
-
-    insert_common_sections(sections, context)
 
     context.description['sections'] = convert_sections_to_list_of_dict(sections)
     return Response(context.description, content_type='application/json')
