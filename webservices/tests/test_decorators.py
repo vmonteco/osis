@@ -58,15 +58,13 @@ class GetCleanedParametersDecorator_TestCase(TestCase):
     def test_works_fine(self):
         year, language = self.academic_year.year, 'fr'
 
-        for type_acronym in ('acronym', 'partial'):
-            with self.subTest(type_acronym=type_acronym):
-                education_group_year = EducationGroupYearFactory(academic_year=self.academic_year)
-                decorator = get_cleaned_parameters(type_acronym)
+        education_group_year = EducationGroupYearFactory(academic_year=self.academic_year)
+        decorator = get_cleaned_parameters('acronym')
 
-                decorated_function = decorator(self.mocked_function)
+        decorated_function = decorator(self.mocked_function)
 
-                acronym = education_group_year.acronym if type_acronym == 'acronym' else education_group_year.partial_acronym
+        acronym = education_group_year.acronym
 
-                result = decorated_function(self.request, year, language, acronym)
-                self.assertTrue(self.mocked_function.called)
-                self.assertEqual(result, 'mocked')
+        result = decorated_function(self.request, year, language, acronym)
+        self.assertTrue(self.mocked_function.called)
+        self.assertEqual(result, 'mocked')

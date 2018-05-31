@@ -86,12 +86,9 @@ def get_cleaned_parameters(type_acronym):
 
             academic_year = get_object_or_404(AcademicYear, year=year)
 
-            parameters = {
-                'academic_year': academic_year,
-                'partial_acronym__iexact' if type_acronym == 'partial' else 'acronym__iexact': acronym
-            }
-
-            education_group_year = get_object_or_404(EducationGroupYear, **parameters)
+            education_group_year = get_object_or_404(EducationGroupYear,
+                                                     academic_year=academic_year,
+                                                     acronym__iexact=acronym)
             iso_language = LANGUAGES[language]
 
             title = get_title_of_education_group_year(education_group_year, iso_language)
@@ -213,26 +210,6 @@ def new_description(education_group_year, language, title, year):
         'year': year,
         'sections': [],
     }
-
-
-@api_view(['GET'])
-@renderer_classes((JSONRenderer,))
-@get_cleaned_parameters(type_acronym='partial')
-def ws_catalog_group(request, context):
-    queryset = find_translated_texts_by_entity_and_language(
-        context.education_group_year,
-        ENTITY,
-        context.language
-    )
-
-    sections = {}
-    for translated_text in queryset:
-        insert_section(sections, translated_text, context)
-
-    description = dict(context.description)
-    description['sections'] = convert_sections_to_list_of_dict(sections)
-
-    return Response(description, content_type='application/json')
 
 
 def get_title_of_education_group_year(education_group_year, iso_language):
