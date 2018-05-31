@@ -267,7 +267,7 @@ def convert_to_html(item, label, value):
         'comp_acquis': generate_html_from_comp_acquis,
         'caap': generate_html_two_parts,
         'prerequis': generate_html_two_parts,
-        'programme': generate_html_for_program,
+        # 'programme': generate_html_for_program,
         'contacts': generate_html_for_contacts,
     }
 
@@ -351,6 +351,8 @@ LABEL_TEXTUALS = [
     (settings.LANGUAGE_CODE_FR, 'module_complementaire', 'Module Complémentaire'),
     (settings.LANGUAGE_CODE_FR, 'evaluation', 'Évaluation'),
     (settings.LANGUAGE_CODE_FR, 'structure', 'Structure'),
+    (settings.LANGUAGE_CODE_FR, 'programme', 'Programme'),
+    (settings.LANGUAGE_CODE_FR, 'programme_detaille', 'Programme Détaillé'),
 ]
 
 MAPPING_LABEL_TEXTUAL = collections.defaultdict(dict)
