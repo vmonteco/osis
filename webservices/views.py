@@ -40,6 +40,9 @@ from cms.models.translated_text_label import TranslatedTextLabel
 from webservices.utils import convert_sections_to_list_of_dict
 
 LANGUAGES = {'fr': 'fr-be', 'en': 'en'}
+INTRO_PATTERN = r'intro-(?P<acronym>\w+)'
+COMMON_PATTERN = r'(?P<section_name>\w+)-commun'
+
 
 Context = collections.namedtuple(
     'Context',
@@ -65,10 +68,6 @@ def get_title_of_education_group_year(education_group_year, iso_language):
     else:
         title = education_group_year.title_english
     return title
-
-
-INTRO_PATTERN = r'intro-(?P<acronym>\w+)'
-COMMON_PATTERN = r'(?P<section_name>\w+)-commun'
 
 
 @api_view(['POST'])
