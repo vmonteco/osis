@@ -81,34 +81,21 @@ COMMON_PATTERN = r'(?P<section_name>\w+)-commun'
 @renderer_classes((JSONRenderer,))
 def ws_catalog_offer(request, year, language, acronym):
     # Validation
-    year = int(year)
+    education_group_year, iso_language, year = parameters_validation(acronym, language, year)
 
-    iso_language = LANGUAGES.get(language)
-    if not iso_language:
-        raise Http404
-
-    education_group_year = get_object_or_404(EducationGroupYear,
-                                             acronym__iexact=acronym,
-                                             academic_year__year=year)
-
-    title = get_title_of_education_group_year(education_group_year, iso_language)
-    description = new_description(education_group_year, language, title, year)
-
-    # Processing
     sections = collections.OrderedDict()
 
+    context = new_context(acronym, education_group_year, iso_language, language, year)
+
+    # Processing
     items = request.data['sections']
+    process_message(context, education_group_year, items, sections, year)
 
-    context = Context(
-        acronym=acronym.upper(),
-        year=year,
-        title=title,
-        description=description,
-        education_group_year=education_group_year,
-        academic_year=education_group_year.academic_year,
-        language=iso_language,
-    )
+    context.description['sections'] = convert_sections_to_list_of_dict(sections)
+    return Response(context.description, content_type='application/json')
 
+
+def process_message(context, education_group_year, items, sections, year):
     for item in items:
         m_intro = re.match(INTRO_PATTERN, item)
         m_common = re.match(COMMON_PATTERN, item)
@@ -131,8 +118,31 @@ def ws_catalog_offer(request, year, language, acronym):
 
             insert_section(context, education_group_year, item, sections, text_label)
 
-    context.description['sections'] = convert_sections_to_list_of_dict(sections)
-    return Response(context.description, content_type='application/json')
+
+def new_context(acronym, education_group_year, iso_language, language, year):
+    title = get_title_of_education_group_year(education_group_year, iso_language)
+    description = new_description(education_group_year, language, title, year)
+    context = Context(
+        acronym=acronym.upper(),
+        year=year,
+        title=title,
+        description=description,
+        education_group_year=education_group_year,
+        academic_year=education_group_year.academic_year,
+        language=iso_language,
+    )
+    return context
+
+
+def parameters_validation(acronym, language, year):
+    year = int(year)
+    iso_language = LANGUAGES.get(language)
+    if not iso_language:
+        raise Http404
+    education_group_year = get_object_or_404(EducationGroupYear,
+                                             acronym__iexact=acronym,
+                                             academic_year__year=year)
+    return education_group_year, iso_language, year
 
 
 def insert_section(context, education_group_year, item, sections, text_label):
