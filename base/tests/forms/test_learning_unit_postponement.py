@@ -250,7 +250,6 @@ class TestLearningUnitPostponementFormSave(LearningUnitPostponementFormContextMi
         form.save()
         self.assertEqual(mock_baseform_save.call_count, 3)
 
-
     @mock.patch('base.forms.learning_unit.learning_unit_create_2.FullForm.save', side_effect=None)
     def test_update_luy_in_past(self, mock_baseform_save):
         """ Check if there is no postponement when the learning_unit_year is in the past """
@@ -468,7 +467,7 @@ class TestLearningUnitPostponementFormFindConsistencyErrors(LearningUnitPostpone
         expected_result = OrderedDict({
             next_academic_year: [
                 _("%(col_name)s has been already modified. ({%(new_value)s} instead of {%(current_value)s})") % {
-                    'col_name': _('official_title_proper_to_UE'),
+                    'col_name': _('title_proper_to_UE'),
                     'new_value': '-',
                     'current_value': instance_luy_base_form.data['specific_title']
                 }
