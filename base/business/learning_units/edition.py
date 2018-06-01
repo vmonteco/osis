@@ -400,8 +400,8 @@ def _check_postponement_conflict(luy, next_luy):
 def _check_postponement_conflict_on_learning_unit_year(luy, next_luy):
     fields_to_compare = {
         'acronym': _('acronym'),
-        'specific_title': _('official_title_proper_to_UE'),
-        'specific_title_english': _('official_english_title_proper_to_UE'),
+        'specific_title': _('title_proper_to_UE'),
+        'specific_title_english': _('english_title_proper_to_UE'),
         'subtype': _('subtype'),
         'credits': _('credits'),
         'internship_subtype': _('internship_subtype'),
@@ -415,8 +415,8 @@ def _check_postponement_conflict_on_learning_unit_year(luy, next_luy):
 def _check_postponement_conflict_on_learning_container_year(lcy, next_lcy):
     fields_to_compare = {
         'container_type': _('type'),
-        'common_title': _('common_official_title'),
-        'common_title_english': _('common_official_english_title'),
+        'common_title': _('common_title'),
+        'common_title_english': _('common_english_title'),
         'acronym': _('acronym'),
         'language': _('language'),
         'campus': _('campus'),
