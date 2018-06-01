@@ -36,7 +36,7 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseForbidden
 from django.http import HttpResponseNotAllowed
 from django.http import HttpResponseRedirect
-from django.test import TestCase, RequestFactory
+from django.test import TestCase, RequestFactory, Client
 from django.test.utils import override_settings
 from django.utils.translation import ugettext_lazy as _
 
@@ -609,19 +609,24 @@ class LearningUnitViewTestCase(TestCase):
         self.assertEqual(context['learning_unit_year'], learning_unit_year)
 
     def test_external_learning_unit_read_permission_denied(self):
-        external_learning_unit_year = ExternalLearningUnitYearFactory()
+        learning_container_year = LearningContainerYearFactory(academic_year=self.current_academic_year)
+        learning_unit_year = LearningUnitYearFactory(academic_year=self.current_academic_year,
+                                                     learning_container_year=learning_container_year,
+                                                     subtype=learning_unit_year_subtypes.FULL)
+        external_learning_unit_year = ExternalLearningUnitYearFactory(learning_unit_year=learning_unit_year)
         learning_unit_year = external_learning_unit_year.learning_unit_year
 
         a_user_without_perms = PersonFactory().user
-        self.client.force_login(a_user_without_perms)
+        client = Client()
+        client.force_login(a_user_without_perms)
 
-        response = self.client.get(reverse(learning_unit_identification, args=[learning_unit_year.id]))
+        response = client.get(reverse(learning_unit_identification, args=[learning_unit_year.id]))
         self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
         self.assertTemplateUsed(response, "access_denied.html")
 
         a_user_without_perms.user_permissions.add(Permission.objects.get(codename='can_access_externallearningunityear'))
 
-        response = self.client.get(reverse(learning_unit_identification, args=[learning_unit_year.id]))
+        response = client.get(reverse(learning_unit_identification, args=[learning_unit_year.id]))
         self.assertEqual(response.status_code, 200)
 
     @mock.patch('base.views.layout.render')
