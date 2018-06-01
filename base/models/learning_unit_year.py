@@ -33,7 +33,8 @@ from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
 from base.models import entity_container_year
-from base.models.academic_year import current_academic_year, compute_max_academic_year_adjournment, AcademicYear
+from base.models.academic_year import current_academic_year, compute_max_academic_year_adjournment, AcademicYear, \
+    MAX_ACADEMIC_YEAR_FACULTY
 from base.models.enums import active_status, learning_container_year_types
 from base.models.enums import learning_unit_year_subtypes, internship_subtypes, \
     learning_unit_year_session, entity_container_year_link_type, learning_unit_year_quadrimesters, attribution_procedure
@@ -217,9 +218,7 @@ class LearningUnitYear(SerializableModel):
         current_year = current_academic_year().year
         year = self.academic_year.year
 
-        if self.learning_unit.periodicity == ANNUAL and year <= current_year + 1:
-            result = True
-        elif self.learning_unit.periodicity != ANNUAL and year <= current_year + 2:
+        if year <= current_year + MAX_ACADEMIC_YEAR_FACULTY:
             result = True
         return result
 
