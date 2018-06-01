@@ -250,7 +250,6 @@ class TestLearningUnitPostponementFormSave(LearningUnitPostponementFormContextMi
         form.save()
         self.assertEqual(mock_baseform_save.call_count, 3)
 
-
     @mock.patch('base.forms.learning_unit.learning_unit_create_2.FullForm.save', side_effect=None)
     def test_update_luy_in_past(self, mock_baseform_save):
         """ Check if there is no postponement when the learning_unit_year is in the past """
