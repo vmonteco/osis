@@ -82,21 +82,6 @@ def generate_html_two_parts(info):
     )
 
 
-def generate_html_for_program(info):
-    """
-    Génère le HTML pour les programmes
-    <div class="reddot_intro">
-    </div>
-    <div class="reddot_body">
-    </div>
-    """
-    return generate_html_for_multiparts(
-        info,
-        [('intro', 'reddot_intro'),
-         ('programme_detaille', 'reddot_body')]
-    )
-
-
 def generate_html_for_multiparts(info, parts):
     content = []
     for part_name, class_name in parts:
@@ -267,7 +252,6 @@ def convert_to_html(item, label, value):
         'comp_acquis': generate_html_from_comp_acquis,
         'caap': generate_html_two_parts,
         'prerequis': generate_html_two_parts,
-        # 'programme': generate_html_for_program,
         'contacts': generate_html_for_contacts,
     }
 
@@ -351,7 +335,6 @@ LABEL_TEXTUALS = [
     (settings.LANGUAGE_CODE_FR, 'module_complementaire', 'Module Complémentaire'),
     (settings.LANGUAGE_CODE_FR, 'evaluation', 'Évaluation'),
     (settings.LANGUAGE_CODE_FR, 'structure', 'Structure'),
-    (settings.LANGUAGE_CODE_FR, 'programme', 'Programme'),
     (settings.LANGUAGE_CODE_FR, 'programme_detaille', 'Programme Détaillé'),
 ]
 
