@@ -2730,9 +2730,6 @@ msgstr ""
 msgid "Modalities specific to IN and OUT mobility"
 msgstr ""
 
-msgid "The partim must be inactive because the parent is inactive"
-msgstr ""
-
 msgid "The periodicity of the parent and the partims do not match"
 msgstr ""
 
@@ -2847,7 +2844,10 @@ msgstr "Borrowed courses - search"
 msgid "add_another"
 msgstr "Add another"
 
-msgid "There is at least one partim active, so the parent must be active"
+msgid "The parent is inactive and there is at least one partim active"
+msgstr ""
+
+msgid "This partim is active and the parent is inactive"
 msgstr ""
 
 msgid "faculty_borrowing"
@@ -2948,6 +2948,9 @@ msgstr ""
 
 msgid "url of the learning unit"
 msgstr "URL of the learning unit"
+
+msgid "professional_integration"
+msgstr "Professional integration"
 
 msgid "title_1_in_english"
 msgstr "Title common title with partims (part 1) in English"
