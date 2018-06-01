@@ -67,12 +67,6 @@ def get_title_of_education_group_year(education_group_year, iso_language):
     return title
 
 
-def get_translated_label_from_translated_text(translated_text, language):
-    record = TranslatedTextLabel.objects.get(text_label=translated_text.text_label,
-                                             language=language)
-    return record.label
-
-
 INTRO_PATTERN = r'intro-(?P<acronym>\w+)'
 COMMON_PATTERN = r'(?P<section_name>\w+)-commun'
 
