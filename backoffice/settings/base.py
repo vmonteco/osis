@@ -222,6 +222,7 @@ REDDOT_STYLES = [
     define_style_sheet('Contact Other Responsibles', 'contacts_responsibles'),
     define_style_sheet('Contact Jury', 'contacts_jury'),
     define_style_sheet('Contact Contact', 'contacts_contact'),
+    define_style_sheet('Contact Introduction', 'contacts_introduction'),
 ]
 
 # Apps Settings

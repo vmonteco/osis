@@ -27,6 +27,7 @@
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
+from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect, get_object_or_404
@@ -54,7 +55,6 @@ from . import layout
 
 
 @login_required
-@permission_required('base.can_access_learningunit', raise_exception=True)
 def learning_unit_identification(request, learning_unit_year_id):
     person = get_object_or_404(Person, user=request.user)
     context = get_learning_unit_identification_context(learning_unit_year_id, person)
@@ -62,8 +62,15 @@ def learning_unit_identification(request, learning_unit_year_id):
     learning_unit_year = context['learning_unit_year']
 
     if learning_unit_year.is_external():
-        return layout.render(request, "learning_unit/external/read.html", context)
-    return layout.render(request, "learning_unit/identification.html", context)
+        template = "learning_unit/external/read.html"
+        permission = 'base.can_access_externallearningunityear'
+    else:
+        template = "learning_unit/identification.html"
+        permission = 'base.can_access_learningunit'
+
+    if not person.user.has_perm(permission):
+        raise PermissionDenied
+    return layout.render(request, template, context)
 
 
 @login_required

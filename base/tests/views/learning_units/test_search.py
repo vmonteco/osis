@@ -29,8 +29,9 @@ from django.urls import reverse
 from django.http.response import HttpResponseForbidden
 
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
+from base.tests.factories.external_learning_unit_year import ExternalLearningUnitYearFactory
 from base.tests.factories.person import PersonFactory
-from base.views.learning_units.search import BORROWED_COURSE
+from base.views.learning_units.search import BORROWED_COURSE, EXTERNAL_SEARCH
 
 
 class TestSearchBorrowedLearningUnits(TestCase):
@@ -65,3 +66,36 @@ class TestSearchBorrowedLearningUnits(TestCase):
         context = response.context
         self.assertEqual(context["search_type"], BORROWED_COURSE)
         self.assertTemplateUsed(response, "learning_unit/by_activity.html")
+
+
+class TestSearchExternalLearningUnits(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.person = PersonFactory()
+        cls.person.user.user_permissions.add(Permission.objects.get(codename="can_access_externallearningunityear"))
+        cls.url = reverse("learning_units_external")
+
+    def setUp(self):
+        self.client.force_login(self.person.user)
+
+    def test_user_not_logged(self):
+        self.client.logout()
+        response = self.client.get(self.url)
+
+        self.assertRedirects(response, "/login/?next={}".format(self.url))
+
+    def test_user_has_not_permission(self):
+        person_without_permission = PersonFactory()
+        self.client.force_login(person_without_permission.user)
+
+        response = self.client.get(self.url)
+
+        self.assertTemplateUsed(response, "access_denied.html")
+        self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
+
+    def test_get_request(self):
+        response = self.client.get(self.url)
+
+        context = response.context
+        self.assertEqual(context["search_type"], EXTERNAL_SEARCH)
+        self.assertTemplateUsed(response, "learning_unit/by_external.html")

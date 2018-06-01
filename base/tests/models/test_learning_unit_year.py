@@ -24,13 +24,13 @@
 #
 ##############################################################################
 from django.test import TestCase
-from django.utils import timezone
 
 from attribution.models import attribution
 from base.models import learning_unit_year
 from base.models.enums import learning_unit_year_subtypes
 from base.models.learning_unit_year import find_max_credits_of_related_partims
-from base.tests.factories.academic_year import AcademicYearFactory
+from base.tests.factories.academic_year import create_current_academic_year
+from base.tests.factories.business.learning_units import GenerateAcademicYear
 from base.tests.factories.external_learning_unit_year import ExternalLearningUnitYearFactory
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
 from base.tests.factories.learning_unit import LearningUnitFactory
@@ -41,7 +41,7 @@ from base.tests.factories.tutor import TutorFactory
 class LearningUnitYearTest(TestCase):
     def setUp(self):
         self.tutor = TutorFactory()
-        self.academic_year = AcademicYearFactory(year=timezone.now().year)
+        self.academic_year = create_current_academic_year()
         self.learning_unit_year = LearningUnitYearFactory(acronym="LDROI1004",
                                                           specific_title="Juridic law courses",
                                                           academic_year=self.academic_year,
@@ -199,6 +199,18 @@ class LearningUnitYearTest(TestCase):
     def test_common_title_property_no_container(self):
         self.learning_unit_year.learning_container_year = None
         self.assertEqual(self.learning_unit_year.container_common_title, '')
+
+    def test_can_be_updated_by_faculty_manager(self):
+        next_academic_years = GenerateAcademicYear(start_year=self.academic_year.year+1,
+                                                   end_year=self.academic_year.year+3).academic_years
+
+        next_luys = [LearningUnitYearFactory(academic_year=ac, learning_unit=self.learning_unit_year.learning_unit)
+                     for ac in next_academic_years]
+
+        self.assertTrue(self.learning_unit_year.can_update_by_faculty_manager())
+        self.assertTrue(next_luys[0].can_update_by_faculty_manager())
+        self.assertTrue(next_luys[1].can_update_by_faculty_manager())
+        self.assertFalse(next_luys[2].can_update_by_faculty_manager())
 
     def test_is_external(self):
         luy = LearningUnitYearFactory()

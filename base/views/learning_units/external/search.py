@@ -15,7 +15,7 @@
 #
 #    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #    GNU General Public License for more details.
 #
 #    A copy of this license - GNU General Public License - is available
@@ -23,29 +23,29 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import datetime
-import string
 
-import factory.fuzzy
-from factory.django import DjangoModelFactory
+from django.http import JsonResponse
 
-from base.models.learning_unit_year import MINIMUM_CREDITS, MAXIMUM_CREDITS
-from base.tests.factories.entity import EntityFactory
-from base.tests.factories.learning_unit_year import LearningUnitYearFactory
-from osis_common.utils.datetime import get_tzinfo
-from base.tests.factories.person import PersonFactory
+from base.models.campus import Campus
+from base.models.organization_address import find_distinct_by_country
+from osis_common.decorators.ajax import ajax_required
 
 
-class ExternalLearningUnitYearFactory(DjangoModelFactory):
-    class Meta:
-        model = "base.ExternalLearningUnitYear"
-        
-    external_id = factory.fuzzy.FuzzyText(length=10, chars=string.digits)
-    changed = factory.fuzzy.FuzzyDateTime(datetime.datetime(2016, 1, 1, tzinfo=get_tzinfo()),
-                                          datetime.datetime(2017, 3, 1, tzinfo=get_tzinfo()))
-    external_acronym = factory.fuzzy.FuzzyText(length=10, chars=string.digits)
-    external_credits = factory.fuzzy.FuzzyDecimal(MINIMUM_CREDITS, MAXIMUM_CREDITS)
+# TODO :: On peut combiner les différentes vues en faisant passer les paramètres via le GET et en uniformisant
+# le JsonResponse.
+@ajax_required
+def filter_cities_by_country(request):
+    """ Ajax request to filter the cities choice field """
+    country = request.GET.get('country')
+    cities = find_distinct_by_country(country)
+    return JsonResponse(list(cities), safe=False)
 
-    learning_unit_year = factory.SubFactory(LearningUnitYearFactory)
-    requesting_entity = factory.SubFactory(EntityFactory)
-    author = factory.SubFactory(PersonFactory)
+
+@ajax_required
+def filter_campus_by_city(request):
+    """ Ajax request to filter the campus choice field """
+    city = request.GET.get('city')
+    campuses = Campus.objects.filter(
+        organization__organizationaddress__city=city
+    ).distinct('organization__name').order_by('organization__name').values('pk', 'organization__name')
+    return JsonResponse(list(campuses), safe=False)

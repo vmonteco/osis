@@ -52,6 +52,7 @@ from base.tests.factories.person import PersonFactory
 class TestLearningUnitYearModelFormInit(TestCase):
     """Tests LearningUnitYearModelForm.__init__()"""
     def setUp(self):
+        current_academic_year = create_current_academic_year()
         self.central_manager = PersonFactory()
         self.central_manager.user.groups.add(Group.objects.get(name=CENTRAL_MANAGER_GROUP))
         self.faculty_manager = PersonFactory()
@@ -190,7 +191,9 @@ class TestLearningUnitYearModelFormSave(TestCase):
 
     def test_case_update_post_data_correctly_saved(self):
         learning_unit_year_to_update = LearningUnitYearFactory(
-            learning_unit=self.learning_unit, learning_container_year=self.learning_container_year, subtype=FULL)
+            learning_unit=self.learning_unit, learning_container_year=self.learning_container_year, subtype=FULL,
+            academic_year=self.current_academic_year
+        )
 
         form = LearningUnitYearModelForm(data=self.post_data, person=self.central_manager, subtype=FULL,
                                          instance=learning_unit_year_to_update)
@@ -202,7 +205,9 @@ class TestLearningUnitYearModelFormSave(TestCase):
 
     def test_warnings_credit(self):
         learning_unit_year_to_update = LearningUnitYearFactory(
-            learning_unit=self.learning_unit, learning_container_year=self.learning_container_year, subtype=FULL)
+            learning_unit=self.learning_unit, learning_container_year=self.learning_container_year, subtype=FULL,
+            academic_year = self.current_academic_year
+        )
 
         partim = LearningUnitYearFactory(learning_container_year=self.learning_container_year, subtype=PARTIM,
                                          credits=120)
@@ -219,7 +224,9 @@ class TestLearningUnitYearModelFormSave(TestCase):
     def test_no_warnings_credit(self):
         """ This test will ensure that no message warning message is displayed when no PARTIM attached to FULL"""
         learning_unit_year_to_update = LearningUnitYearFactory(
-            learning_unit=self.learning_unit, learning_container_year=self.learning_container_year, subtype=FULL)
+            learning_unit=self.learning_unit, learning_container_year=self.learning_container_year, subtype=FULL,
+            academic_year=self.current_academic_year
+        )
 
         LearningUnitYear.objects.filter(
             learning_container_year=learning_unit_year_to_update.learning_container_year,

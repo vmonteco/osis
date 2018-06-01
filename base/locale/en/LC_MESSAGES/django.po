@@ -1615,23 +1615,23 @@ msgstr "Duration"
 msgid "experimental_phase"
 msgstr "This feature is in testing phase"
 
-msgid "title_official_1"
-msgstr "Official title (Part 1, common with partims)"
+msgid "title_1"
+msgstr "Title common with partims(Part 1)"
 
-msgid "common_official_title"
-msgstr "Common official title"
+msgid "common_title"
+msgstr "Common title"
 
-msgid "common_official_english_title"
-msgstr "Common official English title"
+msgid "common_english_title"
+msgstr "Common English title"
 
-msgid "title_official_2"
-msgstr "Official title (Part 2, specific to each partim)"
+msgid "title_2"
+msgstr "Title (Part 2, specific to each partim)"
 
-msgid "official_title_proper_to_UE"
-msgstr "Official title proper to the learning unit"
+msgid "title_proper_to_UE"
+msgstr "Title proper"
 
-msgid "official_english_title_proper_to_UE"
-msgstr "Official English title proper to the learning unit"
+msgid "english_title_proper_to_UE"
+msgstr "English title proper"
 
 msgid "title_in_english"
 msgstr "Title in English"
@@ -2690,10 +2690,10 @@ msgid "Educational information ending"
 msgstr ""
 
 msgid "official_title_proper_to_partim"
-msgstr "Official title proper to the partim"
+msgstr "Title proper to the partim"
 
 msgid "official_english_title_proper_to_partim"
-msgstr "Official English title proper to the partim"
+msgstr "English title proper to the partim"
 
 msgid "Educational information submission dates updated"
 msgstr ""
@@ -2954,3 +2954,17 @@ msgstr "URL of the learning unit"
 
 msgid "professional_integration"
 msgstr "Professional integration"
+
+msgid "external_search"
+msgstr "External - Search"
+
+msgid "formerly"
+msgstr "Formerly"
+
+msgid "title_1_in_english"
+msgstr "Title common title with partims (part 1) in English"
+
+msgid "title_2_in_english"
+msgstr "Title specific with partim (part 2) in English"
+
+
