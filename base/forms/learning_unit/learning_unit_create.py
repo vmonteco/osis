@@ -23,7 +23,6 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import datetime
 from collections import OrderedDict
 
 from django import forms
@@ -32,7 +31,7 @@ from django.utils.translation import ugettext_lazy as _
 from base.forms.utils.acronym_field import AcronymField, PartimAcronymField, split_acronym
 from base.forms.utils.choice_field import add_blank
 from base.models import entity_version, academic_year
-from base.models.academic_year import AcademicYear
+from base.models.academic_year import MAX_ACADEMIC_YEAR_FACULTY, MAX_ACADEMIC_YEAR_CENTRAL
 from base.models.campus import find_main_campuses
 from base.models.entity_component_year import EntityComponentYear
 from base.models.entity_container_year import EntityContainerYear
@@ -50,10 +49,6 @@ from base.models.learning_container_year import LearningContainerYear
 from base.models.learning_unit import LearningUnit
 from base.models.learning_unit_component import LearningUnitComponent
 from base.models.learning_unit_year import LearningUnitYear, MAXIMUM_CREDITS
-
-MAX_ACADEMIC_YEAR_FACULTY = 2
-
-MAX_ACADEMIC_YEAR_CENTRAL = 6
 
 DEFAULT_ACRONYM_COMPONENT = {
     LECTURING: "CM1",

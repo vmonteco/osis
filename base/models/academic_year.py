@@ -130,3 +130,7 @@ def get_last_academic_years(last_years=10):
     today = datetime.date.today()
     date_ten_years_before = today.replace(year=today.year - last_years)
     return find_academic_years().filter(start_date__gte=date_ten_years_before)
+
+
+MAX_ACADEMIC_YEAR_FACULTY = 2
+MAX_ACADEMIC_YEAR_CENTRAL = 6
