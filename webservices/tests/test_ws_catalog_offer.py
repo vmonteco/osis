@@ -65,6 +65,8 @@ class WsCatalogOfferPostTestCase(TestCase, Helper):
         iso_language, language = 'fr-be', 'fr'
 
         message = {
+            'anac': str(education_group_year.academic_year.year),
+            'code_offre': education_group_year.acronym,
             "sections": [
                 "welcome_job",
                 "welcome_profil",
@@ -161,6 +163,8 @@ class WsCatalogOfferPostTestCase(TestCase, Helper):
                                             reference=common_education_group_year.id,
                                             entity=text_label.entity)
                 message = {
+                    'anac': str(education_group_year.academic_year.year),
+                    'code_offre': education_group_year.acronym,
                     'sections': [
                         'welcome_job',
                     ]
@@ -173,10 +177,10 @@ class WsCatalogOfferPostTestCase(TestCase, Helper):
                     data=message
                 )
 
-                response_json = response.json()
-
                 self.assertEqual(response.status_code, 200)
                 self.assertEqual(response.content_type, 'application/json')
+
+                response_json = response.json()
 
                 title_to_test = education_group_year.title if language == 'fr' else education_group_year.title_english
                 self.assertDictEqual(response_json, {
@@ -202,6 +206,8 @@ class WsCatalogOfferPostTestCase(TestCase, Helper):
                                                  entity=text_label.entity)
 
                 message = {
+                    'code_offre': education_group_year.acronym,
+                    'anac': str(education_group_year.academic_year.year),
                     'sections': [
                         text_label.label,
                     ]
@@ -214,10 +220,10 @@ class WsCatalogOfferPostTestCase(TestCase, Helper):
                     data=message
                 )
 
-                response_json = response.json()
-
                 self.assertEqual(response.status_code, 200)
                 self.assertEqual(response.content_type, 'application/json')
+
+                response_json = response.json()
 
                 title_to_test = education_group_year.title if language == 'fr' else education_group_year.title_english
 
@@ -258,6 +264,8 @@ class WsCatalogOfferPostTestCase(TestCase, Helper):
                                                   entity=text_label.entity)
 
                 message = {
+                    'code_offre': education_group_year.acronym,
+                    'anac': str(education_group_year.academic_year.year),
                     'sections': [
                         text_label.label,
                         text_label.label + '-commun'
@@ -271,10 +279,10 @@ class WsCatalogOfferPostTestCase(TestCase, Helper):
                     data=message
                 )
 
-                response_json = response.json()
-
                 self.assertEqual(response.status_code, 200)
                 self.assertEqual(response.content_type, 'application/json')
+
+                response_json = response.json()
 
                 title_to_test = education_group_year.title if language == 'fr' else education_group_year.title_english
 
@@ -386,6 +394,8 @@ class WsCatalogOfferPostTestCase(TestCase, Helper):
                                         text='<tag>intro-{section}</tag>'.format(section=section))
 
         message = {
+            'anac': str(education_group_year.academic_year.year),
+            'code_offre': education_group_year.acronym,
             "sections": sections,
         }
 
@@ -428,6 +438,8 @@ class WsCatalogOfferPostTestCase(TestCase, Helper):
         translated_text_label = TranslatedTextLabelFactory(text_label=text_label, language=iso_language)
 
         message = {
+            'anac': str(education_group_year.academic_year.year),
+            'code_offre': education_group_year.acronym,
             'sections': [text_label.label]
         }
 
@@ -437,6 +449,10 @@ class WsCatalogOfferPostTestCase(TestCase, Helper):
             acronym=education_group_year.acronym,
             data=message
         )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content_type, 'application/json')
+
         response_json = response.json()
         response_sections = convert_sections_list_of_dict_to_dict(response_json.pop('sections', []))
 
@@ -452,6 +468,8 @@ class WsCatalogOfferPostTestCase(TestCase, Helper):
         education_group_year = EducationGroupYearFactory()
 
         message = {
+            'anac': str(education_group_year.academic_year.year),
+            'code_offre': education_group_year.acronym,
             'sections': ['demo']
         }
 
@@ -461,6 +479,10 @@ class WsCatalogOfferPostTestCase(TestCase, Helper):
             acronym=education_group_year.acronym,
             data=message
         )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content_type, 'application/json')
+
         response_json = response.json()
         response_sections = convert_sections_list_of_dict_to_dict(response_json.pop('sections', []))
 

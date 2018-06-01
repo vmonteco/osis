@@ -26,6 +26,7 @@
 import collections
 import re
 
+from django.core.exceptions import SuspiciousOperation
 from django.http import Http404
 from rest_framework.decorators import api_view, renderer_classes
 from rest_framework.generics import get_object_or_404
@@ -70,15 +71,34 @@ def get_title_of_education_group_year(education_group_year, iso_language):
     return title
 
 
+def validate_json_request(request, year, acronym):
+    if request.content_type != 'application/json':
+        raise SuspiciousOperation('Invalid JSON')
+
+    request_json = request.data
+    if 'anac' not in request_json or 'code_offre' not in request_json or 'sections' not in request_json:
+        raise SuspiciousOperation('Invalid JSON')
+
+    if year != int(request_json['anac']):
+        raise SuspiciousOperation('Invalid JSON')
+
+    if acronym.lower() != request_json['code_offre'].lower():
+        raise SuspiciousOperation('Invalid JSON')
+
+    if not all(isinstance(item, str) for item in request_json['sections']):
+        raise SuspiciousOperation('Invalid JSON')
+
+
 @api_view(['POST'])
 @renderer_classes((JSONRenderer,))
 def ws_catalog_offer(request, year, language, acronym):
     # Validation
     education_group_year, iso_language, year = parameters_validation(acronym, language, year)
 
-    context = new_context(acronym, education_group_year, iso_language, language)
+    validate_json_request(request, year, acronym)
 
     # Processing
+    context = new_context(acronym, education_group_year, iso_language, language)
     items = request.data['sections']
 
     # sections = collections.OrderedDict()
