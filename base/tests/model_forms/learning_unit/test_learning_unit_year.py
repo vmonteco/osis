@@ -23,7 +23,6 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-
 from django.contrib.auth.models import Group
 from django.test import TestCase
 from django.utils.translation import ugettext_lazy as _
@@ -34,7 +33,7 @@ from base.models.entity_component_year import EntityComponentYear
 from base.models.enums import learning_container_year_types
 from base.models.enums.attribution_procedure import INTERNAL_TEAM
 from base.models.enums.entity_container_year_link_type import REQUIREMENT_ENTITY, ALLOCATION_ENTITY, \
-    ADDITIONAL_REQUIREMENT_ENTITY_2, ADDITIONAL_REQUIREMENT_ENTITY_1
+    ADDITIONAL_REQUIREMENT_ENTITY_2, ADDITIONAL_REQUIREMENT_ENTITY_1, REQUIREMENT_ENTITIES
 from base.models.enums.internship_subtypes import PROFESSIONAL_INTERNSHIP
 from base.models.enums.learning_container_year_types import MASTER_THESIS, OTHER_INDIVIDUAL
 from base.models.enums.learning_unit_year_subtypes import FULL, PARTIM
@@ -231,3 +230,20 @@ class TestLearningUnitYearModelFormSave(TestCase):
                                          instance=learning_unit_year_to_update)
         self.assertTrue(form.is_valid(), form.errors)
         self.assertFalse(form.instance.warnings)
+
+    def test_create_entity_components_of_partims(self):
+        learning_unit_year_to_update = LearningUnitYearFactory(
+            learning_unit=self.learning_unit, learning_container_year=self.learning_container_year, subtype=FULL)
+        partim = LearningUnitYearFactory(learning_container_year=self.learning_container_year, subtype=PARTIM)
+        form = LearningUnitYearModelForm(data=self.post_data, person=self.central_manager, subtype=FULL,
+                                         instance=learning_unit_year_to_update)
+        self.assertTrue(form.is_valid(), form.errors)
+        form.save(learning_container_year=self.learning_container_year, learning_unit=self.learning_unit,
+                  entity_container_years=self.entity_container_years)
+        created_entity_components = EntityComponentYear.objects.filter(
+            learning_component_year__learning_container_year=self.learning_container_year).count()
+        learning_units_count = LearningUnitYear.objects.filter(learning_container_year=self.learning_container_year)\
+                                                       .count()
+        components_count = 2  # each learning unit year has 2 components (LECTURING / PRACTICAL)
+        entity_containers_count = len(REQUIREMENT_ENTITIES)
+        self.assertEqual(created_entity_components, components_count * learning_units_count * entity_containers_count)
