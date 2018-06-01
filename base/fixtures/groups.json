@@ -765,6 +765,11 @@
                 "learningunit"
             ],
             [
+                "can_access_externallearningunityear",
+                "base",
+                "externallearningunityear"
+            ],
+            [
                 "can_edit_learningunit_pedagogy",
                 "base",
                 "learningunit"
@@ -1971,6 +1976,11 @@
                 "learningunit"
             ],
             [
+                "can_access_externallearningunityear",
+                "base",
+                "externallearningunityear"
+            ],
+            [
                 "can_access_catalog",
                 "base",
                 "offer"
@@ -2697,6 +2707,11 @@
                 "learningunit"
             ],
             [
+                "can_access_externallearningunityear",
+                "base",
+                "externallearningunityear"
+            ],
+            [
                 "can_access_learningunitcomponentclass",
                 "base",
                 "learningunitcomponentclass"
@@ -2918,6 +2933,11 @@
                 "learningunit"
             ],
             [
+                "can_access_externallearningunityear",
+                "base",
+                "externallearningunityear"
+            ],
+            [
                 "can_create_learningunit",
                 "base",
                 "learningunit"
@@ -3061,6 +3081,11 @@
                 "learningunit"
             ],
             [
+                "can_access_externallearningunityear",
+                "base",
+                "externallearningunityear"
+            ],
+            [
                 "can_create_learningunit",
                 "base",
                 "learningunit"
@@ -3179,6 +3204,11 @@
                 "learningunit"
             ],
             [
+                "can_access_externallearningunityear",
+                "base",
+                "externallearningunityear"
+            ],
+            [
                 "can_access_catalog",
                 "base",
                 "offer"
@@ -3210,6 +3240,11 @@
                 "can_access_learningunit",
                 "base",
                 "learningunit"
+            ],
+            [
+                "can_access_externallearningunityear",
+                "base",
+                "externallearningunityear"
             ],
             [
                 "can_access_learningunitcomponentclass",
