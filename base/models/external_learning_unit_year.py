@@ -72,6 +72,9 @@ class ExternalLearningUnitYear(models.Model):
 
     class Meta:
         unique_together = ('learning_unit_year', 'external_acronym',)
+        permissions = (
+            ("can_access_externallearningunityear", "Can access external learning unit"),
+        )
 
     def __str__(self):
         return u"%s" % self.external_acronym

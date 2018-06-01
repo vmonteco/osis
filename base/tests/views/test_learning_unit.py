@@ -608,6 +608,22 @@ class LearningUnitViewTestCase(TestCase):
         self.assertEqual(template, 'learning_unit/external/read.html')
         self.assertEqual(context['learning_unit_year'], learning_unit_year)
 
+    def test_external_learning_unit_read_permission_denied(self):
+        external_learning_unit_year = ExternalLearningUnitYearFactory()
+        learning_unit_year = external_learning_unit_year.learning_unit_year
+
+        a_user_without_perms = PersonFactory().user
+        self.client.force_login(a_user_without_perms)
+
+        response = self.client.get(reverse(learning_unit_identification, args=[learning_unit_year.id]))
+        self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
+        self.assertTemplateUsed(response, "access_denied.html")
+
+        a_user_without_perms.user_permissions.add(Permission.objects.get(codename='can_access_externallearningunityear'))
+
+        response = self.client.get(reverse(learning_unit_identification, args=[learning_unit_year.id]))
+        self.assertEqual(response.status_code, 200)
+
     @mock.patch('base.views.layout.render')
     @mock.patch('base.models.program_manager.is_program_manager')
     def test_warnings_learning_unit_read(self, mock_program_manager, mock_render):
