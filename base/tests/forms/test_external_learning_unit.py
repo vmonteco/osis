@@ -25,24 +25,32 @@
 ##############################################################################
 
 from django.test import TestCase
+from django.utils.translation import ugettext_lazy as _
 
 from base.forms.learning_unit.external_learning_unit import ExternalLearningUnitBaseForm, \
     LearningContainerYearExternalModelForm, ExternalLearningUnitModelForm
 from base.forms.learning_unit.learning_unit_create import LearningUnitYearModelForm, \
     LearningUnitModelForm
-from base.models.enums import learning_unit_year_subtypes, organization_type
+from base.models.enums import learning_unit_year_subtypes
 from base.models.enums.learning_container_year_types import EXTERNAL
 from base.models.enums.learning_unit_year_subtypes import FULL
 from base.models.learning_unit_year import LearningUnitYear
-from base.tests.factories.academic_year import create_current_academic_year
 from base.tests.factories.business.entities import create_entities_hierarchy
-from base.tests.factories.campus import CampusFactory
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from base.tests.factories.organization import OrganizationFactory
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.person_entity import PersonEntityFactory
 from reference.tests.factories.language import LanguageFactory
+from base.tests.factories.external_learning_unit_year import ExternalLearningUnitYearFactory
+from base.tests.factories.campus import CampusFactory
+from base.tests.factories.organization_address import OrganizationAddressFactory
+from reference.tests.factories.country import CountryFactory
+from base.forms.learning_unit.search_form import ExternalLearningUnitYearForm
+from base.tests.factories.academic_year import create_current_academic_year
+from base.models.enums import organization_type
+
+NAMEN = 'Namur'
 
 
 def get_valid_external_learning_unit_form_data(academic_year, person, learning_unit_year=None):
@@ -118,3 +126,82 @@ class TestExternalLearningUnitForm(TestCase):
         self.assertEqual(luy.learning_container_year.container_type, EXTERNAL)
         self.assertEqual(luy.acronym[0], 'X')
         self.assertEqual(luy.externallearningunityear.author, self.person)
+
+
+class TestExternalLearningUnitSearchForm(TestCase):
+    def setUp(self):
+        self.academic_year = create_current_academic_year()
+        self.learning_unit_year_1 = LearningUnitYearFactory(academic_year=self.academic_year)
+        self.external_lu_1 = ExternalLearningUnitYearFactory(external_acronym='XLDR1001',
+                                                             learning_unit_year=self.learning_unit_year_1)
+        self.learning_unit_year_2 = LearningUnitYearFactory(academic_year=self.academic_year)
+        self.external_lu_2 = ExternalLearningUnitYearFactory(external_acronym='XLDR1002',
+                                                             learning_unit_year=self.learning_unit_year_2)
+
+        self.a_be_country = CountryFactory(iso_code='BE')
+        self.be_organization_adr_city1 = OrganizationAddressFactory(country=self.a_be_country, city=NAMEN)
+        self.be_campus_1 = CampusFactory(organization=self.be_organization_adr_city1.organization)
+        self.learning_container_year = LearningContainerYearFactory(academic_year=self.academic_year,
+                                                                    campus=self.be_campus_1)
+        self.learning_unit_year_3 = LearningUnitYearFactory(learning_container_year=self.learning_container_year,
+                                                            academic_year=self.academic_year)
+        self.external_lu_BE_1 = ExternalLearningUnitYearFactory(learning_unit_year=self.learning_unit_year_3)
+
+        self.be_organization_adr_city2 = OrganizationAddressFactory(country=self.a_be_country, city='Bruxelles')
+        self.be_campus_2 = CampusFactory(organization=self.be_organization_adr_city2.organization)
+        self.learning_container_year_4 = LearningContainerYearFactory(academic_year=self.academic_year,
+                                                                      campus=self.be_campus_2)
+        self.external_lu_BE_2 = ExternalLearningUnitYearFactory(
+            learning_unit_year=LearningUnitYearFactory(learning_container_year=self.learning_container_year_4,
+                                                       academic_year=self.academic_year))
+
+    def test_search_learning_units_on_acronym(self):
+        form_data = {
+            "acronym": self.external_lu_1.external_acronym,
+        }
+
+        form = ExternalLearningUnitYearForm(form_data)
+        self.assertTrue(form.is_valid())
+        self.assertCountEqual(form.get_activity_learning_units(), [self.external_lu_1])
+
+    def test_search_learning_units_on_partial_acronym(self):
+        form_data = {
+            "acronym": self.external_lu_1.external_acronym[:5],
+        }
+
+        form = ExternalLearningUnitYearForm(form_data)
+        self.assertTrue(form.is_valid())
+        self.assertCountEqual(form.get_activity_learning_units(), [self.external_lu_1, self.external_lu_2])
+
+    def test_search_learning_units_by_country(self):
+        form_data = {
+            "country": self.a_be_country.id,
+        }
+
+        form = ExternalLearningUnitYearForm(form_data)
+        self.assertTrue(form.is_valid())
+        self.assertCountEqual(form.get_activity_learning_units(), [self.external_lu_BE_1, self.external_lu_BE_2])
+
+    def test_search_learning_units_by_city(self):
+        form_data = {
+            "city": NAMEN,
+        }
+
+        form = ExternalLearningUnitYearForm(form_data)
+        self.assertTrue(form.is_valid())
+        self.assertCountEqual(form.get_activity_learning_units(), [self.external_lu_BE_1])
+
+    def test_search_learning_units_by_campus(self):
+        form_data = {
+
+            "campus": self.be_campus_1.id,
+        }
+
+        form = ExternalLearningUnitYearForm(form_data)
+        self.assertTrue(form.is_valid())
+        self.assertCountEqual(form.get_activity_learning_units(), [self.external_lu_BE_1])
+
+    def test_has_no_criteria(self):
+        form = ExternalLearningUnitYearForm({})
+        self.assertFalse(form.is_valid())
+        self.assertIn(_("minimum_one_criteria"), form.errors['__all__'])

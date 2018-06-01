@@ -41,6 +41,7 @@ from base.views import learning_unit, offer, common, institution, organization, 
     my_osis, entity, student, education_group
 from base.views.learning_units.external import create as create_external
 from base.views.learning_units.external.create import filter_campus_by_country
+from base.views.learning_units.external.search import filter_cities_by_country, filter_campus_by_city
 from base.views.learning_units.proposal import create, update
 from base.views.learning_units.update import update_learning_unit, learning_unit_edition_end_date
 
@@ -100,6 +101,8 @@ urlpatterns = [
             name='learning_units_borrowed_course'),
         url(r'^by_summary/', base.views.learning_units.educational_information.learning_units_summary_list,
             name='learning_units_summary'),
+        url(r'^by_external/', base.views.learning_units.search.learning_units_external_search,
+            name='learning_units_external'),
         url(r'^new/', include([
             url(r'^academic_year_id=(?P<academic_year_id>[0-9]+)$',
                 base.views.learning_units.create.create_learning_unit,
@@ -111,7 +114,8 @@ urlpatterns = [
                 create_external.get_external_learning_unit_creation_form,
                 name="learning_unit_create_external"),
             url(r'^filter_campus_by_country$', filter_campus_by_country, name="filter_campus_by_country"),
-
+            url(r'^filter_cities_by_country$', filter_cities_by_country, name="filter_cities_by_country"),
+            url(r'^filter_campus_by_city$', filter_campus_by_city, name="filter_campus_by_city"),
         ])),
 
         url(r'^(?P<learning_unit_year_id>[0-9]+)/', include([
