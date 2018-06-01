@@ -29,6 +29,8 @@ from django.http import JsonResponse
 from base.models.campus import Campus
 from base.models.organization_address import find_distinct_by_country
 from osis_common.decorators.ajax import ajax_required
+
+
 # TODO :: On peut combiner les différentes vues en faisant passer les paramètres via le GET et en uniformisant
 # le JsonResponse.
 @ajax_required
