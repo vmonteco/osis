@@ -64,7 +64,8 @@ class LearningUnitYearAdmin(SerializableModelAdmin):
     fieldsets = ((None, {'fields': ('academic_year', 'learning_unit', 'learning_container_year', 'acronym',
                                     'specific_title', 'specific_title_english', 'subtype', 'credits', 'decimal_scores',
                                     'structure', 'internship_subtype', 'status', 'session',
-                                    'quadrimester', 'attribution_procedure', 'summary_locked')}),)
+                                    'quadrimester', 'attribution_procedure', 'summary_locked',
+                                    'professional_integration')}),)
     list_filter = ('academic_year', 'decimal_scores', 'summary_locked')
     raw_id_fields = ('learning_unit', 'learning_container_year', 'structure')
     search_fields = ['acronym', 'structure__acronym', 'external_id']
@@ -103,6 +104,7 @@ class LearningUnitYear(SerializableModel):
 
     mobility_modality = models.CharField(max_length=250, verbose_name=_('Modalities specific to IN and OUT mobility'),
                                          blank=True, null=True)
+    professional_integration = models.BooleanField(default=False, verbose_name=_('professional_integration'))
     _warnings = None
 
     class Meta:
@@ -286,6 +288,9 @@ class LearningUnitYear(SerializableModel):
             _warnings.extend(learning_unit_component.learning_component_year.warnings)
 
         return _warnings
+
+    def is_external(self):
+        return hasattr(self, "externallearningunityear")
 
 
 def get_by_id(learning_unit_year_id):

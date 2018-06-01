@@ -2951,3 +2951,9 @@ msgstr "Les volumes sont inconsistants"
 
 msgid "planned classes cannot be 0"
 msgstr "le nombre de classes prévues ne peut être 0"
+
+msgid "url of the learning unit"
+msgstr "URL de l'unité d'enseignement"
+
+msgid "professional_integration"
+msgstr "Intégration professionnelle"

@@ -38,8 +38,8 @@ from base.models.person import Person
 from base.models.proposal_learning_unit import ProposalLearningUnit
 from base.views import layout
 from base.views.common import display_success_messages
-from base.views.learning_unit import get_learning_unit_identification_context
 from base.views.learning_units import perms
+from base.views.learning_units.common import get_learning_unit_identification_context
 
 
 @waffle_flag('proposal')

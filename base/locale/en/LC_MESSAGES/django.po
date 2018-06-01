@@ -2948,3 +2948,9 @@ msgstr ""
 
 msgid "planned classes cannot be 0"
 msgstr ""
+
+msgid "url of the learning unit"
+msgstr "URL of the learning unit"
+
+msgid "professional_integration"
+msgstr "Professional integration"
