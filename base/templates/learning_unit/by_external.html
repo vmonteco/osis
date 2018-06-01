@@ -80,13 +80,16 @@
 
 {% block script %}
     <script>
-
-        // Ajax request to update the campus list
+        {# TODO Faire un  filtre générique avec un jquery.fn #}
+        // Ajax request to update the city list
         $("select#id_country").change(function(){
+            console.log('change country');
             $.getJSON("{% url "filter_cities_by_country" %}",{country: $(this).val(), ajax: 'true'}, function(j){
+                $("select#id_city").html('');
                 $("select#id_campus").html('');
                 let options = '';
-                options += '<option >---</option>';
+                options += '<option >---------</option>';
+                $("select#id_campus").html(options);
                 for (let i = 0; i < j.length; i++) {
                     options += '<option value="' + j[i].city + '">' + j[i].city + '</option>';
                 }
@@ -95,9 +98,11 @@
         });
         // Ajax request to update the campus list
         $("select#id_city").change(function(){
+            console.log('change city');
             $.getJSON("{% url "filter_campus_by_city" %}",{city: $(this).val(), ajax: 'true'}, function(j){
+                $("select#id_campus").html('');
                 let options = '';
-                options += '<option >---</option>';
+                options += '<option >---------</option>';
                 for (let i = 0; i < j.length; i++) {
                     options += '<option value="' + j[i].pk + '">' + j[i].organization__name + '</option>';
                 }

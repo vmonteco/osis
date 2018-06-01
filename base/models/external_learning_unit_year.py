@@ -69,8 +69,7 @@ class ExternalLearningUnitYear(models.Model):
         return u"%s" % self.external_acronym
 
 
-def search(academic_year_id=None, acronym=None, title=None, country=None, city=None, campus=None,  *args, **kwargs):
-
+def search(academic_year_id=None, acronym=None, title=None, country=None, city=None, campus=None):
     queryset = ExternalLearningUnitYear.objects
 
     if academic_year_id:

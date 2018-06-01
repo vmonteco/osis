@@ -48,15 +48,14 @@ from base.models.offer_year_entity import OfferYearEntity
 from reference.models.country import Country
 from base.models.campus import Campus
 from base.models.organization_address import find_distinct_by_country
-
+from django.db.models.fields import BLANK_CHOICE_DASH
+from base.forms.utils.choice_field import add_blank
 MAX_RECORDS = 1000
 
 
 class SearchForm(forms.Form):
     MAX_RECORDS = 1000
     ALL_LABEL = (None, _('all_label'))
-    NO_SELECTION = '---'
-    NO_SELECTION_LABEL = (None, NO_SELECTION)
     ALL_CHOICES = (ALL_LABEL,)
 
     academic_year_id = forms.ModelChoiceField(
@@ -120,7 +119,7 @@ class SearchForm(forms.Form):
 
     def _has_criteria(self):
         criteria_present = False
-        for name, field in self.fields.items():
+        for name in self.fields:
             if self.cleaned_data[name]:
                 criteria_present = True
                 break
@@ -363,14 +362,15 @@ class DynamicChoiceField(forms.ChoiceField):
 
 
 class ExternalLearningUnitYearForm(LearningUnitYearForm):
-    country = forms.ModelChoiceField(queryset=Country.objects.all().order_by('name'),
+    country = forms.ModelChoiceField(queryset=Country.objects.filter(organizationaddress__isnull=False)
+                                     .distinct().order_by('name'),
                                      required=False, label=_("country"))
-    campus = DynamicChoiceField(choices=[SearchForm.NO_SELECTION_LABEL], required=False, label=_("institution"))
-    city = DynamicChoiceField(choices=[SearchForm.NO_SELECTION_LABEL], required=False, label=_("city"))
+    campus = DynamicChoiceField(choices=BLANK_CHOICE_DASH, required=False, label=_("institution"))
+    city = DynamicChoiceField(choices=BLANK_CHOICE_DASH, required=False, label=_("city"))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if self.data.get('country', None):
+        if self.data.get('country'):
             self._init_dropdown_list()
 
     def _init_dropdown_list(self):
@@ -383,17 +383,19 @@ class ExternalLearningUnitYearForm(LearningUnitYearForm):
         campus_list = Campus.objects.filter(
             organization__organizationaddress__city=self.data['city']
         ).distinct('organization__name').order_by('organization__name').values('pk', 'organization__name')
-        campus_choice_list = [SearchForm.NO_SELECTION_LABEL]
-        for c in campus_list:
-            campus_choice_list.append(((c['pk']), (c['organization__name'])))
-        self.fields['campus'].choices = campus_choice_list
+        campus_choice_list = []
+        for a_campus in campus_list:
+            campus_choice_list.append(((a_campus['pk']), (a_campus['organization__name'])))
+        self.fields['campus'].choices = add_blank(campus_choice_list)
 
     def _get_cities(self):
         cities = find_distinct_by_country(self.data['country'])
-        cities_choice_list = [SearchForm.NO_SELECTION_LABEL]
-        for c in cities:
-            cities_choice_list.append(((c['city']), (c['city'])))
-        self.fields['city'].choices = cities_choice_list
+        cities_choice_list = []
+        for a_city in cities:
+            city_name = a_city['city']
+            cities_choice_list.append(tuple((city_name, city_name)))
+
+        self.fields['city'].choices = add_blank(cities_choice_list)
 
     def is_valid(self):
         if not super().is_valid():
@@ -406,7 +408,12 @@ class ExternalLearningUnitYearForm(LearningUnitYearForm):
 
     def get_learning_units(self):
         clean_data = self.cleaned_data
-        learning_units = mdl.external_learning_unit_year.search(**clean_data) \
+        learning_units = mdl.external_learning_unit_year.search(academic_year_id=clean_data['academic_year_id'],
+                                                                acronym=clean_data['acronym'],
+                                                                title=clean_data['title'],
+                                                                country=clean_data['country'],
+                                                                city=clean_data['city'],
+                                                                campus=clean_data['campus']) \
             .select_related('learning_unit_year__academic_year', ) \
             .order_by('learning_unit_year__academic_year__year', 'learning_unit_year__acronym')
 
@@ -423,6 +430,6 @@ class ExternalLearningUnitYearForm(LearningUnitYearForm):
 
 
 def _get_value(data_cleaned):
-    if data_cleaned == SearchForm.NO_SELECTION:
+    if data_cleaned == BLANK_CHOICE_DASH[0][1]:
         return None
     return data_cleaned
