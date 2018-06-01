@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -23,18 +23,21 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.test import TestCase
-
-from base.tests.factories.education_group_year import EducationGroupYearFactory
-from webservices.views import get_title_of_education_group_year
 
 
-class GetTitleOrEducationGroupYear_TestCase(TestCase):
-    def test_get_title_or_education_group_year(self):
-        ega = EducationGroupYearFactory(title='french', title_english='english')
+def convert_sections_to_list_of_dict(sections):
+    return [{
+        'id': key,
+        'label': value['label'],
+        'content': value['content']
+    } for key, value in sections.items()]
 
-        title = get_title_of_education_group_year(ega, 'fr-be')
-        self.assertEqual('french', title)
 
-        title = get_title_of_education_group_year(ega, 'en')
-        self.assertEqual('english', title)
+def convert_sections_list_of_dict_to_dict(sections):
+    return {
+        item['id']: {
+            'label': item['label'],
+            'content': item['content']
+        }
+        for item in sections
+    }
