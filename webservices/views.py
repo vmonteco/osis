@@ -143,19 +143,19 @@ def parameters_validation(acronym, language, year):
 
 
 def insert_section(context, education_group_year, text_label):
-    ttl = TranslatedTextLabel.objects.filter(text_label=text_label, language=context.language).first()
-    tt = TranslatedText.objects.filter(text_label=text_label,
-                                       language=context.language,
-                                       entity=text_label.entity,
-                                       reference=education_group_year.id).first()
-    if ttl and tt:
-        return {'label': ttl.label, 'content': tt.text}
-    elif ttl:
-        return {'label': ttl.label, 'content': None}
+    translated_text_label = TranslatedTextLabel.objects.filter(text_label=text_label, language=context.language).first()
+    translated_text = TranslatedText.objects.filter(text_label=text_label,
+                                                    language=context.language,
+                                                    entity=text_label.entity,
+                                                    reference=education_group_year.id).first()
+    if translated_text_label and translated_text:
+        return {'label': translated_text_label.label, 'content': translated_text.text}
+    elif translated_text_label:
+        return {'label': translated_text_label.label, 'content': None}
     return {'label': None, 'content': None}
 
 
-def insert_section_if_checked(context, egy, text_label):
-    if egy and text_label:
-        return insert_section(context, egy, text_label)
+def insert_section_if_checked(context, education_group_year, text_label):
+    if education_group_year and text_label:
+        return insert_section(context, education_group_year, text_label)
     return {'label': None, 'content': None}
