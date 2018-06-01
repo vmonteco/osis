@@ -23,6 +23,8 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+
+
 def convert_sections_to_list_of_dict(sections):
     return [{
         'id': key,

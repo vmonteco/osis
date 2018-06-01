@@ -23,9 +23,6 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import unittest
-
-from django.http import Http404
 from django.test import TestCase
 
 from base.tests.factories.education_group_year import EducationGroupYearFactory
