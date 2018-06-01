@@ -79,8 +79,6 @@ COMMON_PATTERN = r'(?P<section_name>\w+)-commun'
 
 @api_view(['POST'])
 @renderer_classes((JSONRenderer,))
-# @get_cleaned_parameters(type_acronym='acronym')
-# TODO: Ne pas oublier de verifier les params
 def ws_catalog_offer(request, year, language, acronym):
     # Validation
     year = int(year)
