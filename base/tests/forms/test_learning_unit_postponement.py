@@ -281,6 +281,26 @@ class TestLearningUnitPostponementFormSave(LearningUnitPostponementFormContextMi
         self.assertEqual(len(form._forms_to_delete), 0)
 
         form.save()
+        self.assertEqual(mock_baseform_save.call_count, 1)    \
+
+    @mock.patch('base.forms.learning_unit.learning_unit_create_2.FullForm.save', side_effect=None)
+    def test_create_partim_in_past(self, mock_baseform_save):
+
+        start_insert_year = AcademicYearFactory(year=self.current_academic_year.year - 10)
+        self.learning_unit_year_partim.academic_year = start_insert_year
+        self.learning_unit_year_partim.save()
+        self.learning_unit_year_full.academic_year = start_insert_year
+        self.learning_unit_year_full.save()
+        instance_luy_base_form = _instanciate_base_learning_unit_form(self.learning_unit_year_partim, self.person)
+
+        form = LearningUnitPostponementForm(self.person, self.learning_unit_year_full.academic_year,
+                                            learning_unit_full_instance=self.learning_unit_year_full.learning_unit,
+                                            data=instance_luy_base_form.data)
+
+        self.assertEqual(len(form._forms_to_upsert), 1)
+        self.assertEqual(len(form._forms_to_delete), 0)
+
+        form.save()
         self.assertEqual(mock_baseform_save.call_count, 1)
 
     @mock.patch('base.forms.learning_unit.learning_unit_create_2.FullForm.save', side_effect=None)

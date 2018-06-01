@@ -106,7 +106,9 @@ class LearningUnitPostponementForm:
             .select_related('learning_container_year', 'learning_unit', 'academic_year') \
             .order_by('academic_year__year')
         to_delete = to_update = to_insert = []
-        if self.start_postponement.is_past():
+
+        # There
+        if self.start_postponement.is_past() and not self.is_partim_creation():
             to_update = self._init_forms_in_past(existing_learn_unit_years, data)
         else:
             if self._is_update_action():
@@ -134,8 +136,11 @@ class LearningUnitPostponementForm:
         self._forms_to_delete = to_delete
         self._forms_to_upsert = to_update + to_insert
 
+    def is_partim_creation(self):
+        return not self.learning_unit_instance and self.learning_unit_full_instance
+
     def _init_forms_in_past(self, luy_queryset, data):
-        if self._is_update_action():
+        if self._is_update_action() and luy_queryset.exists():
             first_luy = luy_queryset.first()
             return [self._instanciate_base_form_as_update(first_luy, data=data)]
         else:
