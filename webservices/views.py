@@ -73,8 +73,8 @@ def get_translated_label_from_translated_text(translated_text, language):
     return record.label
 
 
-INTRO_PATTERN = 'intro-(?P<acronym>\w+)'
-COMMON_PATTERN = '(?P<section_name>\w+)-commun'
+INTRO_PATTERN = r'intro-(?P<acronym>\w+)'
+COMMON_PATTERN = r'(?P<section_name>\w+)-commun'
 
 
 @api_view(['POST'])
