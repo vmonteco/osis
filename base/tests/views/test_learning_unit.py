@@ -596,7 +596,7 @@ class LearningUnitViewTestCase(TestCase):
     def test_external_learning_unit_read(self, mock_program_manager, mock_render):
         mock_program_manager.return_value = True
 
-        external_learning_unit_year = ExternalLearningUnitYearFactory()
+        external_learning_unit_year = ExternalLearningUnitYearFactory(learning_unit_year__subtype=learning_unit_year_subtypes.FULL)
         learning_unit_year = external_learning_unit_year.learning_unit_year
 
         request = self.create_learning_unit_request(learning_unit_year)
