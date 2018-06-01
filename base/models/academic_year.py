@@ -31,7 +31,8 @@ from django.utils import timezone
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
 
 LEARNING_UNIT_CREATION_SPAN_YEARS = 6
-
+MAX_ACADEMIC_YEAR_FACULTY = 2
+MAX_ACADEMIC_YEAR_CENTRAL = 6
 
 class AcademicYearAdmin(SerializableModelAdmin):
     list_display = ('name', 'start_date', 'end_date')
@@ -130,7 +131,3 @@ def get_last_academic_years(last_years=10):
     today = datetime.date.today()
     date_ten_years_before = today.replace(year=today.year - last_years)
     return find_academic_years().filter(start_date__gte=date_ten_years_before)
-
-
-MAX_ACADEMIC_YEAR_FACULTY = 2
-MAX_ACADEMIC_YEAR_CENTRAL = 6
