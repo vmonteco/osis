@@ -28,9 +28,6 @@ from django.test import TestCase
 
 from base.tests.factories.education_group_year import EducationGroupYearFactory
 from cms.enums.entity_name import OFFER_YEAR
-from cms.models.text_label import TextLabel
-from cms.models.translated_text import TranslatedText
-from cms.models.translated_text_label import TranslatedTextLabel
 from cms.tests.factories.text_label import TextLabelFactory
 from cms.tests.factories.translated_text import TranslatedTextRandomFactory
 from cms.tests.factories.translated_text_label import TranslatedTextLabelFactory
