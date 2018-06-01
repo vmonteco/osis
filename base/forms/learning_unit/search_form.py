@@ -45,7 +45,11 @@ from base.models.enums import entity_container_year_link_type, learning_containe
     learning_unit_year_subtypes, active_status, entity_type
 from base.models.learning_unit_year import convert_status_bool
 from base.models.offer_year_entity import OfferYearEntity
-
+from reference.models.country import Country
+from base.models.campus import Campus
+from base.models.organization_address import find_distinct_by_country
+from django.db.models.fields import BLANK_CHOICE_DASH
+from base.forms.utils.choice_field import add_blank
 MAX_RECORDS = 1000
 
 
@@ -112,6 +116,14 @@ class SearchForm(forms.Form):
                 tuple_to_append = (str(field.label), label_choice)
             tuples_label_value.append(tuple_to_append)
         return tuples_label_value
+
+    def _has_criteria(self):
+        criteria_present = False
+        for name in self.fields:
+            if self.cleaned_data[name]:
+                criteria_present = True
+                break
+        return criteria_present
 
 
 class LearningUnitYearForm(SearchForm):
@@ -341,3 +353,78 @@ def _get_entity_ids_list(allocation_entity_acronym, entities_id_list_allocation,
         return entities_id_list_allocation
     else:
         return None
+
+
+class DynamicChoiceField(forms.ChoiceField):
+    def validate(self, value):
+        if self.required and not value:
+            ValidationError(self.error_messages['required'])
+
+
+class ExternalLearningUnitYearForm(LearningUnitYearForm):
+    country = forms.ModelChoiceField(queryset=Country.objects.filter(organizationaddress__isnull=False)
+                                     .distinct().order_by('name'),
+                                     required=False, label=_("country"))
+    campus = DynamicChoiceField(choices=BLANK_CHOICE_DASH, required=False, label=_("institution"))
+    city = DynamicChoiceField(choices=BLANK_CHOICE_DASH, required=False, label=_("city"))
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.data.get('country'):
+            self._init_dropdown_list()
+
+    def _init_dropdown_list(self):
+        if self.data.get('city', None):
+            self._get_cities()
+        if self.data.get('campus', None):
+            self._get_campus_list()
+
+    def _get_campus_list(self):
+        campus_list = Campus.objects.filter(
+            organization__organizationaddress__city=self.data['city']
+        ).distinct('organization__name').order_by('organization__name').values('pk', 'organization__name')
+        campus_choice_list = []
+        for a_campus in campus_list:
+            campus_choice_list.append(((a_campus['pk']), (a_campus['organization__name'])))
+        self.fields['campus'].choices = add_blank(campus_choice_list)
+
+    def _get_cities(self):
+        cities = find_distinct_by_country(self.data['country'])
+        cities_choice_list = []
+        for a_city in cities:
+            city_name = a_city['city']
+            cities_choice_list.append(tuple((city_name, city_name)))
+
+        self.fields['city'].choices = add_blank(cities_choice_list)
+
+    def get_learning_units(self):
+        clean_data = self.cleaned_data
+        learning_units = mdl.external_learning_unit_year.search(academic_year_id=clean_data['academic_year_id'],
+                                                                acronym=clean_data['acronym'],
+                                                                title=clean_data['title'],
+                                                                country=clean_data['country'],
+                                                                city=clean_data['city'],
+                                                                campus=clean_data['campus']) \
+            .select_related('learning_unit_year__academic_year', ) \
+            .order_by('learning_unit_year__academic_year__year', 'learning_unit_year__acronym')
+
+        return learning_units
+
+    def clean_city(self):
+        return _get_value(self.cleaned_data.get('city'))
+
+    def clean_country(self):
+        return _get_value(self.cleaned_data.get('country'))
+
+    def clean_campus(self):
+        return _get_value(self.cleaned_data.get('campus'))
+
+    def clean(self):
+        if not self._has_criteria():
+            self.add_error(None, _('minimum_one_criteria'))
+
+
+def _get_value(data_cleaned):
+    if data_cleaned == BLANK_CHOICE_DASH[0][1]:
+        return None
+    return data_cleaned

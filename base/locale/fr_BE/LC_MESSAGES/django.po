@@ -2957,3 +2957,6 @@ msgstr "URL de l'unité d'enseignement"
 
 msgid "professional_integration"
 msgstr "Intégration professionnelle"
+
+msgid "external_search"
+msgstr "Recherche - UE externe"
