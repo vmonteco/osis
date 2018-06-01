@@ -50,7 +50,6 @@ MINIMUM_CREDITS = 0.0
 MAXIMUM_CREDITS = 500
 
 
-
 def academic_year_validator(value):
     academic = AcademicYear.objects.get(pk=value)
     academic_year_max = compute_max_academic_year_adjournment()
