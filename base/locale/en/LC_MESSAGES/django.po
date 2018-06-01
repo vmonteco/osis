@@ -2546,7 +2546,7 @@ msgid "remark"
 msgstr "Remark"
 
 msgid "remark_english"
-msgstr "Remark in English"
+msgstr "Remark in english"
 
 msgid "Ensure this value is less than %(limit_value)s."
 msgstr "Ensure this value is less than %(limit_value)s."
@@ -2939,6 +2939,15 @@ msgstr "learning_units"
 
 msgid "warnigns_detected"
 msgstr "We detected inconsistencies in the following data :"
+
+msgid "Volumes are inconsistent"
+msgstr ""
+
+msgid "planned classes cannot be 0"
+msgstr ""
+
+msgid "url of the learning unit"
+msgstr "URL of the learning unit"
 
 msgid "title_1_in_english"
 msgstr "Title common title with partims (part 1) in English"

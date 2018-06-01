@@ -2943,9 +2943,17 @@ msgstr "Crédits locaux"
 msgid "warnigns_detected"
 msgstr "Nous avons détecté des incohérences dans les données suivantes :"
 
+msgid "Volumes are inconsistent"
+msgstr "Les volumes sont inconsistants"
+
+msgid "planned classes cannot be 0"
+msgstr "le nombre de classes prévues ne peut être 0"
+
+msgid "url of the learning unit"
+msgstr "URL de l'unité d'enseignement"
+
 msgid "title_1_in_english"
 msgstr "Intitulé commun aux partims (partie 1) en anglais"
 
 msgid "title_2_in_english"
 msgstr "Intitulé propre au partim (partie 2) en anglais"
-

@@ -239,23 +239,12 @@ class LearningUnitYear(SerializableModel):
             learning_unit_years = learning_unit_years.exclude(learning_unit=self.learning_unit)
 
         self.clean_acronym(learning_unit_years)
-        self.clean_status()
 
     def clean_acronym(self, learning_unit_years):
         if self.acronym in learning_unit_years.values_list('acronym', flat=True):
             raise ValidationError({'acronym': _('already_existing_acronym')})
         if not re.match(REGEX_BY_SUBTYPE[self.subtype], self.acronym):
             raise ValidationError({'acronym': _('invalid_acronym')})
-
-    def clean_status(self):
-        # If the parent is inactive, the partim can be only inactive
-        if self.parent:
-            if not self.parent.status and self.status:
-                raise ValidationError({'status': _('The partim must be inactive because the parent is inactive')})
-        else:
-            if self.status is False and find_partims_with_active_status(self).exists():
-                raise ValidationError(
-                    {'status': _("There is at least one partim active, so the parent must be active")})
 
     @property
     def warnings(self):
@@ -264,6 +253,7 @@ class LearningUnitYear(SerializableModel):
             self._warnings.extend(self._check_partim_parent_credits())
             self._warnings.extend(self._check_internship_subtype())
             self._warnings.extend(self._check_partim_parent_status())
+            self._warnings.extend(self._check_learning_component_year_warnings())
         return self._warnings
 
     def _check_partim_parent_credits(self):
@@ -284,11 +274,21 @@ class LearningUnitYear(SerializableModel):
         warnings = []
         if self.parent:
             if not self.parent.status and self.status:
-                warnings.append(_('The partim must be inactive because the parent is inactive'))
+                warnings.append(_('This partim is active and the parent is inactive'))
         else:
             if self.status is False and find_partims_with_active_status(self).exists():
-                warnings.append(_("There is at least one partim active, so the parent must be active"))
+                warnings.append(_("The parent is inactive and there is at least one partim active"))
         return warnings
+
+    def _check_learning_component_year_warnings(self):
+        _warnings = []
+        for learning_unit_component in self.learningunitcomponent_set.all().select_related('learning_component_year'):
+            _warnings.extend(learning_unit_component.learning_component_year.warnings)
+
+        return _warnings
+
+    def is_external(self):
+        return hasattr(self, "externallearningunityear")
 
 
 def get_by_id(learning_unit_year_id):

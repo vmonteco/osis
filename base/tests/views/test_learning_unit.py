@@ -51,8 +51,9 @@ from base.models import learning_unit_component_class
 from base.models.academic_year import AcademicYear
 from base.models.bibliography import Bibliography
 from base.models.enums import entity_container_year_link_type, active_status, education_group_categories
+from base.models.enums import entity_type
 from base.models.enums import internship_subtypes
-from base.models.enums import learning_container_year_types, organization_type, entity_type
+from base.models.enums import learning_container_year_types, organization_type
 from base.models.enums import learning_unit_periodicity
 from base.models.enums import learning_unit_year_session
 from base.models.enums import learning_unit_year_subtypes
@@ -68,6 +69,7 @@ from base.tests.factories.education_group_year import EducationGroupYearFactory
 from base.tests.factories.entity import EntityFactory
 from base.tests.factories.entity_container_year import EntityContainerYearFactory
 from base.tests.factories.entity_version import EntityVersionFactory
+from base.tests.factories.external_learning_unit_year import ExternalLearningUnitYearFactory
 from base.tests.factories.group_element_year import GroupElementYearFactory
 from base.tests.factories.learning_achievement import LearningAchievementFactory
 from base.tests.factories.learning_class_year import LearningClassYearFactory
@@ -81,7 +83,8 @@ from base.tests.factories.organization import OrganizationFactory
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.person_entity import PersonEntityFactory
 from base.tests.factories.user import SuperUserFactory, UserFactory
-from base.views.learning_unit import learning_unit_components, learning_class_year_edit, learning_unit_specifications
+from base.views.learning_unit import learning_unit_components, learning_class_year_edit, learning_unit_specifications, \
+    learning_unit_formations
 from base.views.learning_unit import learning_unit_identification
 from base.views.learning_units.create import create_partim_form
 from base.views.learning_units.search import learning_units
@@ -221,8 +224,7 @@ class LearningUnitViewCreatePartimTestCase(TestCase):
             learning_container_year__academic_year=self.current_academic_year,
             subtype=learning_unit_year_subtypes.FULL
         )
-        self.url = reverse(create_partim_form, kwargs={'learning_unit_year_id':
-                                                                      self.learning_unit_year_full.id})
+        self.url = reverse(create_partim_form, kwargs={'learning_unit_year_id': self.learning_unit_year_full.id})
         self.user = UserFactory()
         self.user.user_permissions.add(Permission.objects.get(codename="can_access_learningunit"))
         self.user.user_permissions.add(Permission.objects.get(codename="can_create_learningunit"))
@@ -262,6 +264,7 @@ class LearningUnitViewCreatePartimTestCase(TestCase):
 
     @mock.patch('base.views.learning_units.perms.business_perms.is_person_linked_to_entity_in_charge_of_learning_unit',
                 side_effect=lambda *args: True)
+
     @mock.patch('base.forms.learning_unit.learning_unit_partim.PartimForm.is_valid', side_effect=lambda *args : False)
     def test_create_partim_when_invalid_form_no_redirection(self, mock_is_valid, mock_is_pers_linked_to_entity_charge):
         response = self.client.post(self.url, data={})
@@ -476,25 +479,96 @@ class LearningUnitViewTestCase(TestCase):
         self.assertEqual(len(context['learning_units']), 6)
 
     @mock.patch('base.views.layout.render')
-    def test_learning_units_search_with_service_course(self, mock_render):
+    def test_learning_units_search_with_allocation_entity(self, mock_render):
         self._prepare_context_learning_units_search()
         request_factory = RequestFactory()
+        filter_data = {
+            'academic_year_id': self.current_academic_year.id,
+            'allocation_entity_acronym': 'AGES'
+        }
+        request = request_factory.get(reverse('learning_units'), data=filter_data)
+        request.user = self.a_superuser
+
+        from base.views.learning_units.search import learning_units
+        learning_units(request)
+        self.assertTrue(mock_render.called)
+        request, template, context = mock_render.call_args[0]
+        self.assertEqual(template, 'learning_units.html')
+        self.assertEqual(len(context['learning_units']), 1)
+
+    @mock.patch('base.views.layout.render')
+    def test_learning_units_search_with_requirement_and_allocation_entity(self, mock_render):
+        self._prepare_context_learning_units_search()
+        request_factory = RequestFactory()
+        filter_data = {
+            'academic_year_id': self.current_academic_year.id,
+            'requirement_entity_acronym': 'ENVI',
+            'allocation_entity_acronym': 'AGES'
+        }
+        request = request_factory.get(reverse('learning_units'), data=filter_data)
+        request.user = self.a_superuser
+
+        from base.views.learning_units.search import learning_units
+        learning_units(request)
+        self.assertTrue(mock_render.called)
+        request, template, context = mock_render.call_args[0]
+        self.assertEqual(template, 'learning_units.html')
+        self.assertEqual(len(context['learning_units']), 1)
+
+    @mock.patch('base.views.layout.render')
+    def test_learning_units_search_with_service_course_no_result(self, mock_render):
         filter_data = {
             'academic_year_id': self.current_academic_year.id,
             'requirement_entity_acronym': 'AGRO',
             'with_entity_subordinated': True
         }
+        number_of_results = 0
+        self.service_course_search(filter_data, mock_render, number_of_results)
 
+    @mock.patch('base.views.layout.render')
+    def test_learning_units_search_with_service_course_without_entity_subordinated(self, mock_render):
+        filter_data = {
+            'academic_year_id': self.current_academic_year.id,
+            'requirement_entity_acronym': 'ELOG',
+            'with_entity_subordinated': False
+        }
+        number_of_results = 1
+        self.service_course_search(filter_data, mock_render, number_of_results)
+
+    @mock.patch('base.views.layout.render')
+    def test_learning_units_search_with_service_course_with_entity_subordinated(self, mock_render):
+        filter_data = {
+            'academic_year_id': self.current_academic_year.id,
+            'requirement_entity_acronym': 'PSP',
+            'with_entity_subordinated': True
+        }
+
+        number_of_results = 1
+        self.service_course_search(filter_data, mock_render, number_of_results)
+
+    @mock.patch('base.views.layout.render')
+    def test_lu_search_with_service_course_with_entity_subordinated_requirement_and_wrong_allocation(self, mock_render):
+        filter_data = {
+            'academic_year_id': self.current_academic_year.id,
+            'requirement_entity_acronym': 'PSP',
+            'allocation_entity_acronym': 'ELOG',
+            'with_entity_subordinated': True
+        }
+        number_of_results = 0
+        self.service_course_search(filter_data, mock_render, number_of_results)
+
+    def service_course_search(self, filter_data, mock_render, number_of_results):
+        self._prepare_context_learning_units_search()
+        request_factory = RequestFactory()
         request = request_factory.get(reverse(learning_units_service_course), data=filter_data)
         request.user = self.a_superuser
-
         setattr(request, 'session', 'session')
         setattr(request, '_messages', FallbackStorage(request))
         learning_units_service_course(request)
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
         self.assertEqual(template, 'learning_units.html')
-        self.assertEqual(len(context['learning_units']), 0)
+        self.assertEqual(len(context['learning_units']), number_of_results)
 
     @mock.patch('base.views.layout.render')
     @mock.patch('base.models.program_manager.is_program_manager')
@@ -515,6 +589,23 @@ class LearningUnitViewTestCase(TestCase):
         request, template, context = mock_render.call_args[0]
 
         self.assertEqual(template, 'learning_unit/identification.html')
+        self.assertEqual(context['learning_unit_year'], learning_unit_year)
+
+    @mock.patch('base.views.layout.render')
+    @mock.patch('base.models.program_manager.is_program_manager')
+    def test_external_learning_unit_read(self, mock_program_manager, mock_render):
+        mock_program_manager.return_value = True
+
+        external_learning_unit_year = ExternalLearningUnitYearFactory()
+        learning_unit_year = external_learning_unit_year.learning_unit_year
+
+        request = self.create_learning_unit_request(learning_unit_year)
+        learning_unit_identification(request, learning_unit_year.id)
+
+        self.assertTrue(mock_render.called)
+        request, template, context = mock_render.call_args[0]
+
+        self.assertEqual(template, 'learning_unit/external/read.html')
         self.assertEqual(context['learning_unit_year'], learning_unit_year)
 
     @mock.patch('base.views.layout.render')
@@ -605,7 +696,7 @@ class LearningUnitViewTestCase(TestCase):
         learning_unit_year.learning_unit.save()
 
         person_entity = PersonEntityFactory(entity=entity_container.entity)
-        group, created  = Group.objects.get_or_create(name=FACULTY_MANAGER_GROUP)
+        group, created = Group.objects.get_or_create(name=FACULTY_MANAGER_GROUP)
         person_entity.person.user.groups.add(group)
         url = reverse("learning_unit", args=[learning_unit_year.id])
         self.client.force_login(person_entity.person.user)
@@ -666,9 +757,6 @@ class LearningUnitViewTestCase(TestCase):
         )
 
         request = self.create_learning_unit_request(learning_unit_year)
-
-        from base.views.learning_unit import learning_unit_identification
-
         learning_unit_identification(request, learning_unit_year.id)
 
         self.assertTrue(mock_render.called)
@@ -686,22 +774,23 @@ class LearningUnitViewTestCase(TestCase):
         group_element1 = GroupElementYearFactory(
             child_leaf=learning_unit_year,
             child_branch=None,
-            parent=EducationGroupYearFactory(partial_acronym='LMATH600R', academic_year=self.current_academic_year, education_group_type=educ_group_type_matching_filters))
+            parent=EducationGroupYearFactory(partial_acronym='LMATH600R', academic_year=self.current_academic_year,
+                                             education_group_type=educ_group_type_matching_filters))
         group_element2 = GroupElementYearFactory(
             child_leaf=learning_unit_year,
             child_branch=None,
-            parent=EducationGroupYearFactory(partial_acronym='LBIOL601R', academic_year=self.current_academic_year, education_group_type=educ_group_type_matching_filters))
+            parent=EducationGroupYearFactory(partial_acronym='LBIOL601R', academic_year=self.current_academic_year,
+                                             education_group_type=educ_group_type_matching_filters))
         group_element3 = GroupElementYearFactory(
             child_leaf=learning_unit_year,
             child_branch=None,
-            parent=EducationGroupYearFactory(partial_acronym='TMATH600R', academic_year=self.current_academic_year, education_group_type=educ_group_type_matching_filters))
+            parent=EducationGroupYearFactory(partial_acronym='TMATH600R', academic_year=self.current_academic_year,
+                                             education_group_type=educ_group_type_matching_filters))
 
         request_factory = RequestFactory()
 
         request = request_factory.get(reverse('learning_unit_formations', args=[learning_unit_year.id]))
         request.user = self.a_superuser
-
-        from base.views.learning_unit import learning_unit_formations
 
         learning_unit_formations(request, learning_unit_year.id)
 
@@ -717,7 +806,6 @@ class LearningUnitViewTestCase(TestCase):
 
     def _assert_group_elements_ordered_by_partial_acronym(self, context, expected_order):
         self.assertListEqual(list(context['group_elements_years']), expected_order)
-
 
     def test_learning_unit_usage_two_usages(self):
         learning_container_yr = LearningContainerYearFactory(academic_year=self.current_academic_year,
@@ -816,13 +904,24 @@ class LearningUnitViewTestCase(TestCase):
         agro_entity = EntityFactory(country=self.country)
         envi_entity = EntityFactory(country=self.country)
         ages_entity = EntityFactory(country=self.country)
+        psp_entity = EntityFactory(country=self.country)
+        elog_entity = EntityFactory(country=self.country)
+        logo_entity = EntityFactory(country=self.country)
+        fsm_entity = EntityFactory(country=self.country)
         agro_entity_v = EntityVersionFactory(entity=agro_entity, parent=ssh_entity_v.entity, acronym="AGRO",
                                              end_date=None)
         envi_entity_v = EntityVersionFactory(entity=envi_entity, parent=agro_entity_v.entity, acronym="ENVI",
                                              end_date=None)
         ages_entity_v = EntityVersionFactory(entity=ages_entity, parent=agro_entity_v.entity, acronym="AGES",
                                              end_date=None)
-
+        psp_entity_v = EntityVersionFactory(entity=psp_entity, parent=ssh_entity_v.entity, acronym="PSP",
+                                            end_date=None, entity_type=entity_type.FACULTY)
+        fsm_entity_v = EntityVersionFactory(entity=fsm_entity, parent=ssh_entity_v.entity, acronym="FSM",
+                                            end_date=None, entity_type=entity_type.FACULTY)
+        elog_entity_v = EntityVersionFactory(entity=elog_entity, parent=psp_entity_v.entity, acronym="ELOG",
+                                             end_date=None, entity_type=entity_type.INSTITUTE)
+        logo_entity_v = EntityVersionFactory(entity=logo_entity, parent=fsm_entity_v.entity, acronym="LOGO",
+                                             end_date=None, entity_type=entity_type.INSTITUTE)
         espo_entity = EntityFactory(country=self.country)
         drt_entity = EntityFactory(country=self.country)
         espo_entity_v = EntityVersionFactory(entity=espo_entity, parent=ssh_entity_v.entity, acronym="ESPO",
@@ -850,6 +949,8 @@ class LearningUnitViewTestCase(TestCase):
                                                         container_type=learning_container_year_types.COURSE)
         EntityContainerYearFactory(learning_container_year=l_container_yr_2, entity=envi_entity_v.entity,
                                    type=entity_container_year_link_type.REQUIREMENT_ENTITY)
+        EntityContainerYearFactory(learning_container_year=l_container_yr_2, entity=ages_entity_v.entity,
+                                   type=entity_container_year_link_type.ALLOCATION_ENTITY)
         LearningUnitYearFactory(acronym="CHIM1200", learning_container_year=l_container_yr_2,
                                 academic_year=self.current_academic_year, subtype=learning_unit_year_subtypes.FULL)
 
@@ -877,6 +978,16 @@ class LearningUnitViewTestCase(TestCase):
         EntityContainerYearFactory(learning_container_year=l_container_yr_4, entity=ages_entity_v.entity,
                                    type=entity_container_year_link_type.REQUIREMENT_ENTITY)
         LearningUnitYearFactory(acronym="AGES1500", learning_container_year=l_container_yr_4,
+                                academic_year=self.current_academic_year, subtype=learning_unit_year_subtypes.FULL)
+
+        # Create another UE and put entity charge [ELOG] and allocation charge [LOGO]
+        l_container_yr_5 = LearningContainerYearFactory(acronym="LOGO1200", academic_year=self.current_academic_year,
+                                                        container_type=learning_container_year_types.COURSE)
+        EntityContainerYearFactory(learning_container_year=l_container_yr_5, entity=elog_entity_v.entity,
+                                   type=entity_container_year_link_type.REQUIREMENT_ENTITY)
+        EntityContainerYearFactory(learning_container_year=l_container_yr_5, entity=logo_entity_v.entity,
+                                   type=entity_container_year_link_type.ALLOCATION_ENTITY)
+        LearningUnitYearFactory(acronym="LOGO1200", learning_container_year=l_container_yr_5,
                                 academic_year=self.current_academic_year, subtype=learning_unit_year_subtypes.FULL)
 
     def test_class_save(self):
@@ -1274,8 +1385,8 @@ class LearningUnitViewTestCase(TestCase):
         learning_unit_year = LearningUnitYearFactory()
         fr = LanguageFactory(code='FR')
         en = LanguageFactory(code='EN')
-        learning_unit_achievements_fr = LearningAchievementFactory(language=fr,learning_unit_year=learning_unit_year)
-        learning_unit_achievements_en = LearningAchievementFactory(language=en,learning_unit_year=learning_unit_year)
+        learning_unit_achievements_fr = LearningAchievementFactory(language=fr, learning_unit_year=learning_unit_year)
+        learning_unit_achievements_en = LearningAchievementFactory(language=en, learning_unit_year=learning_unit_year)
 
         request = self.create_learning_unit_request(learning_unit_year)
 
@@ -1428,7 +1539,6 @@ class TestLearningUnitComponents(TestCase):
     @mock.patch('base.views.layout.render')
     @mock.patch('base.models.program_manager.is_program_manager')
     def test_learning_unit_components(self, mock_program_manager, mock_render):
-
         mock_program_manager.return_value = True
 
         learning_unit_year = self.generated_container.generated_container_years[0].learning_unit_year_full

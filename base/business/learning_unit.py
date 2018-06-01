@@ -37,7 +37,6 @@ from base.models import learning_achievement
 from base.models.academic_year import find_academic_year_by_year
 from base.models.entity_component_year import EntityComponentYear
 from base.models.enums import entity_container_year_link_type, academic_calendar_type
-from base.models.enums import learning_container_year_types
 from cms import models as mdl_cms
 from cms.enums import entity_name
 from cms.enums.entity_name import LEARNING_UNIT_YEAR
