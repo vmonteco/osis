@@ -36,9 +36,13 @@
         <h2>{% block h2_title %}{% trans 'new_learning_unit' %}- {% trans 'external' %}{% endblock %}</h2>
     </div>
     <div class="panel panel-default">
+        <div class="panel-heading">
+            {% include "learning_unit/blocks/create_cancel_buttons.html" %}
+        </div>
         <div class="panel-body">
             <form method="post" id="LearningUnitYearForm" data-validate-url="{% url 'check_acronym' subtype %}">
                 {% csrf_token %}
+
                 <div class="row">
                     <div class="col-md-8">
                         {% include "learning_unit/blocks/create_form_learning_unit_external.html" %}
@@ -64,13 +68,10 @@
                         </div>
                     </div>
                 </div>
-                <div class="panel-body">
-                    <button type="submit" id="learning_unit_year_add" class="btn btn-primary pull-right" title="{% trans 'add' %}">
-                        <span class="glyphicon glyphicon-floppy-save" aria-hidden="true"></span> {% trans 'save' %}
-                    </button>
-                </div>
             </form>
-
+        </div>
+        <div class="panel-footer">
+            {% include "learning_unit/blocks/create_cancel_buttons.html" %}
         </div>
     </div>
 {% endblock %}
