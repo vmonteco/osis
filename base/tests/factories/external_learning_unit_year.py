@@ -26,25 +26,24 @@
 import datetime
 import string
 
-import factory
-
 import factory.fuzzy
+from factory.django import DjangoModelFactory
 
 from base.models.learning_unit_year import MINIMUM_CREDITS, MAXIMUM_CREDITS
-from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from base.tests.factories.entity import EntityFactory
+from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from osis_common.utils.datetime import get_tzinfo
 from base.tests.factories.person import PersonFactory
 
 
-class ExternalLearningUnitYearFactory(factory.DjangoModelFactory):
+class ExternalLearningUnitYearFactory(DjangoModelFactory):
     class Meta:
         model = "base.ExternalLearningUnitYear"
-
+        
     external_id = factory.fuzzy.FuzzyText(length=10, chars=string.digits)
     changed = factory.fuzzy.FuzzyDateTime(datetime.datetime(2016, 1, 1, tzinfo=get_tzinfo()),
                                           datetime.datetime(2017, 3, 1, tzinfo=get_tzinfo()))
-    external_acronym = factory.Sequence(lambda n: 'XFAC%04d' % n)
+    external_acronym = factory.fuzzy.FuzzyText(length=10, chars=string.digits)
     external_credits = factory.fuzzy.FuzzyDecimal(MINIMUM_CREDITS, MAXIMUM_CREDITS)
 
     learning_unit_year = factory.SubFactory(LearningUnitYearFactory)

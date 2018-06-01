@@ -25,6 +25,7 @@
 * see http://www.gnu.org/licenses/.
 {% endcomment %}
 
+{# TODO Create an identification_layout.html #}
 {# TODO This template can be merge with learning_unit_layout #}
 {% block breadcrumb %}
 {% include "learning_unit/breadcrumb.html" %}
@@ -41,7 +42,10 @@
         {% include "learning_unit/blocks/dropdown/identification_actions_bar.html" with dropdirection="dropdown"%}
     </div>
     <div class="panel-body" id="tabs" >
-        {% include "learning_unit/blocks/tabs.html" %}
+        {% block tabs %}
+            {% include "learning_unit/blocks/tabs.html" %}
+        {% endblock tabs %}
+
         <div class="tab-content">
             <div role="tabpanel" class="tab-pane active" id="identification">
                 <br/>
@@ -50,6 +54,8 @@
                         <div class="panel panel-default">
                             <div class="panel-body">
                                 <div class="row">
+                                    {% block content_row1 %}
+
                                     <div class="col-md-3">
                                         {# FIXME Use dl_tooltip for all label/span #}
                                         <label {{ differences|get_difference_css:'acronym' }}>{% trans 'code'%}</label><br>
@@ -76,8 +82,13 @@
                                     <div class="col-md-3">
                                         {% dl_tooltip differences 'internship_subtype' value=learning_unit_year.internship_subtype_verbose %}
                                     </div>
+
+                                    {% endblock content_row1 %}
+
                                 </div>
                                 <div class="row">
+                                    {% block content_row2 %}
+
                                     <div class="col-md-3">
                                         {% dl_tooltip differences 'credits' label_text='nominal_credits' value=learning_unit_year.credits %}
                                     </div>
@@ -90,15 +101,24 @@
                                     <div class="col-md-3">
                                         {% dl_tooltip differences 'language' inherited=learning_unit_year.subtype value=learning_unit_year.learning_container_year.language %}
                                     </div>
+
+                                    {% endblock content_row2 %}
+
                                 </div>
                                 <div class="row">
+                                    {% block content_row3 %}
+
                                     <div class="col-md-3">
                                         {% dl_tooltip differences 'quadrimestre' label_text="quadrimester" value=learning_unit_year.quadrimester %}
                                     </div>
                                     <div class="col-md-9">
                                         {% dl_tooltip differences 'session' label_text="session_title"  value=learning_unit_year.session %}
                                     </div>
+                                    {% endblock content_row3 %}
+
                                 </div>
+
+                                {% block titles %}
                                 {% if learning_unit_year.subtype == "PARTIM" %}
                                     {% dl_tooltip differences 'common_title' label_text='common_official_title' title='title_official_1' inherited=learning_unit_year.subtype value=learning_unit_year.learning_container_year.common_title %}
                                     {% dl_tooltip differences 'specific_title' label_text='official_title_proper_to_partim' title='title_official_2' value=learning_unit_year.specific_title %}
@@ -110,8 +130,10 @@
                                     {% dl_tooltip differences 'common_title_english' label_text='common_official_english_title' title='title_in_english' inherited=learning_unit_year.subtype value=learning_unit_year.learning_container_year.common_title_english %}
                                     {% dl_tooltip differences 'specific_title_english' label_text='official_english_title_proper_to_UE' title='title_in_english' value=learning_unit_year.specific_title_english %}
                                 {% endif %}
+                                {% endblock titles %}
                             </div>
                         </div>
+                        {% block panel_remarks %}
                         <div class="panel panel-default">
                             <div class="panel-body">
                                 <div>
@@ -122,41 +144,50 @@
                                 </div>
                             </div>
                         </div>
-                    {% if learning_unit_year.subtype != "PARTIM" %}
-                        <div class="panel panel-default">
-                            <div class="panel-body">
-                                <div class="row">
-                                    <div class="col-md-2">
-                                        <label>{% trans 'vacant' %}</label><br>
-                                        {{ learning_unit_year.learning_container_year.is_vacant | yesno:_("yes,no") |title }}
-                                    </div>
-                                    <div class="col-md-3">
-                                        <label>{% trans 'team_management' %}</label><br>
-                                        {{ learning_unit_year.learning_container_year.team | yesno:_("yes,no") |title }}
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label>{% trans 'type_declaration_vacant' %}</label><br>
-                                        {% if learning_unit_year.learning_container_year.type_declaration_vacant %}
-                                            {% trans learning_unit_year.learning_container_year.type_declaration_vacant %}
-                                        {% endif %}
-                                    </div>
-                                    <div class="col-md-3">
-                                        <label>{% trans 'procedure' %}</label><br>
-                                        {% if learning_unit_year.attribution_procedure %}
-                                            {% trans learning_unit_year.attribution_procedure %}
-                                        {% endif %}
+
+                        {% if learning_unit_year.subtype != "PARTIM" %}
+                            <div class="panel panel-default">
+                                <div class="panel-body">
+                                    <div class="row">
+                                        <div class="col-md-2">
+                                            <label>{% trans 'vacant' %}</label><br>
+                                            {{ learning_unit_year.learning_container_year.is_vacant | yesno:_("yes,no") |title }}
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label>{% trans 'team_management' %}</label><br>
+                                            {{ learning_unit_year.learning_container_year.team | yesno:_("yes,no") |title }}
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label>{% trans 'type_declaration_vacant' %}</label><br>
+                                            {% if learning_unit_year.learning_container_year.type_declaration_vacant %}
+                                                {% trans learning_unit_year.learning_container_year.type_declaration_vacant %}
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label>{% trans 'procedure' %}</label><br>
+                                            {% if learning_unit_year.attribution_procedure %}
+                                                {% trans learning_unit_year.attribution_procedure %}
+                                            {% endif %}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    {% endif %}
-                        {% if components %}
-                            {% include "learning_unit/components_identification.html" %}
                         {% endif %}
+                        {% endblock panel_remarks %}
+
+                        {% block panel_components %}
+                            {% if components %}
+                                {% include "learning_unit/components_identification.html" %}
+                            {% endif %}
+                        {% endblock panel_components %}
+
+                        {% block panel_external %}
+                        {% endblock panel_external %}
                     </div>
                     <div class="col-md-4">
                         <div class="panel panel-default">
                             <div class="panel-body">
+                            {% block institution %}
                                 {% url 'organization_read' organization_id=organization.id as url_organization%}
                                 {% dl_tooltip differences 'institution' inherited=learning_unit_year.subtype value=organization.name url=url_organization %}
                                 {% dl_tooltip differences 'campus' inherited=learning_unit_year.subtype label_text='learning_location'  value=campus.name %}
@@ -170,16 +201,18 @@
                                 {% dl_tooltip differences 'ALLOCATION_ENTITY' inherited=learning_unit_year.subtype default_if_none="-" value=allocation_entity.acronym title=allocation_entity.title url=url_entity_allocation %}
                                 {% dl_tooltip differences 'ADDITIONAL_REQUIREMENT_ENTITY_1' inherited=learning_unit_year.subtype title=additional_requirement_entity_1.title value=additional_requirement_entity_1.acronym url=url_additional_requirement_entity_1 default_if_none="-" %}
                                 {% dl_tooltip differences 'ADDITIONAL_REQUIREMENT_ENTITY_2' inherited=learning_unit_year.subtype title=additional_requirement_entity_2.title value=additional_requirement_entity_2.acronym url=url_additional_requirement_entity_2 default_if_none="-" %}
+                            {% endblock institution %}
 
-                                {% block edit_academic_year %}
-                                    {% dl_tooltip differences 'end_year' label_text='academic_years' annualized=True value=learning_unit_year.learning_unit.start_year|academic_years:learning_unit_year.learning_unit.end_year %}
-                                {% endblock %}
+                            {% block edit_academic_year %}
+                                {% dl_tooltip differences 'end_year' label_text='academic_years' annualized=True value=learning_unit_year.learning_unit.start_year|academic_years:learning_unit_year.learning_unit.end_year %}
+                            {% endblock %}
 
                             </div>
                         </div>
                         {% block panel_proposal %}
                             {% include 'learning_unit/blocks/panel/proposal.html' %}
                         {% endblock %}
+                        {% block panel_external_author %}{% endblock %}
                     </div>
                 </div>
             </div>

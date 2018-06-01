@@ -48,9 +48,10 @@ from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
 from base.views import layout
 from base.views.common import display_error_messages, display_success_messages, display_warning_messages
-from base.views.learning_unit import get_learning_unit_identification_context, \
-    get_common_context_learning_unit_year, learning_unit_components
+from base.views.learning_unit import learning_unit_components
 from base.views.learning_units import perms
+from base.views.learning_units.common import get_learning_unit_identification_context, \
+    get_common_context_learning_unit_year
 
 
 @login_required

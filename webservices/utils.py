@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -23,12 +23,21 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.conf.urls import url
 
-from webservices.views import ws_catalog_offer
 
-urlpatterns = [
-    url('^v0.1/catalog/offer/(?P<year>[0-9]{4})/(?P<language>[a-zA-Z]{2})/(?P<acronym>[a-zA-Z0-9]+)$',
-        ws_catalog_offer,
-        name='v0.1-ws_catalog_offer'),
-]
+def convert_sections_to_list_of_dict(sections):
+    return [{
+        'id': key,
+        'label': value['label'],
+        'content': value['content']
+    } for key, value in sections.items()]
+
+
+def convert_sections_list_of_dict_to_dict(sections):
+    return {
+        item['id']: {
+            'label': item['label'],
+            'content': item['content']
+        }
+        for item in sections
+    }

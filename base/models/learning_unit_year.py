@@ -33,7 +33,8 @@ from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
 from base.models import entity_container_year
-from base.models.academic_year import current_academic_year, compute_max_academic_year_adjournment, AcademicYear
+from base.models.academic_year import current_academic_year, compute_max_academic_year_adjournment, AcademicYear, \
+    MAX_ACADEMIC_YEAR_FACULTY
 from base.models.enums import active_status, learning_container_year_types
 from base.models.enums import learning_unit_year_subtypes, internship_subtypes, \
     learning_unit_year_session, entity_container_year_link_type, learning_unit_year_quadrimesters, attribution_procedure
@@ -62,7 +63,8 @@ class LearningUnitYearAdmin(SerializableModelAdmin):
     fieldsets = ((None, {'fields': ('academic_year', 'learning_unit', 'learning_container_year', 'acronym',
                                     'specific_title', 'specific_title_english', 'subtype', 'credits', 'decimal_scores',
                                     'structure', 'internship_subtype', 'status', 'session',
-                                    'quadrimester', 'attribution_procedure', 'summary_locked')}),)
+                                    'quadrimester', 'attribution_procedure', 'summary_locked',
+                                    'professional_integration')}),)
     list_filter = ('academic_year', 'decimal_scores', 'summary_locked')
     raw_id_fields = ('learning_unit', 'learning_container_year', 'structure')
     search_fields = ['acronym', 'structure__acronym', 'external_id']
@@ -101,6 +103,7 @@ class LearningUnitYear(SerializableModel):
 
     mobility_modality = models.CharField(max_length=250, verbose_name=_('Modalities specific to IN and OUT mobility'),
                                          blank=True, null=True)
+    professional_integration = models.BooleanField(default=False, verbose_name=_('professional_integration'))
     _warnings = None
 
     class Meta:
@@ -215,9 +218,7 @@ class LearningUnitYear(SerializableModel):
         current_year = current_academic_year().year
         year = self.academic_year.year
 
-        if self.learning_unit.periodicity == ANNUAL and year <= current_year + 1:
-            result = True
-        elif self.learning_unit.periodicity != ANNUAL and year <= current_year + 2:
+        if year <= current_year + MAX_ACADEMIC_YEAR_FACULTY:
             result = True
         return result
 
@@ -286,6 +287,9 @@ class LearningUnitYear(SerializableModel):
             _warnings.extend(learning_unit_component.learning_component_year.warnings)
 
         return _warnings
+
+    def is_external(self):
+        return hasattr(self, "externallearningunityear")
 
 
 def get_by_id(learning_unit_year_id):

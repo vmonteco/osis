@@ -1,3 +1,28 @@
+##############################################################################
+#
+#    OSIS stands for Open Student Information System. It's an application
+#    designed to manage the core business of higher education institutions,
+#    such as universities, faculties, institutes and professional schools.
+#    The core business involves the administration of students, teachers,
+#    courses, programs and so on.
+#
+#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    A copy of this license - GNU General Public License - is available
+#    at the root of the source code of this program.  If not,
+#    see http://www.gnu.org/licenses/.
+#
+##############################################################################
 # retrieve the data from json
 import collections
 import json
@@ -54,21 +79,6 @@ def generate_html_two_parts(info):
         info,
         [('part1', 'reddot_part1'),
          ('part2', 'reddot_part2')]
-    )
-
-
-def generate_html_for_program(info):
-    """
-    Génère le HTML pour les programmes
-    <div class="reddot_intro">
-    </div>
-    <div class="reddot_body">
-    </div>
-    """
-    return generate_html_for_multiparts(
-        info,
-        [('intro', 'reddot_intro'),
-         ('programme_detaille', 'reddot_body')]
     )
 
 
@@ -242,7 +252,6 @@ def convert_to_html(item, label, value):
         'comp_acquis': generate_html_from_comp_acquis,
         'caap': generate_html_two_parts,
         'prerequis': generate_html_two_parts,
-        'programme': generate_html_for_program,
         'contacts': generate_html_for_contacts,
     }
 
@@ -326,6 +335,7 @@ LABEL_TEXTUALS = [
     (settings.LANGUAGE_CODE_FR, 'module_complementaire', 'Module Complémentaire'),
     (settings.LANGUAGE_CODE_FR, 'evaluation', 'Évaluation'),
     (settings.LANGUAGE_CODE_FR, 'structure', 'Structure'),
+    (settings.LANGUAGE_CODE_FR, 'programme_detaille', 'Programme Détaillé'),
 ]
 
 MAPPING_LABEL_TEXTUAL = collections.defaultdict(dict)
@@ -384,11 +394,12 @@ def get_mapping_label_texts(context, labels):
     for label in labels:
         text_label = get_text_label(context.entity, label)
 
-        TranslatedTextLabel.objects.get_or_create(
-            text_label=text_label,
-            language=context.language,
-            label=find_translated_label(context.language, label)
-        )
+        records = TranslatedTextLabel.objects.filter(text_label=text_label, language=context.language)
+        if not records.count():
+            TranslatedTextLabel.objects.create(
+                text_label=text_label,
+                language=context.language,
+                label=find_translated_label(context.language, label))
 
         mapping_label_text_label[label] = text_label
     return mapping_label_text_label
