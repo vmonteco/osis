@@ -31,6 +31,8 @@ from django.utils import timezone
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
 
 LEARNING_UNIT_CREATION_SPAN_YEARS = 6
+MAX_ACADEMIC_YEAR_FACULTY = 2
+MAX_ACADEMIC_YEAR_CENTRAL = 6
 
 
 class AcademicYearAdmin(SerializableModelAdmin):
