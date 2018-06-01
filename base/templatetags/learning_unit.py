@@ -98,3 +98,8 @@ def dl_tooltip(differences, key, **kwargs):
 
     return mark_safe("<dl><dt {difference}>{label_text}</dt><dd {difference}>{value}</dd></dl>".format(
         difference=difference, label_text=label_text, value=_(str(value))))
+
+
+@register.filter
+def get_old_acronym(differences):
+    return differences.get('acronym', None)
