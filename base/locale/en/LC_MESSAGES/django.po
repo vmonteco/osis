@@ -2952,8 +2952,13 @@ msgstr "URL of the learning unit"
 msgid "professional_integration"
 msgstr "Professional integration"
 
+msgid "external_search"
+msgstr "External - Search"
+
 msgid "title_1_in_english"
 msgstr "Title common title with partims (part 1) in English"
 
 msgid "title_2_in_english"
 msgstr "Title specific with partim (part 2) in English"
+
+
