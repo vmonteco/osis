@@ -54,7 +54,7 @@ class WsCatalogOfferPostTestCase(TestCase, Helper):
         response = self.post(2017, 'fr', 'XYZ', data={})
         self.assertEqual(response.status_code, 404)
 
-    def test_01(self):
+    def test_first_based_on_the_original_message(self):
         education_group_year = EducationGroupYearFactory(acronym='ACTU2M')
 
         common_education_group_year = EducationGroupYearFactory(
@@ -302,7 +302,7 @@ class WsCatalogOfferPostTestCase(TestCase, Helper):
 
                 self.assertDictEqual(response_sections, sections)
 
-    def test_02(self):
+    def test_global(self):
         education_group_year = EducationGroupYearFactory(acronym='ACTU2M')
 
         common_education_group_year = EducationGroupYearFactory(
