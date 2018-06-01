@@ -356,6 +356,9 @@ class WsCatalogOfferPostTestCase(TestCase, Helper):
                 common_sections_set.add(section)
             sections_set.add(section)
 
+        self.assertEqual(len(common_sections_set), 3)
+        self.assertEqual(len(intro_set), 4)
+
         for section in sections_set:
             text_label = TextLabelFactory(entity=OFFER_YEAR, label=section)
             TranslatedTextLabelFactory(text_label=text_label, language=iso_language)
