@@ -31,7 +31,6 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, logout
 from django.contrib.auth.decorators import login_required, permission_required, user_passes_test
 from django.contrib.auth.views import login as django_login
-from django.contrib.messages import ERROR, SUCCESS
 from django.shortcuts import redirect
 from django.utils import translation
 from django.utils.translation import ugettext_lazy as _
