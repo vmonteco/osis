@@ -26,6 +26,7 @@
 
 from django.db import IntegrityError, transaction, Error
 from django.db.models import F
+from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from base import models as mdl_base
@@ -44,7 +45,6 @@ from base.models.enums import learning_unit_periodicity, learning_unit_year_subt
 from base.models.enums.entity_container_year_link_type import ENTITY_TYPE_LIST
 from base.models.learning_container_year import LearningContainerYear
 from base.models.learning_unit_year import LearningUnitYear
-from base.views.learning_units.common import create_learning_unit_year_creation_message
 from cms.models import translated_text
 
 FIELDS_TO_EXCLUDE_WITH_REPORT = ("is_vacant", "type_declaration_vacant", "attribution_procedure")
@@ -610,3 +610,9 @@ class ConsistencyError(Error):
         self.last_instance_updated = last_instance_updated
         self.error_list = error_list
         super().__init__(*args, **kwargs)
+
+
+def create_learning_unit_year_creation_message(learning_unit_year_created, translation_key):
+    link = reverse("learning_unit", kwargs={'learning_unit_year_id': learning_unit_year_created.id})
+    return _(translation_key) % {'link': link, 'acronym': learning_unit_year_created.acronym,
+                                 'academic_year': learning_unit_year_created.academic_year}

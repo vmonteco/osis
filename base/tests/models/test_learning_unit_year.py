@@ -25,17 +25,17 @@
 ##############################################################################
 from django.test import TestCase
 from django.utils import timezone
-from attribution.models import attribution
 
+from attribution.models import attribution
 from base.models import learning_unit_year
 from base.models.enums import learning_unit_year_subtypes
 from base.models.learning_unit_year import find_max_credits_of_related_partims
-from base.tests.factories.learning_unit import LearningUnitFactory
-from base.tests.factories.tutor import TutorFactory
 from base.tests.factories.academic_year import AcademicYearFactory
-from base.tests.factories.learning_unit_year import LearningUnitYearFactory, create_learning_units_year
+from base.tests.factories.external_learning_unit_year import ExternalLearningUnitYearFactory
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
-from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
+from base.tests.factories.learning_unit import LearningUnitFactory
+from base.tests.factories.learning_unit_year import LearningUnitYearFactory, create_learning_units_year
+from base.tests.factories.tutor import TutorFactory
 
 
 class LearningUnitYearTest(TestCase):
@@ -199,3 +199,12 @@ class LearningUnitYearTest(TestCase):
     def test_common_title_property_no_container(self):
         self.learning_unit_year.learning_container_year = None
         self.assertEqual(self.learning_unit_year.container_common_title, '')
+
+    def test_is_external(self):
+        luy = LearningUnitYearFactory()
+        ExternalLearningUnitYearFactory(learning_unit_year=luy)
+        self.assertTrue(luy.is_external())
+
+    def test_is_not_external(self):
+        luy = LearningUnitYearFactory()
+        self.assertFalse(luy.is_external())
