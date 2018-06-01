@@ -23,6 +23,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+import datetime
 from collections import OrderedDict
 
 from django import forms
@@ -30,7 +31,8 @@ from django.utils.translation import ugettext_lazy as _
 
 from base.forms.utils.acronym_field import AcronymField, PartimAcronymField, split_acronym
 from base.forms.utils.choice_field import add_blank
-from base.models import entity_version
+from base.models import entity_version, academic_year
+from base.models.academic_year import AcademicYear
 from base.models.campus import find_main_campuses
 from base.models.entity_component_year import EntityComponentYear
 from base.models.entity_container_year import EntityContainerYear
@@ -48,6 +50,10 @@ from base.models.learning_container_year import LearningContainerYear
 from base.models.learning_unit import LearningUnit
 from base.models.learning_unit_component import LearningUnitComponent
 from base.models.learning_unit_year import LearningUnitYear, MAXIMUM_CREDITS
+
+MAX_ACADEMIC_YEAR_FACULTY = 2
+
+MAX_ACADEMIC_YEAR_CENTRAL = 6
 
 DEFAULT_ACRONYM_COMPONENT = {
     LECTURING: "CM1",
@@ -113,6 +119,7 @@ class LearningUnitYearModelForm(forms.ModelForm):
         super().__init__(data, *args, **kwargs)
 
         self.instance.subtype = subtype
+        self.person = person
 
         acronym = self.initial.get('acronym')
         if acronym:
@@ -125,6 +132,8 @@ class LearningUnitYearModelForm(forms.ModelForm):
 
         if kwargs.get('instance'):
             self.fields['academic_year'].disabled = True
+
+        self.prepare_fields()
 
     class Meta:
         model = LearningUnitYear
@@ -140,6 +149,19 @@ class LearningUnitYearModelForm(forms.ModelForm):
                     max_value=MAXIMUM_CREDITS)
             }
         }
+
+    def prepare_fields(self):
+        current_academic_year = academic_year.current_academic_year()
+        self.fields["academic_year"].queryset = academic_year.find_academic_years(
+            start_year=current_academic_year.year,
+            end_year=current_academic_year.year + MAX_ACADEMIC_YEAR_CENTRAL
+        )
+        if self.person.is_faculty_manager():
+            self.fields["academic_year"].queryset = academic_year.find_academic_years(
+                start_year=current_academic_year.year,
+                end_year=current_academic_year.year + MAX_ACADEMIC_YEAR_FACULTY
+            )
+
 
     # TODO :: Move assignment to self.instance from save into __init__
     # TODO :: Make these kwarg to args (learning_container_year, learning_unit, ... are required args)
