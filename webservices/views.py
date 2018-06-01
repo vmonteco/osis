@@ -49,12 +49,12 @@ Context = collections.namedtuple(
 )
 
 
-def new_description(education_group_year, language, title, year):
+def new_description(education_group_year, language, title):
     return {
         'language': language,
         'acronym': education_group_year.acronym,
         'title': title,
-        'year': year,
+        'year': int(education_group_year.academic_year.year),
         'sections': [],
     }
 
@@ -83,19 +83,21 @@ def ws_catalog_offer(request, year, language, acronym):
     # Validation
     education_group_year, iso_language, year = parameters_validation(acronym, language, year)
 
-    sections = collections.OrderedDict()
-
-    context = new_context(acronym, education_group_year, iso_language, language, year)
+    context = new_context(acronym, education_group_year, iso_language, language)
 
     # Processing
     items = request.data['sections']
-    process_message(context, education_group_year, items, sections, year)
+
+    # sections = collections.OrderedDict()
+    sections = process_message(context, education_group_year, items)
 
     context.description['sections'] = convert_sections_to_list_of_dict(sections)
     return Response(context.description, content_type='application/json')
 
 
-def process_message(context, education_group_year, items, sections, year):
+def process_message(context, education_group_year, items):
+    sections = collections.OrderedDict()
+    year = int(education_group_year.academic_year.year)
     for item in items:
         m_intro = re.match(INTRO_PATTERN, item)
         m_common = re.match(COMMON_PATTERN, item)
@@ -105,26 +107,27 @@ def process_message(context, education_group_year, items, sections, year):
 
             text_label = TextLabel.objects.filter(entity=OFFER_YEAR, label='intro').first()
 
-            insert_section_if_checked(context, egy, item, sections, text_label)
+            sections[item] = insert_section_if_checked(context, egy, text_label)
         elif m_common:
             egy = EducationGroupYear.objects.filter(acronym__iexact='common',
                                                     academic_year__year=year).first()
             text_label = TextLabel.objects.filter(entity=OFFER_YEAR, label=m_common.group('section_name')).first()
-            insert_section_if_checked(context, egy, item, sections, text_label)
+            sections[item] = insert_section_if_checked(context, egy, text_label)
         else:
             text_label = TextLabel.objects.filter(entity=OFFER_YEAR, label=item).first()
             if not text_label:
                 continue
 
-            insert_section(context, education_group_year, item, sections, text_label)
+            sections[item] = insert_section(context, education_group_year, text_label)
+    return sections
 
 
-def new_context(acronym, education_group_year, iso_language, language, year):
+def new_context(acronym, education_group_year, iso_language, language):
     title = get_title_of_education_group_year(education_group_year, iso_language)
-    description = new_description(education_group_year, language, title, year)
+    description = new_description(education_group_year, language, title)
     context = Context(
         acronym=acronym.upper(),
-        year=year,
+        year=int(education_group_year.academic_year.year),
         title=title,
         description=description,
         education_group_year=education_group_year,
@@ -145,22 +148,20 @@ def parameters_validation(acronym, language, year):
     return education_group_year, iso_language, year
 
 
-def insert_section(context, education_group_year, item, sections, text_label):
+def insert_section(context, education_group_year, text_label):
     ttl = TranslatedTextLabel.objects.filter(text_label=text_label, language=context.language).first()
     tt = TranslatedText.objects.filter(text_label=text_label,
                                        language=context.language,
                                        entity=text_label.entity,
                                        reference=education_group_year.id).first()
     if ttl and tt:
-        sections[item] = {'label': ttl.label, 'content': tt.text}
+        return {'label': ttl.label, 'content': tt.text}
     elif ttl:
-        sections[item] = {'label': ttl.label, 'content': None}
-    else:
-        sections[item] = {'label': None, 'content': None}
+        return {'label': ttl.label, 'content': None}
+    return {'label': None, 'content': None}
 
 
-def insert_section_if_checked(context, egy, item, sections, text_label):
+def insert_section_if_checked(context, egy, text_label):
     if egy and text_label:
-        insert_section(context, egy, item, sections, text_label)
-    else:
-        sections[item] = {'label': None, 'content': None}
+        return insert_section(context, egy, text_label)
+    return {'label': None, 'content': None}
