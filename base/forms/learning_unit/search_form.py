@@ -397,11 +397,6 @@ class ExternalLearningUnitYearForm(LearningUnitYearForm):
 
         self.fields['city'].choices = add_blank(cities_choice_list)
 
-    def is_valid(self):
-        if not super().is_valid():
-            return False
-        return True
-
     def get_learning_units(self):
         clean_data = self.cleaned_data
         learning_units = mdl.external_learning_unit_year.search(academic_year_id=clean_data['academic_year_id'],
