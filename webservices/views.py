@@ -90,27 +90,26 @@ def ws_catalog_offer(request, year, language, acronym):
 
 def process_message(context, education_group_year, items):
     sections = collections.OrderedDict()
-    year = int(education_group_year.academic_year.year)
     for item in items:
-        section = process_section(context, education_group_year, item, year)
+        section = process_section(context, education_group_year, item)
         if section is not None:
             sections[item] = section
     return sections
 
 
-def process_section(context, education_group_year, item, year):
+def process_section(context, education_group_year, item):
     m_intro = re.match(INTRO_PATTERN, item)
     m_common = re.match(COMMON_PATTERN, item)
     if m_intro:
         egy = EducationGroupYear.objects.filter(partial_acronym__iexact=m_intro.group('acronym'),
-                                                academic_year__year=year).first()
+                                                academic_year__year=context.year).first()
 
         text_label = TextLabel.objects.filter(entity=OFFER_YEAR, label='intro').first()
 
         return insert_section_if_checked(context, egy, text_label)
     elif m_common:
         egy = EducationGroupYear.objects.filter(acronym__iexact='common',
-                                                academic_year__year=year).first()
+                                                academic_year__year=context.year).first()
         text_label = TextLabel.objects.filter(entity=OFFER_YEAR, label=m_common.group('section_name')).first()
         return insert_section_if_checked(context, egy, text_label)
     else:
