@@ -26,6 +26,9 @@
 import json
 
 from django.urls import reverse
+from rest_framework.test import APIClient
+
+from base.tests.factories.user import UserFactory
 
 
 class Helper:
@@ -37,6 +40,8 @@ class Helper:
         return self.client.get(self._get_url(year, language, acronym), format='json')
 
     def post(self, year, language, acronym, data):
-        return self.client.post(self._get_url(year, language, acronym),
+        client = APIClient()
+        client.force_authenticate(UserFactory())
+        return client.post(self._get_url(year, language, acronym),
                                 data=json.dumps(data),
                                 content_type='application/json')

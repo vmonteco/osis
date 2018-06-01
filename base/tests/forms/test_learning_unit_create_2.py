@@ -47,6 +47,7 @@ from base.models.enums.entity_container_year_link_type import ADDITIONAL_REQUIRE
 from base.models.enums.entity_type import FACULTY
 from base.models.enums.learning_container_year_types import MASTER_THESIS, INTERNSHIP
 from base.models.enums.learning_unit_periodicity import ANNUAL
+from base.models.enums.learning_unit_year_subtypes import FULL
 from base.models.enums.organization_type import MAIN
 from base.models.learning_component_year import LearningComponentYear
 from base.models.learning_container import LearningContainer
@@ -151,9 +152,11 @@ class LearningUnitFullFormContextMixin(TestCase):
         )
 
         self.acs = GenerateAcademicYear(
-            start_year=self.current_academic_year.year + 1, end_year=self.current_academic_year.year + 7).academic_years
+            start_year=self.current_academic_year.year -3, end_year=self.current_academic_year.year + 7).academic_years
+        del self.acs[3]
         for ac in self.acs:
             LearningUnitYearFactory(academic_year=ac, learning_unit=self.learning_unit_year.learning_unit)
+        self.acs.insert(3, self.current_academic_year)
 
 
 class TestFullFormInit(LearningUnitFullFormContextMixin):
@@ -537,3 +540,23 @@ class TestFullFormValidateSameEntitiesContainer(LearningUnitFullFormContextMixin
                                         learning_unit_year=learning_unit_year)
         post_data['allocation_entity-entity'] = EntityVersionFactory().id
         return post_data
+
+
+class TestLearningUnitYearForm(LearningUnitFullFormContextMixin):
+
+    def test_academic_years_restriction_for_central_manager(self):
+        faculty_group = Group.objects.get(name='central_managers')
+        self.person.user.groups.add(faculty_group)
+        form = LearningUnitYearModelForm({}, self.person, subtype=FULL)
+        actual_choices = [choice[0] for choice in form.fields["academic_year"].choices if choice[0] != '']
+        expected_choices = [acy.id for acy in self.acs[3:10]]
+
+        self.assertCountEqual(actual_choices, expected_choices)
+
+    def test_academic_years_restriction_for_faculty_manager(self):
+        faculty_group = Group.objects.get(name='faculty_managers')
+        self.person.user.groups.add(faculty_group)
+        form = LearningUnitYearModelForm({}, self.person, subtype=FULL)
+        actual_choices = [choice[0] for choice in form.fields["academic_year"].choices if choice[0] != '']
+        expected_choices = [acy.id for acy in self.acs[3:6]]
+        self.assertCountEqual(actual_choices, expected_choices)
