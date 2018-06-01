@@ -30,6 +30,7 @@ from django.utils.translation import ugettext_lazy as _
 from base.business.learning_unit_year_with_context import get_with_context
 from base.forms.learning_unit.edition_volume import VolumeEditionForm, VolumeEditionBaseFormset, ENTITY_TYPES_VOLUME, \
     VolumeEditionFormsetContainer
+from base.models.learning_component_year import LearningComponentYear
 from base.models.person import CENTRAL_MANAGER_GROUP, FACULTY_MANAGER_GROUP
 from base.tests.factories.business.learning_units import GenerateContainer, GenerateAcademicYear
 from base.tests.factories.person import PersonFactory
@@ -149,6 +150,18 @@ class TestVolumeEditionForm(TestCase):
         self.assertTrue(VolumeEditionForm._compare(12, 14, False))
         self.assertTrue(VolumeEditionForm._compare(12, 12, True))
         self.assertFalse(VolumeEditionForm._compare(12, 12, False))
+
+
+    def test_warning_volumes(self):
+        learning_component_year_0 = LearningComponentYear.objects.filter(
+            learningunitcomponent__learning_unit_year=self.first_learning_unit_year
+        ).first()
+        learning_component_year_0.hourly_volume_partial = 2000
+        learning_component_year_0.planned_classes = 2000
+        learning_component_year_0.save()
+
+        self.assertIn(_('Volumes are inconsistent'), learning_component_year_0.warnings)
+        self.assertIn(_('Volumes are inconsistent'), self.first_learning_unit_year.warnings)
 
 
 def _get_wrong_data_empty_field():

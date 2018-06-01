@@ -46,7 +46,8 @@ class ExternalLearningUnitYearAdmin(OsisModelAdmin):
 class ExternalLearningUnitYear(models.Model):
     external_id = models.CharField(max_length=100, blank=True, null=True)
     changed = models.DateTimeField(null=True, auto_now=True)
-    external_acronym = models.CharField(max_length=15, db_index=True, verbose_name=_('external_code'))
+    external_acronym = models.CharField(max_length=15, db_index=True, blank=True, null=True,
+                                        verbose_name=_('external_code'))
     external_credits = models.DecimalField(max_digits=5, decimal_places=2, verbose_name=_('local_credits'),
                                            validators=[MinValueValidator(MINIMUM_CREDITS),
                                                        MaxValueValidator(MAXIMUM_CREDITS)])

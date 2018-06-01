@@ -51,7 +51,11 @@ class CampusChoiceField(ModelChoiceField):
 
 
 class LearningContainerYearExternalModelForm(LearningContainerYearModelForm):
-    country = ModelChoiceField(queryset=Country.objects.all().order_by('name'), required=False, label=_("country"))
+    country = ModelChoiceField(
+        queryset=Country.objects.filter(organizationaddress__isnull=False).distinct().order_by('name'),
+        required=False,
+        label=_("country")
+    )
     campus = CampusChoiceField(queryset=Campus.objects.none())
 
     def prepare_fields(self):
