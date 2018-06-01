@@ -1612,7 +1612,7 @@ msgid "experimental_phase"
 msgstr "Cette fonctionnalité est en phase expérimentale"
 
 msgid "title_1"
-msgstr "Intitulé (partie 1 commune aux partims)"
+msgstr "Intitulé commun aux partims (partie 1)"
 
 msgid "common_title"
 msgstr "Intitulé commun"
@@ -1621,7 +1621,7 @@ msgid "common_english_title"
 msgstr "Intitulé commun en anglais"
 
 msgid "title_2"
-msgstr "Intitulé (partie 2 propre au partim)"
+msgstr "Intitulé propre au partim (partie 2)"
 
 msgid "title_proper_to_UE"
 msgstr "Intitulé propre"
@@ -2942,3 +2942,10 @@ msgstr "Crédits locaux"
 
 msgid "warnigns_detected"
 msgstr "Nous avons détecté des incohérences dans les données suivantes :"
+
+msgid "title_1_in_english"
+msgstr "Intitulé commun aux partims (partie 1) en anglais"
+
+msgid "title_2_in_english"
+msgstr "Intitulé propre au partim (partie 2) en anglais"
+

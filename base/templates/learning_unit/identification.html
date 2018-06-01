@@ -102,13 +102,13 @@
                                 {% if learning_unit_year.subtype == "PARTIM" %}
                                     {% dl_tooltip differences 'common_title' label_text='common_title' title='title_1' inherited=learning_unit_year.subtype value=learning_unit_year.learning_container_year.common_title %}
                                     {% dl_tooltip differences 'specific_title' label_text='official_title_proper_to_partim' title='title_2' value=learning_unit_year.specific_title %}
-                                    {% dl_tooltip differences 'common_title_english' label_text='common_english_title' title='title_in_english' inherited=learning_unit_year.subtype value=learning_unit_year.learning_container_year.common_title_english %}
-                                    {% dl_tooltip differences 'specific_title_english' label_text='official_english_title_proper_to_partim' title='title_in_english' value=learning_unit_year.specific_title_english %}
+                                    {% dl_tooltip differences 'common_title_english' label_text='common_english_title' title='title_1_in_english' inherited=learning_unit_year.subtype value=learning_unit_year.learning_container_year.common_title_english %}
+                                    {% dl_tooltip differences 'specific_title_english' label_text='official_english_title_proper_to_partim' title='title_2_in_english' value=learning_unit_year.specific_title_english %}
                                 {% else %}
                                     {% dl_tooltip differences 'common_title' label_text='common_title' title='title_1' inherited=learning_unit_year.subtype value=learning_unit_year.learning_container_year.common_title %}
                                     {% dl_tooltip differences 'specific_title' label_text='title_proper_to_UE' title='title_2' value=learning_unit_year.specific_title %}
-                                    {% dl_tooltip differences 'common_title_english' label_text='common_english_title' title='title_in_english' inherited=learning_unit_year.subtype value=learning_unit_year.learning_container_year.common_title_english %}
-                                    {% dl_tooltip differences 'specific_title_english' label_text='english_title_proper_to_UE' title='title_in_english' value=learning_unit_year.specific_title_english %}
+                                    {% dl_tooltip differences 'common_title_english' label_text='common_english_title' title='title_1_in_english' inherited=learning_unit_year.subtype value=learning_unit_year.learning_container_year.common_title_english %}
+                                    {% dl_tooltip differences 'specific_title_english' label_text='english_title_proper_to_UE' title='title_2_in_english' value=learning_unit_year.specific_title_english %}
                                 {% endif %}
                             </div>
                         </div>

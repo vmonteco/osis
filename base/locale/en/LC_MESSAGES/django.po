@@ -1616,7 +1616,7 @@ msgid "experimental_phase"
 msgstr "This feature is in testing phase"
 
 msgid "title_1"
-msgstr "Title (Part 1, common with partims)"
+msgstr "Title common with partims(Part 1)"
 
 msgid "common_title"
 msgstr "Common title"
@@ -2546,7 +2546,7 @@ msgid "remark"
 msgstr "Remark"
 
 msgid "remark_english"
-msgstr "Remark in english"
+msgstr "Remark in English"
 
 msgid "Ensure this value is less than %(limit_value)s."
 msgstr "Ensure this value is less than %(limit_value)s."
@@ -2939,3 +2939,9 @@ msgstr "learning_units"
 
 msgid "warnigns_detected"
 msgstr "We detected inconsistencies in the following data :"
+
+msgid "title_1_in_english"
+msgstr "Title common title with partims (part 1) in English"
+
+msgid "title_2_in_english"
+msgstr "Title specific with partim (part 2) in English"
