@@ -92,27 +92,32 @@ def process_message(context, education_group_year, items):
     sections = collections.OrderedDict()
     year = int(education_group_year.academic_year.year)
     for item in items:
-        m_intro = re.match(INTRO_PATTERN, item)
-        m_common = re.match(COMMON_PATTERN, item)
-        if m_intro:
-            egy = EducationGroupYear.objects.filter(partial_acronym__iexact=m_intro.group('acronym'),
-                                                    academic_year__year=year).first()
-
-            text_label = TextLabel.objects.filter(entity=OFFER_YEAR, label='intro').first()
-
-            sections[item] = insert_section_if_checked(context, egy, text_label)
-        elif m_common:
-            egy = EducationGroupYear.objects.filter(acronym__iexact='common',
-                                                    academic_year__year=year).first()
-            text_label = TextLabel.objects.filter(entity=OFFER_YEAR, label=m_common.group('section_name')).first()
-            sections[item] = insert_section_if_checked(context, egy, text_label)
-        else:
-            text_label = TextLabel.objects.filter(entity=OFFER_YEAR, label=item).first()
-            if not text_label:
-                continue
-
-            sections[item] = insert_section(context, education_group_year, text_label)
+        section = process_section(context, education_group_year, item, year)
+        if section is not None:
+            sections[item] = section
     return sections
+
+
+def process_section(context, education_group_year, item, year):
+    m_intro = re.match(INTRO_PATTERN, item)
+    m_common = re.match(COMMON_PATTERN, item)
+    if m_intro:
+        egy = EducationGroupYear.objects.filter(partial_acronym__iexact=m_intro.group('acronym'),
+                                                academic_year__year=year).first()
+
+        text_label = TextLabel.objects.filter(entity=OFFER_YEAR, label='intro').first()
+
+        return insert_section_if_checked(context, egy, text_label)
+    elif m_common:
+        egy = EducationGroupYear.objects.filter(acronym__iexact='common',
+                                                academic_year__year=year).first()
+        text_label = TextLabel.objects.filter(entity=OFFER_YEAR, label=m_common.group('section_name')).first()
+        return insert_section_if_checked(context, egy, text_label)
+    else:
+        text_label = TextLabel.objects.filter(entity=OFFER_YEAR, label=item).first()
+        if text_label:
+            return insert_section(context, education_group_year, text_label)
+    return None
 
 
 def new_context(acronym, education_group_year, iso_language, language):
