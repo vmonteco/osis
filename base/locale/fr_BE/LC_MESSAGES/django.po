@@ -2957,3 +2957,6 @@ msgstr "Intégration professionnelle"
 
 msgid "external_search"
 msgstr "Recherche - UE externe"
+
+msgid "formerly"
+msgstr "Anciennement"

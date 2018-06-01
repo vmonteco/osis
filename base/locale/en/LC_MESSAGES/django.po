@@ -1801,6 +1801,9 @@ msgstr "part 1"
 msgid "part2"
 msgstr "part 2"
 
+msgid "title_official"
+msgstr "Official title"
+
 msgid "create_learning_unit"
 msgstr "Create Learning Unit"
 
@@ -2954,6 +2957,9 @@ msgstr "Professional integration"
 
 msgid "external_search"
 msgstr "External - Search"
+
+msgid "formerly"
+msgstr "Formerly"
 
 msgid "title_1_in_english"
 msgstr "Title common title with partims (part 1) in English"
