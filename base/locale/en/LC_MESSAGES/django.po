@@ -2955,5 +2955,9 @@ msgstr "URL of the learning unit"
 msgid "professional_integration"
 msgstr "Professional integration"
 
+msgid "external_search"
+msgstr "External - Search"
+
 msgid "formerly"
 msgstr "Formerly"
+
