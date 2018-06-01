@@ -117,58 +117,40 @@ def ws_catalog_offer(request, year, language, acronym):
                                                     academic_year__year=year).first()
 
             text_label = TextLabel.objects.filter(entity=OFFER_YEAR, label='intro').first()
-            if egy and text_label:
-                ttl = TranslatedTextLabel.objects.filter(text_label=text_label,
-                                                         language=context.language).first()
 
-                tt = TranslatedText.objects.filter(text_label=text_label,
-                                                   language=context.language,
-                                                   entity=text_label.entity,
-                                                   reference=egy.id).first()
-                if ttl and tt:
-                    sections[item] = {'label': ttl.label, 'content': tt.text}
-                elif ttl:
-                    sections[item] = {'label': ttl.label, 'content': None}
-                else:
-                    sections[item] = {'label': None, 'content': None}
-            else:
-                sections[item] = {'label': None, 'content': None}
+            insert_section_if_checked(context, egy, item, sections, text_label)
         elif m_common:
             egy = EducationGroupYear.objects.filter(acronym__iexact='common',
                                                     academic_year__year=year).first()
             text_label = TextLabel.objects.filter(entity=OFFER_YEAR, label=m_common.group('section_name')).first()
-            if egy and text_label:
-                ttl = TranslatedTextLabel.objects.filter(text_label=text_label,
-                                                         language=context.language).first()
-
-                tt = TranslatedText.objects.filter(text_label=text_label,
-                                                   language=context.language,
-                                                   entity=text_label.entity,
-                                                   reference=egy.id).first()
-                if ttl and tt:
-                    sections[item] = {'label': ttl.label, 'content': tt.text}
-                elif ttl:
-                    sections[item] = {'label': ttl.label, 'content': None}
-                else:
-                    sections[item] = {'label': None, 'content': None}
-            else:
-                sections[item] = {'label': None, 'content': None}
+            insert_section_if_checked(context, egy, item, sections, text_label)
         else:
             text_label = TextLabel.objects.filter(entity=OFFER_YEAR, label=item).first()
             if not text_label:
                 continue
 
-            ttl = TranslatedTextLabel.objects.filter(text_label=text_label, language=context.language).first()
-            tt = TranslatedText.objects.filter(text_label=text_label,
-                                               language=context.language,
-                                               entity=text_label.entity,
-                                               reference=education_group_year.id).first()
-            if ttl and tt:
-                sections[item] = {'label': ttl.label, 'content': tt.text}
-            elif ttl:
-                sections[item] = {'label': ttl.label, 'content': None}
-            else:
-                sections[item] = {'label': None, 'content': None}
+            insert_section(context, education_group_year, item, sections, text_label)
 
     context.description['sections'] = convert_sections_to_list_of_dict(sections)
     return Response(context.description, content_type='application/json')
+
+
+def insert_section(context, education_group_year, item, sections, text_label):
+    ttl = TranslatedTextLabel.objects.filter(text_label=text_label, language=context.language).first()
+    tt = TranslatedText.objects.filter(text_label=text_label,
+                                       language=context.language,
+                                       entity=text_label.entity,
+                                       reference=education_group_year.id).first()
+    if ttl and tt:
+        sections[item] = {'label': ttl.label, 'content': tt.text}
+    elif ttl:
+        sections[item] = {'label': ttl.label, 'content': None}
+    else:
+        sections[item] = {'label': None, 'content': None}
+
+
+def insert_section_if_checked(context, egy, item, sections, text_label):
+    if egy and text_label:
+        insert_section(context, egy, item, sections, text_label)
+    else:
+        sections[item] = {'label': None, 'content': None}
