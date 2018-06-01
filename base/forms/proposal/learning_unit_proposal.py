@@ -80,12 +80,11 @@ class LearningUnitProposalForm(SearchForm):
         if not super().is_valid():
             return False
 
-        if not self._has_criteria():
-            self.add_error(None, _('minimum_one_criteria'))
-            return False
         return True
 
     def clean(self):
+        if not self._has_criteria():
+            self.add_error(None, _('minimum_one_criteria'))
         if self.cleaned_data \
                 and mdl.proposal_learning_unit.count_search_results(**self.cleaned_data) > SearchForm.MAX_RECORDS:
             raise TooManyResultsException
