@@ -2857,13 +2857,13 @@ msgid "faculty_borrowing"
 msgstr "Faculty borrowing"
 
 msgid "inherited"
-msgstr "Inherited"
+msgstr "The value of this attribute is inherited from the parent UE"
 
 msgid "to_complete"
 msgstr "To complete"
 
-msgid "annualized"
-msgstr "Annualized"
+msgid "not_annualized"
+msgstr "The value of this attribute is not annualized"
 
 msgid "start_year"
 msgstr "Starting year"

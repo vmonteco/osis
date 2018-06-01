@@ -2863,13 +2863,13 @@ msgid "faculty_borrowing"
 msgstr "Faculté emprunteuse"
 
 msgid "inherited"
-msgstr "Hérité"
+msgstr "La valeur de cet attribut est héritée de l'UE parent"
 
 msgid "to_complete"
 msgstr "A compléter"
 
-msgid "annualized"
-msgstr "Annualisé"
+msgid "not_annualized"
+msgstr "La valeur de cet attribut n'est pas annualisée"
 
 msgid "start_year"
 msgstr "Début"
