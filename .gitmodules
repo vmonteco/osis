@@ -8,3 +8,6 @@
 [submodule "mobility"]
 	path = mobility
 	url = https://github.com/uclouvain/osis-mobility.git
+[submodule "partnership"]
+	path = partnership
+	url = https://github.com/uclouvain/osis-partnership.git

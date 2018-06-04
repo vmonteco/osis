@@ -32,6 +32,7 @@ OPTIONAL_APPS = (
     'internship',
     'assessments',
     'cms',
+    'webservices',
 )
 
 INSTALLED_APPS += OPTIONAL_APPS
