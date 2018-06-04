@@ -24,7 +24,6 @@
 #
 ##############################################################################
 import datetime
-from unittest import mock
 
 from django.contrib.auth.models import Permission, Group
 from django.contrib.contenttypes.models import ContentType
@@ -32,26 +31,27 @@ from django.test import TestCase
 
 from base.business.learning_units import perms
 from base.business.learning_units.perms import is_eligible_to_create_modification_proposal, \
-    FACULTY_UPDATABLE_CONTAINER_TYPES, is_eligible_to_consolidate_proposal
-from base.models.academic_year import AcademicYear
+    FACULTY_UPDATABLE_CONTAINER_TYPES, is_eligible_to_consolidate_proposal, is_academic_year_in_range_to_create_partim
+from base.models.academic_year import AcademicYear, LEARNING_UNIT_CREATION_SPAN_YEARS, MAX_ACADEMIC_YEAR_FACULTY, \
+    MAX_ACADEMIC_YEAR_CENTRAL
 from base.models.enums import entity_container_year_link_type
 from base.models.enums import proposal_state, proposal_type, learning_container_year_types
 from base.models.enums.attribution_procedure import EXTERNAL
 from base.models.enums.learning_container_year_types import OTHER_COLLECTIVE, OTHER_INDIVIDUAL, MASTER_THESIS, COURSE
 from base.models.enums.learning_unit_year_subtypes import FULL, PARTIM
 from base.models.enums.proposal_type import ProposalType
-from base.models.person import FACULTY_MANAGER_GROUP, CENTRAL_MANAGER_GROUP, Person
+from base.models.person import FACULTY_MANAGER_GROUP, CENTRAL_MANAGER_GROUP
 from base.models.proposal_learning_unit import ProposalLearningUnit
 from base.tests.factories.academic_year import AcademicYearFactory, create_current_academic_year
-from base.tests.factories.business.learning_units import GenerateContainer
+from base.tests.factories.business.learning_units import GenerateContainer, GenerateAcademicYear
 from base.tests.factories.entity_container_year import EntityContainerYearFactory
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
+from base.tests.factories.learning_unit import LearningUnitFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory, LearningUnitYearFakerFactory
-from base.tests.factories.person import PersonFactory
+from base.tests.factories.person import PersonFactory, FacultyManagerFactory, CentralManagerFactory
 from base.tests.factories.person_entity import PersonEntityFactory
 from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
 from base.tests.factories.user import UserFactory
-from base.tests.factories.learning_unit import LearningUnitFactory
 
 TYPES_PROPOSAL_NEEDED_TO_EDIT = (learning_container_year_types.COURSE,
                                  learning_container_year_types.DISSERTATION,
@@ -437,3 +437,33 @@ class TestIsEligibleToConsolidateLearningUnitProposal(TestCase):
                 PersonEntityFactory(person=self.person_with_right_to_consolidate,
                                     entity=entity_container.entity)
                 self.assertTrue(is_eligible_to_consolidate_proposal(proposal, self.person_with_right_to_consolidate))
+
+
+class TestIsAcademicYearInRangeToCreatePartim(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.current_acy = create_current_academic_year()
+        cls.academic_years = GenerateAcademicYear(
+            cls.current_acy.year - LEARNING_UNIT_CREATION_SPAN_YEARS,
+            cls.current_acy.year + LEARNING_UNIT_CREATION_SPAN_YEARS
+        ).academic_years
+        cls.academic_years[LEARNING_UNIT_CREATION_SPAN_YEARS] = cls.current_acy
+        cls.learning_unit_years = [LearningUnitYearFactory(academic_year=acy) for acy in cls.academic_years]
+
+        cls.faculty_manager = FacultyManagerFactory()
+        cls.central_manager = CentralManagerFactory()
+
+    def test_for_faculty_manager(self):
+        self._test_can_create_partim_based_on_person(self.faculty_manager, MAX_ACADEMIC_YEAR_FACULTY)
+
+    def test_for_central_manager(self):
+        self._test_can_create_partim_based_on_person(self.central_manager, MAX_ACADEMIC_YEAR_CENTRAL)
+
+    def _test_can_create_partim_based_on_person(self, person, max_range):
+        for luy in self.learning_unit_years:
+            with self.subTest(academic_year=luy.academic_year):
+                if self.current_acy.year <= luy.academic_year.year <= self.current_acy.year + max_range:
+                    self.assertTrue(is_academic_year_in_range_to_create_partim(luy, person))
+                else:
+                    self.assertFalse(is_academic_year_in_range_to_create_partim(luy, person))
+
