@@ -27,16 +27,10 @@
 import collections
 import json
 import pathlib
-from functools import partial
+import sys
 from itertools import chain
 
-import sys
 from django.conf import settings
-from lxml.builder import E
-
-import prettyprinter
-from lxml import etree
-from lxml import html
 
 from base.models.academic_year import AcademicYear
 from base.models.education_group_year import EducationGroupYear
@@ -44,173 +38,6 @@ from base.tests.factories.education_group_year import EducationGroupYearFactory
 from cms.models.text_label import TextLabel
 from cms.models.translated_text import TranslatedText
 from cms.models.translated_text_label import TranslatedTextLabel
-
-
-def new_div(html_content, class_name):
-    """
-    Crée un div avec le nom d'une classe et le contenu HTML donné
-    """
-    node = etree.Element('div', **{'class': class_name})
-    node.append(html.fromstring(html_content))
-    return etree.tostring(node, pretty_print=True, encoding=str)
-
-
-def append_if_content(content, info, key, class_name=None):
-    """
-    Si la clé se trouve dans le dictionnaire et que la valeur de celle-ci est utilisable
-    alors on crée un nouveau contenu
-    """
-    class_name = class_name or key
-
-    part = info.get(key)
-    if part:
-        content.append(new_div(part, class_name))
-
-
-def generate_html_two_parts(info):
-    """
-    Génere le HTML pour les éléments qui sont en deux parties
-    <div class="reddot_part1">
-    </div>
-    <div class="reddot_part2">
-    </div>
-    """
-    return generate_html_for_multiparts(
-        info,
-        [('part1', 'reddot_part1'),
-         ('part2', 'reddot_part2')]
-    )
-
-
-def generate_html_for_multiparts(info, parts):
-    content = []
-    for part_name, class_name in parts:
-        append_if_content(content, info, part_name, class_name)
-    return ''.join(content)
-
-
-def generate_html_from_comp_acquis(competences):
-    """
-    Génere le code HTML pour les Compétences et Acquis
-    <div class="reddot_body">
-    </div>
-    Si il y a des composants, alors on cree des tags supplementaires.
-    <div class="reddot_intro">
-    </div>
-    <div class="reddot_teaser">
-    </div>
-    <div class="reddot_collapse">
-    </div>
-
-    <div class="reddot_teaser">
-    </div>
-    <div class="reddot_collapse">
-    </div>
-
-    et eventuellement un div avec un extra
-    <div class="reddot_extra">
-    </div>
-    """
-    content = []
-
-    append_if_content(content, competences, 'body', 'reddot_body')
-
-    # competences
-    components = competences.get('components')
-    if components:
-        append_if_content(content, components, 'intro', 'reddot_intro')
-
-        for item in components['items']:
-            append_if_content(content, item, 'intro', 'reddot_teaser')
-            append_if_content(content, item, 'body', 'reddot_collapse')
-
-    append_if_content(content, competences, 'extra', 'reddot_extra')
-
-    return ''.join(content)
-
-
-def CLASS(*args):
-    return {'class': ' '.join(args)}
-
-
-def generate_html_for_contacts(contacts):
-    """Generate l'HTML pour la page des contacts"""
-    calls = (
-        render_entity_code,
-        render_responsible,
-        partial(render_members, section='other_responsibles', class_name='responsibles'),
-        partial(render_members, section='jury'),
-        partial(render_members, section='contact'),
-    )
-
-    node_rendering = (call(contacts) for call in calls)
-    nodes = (node for node in node_rendering if node is not None)
-    tostring = partial(etree.tostring, pretty_print=True, encoding=str)
-    return ''.join(map(tostring, nodes))
-
-
-def render_responsible(contacts):
-    """
-    Genere un HTML de la forme suivante
-    <div class="contacts_responsible">
-        <ul>
-            <li><a href="{{ responsible.url }}">{{ responsible.name }} </a></li>
-        </ul>
-    </div>
-    """
-    responsible = contacts.get('responsible')
-    if responsible:
-        title = responsible.get('title', '')
-        mbox = responsible['metadata']['foaf:mbox'].replace('mailto:', '')
-        contact = "#contact:{0}:{1}#".format(title, mbox)
-        return E.div(
-            E.ul(E.li(contact)),
-            CLASS('contacts_responsible')
-        )
-    return None
-
-
-def render_entity_code(contacts):
-    entity_code = contacts.get('entity_code')
-    if entity_code:
-        return E.div(
-            entity_code,
-            CLASS('contacts_entity_code')
-        )
-    return None
-
-
-def render_members(contacts, section, class_name=None):
-    """
-    Genere un HTML de la forme suivante
-
-    <div class="{{ class_name }}">
-        <ul>
-            {% for member in members %}
-            <li>{{ member.title }} <a href="{{ member.url }}">{{ member.name }}</a></li>
-            {% endfor %}
-        </ul>
-    </div>
-    """
-    members = contacts.get(section)
-
-    class_name = section if class_name is None else class_name
-
-    def apply(member):
-        title = member.get('title', '')
-        mbox = member['metadata']['foaf:mbox'].replace('mailto:', '')
-        contact = "#contact:{0}:{1}#".format(title, mbox)
-        return E.li(contact)
-
-    if members:
-        return E.div(
-            E.ul(
-                *tuple(map(apply, members))
-            ),
-            CLASS('contacts_{class_name}'.format(class_name=class_name))
-        )
-
-    return None
 
 
 def get_text_label(entity, label):
@@ -244,27 +71,8 @@ def debugger(func):
     return wrapper
 
 
-def convert_to_html(item, label, value):
-    if item['type'] != 'offer':
-        return value
-
-    MAPPING = {
-        'comp_acquis': generate_html_from_comp_acquis,
-        'caap': generate_html_two_parts,
-        'prerequis': generate_html_two_parts,
-        'contacts': generate_html_for_contacts,
-    }
-
-    if label in MAPPING:
-        value = MAPPING[label](value)
-
-    return value.strip()
-
-
 def import_offer_and_items(item, education_group_year, mapping_label_text_label, context):
     for label, value in item['info'].items():
-        value = convert_to_html(item, label, value)
-
         if not value:
             continue
 
