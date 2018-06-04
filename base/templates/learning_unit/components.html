@@ -36,6 +36,9 @@
 
     {% include "learning_unit/blocks/header.html" %}
 <div class="panel panel-default">
+    <div class="panel-heading text-right">
+        {% include "learning_unit/blocks/manage_volumes_button.html" %}
+    </div>
     <div class="panel-body" id="tabs">
         {% include "learning_unit/blocks/tabs.html" %}
         <div class="tab-content" id="tab_content">
@@ -132,14 +135,11 @@
                     </tbody>
                     {% endfor %}
                 </table>
-                <a {% if can_manage_volume %}href="{% url 'learning_unit_volumes_management' learning_unit_year.id %}" {% endif %}
-                   id="lnk_learning_unit_create" class="btn btn-default pull-right" role="button"
-                   title="{% trans 'learning_unit_create' %}"
-                   {% if not can_manage_volume %} disabled {% endif %}>
-                    Gérer les volumes
-                </a>
             </div>
         </div>
+    </div>
+    <div class="panel-footer text-right">
+        {% include "learning_unit/blocks/manage_volumes_button.html" %}
     </div>
 </div>
 <div class="modal fade" id="component_edit" role="dialog" data-backdrop="static"></div>

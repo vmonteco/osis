@@ -32,7 +32,8 @@ from django.utils.translation import ugettext_lazy as _
 
 from base.forms.learning_unit.learning_unit_create import LearningUnitModelForm, LearningUnitYearModelForm, \
     LearningContainerModelForm, LearningContainerYearModelForm, EntityContainerBaseForm
-from base.models import learning_unit_year
+from base.models import learning_unit_year, academic_year
+from base.models.academic_year import MAX_ACADEMIC_YEAR_FACULTY, MAX_ACADEMIC_YEAR_CENTRAL
 from base.models.campus import Campus
 from base.models.enums import learning_container_year_types
 from base.models.enums import learning_unit_year_subtypes
@@ -40,10 +41,10 @@ from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_Y
 from reference.models import language
 
 FULL_READ_ONLY_FIELDS = {"acronym", "academic_year", "container_type"}
-FULL_PROPOSAL_READ_ONLY_FIELDS = {"academic_year", "container_type"}
+FULL_PROPOSAL_READ_ONLY_FIELDS = {"academic_year", "container_type", "professional_integration"}
 
 FACULTY_OPEN_FIELDS = {'quadrimester', 'session', 'team', "faculty_remark", "other_remark", 'common_title_english',
-                       'specific_title_english', "status"}
+                       'specific_title_english', "status", "professional_integration"}
 
 
 class LearningUnitBaseForm(metaclass=ABCMeta):
@@ -198,9 +199,20 @@ class FullForm(LearningUnitBaseForm):
         super().__init__(instances_data, *args, **kwargs)
         if self.instance:
             self._disable_fields()
+        else:
+            self._restrict_academic_years_choice()
 
         self.fields['internship_subtype'].disabled =\
             not self.instance or self.instances_data["container_type"] != learning_container_year_types.INTERNSHIP
+
+    def _restrict_academic_years_choice(self):
+        current_academic_year = academic_year.current_academic_year()
+        end_year_range = MAX_ACADEMIC_YEAR_FACULTY if self.person.is_faculty_manager() else MAX_ACADEMIC_YEAR_CENTRAL
+
+        self.fields["academic_year"].queryset = academic_year.find_academic_years(
+            start_year=current_academic_year.year,
+            end_year=current_academic_year.year + end_year_range
+        )
 
     def _disable_fields(self):
         if self.person.is_faculty_manager():
