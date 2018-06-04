@@ -2960,3 +2960,10 @@ msgstr "Recherche - UE externe"
 
 msgid "formerly"
 msgstr "Anciennement"
+
+msgid "title_1_in_english"
+msgstr "Intitulé commun aux partims (partie 1) en anglais"
+
+msgid "title_2_in_english"
+msgstr "Intitulé propre au partim (partie 2) en anglais"
+
