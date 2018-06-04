@@ -478,7 +478,6 @@ class TestLearningUnitVolumesManagement(TestCase):
 
         response = learning_unit_volumes_management(request, self.learning_unit_year.id)
         prefix = self.learning_unit_year_partim.acronym
-        self.maxDiff = None
         self.assertJSONEqual(response.content.decode("utf-8"),
                              {"errors":
                                   {
