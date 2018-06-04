@@ -145,13 +145,6 @@ class TestVolumeEditionForm(TestCase):
             actual_entity_fields = form.get_entity_fields()
             self.assertEqual(len(actual_entity_fields), 3)
 
-    def test_compare(self):
-        self.assertFalse(VolumeEditionForm._compare(0, 0, False))
-        self.assertTrue(VolumeEditionForm._compare(12, 14, False))
-        self.assertTrue(VolumeEditionForm._compare(12, 12, True))
-        self.assertFalse(VolumeEditionForm._compare(12, 12, False))
-
-
     def test_warning_volumes(self):
         learning_component_year_0 = LearningComponentYear.objects.filter(
             learningunitcomponent__learning_unit_year=self.first_learning_unit_year
@@ -276,6 +269,10 @@ class TestVolumeEditionFormsetContainer(TestCase):
 
         data_forms = get_valid_formset_data(self.learning_unit_year_full.acronym)
         data_forms.update(get_valid_formset_data(self.learning_unit_year_partim.acronym))
+        data_forms.update({'LDROI1200A-0-volume_total': 3})
+        data_forms.update({'LDROI1200A-0-volume_q2': 3})
+        data_forms.update({'LDROI1200A-0-volume_requirement_entity': 2})
+        data_forms.update({'LDROI1200A-0-volume_total_requirement_entities': 3})
 
         volume_edition_formset_container = VolumeEditionFormsetContainer(
             request_factory.post(None, data=data_forms),
@@ -283,9 +280,23 @@ class TestVolumeEditionFormsetContainer(TestCase):
 
         self.assertFalse(volume_edition_formset_container.is_valid())
         self.assertEqual(
-            volume_edition_formset_container.formsets[self.learning_unit_year_partim].errors[0],
-            {'volume_total': [_('vol_tot_full_must_be_greater_than_partim')]}
+            volume_edition_formset_container.formsets[self.learning_unit_year_partim].errors[0].get('volume_total'),
+            [_('vol_tot_full_must_be_greater_or_equal_than_partim')]
         )
+
+
+    def test_post_volume_edition_formset_container__vol_tot_full_can_be_equal_to_partim(self):
+        request_factory = RequestFactory()
+
+        data_forms = get_valid_formset_data(self.learning_unit_year_full.acronym)
+        data_forms.update(get_valid_formset_data(self.learning_unit_year_partim.acronym))
+
+        volume_edition_formset_container = VolumeEditionFormsetContainer(
+            request_factory.post(None, data=data_forms),
+            self.learning_units_with_context, self.central_manager)
+
+        self.assertTrue(volume_edition_formset_container.is_valid())
+
 
     def test_get_volume_edition_formset_container_as_faculty_manager(self):
         request_factory = RequestFactory()
@@ -329,24 +340,6 @@ def get_valid_formset_data(prefix, is_partim=False):
 
     for i in range(2):
         form_data.update({'{}-{}'.format(i, k): v for k, v in data.items()})
-
-    form_data.update(
-        {'INITIAL_FORMS': '0',
-         'MAX_NUM_FORMS': '1000',
-         'MIN_NUM_FORMS': '0',
-         'TOTAL_FORMS': '2'}
-    )
-    return {'{}-{}'.format(prefix, k): v for k, v in form_data.items()}
-
-
-def _get_wrong_formset_data(prefix, is_partim=False):
-    form_data = {}
-    data = _get_valid_data() if not is_partim else _get_valid_partim_data()
-
-    for i in range(2):
-        form_data.update({'{}-{}'.format(i, k): v for k, v in data.items()})
-        if is_partim:
-            form_data['{}-{}'.format(i, 'volume_q1')] = 6
 
     form_data.update(
         {'INITIAL_FORMS': '0',
