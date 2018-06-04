@@ -138,9 +138,11 @@
                                         {% dl_tooltip differences 'session' label_text="session_title"  value=learning_unit_year.session %}
                                     </div>
                                 </div>
-                                {% if components %}
-                                    {% include "learning_unit/components_identification.html" %}
-                                {% endif %}
+                                {% block panel_components %}
+                                    {% if components %}
+                                        {% include "learning_unit/components_identification.html" %}
+                                    {% endif %}
+                                {% endblock panel_components %}
                             </div>
                         </div>
                         <div class="panel panel-default">
@@ -183,12 +185,6 @@
                             </div>
                         {% endif %}
                         {% endblock panel_remarks %}
-
-                        {% block panel_components %}
-                            {% if components %}
-                                {% include "learning_unit/components_identification.html" %}
-                            {% endif %}
-                        {% endblock panel_components %}
 
                         {% block panel_external %}
                         {% endblock panel_external %}
