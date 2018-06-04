@@ -142,7 +142,7 @@ class VolumeEditionForm(forms.Form):
     def validate_parent_partim_component(self, parent_data):
         self._parent_data = parent_data
 
-        self._compare_parent_partim('volume_total', 'vol_tot_full_must_be_greater_than_partim', lower_or_equal=True)
+        self._compare_parent_partim('volume_total', 'vol_tot_full_must_be_greater_than_partim')
         self._compare_parent_partim('volume_q1', 'vol_q1_full_must_be_greater_or_equal_to_partim')
         self._compare_parent_partim('volume_q2', 'vol_q2_full_must_be_greater_or_equal_to_partim')
         self._compare_parent_partim('planned_classes', 'planned_classes_full_must_be_greater_or_equal_to_partim')
@@ -158,22 +158,11 @@ class VolumeEditionForm(forms.Form):
         if key in self._parent_data and key in self.cleaned_data:
             self._compare_parent_partim(key, 'entity_requirement_full_must_be_greater_or_equal_to_partim')
 
-    def _compare_parent_partim(self, key, msg, lower_or_equal=False):
+    def _compare_parent_partim(self, key, msg):
         partim_data = self.cleaned_data or self.initial
-        condition = self._compare(self._parent_data[key],  partim_data[key], lower_or_equal)
-
-        if condition:
+        if self._parent_data[key] < partim_data[key]:
             self.add_error(key, _(msg))
 
-    @staticmethod
-    def _compare(value_parent, value_partim, lower_or_equal):
-        if value_parent == 0 and value_partim == 0:
-            condition = False
-        elif lower_or_equal:
-            condition = value_parent <= value_partim
-        else:
-            condition = value_parent < value_partim
-        return condition
 
     def save(self, postponement):
         if not self.changed_data:
