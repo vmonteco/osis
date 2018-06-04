@@ -193,6 +193,10 @@ class LearningUnitYear(SerializableModel):
         return _('to_complete') if self.learning_container_year.container_type == INTERNSHIP and\
                                    not self.internship_subtype else self.internship_subtype
 
+    @property
+    def professional_integration_verbose(self):
+        return _("yes") if self.professional_integration else _("no")
+
     def is_in_proposal(self):
         return ProposalLearningUnit.objects.filter(learning_unit_year=self).exists()
 

@@ -133,7 +133,8 @@ class LearningUnitYearModelForm(forms.ModelForm):
     class Meta:
         model = LearningUnitYear
         fields = ('academic_year', 'acronym', 'specific_title', 'specific_title_english', 'credits',
-                  'session', 'quadrimester', 'status', 'internship_subtype', 'attribution_procedure', )
+                  'session', 'quadrimester', 'status', 'internship_subtype', 'attribution_procedure',
+                  'professional_integration')
         field_classes = {'acronym': AcronymField}
         error_messages = {
             'credits': {

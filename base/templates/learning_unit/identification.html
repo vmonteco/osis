@@ -117,9 +117,13 @@
                                     <div class="col-md-3">
                                         {% dl_tooltip differences 'quadrimestre' label_text="quadrimester" value=learning_unit_year.quadrimester %}
                                     </div>
-                                    <div class="col-md-9">
+                                    <div class="col-md-3">
                                         {% dl_tooltip differences 'session' label_text="session_title"  value=learning_unit_year.session %}
                                     </div>
+                                    <div class="col-md-3">
+                                        {% dl_tooltip differences 'professional_integration' label_text="professional_integration" value=learning_unit_year.professional_integration_verbose.title %}
+                                    </div>
+
                                     {% endblock content_row3 %}
 
                                 </div>
