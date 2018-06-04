@@ -130,7 +130,8 @@ class LearningUnitYearModelForm(forms.ModelForm):
     class Meta:
         model = LearningUnitYear
         fields = ('academic_year', 'acronym', 'specific_title', 'specific_title_english', 'credits',
-                  'session', 'quadrimester', 'status', 'internship_subtype', 'attribution_procedure', )
+                  'session', 'quadrimester', 'status', 'internship_subtype', 'attribution_procedure',
+                  'professional_integration')
         field_classes = {'acronym': AcronymField}
         error_messages = {
             'credits': {
@@ -150,8 +151,12 @@ class LearningUnitYearModelForm(forms.ModelForm):
         self.instance.learning_unit = kwargs.pop('learning_unit')
         entity_container_years = kwargs.pop('entity_container_years')
         instance = super().save(**kwargs)
-        self._save_learning_components(entity_container_years, instance)
+        for learn_unit_year in self._find_learning_units_year_family():
+            self._save_learning_components(entity_container_years, learn_unit_year)
         return instance
+
+    def _find_learning_units_year_family(self):
+        return LearningUnitYear.objects.filter(learning_container_year=self.instance.learning_container_year)
 
     def _save_learning_components(self, entity_container_years, learning_unit_year):
         components_type = _get_default_components_type(self.instance.learning_container_year.container_type)

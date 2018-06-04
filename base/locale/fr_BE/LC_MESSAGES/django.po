@@ -2859,14 +2859,14 @@ msgstr "Ajouter un autre"
 msgid "faculty_borrowing"
 msgstr "Faculté emprunteuse"
 
-msgid "inherited"
-msgstr "Hérité"
+msgid "The value of this attribute is inherited from the parent UE"
+msgstr "La valeur de cet attribut est héritée de l'UE parent"
 
 msgid "to_complete"
 msgstr "A compléter"
 
-msgid "annualized"
-msgstr "Annualisé"
+msgid "The value of this attribute is not annualized"
+msgstr "La valeur de cet attribut n'est pas annualisée"
 
 msgid "start_year"
 msgstr "Début"
@@ -2967,3 +2967,5 @@ msgstr "Intitulé commun aux partims (partie 1) en anglais"
 msgid "title_2_in_english"
 msgstr "Intitulé propre au partim (partie 2) en anglais"
 
+msgid "Manage volumes"
+msgstr "Gérer les volumes"

@@ -2856,14 +2856,14 @@ msgstr ""
 msgid "faculty_borrowing"
 msgstr "Faculty borrowing"
 
-msgid "inherited"
-msgstr "Inherited"
+msgid "The value of this attribute is inherited from the parent UE"
+msgstr ""
 
 msgid "to_complete"
 msgstr "To complete"
 
-msgid "annualized"
-msgstr "Annualized"
+msgid "The value of this attribute is not annualized"
+msgstr ""
 
 msgid "start_year"
 msgstr "Starting year"
@@ -2967,4 +2967,5 @@ msgstr "Title common title with partims (part 1) in English"
 msgid "title_2_in_english"
 msgstr "Title specific with partim (part 2) in English"
 
-
+msgid "Manage volumes"
+msgstr ""

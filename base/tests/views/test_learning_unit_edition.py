@@ -291,7 +291,8 @@ class TestEditLearningUnit(TestCase):
                 "session": self.learning_unit_year.session,
                 "quadrimester": self.learning_unit_year.quadrimester,
                 "attribution_procedure": self.learning_unit_year.attribution_procedure,
-                "internship_subtype": self.learning_unit_year.internship_subtype
+                "internship_subtype": self.learning_unit_year.internship_subtype,
+                "professional_integration": self.learning_unit_year.professional_integration
             },
             'learning_unit_form': {
                 "faculty_remark": self.learning_unit_year.learning_unit.faculty_remark,
