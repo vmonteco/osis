@@ -69,12 +69,18 @@ class LearningUnitYearAdmin(SerializableModelAdmin):
     search_fields = ['acronym', 'structure__acronym', 'external_id']
 
 
+class LearningUnitYearManager(models.Manager):
+    def get_queryset(self):
+        # TODO For the moment, the learning_unit_year without container must be hide
+        return super().get_queryset().filter(learning_container_year__isnull=False)
+
+
 class LearningUnitYear(SerializableModel):
     external_id = models.CharField(max_length=100, blank=True, null=True)
     academic_year = models.ForeignKey(AcademicYear,  verbose_name=_('academic_year'),
                                       validators=[academic_year_validator])
     learning_unit = models.ForeignKey('LearningUnit')
-    learning_container_year = models.ForeignKey('LearningContainerYear', blank=True, null=True)
+    learning_container_year = models.ForeignKey('LearningContainerYear', null=True)
     changed = models.DateTimeField(null=True, auto_now=True)
     acronym = models.CharField(max_length=15, db_index=True, verbose_name=_('code'),
                                validators=[RegexValidator(LEARNING_UNIT_ACRONYM_REGEX_ALL)])
@@ -103,6 +109,8 @@ class LearningUnitYear(SerializableModel):
     mobility_modality = models.CharField(max_length=250, verbose_name=_('Modalities specific to IN and OUT mobility'),
                                          blank=True, null=True)
     professional_integration = models.BooleanField(default=False, verbose_name=_('professional_integration'))
+
+    objects = LearningUnitYearManager()
     _warnings = None
 
     class Meta:
