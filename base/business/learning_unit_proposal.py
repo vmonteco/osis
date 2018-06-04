@@ -52,9 +52,10 @@ VALUES_WHICH_NEED_TRANSLATION = ["periodicity", "container_type", "internship_su
 LABEL_ACTIVE = _('active')
 LABEL_INACTIVE = _('inactive')
 INITIAL_DATA_FIELDS = {'learning_container_year': ["id", "acronym", "common_title", "container_type",
-                                                   "campus", "language", "in_charge"],
+                                                   "campus",  "in_charge"],
                        'learning_unit': ["id", "periodicity", "end_year"],
-                       'learning_unit_year': ["id", "acronym", "specific_title", "internship_subtype", "credits"]
+                       'learning_unit_year': ["id", "acronym", "specific_title", "internship_subtype", "credits",
+                                              "language"]
                        }
 
 

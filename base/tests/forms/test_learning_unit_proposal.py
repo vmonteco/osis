@@ -142,6 +142,7 @@ class TestSave(TestCase):
         self.assertEqual(learning_unit_year.quadrimester, self.form_data['quadrimester'])
         self.assertEqual(learning_unit_year.specific_title, self.form_data["specific_title"])
         self.assertEqual(learning_unit_year.specific_title_english, self.form_data["specific_title_english"])
+        self.assertEqual(learning_unit_year.language, self.language)
 
     def _assert_acronym_has_changed_in_proposal(self, learning_unit_year):
         self.assertEqual(learning_unit_year.acronym,
@@ -165,7 +166,6 @@ class TestSave(TestCase):
         self.assertEqual(learning_unit_year.acronym, self.form_data['acronym_0'] + self.form_data['acronym_1'])
         self.assertEqual(learning_container_year.common_title, self.form_data['common_title'])
         self.assertEqual(learning_container_year.common_title_english, self.form_data['common_title_english'])
-        self.assertEqual(learning_container_year.language, self.language)
         self.assertEqual(learning_container_year.campus, self.campus)
 
     def test_requirement_entity(self):
@@ -234,7 +234,6 @@ class TestSave(TestCase):
                 "common_title": self.learning_unit_year.learning_container_year.common_title,
                 "container_type": self.learning_unit_year.learning_container_year.container_type,
                 "campus": self.learning_unit_year.learning_container_year.campus.id,
-                "language": self.learning_unit_year.learning_container_year.language.pk,
                 "in_charge": self.learning_unit_year.learning_container_year.in_charge
             },
             "learning_unit_year": {
@@ -242,6 +241,7 @@ class TestSave(TestCase):
                 "acronym": self.learning_unit_year.acronym,
                 "specific_title": self.learning_unit_year.specific_title,
                 "internship_subtype": self.learning_unit_year.internship_subtype,
+                "language": self.learning_unit_year.language.pk,
                 "credits": self.learning_unit_year.credits
             },
             "learning_unit": {
@@ -266,7 +266,7 @@ class TestSave(TestCase):
         self.assertEqual(a_proposal_learning_unt.type, PROPOSAL_TYPE)
         self.assertEqual(a_proposal_learning_unt.state, PROPOSAL_STATE)
         self.assertEqual(a_proposal_learning_unt.author, self.person)
-
+        self.maxDiff = None
         self.assertDictEqual(a_proposal_learning_unt.initial_data, initial_data_expected)
 
     def test_when_setting_additional_entity_to_none(self):
