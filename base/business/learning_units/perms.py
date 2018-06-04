@@ -82,12 +82,41 @@ def is_eligible_for_cancel_of_proposal(proposal, person):
     return is_eligible(proposal, person, functions_to_check)
 
 
+def is_eligible_to_edit_proposal(proposal, person):
+    if not proposal:
+        return False
+
+    functions_to_check = (
+        _is_attached_to_initial_or_current_requirement_entity,
+        _is_person_eligible_to_edit_proposal_based_on_state,
+        _has_person_the_right_edit_proposal
+    )
+    return is_eligible(proposal, person, functions_to_check)
+
+
+def is_eligible_to_consolidate_proposal(proposal, person):
+    functions_to_check = (
+        _has_person_the_right_to_consolidate,
+        _is_proposal_in_state_to_be_consolidated,
+        _is_attached_to_initial_or_current_requirement_entity
+    )
+    return is_eligible(proposal, person, functions_to_check)
+
+
 def _is_person_in_accordance_with_proposal_state(proposal, person):
     return (not person.is_faculty_manager()) or proposal.state == ProposalState.FACULTY.name
 
 
 def _has_person_the_right_to_make_proposal(proposal, person):
     return person.user.has_perm('base.can_propose_learningunit')
+
+
+def _has_person_the_right_edit_proposal(proposal, person):
+    return person.user.has_perm('base.can_edit_learning_unit_proposal')
+
+
+def _has_person_the_right_to_consolidate(proposal, person):
+    return person.user.has_perm('base.can_consolidate_learningunit_proposal')
 
 
 def is_learning_unit_year_full(learning_unit_year, person):
@@ -122,23 +151,7 @@ def _negate(f):
     return negate_method
 
 
-def is_eligible_to_edit_proposal(proposal, person):
-    if not proposal:
-        return False
-    if not person.is_linked_to_entity_in_charge_of_learning_unit_year(proposal.learning_unit_year):
-        return False
-    if person.is_faculty_manager() and not _check_eligible_to_edit_proposal_as_faculty_manager(proposal, person):
-        return False
-    return person.user.has_perm('base.can_edit_learning_unit_proposal')
-
-
-def is_eligible_to_consolidate_proposal(proposal, person):
-    return person.user.has_perm('base.can_consolidate_learningunit_proposal') and \
-           is_proposal_in_state_to_be_consolidated(proposal) and \
-           _is_attached_to_initial_or_current_requirement_entity(proposal, person)
-
-
-def is_proposal_in_state_to_be_consolidated(proposal):
+def _is_proposal_in_state_to_be_consolidated(proposal, person):
     return proposal.state in PROPOSAL_CONSOLIDATION_ELIGIBLE_STATES
 
 
@@ -193,7 +206,9 @@ def _is_attached_to_initial_entity(learning_unit_proposal, a_person):
     return is_attached_entities(a_person, Entity.objects.filter(pk=initial_entity_requirement_id))
 
 
-def _check_eligible_to_edit_proposal_as_faculty_manager(proposal, person):
+def _is_person_eligible_to_edit_proposal_based_on_state(proposal, person):
+    if not person.is_faculty_manager():
+        return True
     if proposal.state != ProposalState.FACULTY.name:
         return False
     if (proposal.type == ProposalType.MODIFICATION.name and
