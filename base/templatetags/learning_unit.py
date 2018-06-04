@@ -78,6 +78,7 @@ def dl_tooltip(differences, key, **kwargs):
     value = kwargs.get('value', '')
     inherited = kwargs.get('inherited', '')
     not_annualized = kwargs.get('not_annualized', '')
+    style = ""
 
     if not label_text:
         label_text = _(str(key.lower()))
@@ -91,18 +92,16 @@ def dl_tooltip(differences, key, **kwargs):
         value = "<a href='{url}'>{value}</a>".format(value=_(str(value)), url=url)
 
     if inherited == "PARTIM":
-        label_text = '<label style="color:grey" title="{inherited_title}">{label_text}</label>'\
-            .format(inherited_title=_("The value of this attribute is inherited from the parent UE"),
-                    label_text=label_text)
-        value = '<p style="color:grey" title="{inherited_title}">{value}</p>'\
-            .format(inherited_title=_("The value of this attribute is inherited from the parent UE"),
-                    value=value)
+        style = "color:grey"
+        title = _("The value of this attribute is inherited from the parent UE")
 
     if not_annualized:
-        label_text = '<label style="font-style: italic" title="{not_annualized_title}">{label_text}</label>'\
-            .format(not_annualized_title=_("The value of this attribute is not annualized"), label_text=label_text)
-        value = '<p style="font-style: italic" title="{not_annualized_title}">{value}</p>'\
-            .format(not_annualized_title=_("The value of this attribute is not annualized"), value=value)
+        style = "font-style:italic"
+        title = _("The value of this attribute is not annualized")
+
+    label_text = '<label style="{style}" title="{inherited_title}">{label_text}</label>' \
+        .format(style=style, inherited_title=title, label_text=label_text)
+    value = '<p style="{style}" title="{title}">{value}</p>'.format(style=style, title=title, value=value)
 
     return mark_safe("<dl><dt {difference}>{label_text}</dt><dd {difference}>{value}</dd></dl>".format(
         difference=difference, label_text=label_text, value=_(str(value))))
