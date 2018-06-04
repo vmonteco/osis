@@ -53,7 +53,11 @@
                     {% for external_learning_unit_yr in learning_units %}
                         <tr data-id="{{external_learning_unit_yr.id}}" data-value="{{external_learning_unit_yr.code_local}}">
                             <td>{{ external_learning_unit_yr.learning_unit_year.academic_year.name }}</td>
-                            <td>{{ external_learning_unit_yr.external_acronym}}</td>
+                            <td><a href="{% url 'learning_unit' external_learning_unit_yr.learning_unit_year.id %}"
+                                   id="lnk_learning_unit_{{learning_unit.id}}">
+                                    {{ external_learning_unit_yr.external_acronym}}
+                                </a>
+                            </td>
                             <td>{{ external_learning_unit_yr.learning_unit_year.complete_title|default_if_none:'' }}</td>
                             <td>{{ external_learning_unit_yr.learning_unit_year.learning_container_year.campus.organization.name |default_if_none:''}}</td>
                             <td>{{ external_learning_unit_yr.external_credits |default_if_none:''}}</td>

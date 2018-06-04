@@ -29,8 +29,6 @@ from django.utils.translation import ugettext_lazy as _
 
 from base.forms.utils.acronym_field import AcronymField, PartimAcronymField, split_acronym
 from base.forms.utils.choice_field import add_blank
-from base.models import academic_year
-from base.models.academic_year import MAX_ACADEMIC_YEAR_FACULTY, MAX_ACADEMIC_YEAR_CENTRAL
 from base.models.campus import find_main_campuses
 from base.models.entity_component_year import EntityComponentYear
 from base.models.enums import learning_unit_year_subtypes
@@ -111,13 +109,12 @@ class LearningUnitYearModelForm(forms.ModelForm):
 
         if kwargs.get('instance'):
             self.fields['academic_year'].disabled = True
-        else:
-            self._restrict_academic_years_choice()
 
     class Meta:
         model = LearningUnitYear
         fields = ('academic_year', 'acronym', 'specific_title', 'specific_title_english', 'credits',
-                  'session', 'quadrimester', 'status', 'internship_subtype', 'attribution_procedure', )
+                  'session', 'quadrimester', 'status', 'internship_subtype', 'attribution_procedure',
+                  'professional_integration')
         field_classes = {'acronym': AcronymField}
         error_messages = {
             'credits': {
@@ -128,15 +125,6 @@ class LearningUnitYearModelForm(forms.ModelForm):
                     max_value=MAXIMUM_CREDITS)
             }
         }
-
-    def _restrict_academic_years_choice(self):
-        current_academic_year = academic_year.current_academic_year()
-        end_year_range = MAX_ACADEMIC_YEAR_FACULTY if self.person.is_faculty_manager() else MAX_ACADEMIC_YEAR_CENTRAL
-
-        self.fields["academic_year"].queryset = academic_year.find_academic_years(
-            start_year=current_academic_year.year,
-            end_year=current_academic_year.year + end_year_range
-        )
 
     def post_clean(self, container_type):
         if container_type != INTERNSHIP and self.instance.internship_subtype:
@@ -152,8 +140,12 @@ class LearningUnitYearModelForm(forms.ModelForm):
         self.instance.learning_unit = kwargs.pop('learning_unit')
         entity_container_years = kwargs.pop('entity_container_years')
         instance = super().save(**kwargs)
-        self._save_learning_components(entity_container_years, instance)
+        for learn_unit_year in self._find_learning_units_year_family():
+            self._save_learning_components(entity_container_years, learn_unit_year)
         return instance
+
+    def _find_learning_units_year_family(self):
+        return LearningUnitYear.objects.filter(learning_container_year=self.instance.learning_container_year)
 
     def _save_learning_components(self, entity_container_years, learning_unit_year):
         components_type = _get_default_components_type(self.instance.learning_container_year.container_type)

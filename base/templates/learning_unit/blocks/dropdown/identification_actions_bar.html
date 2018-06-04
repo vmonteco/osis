@@ -79,7 +79,7 @@
                     <a  {% if can_delete %} href="#" data-toggle="modal" data-target="#modalDeleteLuy" {% endif %}>{% trans 'Delete all the learning unit' %}</a>
                 </li>
             {% endif %}
-            {% if "base.can_create_learningunit" in perms and learning_unit_year.subtype == 'FULL' %}
+            {% if "base.can_create_learningunit" in perms and can_create_partim %}
                 <li class="divider"></li>
                 <li {% if not is_person_linked_to_entity %}class="disabled"{% endif %}>
                     <a {% if is_person_linked_to_entity %} href="{% url 'learning_unit_create_partim' learning_unit_year_id=learning_unit_year.id %}" {% endif %}>{% trans 'new_partim' %}</a>

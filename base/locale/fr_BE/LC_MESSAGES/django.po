@@ -1881,8 +1881,8 @@ msgstr "Le volume total de charge n'est pas égal à la somme des volumes de cha
 msgid "vol_tot_req_entities_not_equal_to_vol_tot_mult_cp"
 msgstr "Vol.global = Vol.tot * C.P"
 
-msgid "vol_tot_full_must_be_greater_than_partim"
-msgstr "Vol.tot du cours principal > Vol.tot du partim"
+msgid "vol_tot_full_must_be_greater_or_equal_than_partim"
+msgstr "Vol.tot du cours principal >= Vol.tot du partim"
 
 msgid "vol_q1_full_must_be_greater_or_equal_to_partim"
 msgstr "Q1 du cours principal >= Q1 du partim"
@@ -1912,7 +1912,7 @@ msgid "other_remark"
 msgstr "Autre remarque"
 
 msgid "new_learning_unit"
-msgstr "Nouvelle unité d'enseignement"
+msgstr "Nouvelle UE"
 
 msgid "previous"
 msgstr "Précédent"
@@ -2128,10 +2128,10 @@ msgid "of_category"
 msgstr "Type d'organisation de formation"
 
 msgid "activity_search"
-msgstr "Recherche - Activité"
+msgstr "Unités d'enseignement"
 
 msgid "service_course_search"
-msgstr "Recherche - Cours de service"
+msgstr "Cours de service"
 
 msgid "TRAINING"
 msgstr "Formation"
@@ -2600,7 +2600,7 @@ msgid "folder_entity"
 msgstr "Sigle dossier"
 
 msgid "proposals_search"
-msgstr "Recherche - Propositions"
+msgstr "Propositions"
 
 msgid "folder_num"
 msgstr "N° dossier"
@@ -2851,7 +2851,7 @@ msgid "consolidation"
 msgstr ""
 
 msgid "borrowed_course_search"
-msgstr "Recherche - Cours empruntés"
+msgstr "Cours empruntés"
 
 msgid "add_another"
 msgstr "Ajouter un autre"
@@ -2859,14 +2859,14 @@ msgstr "Ajouter un autre"
 msgid "faculty_borrowing"
 msgstr "Faculté emprunteuse"
 
-msgid "inherited"
-msgstr "Hérité"
+msgid "The value of this attribute is inherited from the parent UE"
+msgstr "La valeur de cet attribut est héritée de l'UE parent"
 
 msgid "to_complete"
 msgstr "A compléter"
 
-msgid "annualized"
-msgstr "Annualisé"
+msgid "The value of this attribute is not annualized"
+msgstr "La valeur de cet attribut n'est pas annualisée"
 
 msgid "start_year"
 msgstr "Début"
@@ -2956,7 +2956,7 @@ msgid "professional_integration"
 msgstr "Intégration professionnelle"
 
 msgid "external_search"
-msgstr "Recherche - UE externe"
+msgstr "UE externes"
 
 msgid "formerly"
 msgstr "Anciennement"
@@ -2967,3 +2967,5 @@ msgstr "Intitulé commun aux partims (partie 1) en anglais"
 msgid "title_2_in_english"
 msgstr "Intitulé propre au partim (partie 2) en anglais"
 
+msgid "Manage volumes"
+msgstr "Gérer les volumes"
