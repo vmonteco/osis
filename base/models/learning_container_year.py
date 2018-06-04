@@ -49,9 +49,9 @@ class LearningContainerYear(SerializableModel):
     learning_container = models.ForeignKey('LearningContainer')
     container_type = models.CharField(max_length=20, verbose_name=_('type'),
                                       choices=learning_container_year_types.LEARNING_CONTAINER_YEAR_TYPES)
-    common_title = models.CharField(max_length=255, blank=True, null=True, verbose_name=_('common_official_title'))
+    common_title = models.CharField(max_length=255, blank=True, null=True, verbose_name=_('common_title'))
     common_title_english = models.CharField(max_length=250, blank=True, null=True,
-                                            verbose_name=_('common_official_english_title'))
+                                            verbose_name=_('common_english_title'))
     acronym = models.CharField(max_length=10)
     changed = models.DateTimeField(null=True, auto_now=True)
     language = models.ForeignKey('reference.Language', null=True, verbose_name=_('language'))
