@@ -2128,10 +2128,10 @@ msgid "of_category"
 msgstr "Type d'organisation de formation"
 
 msgid "activity_search"
-msgstr "Recherche - Activité"
+msgstr "Unités d'enseignement"
 
 msgid "service_course_search"
-msgstr "Recherche - Cours de service"
+msgstr "Cours de service"
 
 msgid "TRAINING"
 msgstr "Formation"
@@ -2600,7 +2600,7 @@ msgid "folder_entity"
 msgstr "Sigle dossier"
 
 msgid "proposals_search"
-msgstr "Recherche - Propositions"
+msgstr "Propositions"
 
 msgid "folder_num"
 msgstr "N° dossier"
@@ -2851,7 +2851,7 @@ msgid "consolidation"
 msgstr ""
 
 msgid "borrowed_course_search"
-msgstr "Recherche - Cours empruntés"
+msgstr "Cours empruntés"
 
 msgid "add_another"
 msgstr "Ajouter un autre"
@@ -2956,7 +2956,7 @@ msgid "professional_integration"
 msgstr "Intégration professionnelle"
 
 msgid "external_search"
-msgstr "Recherche - UE externe"
+msgstr "UE externes"
 
 msgid "formerly"
 msgstr "Anciennement"

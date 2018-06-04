@@ -2125,10 +2125,10 @@ msgid "of_category"
 msgstr "Education group type"
 
 msgid "activity_search"
-msgstr "Activity - Search"
+msgstr "Learning unit"
 
 msgid "service_course_search"
-msgstr "Service courses - Search"
+msgstr "Service courses"
 
 msgid "TRAINING"
 msgstr "Training"
@@ -2597,7 +2597,7 @@ msgid "folder_entity"
 msgstr "Folder entity"
 
 msgid "proposals_search"
-msgstr "Proposal - Search"
+msgstr "Proposals"
 
 msgid "folder_num"
 msgstr "Folder num."
@@ -2842,7 +2842,7 @@ msgid "consolidation"
 msgstr "consolidation"
 
 msgid "borrowed_course_search"
-msgstr "Borrowed courses - search"
+msgstr "Borrowed courses"
 
 msgid "add_another"
 msgstr "Add another"
@@ -2956,7 +2956,7 @@ msgid "professional_integration"
 msgstr "Professional integration"
 
 msgid "external_search"
-msgstr "External - Search"
+msgstr "Externals"
 
 msgid "formerly"
 msgstr "Formerly"
