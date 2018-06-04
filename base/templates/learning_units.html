@@ -60,14 +60,15 @@
                             <a href="{{ create_learning_unit_url }}" id="lnk_learning_unit_create">{% trans 'new_learning_unit' %}</a>
                         </li>
                     {% endif %}
+                    <li>
+                        <a href="{{ create_external_url }}" id="lnk_create_external_url">{% trans 'new_external_learning_unit' %}</a>
+                    </li>
                     {% if perms.base.can_edit_learning_unit_proposal %}
+                        <li role="separator" class="divider"></li>
                         <li>
                             <a href="{{ create_proposal_url }}" id="lnk_create_proposal_url">{% trans 'proposal_creation' %}</a>
                         </li>
                     {% endif %}
-                    <li>
-                        <a href="{{ create_external_url }}" id="lnk_create_external_url">{% trans 'new_external_learning_unit' %}</a>
-                    </li>
                 </ul>
             </div>
         </div>

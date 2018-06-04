@@ -1912,7 +1912,7 @@ msgid "other_remark"
 msgstr "Autre remarque"
 
 msgid "new_learning_unit"
-msgstr "Nouvelle unité d'enseignement"
+msgstr "Nouvelle UE"
 
 msgid "previous"
 msgstr "Précédent"
