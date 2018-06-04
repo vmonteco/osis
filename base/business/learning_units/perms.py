@@ -73,6 +73,23 @@ def is_eligible_to_create_modification_proposal(learning_unit_year, person):
     return is_eligible(learning_unit_year, person, functions_to_check)
 
 
+def is_eligible_for_cancel_of_proposal(proposal, person):
+    functions_to_check = (
+        _is_person_in_accordance_with_proposal_state,
+        _is_attached_to_initial_or_current_requirement_entity,
+        _has_person_the_right_to_make_proposal
+    )
+    return is_eligible(proposal, person, functions_to_check)
+
+
+def _is_person_in_accordance_with_proposal_state(proposal, person):
+    return (not person.is_faculty_manager()) or proposal.state == ProposalState.FACULTY.name
+
+
+def _has_person_the_right_to_make_proposal(proposal, person):
+    return person.user.has_perm('base.can_propose_learningunit')
+
+
 def is_learning_unit_year_full(learning_unit_year, person):
     return learning_unit_year.is_full()
 
@@ -103,15 +120,6 @@ def _negate(f):
         return not f(*args, **kwargs)
 
     return negate_method
-
-
-def is_eligible_for_cancel_of_proposal(proposal, person):
-    if person.is_faculty_manager():
-        if proposal.state != ProposalState.FACULTY.name:
-            return False
-        if not _is_attached_to_initial_or_current_requirement_entity(proposal, person):
-            return False
-    return person.user.has_perm('base.can_propose_learningunit')
 
 
 def is_eligible_to_edit_proposal(proposal, person):
