@@ -91,16 +91,14 @@ def dl_tooltip(differences, key, **kwargs):
         value = "<a href='{url}'>{value}</a>".format(value=_(str(value)), url=url)
 
     if inherited == "PARTIM":
-        style = "color:grey"
-        title = "The value of this attribute is inherited from the parent UE"
-        label_text = set_style_of_label_text(label_text, style, title)
-        value = set_style_of_value(style, title, value)
+        label_text = set_style_of_label_text(label_text, "color:grey",
+                                             "The value of this attribute is inherited from the parent UE")
+        value = set_style_of_value("color:grey", "The value of this attribute is inherited from the parent UE", value)
 
     if not_annualized:
-        style = "font-style:italic"
-        title = "The value of this attribute is not annualized"
-        label_text = set_style_of_label_text(label_text, style, title)
-        value = set_style_of_value(style, title, value)
+        label_text = set_style_of_label_text(label_text, "font-style:italic",
+                                             "The value of this attribute is not annualized")
+        value = set_style_of_value("font-style:italic", "The value of this attribute is not annualized", value)
 
     return mark_safe("<dl><dt {difference}>{label_text}</dt><dd {difference}>{value}</dd></dl>".format(
         difference=difference, label_text=label_text, value=_(str(value))))
