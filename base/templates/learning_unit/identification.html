@@ -121,7 +121,7 @@
                                         {% dl_tooltip differences 'session' label_text="session_title"  value=learning_unit_year.session %}
                                     </div>
                                     <div class="col-md-3">
-                                        {% dl_tooltip differences 'professional_integration' label_text="professional_integration" value=learning_unit_year.professional_integration_verbose.title %}
+                                        {% dl_tooltip differences 'professional_integration' label_text="professional_integration" value=learning_unit_year.professional_integration|yesno:_("YES,NO")%}
                                     </div>
 
                                     {% endblock content_row3 %}
