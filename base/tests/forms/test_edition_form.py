@@ -281,7 +281,7 @@ class TestVolumeEditionFormsetContainer(TestCase):
         self.assertFalse(volume_edition_formset_container.is_valid())
         self.assertEqual(
             volume_edition_formset_container.formsets[self.learning_unit_year_partim].errors[0].get('volume_total'),
-            [_('vol_tot_full_must_be_greater_than_partim')]
+            [_('vol_tot_full_must_be_greater_or_equal_than_partim')]
         )
 
 

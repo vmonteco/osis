@@ -142,7 +142,7 @@ class VolumeEditionForm(forms.Form):
     def validate_parent_partim_component(self, parent_data):
         self._parent_data = parent_data
 
-        self._compare_parent_partim('volume_total', 'vol_tot_full_must_be_greater_than_partim')
+        self._compare_parent_partim('volume_total', 'vol_tot_full_must_be_greater_or_equal_than_partim')
         self._compare_parent_partim('volume_q1', 'vol_q1_full_must_be_greater_or_equal_to_partim')
         self._compare_parent_partim('volume_q2', 'vol_q2_full_must_be_greater_or_equal_to_partim')
         self._compare_parent_partim('planned_classes', 'planned_classes_full_must_be_greater_or_equal_to_partim')

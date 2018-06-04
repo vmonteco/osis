@@ -434,6 +434,10 @@ class TestLearningUnitVolumesManagement(TestCase):
         request_factory = RequestFactory()
         data = get_valid_formset_data(self.learning_unit_year.acronym)
         data.update(get_valid_formset_data(self.learning_unit_year_partim.acronym))
+        data.update({'LDROI1200A-0-volume_total': 3})
+        data.update({'LDROI1200A-0-volume_q2': 3})
+        data.update({'LDROI1200A-0-volume_requirement_entity': 2})
+        data.update({'LDROI1200A-0-volume_total_requirement_entities': 3})
 
         request = request_factory.post(reverse(learning_unit_volumes_management,
                                                args=[self.learning_unit_year.id]),
@@ -449,8 +453,8 @@ class TestLearningUnitVolumesManagement(TestCase):
         request, template, context = mock_render.call_args[0]
         self.assertEqual(template, 'learning_unit/volumes_management.html')
         self.assertEqual(
-            context['formsets'][self.learning_unit_year_partim].errors[0],
-            {'volume_total': [_('vol_tot_full_must_be_greater_than_partim')]}
+            context['formsets'][self.learning_unit_year_partim].errors[0].get('volume_total'),
+            [_('vol_tot_full_must_be_greater_or_equal_than_partim')]
         )
 
     @mock.patch('base.models.program_manager.is_program_manager')
@@ -460,6 +464,10 @@ class TestLearningUnitVolumesManagement(TestCase):
         request_factory = RequestFactory()
         data = get_valid_formset_data(self.learning_unit_year.acronym)
         data.update(get_valid_formset_data(self.learning_unit_year_partim.acronym))
+        data.update({'LDROI1200A-0-volume_total': 3})
+        data.update({'LDROI1200A-0-volume_q2': 3})
+        data.update({'LDROI1200A-0-volume_requirement_entity': 2})
+        data.update({'LDROI1200A-0-volume_total_requirement_entities': 3})
 
         request = request_factory.post(reverse(learning_unit_volumes_management,
                                                args=[self.learning_unit_year.id]),
@@ -470,10 +478,17 @@ class TestLearningUnitVolumesManagement(TestCase):
 
         response = learning_unit_volumes_management(request, self.learning_unit_year.id)
         prefix = self.learning_unit_year_partim.acronym
+        self.maxDiff = None
         self.assertJSONEqual(response.content.decode("utf-8"),
                              {"errors":
-                                  {prefix+"-0-volume_total": [_("vol_tot_full_must_be_greater_than_partim")],
-                                   prefix+"-1-volume_total": [_("vol_tot_full_must_be_greater_than_partim")]}
+                                  {
+                                    prefix+"-0-volume_total":
+                                        [_("vol_tot_full_must_be_greater_or_equal_than_partim")],
+                                    prefix+"-0-volume_q2":
+                                        [_("vol_q2_full_must_be_greater_or_equal_to_partim")],
+                                    prefix+"-0-volume_requirement_entity":
+                                        [_("entity_requirement_full_must_be_greater_or_equal_to_partim")]
+                                  }
                               })
 
     def test_with_user_not_logged(self):
