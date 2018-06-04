@@ -368,7 +368,7 @@ class GenerateContainerYear:
 
 
 def _setup_learning_unit_year(learning_unit, learning_container_year, subtype, language):
-    common_luy_data = _get_default_common_value_learning_unit_year(learning_container_year, subtype)
+    common_luy_data = _get_default_common_value_learning_unit_year(learning_container_year, subtype, language)
     learning_unit_year = LearningUnitYearFactory(
         learning_unit=learning_unit,
         learning_container_year=learning_container_year,
@@ -382,7 +382,7 @@ def _setup_learning_unit_year(learning_unit, learning_container_year, subtype, l
     return learning_unit_year
 
 
-def _get_default_common_value_learning_unit_year(learning_container_year, subtype):
+def _get_default_common_value_learning_unit_year(learning_container_year, subtype, language):
     """This function return all common data which must be equals in order to allow postponement"""
     common_data = {
         'acronym': learning_container_year.acronym,
@@ -391,7 +391,8 @@ def _get_default_common_value_learning_unit_year(learning_container_year, subtyp
         'credits': Decimal(5),
         'session': learning_unit_year_session.SESSION_1X3,
         'quadrimester': learning_unit_year_quadrimesters.Q1,
-        'internship_subtype': None
+        'internship_subtype': None,
+        'language': language
     }
     if subtype == learning_unit_year_subtypes.PARTIM:
         common_data['acronym'] += 'A'

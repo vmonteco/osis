@@ -77,13 +77,13 @@ def get_valid_external_learning_unit_form_data(academic_year, person, learning_u
         'specific_title_english': learning_unit_year.specific_title_english,
         'credits': learning_unit_year.credits,
         'status': learning_unit_year.status,
+        'language': learning_unit_year.language.id,
 
         # Learning unit data model form
         'faculty_remark': learning_unit_year.learning_unit.faculty_remark,
 
         # Learning container year data model form
         'campus': learning_unit_year.learning_container_year.campus.id,
-        'language': learning_unit_year.learning_container_year.language.id,
         'common_title': learning_unit_year.learning_container_year.common_title,
         'common_title_english': learning_unit_year.learning_container_year.common_title_english,
         'is_vacant': learning_unit_year.learning_container_year.is_vacant,
