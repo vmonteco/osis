@@ -2969,3 +2969,6 @@ msgstr "Intitulé propre au partim (partie 2) en anglais"
 
 msgid "Manage volumes"
 msgstr "Gérer les volumes"
+
+msgid "new_external_learning_unit_title"
+msgstr "Nouvelle unité d'enseignement externe"
