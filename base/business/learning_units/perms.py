@@ -54,14 +54,39 @@ def is_eligible(learning_unit_year, person, functions_to_check):
 
 
 def is_eligible_to_create_partim(learning_unit_year, person):
-    functions_to_check = (is_person_linked_to_entity_in_charge_of_learning_unit,
-                          is_academic_year_in_range_to_create_partim,
-                          is_learning_unit_year_full)
+    functions_to_check = (
+        is_person_linked_to_entity_in_charge_of_learning_unit,
+        is_academic_year_in_range_to_create_partim,
+        is_learning_unit_year_full
+    )
+    return is_eligible(learning_unit_year, person, functions_to_check)
+
+
+def is_eligible_to_create_modification_proposal(learning_unit_year, person):
+    functions_to_check = (
+        _negate(is_learning_unit_year_in_past),
+        _negate(is_learning_unit_year_a_partim),
+        _is_container_type_course_dissertation_or_internship,
+        _negate(is_learning_unit_year_in_proposal),
+        is_person_linked_to_entity_in_charge_of_learning_unit
+    )
     return is_eligible(learning_unit_year, person, functions_to_check)
 
 
 def is_learning_unit_year_full(learning_unit_year, person):
     return learning_unit_year.is_full()
+
+
+def is_learning_unit_year_in_past(learning_unit_year, person):
+    return learning_unit_year.is_past()
+
+
+def is_learning_unit_year_a_partim(learning_unit_year, person):
+    return learning_unit_year.is_partim()
+
+
+def is_learning_unit_year_in_proposal(learning_unit_year, person):
+    return learning_unit_year.learning_unit.has_proposal()
 
 
 def is_academic_year_in_range_to_create_partim(learning_unit_year, person):
@@ -72,14 +97,12 @@ def is_academic_year_in_range_to_create_partim(learning_unit_year, person):
     return current_acy.year <= luy_acy.year <= current_acy.year + max_range
 
 
-def is_eligible_to_create_modification_proposal(learning_unit_year, person):
-    if learning_unit_year.is_past() or learning_unit_year.is_partim():
-        return False
-    if not _is_container_type_course_dissertation_or_internship(learning_unit_year):
-        return False
-    if learning_unit_year.learning_unit.has_proposal():
-        return False
-    return person.is_linked_to_entity_in_charge_of_learning_unit_year(learning_unit_year)
+def _negate(f):
+
+    def negate_method(*args, **kwargs):
+        return not f(*args, **kwargs)
+
+    return negate_method
 
 
 def is_eligible_for_cancel_of_proposal(proposal, person):
@@ -171,7 +194,7 @@ def _check_eligible_to_edit_proposal_as_faculty_manager(proposal, person):
     return True
 
 
-def _is_container_type_course_dissertation_or_internship(learning_unit_year):
+def _is_container_type_course_dissertation_or_internship(learning_unit_year, person):
     return learning_unit_year.learning_container_year and\
            learning_unit_year.learning_container_year.container_type in FACULTY_UPDATABLE_CONTAINER_TYPES
 
