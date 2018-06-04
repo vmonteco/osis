@@ -27,7 +27,6 @@ from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
 
 from base.business.learning_units import perms as business_perms
-
 from base.models import learning_unit_year, person, proposal_learning_unit
 from base.models.proposal_learning_unit import ProposalLearningUnit
 
