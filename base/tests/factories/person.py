@@ -66,12 +66,14 @@ class PersonWithoutUserFactory(PersonFactory):
     email = factory.LazyAttribute(generate_person_email)
 
 
-class FacultyManagerFactory:
+class PersonWithGroupsFactory:
+    groups_name = ()
+
     def __init__(self, *args, **kwargs):
-        faculty_group, created = Group.objects.get_or_create(name=FACULTY_MANAGER_GROUP)
+        groups_obj = [Group.objects.get_or_create(name=name)[0] for name in self.groups_name]
 
         self.person = PersonFactory(**kwargs)
-        self.person.user.groups.add(faculty_group)
+        self.person.user.groups.add(*groups_obj)
 
     def __new__(cls, *args, **kwargs):
         obj = super().__new__(cls)
@@ -79,14 +81,9 @@ class FacultyManagerFactory:
         return obj.person
 
 
-class CentralManagerFactory(PersonFactory):
-    def __init__(self, *args, **kwargs):
-        faculty_group, created = Group.objects.get_or_create(name=CENTRAL_MANAGER_GROUP)
+class FacultyManagerFactory(PersonWithGroupsFactory):
+    groups_name = (FACULTY_MANAGER_GROUP, )
 
-        self.person = PersonFactory(**kwargs)
-        self.person.user.groups.add(faculty_group)
 
-    def __new__(cls, *args, **kwargs):
-        obj = super().__new__(cls)
-        obj.__init__(*args, **kwargs)
-        return obj.person
+class CentralManagerFactory(PersonWithGroupsFactory):
+    groups_name = (CENTRAL_MANAGER_GROUP, )

@@ -466,4 +466,3 @@ class TestIsAcademicYearInRangeToCreatePartim(TestCase):
                     self.assertTrue(is_academic_year_in_range_to_create_partim(luy, person))
                 else:
                     self.assertFalse(is_academic_year_in_range_to_create_partim(luy, person))
-
