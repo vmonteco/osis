@@ -39,8 +39,9 @@ from base.models.enums import learning_unit_year_subtypes
 from base.models.enums.component_type import LECTURING, PRACTICAL_EXERCISES
 from base.models.enums.entity_container_year_link_type import REQUIREMENT_ENTITY, ALLOCATION_ENTITY, \
     ADDITIONAL_REQUIREMENT_ENTITY_1, ADDITIONAL_REQUIREMENT_ENTITY_2, ENTITY_TYPE_LIST, REQUIREMENT_ENTITIES
-from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES, \
-    CONTAINER_TYPE_WITH_DEFAULT_COMPONENT, LEARNING_CONTAINER_YEAR_TYPES_MUST_HAVE_SAME_ENTITIES
+from base.models.enums.learning_container_year_types import CONTAINER_TYPE_WITH_DEFAULT_COMPONENT, \
+    LEARNING_CONTAINER_YEAR_TYPES_MUST_HAVE_SAME_ENTITIES, \
+    LEARNING_CONTAINER_YEAR_TYPES_WITHOUT_EXTERNAL
 from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES_FOR_FACULTY
 from base.models.learning_component_year import LearningComponentYear
 from base.models.learning_container import LearningContainer
@@ -64,7 +65,7 @@ def _get_default_components_type(container_type):
 
 
 def _create_learning_container_year_type_list():
-    return add_blank(LEARNING_CONTAINER_YEAR_TYPES)
+    return add_blank(LEARNING_CONTAINER_YEAR_TYPES_WITHOUT_EXTERNAL)
 
 
 def _create_faculty_learning_container_type_list():
@@ -389,8 +390,7 @@ class LearningContainerYearModelForm(forms.ModelForm):
         # Limit types for faculty_manager only if simple creation of learning_unit
         if self.person.is_faculty_manager() and not self.proposal and self.is_create_form:
             self.fields["container_type"].choices = _create_faculty_learning_container_type_list()
-
-        if self.initial.get('subtype') == learning_unit_year_subtypes.PARTIM:
+        else:
             self.fields["container_type"].choices = _create_learning_container_year_type_list()
 
     def save(self, **kwargs):

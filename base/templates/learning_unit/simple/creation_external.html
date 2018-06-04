@@ -28,12 +28,12 @@
 {% block breadcrumb %}
     <li><a href="{% url 'catalog' %}" id="lnk_catalog">{% trans 'formation_catalogue'%}</a></li>
     <li><a href="{% url 'learning_units' %}" id="lnk_learning_units">{% trans 'learning_units'%}</a></li>
-    <li id="lnk_learning_unit">{% trans 'new_learning_unit' %}</li>
+    <li id="lnk_learning_unit">{% trans 'New external learning unit' %}</li>
 {% endblock %}
 
 {% block content %}
     <div class="page-header">
-        <h2>{% block h2_title %}{% trans 'new_learning_unit' %}- {% trans 'external' %}{% endblock %}</h2>
+        <h2>{% block h2_title %}{% trans 'New external learning unit' %}{% endblock %}</h2>
     </div>
     <div class="panel panel-default">
         <div class="panel-heading">
