@@ -127,13 +127,14 @@ class LearningUnitYearModelForm(forms.ModelForm):
 
         if kwargs.get('instance'):
             self.fields['academic_year'].disabled = True
-
-        self.prepare_fields()
+        else:
+            self._restrict_academic_years_choice()
 
     class Meta:
         model = LearningUnitYear
         fields = ('academic_year', 'acronym', 'specific_title', 'specific_title_english', 'credits',
-                  'session', 'quadrimester', 'status', 'internship_subtype', 'attribution_procedure', )
+                  'session', 'quadrimester', 'status', 'internship_subtype', 'attribution_procedure',
+                  'professional_integration')
         field_classes = {'acronym': AcronymField}
         error_messages = {
             'credits': {
@@ -145,7 +146,7 @@ class LearningUnitYearModelForm(forms.ModelForm):
             }
         }
 
-    def prepare_fields(self):
+    def _restrict_academic_years_choice(self):
         current_academic_year = academic_year.current_academic_year()
         end_year_range = MAX_ACADEMIC_YEAR_FACULTY if self.person.is_faculty_manager() else MAX_ACADEMIC_YEAR_CENTRAL
 
@@ -162,8 +163,12 @@ class LearningUnitYearModelForm(forms.ModelForm):
         self.instance.learning_unit = kwargs.pop('learning_unit')
         entity_container_years = kwargs.pop('entity_container_years')
         instance = super().save(**kwargs)
-        self._save_learning_components(entity_container_years, instance)
+        for learn_unit_year in self._find_learning_units_year_family():
+            self._save_learning_components(entity_container_years, learn_unit_year)
         return instance
+
+    def _find_learning_units_year_family(self):
+        return LearningUnitYear.objects.filter(learning_container_year=self.instance.learning_container_year)
 
     def _save_learning_components(self, entity_container_years, learning_unit_year):
         components_type = _get_default_components_type(self.instance.learning_container_year.container_type)
@@ -385,6 +390,7 @@ class LearningContainerYearModelForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.person = kwargs.pop('person')
         self.proposal = kwargs.pop('proposal', False)
+        self.is_create_form = kwargs['instance'] is None
         super().__init__(*args, **kwargs)
         self.prepare_fields()
 
@@ -393,7 +399,7 @@ class LearningContainerYearModelForm(forms.ModelForm):
         self.fields['container_type'].widget.attrs = {'onchange': 'showInternshipSubtype()'}
 
         # Limit types for faculty_manager only if simple creation of learning_unit
-        if self.person.is_faculty_manager() and not self.proposal:
+        if self.person.is_faculty_manager() and not self.proposal and self.is_create_form:
             self.fields["container_type"].choices = _create_faculty_learning_container_type_list()
 
         if self.initial.get('subtype') == learning_unit_year_subtypes.PARTIM:
