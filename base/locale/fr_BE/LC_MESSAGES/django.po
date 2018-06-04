@@ -1611,23 +1611,23 @@ msgstr "Cahier de charges"
 msgid "experimental_phase"
 msgstr "Cette fonctionnalité est en phase expérimentale"
 
-msgid "title_official_1"
-msgstr "Intitulé officiel (partie 1 commune aux partims)"
+msgid "title_1"
+msgstr "Intitulé commun aux partims (partie 1)"
 
-msgid "common_official_title"
-msgstr "Intitulé officiel commun"
+msgid "common_title"
+msgstr "Intitulé commun"
 
-msgid "common_official_english_title"
-msgstr "Intitulé officiel commun en anglais"
+msgid "common_english_title"
+msgstr "Intitulé commun en anglais"
 
-msgid "title_official_2"
-msgstr "Intitulé officiel (partie 2 propre au partim)"
+msgid "title_2"
+msgstr "Intitulé propre au partim (partie 2)"
 
-msgid "official_title_proper_to_UE"
-msgstr "Intitulé officiel propre à l'UE"
+msgid "title_proper_to_UE"
+msgstr "Intitulé propre"
 
-msgid "official_english_title_proper_to_UE"
-msgstr "Intitulé officiel en anglais propre à l'UE"
+msgid "english_title_proper_to_UE"
+msgstr "Intitulé propre en anglais"
 
 msgid "title_in_english"
 msgstr "Intitulé en anglais"
@@ -1805,9 +1805,6 @@ msgstr "partie 1"
 
 msgid "part2"
 msgstr "partie 2"
-
-msgid "title_official"
-msgstr "Intitulé officiel"
 
 msgid "create_learning_unit"
 msgstr "Création d'une unité d'enseignement"
@@ -2645,7 +2642,7 @@ msgid "are_you_sure_to_change_state_from"
 msgstr "Êtes-vous sûr de vouloir changer l'état de"
 
 msgid "must_set_common_title_or_specific_title"
-msgstr "L'intitulé officiel ou l'intitulé commun est requis."
+msgstr "L'intitulé propre ou l'intitulé commun est requis."
 
 msgid "learning_unit_in_proposal_cannot_save"
 msgstr "L'unité d'enseignement %(luy)s est en proposition, impossible de sauvegarder le changement à partir de l'année %(academic_year)s"
@@ -2696,10 +2693,10 @@ msgid "Educational information ending"
 msgstr "Fermeture informations pédagoqiques"
 
 msgid "official_title_proper_to_partim"
-msgstr "Intitulé officiel propre au partim"
+msgstr "Intitulé propre au partim"
 
 msgid "official_english_title_proper_to_partim"
-msgstr "Intitulé officiel en anglais propre au partim"
+msgstr "Intitulé en anglais propre au partim"
 
 msgid "Educational information submission dates updated"
 msgstr "Date de soumission des informations pédagogiques mis à jour"
@@ -2739,14 +2736,14 @@ msgstr "Pas à jour"
 msgid "summary_list"
 msgstr "Statut des informations pédagogiques"
 
-msgid "The partim must be inactive because the parent is inactive"
-msgstr "Le partim doit être inactif car le cours complet est inactif"
-
 msgid "The periodicity of the parent and the partims do not match"
 msgstr "La périodicité de l'UE parent et des partims est incompatible"
 
-msgid "There is at least one partim active, so the parent must be active"
-msgstr "Il existe au moins un partim actif, donc l'UE parent doit être active"
+msgid "The parent is inactive and there is at least one partim active"
+msgstr "L'UE parent est inactive et au moins un partim est actif"
+
+msgid "This partim is active and the parent is inactive"
+msgstr "Ce partim est actif alors que l'UE parent est inactive"
 
 msgid "educational_information_update_reminder"
 msgstr "Mail de rappel résumés"
@@ -2945,3 +2942,28 @@ msgstr "Crédits locaux"
 
 msgid "warnigns_detected"
 msgstr "Nous avons détecté des incohérences dans les données suivantes :"
+
+msgid "Volumes are inconsistent"
+msgstr "Les volumes sont inconsistants"
+
+msgid "planned classes cannot be 0"
+msgstr "le nombre de classes prévues ne peut être 0"
+
+msgid "url of the learning unit"
+msgstr "URL de l'unité d'enseignement"
+
+msgid "professional_integration"
+msgstr "Intégration professionnelle"
+
+msgid "external_search"
+msgstr "Recherche - UE externe"
+
+msgid "formerly"
+msgstr "Anciennement"
+
+msgid "title_1_in_english"
+msgstr "Intitulé commun aux partims (partie 1) en anglais"
+
+msgid "title_2_in_english"
+msgstr "Intitulé propre au partim (partie 2) en anglais"
+

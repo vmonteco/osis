@@ -36,6 +36,7 @@ from base.models import learning_unit_year
 from base.models.campus import Campus
 from base.models.enums import learning_container_year_types
 from base.models.enums import learning_unit_year_subtypes
+from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES_FOR_FACULTY
 from reference.models import language
 
 FULL_READ_ONLY_FIELDS = {"acronym", "academic_year", "container_type"}
@@ -177,15 +178,6 @@ class LearningUnitBaseForm(metaclass=ABCMeta):
         """Yields the forms in the order they should be rendered"""
         return iter(self.forms.values())
 
-    @property
-    def warnings(self):
-        if self._warnings is None:
-            self._warnings = []
-            for form in self.forms.values():
-                if hasattr(form, 'warnings'):
-                    self._warnings.extend(form.warnings)
-        return self._warnings
-
 
 class FullForm(LearningUnitBaseForm):
 
@@ -217,10 +209,14 @@ class FullForm(LearningUnitBaseForm):
             self._disable_fields_as_central_manager()
 
     def _disable_fields_as_faculty_manager(self):
+        faculty_type_not_restricted = [t[0] for t in LEARNING_CONTAINER_YEAR_TYPES_FOR_FACULTY]
         if self.proposal:
             self.disable_fields(FACULTY_OPEN_FIELDS)
-        else:
+        elif self.instance.learning_container_year and \
+                self.instance.learning_container_year.container_type not in faculty_type_not_restricted:
             self.disable_fields(self.fields.keys() - set(FACULTY_OPEN_FIELDS))
+        else:
+            self.disable_fields(FULL_READ_ONLY_FIELDS)
 
     def _disable_fields_as_central_manager(self):
         if self.proposal:

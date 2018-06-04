@@ -106,6 +106,7 @@ class LearningUnitPostponementForm:
             .select_related('learning_container_year', 'learning_unit', 'academic_year') \
             .order_by('academic_year__year')
         to_delete = to_update = to_insert = []
+
         if self.start_postponement.is_past():
             to_update = self._init_forms_in_past(existing_learn_unit_years, data)
         else:
@@ -135,7 +136,7 @@ class LearningUnitPostponementForm:
         self._forms_to_upsert = to_update + to_insert
 
     def _init_forms_in_past(self, luy_queryset, data):
-        if self._is_update_action():
+        if self._is_update_action() and luy_queryset.exists():
             first_luy = luy_queryset.first()
             return [self._instanciate_base_form_as_update(first_luy, data=data)]
         else:
@@ -240,11 +241,6 @@ class LearningUnitPostponementForm:
         """ Warnings can be call only after saving the forms"""
         if self._warnings is None and self._luy_upserted:
             self._warnings = []
-            # Add the warnings of the current year
-            for form in self._forms_to_upsert[0]:
-                if hasattr(form, 'warnings'):
-                    self._warnings.extend(form.warnings)
-
             if self.consistency_errors:
                 self._warnings.append(_('The learning unit has been updated until %(year)s.') % {
                     'year': self._luy_upserted[-1].academic_year

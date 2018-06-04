@@ -30,6 +30,8 @@ from django.utils.translation import ugettext_lazy as _
 
 from base.models.learning_unit_year import MINIMUM_CREDITS, MAXIMUM_CREDITS
 from base.models.osis_model_admin import OsisModelAdmin
+from django.db.models import Q
+from base.models.organization_address import OrganizationAddress
 
 
 class ExternalLearningUnitYearAdmin(OsisModelAdmin):
@@ -44,10 +46,25 @@ class ExternalLearningUnitYearAdmin(OsisModelAdmin):
 class ExternalLearningUnitYear(models.Model):
     external_id = models.CharField(max_length=100, blank=True, null=True)
     changed = models.DateTimeField(null=True, auto_now=True)
-    external_acronym = models.CharField(max_length=15, db_index=True, verbose_name=_('external_code'))
-    external_credits = models.DecimalField(max_digits=5, decimal_places=2, verbose_name=_('local_credits'),
-                                           validators=[MinValueValidator(MINIMUM_CREDITS),
-                                                       MaxValueValidator(MAXIMUM_CREDITS)])
+
+    external_acronym = models.CharField(
+        max_length=15,
+        db_index=True,
+        blank=True,
+        null=True,
+        verbose_name=_('external_code')
+    )
+
+    external_credits = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        verbose_name=_('local_credits'),
+        validators=[
+            MinValueValidator(MINIMUM_CREDITS),
+            MaxValueValidator(MAXIMUM_CREDITS)
+        ]
+    )
+
     url = models.URLField(max_length=255, blank=True, null=True)
     learning_unit_year = models.OneToOneField('LearningUnitYear')
     requesting_entity = models.ForeignKey('Entity', verbose_name=_('requesting_entity'))
@@ -57,6 +74,51 @@ class ExternalLearningUnitYear(models.Model):
 
     class Meta:
         unique_together = ('learning_unit_year', 'external_acronym',)
+        permissions = (
+            ("can_access_externallearningunityear", "Can access external learning unit"),
+        )
+
+        permissions = (
+            ("can_access_externallearningunityear", "Can access external learning unit year"),
+        )
 
     def __str__(self):
         return u"%s" % self.external_acronym
+
+
+def search(academic_year_id=None, acronym=None, title=None, country=None, city=None, campus=None):
+    queryset = ExternalLearningUnitYear.objects
+
+    if academic_year_id:
+        queryset = queryset.filter(learning_unit_year__academic_year=academic_year_id)
+
+    if acronym:
+        queryset = queryset.filter(external_acronym__icontains=acronym)
+
+    if title:
+        queryset = queryset. \
+            filter(Q(learning_unit_year__specific_title__icontains=title) |
+                   Q(learning_unit_year__learning_container_year__common_title__icontains=title))
+
+    if campus:
+        queryset = queryset.filter(learning_unit_year__learning_container_year__campus=campus)
+    else:
+        organization_ids = None
+        if city:
+            organization_ids = _get_organization_ids(OrganizationAddress.objects.filter(city=city))
+        else:
+            if country:
+                organization_ids = _get_organization_ids(OrganizationAddress.objects.filter(country=country))
+        if organization_ids:
+            queryset = queryset\
+                .filter(learning_unit_year__learning_container_year__campus__organization__id__in=organization_ids)
+
+    return queryset
+
+
+def _get_organization_ids(organization_addresses):
+    organizations = []
+    for organization_adr in organization_addresses:
+        if organization_adr.organization not in organizations:
+            organizations.append(organization_adr.organization.id)
+    return organizations

@@ -33,7 +33,8 @@ from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
 from base.models import entity_container_year
-from base.models.academic_year import current_academic_year, compute_max_academic_year_adjournment, AcademicYear
+from base.models.academic_year import current_academic_year, compute_max_academic_year_adjournment, AcademicYear, \
+    MAX_ACADEMIC_YEAR_FACULTY
 from base.models.enums import active_status, learning_container_year_types
 from base.models.enums import learning_unit_year_subtypes, internship_subtypes, \
     learning_unit_year_session, entity_container_year_link_type, learning_unit_year_quadrimesters, attribution_procedure
@@ -62,7 +63,8 @@ class LearningUnitYearAdmin(SerializableModelAdmin):
     fieldsets = ((None, {'fields': ('academic_year', 'learning_unit', 'learning_container_year', 'acronym',
                                     'specific_title', 'specific_title_english', 'subtype', 'credits', 'decimal_scores',
                                     'structure', 'internship_subtype', 'status', 'session',
-                                    'quadrimester', 'attribution_procedure', 'summary_locked')}),)
+                                    'quadrimester', 'attribution_procedure', 'summary_locked',
+                                    'professional_integration')}),)
     list_filter = ('academic_year', 'decimal_scores', 'summary_locked')
     raw_id_fields = ('learning_unit', 'learning_container_year', 'structure')
     search_fields = ['acronym', 'structure__acronym', 'external_id']
@@ -78,9 +80,9 @@ class LearningUnitYear(SerializableModel):
     acronym = models.CharField(max_length=15, db_index=True, verbose_name=_('code'),
                                validators=[RegexValidator(LEARNING_UNIT_ACRONYM_REGEX_ALL)])
     specific_title = models.CharField(max_length=255, blank=True, null=True,
-                                      verbose_name=_('official_title_proper_to_UE'))
+                                      verbose_name=_('title_proper_to_UE'))
     specific_title_english = models.CharField(max_length=250, blank=True, null=True,
-                                              verbose_name=_('official_english_title_proper_to_UE'))
+                                              verbose_name=_('english_title_proper_to_UE'))
     subtype = models.CharField(max_length=50, choices=learning_unit_year_subtypes.LEARNING_UNIT_YEAR_SUBTYPES,
                                default=learning_unit_year_subtypes.FULL)
     credits = models.DecimalField(max_digits=5, decimal_places=2, null=True,
@@ -101,6 +103,7 @@ class LearningUnitYear(SerializableModel):
 
     mobility_modality = models.CharField(max_length=250, verbose_name=_('Modalities specific to IN and OUT mobility'),
                                          blank=True, null=True)
+    professional_integration = models.BooleanField(default=False, verbose_name=_('professional_integration'))
     _warnings = None
 
     class Meta:
@@ -215,9 +218,7 @@ class LearningUnitYear(SerializableModel):
         current_year = current_academic_year().year
         year = self.academic_year.year
 
-        if self.learning_unit.periodicity == ANNUAL and year <= current_year + 1:
-            result = True
-        elif self.learning_unit.periodicity != ANNUAL and year <= current_year + 2:
+        if year <= current_year + MAX_ACADEMIC_YEAR_FACULTY:
             result = True
         return result
 
@@ -239,23 +240,12 @@ class LearningUnitYear(SerializableModel):
             learning_unit_years = learning_unit_years.exclude(learning_unit=self.learning_unit)
 
         self.clean_acronym(learning_unit_years)
-        self.clean_status()
 
     def clean_acronym(self, learning_unit_years):
         if self.acronym in learning_unit_years.values_list('acronym', flat=True):
             raise ValidationError({'acronym': _('already_existing_acronym')})
         if not re.match(REGEX_BY_SUBTYPE[self.subtype], self.acronym):
             raise ValidationError({'acronym': _('invalid_acronym')})
-
-    def clean_status(self):
-        # If the parent is inactive, the partim can be only inactive
-        if self.parent:
-            if not self.parent.status and self.status:
-                raise ValidationError({'status': _('The partim must be inactive because the parent is inactive')})
-        else:
-            if self.status is False and find_partims_with_active_status(self).exists():
-                raise ValidationError(
-                    {'status': _("There is at least one partim active, so the parent must be active")})
 
     @property
     def warnings(self):
@@ -264,6 +254,7 @@ class LearningUnitYear(SerializableModel):
             self._warnings.extend(self._check_partim_parent_credits())
             self._warnings.extend(self._check_internship_subtype())
             self._warnings.extend(self._check_partim_parent_status())
+            self._warnings.extend(self._check_learning_component_year_warnings())
         return self._warnings
 
     def _check_partim_parent_credits(self):
@@ -284,11 +275,21 @@ class LearningUnitYear(SerializableModel):
         warnings = []
         if self.parent:
             if not self.parent.status and self.status:
-                warnings.append(_('The partim must be inactive because the parent is inactive'))
+                warnings.append(_('This partim is active and the parent is inactive'))
         else:
             if self.status is False and find_partims_with_active_status(self).exists():
-                warnings.append(_("There is at least one partim active, so the parent must be active"))
+                warnings.append(_("The parent is inactive and there is at least one partim active"))
         return warnings
+
+    def _check_learning_component_year_warnings(self):
+        _warnings = []
+        for learning_unit_component in self.learningunitcomponent_set.all().select_related('learning_component_year'):
+            _warnings.extend(learning_unit_component.learning_component_year.warnings)
+
+        return _warnings
+
+    def is_external(self):
+        return hasattr(self, "externallearningunityear")
 
 
 def get_by_id(learning_unit_year_id):
