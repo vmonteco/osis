@@ -77,7 +77,7 @@ def dl_tooltip(differences, key, **kwargs):
     default_if_none = kwargs.get('default_if_none', '')
     value = kwargs.get('value', '')
     inherited = kwargs.get('inherited', '')
-    annualized = kwargs.get('annualized', '')
+    not_annualized = kwargs.get('not_annualized', '')
 
     if not label_text:
         label_text = _(str(key.lower()))
@@ -91,13 +91,28 @@ def dl_tooltip(differences, key, **kwargs):
         value = "<a href='{url}'>{value}</a>".format(value=_(str(value)), url=url)
 
     if inherited == "PARTIM":
-        label_text += "<span title={inherited_title}> [H]</span>".format(inherited_title=_("inherited"))
+        label_text = get_style_of_label_text(label_text, "color:grey",
+                                             "The value of this attribute is inherited from the parent UE")
+        value = get_style_of_value("color:grey", "The value of this attribute is inherited from the parent UE", value)
 
-    if annualized:
-        label_text += "<span title={annualized_title}> [A]</span>".format(annualized_title=_("annualized"))
+    if not_annualized:
+        label_text = get_style_of_label_text(label_text, "font-style:italic",
+                                             "The value of this attribute is not annualized")
+        value = get_style_of_value("font-style:italic", "The value of this attribute is not annualized", value)
 
     return mark_safe("<dl><dt {difference}>{label_text}</dt><dd {difference}>{value}</dd></dl>".format(
         difference=difference, label_text=label_text, value=_(str(value))))
+
+
+def get_style_of_value(style, title, value):
+    value = '<p style="{style}" title="{title}">{value}</p>'.format(style=style, title=_(title), value=value)
+    return value
+
+
+def get_style_of_label_text(label_text, style, title):
+    label_text = '<label style="{style}" title="{inherited_title}">{label_text}</label>' \
+        .format(style=style, inherited_title=title, label_text=label_text)
+    return label_text
 
 
 @register.filter
