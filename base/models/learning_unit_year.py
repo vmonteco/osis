@@ -104,6 +104,7 @@ class LearningUnitYear(SerializableModel):
     mobility_modality = models.CharField(max_length=250, verbose_name=_('Modalities specific to IN and OUT mobility'),
                                          blank=True, null=True)
     professional_integration = models.BooleanField(default=False, verbose_name=_('professional_integration'))
+    language = models.ForeignKey('reference.Language', null=True, verbose_name=_('language'))
     _warnings = None
 
     class Meta:
