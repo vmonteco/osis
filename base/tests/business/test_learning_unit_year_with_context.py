@@ -54,7 +54,7 @@ class LearningUnitYearWithContextTestCase(TestCase):
                                                               type=entity_container_year_link_type.REQUIREMENT_ENTITY,
                                                               entity=self.entity)
         self.learning_component_yr = LearningComponentYearFactory(learning_container_year=self.learning_container_yr,
-                                                                  hourly_volume_partial=-1, planned_classes=1)
+                                                                  hourly_volume_partial_q1=-1, planned_classes=1)
         self.entity_component_yr = EntityComponentYearFactory(learning_component_year=self.learning_component_yr,
                                                               entity_container_year=self.entity_container_yr,
                                                               repartition_volume=None)
@@ -102,7 +102,7 @@ class LearningUnitYearWithContextTestCase(TestCase):
     def test_volume_learning_component_year(self):
         self.entity_component_yr.repartition_volume = 15
 
-        self.learning_component_yr.hourly_volume_partial = 0
+        self.learning_component_yr.hourly_volume_partial_q1 = 0
         data = learning_unit_year_with_context.volume_learning_component_year(self.learning_component_yr,
                                                                               self.entity_components_yr)
         self.assertEqual(data.get('VOLUME_TOTAL'), 15)
@@ -110,7 +110,7 @@ class LearningUnitYearWithContextTestCase(TestCase):
         self.assertEqual(data.get('VOLUME_Q1'), 0)
         self.assertEqual(data.get('VOLUME_Q2'), 15)
 
-        self.learning_component_yr.hourly_volume_partial = 15
+        self.learning_component_yr.hourly_volume_partial_q1 = 15
         data = learning_unit_year_with_context.volume_learning_component_year(self.learning_component_yr,
                                                                               self.entity_components_yr)
         self.assertEqual(data.get('VOLUME_TOTAL'), 15)
@@ -118,7 +118,7 @@ class LearningUnitYearWithContextTestCase(TestCase):
         self.assertEqual(data.get('VOLUME_Q1'), 15)
         self.assertEqual(data.get('VOLUME_Q2'), 0)
 
-        self.learning_component_yr.hourly_volume_partial = 12
+        self.learning_component_yr.hourly_volume_partial_q1 = 12
         data = learning_unit_year_with_context.volume_learning_component_year(self.learning_component_yr,
                                                                               self.entity_components_yr)
         self.assertEqual(data.get('VOLUME_TOTAL'), 15)
@@ -126,7 +126,7 @@ class LearningUnitYearWithContextTestCase(TestCase):
         self.assertEqual(data.get('VOLUME_Q1'), 12)
         self.assertEqual(data.get('VOLUME_Q2'), 3)
 
-        self.learning_component_yr.hourly_volume_partial = None
+        self.learning_component_yr.hourly_volume_partial_q1 = None
         data = learning_unit_year_with_context.volume_learning_component_year(self.learning_component_yr,
                                                                               self.entity_components_yr)
         self.assertEqual(data.get('VOLUME_TOTAL'), 15)

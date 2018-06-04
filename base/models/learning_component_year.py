@@ -35,7 +35,7 @@ from osis_common.models.serializable_model import SerializableModel, Serializabl
 class LearningComponentYearAdmin(SerializableModelAdmin):
     list_display = ('learning_container_year', 'title', 'acronym', 'type', 'comment')
     fieldsets = ((None, {'fields': ('learning_container_year', 'title', 'acronym', 'volume_declared_vacant',
-                                    'type', 'comment', 'planned_classes', 'hourly_volume_partial')}),)
+                                    'type', 'comment', 'planned_classes', 'hourly_volume_partial_q1')}),)
     search_fields = ['acronym', 'learning_container_year__acronym']
     raw_id_fields = ('learning_container_year',)
     list_filter = ('learning_container_year__academic_year',)
@@ -51,7 +51,7 @@ class LearningComponentYear(SerializableModel):
                             blank=True, null=True)
     comment = models.CharField(max_length=255, blank=True, null=True)
     planned_classes = models.IntegerField(blank=True, null=True)
-    hourly_volume_partial = models.DecimalField(max_digits=6, decimal_places=2, blank=True, null=True)
+    hourly_volume_partial_q1 = models.DecimalField(max_digits=6, decimal_places=2, blank=True, null=True)
     volume_declared_vacant = models.DecimalField(max_digits=6, decimal_places=1, blank=True, null=True)
 
     _warnings = None
@@ -90,7 +90,7 @@ class LearningComponentYear(SerializableModel):
         _warnings = []
         vol_global = self.entitycomponentyear_set.aggregate(Sum('repartition_volume'))['repartition_volume__sum']
 
-        if (self.hourly_volume_partial or 0) * (self.planned_classes or 0) > (vol_global or 0):
+        if (self.hourly_volume_partial_q1 or 0) * (self.planned_classes or 0) > (vol_global or 0):
             _warnings.append(_('Volumes are inconsistent'))
         if self.planned_classes == 0:
             _warnings.append("{} ({})".format(_('Volumes are inconsistent'), _('planned classes cannot be 0')))

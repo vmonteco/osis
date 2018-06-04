@@ -194,7 +194,7 @@ class VolumeEditionForm(forms.Form):
         check_postponement_conflict_report_errors(conflict_report)
 
     def _save(self, component):
-        component.hourly_volume_partial = self.cleaned_data['volume_q1']
+        component.hourly_volume_partial_q1 = self.cleaned_data['volume_q1']
         component.planned_classes = self.cleaned_data['planned_classes']
         component.save()
         self._save_requirement_entities(component.entity_components_year)

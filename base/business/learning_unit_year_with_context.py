@@ -115,7 +115,7 @@ def _append_components(learning_unit):
             vol_add_req_entity_1 = req_entities_volumes.get(entity_types.ADDITIONAL_REQUIREMENT_ENTITY_1, 0) or 0
             vol_add_req_entity_2 = req_entities_volumes.get(entity_types.ADDITIONAL_REQUIREMENT_ENTITY_2, 0) or 0
             volume_global = vol_req_entity + vol_add_req_entity_1 + vol_add_req_entity_2
-            volume_partial_component = float(component.hourly_volume_partial) if component.hourly_volume_partial else 0
+            volume_partial_component = float(component.hourly_volume_partial_q1) if component.hourly_volume_partial_q1 else 0
             planned_classes = component.planned_classes or 1
             volume_total = volume_global / planned_classes
 
@@ -160,7 +160,7 @@ def volume_learning_component_year(learning_component_year, entity_components_ye
     vol_add_req_entity_1 = requirement_entities_volumes.get(entity_types.ADDITIONAL_REQUIREMENT_ENTITY_1, 0)
     vol_add_req_entity_2 = requirement_entities_volumes.get(entity_types.ADDITIONAL_REQUIREMENT_ENTITY_2, 0)
     volume_total_charge = vol_req_entity + vol_add_req_entity_1 + vol_add_req_entity_2
-    volume_partial = learning_component_year.hourly_volume_partial
+    volume_partial = learning_component_year.hourly_volume_partial_q1
     planned_classes = learning_component_year.planned_classes or 1
     volume_total = round(Decimal(volume_total_charge / planned_classes), 2)
     distribution = component_volume_distribution(volume_total, volume_partial)

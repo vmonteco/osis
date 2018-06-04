@@ -156,7 +156,7 @@ class TestVolumeEditionForm(TestCase):
         learning_component_year_0 = LearningComponentYear.objects.filter(
             learningunitcomponent__learning_unit_year=self.first_learning_unit_year
         ).first()
-        learning_component_year_0.hourly_volume_partial = 2000
+        learning_component_year_0.hourly_volume_partial_q1 = 2000
         learning_component_year_0.planned_classes = 2000
         learning_component_year_0.save()
 
