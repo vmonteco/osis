@@ -30,11 +30,11 @@ from django.db import transaction
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
+from base.forms.learning_unit.entity_form import EntityContainerBaseForm
 from base.forms.learning_unit.learning_unit_create import LearningUnitModelForm, LearningUnitYearModelForm, \
-    LearningContainerModelForm, LearningContainerYearModelForm, EntityContainerBaseForm
+    LearningContainerModelForm, LearningContainerYearModelForm
 from base.models import learning_unit_year
 from base.models.campus import Campus
-from base.models.enums import learning_container_year_types
 from base.models.enums import learning_unit_year_subtypes
 from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES_FOR_FACULTY
 from reference.models import language
@@ -70,6 +70,7 @@ class LearningUnitBaseForm(metaclass=ABCMeta):
                 if cls in self.form_cls_to_validate]):
             return False
 
+        self.learning_unit_year_form.post_clean(self.learning_container_year_form.instance.container_type)
         self.learning_container_year_form.post_clean(self.learning_unit_year_form.cleaned_data["specific_title"])
         return not self.errors
 
@@ -199,9 +200,6 @@ class FullForm(LearningUnitBaseForm):
         if self.instance:
             self._disable_fields()
 
-        self.fields['internship_subtype'].disabled =\
-            not self.instance or self.instances_data["container_type"] != learning_container_year_types.INTERNSHIP
-
     def _disable_fields(self):
         if self.person.is_faculty_manager():
             self._disable_fields_as_faculty_manager()
@@ -286,17 +284,17 @@ class FullForm(LearningUnitBaseForm):
             learning_container=learning_container,
             commit=commit
         )
-        container_year = self.forms[LearningContainerYearModelForm].save(
+        container_year = self.learning_container_year_form.save(
             academic_year=academic_year,
             learning_container=learning_container,
-            acronym=self.forms[LearningUnitYearModelForm].instance.acronym,
+            acronym=self.learning_unit_year_form.instance.acronym,
             commit=commit
         )
 
         entity_container_years = self.entity_container_form.save(commit=commit, learning_container_year=container_year)
 
         # Save learning unit year (learning_unit_component +  learning_component_year + entity_component_year)
-        learning_unit_yr = self.forms[LearningUnitYearModelForm].save(
+        learning_unit_yr = self.learning_unit_year_form.save(
             learning_container_year=container_year,
             learning_unit=learning_unit,
             entity_container_years=entity_container_years,
