@@ -116,7 +116,6 @@ def update_learning_unit(request, learning_unit_year_id):
         # Update current learning unit year
         _save_form_and_display_messages(request, postponement_form)
         return redirect('learning_unit', learning_unit_year_id=learning_unit_year_id)
-    print(postponement_form.errors)
 
     context = postponement_form.get_context()
     context["learning_unit_year"] = learning_unit_year

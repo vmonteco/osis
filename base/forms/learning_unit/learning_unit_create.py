@@ -127,8 +127,8 @@ class LearningUnitYearModelForm(forms.ModelForm):
 
         if kwargs.get('instance'):
             self.fields['academic_year'].disabled = True
-
-        self.prepare_fields()
+        else:
+            self._restrict_academic_years_choice()
 
     class Meta:
         model = LearningUnitYear
@@ -145,7 +145,7 @@ class LearningUnitYearModelForm(forms.ModelForm):
             }
         }
 
-    def prepare_fields(self):
+    def _restrict_academic_years_choice(self):
         current_academic_year = academic_year.current_academic_year()
         end_year_range = MAX_ACADEMIC_YEAR_FACULTY if self.person.is_faculty_manager() else MAX_ACADEMIC_YEAR_CENTRAL
 
