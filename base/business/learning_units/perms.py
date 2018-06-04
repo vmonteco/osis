@@ -53,6 +53,23 @@ def is_eligible(learning_unit_year, person, functions_to_check):
     )
 
 
+def is_eligible_for_modification(learning_unit_year, person):
+    functions_to_check = (
+        _is_learning_unit_year_in_range_to_be_modified,
+        is_person_linked_to_entity_in_charge_of_learning_unit
+    )
+    return is_eligible(learning_unit_year, person, functions_to_check)
+
+
+def is_eligible_for_modification_end_date(learning_unit_year, person):
+    functions_to_check = (
+        _negate(is_learning_unit_year_in_past),
+        is_eligible_for_modification,
+        _is_person_eligible_to_modify_end_date_based_on_container_type
+    )
+    return is_eligible(learning_unit_year, person, functions_to_check)
+
+
 def is_eligible_to_create_partim(learning_unit_year, person):
     functions_to_check = (
         is_person_linked_to_entity_in_charge_of_learning_unit,
@@ -103,6 +120,14 @@ def is_eligible_to_consolidate_proposal(proposal, person):
     return is_eligible(proposal, person, functions_to_check)
 
 
+def _is_person_eligible_to_modify_end_date_based_on_container_type(learning_unit_year, person):
+    if person.is_central_manager():
+        return True
+    if learning_unit_year.is_partim():
+        return True
+    return learning_unit_year.learning_container_year.container_type not in FACULTY_UPDATABLE_CONTAINER_TYPES
+
+
 def _is_person_in_accordance_with_proposal_state(proposal, person):
     return (not person.is_faculty_manager()) or proposal.state == ProposalState.FACULTY.name
 
@@ -143,6 +168,10 @@ def is_academic_year_in_range_to_create_partim(learning_unit_year, person):
     return current_acy.year <= luy_acy.year <= current_acy.year + max_range
 
 
+def _is_learning_unit_year_in_range_to_be_modified(learning_unit_year, person):
+    return person.is_central_manager() and learning_unit_year.can_update_by_faculty_manager()
+
+
 def _negate(f):
 
     def negate_method(*args, **kwargs):
@@ -153,23 +182,6 @@ def _negate(f):
 
 def _is_proposal_in_state_to_be_consolidated(proposal, person):
     return proposal.state in PROPOSAL_CONSOLIDATION_ELIGIBLE_STATES
-
-
-def is_eligible_for_modification_end_date(learning_unit_year, person):
-    if learning_unit_year.learning_unit.is_past():
-        return False
-    if not is_eligible_for_modification(learning_unit_year, person):
-        return False
-    container_type = learning_unit_year.learning_container_year.container_type
-    return container_type not in FACULTY_UPDATABLE_CONTAINER_TYPES or \
-        learning_unit_year.is_partim() or \
-        person.is_central_manager()
-
-
-def is_eligible_for_modification(learning_unit_year, person):
-    if person.is_faculty_manager() and not learning_unit_year.can_update_by_faculty_manager():
-        return False
-    return person.is_linked_to_entity_in_charge_of_learning_unit_year(learning_unit_year)
 
 
 def can_update_learning_achievement(learning_unit_year, person):
@@ -207,7 +219,7 @@ def _is_attached_to_initial_entity(learning_unit_proposal, a_person):
 
 
 def _is_person_eligible_to_edit_proposal_based_on_state(proposal, person):
-    if not person.is_faculty_manager():
+    if person.is_central_manager():
         return True
     if proposal.state != ProposalState.FACULTY.name:
         return False
