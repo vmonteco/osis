@@ -35,7 +35,8 @@ from osis_common.models.serializable_model import SerializableModel, Serializabl
 class LearningComponentYearAdmin(SerializableModelAdmin):
     list_display = ('learning_container_year', 'title', 'acronym', 'type', 'comment')
     fieldsets = ((None, {'fields': ('learning_container_year', 'title', 'acronym', 'volume_declared_vacant',
-                                    'type', 'comment', 'planned_classes', 'hourly_volume_partial_q1')}),)
+                                    'type', 'comment', 'planned_classes', 'hourly_volume_total_annual',
+                                    'hourly_volume_partial_q1', 'hourly_volume_partial_q2')}),)
     search_fields = ['acronym', 'learning_container_year__acronym']
     raw_id_fields = ('learning_container_year',)
     list_filter = ('learning_container_year__academic_year',)
@@ -51,7 +52,9 @@ class LearningComponentYear(SerializableModel):
                             blank=True, null=True)
     comment = models.CharField(max_length=255, blank=True, null=True)
     planned_classes = models.IntegerField(blank=True, null=True)
+    hourly_volume_total_annual = models.DecimalField(max_digits=6, decimal_places=2, blank=True, null=True)
     hourly_volume_partial_q1 = models.DecimalField(max_digits=6, decimal_places=2, blank=True, null=True)
+    hourly_volume_partial_q2 = models.DecimalField(max_digits=6, decimal_places=2, blank=True, null=True)
     volume_declared_vacant = models.DecimalField(max_digits=6, decimal_places=1, blank=True, null=True)
 
     _warnings = None
