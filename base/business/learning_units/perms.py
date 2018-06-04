@@ -47,18 +47,12 @@ def is_person_linked_to_entity_in_charge_of_learning_unit(learning_unit_year, pe
     return is_attached_entities(person, entity)
 
 
-def is_eligible(learning_unit_year, person, functions_to_check):
-    return all(
-        (f(learning_unit_year, person) for f in functions_to_check)
-    )
-
-
 def is_eligible_for_modification(learning_unit_year, person):
     functions_to_check = (
         _is_learning_unit_year_in_range_to_be_modified,
         is_person_linked_to_entity_in_charge_of_learning_unit
     )
-    return is_eligible(learning_unit_year, person, functions_to_check)
+    return is_eligible(functions_to_check, learning_unit_year, person)
 
 
 def is_eligible_for_modification_end_date(learning_unit_year, person):
@@ -67,7 +61,7 @@ def is_eligible_for_modification_end_date(learning_unit_year, person):
         is_eligible_for_modification,
         _is_person_eligible_to_modify_end_date_based_on_container_type
     )
-    return is_eligible(learning_unit_year, person, functions_to_check)
+    return is_eligible(functions_to_check, learning_unit_year, person)
 
 
 def is_eligible_to_create_partim(learning_unit_year, person):
@@ -76,7 +70,7 @@ def is_eligible_to_create_partim(learning_unit_year, person):
         is_academic_year_in_range_to_create_partim,
         is_learning_unit_year_full
     )
-    return is_eligible(learning_unit_year, person, functions_to_check)
+    return is_eligible(functions_to_check, learning_unit_year, person)
 
 
 def is_eligible_to_create_modification_proposal(learning_unit_year, person):
@@ -87,7 +81,7 @@ def is_eligible_to_create_modification_proposal(learning_unit_year, person):
         _negate(is_learning_unit_year_in_proposal),
         is_person_linked_to_entity_in_charge_of_learning_unit
     )
-    return is_eligible(learning_unit_year, person, functions_to_check)
+    return is_eligible(functions_to_check, learning_unit_year, person)
 
 
 def is_eligible_for_cancel_of_proposal(proposal, person):
@@ -96,7 +90,7 @@ def is_eligible_for_cancel_of_proposal(proposal, person):
         _is_attached_to_initial_or_current_requirement_entity,
         _has_person_the_right_to_make_proposal
     )
-    return is_eligible(proposal, person, functions_to_check)
+    return is_eligible(functions_to_check, proposal, person)
 
 
 def is_eligible_to_edit_proposal(proposal, person):
@@ -108,7 +102,7 @@ def is_eligible_to_edit_proposal(proposal, person):
         _is_person_eligible_to_edit_proposal_based_on_state,
         _has_person_the_right_edit_proposal
     )
-    return is_eligible(proposal, person, functions_to_check)
+    return is_eligible(functions_to_check, proposal, person)
 
 
 def is_eligible_to_consolidate_proposal(proposal, person):
@@ -117,7 +111,21 @@ def is_eligible_to_consolidate_proposal(proposal, person):
         _is_proposal_in_state_to_be_consolidated,
         _is_attached_to_initial_or_current_requirement_entity
     )
-    return is_eligible(proposal, person, functions_to_check)
+    return is_eligible(functions_to_check, proposal, person)
+
+
+def can_edit_summary_locked_field(person, is_person_linked_to_entity):
+    return person.is_faculty_manager() and is_person_linked_to_entity
+
+
+def can_update_learning_achievement(learning_unit_year, person):
+    return person.is_linked_to_entity_in_charge_of_learning_unit_year(learning_unit_year)
+
+
+def can_delete_learning_unit_year(learning_unit_year, person):
+    if not _can_delete_learning_unit_year_according_type(learning_unit_year, person):
+        return False
+    return person.is_linked_to_entity_in_charge_of_learning_unit_year(learning_unit_year)
 
 
 def _is_person_eligible_to_modify_end_date_based_on_container_type(learning_unit_year, person):
@@ -125,7 +133,15 @@ def _is_person_eligible_to_modify_end_date_based_on_container_type(learning_unit
         return True
     if learning_unit_year.is_partim():
         return True
-    return learning_unit_year.learning_container_year.container_type not in FACULTY_UPDATABLE_CONTAINER_TYPES
+    return not _is_container_type_course_dissertation_or_internship(learning_unit_year, person)
+
+
+def _is_person_central_manager(learning_unit_year, person):
+    return person.is_central_manager()
+
+
+def _is_learning_unit_year_a_partim(learning_unit_year, person):
+    return learning_unit_year.is_partim()
 
 
 def _is_person_in_accordance_with_proposal_state(proposal, person):
@@ -172,26 +188,8 @@ def _is_learning_unit_year_in_range_to_be_modified(learning_unit_year, person):
     return person.is_central_manager() and learning_unit_year.can_update_by_faculty_manager()
 
 
-def _negate(f):
-
-    def negate_method(*args, **kwargs):
-        return not f(*args, **kwargs)
-
-    return negate_method
-
-
 def _is_proposal_in_state_to_be_consolidated(proposal, person):
     return proposal.state in PROPOSAL_CONSOLIDATION_ELIGIBLE_STATES
-
-
-def can_update_learning_achievement(learning_unit_year, person):
-    return person.is_linked_to_entity_in_charge_of_learning_unit_year(learning_unit_year)
-
-
-def can_delete_learning_unit_year(learning_unit_year, person):
-    if not _can_delete_learning_unit_year_according_type(learning_unit_year, person):
-        return False
-    return person.is_linked_to_entity_in_charge_of_learning_unit_year(learning_unit_year)
 
 
 def _can_delete_learning_unit_year_according_type(learning_unit_year, person):
@@ -254,5 +252,25 @@ def learning_unit_proposal_permissions(proposal, person, current_learning_unit_y
     return permissions
 
 
-def can_edit_summary_locked_field(person, is_person_linked_to_entity):
-    return person.is_faculty_manager() and is_person_linked_to_entity
+def is_eligible(functions_to_check, *args):
+    return all(
+        (f(*args) for f in functions_to_check)
+    )
+
+
+def _negate(f):
+
+    def negate_method(*args, **kwargs):
+        return not f(*args, **kwargs)
+
+    return negate_method
+
+
+def _and(*functions):
+
+    def and_methods(*args, **kwargs):
+        return all(
+            (f(*args, **kwargs) for f in functions)
+        )
+
+    return and_methods
