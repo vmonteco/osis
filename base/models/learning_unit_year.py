@@ -64,9 +64,9 @@ class LearningUnitYearAdmin(SerializableModelAdmin):
                                     'specific_title', 'specific_title_english', 'subtype', 'credits', 'decimal_scores',
                                     'structure', 'internship_subtype', 'status', 'session',
                                     'quadrimester', 'attribution_procedure', 'summary_locked',
-                                    'professional_integration')}),)
+                                    'professional_integration', 'language')}),)
     list_filter = ('academic_year', 'decimal_scores', 'summary_locked')
-    raw_id_fields = ('learning_unit', 'learning_container_year', 'structure')
+    raw_id_fields = ('learning_unit', 'learning_container_year', 'structure', 'language', )
     search_fields = ['acronym', 'structure__acronym', 'external_id']
 
 

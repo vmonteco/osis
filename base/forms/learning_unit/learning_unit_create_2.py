@@ -250,9 +250,7 @@ class FullForm(LearningUnitBaseForm):
             'proposal': proposal,
             'initial': {
                 # Default campus selected 'Louvain-la-Neuve' if exist
-                'campus': Campus.objects.filter(name='Louvain-la-Neuve').first(),
-                # Default language French
-                'language': language.find_by_code('FR')
+                'campus': Campus.objects.filter(name='Louvain-la-Neuve').first()
             } if not self.instance else None,
             'person': self.person
         }
@@ -263,6 +261,8 @@ class FullForm(LearningUnitBaseForm):
             'instance': self.instance,
             'initial': {
                 'status': True, 'academic_year': default_ac_year,
+                # Default language French
+                'language': language.find_by_code('FR')
             } if not self.instance else None,
             'person': self.person,
             'subtype': self.subtype
