@@ -28,7 +28,10 @@ import datetime
 import factory
 import factory.fuzzy
 from django.conf import settings
+from django.contrib.auth.models import Group
+
 from base import models as mdl
+from base.models.person import FACULTY_MANAGER_GROUP, CENTRAL_MANAGER_GROUP
 from base.tests.factories.user import UserFactory
 from osis_common.utils.datetime import get_tzinfo
 
@@ -61,3 +64,17 @@ class PersonWithoutUserFactory(PersonFactory):
     first_name = factory.Faker('first_name')
     last_name = factory.Faker('last_name')
     email = factory.LazyAttribute(generate_person_email)
+
+
+class FacultyManagerFactory(PersonFactory):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        faculty_group, created = Group.objects.get_or_create(name=FACULTY_MANAGER_GROUP)
+        self.obj.user.groups.add(faculty_group)
+
+
+class CentralManagerFactory(PersonFactory):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        faculty_group, created = Group.objects.get_or_create(name=CENTRAL_MANAGER_GROUP)
+        self.obj.user.groups.add(faculty_group)
