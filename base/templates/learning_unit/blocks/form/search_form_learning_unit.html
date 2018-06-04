@@ -62,10 +62,6 @@
         <div class="col-md-2">
             {% bootstrap_field form.allocation_entity_acronym %}
         </div>
-    {% elif search_type == borrowed_search_type %}
-        <div class="col-md-3">
-            {% bootstrap_field form.faculty_borrowing_acronym %}
-        </div>
     {% endif %}
 
     {% if search_type == activity_search_type or search_type == borrowed_search_type %}
@@ -74,8 +70,13 @@
         </div>
     {% endif %}
     {% if search_type == activity_search_type or search_type == service_search_type or search_type == borrowed_search_type %}
-        <div class="col-md-2">
+        <div class="col-md-1">
             {% bootstrap_field form.with_entity_subordinated %}
+        </div>
+    {% endif %}
+    {% if search_type == borrowed_search_type %}
+        <div class="col-md-2">
+            {% bootstrap_field form.faculty_borrowing_acronym %}
         </div>
     {% endif %}
     {% endwith %}

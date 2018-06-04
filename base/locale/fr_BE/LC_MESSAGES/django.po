@@ -2857,7 +2857,7 @@ msgid "add_another"
 msgstr "Ajouter un autre"
 
 msgid "faculty_borrowing"
-msgstr "Faculté emprunteuse"
+msgstr "Fac. emprunteuse"
 
 msgid "The value of this attribute is inherited from the parent UE"
 msgstr "La valeur de cet attribut est héritée de l'UE parent"
