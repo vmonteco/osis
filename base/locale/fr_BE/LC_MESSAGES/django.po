@@ -2862,13 +2862,13 @@ msgstr "Ajouter un autre"
 msgid "faculty_borrowing"
 msgstr "Faculté emprunteuse"
 
-msgid "inherited"
+msgid "The value of this attribute is inherited from the parent UE"
 msgstr "La valeur de cet attribut est héritée de l'UE parent"
 
 msgid "to_complete"
 msgstr "A compléter"
 
-msgid "not_annualized"
+msgid "The value of this attribute is not annualized"
 msgstr "La valeur de cet attribut n'est pas annualisée"
 
 msgid "start_year"
