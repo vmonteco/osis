@@ -163,7 +163,6 @@ class VolumeEditionForm(forms.Form):
         if self._parent_data[key] < partim_data[key]:
             self.add_error(key, _(msg))
 
-
     def save(self, postponement):
         if not self.changed_data:
             return None
