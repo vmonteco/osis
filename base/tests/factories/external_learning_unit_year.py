@@ -15,7 +15,7 @@
 #
 #    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 #    GNU General Public License for more details.
 #
 #    A copy of this license - GNU General Public License - is available
@@ -23,12 +23,29 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.conf.urls import url
+import datetime
+import string
 
-from webservices.views import ws_catalog_offer
+import factory.fuzzy
+from factory.django import DjangoModelFactory
 
-urlpatterns = [
-    url('^v0.1/catalog/offer/(?P<year>[0-9]{4})/(?P<language>[a-zA-Z]{2})/(?P<acronym>[a-zA-Z0-9]+)$',
-        ws_catalog_offer,
-        name='v0.1-ws_catalog_offer'),
-]
+from base.models.learning_unit_year import MINIMUM_CREDITS, MAXIMUM_CREDITS
+from base.tests.factories.entity import EntityFactory
+from base.tests.factories.learning_unit_year import LearningUnitYearFactory
+from osis_common.utils.datetime import get_tzinfo
+from base.tests.factories.person import PersonFactory
+
+
+class ExternalLearningUnitYearFactory(DjangoModelFactory):
+    class Meta:
+        model = "base.ExternalLearningUnitYear"
+        
+    external_id = factory.fuzzy.FuzzyText(length=10, chars=string.digits)
+    changed = factory.fuzzy.FuzzyDateTime(datetime.datetime(2016, 1, 1, tzinfo=get_tzinfo()),
+                                          datetime.datetime(2017, 3, 1, tzinfo=get_tzinfo()))
+    external_acronym = factory.fuzzy.FuzzyText(length=10, chars=string.digits)
+    external_credits = factory.fuzzy.FuzzyDecimal(MINIMUM_CREDITS, MAXIMUM_CREDITS)
+
+    learning_unit_year = factory.SubFactory(LearningUnitYearFactory)
+    requesting_entity = factory.SubFactory(EntityFactory)
+    author = factory.SubFactory(PersonFactory)

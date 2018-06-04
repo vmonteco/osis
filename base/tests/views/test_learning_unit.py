@@ -36,7 +36,7 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseForbidden
 from django.http import HttpResponseNotAllowed
 from django.http import HttpResponseRedirect
-from django.test import TestCase, RequestFactory
+from django.test import TestCase, RequestFactory, Client
 from django.test.utils import override_settings
 from django.utils.translation import ugettext_lazy as _
 
@@ -51,8 +51,9 @@ from base.models import learning_unit_component_class
 from base.models.academic_year import AcademicYear
 from base.models.bibliography import Bibliography
 from base.models.enums import entity_container_year_link_type, active_status, education_group_categories
+from base.models.enums import entity_type
 from base.models.enums import internship_subtypes
-from base.models.enums import learning_container_year_types, organization_type, entity_type
+from base.models.enums import learning_container_year_types, organization_type
 from base.models.enums import learning_unit_periodicity
 from base.models.enums import learning_unit_year_session
 from base.models.enums import learning_unit_year_subtypes
@@ -68,6 +69,7 @@ from base.tests.factories.education_group_year import EducationGroupYearFactory
 from base.tests.factories.entity import EntityFactory
 from base.tests.factories.entity_container_year import EntityContainerYearFactory
 from base.tests.factories.entity_version import EntityVersionFactory
+from base.tests.factories.external_learning_unit_year import ExternalLearningUnitYearFactory
 from base.tests.factories.group_element_year import GroupElementYearFactory
 from base.tests.factories.learning_achievement import LearningAchievementFactory
 from base.tests.factories.learning_class_year import LearningClassYearFactory
@@ -81,7 +83,8 @@ from base.tests.factories.organization import OrganizationFactory
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.person_entity import PersonEntityFactory
 from base.tests.factories.user import SuperUserFactory, UserFactory
-from base.views.learning_unit import learning_unit_components, learning_class_year_edit, learning_unit_specifications
+from base.views.learning_unit import learning_unit_components, learning_class_year_edit, learning_unit_specifications, \
+    learning_unit_formations
 from base.views.learning_unit import learning_unit_identification
 from base.views.learning_units.create import create_partim_form
 from base.views.learning_units.search import learning_units
@@ -93,7 +96,6 @@ from cms.tests.factories.translated_text import TranslatedTextFactory
 from osis_common.document import xls_build
 from reference.tests.factories.country import CountryFactory
 from reference.tests.factories.language import LanguageFactory
-from base.models.enums import entity_type
 
 
 class LearningUnitViewCreateFullTestCase(TestCase):
@@ -591,6 +593,44 @@ class LearningUnitViewTestCase(TestCase):
 
     @mock.patch('base.views.layout.render')
     @mock.patch('base.models.program_manager.is_program_manager')
+    def test_external_learning_unit_read(self, mock_program_manager, mock_render):
+        mock_program_manager.return_value = True
+
+        external_learning_unit_year = ExternalLearningUnitYearFactory(learning_unit_year__subtype=learning_unit_year_subtypes.FULL)
+        learning_unit_year = external_learning_unit_year.learning_unit_year
+
+        request = self.create_learning_unit_request(learning_unit_year)
+        learning_unit_identification(request, learning_unit_year.id)
+
+        self.assertTrue(mock_render.called)
+        request, template, context = mock_render.call_args[0]
+
+        self.assertEqual(template, 'learning_unit/external/read.html')
+        self.assertEqual(context['learning_unit_year'], learning_unit_year)
+
+    def test_external_learning_unit_read_permission_denied(self):
+        learning_container_year = LearningContainerYearFactory(academic_year=self.current_academic_year)
+        learning_unit_year = LearningUnitYearFactory(academic_year=self.current_academic_year,
+                                                     learning_container_year=learning_container_year,
+                                                     subtype=learning_unit_year_subtypes.FULL)
+        external_learning_unit_year = ExternalLearningUnitYearFactory(learning_unit_year=learning_unit_year)
+        learning_unit_year = external_learning_unit_year.learning_unit_year
+
+        a_user_without_perms = PersonFactory().user
+        client = Client()
+        client.force_login(a_user_without_perms)
+
+        response = client.get(reverse(learning_unit_identification, args=[learning_unit_year.id]))
+        self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
+        self.assertTemplateUsed(response, "access_denied.html")
+
+        a_user_without_perms.user_permissions.add(Permission.objects.get(codename='can_access_externallearningunityear'))
+
+        response = client.get(reverse(learning_unit_identification, args=[learning_unit_year.id]))
+        self.assertEqual(response.status_code, 200)
+
+    @mock.patch('base.views.layout.render')
+    @mock.patch('base.models.program_manager.is_program_manager')
     def test_warnings_learning_unit_read(self, mock_program_manager, mock_render):
         mock_program_manager.return_value = True
 
@@ -738,9 +778,6 @@ class LearningUnitViewTestCase(TestCase):
         )
 
         request = self.create_learning_unit_request(learning_unit_year)
-
-        from base.views.learning_unit import learning_unit_identification
-
         learning_unit_identification(request, learning_unit_year.id)
 
         self.assertTrue(mock_render.called)
@@ -775,8 +812,6 @@ class LearningUnitViewTestCase(TestCase):
 
         request = request_factory.get(reverse('learning_unit_formations', args=[learning_unit_year.id]))
         request.user = self.a_superuser
-
-        from base.views.learning_unit import learning_unit_formations
 
         learning_unit_formations(request, learning_unit_year.id)
 

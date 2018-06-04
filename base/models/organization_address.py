@@ -50,3 +50,6 @@ def find_by_organization(organization):
 def find_by_id(organization_address_id):
     return OrganizationAddress.objects.get(pk=organization_address_id)
 
+
+def find_distinct_by_country(a_country):
+    return OrganizationAddress.objects.filter(country=a_country).distinct('city').order_by('city').values('city')

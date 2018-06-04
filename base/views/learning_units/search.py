@@ -38,7 +38,7 @@ from base.utils.cache import cache_filter
 from base.business.learning_unit import create_xls
 from base.business.proposal_xls import create_xls_proposal
 from base.forms.common import TooManyResultsException
-from base.forms.learning_unit.search_form import LearningUnitYearForm
+from base.forms.learning_unit.search_form import LearningUnitYearForm, ExternalLearningUnitYearForm
 from base.forms.proposal.learning_unit_proposal import LearningUnitProposalForm, ProposalStateModelForm
 from base.models.academic_year import current_academic_year, get_last_academic_years
 from base.models.enums import learning_container_year_types, learning_unit_year_subtypes
@@ -53,6 +53,7 @@ SERVICE_COURSES_SEARCH = 2
 PROPOSAL_SEARCH = 3
 SUMMARY_LIST = 4
 BORROWED_COURSE = 5
+EXTERNAL_SEARCH = 6
 
 ACTION_BACK_TO_INITIAL = "back_to_initial"
 ACTION_CONSOLIDATE = "consolidate"
@@ -177,3 +178,32 @@ def _get_search_type_label(search_type):
         SERVICE_COURSES_SEARCH: _('service_course_search'),
         BORROWED_COURSE: _('borrowed_course_search')
     }.get(search_type, _('activity_search'))
+
+
+@login_required
+@permission_required('base.can_access_externallearningunityear', raise_exception=True)
+@cache_filter()
+def learning_units_external_search(request):
+    search_form = ExternalLearningUnitYearForm(request.GET or None)
+    user_person = get_object_or_404(Person, user=request.user)
+    external_learning_units = []
+    try:
+        if search_form.is_valid():
+            external_learning_units = search_form.get_learning_units()
+            check_if_display_message(request, external_learning_units)
+    except TooManyResultsException:
+        display_error_messages(request, 'too_many_results')
+
+    if request.POST:
+        return redirect(reverse("learning_unit_proposal_search") + "?{}".format(request.GET.urlencode()))
+
+    context = {
+        'form': search_form,
+        'academic_years': get_last_academic_years(),
+        'current_academic_year': current_academic_year(),
+        'experimental_phase': True,
+        'search_type': EXTERNAL_SEARCH,
+        'learning_units': external_learning_units,
+        'is_faculty_manager': user_person.is_faculty_manager()
+    }
+    return layout.render(request, "learning_units.html", context)
