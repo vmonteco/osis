@@ -82,11 +82,8 @@
                                     <div class="col-md-3">
                                         {% dl_tooltip differences 'internship_subtype' value=learning_unit_year.internship_subtype_verbose %}
                                     </div>
-
                                     {% endblock content_row1 %}
-
                                 </div>
-
                                 {% if proposal.type == 'TRANSFORMATION' and differences|get_old_acronym %}
                                     <div>({% trans 'formerly' %} : {{ differences|get_old_acronym}})</div>
                                     <br>
@@ -94,7 +91,6 @@
 
                                 <div class="row">
                                     {% block content_row2 %}
-
                                     <div class="col-md-3">
                                         {% dl_tooltip differences 'credits' label_text='nominal_credits' value=learning_unit_year.credits %}
                                     </div>
@@ -107,9 +103,14 @@
                                     <div class="col-md-3">
                                         {% dl_tooltip differences 'language' inherited=learning_unit_year.subtype value=learning_unit_year.learning_container_year.language %}
                                     </div>
-
                                     {% endblock content_row2 %}
-
+                                </div>
+                                <div class="row">
+                                    {% block content_row3 %}
+                                    <div class="col-md-3">
+                                        {% dl_tooltip differences 'professional_integration' label_text="professional_integration" value=learning_unit_year.professional_integration|yesno:_("YES,NO")%}
+                                    </div>
+                                    {% endblock content_row3 %}
                                 </div>
                                 {% block titles %}
                                 {% if learning_unit_year.subtype == "PARTIM" %}
