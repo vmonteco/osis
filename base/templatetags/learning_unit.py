@@ -111,7 +111,7 @@ def get_style_of_value(style, title, value):
 
 def get_style_of_label_text(label_text, style, title):
     label_text = '<label style="{style}" title="{inherited_title}">{label_text}</label>' \
-        .format(style=style, inherited_title=title, label_text=label_text)
+        .format(style=style, inherited_title=_(title), label_text=label_text)
     return label_text
 
 
