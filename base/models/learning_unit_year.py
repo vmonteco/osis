@@ -69,9 +69,9 @@ class LearningUnitYearAdmin(SerializableModelAdmin):
     search_fields = ['acronym', 'structure__acronym', 'external_id']
 
 
-class LearningUnitYearManager(models.Manager):
+class LearningUnitYearWithContainerManager(models.Manager):
     def get_queryset(self):
-        # TODO For the moment, the learning_unit_year without container must be hide
+        # FIXME For the moment, the learning_unit_year without container must be hide !
         return super().get_queryset().filter(learning_container_year__isnull=False)
 
 
@@ -110,7 +110,7 @@ class LearningUnitYear(SerializableModel):
                                          blank=True, null=True)
     professional_integration = models.BooleanField(default=False, verbose_name=_('professional_integration'))
 
-    objects = LearningUnitYearManager()
+    objects_with_container = LearningUnitYearWithContainerManager()
     _warnings = None
 
     class Meta:
@@ -197,7 +197,8 @@ class LearningUnitYear(SerializableModel):
 
     @property
     def internship_subtype_verbose(self):
-        return _('to_complete') if self.learning_container_year.container_type == INTERNSHIP and\
+        return _('to_complete') if self.learning_container_year and \
+                                   self.learning_container_year.container_type == INTERNSHIP and \
                                    not self.internship_subtype else self.internship_subtype
 
     def is_in_proposal(self):
@@ -315,7 +316,7 @@ def _is_regex(acronym):
 def search(academic_year_id=None, acronym=None, learning_container_year_id=None, learning_unit=None,
            title=None, subtype=None, status=None, container_type=None, tutor=None,
            summary_responsible=None, requirement_entities=None, *args, **kwargs):
-    queryset = LearningUnitYear.objects
+    queryset = LearningUnitYear.objects_with_container
 
     if academic_year_id:
         queryset = queryset.filter(academic_year=academic_year_id)
