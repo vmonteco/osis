@@ -72,7 +72,10 @@ def create_partim_form(request, learning_unit_year_id):
     if postponement_form.is_valid():
         return _save_and_redirect(postponement_form, request)
 
-    return render(request, "learning_unit/simple/creation_partim.html", postponement_form.get_context())
+    context = postponement_form.get_context()
+    context.update({'learning_unit_year': learning_unit_year_full})
+
+    return render(request, "learning_unit/simple/creation_partim.html", context)
 
 
 def _save_and_redirect(postponement_form, request):
