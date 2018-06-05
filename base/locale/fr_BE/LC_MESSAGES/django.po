@@ -2969,3 +2969,7 @@ msgstr "Intitulé propre au partim (partie 2) en anglais"
 
 msgid "Manage volumes"
 msgstr "Gérer les volumes"
+
+msgid "New partim"
+msgstr "Nouveau partim"
+
