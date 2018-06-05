@@ -23,45 +23,24 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+import decimal
+from django.test import TestCase
 
-from django.utils.translation import ugettext_lazy as _
+from assessments.business import score_encoding_list
 
-COURSE = "COURSE"
-INTERNSHIP = "INTERNSHIP"
-DISSERTATION = "DISSERTATION"
-OTHER_COLLECTIVE = "OTHER_COLLECTIVE"
-OTHER_INDIVIDUAL = "OTHER_INDIVIDUAL"
-MASTER_THESIS = "MASTER_THESIS"
-EXTERNAL = "EXTERNAL"
 
-LEARNING_CONTAINER_YEAR_TYPES_MUST_HAVE_SAME_ENTITIES = [
-    MASTER_THESIS,
-    INTERNSHIP,
-    DISSERTATION
-]
+class TestConvertToDecimal(TestCase):
+    """Unit tests on _convert_to_decimal()"""
 
-LEARNING_CONTAINER_YEAR_TYPES = (
-    (COURSE, _(COURSE)),
-    (INTERNSHIP, _(INTERNSHIP)),
-    (DISSERTATION, _(DISSERTATION)),
-    (OTHER_COLLECTIVE, _(OTHER_COLLECTIVE)),
-    (OTHER_INDIVIDUAL, _(OTHER_INDIVIDUAL)),
-    (MASTER_THESIS, _(MASTER_THESIS)),
-    (EXTERNAL, _(EXTERNAL)),
-)
+    def test_when_2_decimals_in_encoded_score(self):
+        result = score_encoding_list._convert_to_decimal(float(15.55), True)
+        self.assertIsInstance(result, decimal.Decimal)
+        self.assertEqual(str(result), '15.55')
 
-LEARNING_CONTAINER_YEAR_TYPES_FOR_FACULTY = (
-    (OTHER_COLLECTIVE, _(OTHER_COLLECTIVE)),
-    (OTHER_INDIVIDUAL, _(OTHER_INDIVIDUAL)),
-    (MASTER_THESIS, _(MASTER_THESIS)),
-)
+    def test_when_3_decimals_in_encoded_score(self):
+        with self.assertRaises(ValueError):
+            score_encoding_list._convert_to_decimal(float(15.555), True)
 
-LEARNING_CONTAINER_YEAR_TYPES_FOR_PROPOSAL_FACULTY = (
-    (COURSE, _(COURSE)),
-    (INTERNSHIP, _(INTERNSHIP)),
-    (DISSERTATION, _(DISSERTATION)),
-)
-
-LEARNING_CONTAINER_YEAR_TYPES_WITHOUT_EXTERNAL = LEARNING_CONTAINER_YEAR_TYPES[:-1]
-
-CONTAINER_TYPE_WITH_DEFAULT_COMPONENT = [COURSE, MASTER_THESIS, OTHER_COLLECTIVE, INTERNSHIP]
+    def test_when_deciamls_unothorized(self):
+        with self.assertRaises(ValueError):
+            score_encoding_list._convert_to_decimal(float(15.555), False)
