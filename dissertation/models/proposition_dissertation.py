@@ -30,7 +30,6 @@ from django.db.models import Q
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from dissertation.models import proposition_offer
-from dissertation.models.dissertation import count_by_propostion
 
 
 class PropositionDissertationAdmin(SerializableModelAdmin):
@@ -96,9 +95,6 @@ class PropositionDissertation(SerializableModel):
     def set_author(self, adviser):
         self.author = adviser
         self.save()
-
-    def number_of_places_used(self):
-        return count_by_propostion(self)
 
     class Meta:
         ordering = ["author__person__last_name", "author__person__middle_name", "author__person__first_name", "title"]

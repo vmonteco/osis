@@ -29,7 +29,6 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
-
 from base.models import academic_year
 from base.models import offer_year, student
 from dissertation.models import proposition_dissertation, offer_proposition, dissertation_location
@@ -234,7 +233,7 @@ def find_by_id(dissertation_id):
         return None
 
 
-def count_by_propostion(proposition):
+def count_by_proposition(proposition):
     current_academic_year = academic_year.starting_academic_year()
     return Dissertation.objects.filter(proposition_dissertation=proposition) \
         .filter(active=True) \

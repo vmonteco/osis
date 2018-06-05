@@ -99,7 +99,9 @@ def manager_proposition_dissertations(request):
 
 
 def _append_dissertations_count(prop):
-    prop.dissertations_count = dissertation.count_by_propostion(prop)
+    prop.dissertations_count = dissertation.count_by_proposition(prop)
+
+    return prop
 
 
 @login_required
@@ -121,7 +123,7 @@ def manager_proposition_dissertation_detail(request, pk):
     offer_propositions = proposition_offer.find_by_proposition_dissertation(proposition)
     person = mdl.person.find_by_user(request.user)
     adv = adviser.search_by_person(person)
-    count_use = proposition.count_dissertations()
+    count_use = dissertation.count_by_proposition(proposition)
     percent = count_use * 100 / proposition.max_number_student if proposition.max_number_student else 0
     count_proposition_role = proposition_role.count_by_proposition(proposition)
     files = proposition_document_file.find_by_proposition(proposition)
@@ -258,6 +260,7 @@ def manager_proposition_dissertations_search(request):
     adv = adviser.search_by_person(person)
     offers = faculty_adviser.search_by_adviser(adv)
     propositions_dissertations = proposition_dissertation.search(request.GET['search'], active=True, offers=offers)
+    propositions_dissertations = [_append_dissertations_count(prop) for prop in propositions_dissertations]
 
     if 'bt_xlsx' in request.GET:
         filename = "EXPORT_propositions_{}.xlsx".format(time.strftime("%Y-%m-%d_%H:%M"))
@@ -280,7 +283,7 @@ def manager_proposition_dissertations_search(request):
                                str(types_choices[proposition.type]),
                                str(levels_choices[proposition.level]),
                                str(collaboration_choices[proposition.collaboration]),
-                               '{}/{}'.format(proposition.count_dissertations(), proposition.max_number_student),
+                               '{}/{}'.format(proposition.dissertations_count, proposition.max_number_student),
                                proposition.visibility,
                                proposition.active,
                                offers,
@@ -331,7 +334,7 @@ def proposition_dissertation_detail(request, pk):
     if proposition is None:
         return redirect('proposition_dissertations')
     offer_propositions = proposition_offer.find_by_proposition_dissertation(proposition)
-    count_use = proposition.count_dissertations()
+    count_use = dissertation.count_by_proposition(proposition)
     percent = count_use * 100 / proposition.max_number_student if proposition.max_number_student else 0
     count_proposition_role = proposition_role.count_by_proposition(proposition)
     files = proposition_document_file.find_by_proposition(proposition)
