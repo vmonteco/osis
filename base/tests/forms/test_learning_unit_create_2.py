@@ -261,13 +261,17 @@ class TestFullFormInit(LearningUnitFullFormContextMixin):
         expected_choices = [acy.id for acy in self.acs[3:6]]
         self.assertCountEqual(actual_choices, expected_choices)
 
+    def tearDown(self):
+        faculty_group = Group.objects.get(name='faculty_managers')
+        self.person.user.groups.remove(faculty_group)
+
 
 class TestFullFormIsValid(LearningUnitFullFormContextMixin):
     """Unit tests for is_valid() """
 
-    def _assert_equal_values(self, obj, dictionnary, fields_to_validate):
+    def _assert_equal_values(self, obj, dictionary, fields_to_validate):
         for field in fields_to_validate:
-            self.assertEqual(getattr(obj, field), dictionnary[field], msg='Error field = {}'.format(field))
+            self.assertEqual(getattr(obj, field), dictionary[field], msg='Error field = {}'.format(field))
 
     def test_creation_case_correct_post_data(self):
         form = _instanciate_form(self.current_academic_year, post_data=self.post_data,
