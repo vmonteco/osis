@@ -38,10 +38,6 @@ FACULTY_UPDATABLE_CONTAINER_TYPES = (learning_container_year_types.COURSE,
 PROPOSAL_CONSOLIDATION_ELIGIBLE_STATES = (ProposalState.ACCEPTED.name,
                                           ProposalState.REFUSED.name)
 
-MAX_FACULTY_MODIFICATION_PROPOSAL_RANGE = MAX_CENTRAL_MODIFICATION_PROPOSAL_RANGE = 1
-MIN_FACULTY_MODIFICATION_PROPOSAL_RANGE = 1
-MIN_CENTRAL_MODIFICATION_PROPOSAL_RANGE = 0
-
 
 def is_person_linked_to_entity_in_charge_of_learning_unit(learning_unit_year, person):
     entity = Entity.objects.filter(
@@ -99,7 +95,7 @@ def is_eligible_to_edit_proposal(proposal, person):
     return _conjunction(
         _is_attached_to_initial_or_current_requirement_entity,
         _is_person_eligible_to_edit_proposal_based_on_state,
-        _has_person_the_right_edit_proposal
+        _has_person_the_right_edit_proposal,
     )(proposal, person)
 
 
@@ -144,11 +140,11 @@ def _is_person_eligible_to_modify_end_date_based_on_container_type(learning_unit
     )(learning_unit_year, person)
 
 
-def _is_person_central_manager(learning_unit_year, person):
+def _is_person_central_manager(_, person):
     return person.is_central_manager()
 
 
-def _is_learning_unit_year_a_partim(learning_unit_year, person):
+def _is_learning_unit_year_a_partim(learning_unit_year, _):
     return learning_unit_year.is_partim()
 
 
@@ -156,31 +152,31 @@ def _is_person_in_accordance_with_proposal_state(proposal, person):
     return (person.is_central_manager()) or proposal.state == ProposalState.FACULTY.name
 
 
-def _has_person_the_right_to_make_proposal(proposal, person):
+def _has_person_the_right_to_make_proposal(_, person):
     return person.user.has_perm('base.can_propose_learningunit')
 
 
-def _has_person_the_right_edit_proposal(proposal, person):
+def _has_person_the_right_edit_proposal(_, person):
     return person.user.has_perm('base.can_edit_learning_unit_proposal')
 
 
-def _has_person_the_right_to_consolidate(proposal, person):
+def _has_person_the_right_to_consolidate(_, person):
     return person.user.has_perm('base.can_consolidate_learningunit_proposal')
 
 
-def is_learning_unit_year_full(learning_unit_year, person):
+def is_learning_unit_year_full(learning_unit_year, _):
     return learning_unit_year.is_full()
 
 
-def is_learning_unit_year_in_past(learning_unit_year, person):
+def is_learning_unit_year_in_past(learning_unit_year, _):
     return learning_unit_year.is_past()
 
 
-def is_learning_unit_year_a_partim(learning_unit_year, person):
+def is_learning_unit_year_a_partim(learning_unit_year, _):
     return learning_unit_year.is_partim()
 
 
-def is_learning_unit_year_in_proposal(learning_unit_year, person):
+def is_learning_unit_year_in_proposal(learning_unit_year, _):
     return learning_unit_year.learning_unit.has_proposal()
 
 
@@ -193,10 +189,10 @@ def is_academic_year_in_range_to_create_partim(learning_unit_year, person):
 
 
 def _is_learning_unit_year_in_range_to_be_modified(learning_unit_year, person):
-    return person.is_central_manager() and learning_unit_year.can_update_by_faculty_manager()
+    return person.is_central_manager() or learning_unit_year.can_update_by_faculty_manager()
 
 
-def _is_proposal_in_state_to_be_consolidated(proposal, person):
+def _is_proposal_in_state_to_be_consolidated(proposal, _):
     return proposal.state in PROPOSAL_CONSOLIDATION_ELIGIBLE_STATES
 
 
@@ -224,7 +220,7 @@ def _is_attached_to_initial_entity(learning_unit_proposal, a_person):
     return is_attached_entities(a_person, Entity.objects.filter(pk=initial_entity_requirement_id))
 
 
-def _is_container_type_course_dissertation_or_internship(learning_unit_year, person):
+def _is_container_type_course_dissertation_or_internship(learning_unit_year, _):
     return learning_unit_year.learning_container_year and\
            learning_unit_year.learning_container_year.container_type in FACULTY_UPDATABLE_CONTAINER_TYPES
 

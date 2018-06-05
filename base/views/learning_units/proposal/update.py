@@ -83,6 +83,7 @@ def _update_or_create_proposal(request, learning_unit_year, proposal=None):
             request, _("success_modification_proposal").format(_(proposal.type), learning_unit_year.acronym))
         return redirect('learning_unit', learning_unit_year_id=learning_unit_year.id)
 
+
     context = proposal_base_form.get_context()
     if proposal:
         return layout.render(request, 'learning_unit/proposal/update_modification.html', context)
