@@ -29,18 +29,18 @@ from django.test import TestCase
 from assessments.business import score_encoding_list
 
 
-class TestTruncateDecimals(TestCase):
-    """Unit tests on _truncate_decimals()"""
+class TestConvertToDecimal(TestCase):
+    """Unit tests on _convert_to_decimal()"""
 
     def test_when_2_decimals_in_encoded_score(self):
-        result = score_encoding_list._truncate_decimals(float(15.55), True)
+        result = score_encoding_list._convert_to_decimal(float(15.55), True)
         self.assertIsInstance(result, decimal.Decimal)
         self.assertEqual(str(result), '15.55')
 
     def test_when_3_decimals_in_encoded_score(self):
         with self.assertRaises(ValueError):
-            score_encoding_list._truncate_decimals(float(15.555), True)
+            score_encoding_list._convert_to_decimal(float(15.555), True)
 
     def test_when_deciamls_unothorized(self):
         with self.assertRaises(ValueError):
-            score_encoding_list._truncate_decimals(float(15.555), False)
+            score_encoding_list._convert_to_decimal(float(15.555), False)
