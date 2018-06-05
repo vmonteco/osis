@@ -276,6 +276,9 @@ class GenerateContainer:
         for generated_container_year in self.generated_container_years:
             yield generated_container_year
 
+    def __getitem__(self, index):
+        return self.generated_container_years[index]
+
 
 class GenerateContainerYear:
 

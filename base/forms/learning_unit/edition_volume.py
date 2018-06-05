@@ -34,10 +34,9 @@ from django.utils.translation import ugettext_lazy as _
 from base.business.learning_unit_year_with_context import ENTITY_TYPES_VOLUME
 from base.business.learning_units import edition
 from base.business.learning_units.edition import check_postponement_conflict_report_errors
-from base.forms.bootstrap import BootstrapForm
+from base.forms.learning_unit.learning_unit_create import DEFAULT_ACRONYM_COMPONENT
 from base.forms.utils.emptyfield import EmptyField
 from base.models.entity_component_year import EntityComponentYear
-from base.models.entity_container_year import EntityContainerYear
 from base.models.enums import entity_container_year_link_type as entity_types
 from base.models.enums.component_type import PRACTICAL_EXERCISES, LECTURING
 from base.models.learning_component_year import LearningComponentYear
@@ -337,6 +336,14 @@ class VolumeEditionFormsetContainer:
 
 
 class SimplifiedVolumeForm(forms.ModelForm):
+    _learning_unit_year = None
+    _requirement_entity_containers = []
+
+    def __init__(self, *args, **kwargs):
+        self.component_type = kwargs.pop('component_type')
+        super().__init__(*args, **kwargs)
+        self.instance.type = self.component_type
+        self.instance.acronym = DEFAULT_ACRONYM_COMPONENT[self.component_type]
 
     class Meta:
         model = LearningComponentYear
@@ -348,11 +355,29 @@ class SimplifiedVolumeForm(forms.ModelForm):
     # planned_classes = forms.IntegerField(label=_('planned_classes_pc'), help_text=_('planned_classes'),
     #                                      min_value=0, required=False)
 
-    def __init__(self, learning_container_year=None, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def save(self, commit=True):
+        instance = super().save(commit)
+
+        LearningUnitComponent.objects.get_or_create(
+            learning_unit_year=self._learning_unit_year,
+            learning_component_year=instance
+        )
+
+        for requirement_entity_container in self._requirement_entity_containers:
+            EntityComponentYear.objects.get_or_create(
+                entity_container_year=requirement_entity_container,
+                learning_component_year=instance
+            )
+
+        return instance
 
 
 class SimplifiedVolumeFormset(forms.BaseModelFormSet):
+    def get_form_kwargs(self, index):
+        kwargs = super().get_form_kwargs(index)
+        kwargs['component_type'] = [LECTURING, PRACTICAL_EXERCISES][index]
+        return kwargs
+
     @property
     def fields(self):
         fields = OrderedDict()
@@ -378,13 +403,15 @@ class SimplifiedVolumeFormset(forms.BaseModelFormSet):
             })
         return data
 
-    def save(self, learning_unit_year, commit=True):
-        self.instance.learning_container_year = learning_unit_year.learning_container_year
+    def save_all_forms(self, learning_unit_year, entity_container_years, commit=True):
+        lcy = learning_unit_year.learning_container_year
 
-        lcy = super().save(commit)
-        LearningUnitComponent.objects.create(learning_unit_year=learning_unit_year,
-                                             learning_component_year=lcy)
-        return lcy
+        for form in self.forms:
+            form._learning_unit_year = learning_unit_year
+            form._requirement_entity_containers = entity_container_years
+            form.instance.learning_container_year = lcy
+
+        return super().save(commit)
 
 
 SimplifiedVolumeManagementForm = modelformset_factory(model=LearningComponentYear, form=SimplifiedVolumeForm,
