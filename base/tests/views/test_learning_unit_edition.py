@@ -35,8 +35,9 @@ from django.test import TestCase, RequestFactory
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
+from base.forms.learning_unit.entity_form import EntityContainerBaseForm
 from base.forms.learning_unit.learning_unit_create import LearningUnitModelForm, LearningUnitYearModelForm, \
-    LearningContainerYearModelForm, EntityContainerBaseForm
+    LearningContainerYearModelForm
 from base.models.entity_component_year import EntityComponentYear
 from base.models.enums import learning_unit_periodicity, learning_container_year_types, learning_unit_year_subtypes, \
     entity_container_year_link_type, vacant_declaration_type, attribution_procedure, entity_type, organization_type

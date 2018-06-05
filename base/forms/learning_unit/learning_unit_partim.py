@@ -29,8 +29,9 @@ from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
 from base.business.utils.model import merge_two_dicts
+from base.forms.learning_unit.entity_form import EntityContainerBaseForm
 from base.forms.learning_unit.learning_unit_create import LearningUnitYearModelForm, \
-    LearningContainerYearModelForm, EntityContainerBaseForm, LearningContainerModelForm, \
+    LearningContainerYearModelForm, LearningContainerModelForm, \
     LearningUnitModelForm
 from base.forms.learning_unit.learning_unit_create_2 import LearningUnitBaseForm
 from base.forms.utils.acronym_field import split_acronym

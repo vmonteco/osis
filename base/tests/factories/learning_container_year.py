@@ -25,15 +25,15 @@
 ##############################################################################
 import datetime
 import operator
-import factory
+
 import factory.fuzzy
 
-from base.tests.factories.academic_year import AcademicYearFactory
-from base.tests.factories.learning_container import LearningContainerFactory
-from base.tests.factories.campus import CampusFactory
 from base.models.enums import learning_container_year_types
-from reference.tests.factories.language import LanguageFactory
+from base.tests.factories.academic_year import AcademicYearFactory
+from base.tests.factories.campus import CampusFactory
+from base.tests.factories.learning_container import LearningContainerFactory
 from osis_common.utils.datetime import get_tzinfo
+from reference.tests.factories.language import LanguageFactory
 
 
 class LearningContainerYearFactory(factory.django.DjangoModelFactory):
@@ -43,7 +43,7 @@ class LearningContainerYearFactory(factory.django.DjangoModelFactory):
     external_id = factory.Sequence(lambda n: '10000000%02d' % n)
     academic_year = factory.SubFactory(AcademicYearFactory)
     learning_container = factory.SubFactory(LearningContainerFactory)
-    container_type = factory.Iterator(learning_container_year_types.LEARNING_CONTAINER_YEAR_TYPES,
+    container_type = factory.Iterator(learning_container_year_types.LEARNING_CONTAINER_YEAR_TYPES_WITHOUT_EXTERNAL,
                                       getter=operator.itemgetter(0))
     common_title = factory.Sequence(lambda n: 'Learning container year - %d' % n)
     common_title_english = factory.Sequence(lambda n: 'Learning container year english - %d' % n)
