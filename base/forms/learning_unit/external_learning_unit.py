@@ -30,8 +30,9 @@ from django.db import transaction
 from django.forms import ModelChoiceField
 from django.utils.translation import ugettext_lazy as _
 
+from base.forms.learning_unit.entity_form import EntitiesVersionChoiceField
 from base.forms.learning_unit.learning_unit_create import LearningUnitModelForm, LearningUnitYearModelForm, \
-    LearningContainerModelForm, EntitiesVersionChoiceField, LearningContainerYearModelForm
+    LearningContainerModelForm, LearningContainerYearModelForm
 from base.forms.learning_unit.learning_unit_create_2 import LearningUnitBaseForm
 from base.forms.learning_unit.learning_unit_partim import merge_data
 from base.forms.utils.acronym_field import ExternalAcronymField

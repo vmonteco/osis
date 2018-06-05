@@ -2969,3 +2969,10 @@ msgstr "Title specific with partim (part 2) in English"
 
 msgid "Manage volumes"
 msgstr ""
+
+msgid "New external learning unit"
+msgstr ""
+
+msgid "New partim"
+msgstr ""
+
