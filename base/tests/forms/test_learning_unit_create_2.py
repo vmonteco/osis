@@ -84,6 +84,7 @@ def get_valid_form_data(academic_year, person, learning_unit_year=None):
     requirement_entity_version = entities['child_one_entity_version']
     organization = OrganizationFactory(type=organization_type.MAIN)
     campus = CampusFactory(organization=organization)
+    language = LanguageFactory(code='FR')
 
     if not learning_unit_year:
         learning_container = LearningContainerFactory()
@@ -97,7 +98,8 @@ def get_valid_form_data(academic_year, person, learning_unit_year=None):
         learning_unit_year = LearningUnitYearFactory.build(academic_year=academic_year,
                                                            learning_unit=learning_unit_full,
                                                            learning_container_year=container_year,
-                                                           subtype=learning_unit_year_subtypes.FULL)
+                                                           subtype=learning_unit_year_subtypes.FULL,
+                                                           language=language)
     return {
         # Learning unit year data model form
         'acronym': learning_unit_year.acronym,
@@ -113,7 +115,7 @@ def get_valid_form_data(academic_year, person, learning_unit_year=None):
         'status': learning_unit_year.status,
         'internship_subtype': None,
         'attribution_procedure': learning_unit_year.attribution_procedure,
-        'language': learning_unit_year.language.id,
+        'language': learning_unit_year.language.pk,
 
         # Learning unit data model form
         'periodicity': ANNUAL,

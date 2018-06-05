@@ -272,7 +272,8 @@ class FullForm(LearningUnitBaseForm):
             'data': data,
             'instance': self.instance,
             'initial': {
-                'status': True, 'academic_year': default_ac_year,
+                'status': True,
+                'academic_year': default_ac_year,
                 # Default language French
                 'language': language.find_by_code('FR')
             } if not self.instance else None,
