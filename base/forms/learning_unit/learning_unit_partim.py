@@ -43,7 +43,7 @@ from base.models.learning_unit import LearningUnit
 
 PARTIM_FORM_READ_ONLY_FIELD = {
     'acronym_0', 'acronym_1', 'common_title', 'common_title_english',
-    'requirement_entity', 'allocation_entity', 'language', 'periodicity',
+    'requirement_entity', 'allocation_entity', 'periodicity',
     'campus', 'academic_year', 'container_type', 'internship_subtype',
     'additional_requirement_entity_1', 'additional_requirement_entity_2'
 }
@@ -185,7 +185,8 @@ class PartimForm(LearningUnitBaseForm):
             'quadrimester': self.learning_unit_year_full.quadrimester,
             'status': self.learning_unit_year_full.status,
             'specific_title': self.learning_unit_year_full.specific_title,
-            'specific_title_english': self.learning_unit_year_full.specific_title_english
+            'specific_title_english': self.learning_unit_year_full.specific_title_english,
+            'language': self.learning_unit_year_full.language
         }
         acronym_splited = split_acronym(acronym)
         initial_learning_unit_year.update({
