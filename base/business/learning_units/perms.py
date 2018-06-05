@@ -48,70 +48,70 @@ def is_person_linked_to_entity_in_charge_of_learning_unit(learning_unit_year, pe
 
 
 def is_eligible_for_modification(learning_unit_year, person):
-    functions_to_check = (
+    predicates = (
         _is_learning_unit_year_in_range_to_be_modified,
         is_person_linked_to_entity_in_charge_of_learning_unit
     )
-    return is_eligible(functions_to_check, learning_unit_year, person)
+    return _conjunction(predicates)(learning_unit_year, person)
 
 
 def is_eligible_for_modification_end_date(learning_unit_year, person):
-    functions_to_check = (
-        _negate(is_learning_unit_year_in_past),
+    predicates = (
+        _negation(is_learning_unit_year_in_past),
         is_eligible_for_modification,
         _is_person_eligible_to_modify_end_date_based_on_container_type
     )
-    return is_eligible(functions_to_check, learning_unit_year, person)
+    return _conjunction(predicates)(learning_unit_year, person)
 
 
 def is_eligible_to_create_partim(learning_unit_year, person):
-    functions_to_check = (
+    predicates = (
         is_person_linked_to_entity_in_charge_of_learning_unit,
         is_academic_year_in_range_to_create_partim,
         is_learning_unit_year_full
     )
-    return is_eligible(functions_to_check, learning_unit_year, person)
+    return _conjunction(predicates)(learning_unit_year, person)
 
 
 def is_eligible_to_create_modification_proposal(learning_unit_year, person):
-    functions_to_check = (
-        _negate(is_learning_unit_year_in_past),
-        _negate(is_learning_unit_year_a_partim),
+    predicates = (
+        _negation(is_learning_unit_year_in_past),
+        _negation(is_learning_unit_year_a_partim),
         _is_container_type_course_dissertation_or_internship,
-        _negate(is_learning_unit_year_in_proposal),
+        _negation(is_learning_unit_year_in_proposal),
         is_person_linked_to_entity_in_charge_of_learning_unit
     )
-    return is_eligible(functions_to_check, learning_unit_year, person)
+    return _conjunction(predicates)(learning_unit_year, person)
 
 
 def is_eligible_for_cancel_of_proposal(proposal, person):
-    functions_to_check = (
+    predicates = (
         _is_person_in_accordance_with_proposal_state,
         _is_attached_to_initial_or_current_requirement_entity,
         _has_person_the_right_to_make_proposal
     )
-    return is_eligible(functions_to_check, proposal, person)
+    return _conjunction(predicates)(proposal, person)
 
 
 def is_eligible_to_edit_proposal(proposal, person):
     if not proposal:
         return False
 
-    functions_to_check = (
+    predicates = (
         _is_attached_to_initial_or_current_requirement_entity,
         _is_person_eligible_to_edit_proposal_based_on_state,
         _has_person_the_right_edit_proposal
     )
-    return is_eligible(functions_to_check, proposal, person)
+    return _conjunction(predicates)(proposal, person)
 
 
 def is_eligible_to_consolidate_proposal(proposal, person):
-    functions_to_check = (
+    predicates = (
         _has_person_the_right_to_consolidate,
         _is_proposal_in_state_to_be_consolidated,
         _is_attached_to_initial_or_current_requirement_entity
     )
-    return is_eligible(functions_to_check, proposal, person)
+    return _conjunction(predicates)(proposal, person)
 
 
 def can_edit_summary_locked_field(person, is_person_linked_to_entity):
@@ -252,25 +252,19 @@ def learning_unit_proposal_permissions(proposal, person, current_learning_unit_y
     return permissions
 
 
-def is_eligible(functions_to_check, *args):
-    return all(
-        (f(*args) for f in functions_to_check)
-    )
+def _conjunction(predicates):
 
-
-def _negate(f):
-
-    def negate_method(*args, **kwargs):
-        return not f(*args, **kwargs)
-
-    return negate_method
-
-
-def _and(*functions):
-
-    def and_methods(*args, **kwargs):
+    def conjunction_method(*args, **kwargs):
         return all(
-            (f(*args, **kwargs) for f in functions)
+            f(*args, **kwargs) for f in predicates
         )
 
-    return and_methods
+    return conjunction_method
+
+
+def _negation(predicate):
+
+    def negation_method(*args, **kwargs):
+        return not predicate(*args, **kwargs)
+
+    return negation_method
