@@ -24,9 +24,11 @@
 #
 ##############################################################################
 from django import template
-from django.utils.translation import ugettext_lazy as _
 from django.utils.safestring import mark_safe
+from django.utils.translation import ugettext_lazy as _
+
 from base.models.proposal_learning_unit import ProposalLearningUnit
+
 register = template.Library()
 
 
