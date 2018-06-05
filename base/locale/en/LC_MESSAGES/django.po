@@ -2972,3 +2972,7 @@ msgstr ""
 
 msgid "New external learning unit"
 msgstr ""
+
+msgid "New partim"
+msgstr ""
+

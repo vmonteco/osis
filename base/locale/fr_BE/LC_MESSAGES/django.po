@@ -2972,3 +2972,9 @@ msgstr "Gérer les volumes"
 
 msgid "New external learning unit"
 msgstr "Nouvelle unité d'enseignement externe"
+
+msgid "New partim"
+msgstr "Nouveau partim"
+
+
+
