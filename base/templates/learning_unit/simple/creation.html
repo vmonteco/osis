@@ -26,8 +26,17 @@
 
 {% block breadcrumb %}
 <li><a href="{% url 'catalog' %}" id="lnk_catalog">{% trans 'formation_catalogue'%}</a></li>
-<li><a href="{% url 'learning_units' %}" id="lnk_learning_units">{% trans 'learning_units'%}</a></li>
-<li id="lnk_learning_unit">{% trans 'new_learning_unit' %}</li>
+<li><a href="{% url 'learning_units' %}" id="lnk_learning_units">{% trans 'learning_units'%}</a> </li>
+{% if subtype == 'PARTIM' %}
+    <li id="lnk_learning_unit_UE">
+        <a href="{% url 'learning_unit' learning_unit_year.id %}">
+            {{ learning_unit_year_form.acronym.value.0 }}{{ learning_unit_year_form.acronym.value.1 }}
+        </a>
+    </li>
+    <li id="lnk_learning_unit">{% trans 'New partim' %}</li>
+{% else %}
+    <li id="lnk_learning_unit">{% trans 'new_learning_unit' %}</li>
+{% endif %}
 {% endblock %}
 
 {% block content %}
