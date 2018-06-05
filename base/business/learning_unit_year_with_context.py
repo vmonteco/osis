@@ -32,6 +32,7 @@ from django.utils.translation import ugettext_lazy as _
 from base import models as mdl
 from base.business import entity_version as business_entity_version
 from base.models.enums import entity_container_year_link_type as entity_types
+from osis_common.utils.numbers import to_float_or_zero
 
 ENTITY_TYPES_VOLUME = [
     entity_types.REQUIREMENT_ENTITY,
@@ -115,14 +116,12 @@ def _append_components(learning_unit):
             vol_add_req_entity_1 = req_entities_volumes.get(entity_types.ADDITIONAL_REQUIREMENT_ENTITY_1, 0) or 0
             vol_add_req_entity_2 = req_entities_volumes.get(entity_types.ADDITIONAL_REQUIREMENT_ENTITY_2, 0) or 0
             volume_global = vol_req_entity + vol_add_req_entity_1 + vol_add_req_entity_2
-            volume_partial_component = float(component.hourly_volume_partial_q1) if component.hourly_volume_partial_q1 else 0
             planned_classes = component.planned_classes or 1
-            volume_total = volume_global / planned_classes
 
             learning_unit.components[component] = {
-                'VOLUME_TOTAL': volume_total,
-                'VOLUME_Q1': volume_partial_component,
-                'VOLUME_Q2': volume_total - volume_partial_component,
+                'VOLUME_TOTAL': to_float_or_zero(component.hourly_volume_total_annual),
+                'VOLUME_Q1': to_float_or_zero(component.hourly_volume_partial_q1),
+                'VOLUME_Q2': to_float_or_zero(component.hourly_volume_partial_q2),
                 'PLANNED_CLASSES': planned_classes,
                 'VOLUME_' + entity_types.REQUIREMENT_ENTITY: vol_req_entity,
                 'VOLUME_' + entity_types.ADDITIONAL_REQUIREMENT_ENTITY_1: vol_add_req_entity_1,
