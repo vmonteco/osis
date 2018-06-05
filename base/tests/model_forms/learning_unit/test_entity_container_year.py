@@ -26,7 +26,7 @@
 from django.contrib.auth.models import Permission
 from django.test import TestCase
 
-from base.forms.learning_unit.learning_unit_create import EntityContainerBaseForm
+from base.forms.learning_unit.entity_form import EntityContainerBaseForm
 from base.models.entity import Entity
 from base.models.enums import organization_type, entity_container_year_link_type, learning_unit_year_subtypes, \
     entity_type, learning_container_year_types

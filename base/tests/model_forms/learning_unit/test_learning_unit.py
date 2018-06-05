@@ -83,7 +83,8 @@ class TestLearningUnitModelFormSave(TestCase):
         self.assertEqual(lu.other_remark, self.quote_2)
 
     def test_case_update_correctly_saved(self):
-        learning_unit_to_update = LearningUnitFactory(learning_container=self.learning_container)
+        learning_unit_to_update = LearningUnitFactory(learning_container=self.learning_container,
+                                                      start_year=self.current_academic_year.year)
         self.form = LearningUnitModelForm(self.post_data, instance=learning_unit_to_update)
         self.assertTrue(self.form.is_valid(), self.form.errors)
         lu = self.form.save(**self.save_kwargs)
