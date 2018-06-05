@@ -26,14 +26,15 @@
 
 
 from django.core.exceptions import ObjectDoesNotExist
-from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
 from django.db import models
 from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
+
 from base.models import academic_year
 from base.models import offer_year, student
 from dissertation.models import proposition_dissertation, offer_proposition, dissertation_location
 from dissertation.utils import emails_dissert
+from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
 
 
 class DissertationAdmin(SerializableModelAdmin):

@@ -23,23 +23,25 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.shortcuts import redirect
+import time
+
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import user_passes_test
+from django.http import HttpResponse
+from django.shortcuts import redirect
+from openpyxl import Workbook
+from openpyxl.writer.excel import save_virtual_workbook
+
 from base import models as mdl
-from dissertation.models import adviser, dissertation, faculty_adviser, offer_proposition, proposition_dissertation,\
+from base.views import layout
+from dissertation.forms import PropositionDissertationForm, ManagerPropositionDissertationForm, \
+    ManagerPropositionRoleForm, ManagerPropositionDissertationEditForm
+from dissertation.models import adviser, faculty_adviser, offer_proposition, proposition_dissertation, \
     proposition_document_file, proposition_offer, proposition_role, offer_proposition_group
+from dissertation.models import dissertation
 from dissertation.models.proposition_dissertation import PropositionDissertation
 from dissertation.models.proposition_offer import PropositionOffer
 from dissertation.models.proposition_role import PropositionRole
-from dissertation.forms import PropositionDissertationForm, ManagerPropositionDissertationForm,\
-    ManagerPropositionRoleForm, ManagerPropositionDissertationEditForm
-from openpyxl.writer.excel import save_virtual_workbook
-from openpyxl import Workbook
-from django.contrib.auth.decorators import user_passes_test
-from base.views import layout
-import time
-
-from django.http import HttpResponse
 
 
 def detect_in_request(request, wanted_key, wanted_value):
@@ -90,8 +92,14 @@ def manager_proposition_dissertations(request):
     adv = adviser.search_by_person(person)
     offers = faculty_adviser.search_by_adviser(adv)
     propositions_dissertations = proposition_dissertation.search_by_offers(offers)
+    propositions_dissertations = [_append_dissertations_count(prop) for prop in propositions_dissertations]
+
     return layout.render(request, 'manager_proposition_dissertations_list.html',
                          {'propositions_dissertations': propositions_dissertations})
+
+
+def _append_dissertations_count(prop):
+    prop.dissertations_count = dissertation.count_by_propostion(prop)
 
 
 @login_required
