@@ -192,7 +192,7 @@ def _format_score_to_decimal(score):
     if isinstance(score, str):
         score = score.strip().replace(',', '.')
         _check_str_score_is_digit(score)
-    return Decimal(score)
+    return Decimal(str(score))
 
 
 def _check_str_score_is_digit(score_str):
