@@ -347,9 +347,10 @@ def search(academic_year_id=None, acronym=None, learning_container_year_id=None,
         queryset = queryset.filter(learning_container_year__container_type=container_type)
 
     if tutor:
-        filter_by_first_name = {_build_tutor_filter(name_type='first_name'): tutor}
-        filter_by_last_name = {_build_tutor_filter(name_type='last_name'): tutor}
-        queryset = queryset.filter(Q(**filter_by_first_name) | Q(**filter_by_last_name)).distinct()
+        for name in tutor.split():
+            filter_by_first_name = {_build_tutor_filter(name_type='first_name'): name}
+            filter_by_last_name = {_build_tutor_filter(name_type='last_name'): name}
+            queryset = queryset.filter(Q(**filter_by_first_name) | Q(**filter_by_last_name)).distinct()
 
     if summary_responsible:
         queryset = find_summary_responsible_by_name(queryset, summary_responsible)
