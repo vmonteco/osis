@@ -28,16 +28,19 @@ from collections import OrderedDict
 from django import forms
 from django.db import transaction
 from django.db.models import Prefetch
-from django.forms import formset_factory
+from django.forms import formset_factory, modelformset_factory
 from django.utils.translation import ugettext_lazy as _
 
 from base.business.learning_unit_year_with_context import ENTITY_TYPES_VOLUME
 from base.business.learning_units import edition
 from base.business.learning_units.edition import check_postponement_conflict_report_errors
+from base.forms.bootstrap import BootstrapForm
 from base.forms.utils.emptyfield import EmptyField
 from base.models.entity_component_year import EntityComponentYear
+from base.models.entity_container_year import EntityContainerYear
 from base.models.enums import entity_container_year_link_type as entity_types
 from base.models.enums.component_type import PRACTICAL_EXERCISES, LECTURING
+from base.models.learning_component_year import LearningComponentYear
 from base.models.learning_unit_component import LearningUnitComponent
 
 
@@ -331,3 +334,59 @@ class VolumeEditionFormsetContainer:
             for name, error in form_errors.items():
                 errors["{}-{}-{}".format(formset.prefix, i, name)] = error
         return errors
+
+
+class SimplifiedVolumeForm(forms.ModelForm):
+
+    class Meta:
+        model = LearningComponentYear
+        fields = ('volume_declared_vacant', 'planned_classes', 'hourly_volume_partial')
+
+    # volume_q1 = VolumeField(label=_('partial_volume_1Q'), help_text=_('partial_volume_1'), required=False)
+    # volume_q2 = VolumeField(label=_('partial_volume_2Q'), help_text=_('partial_volume_2'), required=False)
+    # volume_total = VolumeField(label=_('total_volume_voltot'), help_text=_('total_volume'), required=False)
+    # planned_classes = forms.IntegerField(label=_('planned_classes_pc'), help_text=_('planned_classes'),
+    #                                      min_value=0, required=False)
+
+    def __init__(self, learning_container_year=None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+
+class SimplifiedVolumeFormset(forms.BaseModelFormSet):
+    @property
+    def fields(self):
+        fields = OrderedDict()
+        for form_instance in self.forms:
+            fields.update(form_instance.fields)
+        return fields
+
+    @property
+    def instances_data(self):
+        data = {}
+        for form_instance in self.forms:
+            columns = form_instance.fields.keys()
+            data.update({col: getattr(form_instance.instance, col, None) for col in columns})
+        return data
+
+    @property
+    def label_fields(self):
+        """ Return a dictionary with the label of all fields """
+        data = {}
+        for form_instance in self.forms:
+            data.update({
+                key: field.label for key, field in form_instance.fields.items()
+            })
+        return data
+
+    def save(self, learning_unit_year, commit=True):
+        self.instance.learning_container_year = learning_unit_year.learning_container_year
+
+        lcy = super().save(commit)
+        LearningUnitComponent.objects.create(learning_unit_year=learning_unit_year,
+                                             learning_component_year=lcy)
+        return lcy
+
+
+SimplifiedVolumeManagementForm = modelformset_factory(model=LearningComponentYear, form=SimplifiedVolumeForm,
+                                                      formset=SimplifiedVolumeFormset,
+                                                      extra=2, max_num=2)
