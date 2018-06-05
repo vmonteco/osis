@@ -38,6 +38,10 @@ FACULTY_UPDATABLE_CONTAINER_TYPES = (learning_container_year_types.COURSE,
 PROPOSAL_CONSOLIDATION_ELIGIBLE_STATES = (ProposalState.ACCEPTED.name,
                                           ProposalState.REFUSED.name)
 
+MAX_FACULTY_MODIFICATION_PROPOSAL_RANGE = MAX_CENTRAL_MODIFICATION_PROPOSAL_RANGE = 1
+MIN_FACULTY_MODIFICATION_PROPOSAL_RANGE = 1
+MIN_CENTRAL_MODIFICATION_PROPOSAL_RANGE = 0
+
 
 def is_person_linked_to_entity_in_charge_of_learning_unit(learning_unit_year, person):
     entity = Entity.objects.filter(
@@ -48,70 +52,63 @@ def is_person_linked_to_entity_in_charge_of_learning_unit(learning_unit_year, pe
 
 
 def is_eligible_for_modification(learning_unit_year, person):
-    predicates = (
+    return _conjunction(
         _is_learning_unit_year_in_range_to_be_modified,
         is_person_linked_to_entity_in_charge_of_learning_unit
-    )
-    return _conjunction(predicates)(learning_unit_year, person)
+    )(learning_unit_year, person)
 
 
 def is_eligible_for_modification_end_date(learning_unit_year, person):
-    predicates = (
+    return _conjunction(
         _negation(is_learning_unit_year_in_past),
         is_eligible_for_modification,
         _is_person_eligible_to_modify_end_date_based_on_container_type
-    )
-    return _conjunction(predicates)(learning_unit_year, person)
+    )(learning_unit_year, person)
 
 
 def is_eligible_to_create_partim(learning_unit_year, person):
-    predicates = (
+    return _conjunction(
         is_person_linked_to_entity_in_charge_of_learning_unit,
         is_academic_year_in_range_to_create_partim,
         is_learning_unit_year_full
-    )
-    return _conjunction(predicates)(learning_unit_year, person)
+    )(learning_unit_year, person)
 
 
 def is_eligible_to_create_modification_proposal(learning_unit_year, person):
-    predicates = (
+    return _conjunction(
         _negation(is_learning_unit_year_in_past),
         _negation(is_learning_unit_year_a_partim),
         _is_container_type_course_dissertation_or_internship,
         _negation(is_learning_unit_year_in_proposal),
         is_person_linked_to_entity_in_charge_of_learning_unit
-    )
-    return _conjunction(predicates)(learning_unit_year, person)
+    )(learning_unit_year, person)
 
 
 def is_eligible_for_cancel_of_proposal(proposal, person):
-    predicates = (
+    return _conjunction(
         _is_person_in_accordance_with_proposal_state,
         _is_attached_to_initial_or_current_requirement_entity,
         _has_person_the_right_to_make_proposal
-    )
-    return _conjunction(predicates)(proposal, person)
+    )(proposal, person)
 
 
 def is_eligible_to_edit_proposal(proposal, person):
     if not proposal:
         return False
 
-    predicates = (
+    return _conjunction(
         _is_attached_to_initial_or_current_requirement_entity,
         _is_person_eligible_to_edit_proposal_based_on_state,
         _has_person_the_right_edit_proposal
-    )
-    return _conjunction(predicates)(proposal, person)
+    )(proposal, person)
 
 
 def is_eligible_to_consolidate_proposal(proposal, person):
-    predicates = (
+    return _conjunction(
         _has_person_the_right_to_consolidate,
         _is_proposal_in_state_to_be_consolidated,
         _is_attached_to_initial_or_current_requirement_entity
-    )
-    return _conjunction(predicates)(proposal, person)
+    )(proposal, person)
 
 
 def can_edit_summary_locked_field(person, is_person_linked_to_entity):
@@ -128,12 +125,23 @@ def can_delete_learning_unit_year(learning_unit_year, person):
     return person.is_linked_to_entity_in_charge_of_learning_unit_year(learning_unit_year)
 
 
-def _is_person_eligible_to_modify_end_date_based_on_container_type(learning_unit_year, person):
+def _is_person_eligible_to_edit_proposal_based_on_state(proposal, person):
     if person.is_central_manager():
         return True
-    if learning_unit_year.is_partim():
-        return True
-    return not _is_container_type_course_dissertation_or_internship(learning_unit_year, person)
+    if proposal.state != ProposalState.FACULTY.name:
+        return False
+    if (proposal.type == ProposalType.MODIFICATION.name and
+            proposal.learning_unit_year.academic_year.year != current_academic_year().year + 1):
+        return False
+    return True
+
+
+def _is_person_eligible_to_modify_end_date_based_on_container_type(learning_unit_year, person):
+    return _disjunction(
+        _is_person_central_manager,
+        _is_learning_unit_year_a_partim,
+        _negation(_is_container_type_course_dissertation_or_internship)
+    )(learning_unit_year, person)
 
 
 def _is_person_central_manager(learning_unit_year, person):
@@ -145,7 +153,7 @@ def _is_learning_unit_year_a_partim(learning_unit_year, person):
 
 
 def _is_person_in_accordance_with_proposal_state(proposal, person):
-    return (not person.is_faculty_manager()) or proposal.state == ProposalState.FACULTY.name
+    return (person.is_central_manager()) or proposal.state == ProposalState.FACULTY.name
 
 
 def _has_person_the_right_to_make_proposal(proposal, person):
@@ -216,17 +224,6 @@ def _is_attached_to_initial_entity(learning_unit_proposal, a_person):
     return is_attached_entities(a_person, Entity.objects.filter(pk=initial_entity_requirement_id))
 
 
-def _is_person_eligible_to_edit_proposal_based_on_state(proposal, person):
-    if person.is_central_manager():
-        return True
-    if proposal.state != ProposalState.FACULTY.name:
-        return False
-    if (proposal.type == ProposalType.MODIFICATION.name and
-            proposal.learning_unit_year.academic_year.year != current_academic_year().year + 1):
-        return False
-    return True
-
-
 def _is_container_type_course_dissertation_or_internship(learning_unit_year, person):
     return learning_unit_year.learning_container_year and\
            learning_unit_year.learning_container_year.container_type in FACULTY_UPDATABLE_CONTAINER_TYPES
@@ -252,14 +249,24 @@ def learning_unit_proposal_permissions(proposal, person, current_learning_unit_y
     return permissions
 
 
-def _conjunction(predicates):
+def _conjunction(*predicates):
 
     def conjunction_method(*args, **kwargs):
         return all(
-            f(*args, **kwargs) for f in predicates
+            p(*args, **kwargs) for p in predicates
         )
 
     return conjunction_method
+
+
+def _disjunction(*predicates):
+
+    def disjunction_method(*args, **kwargs):
+        return any(
+            p(*args, **kwargs) for p in predicates
+        )
+
+    return disjunction_method
 
 
 def _negation(predicate):
