@@ -38,7 +38,7 @@ from dissertation.forms import PropositionDissertationForm, ManagerPropositionDi
     ManagerPropositionRoleForm, ManagerPropositionDissertationEditForm
 from dissertation.models import adviser, faculty_adviser, offer_proposition, proposition_dissertation, \
     proposition_document_file, proposition_offer, proposition_role, offer_proposition_group
-from dissertation.models.dissertation import count_by_propostion
+from dissertation.models import dissertation
 from dissertation.models.proposition_dissertation import PropositionDissertation
 from dissertation.models.proposition_offer import PropositionOffer
 from dissertation.models.proposition_role import PropositionRole
@@ -92,14 +92,14 @@ def manager_proposition_dissertations(request):
     adv = adviser.search_by_person(person)
     offers = faculty_adviser.search_by_adviser(adv)
     propositions_dissertations = proposition_dissertation.search_by_offers(offers)
-    propositions_dissertations = [_append_count_by_dissertation(prop) for prop in propositions_dissertations]
+    propositions_dissertations = [_append_dissertations_count(prop) for prop in propositions_dissertations]
 
     return layout.render(request, 'manager_proposition_dissertations_list.html',
                          {'propositions_dissertations': propositions_dissertations})
 
 
-def _append_count_by_dissertation(prop):
-    prop.count = count_by_propostion(prop)
+def _append_dissertations_count(prop):
+    prop.dissertations_count = dissertation.count_by_propostion(prop)
 
 
 @login_required
