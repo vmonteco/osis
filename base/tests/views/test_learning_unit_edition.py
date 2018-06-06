@@ -421,7 +421,7 @@ class TestLearningUnitVolumesManagement(TestCase):
     def check_postponement(self, learning_component_year):
         learning_component_year.refresh_from_db()
         self.assertEqual(learning_component_year.planned_classes, 1)
-        self.assertEqual(learning_component_year.hourly_volume_partial, 0)
+        self.assertEqual(learning_component_year.hourly_volume_partial_q1, 0)
         self.assertEqual(EntityComponentYear.objects.get(
             learning_component_year=learning_component_year,
             entity_container_year__type=entity_container_year_link_type.REQUIREMENT_ENTITY

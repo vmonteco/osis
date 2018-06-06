@@ -24,21 +24,22 @@
 #
 ##############################################################################
 import random
-
 from copy import deepcopy
 from datetime import timedelta
 from uuid import uuid4
 
 from django.test import TestCase
+from django.utils.translation import ugettext_lazy as _
 
 from base.business.learning_unit_year_with_context import ENTITY_TYPES_VOLUME
 from base.business.learning_units import edition as business_edition
-from base.business.learning_units.edition import ConsistencyError
 from base.models.entity_component_year import EntityComponentYear
 from base.models.entity_container_year import EntityContainerYear
 from base.models.enums import entity_container_year_link_type
 from base.models.enums import learning_component_year_type
+from base.models.learning_component_year import LearningComponentYear
 from base.models.learning_unit_component import LearningUnitComponent
+from base.tests.factories.academic_year import create_current_academic_year, AcademicYearFactory
 from base.tests.factories.campus import CampusFactory
 from base.tests.factories.entity import EntityFactory
 from base.tests.factories.entity_component_year import EntityComponentYearFactory
@@ -46,11 +47,8 @@ from base.tests.factories.entity_container_year import EntityContainerYearFactor
 from base.tests.factories.entity_version import EntityVersionFactory
 from base.tests.factories.learning_component_year import LearningComponentYearFactory
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
-from base.tests.factories.academic_year import create_current_academic_year, AcademicYearFactory
 from base.tests.factories.learning_unit_component import LearningUnitComponentFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
-from django.utils.translation import ugettext_lazy as _
-
 from reference.tests.factories.language import LanguageFactory
 
 
@@ -408,6 +406,13 @@ class LearningUnitEditionTestCase(TestCase):
                                                                                 create_pratical_component=True,
                                                                                 create_lecturing_component=True)
         another_learning_unit_year.learning_unit = self.learning_unit_year.learning_unit
+        LearningComponentYear.objects.filter(
+            learningunitcomponent__learning_unit_year=another_learning_unit_year
+        ).update(
+            hourly_volume_total_annual=200,
+            hourly_volume_partial_q1=100,
+            hourly_volume_partial_q2=100
+        )
         another_learning_unit_year.save()
 
         _create_entity_container_with_entity_components(another_learning_unit_year,
@@ -427,18 +432,18 @@ class LearningUnitEditionTestCase(TestCase):
         error_list = business_edition._check_postponement_conflict_on_volumes(self.learning_container_year,
                                                                               another_learning_container_year)
         self.assertIsInstance(error_list, list)
-        self.assertEqual(len(error_list), 8)
+        self.assertEqual(len(error_list), 10)
 
         error_expected = (_("The value of field '%(field)s' for the learning unit %(acronym)s (%(component_type)s) "
                            "is different between year %(year)s - %(value)s and year %(next_year)s - %(next_value)s") %
                           {
-                              'field': _('volume_q2'),
+                              'field': _('volume_additional_requirement_entity_1'),
                               'acronym': another_learning_container_year.acronym,
                               'component_type': _(learning_component_year_type.LECTURING),
                               'year': self.learning_container_year.academic_year,
-                              'value': 40.0,
+                              'value': 10.0,
                               'next_year': another_learning_container_year.academic_year,
-                              'next_value': 50.0,
+                              'next_value': 20.0,
                           })
         self.assertIn(error_expected, error_list)
 
