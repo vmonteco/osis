@@ -125,7 +125,6 @@ class TestLearningUnitProposalCancel(TestCase):
                 "common_title_english": self.learning_unit_year.learning_container_year.common_title_english,
                 "container_type": self.learning_unit_year.learning_container_year.container_type,
                 "campus": self.learning_unit_year.learning_container_year.campus.id,
-                "language": self.learning_unit_year.learning_container_year.language.pk,
                 "in_charge": self.learning_unit_year.learning_container_year.in_charge
             },
             "learning_unit_year": {
@@ -136,7 +135,8 @@ class TestLearningUnitProposalCancel(TestCase):
                 "internship_subtype": self.learning_unit_year.internship_subtype,
                 "credits": self.learning_unit_year.credits,
                 "quadrimester": self.learning_unit_year.quadrimester,
-                "status": self.learning_unit_year.status
+                "status": self.learning_unit_year.status,
+                "language": self.learning_unit_year.language.pk
             },
             "learning_unit": {
                 "id": self.learning_unit_year.learning_unit.id,

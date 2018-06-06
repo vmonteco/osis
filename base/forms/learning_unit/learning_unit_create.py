@@ -114,7 +114,7 @@ class LearningUnitYearModelForm(forms.ModelForm):
         model = LearningUnitYear
         fields = ('academic_year', 'acronym', 'specific_title', 'specific_title_english', 'credits',
                   'session', 'quadrimester', 'status', 'internship_subtype', 'attribution_procedure',
-                  'professional_integration')
+                  'professional_integration', 'language', )
         field_classes = {'acronym': AcronymField}
         error_messages = {
             'credits': {
@@ -212,7 +212,7 @@ class LearningContainerYearModelForm(forms.ModelForm):
 
     class Meta:
         model = LearningContainerYear
-        fields = ('container_type', 'common_title', 'common_title_english', 'language', 'campus',
+        fields = ('container_type', 'common_title', 'common_title_english', 'campus',
                   'type_declaration_vacant', 'team', 'is_vacant')
 
     def post_clean(self, specific_title):

@@ -47,12 +47,13 @@ from base.tests.factories.learning_container_year import LearningContainerYearFa
 from base.tests.factories.learning_unit import LearningUnitFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from base.tests.factories.person import PersonFactory
+from reference.tests.factories.language import LanguageFactory
 
 
 class TestLearningUnitYearModelFormInit(TestCase):
     """Tests LearningUnitYearModelForm.__init__()"""
     def setUp(self):
-        current_academic_year = create_current_academic_year()
+        create_current_academic_year()
         self.central_manager = PersonFactory()
         self.central_manager.user.groups.add(Group.objects.get(name=CENTRAL_MANAGER_GROUP))
         self.faculty_manager = PersonFactory()
@@ -95,6 +96,7 @@ class TestLearningUnitYearModelFormSave(TestCase):
                                                                     academic_year=self.current_academic_year,
                                                                     container_type=learning_container_year_types.COURSE)
         self.form = LearningUnitYearModelForm(data=None, person=self.central_manager, subtype=FULL)
+        self.language = LanguageFactory(code='FR')
 
         self.post_data = {
             'acronym_0': 'L',
@@ -107,7 +109,8 @@ class TestLearningUnitYearModelFormSave(TestCase):
             'status': True,
             'quadrimester': 'Q1',
             'internship_subtype': PROFESSIONAL_INTERNSHIP,
-            'attribution_procedure': INTERNAL_TEAM
+            'attribution_procedure': INTERNAL_TEAM,
+            'language': self.language.pk
         }
 
         self.requirement_entity = EntityContainerYearFactory(type=REQUIREMENT_ENTITY,
@@ -241,7 +244,7 @@ class TestLearningUnitYearModelFormSave(TestCase):
     def test_create_entity_components_of_partims(self):
         learning_unit_year_to_update = LearningUnitYearFactory(
             learning_unit=self.learning_unit, learning_container_year=self.learning_container_year, subtype=FULL)
-        partim = LearningUnitYearFactory(learning_container_year=self.learning_container_year, subtype=PARTIM)
+        LearningUnitYearFactory(learning_container_year=self.learning_container_year, subtype=PARTIM)
         form = LearningUnitYearModelForm(data=self.post_data, person=self.central_manager, subtype=FULL,
                                          instance=learning_unit_year_to_update)
         self.assertTrue(form.is_valid(), form.errors)

@@ -605,6 +605,7 @@ def _instanciate_base_learning_unit_form(learning_unit_year_instance, person):
             'status': learning_unit_year_instance.status,
             'internship_subtype': learning_unit_year_instance.internship_subtype,
             'attribution_procedure': learning_unit_year_instance.attribution_procedure,
+            'language': learning_unit_year_instance.language.id,
 
             # Learning unit data model form
             'periodicity': learning_unit_instance.periodicity,
@@ -613,7 +614,6 @@ def _instanciate_base_learning_unit_form(learning_unit_year_instance, person):
 
             # Learning container year data model form
             'campus': learning_unit_year_instance.learning_container_year.campus.id,
-            'language': learning_unit_year_instance.learning_container_year.language.id,
             'common_title': learning_unit_year_instance.learning_container_year.common_title,
             'common_title_english': learning_unit_year_instance.learning_container_year.common_title_english,
             'container_type': learning_unit_year_instance.learning_container_year.container_type,
