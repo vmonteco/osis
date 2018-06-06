@@ -100,10 +100,10 @@ class LearningComponentYear(SerializableModel):
     def _volumes_are_inconsistent(self):
         vol_total_global = self.entitycomponentyear_set.aggregate(Sum('repartition_volume'))['repartition_volume__sum']\
                            or 0
-        vol_total_annual = (self.hourly_volume_total_annual or 0)
+        vol_total_annual = self.hourly_volume_total_annual or 0
         vol_q1 = self.hourly_volume_partial_q1 or 0
         vol_q2 = self.hourly_volume_partial_q2 or 0
-        planned_classes = (self.planned_classes or 0)
+        planned_classes = self.planned_classes or 0
 
         if vol_q1 + vol_q2 != vol_total_annual:
             return True
