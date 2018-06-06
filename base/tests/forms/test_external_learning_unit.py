@@ -59,6 +59,7 @@ def get_valid_external_learning_unit_form_data(academic_year, person, learning_u
     requesting_entity = entities['child_one_entity_version']
     organization = OrganizationFactory(type=organization_type.MAIN)
     campus = CampusFactory(organization=organization)
+    language = LanguageFactory(code='FR')
 
     if not learning_unit_year:
         container_year = LearningContainerYearFactory(academic_year=academic_year, campus=campus)
@@ -66,7 +67,8 @@ def get_valid_external_learning_unit_form_data(academic_year, person, learning_u
             acronym='XOSIS1111',
             academic_year=academic_year,
             learning_container_year=container_year,
-            subtype=learning_unit_year_subtypes.FULL
+            subtype=learning_unit_year_subtypes.FULL,
+            language=language
         )
     return {
         # Learning unit year data model form
@@ -77,13 +79,13 @@ def get_valid_external_learning_unit_form_data(academic_year, person, learning_u
         'specific_title_english': learning_unit_year.specific_title_english,
         'credits': learning_unit_year.credits,
         'status': learning_unit_year.status,
+        'language': learning_unit_year.language.pk,
 
         # Learning unit data model form
         'faculty_remark': learning_unit_year.learning_unit.faculty_remark,
 
         # Learning container year data model form
         'campus': learning_unit_year.learning_container_year.campus.id,
-        'language': learning_unit_year.learning_container_year.language.id,
         'common_title': learning_unit_year.learning_container_year.common_title,
         'common_title_english': learning_unit_year.learning_container_year.common_title_english,
         'is_vacant': learning_unit_year.learning_container_year.is_vacant,

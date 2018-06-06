@@ -63,9 +63,9 @@ class LearningUnitYearAdmin(SerializableModelAdmin):
                                     'specific_title', 'specific_title_english', 'subtype', 'credits', 'decimal_scores',
                                     'structure', 'internship_subtype', 'status', 'session',
                                     'quadrimester', 'attribution_procedure', 'summary_locked',
-                                    'professional_integration')}),)
+                                    'professional_integration', 'language')}),)
     list_filter = ('academic_year', 'decimal_scores', 'summary_locked')
-    raw_id_fields = ('learning_unit', 'learning_container_year', 'structure')
+    raw_id_fields = ('learning_unit', 'learning_container_year', 'structure', 'language', )
     search_fields = ['acronym', 'structure__acronym', 'external_id']
 
 
@@ -109,6 +109,7 @@ class LearningUnitYear(SerializableModel):
     mobility_modality = models.CharField(max_length=250, verbose_name=_('Modalities specific to IN and OUT mobility'),
                                          blank=True, null=True)
     professional_integration = models.BooleanField(default=False, verbose_name=_('professional_integration'))
+    language = models.ForeignKey('reference.Language', null=True, verbose_name=_('language'))
 
     objects_with_container = LearningUnitYearWithContainerManager()
     _warnings = None

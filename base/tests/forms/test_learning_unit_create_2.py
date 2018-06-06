@@ -84,6 +84,7 @@ def get_valid_form_data(academic_year, person, learning_unit_year=None):
     requirement_entity_version = entities['child_one_entity_version']
     organization = OrganizationFactory(type=organization_type.MAIN)
     campus = CampusFactory(organization=organization)
+    language = LanguageFactory(code='FR')
 
     if not learning_unit_year:
         learning_container = LearningContainerFactory()
@@ -97,7 +98,8 @@ def get_valid_form_data(academic_year, person, learning_unit_year=None):
         learning_unit_year = LearningUnitYearFactory.build(academic_year=academic_year,
                                                            learning_unit=learning_unit_full,
                                                            learning_container_year=container_year,
-                                                           subtype=learning_unit_year_subtypes.FULL)
+                                                           subtype=learning_unit_year_subtypes.FULL,
+                                                           language=language)
     return {
         # Learning unit year data model form
         'acronym': learning_unit_year.acronym,
@@ -113,6 +115,7 @@ def get_valid_form_data(academic_year, person, learning_unit_year=None):
         'status': learning_unit_year.status,
         'internship_subtype': None,
         'attribution_procedure': learning_unit_year.attribution_procedure,
+        'language': learning_unit_year.language.pk,
 
         # Learning unit data model form
         'periodicity': ANNUAL,
@@ -121,7 +124,6 @@ def get_valid_form_data(academic_year, person, learning_unit_year=None):
 
         # Learning container year data model form
         'campus': learning_unit_year.learning_container_year.campus.id,
-        'language': learning_unit_year.learning_container_year.language.id,
         'common_title': learning_unit_year.learning_container_year.common_title,
         'common_title_english': learning_unit_year.learning_container_year.common_title_english,
         'container_type': learning_unit_year.learning_container_year.container_type,
@@ -215,11 +217,11 @@ class TestFullFormInit(LearningUnitFullFormContextMixin):
                                       start_year=self.current_academic_year.year)
         expected_initials = {
             LearningUnitYearModelForm: {
-                'status': True, 'academic_year': self.current_academic_year
+                'status': True, 'academic_year': self.current_academic_year,
+                'language': self.initial_language
             },
             LearningContainerYearModelForm: {
-                'campus': self.initial_campus,
-                'language': self.initial_language,
+                'campus': self.initial_campus
             }
         }
         for form_class, initial in expected_initials.items():
@@ -484,10 +486,10 @@ class TestFullFormSave(LearningUnitFullFormContextMixin):
             acronym=acronym,
             academic_year=self.current_academic_year,
             subtype=learning_unit_year_subtypes.FULL,
+            language=self.initial_language,
             learning_container_year__academic_year=self.current_academic_year,
             learning_container_year__container_type=learning_container_year_types.COURSE,
-            learning_container_year__campus=self.initial_campus,
-            learning_container_year__language=self.initial_language
+            learning_container_year__campus=self.initial_campus
         )
         post_data = get_valid_form_data(self.current_academic_year, person=self.person,
                                         learning_unit_year=new_learning_unit_year)
