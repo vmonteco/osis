@@ -184,20 +184,28 @@ class TestVolumeEditionForm(TestCase):
             entity_container_year__type=REQUIREMENT_ENTITY
         )
 
-        learning_component_year_0.hourly_volume_partial_q1 = 5
-        learning_component_year_0.hourly_volume_partial_q2 = 5
-        learning_component_year_0.hourly_volume_total_annual = 10
-        learning_component_year_0.planned_classes = 1
-        learning_component_year_0.save()
-
-        entity_component_year_0.repartition_volume = 10
-        entity_component_year_0.save()
 
         self.first_learning_unit_year.credits = self.first_learning_unit_year.credits + 1
         self.first_learning_unit_year.save()
 
-        self.assertFalse(learning_component_year_0.warnings)
-        self.assertFalse(self.first_learning_unit_year.warnings)
+        test_cases = [
+            {'vol_q1': 15, 'vol_q2': 15, 'vol_tot_annual': 30, 'planned_classes': 1, 'vol_tot_global': 30},
+            {'vol_q1': 10, 'vol_q2': 20, 'vol_tot_annual': 30, 'planned_classes': 2, 'vol_tot_global': 60}
+        ]
+
+        for case in test_cases:
+            with self.subTest(case=case):
+                learning_component_year_0.hourly_volume_partial_q1 = case.get('vol_q1')
+                learning_component_year_0.hourly_volume_partial_q2 = case.get('vol_q2')
+                learning_component_year_0.hourly_volume_total_annual = case.get('vol_tot_annual')
+                learning_component_year_0.planned_classes = case.get('planned_classes')
+                learning_component_year_0.save()
+
+                entity_component_year_0.repartition_volume = case.get('vol_tot_global')
+                entity_component_year_0.save()
+
+                self.assertFalse(learning_component_year_0.warnings)
+                self.assertFalse(self.first_learning_unit_year.warnings)
 
 
 def _get_wrong_data_empty_field():
