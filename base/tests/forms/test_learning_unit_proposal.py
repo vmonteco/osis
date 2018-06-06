@@ -205,7 +205,6 @@ class TestSave(TestCase):
             entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1: additional_entity_version_1.entity,
             entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2: additional_entity_version_2.entity
         }
-        self.maxDiff = None
         self.assertDictEqual(entities_by_type, expected_entities)
 
     def test_modify_learning_container_subtype(self):
@@ -266,7 +265,6 @@ class TestSave(TestCase):
         self.assertEqual(a_proposal_learning_unt.type, PROPOSAL_TYPE)
         self.assertEqual(a_proposal_learning_unt.state, PROPOSAL_STATE)
         self.assertEqual(a_proposal_learning_unt.author, self.person)
-        self.maxDiff = None
         self.assertDictEqual(a_proposal_learning_unt.initial_data, initial_data_expected)
 
     def test_when_setting_additional_entity_to_none(self):
