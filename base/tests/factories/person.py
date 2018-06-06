@@ -23,12 +23,16 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import operator
 import datetime
+import operator
+
 import factory
 import factory.fuzzy
 from django.conf import settings
+from django.contrib.auth.models import Group
+
 from base import models as mdl
+from base.models.person import FACULTY_MANAGER_GROUP, CENTRAL_MANAGER_GROUP
 from base.tests.factories.user import UserFactory
 from osis_common.utils.datetime import get_tzinfo
 
@@ -61,3 +65,26 @@ class PersonWithoutUserFactory(PersonFactory):
     first_name = factory.Faker('first_name')
     last_name = factory.Faker('last_name')
     email = factory.LazyAttribute(generate_person_email)
+
+
+class PersonWithGroupsFactory:
+    groups_name = ()
+
+    def __init__(self, *args, **kwargs):
+        groups_obj = [Group.objects.get_or_create(name=name)[0] for name in self.groups_name]
+
+        self.person = PersonFactory(**kwargs)
+        self.person.user.groups.add(*groups_obj)
+
+    def __new__(cls, *args, **kwargs):
+        obj = super().__new__(cls)
+        obj.__init__(*args, **kwargs)
+        return obj.person
+
+
+class FacultyManagerFactory(PersonWithGroupsFactory):
+    groups_name = (FACULTY_MANAGER_GROUP, )
+
+
+class CentralManagerFactory(PersonWithGroupsFactory):
+    groups_name = (CENTRAL_MANAGER_GROUP, )

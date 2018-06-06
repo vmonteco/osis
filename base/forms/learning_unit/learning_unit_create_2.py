@@ -31,11 +31,12 @@ from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
 from base.forms.learning_unit.edition_volume import SimplifiedVolumeManagementForm
+from base.forms.learning_unit.entity_form import EntityContainerBaseForm
 from base.forms.learning_unit.learning_unit_create import LearningUnitModelForm, LearningUnitYearModelForm, \
-    LearningContainerModelForm, LearningContainerYearModelForm, EntityContainerBaseForm
-from base.models import learning_unit_year
+    LearningContainerModelForm, LearningContainerYearModelForm
+from base.models import learning_unit_year, academic_year
+from base.models.academic_year import MAX_ACADEMIC_YEAR_FACULTY, MAX_ACADEMIC_YEAR_CENTRAL
 from base.models.campus import Campus
-from base.models.enums import learning_container_year_types
 from base.models.enums import learning_unit_year_subtypes
 from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES_FOR_FACULTY
 from base.models.learning_component_year import LearningComponentYear
@@ -73,6 +74,7 @@ class LearningUnitBaseForm(metaclass=ABCMeta):
                 if cls in self.form_cls_to_validate]):
             return False
 
+        self.learning_unit_year_form.post_clean(self.learning_container_year_form.instance.container_type)
         self.learning_container_year_form.post_clean(self.learning_unit_year_form.cleaned_data["specific_title"])
         return not self.errors
 
@@ -207,9 +209,17 @@ class FullForm(LearningUnitBaseForm):
         super().__init__(instances_data, *args, **kwargs)
         if self.instance:
             self._disable_fields()
+        else:
+            self._restrict_academic_years_choice()
 
-        self.fields['internship_subtype'].disabled =\
-            not self.instance or self.instances_data["container_type"] != learning_container_year_types.INTERNSHIP
+    def _restrict_academic_years_choice(self):
+        current_academic_year = academic_year.current_academic_year()
+        end_year_range = MAX_ACADEMIC_YEAR_FACULTY if self.person.is_faculty_manager() else MAX_ACADEMIC_YEAR_CENTRAL
+
+        self.fields["academic_year"].queryset = academic_year.find_academic_years(
+            start_year=current_academic_year.year,
+            end_year=current_academic_year.year + end_year_range
+        )
 
     def _disable_fields(self):
         if self.person.is_faculty_manager():
@@ -302,10 +312,10 @@ class FullForm(LearningUnitBaseForm):
             learning_container=learning_container,
             commit=commit
         )
-        container_year = self.forms[LearningContainerYearModelForm].save(
+        container_year = self.learning_container_year_form.save(
             academic_year=academic_year,
             learning_container=learning_container,
-            acronym=self.forms[LearningUnitYearModelForm].instance.acronym,
+            acronym=self.learning_unit_year_form.instance.acronym,
             commit=commit
         )
 

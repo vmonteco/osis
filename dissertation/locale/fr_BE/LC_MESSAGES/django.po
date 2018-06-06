@@ -163,6 +163,9 @@ msgstr "Co-Promoteur"
 msgid "copromotor"
 msgstr "Co-Promoteur"
 
+msgid "count_places"
+msgstr "Nombre de places"
+
 msgid "create_dissertation"
 msgstr "Ajouter un mémoire"
 
