@@ -1824,9 +1824,6 @@ msgstr "Code composé de:\n"
 msgid "end_year_title"
 msgstr "Année de fin"
 
-msgid "basic_informations_title"
-msgstr "Informations de base"
-
 msgid "active_title"
 msgstr "Actif"
 
