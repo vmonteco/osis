@@ -44,20 +44,31 @@
                         <br>
                         <div class="row" style="margin-top:10px;">
                             <div class="col-md-2">
-                                <label> {% trans 'language'%} </label>
+                                <label>{% trans 'language'%}</label>
+                                <span>
+                                    <a class="pedagogy-add-btn" href="#" data-form="" title="{% trans 'add' %}">
+                                        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                                    </a>
+                                </span>
                             </div>
                             <div class="col-md-5">
-                                <label> {{ form_french.language.1 }}</label>
+                                <label>{{ form_french.language.1 }}</label>
                             </div>
                             <div class="col-md-5">
-                                <label> {{ form_english.language.1 }}</label>
+                                <label>{{ form_english.language.1 }}</label>
                             </div>
                         </div>
                         <hr/>
                         {% for label_key, label_translated in cms_labels_translated.items %}
                         <div class="row" style="margin-top:10px;">
                             <div class="col-md-2">
-                                <label> {{ label_translated }}</label>
+                                <label>{{ label_translated }}</label>
+                                <span>
+                                    <a class="pedagogy-remove-btn" href="#"
+                                       data-form="{% url 'education_group_pedagogy_remove_term' education_group_year_id=education_group_year.id text_label_id=0 %}?label={{ label_key|urlencode }}" title="{% trans 'remove'%}">
+                                        <span class="glyphicon glyphicon-remove-circle" aria-hidden="true"/>
+                                    </a>
+                                </span>
                             </div>
                             <div class="col-md-5">
                                 {% if can_edit_information %}
@@ -89,6 +100,38 @@
     </div>
 </div>
 <div class="modal fade" id="pedagogy_edit" role="dialog" data-backdrop="static"></div>
+<div class="modal fade" id="pedagogy_add" role="dialog" data-backdrop="static">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form class="pedagogy-form" role="form" method="POST" action="{{ request.path }}">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModal">{% trans 'select_the_missing_term_for_offer' %}</h5>
+                </div>
+                <div class="modal-body">
+                    {% csrf_token %}
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" type="submit">{% trans 'save' %}</button>
+                    <button type="submit" class="btn" data-dismiss="modal">{% trans 'cancel' %}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+    <div class="modal fade" id="pedagogy_remove" role="dialog" data-backdrop="static">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="remove_term_of_pedagogy">{% trans 'header_remove_the_term' %}</h5>
+                </div>
+                <div class="modal-body">{% trans 'message_sure_to_remove_the_term_of_offer' %}</div>
+                <div class="modal-footer">
+                    <button onclick="javascript:close_this_modal(this)" type="submit" class="btn btn-danger" role="button" title="{% trans 'define_save' %}">{% trans 'ok' %}</button>
+                    <button type="submit" class="btn btn-default" data-dismiss="modal">{% trans 'cancel' %}</button>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}
 {% block script %}
     <script src="{% static 'js/education_group/education_group_tree.js' %}"></script>
@@ -102,5 +145,32 @@
             });
             return false;
         });
+        $(".pedagogy-add-btn").click(function(evt) {
+           evt.preventDefault();
+           var modal = $('#pedagogy_add');
+           modal.modal('show');
+           return false;
+        });
+        $('.pedagogy-remove-btn').click(function(evt) {
+           evt.preventDefault();
+           var url = $(this).data("form");
+           var pedagogy_remove_modal = $("#pedagogy_remove");
+           pedagogy_remove_modal.modal('show');
+           return false;
+        });
+        function close_this_modal(ptr) {
+            /*
+            $.ajax("", {
+                data: {},
+                type: 'post',
+                dataType: 'json',
+                success: function (data) {
+                    showErrors(data.errors);
+                }
+            });*/
+            pedagogy_remove_modal.modal('hide');
+            return true;
+        }
+
     </script>
 {% endblock %}

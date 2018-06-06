@@ -31,7 +31,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.core.exceptions import PermissionDenied
 from django.db.models import Prefetch
 from django.forms import forms
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
@@ -52,6 +52,8 @@ from cms import models as mdl_cms
 from cms.enums import entity_name
 from cms.models import text_label
 from cms.models.text_label import TextLabel
+from cms.models.translated_text import TranslatedText
+from osis_common.decorators.ajax import ajax_required
 from . import layout
 
 CODE_SCS = 'code_scs'
@@ -365,3 +367,34 @@ def education_group_year_pedagogy_edit(request, education_group_year_id):
     context['language_translated'] = find_language_in_settings(language)
 
     return layout.render(request, 'education_group/pedagogy_edit.html', context)
+
+@login_required
+@ajax_required
+@permission_required('base.can_edit_educationgroup_pedagogy', raise_exception=True)
+def education_group_year_pedagogy_add_term(request, education_group_year_id, text_label_id):
+    text_label = get_object_or_404(TextLabel, pk=text_label_id)
+
+    education_group_year = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
+
+    translated_text_ids = []
+    for language in ('fr-be', 'en'):
+        translated_text_id = TranslatedText.objects.create(text_label=text_label,
+                                                           reference=education_group_year.id,
+                                                           language=language,
+                                                           entity='offer')
+        translated_text_ids.append(translated_text_id)
+
+    return JsonResponse({'message': 'added', 'translated_texts': translated_text_ids})
+
+
+@login_required
+@ajax_required
+@permission_required('base.can_edit_educationgroup_pedagogy', raise_exception=True)
+def education_group_year_pedagogy_remove_term(request, education_group_year_id, text_label_id):
+    education_group_year = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
+    text_label = get_object_or_404(TextLabel, pk=text_label_id)
+    translated_texts = TranslatedText.objects.filter(text_label=text_label,
+                                                     reference=education_group_year.id,
+                                                     entity='offer_year')
+    translated_texts.delete()
+    return JsonResponse({})
