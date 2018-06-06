@@ -245,11 +245,17 @@ class TestLearningUnitModificationProposal(TestCase):
             list(messages_list))
 
     def test_initial_data_fields(self):
-        expected_initial_data_fields = {'learning_container_year': ["id", "acronym", "common_title", "container_type",
-                                                   "campus", "language", "in_charge"],
-                       'learning_unit': ["id", "periodicity", "end_year"],
-                       'learning_unit_year': ["id", "acronym", "specific_title", "internship_subtype", "credits"]
-                       }
+        expected_initial_data_fields = {
+            'learning_container_year': [
+                "id", "acronym", "common_title", "container_type", "language", "in_charge"
+            ],
+            'learning_unit': [
+                "id", "periodicity", "end_year"
+            ],
+            'learning_unit_year': [
+                "id", "acronym", "specific_title", "internship_subtype", "credits", "campus"
+            ]
+        }
         self.assertEqual(expected_initial_data_fields, INITIAL_DATA_FIELDS)
 
     @transaction.atomic()
@@ -1101,7 +1107,6 @@ class TestLearningUnitProposalDisplay(TestCase):
         other_entity = self.generator_learning_container.generated_container_years[0] \
             .allocation_entity_container_year.entity
         return entity_version.get_last_version(other_entity)
-
 
 
 @override_flag('proposal', active=True)
