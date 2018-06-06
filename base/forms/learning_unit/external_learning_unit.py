@@ -57,15 +57,14 @@ class LearningContainerYearExternalModelForm(LearningContainerYearModelForm):
         required=False,
         label=_("country")
     )
-    campus = CampusChoiceField(queryset=Campus.objects.none())
 
     def prepare_fields(self):
-        self.fields['campus'].queryset = Campus.objects.order_by('organization__name').distinct('organization__name')
         self.fields["container_type"].choices = ((EXTERNAL, _(EXTERNAL)),)
         self.fields['container_type'].disabled = True
         self.fields['container_type'].required = False
 
-    def clean_container_type(self):
+    @staticmethod
+    def clean_container_type():
         return EXTERNAL
 
 
@@ -123,6 +122,10 @@ class ExternalLearningUnitBaseForm(LearningUnitBaseForm):
         instances_data = self._build_instance_data(data, academic_year)
         super().__init__(instances_data, *args, **kwargs)
         self.learning_unit_year_form.fields['acronym'] = ExternalAcronymField()
+        self.learning_unit_year_form.fields['campus'] = CampusChoiceField(
+            queryset=Campus.objects.order_by('organization__name').distinct('organization__name')
+        )
+
 
     @property
     def learning_unit_external_form(self):
