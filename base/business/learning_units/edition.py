@@ -420,7 +420,6 @@ def _check_postponement_conflict_on_learning_container_year(lcy, next_lcy):
         'common_title': _('common_title'),
         'common_title_english': _('common_english_title'),
         'acronym': _('acronym'),
-        'language': _('language'),
         'team': _('team_management')
     }
     return _get_differences(lcy, next_lcy, fields_to_compare)
