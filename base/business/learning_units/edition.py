@@ -408,6 +408,7 @@ def _check_postponement_conflict_on_learning_unit_year(luy, next_luy):
         'status': _('status'),
         'session': _('session_title'),
         'quadrimester': _('quadrimester'),
+        'campus': _('campus'),
         'language': _('language'),
     }
     return _get_differences(luy, next_luy, fields_to_compare)
@@ -419,7 +420,6 @@ def _check_postponement_conflict_on_learning_container_year(lcy, next_lcy):
         'common_title': _('common_title'),
         'common_title_english': _('common_english_title'),
         'acronym': _('acronym'),
-        'campus': _('campus'),
         'team': _('team_management')
     }
     return _get_differences(lcy, next_lcy, fields_to_compare)

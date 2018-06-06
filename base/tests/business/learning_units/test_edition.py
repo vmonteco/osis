@@ -57,9 +57,10 @@ class LearningUnitEditionTestCase(TestCase):
         self.academic_year = create_current_academic_year()
         self.next_academic_year = AcademicYearFactory(year=self.academic_year.year + 1)
 
-        self.learning_container_year = LearningContainerYearFactory(academic_year=self.academic_year,
-                                                                    common_title='common title',
-                                                                    campus=CampusFactory(name='MIT'))
+        self.learning_container_year = LearningContainerYearFactory(
+            academic_year=self.academic_year,
+            common_title='common title',
+        )
         self.learning_unit_year = _create_learning_unit_year_with_components(self.learning_container_year,
                                                                              create_lecturing_component=True,
                                                                              create_pratical_component=True)
@@ -247,15 +248,15 @@ class LearningUnitEditionTestCase(TestCase):
         }
         self.assertIn(error_common_title, error_list)
 
-    def test_check_postponement_conflict_learning_container_year_case_camp_diff(self):
+    def test_check_postponement_conflict_learning_unit_year_case_camp_diff(self):
         # Copy the same container + change academic year + campus
-        another_learning_container_year = _build_copy(self.learning_container_year)
-        another_learning_container_year.academic_year = self.next_academic_year
-        another_learning_container_year.campus = CampusFactory(name='Paris')
-        another_learning_container_year.save()
+        another_learning_unit_year = _build_copy(self.learning_unit_year)
+        another_learning_unit_year.academic_year = self.next_academic_year
+        another_learning_unit_year.campus = CampusFactory(name='Paris')
+        another_learning_unit_year.save()
 
-        error_list = business_edition._check_postponement_conflict_on_learning_container_year(
-            self.learning_container_year, another_learning_container_year
+        error_list = business_edition._check_postponement_conflict_on_learning_unit_year(
+            self.learning_unit_year, another_learning_unit_year
         )
         self.assertIsInstance(error_list, list)
         self.assertEqual(len(error_list), 1)
@@ -265,10 +266,10 @@ class LearningUnitEditionTestCase(TestCase):
         # Error : Campus diff
         error_campus = _(generic_error) % {
             'field': _('campus'),
-            'year': self.learning_container_year.academic_year,
-            'value': getattr(self.learning_container_year, 'campus'),
-            'next_year': another_learning_container_year.academic_year,
-            'next_value': getattr(another_learning_container_year, 'campus')
+            'year': self.learning_unit_year.academic_year,
+            'value': getattr(self.learning_unit_year, 'campus'),
+            'next_year': another_learning_unit_year.academic_year,
+            'next_value': getattr(another_learning_unit_year, 'campus')
         }
         self.assertIn(error_campus, error_list)
 
@@ -569,7 +570,8 @@ def _create_learning_unit_year_with_components(l_container, create_lecturing_com
                                                    acronym=l_container.acronym,
                                                    academic_year=l_container.academic_year,
                                                    status=True,
-                                                   language=language)
+                                                   language=language,
+                                                   campus=CampusFactory(name='MIT'))
 
     if create_lecturing_component:
         a_component = LearningComponentYearFactory(

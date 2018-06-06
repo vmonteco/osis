@@ -24,8 +24,6 @@
 #
 ##############################################################################
 import datetime
-
-from factory import fuzzy
 from unittest import mock
 from unittest.mock import patch
 
@@ -33,6 +31,7 @@ from django.contrib.messages import INFO
 from django.contrib.messages import SUCCESS, ERROR
 from django.test import TestCase
 from django.utils.translation import ugettext_lazy as _
+from factory import fuzzy
 
 from base import models as mdl_base
 from base.business import learning_unit_proposal as lu_proposal_business
@@ -52,7 +51,7 @@ from base.tests.factories.entity import EntityFactory
 from base.tests.factories.entity_container_year import EntityContainerYearFactory
 from base.tests.factories.entity_version import EntityVersionFactory
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
-from base.tests.factories.learning_unit_year import LearningUnitYearFakerFactory, LearningUnitYearFactory
+from base.tests.factories.learning_unit_year import LearningUnitYearFakerFactory
 from base.tests.factories.organization import OrganizationFactory
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.person_entity import PersonEntityFactory
@@ -66,12 +65,14 @@ class TestLearningUnitProposalCancel(TestCase):
         learning_container_year = LearningContainerYearFactory(
             academic_year=current_academic_year,
             container_type=learning_container_year_types.COURSE,
+        )
+        self.learning_unit_year = LearningUnitYearFakerFactory(
+            credits=5,
+            subtype=learning_unit_year_subtypes.FULL,
+            academic_year=current_academic_year,
+            learning_container_year=learning_container_year,
             campus=CampusFactory(organization=an_organization, is_administration=True)
         )
-        self.learning_unit_year = LearningUnitYearFakerFactory(credits=5,
-                                                               subtype=learning_unit_year_subtypes.FULL,
-                                                               academic_year=current_academic_year,
-                                                               learning_container_year=learning_container_year)
 
         self.entity_container_year = EntityContainerYearFactory(
             learning_container_year=self.learning_unit_year.learning_container_year,
@@ -124,7 +125,6 @@ class TestLearningUnitProposalCancel(TestCase):
                 "common_title": self.learning_unit_year.learning_container_year.common_title,
                 "common_title_english": self.learning_unit_year.learning_container_year.common_title_english,
                 "container_type": self.learning_unit_year.learning_container_year.container_type,
-                "campus": self.learning_unit_year.learning_container_year.campus.id,
                 "in_charge": self.learning_unit_year.learning_container_year.in_charge
             },
             "learning_unit_year": {
@@ -136,7 +136,8 @@ class TestLearningUnitProposalCancel(TestCase):
                 "credits": self.learning_unit_year.credits,
                 "quadrimester": self.learning_unit_year.quadrimester,
                 "status": self.learning_unit_year.status,
-                "language": self.learning_unit_year.language.pk
+                "language": self.learning_unit_year.language.pk,
+                "campus": self.learning_unit_year.campus.id,
             },
             "learning_unit": {
                 "id": self.learning_unit_year.learning_unit.id,

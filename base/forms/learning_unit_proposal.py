@@ -110,8 +110,7 @@ class ProposalBaseForm:
                                                            data=data,
                                                            proposal=True)
 
-        self.form_proposal = ProposalLearningUnitForm(data, person=person, instance=proposal,
-                                                      initial=initial)
+        self.form_proposal = ProposalLearningUnitForm(data, person=person, instance=proposal, initial=initial)
 
     def is_valid(self):
         return all([self.learning_unit_form_container.is_valid() and self.form_proposal.is_valid()])
@@ -136,10 +135,10 @@ class ProposalBaseForm:
 
     def _get_initial(self):
         initial = {
-                'learning_unit_year': self.learning_unit_year,
-                'type': self.proposal_type,
-                'state': compute_proposal_state(self.person),
-                'author': self.person
+            'learning_unit_year': self.learning_unit_year,
+            'type': self.proposal_type,
+            'state': compute_proposal_state(self.person),
+            'author': self.person
         }
         if self.proposal:
             initial['type'] = self.proposal.type

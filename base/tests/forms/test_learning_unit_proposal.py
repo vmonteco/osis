@@ -64,12 +64,14 @@ class TestSave(TestCase):
         learning_container_year = LearningContainerYearFactory(
             academic_year=current_academic_year,
             container_type=learning_container_year_types.COURSE,
+        )
+        self.learning_unit_year = LearningUnitYearFakerFactory(
+            credits=5,
+            subtype=learning_unit_year_subtypes.FULL,
+            academic_year=current_academic_year,
+            learning_container_year=learning_container_year,
             campus=CampusFactory(organization=an_organization, is_administration=True)
         )
-        self.learning_unit_year = LearningUnitYearFakerFactory(credits=5,
-                                                               subtype=learning_unit_year_subtypes.FULL,
-                                                               academic_year=current_academic_year,
-                                                               learning_container_year=learning_container_year)
 
         today = datetime.date.today()
         an_entity = EntityFactory(organization=an_organization)
@@ -143,6 +145,7 @@ class TestSave(TestCase):
         self.assertEqual(learning_unit_year.specific_title, self.form_data["specific_title"])
         self.assertEqual(learning_unit_year.specific_title_english, self.form_data["specific_title_english"])
         self.assertEqual(learning_unit_year.language, self.language)
+        self.assertEqual(learning_unit_year.campus, self.campus)
 
     def _assert_acronym_has_changed_in_proposal(self, learning_unit_year):
         self.assertEqual(learning_unit_year.acronym,
@@ -166,7 +169,6 @@ class TestSave(TestCase):
         self.assertEqual(learning_unit_year.acronym, self.form_data['acronym_0'] + self.form_data['acronym_1'])
         self.assertEqual(learning_container_year.common_title, self.form_data['common_title'])
         self.assertEqual(learning_container_year.common_title_english, self.form_data['common_title_english'])
-        self.assertEqual(learning_container_year.campus, self.campus)
 
     def test_requirement_entity(self):
         form = ProposalBaseForm(self.form_data, self.person, self.learning_unit_year)
@@ -232,7 +234,6 @@ class TestSave(TestCase):
                 "acronym": self.learning_unit_year.acronym,
                 "common_title": self.learning_unit_year.learning_container_year.common_title,
                 "container_type": self.learning_unit_year.learning_container_year.container_type,
-                "campus": self.learning_unit_year.learning_container_year.campus.id,
                 "in_charge": self.learning_unit_year.learning_container_year.in_charge
             },
             "learning_unit_year": {
@@ -241,7 +242,8 @@ class TestSave(TestCase):
                 "specific_title": self.learning_unit_year.specific_title,
                 "internship_subtype": self.learning_unit_year.internship_subtype,
                 "language": self.learning_unit_year.language.pk,
-                "credits": self.learning_unit_year.credits
+                "credits": self.learning_unit_year.credits,
+                "campus": self.learning_unit_year.campus.id,
             },
             "learning_unit": {
                 "id": self.learning_unit_year.learning_unit.id,
