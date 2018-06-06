@@ -36,7 +36,7 @@ from osis_common.models.serializable_model import SerializableModel, Serializabl
 class LearningContainerYearAdmin(SerializableModelAdmin):
     list_display = ('learning_container', 'academic_year', 'container_type', 'acronym', 'common_title')
     fieldsets = ((None, {'fields': ('academic_year', 'learning_container',  'container_type', 'acronym', 'common_title',
-                                    'common_title_english', 'language', 'is_vacant',
+                                    'common_title_english', 'is_vacant',
                                     'type_declaration_vacant', 'team', 'in_charge')}),)
     search_fields = ['acronym']
     raw_id_fields = ('learning_container',)
@@ -54,7 +54,6 @@ class LearningContainerYear(SerializableModel):
                                             verbose_name=_('common_english_title'))
     acronym = models.CharField(max_length=10)
     changed = models.DateTimeField(null=True, auto_now=True)
-    language = models.ForeignKey('reference.Language', null=True, verbose_name=_('language'))
     team = models.BooleanField(default=False, verbose_name=_('team_management'))
     is_vacant = models.BooleanField(default=False,  verbose_name=_('vacant'))
     type_declaration_vacant = models.CharField(max_length=100, blank=True, null=True,

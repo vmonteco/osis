@@ -605,15 +605,15 @@ def _instanciate_base_learning_unit_form(learning_unit_year_instance, person):
             'status': learning_unit_year_instance.status,
             'internship_subtype': learning_unit_year_instance.internship_subtype,
             'attribution_procedure': learning_unit_year_instance.attribution_procedure,
+            'language': learning_unit_year_instance.language.id,
+            'campus': learning_unit_year_instance.campus.id,
 
             # Learning unit data model form
             'periodicity': learning_unit_instance.periodicity,
             'faculty_remark': learning_unit_instance.faculty_remark,
             'other_remark': learning_unit_instance.other_remark,
-            'campus': learning_unit_year_instance.campus.id,
 
             # Learning container year data model form
-            'language': learning_unit_year_instance.learning_container_year.language.id,
             'common_title': learning_unit_year_instance.learning_container_year.common_title,
             'common_title_english': learning_unit_year_instance.learning_container_year.common_title_english,
             'container_type': learning_unit_year_instance.learning_container_year.container_type,

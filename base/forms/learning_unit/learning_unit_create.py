@@ -34,8 +34,7 @@ from base.models.enums import learning_unit_year_subtypes
 from base.models.enums.component_type import LECTURING, PRACTICAL_EXERCISES
 from base.models.enums.entity_container_year_link_type import REQUIREMENT_ENTITIES
 from base.models.enums.learning_container_year_types import CONTAINER_TYPE_WITH_DEFAULT_COMPONENT, \
-    LEARNING_CONTAINER_YEAR_TYPES_WITHOUT_EXTERNAL
-from base.models.enums.learning_container_year_types import INTERNSHIP
+    LEARNING_CONTAINER_YEAR_TYPES_WITHOUT_EXTERNAL, INTERNSHIP
 from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES_FOR_FACULTY
 from base.models.learning_component_year import LearningComponentYear
 from base.models.learning_container import LearningContainer
@@ -116,7 +115,7 @@ class LearningUnitYearModelForm(forms.ModelForm):
         model = LearningUnitYear
         fields = ('academic_year', 'acronym', 'specific_title', 'specific_title_english', 'credits',
                   'session', 'quadrimester', 'status', 'internship_subtype', 'attribution_procedure',
-                  'professional_integration', 'campus')
+                  'professional_integration', 'campus', 'language')
         field_classes = {'acronym': AcronymField}
         error_messages = {
             'credits': {
@@ -213,7 +212,7 @@ class LearningContainerYearModelForm(forms.ModelForm):
 
     class Meta:
         model = LearningContainerYear
-        fields = ('container_type', 'common_title', 'common_title_english', 'language',
+        fields = ('container_type', 'common_title', 'common_title_english',
                   'type_declaration_vacant', 'team', 'is_vacant')
 
     def post_clean(self, specific_title):

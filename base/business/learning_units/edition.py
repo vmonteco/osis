@@ -409,6 +409,7 @@ def _check_postponement_conflict_on_learning_unit_year(luy, next_luy):
         'session': _('session_title'),
         'quadrimester': _('quadrimester'),
         'campus': _('campus'),
+        'language': _('language'),
     }
     return _get_differences(luy, next_luy, fields_to_compare)
 

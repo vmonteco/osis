@@ -53,6 +53,8 @@ if 'attribution' in settings.INSTALLED_APPS:
     urlpatterns += (url(r'^attribution/', include('attribution.urls')),)
 if 'webservices' in settings.INSTALLED_APPS:
     urlpatterns += (url(r'^api/', include('webservices.urls')),)
+if 'partnership' in settings.INSTALLED_APPS:
+    urlpatterns += (url(r'^partnerships/', include('partnership.urls', namespace='partnerships')),)
 
 handler404 = 'base.views.common.page_not_found'
 handler403 = 'base.views.common.access_denied'

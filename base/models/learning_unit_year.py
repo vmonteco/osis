@@ -63,10 +63,16 @@ class LearningUnitYearAdmin(SerializableModelAdmin):
                                     'specific_title', 'specific_title_english', 'subtype', 'credits', 'decimal_scores',
                                     'structure', 'internship_subtype', 'status', 'session',
                                     'quadrimester', 'attribution_procedure', 'summary_locked',
-                                    'professional_integration', 'campus')}),)
+                                    'professional_integration', 'campus', 'language')}),)
     list_filter = ('academic_year', 'decimal_scores', 'summary_locked')
-    raw_id_fields = ('learning_unit', 'learning_container_year', 'structure', 'campus', )
+    raw_id_fields = ('learning_unit', 'learning_container_year', 'structure', 'campus', 'language')
     search_fields = ['acronym', 'structure__acronym', 'external_id']
+
+
+class LearningUnitYearWithContainerManager(models.Manager):
+    def get_queryset(self):
+        # FIXME For the moment, the learning_unit_year without container must be hide !
+        return super().get_queryset().filter(learning_container_year__isnull=False)
 
 
 class LearningUnitYear(SerializableModel):
@@ -74,7 +80,7 @@ class LearningUnitYear(SerializableModel):
     academic_year = models.ForeignKey(AcademicYear,  verbose_name=_('academic_year'),
                                       validators=[academic_year_validator])
     learning_unit = models.ForeignKey('LearningUnit')
-    learning_container_year = models.ForeignKey('LearningContainerYear', blank=True, null=True)
+    learning_container_year = models.ForeignKey('LearningContainerYear', null=True)
     changed = models.DateTimeField(null=True, auto_now=True)
     acronym = models.CharField(max_length=15, db_index=True, verbose_name=_('code'),
                                validators=[RegexValidator(LEARNING_UNIT_ACRONYM_REGEX_ALL)])
@@ -106,6 +112,9 @@ class LearningUnitYear(SerializableModel):
 
     campus = models.ForeignKey('Campus', null=True)
 
+    language = models.ForeignKey('reference.Language', null=True, verbose_name=_('language'))
+
+    objects_with_container = LearningUnitYearWithContainerManager()
     _warnings = None
 
     class Meta:
@@ -192,7 +201,8 @@ class LearningUnitYear(SerializableModel):
 
     @property
     def internship_subtype_verbose(self):
-        return _('to_complete') if self.learning_container_year.container_type == INTERNSHIP and\
+        return _('to_complete') if self.learning_container_year and \
+                                   self.learning_container_year.container_type == INTERNSHIP and \
                                    not self.internship_subtype else self.internship_subtype
 
     def is_in_proposal(self):
@@ -211,6 +221,7 @@ class LearningUnitYear(SerializableModel):
     def is_past(self):
         return self.academic_year.is_past()
 
+    # FIXME move this method to business/perm file
     def can_update_by_faculty_manager(self):
         result = False
 
@@ -310,7 +321,7 @@ def _is_regex(acronym):
 def search(academic_year_id=None, acronym=None, learning_container_year_id=None, learning_unit=None,
            title=None, subtype=None, status=None, container_type=None, tutor=None,
            summary_responsible=None, requirement_entities=None, *args, **kwargs):
-    queryset = LearningUnitYear.objects
+    queryset = LearningUnitYear.objects_with_container
 
     if academic_year_id:
         queryset = queryset.filter(academic_year=academic_year_id)

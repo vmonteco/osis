@@ -54,13 +54,13 @@ LABEL_ACTIVE = _('active')
 LABEL_INACTIVE = _('inactive')
 INITIAL_DATA_FIELDS = {
         'learning_container_year': [
-            "id", "acronym", "common_title", "container_type", "language", "in_charge"
+            "id", "acronym", "common_title", "container_type", "in_charge"
         ],
         'learning_unit': [
             "id", "periodicity", "end_year"
         ],
         'learning_unit_year': [
-            "id", "acronym", "specific_title", "internship_subtype", "credits", "campus"
+            "id", "acronym", "specific_title", "internship_subtype", "credits", "campus", "language"
         ]
     }
 

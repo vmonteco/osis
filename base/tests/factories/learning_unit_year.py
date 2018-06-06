@@ -41,6 +41,7 @@ from base.tests.factories.campus import CampusFactory
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
 from base.tests.factories.learning_unit import LearningUnitFactory, LearningUnitFakerFactory
 from osis_common.utils.datetime import get_tzinfo
+from reference.tests.factories.language import LanguageFactory
 
 fake = Faker()
 
@@ -71,6 +72,7 @@ class LearningUnitYearFactory(DjangoModelFactory):
     session = factory.Iterator(learning_unit_year_session.LEARNING_UNIT_YEAR_SESSION, getter=operator.itemgetter(0))
     quadrimester = factory.Iterator(learning_unit_year_quadrimesters.LEARNING_UNIT_YEAR_QUADRIMESTERS,
                                     getter=operator.itemgetter(0))
+    language = factory.SubFactory(LanguageFactory)
     attribution_procedure = None
     campus = factory.SubFactory(CampusFactory)
 
@@ -95,6 +97,7 @@ class LearningUnitYearFakerFactory(DjangoModelFactory):
     session = factory.Iterator(learning_unit_year_session.LEARNING_UNIT_YEAR_SESSION, getter=operator.itemgetter(0))
     quadrimester = factory.Iterator(learning_unit_year_quadrimesters.LEARNING_UNIT_YEAR_QUADRIMESTERS,
                                     getter=operator.itemgetter(0))
+    language = factory.SubFactory(LanguageFactory)
     attribution_procedure = None
     campus = factory.SubFactory(CampusFactory)
 
