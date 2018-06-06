@@ -1,10 +1,93 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends "layout.html"%}
+{% load staticfiles %}
+{% load i18n %}
+{% load bootstrap3 %}
 
-</body>
-</html>
+{% comment "License" %}
+* OSIS stands for Open Student Information System. It's an application
+* designed to manage the core business of higher education institutions,
+* such as universities, faculties, institutes and professional schools.
+* The core business involves the administration of students, teachers,
+* courses, programs and so on.
+*
+* Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* A copy of this license - GNU General Public License - is available
+* at the root of the source code of this program.  If not,
+* see http://www.gnu.org/licenses/.
+{% endcomment %}
+
+{% block layout_navbar_top %}<!-- Remove top navbar-->{% endblock %}
+
+{% block breadcrumbarea %}<!-- Remove breadcrumb -->{% endblock %}
+
+
+{% block content %}
+    <div class="panel panel-default">
+
+        <form style="border-bottom: 1px solid #ddd;" method="get" action="{{ request.path }}" name="search" id="search_form">
+            <div class="panel-body">
+                <div class="row" >
+                    <div class="col-md-8">
+                        {% bootstrap_field form.name show_label=False %}
+                    </div>
+                    <div class="col-md-2 text-right" >
+                        {% bootstrap_button "" value=_('learning_unit_search') button_type="submit" button_class="btn-primary" icon="search" %}
+                    </div>
+                </div>
+                <div class="row">
+                    {% bootstrap_form_errors form %}
+                </div>
+            </div>
+        </form>
+
+
+        <div style="margin-top:10px;">
+            <table id="table_search_results" class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    <th>{% trans 'last_name'%}</th>
+                    <th>{% trans 'middle_name'%}</th>
+                    <th>{% trans 'first_name'%}</th>
+                </tr>
+            </thead>
+                {% for tutor in tutors%}
+                <tr data-id="{{tutor.id}}" data-value="{{tutor.person}}">
+                    <td>{{tutor.person.last_name}}</td>
+                    <td>{{tutor.person.middle_name}}</td>
+                    <td>{{tutor.person.first_name}}</td>
+                </tr>
+                {% endfor %}
+            </table>
+
+        </div>
+
+        <div class="pagination">
+            <span class="step-links">
+                {% if tutors.has_previous %}
+                    <a href="?page={{ tutors.previous_page_number }}">previous</a>
+                {% endif %}
+
+                <span class="current">
+                    Page {{ tutors.number }} of {{ tutors.paginator.num_pages }}.
+                </span>
+
+                {% if tutors.has_next %}
+                    <a href="?page={{ tutors.next_page_number }}">next</a>
+                {% endif %}
+            </span>
+        </div>
+
+
+    </div>
+{% endblock %}

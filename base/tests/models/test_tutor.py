@@ -127,7 +127,7 @@ class TestSearch(TestCase):
             {"first_name": "Jean", "last_name": "Pierrer"},
             {"first_name": "John", "last_name": "Doe"},
             {"first_name": "Morgan", "last_name": "Wakaba"},
-            {"first_name": "Philip", "last_name": "Stones"}
+            {"first_name": "Philip", "last_name": "Doe"}
         )
 
         cls.tutors = [TutorFactory(person=PersonFactory(**name)) for name in TUTOR_NAMES]

@@ -117,4 +117,4 @@ def search(**criterias):
         full_name = criterias["name"]
         for name in full_name.split():
             queryset = queryset.filter(Q(person__first_name__icontains=name) | Q(person__last_name__icontains=name))
-    return queryset.distinct()
+    return queryset.distinct().select_related("person")

@@ -27,6 +27,7 @@ from django.http import HttpResponseForbidden
 from django.test import TestCase
 from django.urls import reverse
 
+from base.forms.search.search_tutor import TutorSearchForm
 from base.tests.factories.person import PersonWithPermissionsFactory, PersonFactory
 from base.tests.factories.tutor import TutorFactory
 
@@ -59,7 +60,9 @@ class TestSearchTutors(TestCase):
 
         self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
 
-    def test_get_with_no_data(self):
+    def test_context(self):
         response = self.client.get(self.url)
 
         self.assertTemplateUsed(response, "search/search.html")
+
+        self.assertIsInstance(response.context["form"], TutorSearchForm)

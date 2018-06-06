@@ -35,4 +35,4 @@ class TutorSearchForm(BaseSearchForm):
                            label=_("name"))
 
     def search(self):
-        return tutor.search(**self.cleaned_data)
+        return tutor.search(**self.cleaned_data).order_by("person__last_name", "person__first_name")
