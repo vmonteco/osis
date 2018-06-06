@@ -279,7 +279,6 @@ class TestEditLearningUnit(TestCase):
                 "team": self.learning_unit_year.learning_container_year.team,
                 "campus": self.learning_unit_year.learning_container_year.campus.pk,
                 "is_vacant": self.learning_unit_year.learning_container_year.is_vacant,
-                "language": self.learning_unit_year.learning_container_year.language.pk,
                 "type_declaration_vacant": self.learning_unit_year.learning_container_year.type_declaration_vacant
             },
             'learning_unit_year_form': {
@@ -293,7 +292,8 @@ class TestEditLearningUnit(TestCase):
                 "quadrimester": self.learning_unit_year.quadrimester,
                 "attribution_procedure": self.learning_unit_year.attribution_procedure,
                 "internship_subtype": self.learning_unit_year.internship_subtype,
-                "professional_integration": self.learning_unit_year.professional_integration
+                "professional_integration": self.learning_unit_year.professional_integration,
+                "language": self.learning_unit_year.language.pk,
             },
             'learning_unit_form': {
                 "faculty_remark": self.learning_unit_year.learning_unit.faculty_remark,
@@ -337,7 +337,7 @@ class TestEditLearningUnit(TestCase):
             "specific_title": self.learning_unit_year.specific_title,
             "periodicity": learning_unit_periodicity.ANNUAL,
             "campus": self.learning_unit_year.learning_container_year.campus.pk,
-            "language": self.learning_unit_year.learning_container_year.language.pk,
+            "language": self.learning_unit_year.language.pk,
             "status": True,
 
             'requirement_entity-entity': self.requirement_entity.id,
@@ -421,7 +421,7 @@ class TestLearningUnitVolumesManagement(TestCase):
     def check_postponement(self, learning_component_year):
         learning_component_year.refresh_from_db()
         self.assertEqual(learning_component_year.planned_classes, 1)
-        self.assertEqual(learning_component_year.hourly_volume_partial, 0)
+        self.assertEqual(learning_component_year.hourly_volume_partial_q1, 0)
         self.assertEqual(EntityComponentYear.objects.get(
             learning_component_year=learning_component_year,
             entity_container_year__type=entity_container_year_link_type.REQUIREMENT_ENTITY

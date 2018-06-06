@@ -69,7 +69,6 @@ class TestFindBuildParentListByEducationGroupYearId(TestCase):
         GroupElementYearFactory(parent=self.child_branch, child_branch=None, child_leaf=self.child_leaf)
 
     def test_with_filters(self):
-        self.maxDiff = None
         filters = {
             'parent__education_group_type__category': [education_group_categories.TRAINING]
         }
