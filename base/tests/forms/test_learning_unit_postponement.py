@@ -610,9 +610,9 @@ def _instanciate_base_learning_unit_form(learning_unit_year_instance, person):
             'periodicity': learning_unit_instance.periodicity,
             'faculty_remark': learning_unit_instance.faculty_remark,
             'other_remark': learning_unit_instance.other_remark,
+            'campus': learning_unit_year_instance.campus.id,
 
             # Learning container year data model form
-            'campus': learning_unit_year_instance.learning_container_year.campus.id,
             'language': learning_unit_year_instance.learning_container_year.language.id,
             'common_title': learning_unit_year_instance.learning_container_year.common_title,
             'common_title_english': learning_unit_year_instance.learning_container_year.common_title_english,

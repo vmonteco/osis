@@ -87,17 +87,26 @@ def get_valid_form_data(academic_year, person, learning_unit_year=None):
 
     if not learning_unit_year:
         learning_container = LearningContainerFactory()
-        container_year = LearningContainerYearFactory(academic_year=academic_year,
-                                                      learning_container=learning_container,
-                                                      campus=campus)
-        learning_unit_full = LearningUnitFactory(learning_container=learning_container,
-                                                 start_year=academic_year.year,
-                                                 end_year=academic_year.year,
-                                                 periodicity=learning_unit_periodicity.ANNUAL)
-        learning_unit_year = LearningUnitYearFactory.build(academic_year=academic_year,
-                                                           learning_unit=learning_unit_full,
-                                                           learning_container_year=container_year,
-                                                           subtype=learning_unit_year_subtypes.FULL)
+        container_year = LearningContainerYearFactory(
+            academic_year=academic_year,
+            learning_container=learning_container
+        )
+
+        learning_unit_full = LearningUnitFactory(
+            learning_container=learning_container,
+            start_year=academic_year.year,
+            end_year=academic_year.year,
+            periodicity=learning_unit_periodicity.ANNUAL
+        )
+
+        learning_unit_year = LearningUnitYearFactory.build(
+            academic_year=academic_year,
+            learning_unit=learning_unit_full,
+            learning_container_year=container_year,
+            subtype=learning_unit_year_subtypes.FULL,
+            campus=campus
+        )
+
     return {
         # Learning unit year data model form
         'acronym': learning_unit_year.acronym,
@@ -113,6 +122,7 @@ def get_valid_form_data(academic_year, person, learning_unit_year=None):
         'status': learning_unit_year.status,
         'internship_subtype': None,
         'attribution_procedure': learning_unit_year.attribution_procedure,
+        'campus': learning_unit_year.campus.id,
 
         # Learning unit data model form
         'periodicity': ANNUAL,
@@ -120,7 +130,6 @@ def get_valid_form_data(academic_year, person, learning_unit_year=None):
         'other_remark': learning_unit_year.learning_unit.other_remark,
 
         # Learning container year data model form
-        'campus': learning_unit_year.learning_container_year.campus.id,
         'language': learning_unit_year.learning_container_year.language.id,
         'common_title': learning_unit_year.learning_container_year.common_title,
         'common_title_english': learning_unit_year.learning_container_year.common_title_english,
@@ -486,7 +495,7 @@ class TestFullFormSave(LearningUnitFullFormContextMixin):
             subtype=learning_unit_year_subtypes.FULL,
             learning_container_year__academic_year=self.current_academic_year,
             learning_container_year__container_type=learning_container_year_types.COURSE,
-            learning_container_year__campus=self.initial_campus,
+            campus=self.initial_campus,
             learning_container_year__language=self.initial_language
         )
         post_data = get_valid_form_data(self.current_academic_year, person=self.person,

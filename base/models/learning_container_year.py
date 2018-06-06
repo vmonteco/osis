@@ -36,10 +36,10 @@ from osis_common.models.serializable_model import SerializableModel, Serializabl
 class LearningContainerYearAdmin(SerializableModelAdmin):
     list_display = ('learning_container', 'academic_year', 'container_type', 'acronym', 'common_title')
     fieldsets = ((None, {'fields': ('academic_year', 'learning_container',  'container_type', 'acronym', 'common_title',
-                                    'common_title_english', 'language', 'campus', 'is_vacant',
+                                    'common_title_english', 'language', 'is_vacant',
                                     'type_declaration_vacant', 'team', 'in_charge')}),)
     search_fields = ['acronym']
-    raw_id_fields = ('learning_container', 'campus', )
+    raw_id_fields = ('learning_container',)
     list_filter = ('academic_year', 'in_charge', 'is_vacant',)
 
 
@@ -55,7 +55,6 @@ class LearningContainerYear(SerializableModel):
     acronym = models.CharField(max_length=10)
     changed = models.DateTimeField(null=True, auto_now=True)
     language = models.ForeignKey('reference.Language', null=True, verbose_name=_('language'))
-    campus = models.ForeignKey('Campus', null=True)
     team = models.BooleanField(default=False, verbose_name=_('team_management'))
     is_vacant = models.BooleanField(default=False,  verbose_name=_('vacant'))
     type_declaration_vacant = models.CharField(max_length=100, blank=True, null=True,

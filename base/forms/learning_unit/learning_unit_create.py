@@ -23,7 +23,6 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 
@@ -34,13 +33,9 @@ from base.models.entity_component_year import EntityComponentYear
 from base.models.enums import learning_unit_year_subtypes
 from base.models.enums.component_type import LECTURING, PRACTICAL_EXERCISES
 from base.models.enums.entity_container_year_link_type import REQUIREMENT_ENTITIES
-from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES, \
-    CONTAINER_TYPE_WITH_DEFAULT_COMPONENT, INTERNSHIP
-from base.models.enums.entity_container_year_link_type import REQUIREMENT_ENTITY, ALLOCATION_ENTITY, \
-    ADDITIONAL_REQUIREMENT_ENTITY_1, ADDITIONAL_REQUIREMENT_ENTITY_2, ENTITY_TYPE_LIST, REQUIREMENT_ENTITIES
 from base.models.enums.learning_container_year_types import CONTAINER_TYPE_WITH_DEFAULT_COMPONENT, \
-    LEARNING_CONTAINER_YEAR_TYPES_MUST_HAVE_SAME_ENTITIES, \
     LEARNING_CONTAINER_YEAR_TYPES_WITHOUT_EXTERNAL
+from base.models.enums.learning_container_year_types import INTERNSHIP
 from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES_FOR_FACULTY
 from base.models.learning_component_year import LearningComponentYear
 from base.models.learning_container import LearningContainer
@@ -115,11 +110,13 @@ class LearningUnitYearModelForm(forms.ModelForm):
         if kwargs.get('instance'):
             self.fields['academic_year'].disabled = True
 
+        self.fields['campus'].queryset = find_main_campuses()
+
     class Meta:
         model = LearningUnitYear
         fields = ('academic_year', 'acronym', 'specific_title', 'specific_title_english', 'credits',
                   'session', 'quadrimester', 'status', 'internship_subtype', 'attribution_procedure',
-                  'professional_integration')
+                  'professional_integration', 'campus')
         field_classes = {'acronym': AcronymField}
         error_messages = {
             'credits': {
@@ -200,7 +197,6 @@ class LearningContainerYearModelForm(forms.ModelForm):
         self.prepare_fields()
 
     def prepare_fields(self):
-        self.fields['campus'].queryset = find_main_campuses()
         self.fields['container_type'].widget.attrs = {'onchange': 'showInternshipSubtype()'}
 
         # Limit types for faculty_manager only if simple creation of learning_unit
@@ -217,7 +213,7 @@ class LearningContainerYearModelForm(forms.ModelForm):
 
     class Meta:
         model = LearningContainerYear
-        fields = ('container_type', 'common_title', 'common_title_english', 'language', 'campus',
+        fields = ('container_type', 'common_title', 'common_title_english', 'language',
                   'type_declaration_vacant', 'team', 'is_vacant')
 
     def post_clean(self, specific_title):

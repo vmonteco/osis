@@ -99,14 +99,16 @@ class TestLearningUnitModificationProposal(TestCase):
             acronym="LOSIS1212",
             academic_year=current_academic_year,
             container_type=learning_container_year_types.COURSE,
-            campus=CampusFactory(organization=an_organization, is_administration=True)
         )
-        self.learning_unit_year = LearningUnitYearFakerFactory(acronym=learning_container_year.acronym,
-                                                               subtype=learning_unit_year_subtypes.FULL,
-                                                               academic_year=current_academic_year,
-                                                               learning_container_year=learning_container_year,
-                                                               quadrimester=None,
-                                                               specific_title_english="title english")
+        self.learning_unit_year = LearningUnitYearFakerFactory(
+            acronym=learning_container_year.acronym,
+            subtype=learning_unit_year_subtypes.FULL,
+            academic_year=current_academic_year,
+            learning_container_year=learning_container_year,
+            quadrimester=None,
+            specific_title_english="title english",
+            campus = CampusFactory(organization=an_organization, is_administration=True)
+        )
 
         an_entity = EntityFactory(organization=an_organization)
         self.entity_version = EntityVersionFactory(entity=an_entity, entity_type=entity_type.SCHOOL,
@@ -153,7 +155,7 @@ class TestLearningUnitModificationProposal(TestCase):
             "status": self.learning_unit_year.status,
             "language": self.learning_unit_year.learning_container_year.language.pk,
             "quadrimester": "",
-            "campus": self.learning_unit_year.learning_container_year.campus.id,
+            "campus": self.learning_unit_year.campus.id,
             "session": self.learning_unit_year.session,
             "entity": self.entity_version.id,
             "folder_id": "1",
@@ -213,7 +215,7 @@ class TestLearningUnitModificationProposal(TestCase):
         self.assertEqual(lu_initial['periodicity'], self.learning_unit_year.learning_unit.periodicity)
         self.assertEqual(luy_initial['status'], self.learning_unit_year.status)
         self.assertEqual(lcy_initial['language'], self.learning_unit_year.learning_container_year.language.pk)
-        self.assertEqual(lcy_initial['campus'], self.learning_unit_year.learning_container_year.campus.id)
+        self.assertEqual(luy_initial['campus'], self.learning_unit_year.campus.id)
 
     def test_post_request_with_invalid_form(self):
         response = self.client.post(self.url, data={})
@@ -385,16 +387,25 @@ class TestLearningUnitSuppressionProposal(TestCase):
 
         learning_container_year = LearningContainerYearFactory(
             academic_year=current_academic_year,
-            container_type=learning_container_year_types.COURSE,
-            campus=CampusFactory(organization=an_organization, is_administration=True)
+            container_type=learning_container_year_types.COURSE
         )
-        self.learning_unit = LearningUnitFactory(end_year=None, periodicity=learning_unit_periodicity.ANNUAL)
-        self.learning_unit_year = LearningUnitYearFakerFactory(acronym="LOSIS1212",
-                                                               subtype=learning_unit_year_subtypes.FULL,
-                                                               academic_year=current_academic_year,
-                                                               learning_container_year=learning_container_year,
-                                                               quadrimester=None,
-                                                               learning_unit=self.learning_unit)
+        self.learning_unit = LearningUnitFactory(
+            end_year=None,
+            periodicity=learning_unit_periodicity.ANNUAL,
+        )
+
+        self.learning_unit_year = LearningUnitYearFakerFactory(
+            acronym="LOSIS1212",
+            subtype=learning_unit_year_subtypes.FULL,
+            academic_year=current_academic_year,
+            learning_container_year=learning_container_year,
+            quadrimester=None,
+            learning_unit=self.learning_unit,
+            campus=CampusFactory(
+                organization=an_organization,
+                is_administration=True
+            )
+        )
 
         an_entity = EntityFactory(organization=an_organization)
         self.entity_version = EntityVersionFactory(entity=an_entity, entity_type=entity_type.SCHOOL,
@@ -726,7 +737,6 @@ def _create_proposal_learning_unit():
             "common_title": a_learning_unit_year.specific_title,
             "common_title_english": a_learning_unit_year.specific_title_english,
             "container_type": a_learning_unit_year.learning_container_year.container_type,
-            "campus": a_learning_unit_year.learning_container_year.campus.id,
             "language": a_learning_unit_year.learning_container_year.language.pk,
             "in_charge": a_learning_unit_year.learning_container_year.in_charge
         },
@@ -737,6 +747,7 @@ def _create_proposal_learning_unit():
             "specific_title_english": a_learning_unit_year.specific_title_english,
             "internship_subtype": a_learning_unit_year.internship_subtype,
             "credits": float(a_learning_unit_year.credits),
+            "campus": a_learning_unit_year.campus.id,
         },
         "learning_unit": {
             "id": a_learning_unit_year.learning_unit.id,
@@ -968,19 +979,24 @@ class TestLearningUnitProposalDisplay(TestCase):
         cls.language_it = LanguageFactory(code='IT')
         cls.campus = CampusFactory()
         cls.academic_year = create_current_academic_year()
-        cls.l_container_year = LearningContainerYearFactory(acronym="LBIR1212",
-                                                            academic_year=cls.academic_year,
-                                                            language=cls.language_pt,
-                                                            campus=cls.campus)
+        cls.l_container_year = LearningContainerYearFactory(
+            acronym="LBIR1212",
+            academic_year=cls.academic_year,
+            language=cls.language_pt,
+        )
         cls.learning_unit = LearningUnitFactory(learning_container=cls.l_container_year.learning_container)
-        cls.learning_unit_yr = LearningUnitYearFactory(acronym="LBIR1212",
-                                                       learning_unit=cls.learning_unit,
-                                                       learning_container_year=cls.l_container_year,
-                                                       academic_year=cls.academic_year,
-                                                       subtype=learning_unit_year_subtypes.FULL,
-                                                       status=True,
-                                                       quadrimester="Q3",
-                                                       credits=4)
+
+        cls.learning_unit_yr = LearningUnitYearFactory(
+            acronym="LBIR1212",
+            learning_unit=cls.learning_unit,
+            learning_container_year=cls.l_container_year,
+            academic_year=cls.academic_year,
+            subtype=learning_unit_year_subtypes.FULL,
+            status=True,
+            quadrimester="Q3",
+            credits=4,
+            campus=cls.campus
+        )
 
         cls.proposal_learning_unit = ProposalLearningUnitFactory(learning_unit_year=cls.learning_unit_yr)
         cls.initial_credits = 3.0
