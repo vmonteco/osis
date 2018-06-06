@@ -328,16 +328,20 @@ class VolumeEditionFormsetContainer:
 class SimplifiedVolumeForm(forms.ModelForm):
     _learning_unit_year = None
     _requirement_entity_containers = []
+    add_field = EmptyField(label="+")
+    equal_field = EmptyField(label='=')
 
     def __init__(self, *args, **kwargs):
         self.component_type = kwargs.pop('component_type')
         super().__init__(*args, **kwargs)
         self.instance.type = self.component_type
         self.instance.acronym = DEFAULT_ACRONYM_COMPONENT[self.component_type]
+        self.fields['add_field'].initial = "harvard"
 
     class Meta:
         model = LearningComponentYear
-        fields = ('volume_declared_vacant', 'planned_classes', 'hourly_volume_partial')
+        fields = ('hourly_volume_total_annual', 'planned_classes', 'hourly_volume_partial_q1',
+                  'hourly_volume_partial_q2')
 
     def save(self, commit=True):
         instance = super().save(commit)

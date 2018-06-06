@@ -38,15 +38,14 @@
     </thead>
     <tbody>
         {{ simplified_volume_management_form.management_form }}
-
         {% for form in simplified_volume_management_form %}
         <tr>
             <td>{% trans 'component'%}</td>
-            <td>{% bootstrap_field form.volume_declared_vacant show_label=False %}</td>
-            <td style="text-align: center">=</td>
-            <td>{% bootstrap_field form.volume_declared_vacant show_label=False %}</td>
-            <td style="text-align: center">+</td>
-            <td>{% bootstrap_field form.hourly_volume_partial show_label=False %}</td>
+            <td>{% bootstrap_field form.hourly_volume_total_annual show_label=False %}</td>
+            <td>{{ form.add_field.label }}</td>
+            <td>{% bootstrap_field form.hourly_volume_partial_q1 show_label=False %}</td>
+            <td>{{ form.equal_field.label }}</td>
+            <td>{% bootstrap_field form.hourly_volume_partial_q2 show_label=False %}</td>
             <td>{% bootstrap_field form.planned_classes show_label=False %}</td>
         </tr>
         {% endfor %}
