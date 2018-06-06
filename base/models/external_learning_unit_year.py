@@ -26,12 +26,12 @@
 
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
+from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
 
 from base.models.learning_unit_year import MINIMUM_CREDITS, MAXIMUM_CREDITS
-from base.models.osis_model_admin import OsisModelAdmin
-from django.db.models import Q
 from base.models.organization_address import OrganizationAddress
+from base.models.osis_model_admin import OsisModelAdmin
 
 
 class ExternalLearningUnitYearAdmin(OsisModelAdmin):
@@ -101,7 +101,7 @@ def search(academic_year_id=None, acronym=None, title=None, country=None, city=N
                    Q(learning_unit_year__learning_container_year__common_title__icontains=title))
 
     if campus:
-        queryset = queryset.filter(learning_unit_year__learning_container_year__campus=campus)
+        queryset = queryset.filter(learning_unit_year__campus=campus)
     else:
         organization_ids = None
         if city:
@@ -110,8 +110,7 @@ def search(academic_year_id=None, acronym=None, title=None, country=None, city=N
             if country:
                 organization_ids = _get_organization_ids(OrganizationAddress.objects.filter(country=country))
         if organization_ids:
-            queryset = queryset\
-                .filter(learning_unit_year__learning_container_year__campus__organization__id__in=organization_ids)
+            queryset = queryset.filter(learning_unit_year__campus__organization__id__in=organization_ids)
 
     return queryset
 

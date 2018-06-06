@@ -31,12 +31,13 @@ import factory.fuzzy
 from factory.django import DjangoModelFactory
 from faker import Faker
 
+from base.models.enums import internship_subtypes
 from base.models.enums import learning_unit_year_quadrimesters
 from base.models.enums import learning_unit_year_session
 from base.models.enums import learning_unit_year_subtypes
-from base.models.enums import internship_subtypes
 from base.models.learning_unit_year import MINIMUM_CREDITS, MAXIMUM_CREDITS
 from base.tests.factories.academic_year import AcademicYearFactory
+from base.tests.factories.campus import CampusFactory
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
 from base.tests.factories.learning_unit import LearningUnitFactory, LearningUnitFakerFactory
 from osis_common.utils.datetime import get_tzinfo
@@ -73,6 +74,7 @@ class LearningUnitYearFactory(DjangoModelFactory):
                                     getter=operator.itemgetter(0))
     language = factory.SubFactory(LanguageFactory)
     attribution_procedure = None
+    campus = factory.SubFactory(CampusFactory)
 
 
 class LearningUnitYearFakerFactory(DjangoModelFactory):
@@ -97,3 +99,5 @@ class LearningUnitYearFakerFactory(DjangoModelFactory):
                                     getter=operator.itemgetter(0))
     language = factory.SubFactory(LanguageFactory)
     attribution_procedure = None
+    campus = factory.SubFactory(CampusFactory)
+

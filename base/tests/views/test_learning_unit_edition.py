@@ -142,19 +142,26 @@ class TestEditLearningUnit(TestCase):
             academic_year=an_academic_year,
             container_type=learning_container_year_types.COURSE,
             type_declaration_vacant=vacant_declaration_type.DO_NOT_ASSIGN,
-            campus=CampusFactory(organization=OrganizationFactory(type=organization_type.MAIN)))
-        cls.learning_unit_year = LearningUnitYearFactory(learning_container_year=learning_container_year,
-                                                         acronym="LOSIS4512",
-                                                         academic_year=an_academic_year,
-                                                         subtype=learning_unit_year_subtypes.FULL,
-                                                         attribution_procedure=attribution_procedure.INTERNAL_TEAM,
-                                                         credits=15)
+        )
 
-        cls.partim_learning_unit = LearningUnitYearFactory(learning_container_year=learning_container_year,
-                                                           acronym="LOSIS4512A",
-                                                           academic_year=an_academic_year,
-                                                           subtype=learning_unit_year_subtypes.PARTIM,
-                                                           credits=10)
+        cls.learning_unit_year = LearningUnitYearFactory(
+            learning_container_year=learning_container_year,
+            acronym="LOSIS4512",
+            academic_year=an_academic_year,
+            subtype=learning_unit_year_subtypes.FULL,
+            attribution_procedure=attribution_procedure.INTERNAL_TEAM,
+            credits=15,
+            campus=CampusFactory(organization=OrganizationFactory(type=organization_type.MAIN))
+        )
+
+        cls.partim_learning_unit = LearningUnitYearFactory(
+            learning_container_year=learning_container_year,
+            acronym="LOSIS4512A",
+            academic_year=an_academic_year,
+            subtype=learning_unit_year_subtypes.PARTIM,
+            credits=10,
+            campus=CampusFactory(organization=OrganizationFactory(type=organization_type.MAIN))
+        )
 
         cls.requirement_entity_container = EntityContainerYearFactory(
             learning_container_year=learning_container_year, type=entity_container_year_link_type.REQUIREMENT_ENTITY)
@@ -277,7 +284,6 @@ class TestEditLearningUnit(TestCase):
                 "common_title": self.learning_unit_year.learning_container_year.common_title,
                 "common_title_english": self.learning_unit_year.learning_container_year.common_title_english,
                 "team": self.learning_unit_year.learning_container_year.team,
-                "campus": self.learning_unit_year.learning_container_year.campus.pk,
                 "is_vacant": self.learning_unit_year.learning_container_year.is_vacant,
                 "type_declaration_vacant": self.learning_unit_year.learning_container_year.type_declaration_vacant
             },
@@ -293,6 +299,7 @@ class TestEditLearningUnit(TestCase):
                 "attribution_procedure": self.learning_unit_year.attribution_procedure,
                 "internship_subtype": self.learning_unit_year.internship_subtype,
                 "professional_integration": self.learning_unit_year.professional_integration,
+                "campus": self.learning_unit_year.campus.pk,
                 "language": self.learning_unit_year.language.pk,
             },
             'learning_unit_form': {
@@ -336,7 +343,7 @@ class TestEditLearningUnit(TestCase):
             "credits": self.learning_unit_year.credits,
             "specific_title": self.learning_unit_year.specific_title,
             "periodicity": learning_unit_periodicity.ANNUAL,
-            "campus": self.learning_unit_year.learning_container_year.campus.pk,
+            "campus": self.learning_unit_year.campus.pk,
             "language": self.learning_unit_year.language.pk,
             "status": True,
 

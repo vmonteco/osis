@@ -300,17 +300,24 @@ class GenerateContainerYear:
                                                                     container_type=learning_container_year_types.COURSE,
                                                                     acronym="LDROI1200",
                                                                     common_title="Droit international",
-                                                                    common_title_english="Droit international english",
-                                                                    campus=self.campus)
+                                                                    common_title_english="Droit international english")
         self.learning_container = self.learning_container_year.learning_container
 
     def _setup_learning_unit_year_full(self, learning_unit):
-        self.learning_unit_year_full = _setup_learning_unit_year(learning_unit, self.learning_container_year,
-                                                                 learning_unit_year_subtypes.FULL, self.language)
+        self.learning_unit_year_full = _setup_learning_unit_year(
+            learning_unit, self.learning_container_year,
+            learning_unit_year_subtypes.FULL,
+            campus=self.campus,
+            language=self.language
+        )
 
     def _setup_learning_unit_year_partim(self, learning_unit):
-        self.learning_unit_year_partim = _setup_learning_unit_year(learning_unit, self.learning_container_year,
-                                                                   learning_unit_year_subtypes.PARTIM, self.language)
+        self.learning_unit_year_partim = _setup_learning_unit_year(
+            learning_unit, self.learning_container_year,
+            learning_unit_year_subtypes.PARTIM,
+            campus=self.campus,
+            language=self.language
+        )
 
     def _setup_learning_components_year(self):
 
@@ -367,13 +374,14 @@ class GenerateContainerYear:
             _setup_classes(component, number_classes=self.nb_classes)
 
 
-def _setup_learning_unit_year(learning_unit, learning_container_year, subtype, language):
+def _setup_learning_unit_year(learning_unit, learning_container_year, subtype, campus, language):
     common_luy_data = _get_default_common_value_learning_unit_year(learning_container_year, subtype, language)
     learning_unit_year = LearningUnitYearFactory(
         learning_unit=learning_unit,
         learning_container_year=learning_container_year,
         academic_year=learning_container_year.academic_year,
         subtype=subtype,
+        campus=campus,
         **common_luy_data
     )
     learning_unit = learning_unit_year.learning_unit
