@@ -184,7 +184,6 @@ class TestVolumeEditionForm(TestCase):
             entity_container_year__type=REQUIREMENT_ENTITY
         )
 
-
         self.first_learning_unit_year.credits = self.first_learning_unit_year.credits + 1
         self.first_learning_unit_year.save()
 
