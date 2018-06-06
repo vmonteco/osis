@@ -86,10 +86,6 @@ table.volumes tbody tr td,th{
     text-align: center;
 }
 
-table.volumes_read thead tr th{
-    text-align: left;
-}
-
 table.volumes tbody tr td input{
     text-align: center;
 }

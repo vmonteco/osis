@@ -337,12 +337,6 @@ class SimplifiedVolumeForm(forms.ModelForm):
         model = LearningComponentYear
         fields = ('volume_declared_vacant', 'planned_classes', 'hourly_volume_partial')
 
-    # volume_q1 = VolumeField(label=_('partial_volume_1Q'), help_text=_('partial_volume_1'), required=False)
-    # volume_q2 = VolumeField(label=_('partial_volume_2Q'), help_text=_('partial_volume_2'), required=False)
-    # volume_total = VolumeField(label=_('total_volume_voltot'), help_text=_('total_volume'), required=False)
-    # planned_classes = forms.IntegerField(label=_('planned_classes_pc'), help_text=_('planned_classes'),
-    #                                      min_value=0, required=False)
-
     def save(self, commit=True):
         instance = super().save(commit)
 
@@ -352,10 +346,11 @@ class SimplifiedVolumeForm(forms.ModelForm):
         )
 
         for requirement_entity_container in self._requirement_entity_containers:
-            EntityComponentYear.objects.get_or_create(
-                entity_container_year=requirement_entity_container,
-                learning_component_year=instance
-            )
+            if requirement_entity_container:
+                EntityComponentYear.objects.get_or_create(
+                    entity_container_year=requirement_entity_container,
+                    learning_component_year=instance
+                )
 
         return instance
 
