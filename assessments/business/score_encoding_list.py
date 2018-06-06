@@ -161,21 +161,21 @@ def update_enrollment(enrollment, user, is_program_manager=None):
 def clean_score_and_justification(enrollment):
     is_decimal_scores_authorized = enrollment.learning_unit_enrollment.learning_unit_year.decimal_scores
 
-    score_clean = None
+    cleaned_score = None
     if enrollment.score_encoded is not None and enrollment.score_encoded != "":
-        score_clean = _truncate_decimals(enrollment.score_encoded, is_decimal_scores_authorized)
+        cleaned_score = _convert_to_decimal(enrollment.score_encoded, is_decimal_scores_authorized)
 
-    justification_clean = None if not enrollment.justification_encoded else enrollment.justification_encoded
+    cleaned_justification = None if not enrollment.justification_encoded else enrollment.justification_encoded
     if enrollment.justification_encoded == exam_enrollment_justification_type.SCORE_MISSING:
-        justification_clean = score_clean = None
+        cleaned_justification = cleaned_score = None
 
     enrollment_cleaned = copy.deepcopy(enrollment)
-    enrollment_cleaned.score_encoded = score_clean
-    enrollment_cleaned.justification_encoded = justification_clean
+    enrollment_cleaned.score_encoded = cleaned_score
+    enrollment_cleaned.justification_encoded = cleaned_justification
     return enrollment_cleaned
 
 
-def _truncate_decimals(score, decimal_scores_authorized):
+def _convert_to_decimal(score, decimal_scores_authorized):
     decimal_score = _format_score_to_decimal(score)
 
     if decimal_scores_authorized:
@@ -196,7 +196,7 @@ def _format_score_to_decimal(score):
     if isinstance(score, str):
         score = score.strip().replace(',', '.')
         _check_str_score_is_digit(score)
-    return Decimal(score)
+    return Decimal(str(score))
 
 
 def _check_str_score_is_digit(score_str):

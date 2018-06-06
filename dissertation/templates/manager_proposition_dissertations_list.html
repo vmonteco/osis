@@ -65,19 +65,21 @@
             <br>
             <label class="alert alert-info" style="margin-left:10%;width:80%;text-align:center;">{% trans 'no_result' %}</label>
           {% else %}
-            <table class="table table-hover">
-              <tr>
+            <table class="table table-hover" id="tb_proposition">
+              <thead>
                 <th>{% trans 'title'%}</th>
                 <th>{% trans 'promotor'%}</th>
                 <th>{% trans 'creator'%}</th>
+                  <th>{% trans 'count_places'%}</th>
                   <th>{% trans 'visibility'%}</th>
                   <th>{% trans 'offer_propositions'%}</th>
-              </tr>
+              </thead>
               {% for proposition_dissertation in propositions_dissertations %}
                 <tr>
                   <td><a href="{% url 'manager_proposition_dissertation_detail' pk=proposition_dissertation.pk %}">{{ proposition_dissertation.title }}</a></td>
                   <td>{{ proposition_dissertation.author }}</td>
                   <td>{{ proposition_dissertation.creator }}</td>
+                  <td>{{ proposition_dissertation.dissertations_count }} {% trans 'of' %} {{ proposition_dissertation.max_number_student }} </td>
                   <td>
                       {% if proposition_dissertation.visibility == True %}
                       <span class="label label-success">{% trans 'visible' %}</span>
@@ -99,4 +101,45 @@
             </table>
           {% endif %}
     </div>
+{% endblock %}
+
+{% block script %}
+<script type="text/javascript" src="{% static 'js/jquery.dataTables.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/dataTables.bootstrap.min.js' %}"></script>
+<script>
+    $(document).ready(function()
+    {
+        $('#tb_proposition').DataTable(
+            {
+                "paging" : true,
+                "ordering" : true,
+                "info"  : false,
+                "searching" : false,
+                "language":
+                {
+                    "sProcessing":     "{% trans 'datatable_processing'%}",
+                    "sSearch":         "{% trans 'datatable_search'%}",
+                    "sLengthMenu":     "&nbsp;&nbsp;&nbsp;_MENU_ &eacute;l&eacute;ments",
+                    "sInfo":           "{% trans 'datatable_info'%}",
+                    "sInfoEmpty":      "{% trans 'datatable_infoempty'%}",
+                    "sInfoFiltered":   "{% trans 'datatable_infofiltered'%}",
+                    "sInfoPostFix":    "{% trans 'datatable_infopostfix'%}",
+                    "sLoadingRecords": "{% trans 'datatable_loadingrecords'%}",
+                    "sZeroRecords":    "{% trans 'datatable_zerorecords'%}",
+                    "sEmptyTable":     "{% trans 'datatable_emptytable'%}",
+                "oPaginate": {
+                    "sFirst":      "{% trans 'datatable_first'%}",
+                    "sPrevious":   "{% trans 'datatable_previous'%}",
+                    "sNext":       "{% trans 'datatable_next'%}",
+                    "sLast":       "{% trans 'datatable_last'%}"
+                            },
+            "oAria": {
+                    "sSortAscending":  "{% trans 'datatable_sortascending'%}",
+                    "sSortDescending": "{% trans 'datatable_sortdescending'%}",
+                    }
+                }
+            });
+    });
+
+</script>
 {% endblock %}

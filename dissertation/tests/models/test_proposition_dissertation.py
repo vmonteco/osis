@@ -25,6 +25,7 @@
 ##############################################################################
 from dissertation.models.proposition_dissertation import PropositionDissertation
 from dissertation.models.proposition_offer import PropositionOffer
+from dissertation.tests.factories.dissertation import DissertationFactory
 from dissertation.tests.models import test_proposition_role
 
 
@@ -43,3 +44,22 @@ def create_proposition_dissertation(title, adviser, person, offer_proposition = 
 
     return proposition
 
+def test_count_dissertations(self):
+    self.client.force_login(self.manager.person.user)
+    self.dissertation_test_count2015 = DissertationFactory(author=self.student1,
+                                                           offer_year_start=self.offer_year_start2015,
+                                                           proposition_dissertation=self.proposition_dissertation,
+                                                           status='COM_SUBMIT',
+                                                           active=True,
+                                                           dissertation_role__adviser=self.teacher,
+                                                           dissertation_role__status='PROMOTEUR')
+
+    self.dissertation_test_count2017 = DissertationFactory(author=self.student2,
+                                                           offer_year_start=self.offer_year_start2017,
+                                                           proposition_dissertation=self.proposition_dissertation,
+                                                           status='COM_SUBMIT',
+                                                           active=True,
+                                                           dissertation_role__adviser=self.teacher,
+                                                           dissertation_role__status='PROMOTEUR')
+
+    self.assertEqual(PropositionDissertation.count_dissertations(self.proposition_dissertation),1)

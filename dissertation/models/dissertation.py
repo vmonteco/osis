@@ -26,15 +26,14 @@
 
 
 from django.core.exceptions import ObjectDoesNotExist
-from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
 from django.db import models
 from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
-from base.models import offer_year, student, academic_year
-from . import proposition_dissertation
-from . import offer_proposition
-from . import dissertation_location
+from base.models import academic_year
+from base.models import offer_year, student
+from dissertation.models import proposition_dissertation, offer_proposition, dissertation_location
 from dissertation.utils import emails_dissert
+from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
 
 
 class DissertationAdmin(SerializableModelAdmin):
@@ -170,16 +169,6 @@ def search_by_offer_and_status(offers, status):
     return search_by_offer(offers).filter(status=status)
 
 
-def count_by_proposition(prop_dissert):
-    current_academic_year = academic_year.starting_academic_year()
-    return Dissertation.objects.filter(proposition_dissertation=prop_dissert)\
-        .filter(active=True)\
-        .filter(offer_year_start__academic_year=current_academic_year)\
-        .exclude(status='DRAFT') \
-        .exclude(status='DIR_KO') \
-        .count()
-
-
 def get_next_status(dissert, operation):
     if operation == "go_forward":
         if dissert.status == 'DRAFT' or dissert.status == 'DIR_KO':
@@ -242,3 +231,13 @@ def find_by_id(dissertation_id):
         return Dissertation.objects.get(pk=dissertation_id)
     except ObjectDoesNotExist:
         return None
+
+
+def count_by_proposition(proposition):
+    current_academic_year = academic_year.starting_academic_year()
+    return Dissertation.objects.filter(proposition_dissertation=proposition) \
+        .filter(active=True) \
+        .filter(offer_year_start__academic_year=current_academic_year) \
+        .exclude(status='DRAFT') \
+        .exclude(status='DIR_KO') \
+        .count()

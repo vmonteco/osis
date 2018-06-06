@@ -130,7 +130,7 @@ class TestPartimFormInit(LearningUnitPartimFormContextMixin):
                 'status': self.learning_unit_year_full.status,
                 'specific_title': self.learning_unit_year_full.specific_title,
                 'specific_title_english': self.learning_unit_year_full.specific_title_english,
-                'language':self.learning_unit_year_full.language.pk
+                'language': self.learning_unit_year_full.language
             }
         }
         partim_form = _instanciate_form(learning_unit_full=self.learning_unit_year_full.learning_unit,
@@ -453,7 +453,7 @@ def get_valid_form_data(learning_unit_year_partim):
         'session': learning_unit_year_partim.session,
         'quadrimester': learning_unit_year_partim.quadrimester,
         'status': learning_unit_year_partim.status,
-        'language': learning_unit_year_partim.language,
+        'language': learning_unit_year_partim.language.id,
 
         # Learning unit data model form
         'periodicity': learning_unit_year_partim.learning_unit.periodicity,
