@@ -23,12 +23,21 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.contrib.auth.decorators import login_required, permission_required
+from django.test import TestCase
 
-from base.views import layout
+from base.forms.search.search_tutor import TutorSearchForm
+from base.tests.factories.tutor import TutorFactory
 
 
-@login_required
-@permission_required('base.can_access_learningunit', raise_exception=True)
-def search_tutors(request):
-    return layout.render(request, "search/search.html", {})
+class TestSearchTutor(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        NUMBER_TUTORS = 10
+        cls.tutors = [TutorFactory() for _ in range(NUMBER_TUTORS)]
+
+    def test_form_fields(self):
+        FORM_FIELDS = ("name", )
+        form = TutorSearchForm()
+
+        self.assertCountEqual(FORM_FIELDS,
+                              list(form.fields.keys()))

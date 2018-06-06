@@ -23,12 +23,12 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.contrib.auth.decorators import login_required, permission_required
+from django import forms
+from django.utils.translation import ugettext_lazy as _
 
-from base.views import layout
+from base.forms.search.search_form import BaseSearchForm
 
 
-@login_required
-@permission_required('base.can_access_learningunit', raise_exception=True)
-def search_tutors(request):
-    return layout.render(request, "search/search.html", {})
+class TutorSearchForm(BaseSearchForm):
+    name = forms.CharField(max_length=20,
+                           label=_("name"))

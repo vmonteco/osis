@@ -43,7 +43,7 @@ from django.utils.translation import ugettext_lazy as _
 import base.business.learning_unit
 from base.business import learning_unit as learning_unit_business
 from base.forms.learning_unit.learning_unit_create import LearningUnitModelForm
-from base.forms.learning_unit.search_form import LearningUnitYearForm, SearchForm
+from base.forms.learning_unit.search_form import LearningUnitYearForm, LearningUnitSearchForm
 from base.forms.learning_unit_pedagogy import LearningUnitPedagogyForm, SummaryModelForm
 from base.forms.learning_unit_specifications import LearningUnitSpecificationsForm, LearningUnitSpecificationsEditForm
 from base.models import learning_unit_component
@@ -1228,7 +1228,7 @@ class LearningUnitViewTestCase(TestCase):
 
     @mock.patch("base.models.learning_unit_year.count_search_results")
     def test_error_message_case_too_many_results_to_show(self, mock_count):
-        mock_count.return_value = SearchForm.MAX_RECORDS + 1
+        mock_count.return_value = LearningUnitSearchForm.MAX_RECORDS + 1
         response = self.client.get(reverse('learning_units'), {'academic_year_id': self.academic_year_1.id})
         messages = list(response.context['messages'])
         self.assertEqual(messages[0].message, _('too_many_results'))

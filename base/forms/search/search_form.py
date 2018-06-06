@@ -23,12 +23,34 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.contrib.auth.decorators import login_required, permission_required
-
-from base.views import layout
+from django import forms
 
 
-@login_required
-@permission_required('base.can_access_learningunit', raise_exception=True)
-def search_tutors(request):
-    return layout.render(request, "search/search.html", {})
+class BaseSearchForm(forms.Form):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            # In a search form, the fields are never required
+            field.required = False
+
+    def get_research_criteria(self):
+        tuples_label_value = []
+        for field_name, field in self.fields.items():
+            if not self.cleaned_data[field_name]:
+                continue
+            tuple_to_append = (str(field.label), self.cleaned_data[field_name])
+            if type(field) == forms.ChoiceField:
+                dict_choices = {str(key): value for key, value in field.choices}
+                label_choice = dict_choices[self.cleaned_data[field_name]]
+                tuple_to_append = (str(field.label), label_choice)
+            tuples_label_value.append(tuple_to_append)
+        return tuples_label_value
+
+    def _has_criteria(self):
+        criteria_present = False
+        for name in self.fields:
+            if self.cleaned_data[name]:
+                criteria_present = True
+                break
+        return criteria_present
