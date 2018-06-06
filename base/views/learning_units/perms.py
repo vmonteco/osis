@@ -67,9 +67,7 @@ def can_edit_learning_unit_proposal(view_func):
         pers = get_object_or_404(person.Person, user=request.user)
 
         if not business_perms.is_eligible_to_edit_proposal(proposal, pers):
-            raise PermissionDenied(
-                "User has not sufficient rights to edit proposal."
-            )
+            raise PermissionDenied("User has not sufficient rights to edit proposal.")
         return view_func(request, learning_unit_year_id)
     return f_can_edit_learning_unit_proposal
 

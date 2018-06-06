@@ -31,24 +31,24 @@ from base.forms.learning_unit.external_learning_unit import ExternalLearningUnit
     LearningContainerYearExternalModelForm, ExternalLearningUnitModelForm
 from base.forms.learning_unit.learning_unit_create import LearningUnitYearModelForm, \
     LearningUnitModelForm
+from base.forms.learning_unit.search_form import ExternalLearningUnitYearForm
 from base.models.enums import learning_unit_year_subtypes
+from base.models.enums import organization_type
 from base.models.enums.learning_container_year_types import EXTERNAL
 from base.models.enums.learning_unit_year_subtypes import FULL
 from base.models.learning_unit_year import LearningUnitYear
+from base.tests.factories.academic_year import create_current_academic_year
 from base.tests.factories.business.entities import create_entities_hierarchy
+from base.tests.factories.campus import CampusFactory
+from base.tests.factories.external_learning_unit_year import ExternalLearningUnitYearFactory
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from base.tests.factories.organization import OrganizationFactory
+from base.tests.factories.organization_address import OrganizationAddressFactory
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.person_entity import PersonEntityFactory
-from reference.tests.factories.language import LanguageFactory
-from base.tests.factories.external_learning_unit_year import ExternalLearningUnitYearFactory
-from base.tests.factories.campus import CampusFactory
-from base.tests.factories.organization_address import OrganizationAddressFactory
 from reference.tests.factories.country import CountryFactory
-from base.forms.learning_unit.search_form import ExternalLearningUnitYearForm
-from base.tests.factories.academic_year import create_current_academic_year
-from base.models.enums import organization_type
+from reference.tests.factories.language import LanguageFactory
 
 NAMEN = 'Namur'
 
@@ -59,14 +59,17 @@ def get_valid_external_learning_unit_form_data(academic_year, person, learning_u
     requesting_entity = entities['child_one_entity_version']
     organization = OrganizationFactory(type=organization_type.MAIN)
     campus = CampusFactory(organization=organization)
+    language = LanguageFactory(code='FR')
 
     if not learning_unit_year:
-        container_year = LearningContainerYearFactory(academic_year=academic_year, campus=campus)
+        container_year = LearningContainerYearFactory(academic_year=academic_year)
         learning_unit_year = LearningUnitYearFactory.build(
             acronym='XOSIS1111',
             academic_year=academic_year,
             learning_container_year=container_year,
-            subtype=learning_unit_year_subtypes.FULL
+            subtype=learning_unit_year_subtypes.FULL,
+            campus=campus,
+            language=language
         )
     return {
         # Learning unit year data model form
@@ -77,13 +80,13 @@ def get_valid_external_learning_unit_form_data(academic_year, person, learning_u
         'specific_title_english': learning_unit_year.specific_title_english,
         'credits': learning_unit_year.credits,
         'status': learning_unit_year.status,
+        'campus': learning_unit_year.campus.id,
+        'language': learning_unit_year.language.pk,
 
         # Learning unit data model form
         'faculty_remark': learning_unit_year.learning_unit.faculty_remark,
 
         # Learning container year data model form
-        'campus': learning_unit_year.learning_container_year.campus.id,
-        'language': learning_unit_year.learning_container_year.language.id,
         'common_title': learning_unit_year.learning_container_year.common_title,
         'common_title_english': learning_unit_year.learning_container_year.common_title_english,
         'is_vacant': learning_unit_year.learning_container_year.is_vacant,
@@ -131,6 +134,7 @@ class TestExternalLearningUnitForm(TestCase):
 class TestExternalLearningUnitSearchForm(TestCase):
     def setUp(self):
         self.academic_year = create_current_academic_year()
+
         self.learning_unit_year_1 = LearningUnitYearFactory(academic_year=self.academic_year)
         self.external_lu_1 = ExternalLearningUnitYearFactory(external_acronym='XLDR1001',
                                                              learning_unit_year=self.learning_unit_year_1)
@@ -141,19 +145,19 @@ class TestExternalLearningUnitSearchForm(TestCase):
         self.a_be_country = CountryFactory(iso_code='BE')
         self.be_organization_adr_city1 = OrganizationAddressFactory(country=self.a_be_country, city=NAMEN)
         self.be_campus_1 = CampusFactory(organization=self.be_organization_adr_city1.organization)
-        self.learning_container_year = LearningContainerYearFactory(academic_year=self.academic_year,
-                                                                    campus=self.be_campus_1)
+        self.learning_container_year = LearningContainerYearFactory(academic_year=self.academic_year)
         self.learning_unit_year_3 = LearningUnitYearFactory(learning_container_year=self.learning_container_year,
-                                                            academic_year=self.academic_year)
+                                                            academic_year=self.academic_year,
+                                                            campus=self.be_campus_1)
         self.external_lu_BE_1 = ExternalLearningUnitYearFactory(learning_unit_year=self.learning_unit_year_3)
 
         self.be_organization_adr_city2 = OrganizationAddressFactory(country=self.a_be_country, city='Bruxelles')
         self.be_campus_2 = CampusFactory(organization=self.be_organization_adr_city2.organization)
-        self.learning_container_year_4 = LearningContainerYearFactory(academic_year=self.academic_year,
-                                                                      campus=self.be_campus_2)
+        self.learning_container_year_4 = LearningContainerYearFactory(academic_year=self.academic_year)
         self.external_lu_BE_2 = ExternalLearningUnitYearFactory(
             learning_unit_year=LearningUnitYearFactory(learning_container_year=self.learning_container_year_4,
-                                                       academic_year=self.academic_year))
+                                                       academic_year=self.academic_year,
+                                                       campus=self.be_campus_2))
 
     def test_search_learning_units_on_acronym(self):
         form_data = {

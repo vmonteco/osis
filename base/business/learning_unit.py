@@ -85,15 +85,9 @@ def get_same_container_year_components(learning_unit_year, with_classes=False):
     return _compose_components_dict(components, additionnal_entities)
 
 
-def get_campus_from_learning_unit_year(learning_unit_year):
-    if learning_unit_year.learning_container_year:
-        return learning_unit_year.learning_container_year.campus
-
-
 def get_organization_from_learning_unit_year(learning_unit_year):
-    campus = get_campus_from_learning_unit_year(learning_unit_year)
-    if campus:
-        return campus.organization
+    if learning_unit_year.campus:
+        return learning_unit_year.campus.organization
 
 
 def get_all_attributions(learning_unit_year):

@@ -23,7 +23,6 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 
@@ -110,11 +109,13 @@ class LearningUnitYearModelForm(forms.ModelForm):
         if kwargs.get('instance'):
             self.fields['academic_year'].disabled = True
 
+        self.fields['campus'].queryset = find_main_campuses()
+
     class Meta:
         model = LearningUnitYear
         fields = ('academic_year', 'acronym', 'specific_title', 'specific_title_english', 'credits',
                   'session', 'quadrimester', 'status', 'internship_subtype', 'attribution_procedure',
-                  'professional_integration')
+                  'professional_integration', 'campus', 'language')
         field_classes = {'acronym': AcronymField}
         error_messages = {
             'credits': {
@@ -195,7 +196,6 @@ class LearningContainerYearModelForm(forms.ModelForm):
         self.prepare_fields()
 
     def prepare_fields(self):
-        self.fields['campus'].queryset = find_main_campuses()
         self.fields['container_type'].widget.attrs = {'onchange': 'showInternshipSubtype()'}
 
         # Limit types for faculty_manager only if simple creation of learning_unit
@@ -212,7 +212,7 @@ class LearningContainerYearModelForm(forms.ModelForm):
 
     class Meta:
         model = LearningContainerYear
-        fields = ('container_type', 'common_title', 'common_title_english', 'language', 'campus',
+        fields = ('container_type', 'common_title', 'common_title_english',
                   'type_declaration_vacant', 'team', 'is_vacant')
 
     def post_clean(self, specific_title):
