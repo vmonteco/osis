@@ -145,8 +145,14 @@
                         "sSortDescending": "{% trans 'datatable_sortdescending'%}"
                     }
                 }
-            })
-    ;});
+            });
+
+        $('.link_data_lookup').on("click", function(event){
+            event.preventDefault();
+            var link = $(this).prop("href");
+            w = window.open(link, "id_tutor", 'height=500,width=800,resizable=yes,scrollbars=yes');
+        });
+    });
 
     $("#btn_produce_xls").click(function(e) {
         e.preventDefault();

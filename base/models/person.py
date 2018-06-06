@@ -108,18 +108,16 @@ class Person(SerializableModel):
     def is_faculty_manager(self):
         return self.user.groups.filter(name=FACULTY_MANAGER_GROUP).exists()
 
-    def __str__(self):
-        first_name = ""
-        middle_name = ""
-        last_name = ""
-        if self.first_name:
-            first_name = self.first_name
-        if self.middle_name:
-            middle_name = self.middle_name
-        if self.last_name:
-            last_name = "{},".format(self.last_name)
+    @property
+    def full_name(self):
+        return " ".join([self.last_name or "", self.middle_name or "", self.first_name or ""]).strip()
 
-        return u"%s %s %s" % (last_name.upper(), first_name, middle_name)
+    def __str__(self):
+        return " ".join([
+            ("{},".format(self.last_name) if self.last_name else "").upper(),
+            self.first_name or "",
+            self.middle_name or ""
+        ]).strip()
 
     class Meta:
         permissions = (

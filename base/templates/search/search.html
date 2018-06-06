@@ -63,7 +63,7 @@
             </thead>
                 {% for tutor in tutors%}
                 <tr data-id="{{tutor.id}}" data-value="{{tutor.person}}">
-                    <td>{{tutor.person.last_name}}</td>
+                    <td><a href="#" data-popup-value="{{ tutor.person.full_name }}" class>{{tutor.person.last_name}}</a></td>
                     <td>{{tutor.person.middle_name}}</td>
                     <td>{{tutor.person.first_name}}</td>
                 </tr>
@@ -90,4 +90,23 @@
 
 
     </div>
+{% endblock %}
+
+{% block script %}
+<script>
+    $(document).ready(function()
+    {
+	    $("a[data-popup-value]").click(function(event){
+	        event.preventDefault();
+	        var name = window.name;
+	        var value = $(this).data("popup-value");
+	        opener = window.opener;
+	        if(opener !== null && opener !== undefined){
+                opener.document.getElementById(name).value = value;
+            }
+            window.close();
+        });
+    });
+
+</script>
 {% endblock %}
