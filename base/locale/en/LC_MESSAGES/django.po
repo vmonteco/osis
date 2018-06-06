@@ -1824,9 +1824,6 @@ msgstr "Site with one letter\n"
 msgid "end_year_title"
 msgstr "End year"
 
-msgid "basic_informations_title"
-msgstr "Basics informations"
-
 msgid "active_title"
 msgstr "Active"
 
