@@ -36,16 +36,6 @@ from base.tests.factories.person import PersonFactory
 from base.tests.factories.user import UserFactory
 
 
-def create_tutor(first_name="Tutor", last_name="tutor"):
-    return TutorFactory(
-        person=PersonFactory(first_name=first_name, last_name=last_name)
-    )
-
-
-def create_tutor_with_person(person):
-    return TutorFactory(person=person)
-
-
 class TestTutor(TestCase):
     def setUp(self):
         self.user = UserFactory()
@@ -128,3 +118,27 @@ class TestTutorAdmin(TestCase):
         tutor_admin.add_to_group(request, queryset)
         msg = [m.message for m in get_messages(request)]
         self.assertIn("Group tutors doesn't exist.", msg)
+
+
+class TestSearch(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        TUTOR_NAMES = (
+            {"first_name": "Jean", "last_name": "Pierrer"},
+            {"first_name": "John", "last_name": "Doe"},
+            {"first_name": "Morgan", "last_name": "Wakaba"},
+            {"first_name": "Philip", "last_name": "Stones"}
+        )
+
+        cls.tutors = [TutorFactory(person=PersonFactory(**name)) for name in TUTOR_NAMES]
+
+    def test_with_no_criterias(self):
+        qs = tutor.search()
+        self.assertQuerysetEqual(qs, self.tutors, transform=lambda o: o, ordered=False)
+
+    def test_with_name_criteria(self):
+        for tutor_obj in self.tutors:
+            with self.subTest(tutor=tutor):
+                name =  " ".join([tutor_obj.person.first_name, tutor_obj.person.last_name])
+                qs = tutor.search(name=name)
+                self.assertQuerysetEqual(qs, [tutor_obj], transform=lambda o: o, ordered=False)

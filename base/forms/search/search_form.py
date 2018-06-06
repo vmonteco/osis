@@ -34,6 +34,10 @@ class BaseSearchForm(forms.Form):
             # In a search form, the fields are never required
             field.required = False
 
+    # Should be implemented
+    def search(self):
+        pass
+
     def get_research_criteria(self):
         tuples_label_value = []
         for field_name, field in self.fields.items():

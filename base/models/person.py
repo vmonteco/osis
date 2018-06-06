@@ -180,6 +180,8 @@ def count_by_email(email):
     return search_by_email(email).count()
 
 
+# FIXME Returns queryset.none() in place of None
+#       Also reuse search method and filter by employee then
 def search_employee(full_name):
     queryset = annotate_with_first_last_names()
     if full_name:

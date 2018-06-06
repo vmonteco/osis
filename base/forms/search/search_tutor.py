@@ -27,8 +27,12 @@ from django import forms
 from django.utils.translation import ugettext_lazy as _
 
 from base.forms.search.search_form import BaseSearchForm
+from base.models import tutor
 
 
 class TutorSearchForm(BaseSearchForm):
     name = forms.CharField(max_length=20,
                            label=_("name"))
+
+    def search(self):
+        return tutor.search(**self.cleaned_data)

@@ -23,18 +23,12 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.test import TestCase
+from django.test import SimpleTestCase
 
 from base.forms.search.search_tutor import TutorSearchForm
-from base.tests.factories.tutor import TutorFactory
 
 
-class TestSearchTutor(TestCase):
-    @classmethod
-    def setUpTestData(cls):
-        NUMBER_TUTORS = 10
-        cls.tutors = [TutorFactory() for _ in range(NUMBER_TUTORS)]
-
+class TestSearchTutor(SimpleTestCase):
     def test_form_fields(self):
         FORM_FIELDS = ("name", )
         form = TutorSearchForm()
