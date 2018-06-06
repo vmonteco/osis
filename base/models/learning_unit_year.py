@@ -217,6 +217,7 @@ class LearningUnitYear(SerializableModel):
     def is_past(self):
         return self.academic_year.is_past()
 
+    # FIXME move this method to business/perm file
     def can_update_by_faculty_manager(self):
         result = False
 

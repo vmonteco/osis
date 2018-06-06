@@ -794,7 +794,7 @@ class TestEditProposal(TestCase):
                                                    end_date=None)
 
         self.generated_container = GenerateContainer(start_year, end_year)
-        self.generated_container_first_year = self.generated_container.generated_container_years[0]
+        self.generated_container_first_year = self.generated_container.generated_container_years[1]
         self.learning_unit_year = self.generated_container_first_year.learning_unit_year_full
         self.proposal = ProposalLearningUnitFactory(learning_unit_year=self.learning_unit_year,
                                                     state=ProposalState.FACULTY.name,
