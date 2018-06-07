@@ -349,7 +349,6 @@ class SimplifiedVolumeForm(forms.ModelForm):
             learning_unit_year=self._learning_unit_year,
             learning_component_year=instance
         )
-
         requirement_entity_containers = self.get_requirement_entity_container()
 
         for requirement_entity_container in requirement_entity_containers:
@@ -362,7 +361,7 @@ class SimplifiedVolumeForm(forms.ModelForm):
     def get_requirement_entity_container(self):
         requirement_entity_containers = [entity_container_year for entity_container_year in self._entity_containers
                                          if entity_container_year
-                                         and entity_container_year.type == entity_types.ALLOCATION_ENTITY]
+                                         and entity_container_year.type != entity_types.ALLOCATION_ENTITY]
         return requirement_entity_containers
 
 
