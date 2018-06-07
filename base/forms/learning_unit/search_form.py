@@ -39,6 +39,7 @@ from base.business.learning_unit_year_with_context import append_latest_entities
 from base.forms.common import get_clean_data, treat_empty_or_str_none_as_none, TooManyResultsException
 from base.forms.search.search_form import BaseSearchForm
 from base.forms.utils.choice_field import add_blank
+from base.forms.utils.dynamic_field import DynamicChoiceField
 from base.forms.utils.uppercase import convert_to_uppercase
 from base.models import learning_unit_year, group_element_year
 from base.models.academic_year import AcademicYear, current_academic_year
@@ -333,12 +334,6 @@ def _get_entity_ids_list(allocation_entity_acronym, entities_id_list_allocation,
         return None
 
 
-class DynamicChoiceField(forms.ChoiceField):
-    def validate(self, value):
-        if self.required and not value:
-            ValidationError(self.error_messages['required'])
-
-
 class ExternalLearningUnitYearForm(LearningUnitYearForm):
     country = forms.ModelChoiceField(queryset=Country.objects.filter(organizationaddress__isnull=False)
                                      .distinct().order_by('name'),
@@ -377,13 +372,14 @@ class ExternalLearningUnitYearForm(LearningUnitYearForm):
 
     def get_learning_units(self):
         clean_data = self.cleaned_data
-        learning_units = mdl.external_learning_unit_year.search(academic_year_id=clean_data['academic_year_id'],
-                                                                acronym=clean_data['acronym'],
-                                                                title=clean_data['title'],
-                                                                country=clean_data['country'],
-                                                                city=clean_data['city'],
-                                                                campus=clean_data['campus']) \
-            .select_related('learning_unit_year__academic_year', ) \
+        learning_units = mdl.external_learning_unit_year.search(
+            academic_year_id=clean_data['academic_year_id'],
+            acronym=clean_data['acronym'],
+            title=clean_data['title'],
+            country=clean_data['country'],
+            city=clean_data['city'],
+            campus=clean_data['campus']
+        ).select_related('learning_unit_year__academic_year', ) \
             .order_by('learning_unit_year__academic_year__year', 'learning_unit_year__acronym')
 
         return learning_units

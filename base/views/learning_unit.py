@@ -126,7 +126,7 @@ def edit_learning_unit_pedagogy(request, learning_unit_year_id, redirect_url):
                                                     get_object_or_404(Person, user=request.user))
     label_name = request.GET.get('label')
     language = request.GET.get('language')
-    text_lb = text_label.find_root_by_name(label_name)
+    text_lb = text_label.find_by_name(label_name)
     form = LearningUnitPedagogyEditForm(**{
         'learning_unit_year': context['learning_unit_year'],
         'language': language,

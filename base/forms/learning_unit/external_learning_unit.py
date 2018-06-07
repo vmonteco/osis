@@ -27,6 +27,7 @@ from collections.__init__ import OrderedDict
 
 from django import forms
 from django.db import transaction
+from django.db.models import BLANK_CHOICE_DASH
 from django.forms import ModelChoiceField
 from django.utils.translation import ugettext_lazy as _
 
@@ -36,6 +37,7 @@ from base.forms.learning_unit.learning_unit_create import LearningUnitModelForm,
 from base.forms.learning_unit.learning_unit_create_2 import LearningUnitBaseForm
 from base.forms.learning_unit.learning_unit_partim import merge_data
 from base.forms.utils.acronym_field import ExternalAcronymField
+from base.forms.utils.dynamic_field import DynamicChoiceField
 from base.models import entity_version
 from base.models.campus import Campus
 from base.models.entity_version import get_last_version, EntityVersion
@@ -57,6 +59,7 @@ class LearningContainerYearExternalModelForm(LearningContainerYearModelForm):
         required=False,
         label=_("country")
     )
+    city = DynamicChoiceField(required=False, label=_('city'), choices=BLANK_CHOICE_DASH)
 
     def prepare_fields(self):
         self.fields["container_type"].choices = ((EXTERNAL, _(EXTERNAL)),)

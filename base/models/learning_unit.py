@@ -88,6 +88,12 @@ class LearningUnit(SerializableModel):
     def title(self):
         return self.most_recent_learning_unit_year().specific_title
 
+    @property
+    def periodicity_verbose(self):
+        if self.periodicity:
+            return _(self.periodicity)
+        return None
+
     def delete(self, *args, **kwargs):
         if self.start_year < 2015:
             raise IntegrityError(_('Prohibition to delete a learning unit before 2015.'))

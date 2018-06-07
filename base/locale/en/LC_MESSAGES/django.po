@@ -2886,6 +2886,12 @@ msgstr "Vol.global"
 msgid "volume_global"
 msgstr "volume total global"
 
+msgid "Vol. tot. annual"
+msgstr ""
+
+msgid "Volume total annual"
+msgstr ""
+
 msgid "missing_internship_subtype"
 msgstr "It is necessary to indicate the internship subtype"
 

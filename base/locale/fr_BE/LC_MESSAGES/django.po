@@ -1547,7 +1547,6 @@ msgstr "Classes prévues"
 msgid "real_on_planned_classrooms"
 msgstr "Classes effectives/prévues"
 
-
 msgid "classes"
 msgstr "Classes"
 
@@ -2888,6 +2887,12 @@ msgstr "Vol.global"
 
 msgid "volume_global"
 msgstr "volume total global"
+
+msgid "Vol. tot. annual"
+msgstr "Vol. tot. annuel"
+
+msgid "Volume total annual"
+msgstr "Volume total annuel"
 
 msgid "missing_internship_subtype"
 msgstr "Il est nécessaire d'indiquer le sous-type de stage"
