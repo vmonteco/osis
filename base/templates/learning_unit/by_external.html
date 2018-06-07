@@ -55,12 +55,12 @@
                             <td>{{ external_learning_unit_yr.learning_unit_year.academic_year.name }}</td>
                             <td><a href="{% url 'learning_unit' external_learning_unit_yr.learning_unit_year.id %}"
                                    id="lnk_learning_unit_{{learning_unit.id}}">
-                                    {{ external_learning_unit_yr.external_acronym}}
+                                    {{ external_learning_unit_yr.learning_unit_year.acronym}}
                                 </a>
                             </td>
-                            <td>{{ external_learning_unit_yr.learning_unit_year.complete_title|default_if_none:'' }}</td>
-                            <td>{{ external_learning_unit_yr.learning_unit_year.learning_container_year.campus.organization.name |default_if_none:''}}</td>
-                            <td>{{ external_learning_unit_yr.external_credits |default_if_none:''}}</td>
+                            <td>{{ external_learning_unit_yr.learning_unit_year.complete_title | default_if_none:'' }}</td>
+                            <td>{{ external_learning_unit_yr.learning_unit_year.campus.organization | default_if_none:''}}</td>
+                            <td>{{ external_learning_unit_yr.external_credits | default_if_none:''}}</td>
                             <td>
                                 {% if external_learning_unit_yr.learning_unit_year.status %}
                                     <span class="glyphicon glyphicon-ok-circle" aria-hidden="true" style="color:green;"
