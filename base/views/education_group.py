@@ -377,7 +377,10 @@ def education_group_year_pedagogy_add_term(request, education_group_year_id):
     education_group_year = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
     label = request.GET.get('label')
     text_label = get_object_or_404(TextLabel, label=label, entity=entity_name.OFFER_YEAR)
-    translated_text_ids = []
+
+    translated_text_ids = {
+        'label': text_label.label,
+    }
 
     for language in ('fr-be', 'en'):
         translated_text = TranslatedText.objects.create(text_label=text_label,
@@ -387,9 +390,10 @@ def education_group_year_pedagogy_add_term(request, education_group_year_id):
 
         translated_text_label = TranslatedTextLabel.objects.get(text_label=text_label, language=language)
 
-        translated_text_ids.append({'id': translated_text.id,
-                                    'label': translated_text.text_label.label,
-                                    'translation': {language: translated_text_label.label}})
+        translated_text_ids[language] = {
+            'id': translated_text.id,
+            'translation': translated_text_label.label,
+        }
 
     return JsonResponse({'message': 'added', 'translated_texts': translated_text_ids})
 
@@ -410,7 +414,7 @@ def education_group_year_pedagogy_remove_term(request, education_group_year_id):
 @login_required
 @ajax_required
 @permission_required('base.can_edit_educationgroup_pedagogy', raise_exception=True)
-def education_group_year_pedagogy_get_terms(request, education_group_year_id, language='fr-be'):
+def education_group_year_pedagogy_get_terms(request, education_group_year_id, language):
     text_labels = TextLabel.objects.filter(entity='offer_year')
 
     translated_texts = TranslatedText.objects.filter(text_label__entity=entity_name.OFFER_YEAR,

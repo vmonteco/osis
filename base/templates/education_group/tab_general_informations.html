@@ -148,7 +148,8 @@
     <script src="{% static 'js/education_group/education_group_tree.js' %}"></script>
     <script>
         {% if can_edit_information %}
-        $(".pedagogy-edit-btn").click(function(evt) {
+
+        $('div#panel-data').on('click', 'a.pedagogy-edit-btn', function(evt) {
             evt.preventDefault();
             var url = $(this).data("form");
             var pedagogy_edit_modal = $("#pedagogy_edit");
@@ -157,15 +158,15 @@
             });
             return false;
         });
+
         $(".pedagogy-add-btn").click(function(evt) {
             evt.preventDefault();
             var modal = $('#pedagogy_add');
-            $.ajax('{% url "education_group_pedagogy_get_terms" education_group_year.id %}', {
+            $.ajax('{% url "education_group_pedagogy_get_terms" education_group_year.id LANGUAGE_CODE %}', {
                 data: {},
                 type: 'get',
                 dataType: 'json',
                 success: function (data) {
-                    console.log(data);
                     var select_tag = $('select#select_the_missing_term');
                     select_tag.empty();
                     let options = '';
@@ -180,8 +181,8 @@
             return false;
         });
 
-        $('.pedagogy-remove-btn').click(function(evt) {
-           evt.preventDefault();
+        $('div#panel-data').on('click', 'a.pedagogy-remove-btn', function(evt) {
+            evt.preventDefault();
            var url = $(this).data("form");
            var identifier = $(this).data("identifier");
            var label = $(this).data("label");
@@ -206,12 +207,13 @@
                 type: 'post',
                 dataType: 'json',
                 success: function(data) {
-                    console.log('cool');
-                    console.log(data);
-                    location.reload();
+                    var item = $("div[id^='translation_']:first");
+                    html = create_html_for_term(data.translated_texts);
+                    item.before(html);
+                    var modal = $("#pedagogy_add");
+                    modal.modal('hide');
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
-                    console.log('error');
                 }
             })
         }
@@ -227,16 +229,47 @@
                 success: function (data) {
                     var el = $('div#translation_' + identifier);
                     el.remove();
-                    var pedagogy_remove_modal = $("#pedagogy_remove");
-                    pedagogy_remove_modal.modal('hide');
                     var line = $('hr#line_for_' + identifier);
                     line.remove();
+                    var pedagogy_remove_modal = $("#pedagogy_remove");
+                    pedagogy_remove_modal.modal('hide');
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
                     alert("{% trans 'sorry_but_we_cannot_remove_term_offer' %}");
                 }
             });
             return true;
+        }
+
+        function create_html_for_term(translated_texts) {
+            var language = '{{ LANGUAGE_CODE }}';
+            var label_key = translated_texts.label;
+            return [
+                '<div class="row" style="margin-top: 10px;" id="translation_' + label_key + '">',
+                '<div class="col-md-2">',
+                    '<label>' + translated_texts[language].translation + '</label>',
+                    '<span>',
+                        '<a class="pedagogy-remove-btn" href="#" data-identifier="', label_key, '" ',
+                            'data-label="', translated_texts[language].translation ,'"',
+                            'data-form="{% url 'education_group_pedagogy_remove_term' education_group_year_id=education_group_year.id %}?label=',label_key,'"',
+                            'title="{% trans 'remove' %}"', '>',
+                            '<span class="glyphicon glyphicon-remove-circle" aria-hidden="true" />',
+                        '</a>',
+                    '</span>',
+                '</div>',
+                '<div class="col-md-5">',
+                    '<a class="pedagogy-edit-btn pull-right" href="#" data-form="{% url 'education_group_pedagogy_edit' education_group_year_id=education_group_year.id %}?language=fr-be&label=', label_key, '">',
+                        '<span class="glyphicon glyphicon-edit" aria-hidden="true" />',
+                    '</a>',
+                '</div>',
+                '<div class="col-md-5">',
+                    '<a class="pedagogy-edit-btn pull-right" href="#" data-form="{% url 'education_group_pedagogy_edit' education_group_year_id=education_group_year.id %}?language=en&label=', label_key, '">',
+                        '<span class="glyphicon glyphicon-edit" aria-hidden="true" />',
+                    '</a>',
+                '</div>',
+                '</div>',
+                '<hr id="line_for_' + label_key + '"/>',
+            ].join('')
         }
 
         {% endif %}
