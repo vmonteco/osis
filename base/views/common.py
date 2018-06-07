@@ -40,6 +40,8 @@ from base import models as mdl
 from base.models.utils import native
 from . import layout
 
+ITEMS_PER_PAGE = 25
+
 logger = logging.getLogger(settings.DEFAULT_LOGGER)
 
 
@@ -222,7 +224,7 @@ def display_messages_by_level(request, messages_by_level):
 
 
 def paginate_queryset(qs, request_get):
-    paginator = Paginator(qs, 25)
+    paginator = Paginator(qs, ITEMS_PER_PAGE)
 
     page = request_get.get('page')
     try:
