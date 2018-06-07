@@ -24,11 +24,11 @@
 #
 ##############################################################################
 from django.contrib.auth.decorators import login_required, permission_required
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from base.forms.search.search_tutor import TutorSearchForm
 from base.models.tutor import Tutor
 from base.views import layout
+from base.views.common import paginate_queryset
 
 
 @login_required
@@ -40,16 +40,7 @@ def search_tutors(request):
     if form.is_valid():
         tutors_qs = form.search()
 
-    paginator = Paginator(tutors_qs, 25)
-
-    page = request.GET.get('page')
-
-    try:
-        tutors = paginator.page(page)
-    except PageNotAnInteger:
-        tutors = paginator.page(1)
-    except EmptyPage:
-        tutors = paginator.page(paginator.num_pages)
+    tutors = paginate_queryset(tutors_qs, request.GET)
 
     return layout.render(request, "search/search.html", {
         "form": form,

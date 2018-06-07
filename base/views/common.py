@@ -31,6 +31,7 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, logout
 from django.contrib.auth.decorators import login_required, permission_required, user_passes_test
 from django.contrib.auth.views import login as django_login
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.shortcuts import redirect
 from django.utils import translation
 from django.utils.translation import ugettext_lazy as _
@@ -218,3 +219,16 @@ def check_if_display_message(request, results):
 def display_messages_by_level(request, messages_by_level):
     for level, msgs in messages_by_level.items():
         display_messages(request, msgs, level, extra_tags='safe')
+
+
+def paginate_queryset(qs, request_get):
+    paginator = Paginator(qs, 25)
+
+    page = request_get.get('page')
+    try:
+        paginated_qs = paginator.page(page)
+    except PageNotAnInteger:
+        paginated_qs = paginator.page(1)
+    except EmptyPage:
+        paginated_qs = paginator.page(paginator.num_pages)
+    return paginated_qs
