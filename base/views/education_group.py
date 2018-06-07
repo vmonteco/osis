@@ -397,6 +397,7 @@ def education_group_year_pedagogy_add_term(request, education_group_year_id):
 
     return JsonResponse({'message': 'added', 'translated_texts': translated_text_ids})
 
+
 @login_required
 @ajax_required
 @permission_required('base.can_edit_educationgroup_pedagogy', raise_exception=True)
@@ -435,4 +436,3 @@ def education_group_year_pedagogy_get_terms(request, education_group_year_id, la
     result = translated_text_labels.order_by('text_label__label').values_list(*fields)
 
     return JsonResponse({'records': list(result)})
-
