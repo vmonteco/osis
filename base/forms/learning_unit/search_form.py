@@ -77,7 +77,7 @@ class LearningUnitSearchForm(BaseSearchForm):
     )
 
     tutor = forms.CharField(
-        max_length=20,
+        max_length=40,
         label=_('tutor')
     )
 

@@ -38,10 +38,10 @@
         <form style="border-bottom: 1px solid #ddd;" method="get" action="{{ request.path }}" name="search" id="search_form">
             <div class="panel-body">
                 <div class="row" >
-                    <div class="col-md-8">
+                    <div class="col-sm-10">
                         {% bootstrap_field form.name show_label=False %}
                     </div>
-                    <div class="col-md-2 text-right" >
+                    <div class="col-sm-2" >
                         {% bootstrap_button "" value=_('learning_unit_search') button_type="submit" button_class="btn-primary" icon="search" %}
                     </div>
                 </div>
@@ -57,37 +57,18 @@
             <thead>
                 <tr>
                     <th>{% trans 'last_name'%}</th>
-                    <th>{% trans 'middle_name'%}</th>
                     <th>{% trans 'first_name'%}</th>
                 </tr>
             </thead>
                 {% for tutor in tutors%}
                 <tr data-id="{{tutor.id}}" data-value="{{tutor.person}}">
                     <td><a href="#" data-popup-value="{{ tutor.person.full_name }}" class>{{tutor.person.last_name}}</a></td>
-                    <td>{{tutor.person.middle_name}}</td>
                     <td>{{tutor.person.first_name}}</td>
                 </tr>
                 {% endfor %}
             </table>
-
+            {% bootstrap_pagination tutors extra=request.GET.urlencode %}
         </div>
-
-        <div class="pagination">
-            <span class="step-links">
-                {% if tutors.has_previous %}
-                    <a href="?page={{ tutors.previous_page_number }}">previous</a>
-                {% endif %}
-
-                <span class="current">
-                    Page {{ tutors.number }} of {{ tutors.paginator.num_pages }}.
-                </span>
-
-                {% if tutors.has_next %}
-                    <a href="?page={{ tutors.next_page_number }}">next</a>
-                {% endif %}
-            </span>
-        </div>
-
 
     </div>
 {% endblock %}

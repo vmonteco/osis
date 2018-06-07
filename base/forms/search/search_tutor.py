@@ -31,7 +31,7 @@ from base.models import tutor
 
 
 class TutorSearchForm(BaseSearchForm):
-    name = forms.CharField(max_length=20,
+    name = forms.CharField(max_length=40,
                            label=_("name"))
 
     def search(self):

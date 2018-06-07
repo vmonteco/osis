@@ -2970,3 +2970,5 @@ msgstr ""
 msgid "New partim"
 msgstr ""
 
+msgid "middle_name"
+msgstr "Middle name"

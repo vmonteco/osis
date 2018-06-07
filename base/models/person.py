@@ -110,7 +110,7 @@ class Person(SerializableModel):
 
     @property
     def full_name(self):
-        return " ".join([self.last_name or "", self.middle_name or "", self.first_name or ""]).strip()
+        return " ".join([self.last_name or "", self.first_name or ""]).strip()
 
     def __str__(self):
         return " ".join([
