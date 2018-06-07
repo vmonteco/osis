@@ -44,7 +44,7 @@ from base.models.learning_unit import LearningUnit
 PARTIM_FORM_READ_ONLY_FIELD = {
     'acronym_0', 'acronym_1', 'common_title', 'common_title_english',
     'requirement_entity', 'allocation_entity', 'periodicity',
-    'campus', 'academic_year', 'container_type', 'internship_subtype',
+    'academic_year', 'container_type', 'internship_subtype',
     'additional_requirement_entity_1', 'additional_requirement_entity_2'
 }
 
