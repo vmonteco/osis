@@ -50,11 +50,6 @@ REGEX_BY_SUBTYPE = {
 
 class LearningUnitAdmin(SerializableModelAdmin):
     list_display = ('learning_container', 'acronym', 'title', 'start_year', 'end_year', 'changed')
-    fieldsets = ((None, {
-                    'fields': ('learning_container', 'start_year', 'end_year', 'periodicity',
-                               'faculty_remark', 'other_remark')
-                 }),)
-    raw_id_fields = ('learning_container',)
     search_fields = ['learningunityear__acronym', 'learningunityear__specific_title', 'learning_container__external_id']
     list_filter = ('periodicity', 'start_year')
 

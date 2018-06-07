@@ -28,22 +28,17 @@ from base.models.education_group_type import GROUP_TYPE_OPTION
 from base.models.education_group_year import EducationGroupYear
 from base.models.learning_unit_year import LearningUnitYear
 from django.db import models
-from django.contrib import admin
 from base.models.enums import sessions_derogation
 from base.models.enums import education_group_categories
 from base.models import education_group_type, education_group_year
 from django.db.models import Q
+from osis_common.models import osis_model_admin
 
 
-class GroupElementYearAdmin(admin.ModelAdmin):
+class GroupElementYearAdmin(osis_model_admin.OsisModelAdmin):
     list_display = ('parent', 'child_branch', 'child_leaf',)
-    fieldsets = ((None, {'fields': ('parent', 'child_branch', 'child_leaf', 'relative_credits',
-                                    'min_credits', 'max_credits', 'is_mandatory', 'block', 'current_order',
-                                    'own_comment', 'sessions_derogation', 'minor_access', 'comment',
-                                    'comment_english',)}),)
     search_fields = ['child_branch__acronym', 'child_branch__partial_acronym', 'child_leaf__acronym', 'parent__acronym',
                      'parent__partial_acronym']
-    raw_id_fields = ('parent', 'child_branch', 'child_leaf',)
     list_filter = ('is_mandatory', 'minor_access', 'sessions_derogation')
 
 

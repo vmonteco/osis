@@ -24,14 +24,12 @@
 #
 ##############################################################################
 from django.db import models
-from django.contrib import admin
+from osis_common.models import osis_model_admin
 
 
-class LearningClassYearAdmin(admin.ModelAdmin):
+class LearningClassYearAdmin(osis_model_admin.OsisModelAdmin):
     list_display = ('learning_component_year', 'acronym')
-    fieldsets = ((None, {'fields': ('learning_component_year', 'acronym', 'description')}),)
     search_fields = ['acronym']
-    raw_id_fields = ('learning_component_year',)
 
 
 class LearningClassYear(models.Model):

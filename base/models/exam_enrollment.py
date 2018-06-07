@@ -29,16 +29,14 @@ from django.db import models
 from django.db.models import When, Case, Q, Sum, Count, IntegerField, F
 from django.db.models.functions import Concat
 from django.utils.translation import ugettext as _
-
 from django.core.validators import MaxValueValidator, MinValueValidator
-
 from base.models import person, session_exam_deadline, \
                         academic_year as academic_yr, offer_year, program_manager, tutor
 from attribution.models import attribution
 from base.models.enums import exam_enrollment_state as enrollment_states, exam_enrollment_justification_type as justification_types
 from base.models.exceptions import JustificationValueException
 from base.models.utils.admin_extentions import remove_delete_action
-from base.models.osis_model_admin import OsisModelAdmin
+from osis_common.models.osis_model_admin import OsisModelAdmin
 
 JUSTIFICATION_ABSENT_FOR_TUTOR = _('absent')
 

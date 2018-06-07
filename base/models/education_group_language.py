@@ -24,9 +24,8 @@
 #
 ##############################################################################
 from django.db import models
-from django.contrib import admin
 from base.models.enums import education_group_language
-from base.models.osis_model_admin import OsisModelAdmin
+from osis_common.models.osis_model_admin import OsisModelAdmin
 
 
 class EducationGroupLanguageAdmin(OsisModelAdmin):

@@ -32,9 +32,7 @@ from osis_common.models.serializable_model import SerializableModel, Serializabl
 
 class EntityManagerAdmin(SerializableModelAdmin):
     list_display = ('person', 'structure', 'entity')
-    fieldsets = ((None, {'fields': ('person', 'structure', 'entity')}),)
     search_fields = ['person__first_name', 'person__last_name', 'structure__acronym']
-    raw_id_fields = ('person', 'structure', 'entity')
 
 
 class EntityManager(SerializableModel):

@@ -37,7 +37,6 @@ MAX_ACADEMIC_YEAR_CENTRAL = 6
 
 class AcademicYearAdmin(SerializableModelAdmin):
     list_display = ('name', 'start_date', 'end_date')
-    fieldsets = ((None, {'fields': ('year', 'start_date', 'end_date')}),)
 
 
 class AcademicYear(SerializableModel):
