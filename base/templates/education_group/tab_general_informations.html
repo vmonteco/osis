@@ -120,22 +120,22 @@
         </div>
     </div>
 </div>
-    <div class="modal fade" id="pedagogy_remove" role="dialog" data-backdrop="static">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="remove_term_of_pedagogy">{% trans 'header_remove_the_term' %}</h5>
-                </div>
-                <div class="modal-body">{% trans 'message_sure_to_remove_the_term_of_offer' %} <strong id="label_to_suppress"></strong></div>
-                <div class="modal-footer">
-                    <button id="pedagogy_remove_save_btn" onclick="javascript:close_this_modal(this)"
-                            type="submit" class="btn btn-danger" role="button"
-                            title="{% trans 'confirm_remove_the_term_of_offer' %}">{% trans 'confirm' %}</button>
-                    <button type="submit" class="btn btn-default" data-dismiss="modal">{% trans 'cancel' %}</button>
-                </div>
+<div class="modal fade" id="pedagogy_remove" role="dialog" data-backdrop="static">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="remove_term_of_pedagogy">{% trans 'header_remove_the_term' %}</h5>
+            </div>
+            <div class="modal-body">{% trans 'message_sure_to_remove_the_term_of_offer' %} <strong id="label_to_suppress"></strong></div>
+            <div class="modal-footer">
+                <button id="pedagogy_remove_save_btn" onclick="javascript:close_this_modal(this)"
+                        type="submit" class="btn btn-danger" role="button"
+                        title="{% trans 'confirm_remove_the_term_of_offer' %}">{% trans 'confirm' %}</button>
+                <button type="submit" class="btn btn-default" data-dismiss="modal">{% trans 'cancel' %}</button>
             </div>
         </div>
     </div>
+</div>
 {% endblock %}
 {% block script %}
     <script src="{% static 'js/education_group/education_group_tree.js' %}"></script>
