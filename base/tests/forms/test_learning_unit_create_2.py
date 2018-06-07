@@ -518,6 +518,8 @@ class TestFullFormSave(LearningUnitFullFormContextMixin):
         self.assertTrue(form.is_valid(), form.errors)
         form.save()
         self.assertEqual(LearningUnitYear.objects.filter(acronym='LAGRO1200').count(), 1)
+        self.assertEqual(LearningComponentYear.objects.filter(
+            learning_container_year=self.learning_unit_year.learning_container_year).count(), 4)
 
         self._assert_correctly_create_records_in_all_learning_unit_structure(initial_counts)
 
