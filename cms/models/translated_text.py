@@ -37,8 +37,6 @@ class TranslatedTextAdmin(osis_model_admin.OsisModelAdmin):
     ordering = ('text_label',)
     list_filter = ('entity',)
     search_fields = ['reference', 'text_label__label']
-    raw_id_fields = ('text_label',)
-    fieldsets = ((None, {'fields': ('text_label', 'entity', 'reference', 'language', 'text')}),)
 
     def has_delete_permission(self, request, obj=None):
         return False

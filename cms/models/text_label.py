@@ -36,9 +36,7 @@ class TextLabelAdmin(osis_model_admin.OsisModelAdmin):
     list_display = ('parent', 'entity', 'label', 'order', 'published',)
     search_fields = ['label']
     ordering = ('entity',)
-    raw_id_fields = ('parent',)
     list_filter = ('published',)
-    fieldsets = ((None, {'fields': ('parent', 'entity', 'label', 'order', 'published',)}),)
 
     def delete_selected(self, request, obj):
         for text_label in obj.all():

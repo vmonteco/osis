@@ -31,7 +31,6 @@ from osis_common.models.serializable_model import SerializableModel, Serializabl
 
 class GradeTypeAdmin(SerializableModelAdmin):
     list_display = ('name', 'readable_institutional_grade_type', 'coverage', 'adhoc', 'institutional')
-    fieldsets = ((None, {'fields': ('name', 'institutional_grade_type', 'coverage', 'adhoc', 'institutional')}),)
 
 
 class GradeType(SerializableModel):
