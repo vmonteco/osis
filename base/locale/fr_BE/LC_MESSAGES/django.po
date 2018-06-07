@@ -2970,5 +2970,14 @@ msgstr "Nouvelle unité d'enseignement externe"
 msgid "New partim"
 msgstr "Nouveau partim"
 
+msgid "select_the_missing_term_for_offer"
+msgstr "Sélectionner le terme manquant de l'offre"
 
+msgid "header_remove_the_term"
+msgstr "Supprimer un terme"
 
+msgid "message_sure_to_remove_the_term_of_offer"
+msgstr "Êtes-vous certain de supprimer ce terme de l'offre"
+
+msgid "sorry_but_we_cannot_remove_term_offer"
+msgstr "Désolé mais vous ne pouvez pas supprimer le terme d'une offre"

@@ -60,12 +60,14 @@
                         </div>
                         <hr/>
                         {% for label_key, label_translated in cms_labels_translated.items %}
-                        <div class="row" style="margin-top:10px;">
+                        <div class="row" style="margin-top:10px;" id="translation_{{ label_key|urlencode }}">
                             <div class="col-md-2">
                                 <label>{{ label_translated }}</label>
                                 <span>
                                     <a class="pedagogy-remove-btn" href="#"
-                                       data-form="{% url 'education_group_pedagogy_remove_term' education_group_year_id=education_group_year.id text_label_id=0 %}?label={{ label_key|urlencode }}" title="{% trans 'remove'%}">
+                                       data-identifier="{{  label_key|urlencode }}"
+                                       data-label="{{ label_translated }}"
+                                       data-form="{% url 'education_group_pedagogy_remove_term' education_group_year_id=education_group_year.id %}?label={{ label_key|urlencode }}" title="{% trans 'remove'%}">
                                         <span class="glyphicon glyphicon-remove-circle" aria-hidden="true"/>
                                     </a>
                                 </span>
@@ -90,8 +92,8 @@
                                 {% endif %}
                                 {{ form_english|getattr:label_key}}
                             </div>
-                        </div>
                         <hr/>
+                        </div>
                         {% endfor %}
                     </div>
                 </div>
@@ -124,9 +126,11 @@
                 <div class="modal-header">
                     <h5 class="modal-title" id="remove_term_of_pedagogy">{% trans 'header_remove_the_term' %}</h5>
                 </div>
-                <div class="modal-body">{% trans 'message_sure_to_remove_the_term_of_offer' %}</div>
+                <div class="modal-body">{% trans 'message_sure_to_remove_the_term_of_offer' %} <strong id="label_to_suppress"></strong></div>
                 <div class="modal-footer">
-                    <button onclick="javascript:close_this_modal(this)" type="submit" class="btn btn-danger" role="button" title="{% trans 'define_save' %}">{% trans 'ok' %}</button>
+                    <button id="pedagogy_remove_save_btn" onclick="javascript:close_this_modal(this)"
+                            type="submit" class="btn btn-danger" role="button"
+                            title="{% trans 'confirm_remove_the_term_of_offer' %}">{% trans 'confirm' %}</button>
                     <button type="submit" class="btn btn-default" data-dismiss="modal">{% trans 'cancel' %}</button>
                 </div>
             </div>
@@ -145,32 +149,51 @@
             });
             return false;
         });
+
         $(".pedagogy-add-btn").click(function(evt) {
            evt.preventDefault();
            var modal = $('#pedagogy_add');
            modal.modal('show');
            return false;
         });
+
         $('.pedagogy-remove-btn').click(function(evt) {
            evt.preventDefault();
            var url = $(this).data("form");
+           var identifier = $(this).data("identifier");
+           var label = $(this).data("label");
+
            var pedagogy_remove_modal = $("#pedagogy_remove");
+           var button = pedagogy_remove_modal.find('#pedagogy_remove_save_btn');
+           var label_to_supress = pedagogy_remove_modal.find('#label_to_suppress');
+           label_to_supress.text(label);
+
+           button.data('form', url);
+           button.data('identifier', identifier);
+
            pedagogy_remove_modal.modal('show');
            return false;
         });
+
         function close_this_modal(ptr) {
-            /*
-            $.ajax("", {
+            var url = $(ptr).data('form');
+            var identifier = $(ptr).data('identifier');
+
+            $.ajax(url, {
                 data: {},
-                type: 'post',
+                type: 'delete',
                 dataType: 'json',
                 success: function (data) {
-                    showErrors(data.errors);
+                    var el = $('div#translation_' + identifier);
+                    el.remove();
+                    var pedagogy_remove_modal = $("#pedagogy_remove");
+                    pedagogy_remove_modal.modal('hide');
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    alert("{% trans 'sorry_but_we_cannot_remove_term_offer' %}");
                 }
-            });*/
-            pedagogy_remove_modal.modal('hide');
+            });
             return true;
         }
-
     </script>
 {% endblock %}

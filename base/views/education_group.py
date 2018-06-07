@@ -368,6 +368,7 @@ def education_group_year_pedagogy_edit(request, education_group_year_id):
 
     return layout.render(request, 'education_group/pedagogy_edit.html', context)
 
+
 @login_required
 @ajax_required
 @permission_required('base.can_edit_educationgroup_pedagogy', raise_exception=True)
@@ -390,11 +391,12 @@ def education_group_year_pedagogy_add_term(request, education_group_year_id, tex
 @login_required
 @ajax_required
 @permission_required('base.can_edit_educationgroup_pedagogy', raise_exception=True)
-def education_group_year_pedagogy_remove_term(request, education_group_year_id, text_label_id):
+def education_group_year_pedagogy_remove_term(request, education_group_year_id):
     education_group_year = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
-    text_label = get_object_or_404(TextLabel, pk=text_label_id)
+    label = request.GET.get('label')
+    text_label = get_object_or_404(TextLabel, label=label, entity='offer_year')
     translated_texts = TranslatedText.objects.filter(text_label=text_label,
                                                      reference=education_group_year.id,
                                                      entity='offer_year')
     translated_texts.delete()
-    return JsonResponse({})
+    return JsonResponse({'education_group_year': education_group_year_id})
