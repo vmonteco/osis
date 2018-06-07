@@ -45,7 +45,8 @@ def _get_entity_folder_id_ordered_by_acronym():
     entities = mdl.proposal_learning_unit.find_distinct_folder_entities()
     entities_sorted_by_acronym = sorted(list(entities), key=lambda t: t.most_recent_acronym)
 
-    return [LearningUnitSearchForm.ALL_LABEL] + [(ent.pk, ent.most_recent_acronym) for ent in entities_sorted_by_acronym]
+    return [LearningUnitSearchForm.ALL_LABEL] + [(ent.pk, ent.most_recent_acronym)
+                                                 for ent in entities_sorted_by_acronym]
 
 
 def _get_sorted_choices(tuple_of_choices):
@@ -86,7 +87,8 @@ class LearningUnitProposalForm(LearningUnitSearchForm):
         if not self._has_criteria():
             self.add_error(None, _('minimum_one_criteria'))
         if self.cleaned_data \
-                and mdl.proposal_learning_unit.count_search_results(**self.cleaned_data) > LearningUnitSearchForm.MAX_RECORDS:
+                and mdl.proposal_learning_unit.count_search_results(**self.cleaned_data) > \
+                LearningUnitSearchForm.MAX_RECORDS:
             raise TooManyResultsException
         return get_clean_data(self.cleaned_data)
 
