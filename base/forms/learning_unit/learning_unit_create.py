@@ -42,6 +42,7 @@ from base.models.learning_container_year import LearningContainerYear
 from base.models.learning_unit import LearningUnit
 from base.models.learning_unit_component import LearningUnitComponent
 from base.models.learning_unit_year import LearningUnitYear, MAXIMUM_CREDITS
+from reference.models.language import find_all_languages
 
 DEFAULT_ACRONYM_COMPONENT = {
     LECTURING: "CM1",
@@ -110,6 +111,7 @@ class LearningUnitYearModelForm(forms.ModelForm):
             self.fields['academic_year'].disabled = True
 
         self.fields['campus'].queryset = find_main_campuses()
+        self.fields['language'].queryset = find_all_languages()
 
     class Meta:
         model = LearningUnitYear
