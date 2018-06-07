@@ -143,7 +143,9 @@ $(document).ready(function() {
         url: gettext("Please enter a valid URL."),
     });
 
-    showInternshipSubtype();
+    if ($("#id_container_type").is(':enabled')) {
+        showInternshipSubtype();
+    }
 
     if(document.getElementById('id_container_type').value !== 'EXTERNAL'){
         document.getElementById('id_additional_requirement_entity_1').disabled = !isLearningUnitSubtypeFull()
