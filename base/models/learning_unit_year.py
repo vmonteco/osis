@@ -110,7 +110,7 @@ class LearningUnitYear(SerializableModel):
                                          blank=True, null=True)
     professional_integration = models.BooleanField(default=False, verbose_name=_('professional_integration'))
 
-    campus = models.ForeignKey('Campus', null=True)
+    campus = models.ForeignKey('Campus', null=True, verbose_name=_('institution'))
 
     language = models.ForeignKey('reference.Language', null=True, verbose_name=_('language'))
 
