@@ -189,8 +189,8 @@
 
            var pedagogy_remove_modal = $("#pedagogy_remove");
            var button = pedagogy_remove_modal.find('#pedagogy_remove_save_btn');
-           var label_to_supress = pedagogy_remove_modal.find('#label_to_suppress');
-           label_to_supress.text(label);
+           var label_to_suppress = pedagogy_remove_modal.find('#label_to_suppress');
+           label_to_suppress.text(label);
 
            button.data('form', url);
            button.data('identifier', identifier);
@@ -245,13 +245,13 @@
             var language = '{{ LANGUAGE_CODE }}';
             var label_key = translated_texts.label;
             return [
-                '<div class="row" style="margin-top: 10px;" id="translation_' + label_key + '">',
+                '<div class="row" style="margin-top: 10px;" id="translation_', label_key, '">',
                 '<div class="col-md-2">',
-                    '<label>' + translated_texts[language].translation + '</label>',
+                    '<label>', translated_texts[language].translation, '</label>',
                     '<span>',
                         '<a class="pedagogy-remove-btn" href="#" data-identifier="', label_key, '" ',
-                            'data-label="', translated_texts[language].translation ,'"',
-                            'data-form="{% url 'education_group_pedagogy_remove_term' education_group_year_id=education_group_year.id %}?label=',label_key,'"',
+                            'data-label="', translated_texts[language].translation , '"',
+                            'data-form="{% url 'education_group_pedagogy_remove_term' education_group_year_id=education_group_year.id %}?label=', label_key, '"',
                             'title="{% trans 'remove' %}"', '>',
                             '<span class="glyphicon glyphicon-remove-circle" aria-hidden="true" />',
                         '</a>',

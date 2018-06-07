@@ -391,7 +391,7 @@ def education_group_year_pedagogy_add_term(request, education_group_year_id):
         translated_text_label = TranslatedTextLabel.objects.get(text_label=text_label, language=language)
 
         translated_text_ids[language] = {
-            'id': translated_text.id,
+            'id': translated_text_label.id,
             'translation': translated_text_label.label,
         }
 
@@ -409,7 +409,7 @@ def education_group_year_pedagogy_remove_term(request, education_group_year_id):
                                                      reference=education_group_year.id,
                                                      entity=entity_name.OFFER_YEAR)
     translated_texts.delete()
-    return JsonResponse({'education_group_year': education_group_year_id})
+    return JsonResponse({'education_group_year': int(education_group_year_id)})
 
 
 @login_required

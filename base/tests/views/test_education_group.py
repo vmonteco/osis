@@ -27,32 +27,32 @@ import datetime
 from unittest import mock
 
 import bs4
-from django.contrib.auth.models import Permission, Group
 from django.conf import settings
-from django.utils.translation import ugettext_lazy as _
+from django.contrib.auth.models import Permission, Group
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseForbidden, HttpResponseNotFound, HttpResponse
 from django.test import TestCase, RequestFactory
+from django.utils.translation import ugettext_lazy as _
 
 from base.forms.education_group_general_informations import EducationGroupGeneralInformationsForm
 from base.forms.education_groups import EducationGroupFilter, MAX_RECORDS
 from base.models.enums import education_group_categories, offer_year_entity_type, academic_calendar_type
-from cms.enums import entity_name
-
 from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.education_group_language import EducationGroupLanguageFactory
-from base.tests.factories.entity import EntityFactory
-from base.tests.factories.entity_version import EntityVersionFactory
 from base.tests.factories.education_group_type import EducationGroupTypeFactory
 from base.tests.factories.education_group_year import EducationGroupYearFactory
+from base.tests.factories.entity import EntityFactory
+from base.tests.factories.entity_version import EntityVersionFactory
 from base.tests.factories.group_element_year import GroupElementYearFactory
 from base.tests.factories.offer_year_entity import OfferYearEntityFactory
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.program_manager import ProgramManagerFactory
-from base.tests.factories.user import UserFactory
+from base.tests.factories.user import UserFactory, SuperUserFactory
+from cms.enums import entity_name
+from cms.models.translated_text import TranslatedText
 from cms.tests.factories.text_label import TextLabelFactory
-from cms.tests.factories.translated_text import TranslatedTextFactory
-
+from cms.tests.factories.translated_text import TranslatedTextFactory, TranslatedTextRandomFactory
+from cms.tests.factories.translated_text_label import TranslatedTextLabelFactory
 
 
 class EducationGroupSearch(TestCase):
@@ -865,3 +865,116 @@ class EducationGroupEditAdministrativeData(TestCase):
 
         self.assertTemplateUsed(response, "access_denied.html")
         self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
+
+
+class WebServiceForManagementTermsEducationGroupYear(TestCase):
+    def setUp(self):
+        user = SuperUserFactory()
+
+        self.client.force_login(user)
+
+    def test_get_no_terms(self):
+        kwargs = {'HTTP_X_REQUESTED_WITH': 'XMLHttpRequest'}
+
+        education_group_year = EducationGroupYearFactory()
+
+        url = reverse('education_group_pedagogy_get_terms', kwargs={
+            'education_group_year_id': education_group_year.id,
+            'language': 'fr-be'
+        })
+
+        response = self.client.get(url, **kwargs)
+        self.assertEqual(response.status_code, 200)
+        response_json = response.json()
+
+        self.assertDictEqual(response_json, {'records': []})
+
+    def test_get_terms(self):
+        kwargs = {'HTTP_X_REQUESTED_WITH': 'XMLHttpRequest'}
+
+        education_group_year = EducationGroupYearFactory()
+
+        text_label=TextLabelFactory(entity='offer_year')
+        translated_text_label = TranslatedTextLabelFactory(text_label=text_label, language='fr-be')
+
+        url = reverse('education_group_pedagogy_get_terms', kwargs={
+            'education_group_year_id': education_group_year.id,
+            'language': 'fr-be'
+        })
+
+        response = self.client.get(url, **kwargs)
+        self.assertEqual(response.status_code, 200)
+        response_json = response.json()
+
+        self.assertDictEqual(response_json, {'records': [
+            [translated_text_label.id, translated_text_label.language, text_label.label, translated_text_label.label]
+        ]})
+
+    def test_add_term(self):
+        kwargs = {'HTTP_X_REQUESTED_WITH': 'XMLHttpRequest'}
+
+        education_group_year = EducationGroupYearFactory()
+
+        text_label = TextLabelFactory(entity='offer_year', label='label')
+        translated_text_label_fr = TranslatedTextLabelFactory(text_label=text_label, language='fr-be')
+        translated_text_label_en = TranslatedTextLabelFactory(text_label=text_label, language='en')
+
+        url = reverse('education_group_pedagogy_add_term', kwargs={
+            'education_group_year_id': education_group_year.id,
+        })
+
+        translated_texts = TranslatedText.objects.filter(reference=str(education_group_year.id),
+                                                         entity='offer_year',
+                                                         text_label=text_label)
+
+        self.assertEqual(translated_texts.count(), 0)
+
+        response = self.client.post(url + "?label={}".format(text_label.label), **kwargs)
+
+        self.assertEqual(response.status_code, 200)
+
+        response_json = response.json()
+
+        self.assertDictEqual(response_json, {
+            'message': 'added',
+            'translated_texts': {
+                'label': text_label.label,
+                'fr-be': {
+                    'id': translated_text_label_fr.id,
+                    'translation': translated_text_label_fr.label,
+                },
+                'en': {
+                    'id': translated_text_label_en.id,
+                    'translation': translated_text_label_en.label,
+                }
+            }
+        })
+
+        translated_texts = TranslatedText.objects.filter(reference=str(education_group_year.id),
+                                                         entity='offer_year',
+                                                         text_label=text_label)
+
+        self.assertEqual(translated_texts.count(), 2)
+
+    def test_remove_term(self):
+        kwargs = {'HTTP_X_REQUESTED_WITH': 'XMLHttpRequest'}
+
+        education_group_year = EducationGroupYearFactory()
+
+        text_label = TextLabelFactory(entity='offer_year', label='label')
+
+        for language in ('fr-be', 'en'):
+            TranslatedTextRandomFactory(text_label=text_label, language=language,
+                                        reference=str(education_group_year.id), entity=text_label.entity)
+
+        url = reverse('education_group_pedagogy_remove_term', kwargs={
+            'education_group_year_id': education_group_year.id,
+        })
+
+        response = self.client.delete(url + "?label={}".format(text_label.label), **kwargs)
+
+        self.assertEqual(response.status_code, 200)
+
+        response_json = response.json()
+
+        self.assertDictEqual(response_json, {'education_group_year': education_group_year.id})
