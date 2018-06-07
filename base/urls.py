@@ -215,8 +215,11 @@ urlpatterns = [
 
             url(r'^informations/remove$', education_group.education_group_year_pedagogy_remove_term,
                 name="education_group_pedagogy_remove_term"),
-            url(r'^informations/add/(?P<text_label_id>[0-9]+)$', education_group.education_group_year_pedagogy_add_term,
+            url(r'^informations/add$', education_group.education_group_year_pedagogy_add_term,
                 name="education_group_pedagogy_add_term"),
+            url(r'^informations/get_terms',
+                education_group.education_group_year_pedagogy_get_terms,
+                name="education_group_pedagogy_get_terms"),
 
             url(r'^administrative/', include([
                 url(u'^$', education_group.education_group_administrative_data, name='education_group_administrative'),
