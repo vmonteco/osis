@@ -2977,7 +2977,7 @@ msgid "header_remove_the_term"
 msgstr "Supprimer un terme"
 
 msgid "message_sure_to_remove_the_term_of_offer"
-msgstr "Êtes-vous certain de supprimer ce terme de l'offre"
+msgstr "Êtes-vous certain de supprimer ce terme de l'offre ?"
 
 msgid "sorry_but_we_cannot_remove_term_offer"
 msgstr "Désolé mais vous ne pouvez pas supprimer le terme d'une offre"
