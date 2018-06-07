@@ -39,6 +39,7 @@
     <tbody>
         {{ simplified_volume_management_form.management_form }}
         {% for form in simplified_volume_management_form %}
+        {% bootstrap_field form.id %}
         <tr>
             <td>{% trans 'component'%}</td>
             <td>{% bootstrap_field form.hourly_volume_total_annual show_label=False %}</td>
