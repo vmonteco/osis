@@ -51,9 +51,9 @@
                         <div class="panel panel-default">
                             <div class="panel-body">
                                 {% bootstrap_field learning_container_year_form.country %}
+                                {% bootstrap_field learning_container_year_form.city %}
                                 {% bootstrap_field learning_unit_year_form.campus %}
                                 {% bootstrap_field learning_unit_year_form.academic_year %}
-
                             </div>
                         </div>
                         <div class="panel panel-default">
@@ -75,19 +75,14 @@
 
 {% block script %}
     <script type="text/javascript" src="{% static 'js/learning_unit_creation.js' %}"></script>
+    <script src="{% static 'js/select_ajax_filtering.js' %}"></script>
     <script>
+        let country_node = $("select#id_country");
+        let city_node = $("select#id_city");
+        let campus_node = $("select#id_campus");
 
-        // Ajax request to update the campus list
-        $("select#id_country").change(function(){
-            $.getJSON("{% url "filter_campus_by_country" %}",{country: $(this).val(), ajax: 'true'}, function(j){
-                let options = '';
-                for (let i = 0; i < j.length; i++) {
-                    options += '<option value="' + j[i].pk + '">' + j[i].organization__name + '</option>';
-                }
-                $("select#id_campus").html(options);
-            })
-        });
-
+        country_node.filterCityByCountry(city_node, campus_node, "{% url "filter_cities_by_country" %}");
+        city_node.filterCampusByCity(campus_node, "{% url "filter_campus_by_city" %}");
 
     </script>
 {% endblock %}
