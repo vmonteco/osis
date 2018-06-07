@@ -25,13 +25,13 @@
 ##############################################################################
 from django.core.validators import MinValueValidator
 from django.db import models
-from django.contrib import admin
+from osis_common.models import osis_model_admin
 from django.db.models import Prefetch
 
 from cms.enums.entity_name import ENTITY_NAME
 
 
-class TextLabelAdmin(admin.ModelAdmin):
+class TextLabelAdmin(osis_model_admin.OsisModelAdmin):
     actions = None  # Remove ability to delete in Admin Interface
     list_display = ('parent', 'entity', 'label', 'order', 'published',)
     search_fields = ['label']

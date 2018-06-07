@@ -29,7 +29,6 @@ from osis_common.models.serializable_model import SerializableModel, Serializabl
 
 class OfferAdmin(SerializableModelAdmin):
     list_display = ('id', 'title', 'changed')
-    fieldsets = ((None, {'fields': ['title']}),)
     search_fields = ['title']
 
 

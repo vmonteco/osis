@@ -26,20 +26,17 @@
 
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
-from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
 
 from base.models.learning_unit_year import MINIMUM_CREDITS, MAXIMUM_CREDITS
+from osis_common.models.osis_model_admin import OsisModelAdmin
+from django.db.models import Q
 from base.models.organization_address import OrganizationAddress
-from base.models.osis_model_admin import OsisModelAdmin
 
 
 class ExternalLearningUnitYearAdmin(OsisModelAdmin):
     list_display = ('external_id', 'external_acronym', 'external_credits', 'url', 'learning_unit_year',
                     'requesting_entity', "author", "date")
-    fieldsets = ((None, {'fields': ('external_acronym', 'external_credits', 'url', 'learning_unit_year',
-                                    'requesting_entity', 'author')}),)
-    raw_id_fields = ('learning_unit_year', 'requesting_entity', 'author')
     search_fields = ['acronym', 'learning_unit_year__acronym', 'author']
 
 
@@ -74,9 +71,6 @@ class ExternalLearningUnitYear(models.Model):
 
     class Meta:
         unique_together = ('learning_unit_year', 'external_acronym',)
-        permissions = (
-            ("can_access_externallearningunityear", "Can access external learning unit"),
-        )
 
         permissions = (
             ("can_access_externallearningunityear", "Can access external learning unit year"),

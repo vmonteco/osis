@@ -25,8 +25,7 @@
 ##############################################################################
 from base.models.enums import mandate_type as mandate_types
 from django.db import models
-from django.contrib import admin
-from base.models.osis_model_admin import OsisModelAdmin
+from osis_common.models.osis_model_admin import OsisModelAdmin
 
 
 class MandateAdmin(OsisModelAdmin):

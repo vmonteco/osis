@@ -35,7 +35,7 @@ from base.models.enums import education_group_association
 from base.models.enums import education_group_categories
 from base.models.enums import offer_year_entity_type
 from base.models.exceptions import MaximumOneParentAllowedException
-from base.models.osis_model_admin import OsisModelAdmin
+from osis_common.models.osis_model_admin import OsisModelAdmin
 
 
 class EducationGroupYearAdmin(OsisModelAdmin):
