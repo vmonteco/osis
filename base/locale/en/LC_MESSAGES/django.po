@@ -2970,14 +2970,17 @@ msgstr ""
 msgid "New partim"
 msgstr ""
 
-msgid "select_the_missing_term_for_offer"
+msgid "Select the missing term for the offer"
 msgstr "Select the missing term for the offer"
 
-msgid "header_remove_the_term"
+msgid "Remove the term"
 msgstr "Remove the term"
 
-msgid "message_sure_to_remove_the_term_of_offer"
+msgid "Do you want to remove this term?"
 msgstr "Do you want to remove this term?"
 
-msgid "sorry_but_we_cannot_remove_term_offer"
+msgid "Sorry but you can not remove the term of an offer"
 msgstr "Sorry but you can not remove the term of an offer"
+
+msgid "Do you want to remove the term?"
+msgstr "Do you want to remove the term?"
