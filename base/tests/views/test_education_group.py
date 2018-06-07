@@ -907,7 +907,10 @@ class WebServiceForManagementTermsEducationGroupYear(TestCase):
         response_json = response.json()
 
         self.assertDictEqual(response_json, {'records': [
-            [translated_text_label.id, translated_text_label.language, text_label.label, translated_text_label.label]
+            {'id': translated_text_label.id,
+             'language': translated_text_label.language,
+             'label': translated_text_label.text_label.label,
+             'translation': translated_text_label.label}
         ]})
 
     def test_add_term(self):

@@ -172,7 +172,7 @@
                     let options = '';
                     for (var iter = 0; iter < data.records.length; iter++) {
                         line = data.records[iter]
-                        options += '<option value="'+ line[2] +'">' + line[3] + '</option>'
+                        options += '<option value="'+ line.label +'">' + line.translation + '</option>'
                     }
                     select_tag.html(options);
                 }

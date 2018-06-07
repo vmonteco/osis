@@ -431,8 +431,15 @@ def education_group_year_pedagogy_get_terms(request, education_group_year_id, la
                                                                 text_label_id__in=text_labels_to_load,
                                                                 text_label__entity=entity_name.OFFER_YEAR)
 
-    fields = ('id', 'language', 'text_label__label', 'label')
+    records = list(map(translated_text_labels2dict, translated_text_labels.order_by('text_label__label')))
 
-    result = translated_text_labels.order_by('text_label__label').values_list(*fields)
+    return JsonResponse({'records': records})
 
-    return JsonResponse({'records': list(result)})
+
+def translated_text_labels2dict(translated_text_label):
+    return {
+        'id': translated_text_label.id,
+        'language': translated_text_label.language,
+        'label': translated_text_label.text_label.label,
+        'translation': translated_text_label.label
+    }
