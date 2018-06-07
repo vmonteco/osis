@@ -126,7 +126,6 @@ class ExternalLearningUnitBaseForm(LearningUnitBaseForm):
             queryset=Campus.objects.order_by('organization__name').distinct('organization__name')
         )
 
-
     @property
     def learning_unit_external_form(self):
         return self.forms[ExternalLearningUnitModelForm]
