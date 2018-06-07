@@ -90,7 +90,6 @@ class LearningContainerModelForm(forms.ModelForm):
 
 
 class LearningUnitYearModelForm(forms.ModelForm):
-    _warnings = None
 
     def __init__(self, data, person, subtype, *args, **kwargs):
         super().__init__(data, *args, **kwargs)
