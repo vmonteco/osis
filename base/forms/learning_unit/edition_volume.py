@@ -327,7 +327,7 @@ class VolumeEditionFormsetContainer:
 
 class SimplifiedVolumeForm(forms.ModelForm):
     _learning_unit_year = None
-    _requirement_entity_containers = []
+    _entity_containers = []
     add_field = EmptyField(label="+")
     equal_field = EmptyField(label='=')
 
@@ -336,7 +336,6 @@ class SimplifiedVolumeForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.instance.type = self.component_type
         self.instance.acronym = DEFAULT_ACRONYM_COMPONENT[self.component_type]
-        self.fields['add_field'].initial = "harvard"
 
     class Meta:
         model = LearningComponentYear
@@ -351,14 +350,20 @@ class SimplifiedVolumeForm(forms.ModelForm):
             learning_component_year=instance
         )
 
-        for requirement_entity_container in self._requirement_entity_containers:
-            if requirement_entity_container:
-                EntityComponentYear.objects.get_or_create(
-                    entity_container_year=requirement_entity_container,
-                    learning_component_year=instance
-                )
+        requirement_entity_containers = self.get_requirement_entity_container()
 
+        for requirement_entity_container in requirement_entity_containers:
+            EntityComponentYear.objects.get_or_create(
+                entity_container_year=requirement_entity_container,
+                learning_component_year=instance
+            )
         return instance
+
+    def get_requirement_entity_container(self):
+        requirement_entity_containers = [entity_container_year for entity_container_year in self._entity_containers
+                                         if entity_container_year
+                                         and entity_container_year.type == entity_types.ALLOCATION_ENTITY]
+        return requirement_entity_containers
 
 
 class SimplifiedVolumeFormset(forms.BaseModelFormSet):
@@ -397,7 +402,7 @@ class SimplifiedVolumeFormset(forms.BaseModelFormSet):
 
         for form in self.forms:
             form._learning_unit_year = learning_unit_year
-            form._requirement_entity_containers = entity_container_years
+            form._entity_containers = entity_container_years
             form.instance.learning_container_year = lcy
 
         return super().save(commit)
