@@ -37,7 +37,6 @@ from base.business.learning_units.edition import check_postponement_conflict_rep
 from base.forms.utils.emptyfield import EmptyField
 from base.models.entity_component_year import EntityComponentYear
 from base.models.enums import entity_container_year_link_type as entity_types
-from base.models.enums.component_type import PRACTICAL_EXERCISES, LECTURING
 from base.models.learning_unit_component import LearningUnitComponent
 
 
@@ -104,30 +103,6 @@ class VolumeEditionForm(forms.Form):
         entity_keys = [self.requirement_entity_key, self.additional_requirement_entity_1_key,
                        self.additional_requirement_entity_2_key]
         return [self.fields[key] for key in entity_keys if key in self.fields]
-
-    def validate_parent_partim_component(self, parent_data):
-        self._parent_data = parent_data
-
-        self._compare_parent_partim('volume_total', 'vol_tot_full_must_be_greater_or_equal_than_partim')
-        self._compare_parent_partim('volume_q1', 'vol_q1_full_must_be_greater_or_equal_to_partim')
-        self._compare_parent_partim('volume_q2', 'vol_q2_full_must_be_greater_or_equal_to_partim')
-        self._compare_parent_partim('planned_classes', 'planned_classes_full_must_be_greater_or_equal_to_partim')
-        self._compare_parent_partim(self.requirement_entity_key,
-                                    'entity_requirement_full_must_be_greater_or_equal_to_partim')
-        self._compare_additional_entities(self.additional_requirement_entity_1_key)
-        self._compare_additional_entities(self.additional_requirement_entity_2_key)
-
-        return self.errors
-
-    def _compare_additional_entities(self, key):
-        # Verify if we have additional_requirement entity
-        if key in self._parent_data and key in self.cleaned_data:
-            self._compare_parent_partim(key, 'entity_requirement_full_must_be_greater_or_equal_to_partim')
-
-    def _compare_parent_partim(self, key, msg):
-        partim_data = self.cleaned_data or self.initial
-        if self._parent_data[key] < partim_data[key]:
-            self.add_error(key, _(msg))
 
     def save(self, postponement):
         if not self.changed_data:
@@ -204,22 +179,6 @@ class VolumeEditionBaseFormset(forms.BaseFormSet):
         # Field's name must be in lowercase
         return {k.lower(): v for k, v in component_dict.items()}
 
-    def validate_parent_partim(self, parent_formset):
-        # Check CM
-        is_cm_valid = self._validate_parent_partim_by_type(parent_formset, LECTURING)
-        # Check TP
-        is_tp_valid = self._validate_parent_partim_by_type(parent_formset, PRACTICAL_EXERCISES)
-        return is_cm_valid and is_tp_valid
-
-    def _validate_parent_partim_by_type(self, parent_formset, component_type):
-
-        parent_form = parent_formset.get_form_by_type(component_type)
-        partim_form = self.get_form_by_type(component_type)
-
-        errors = partim_form.validate_parent_partim_component(parent_form.cleaned_data or parent_form.initial)
-
-        return not errors
-
     def get_form_by_type(self, component_type):
         return next(form for form in self.forms if form.component.type == component_type)
 
@@ -259,15 +218,7 @@ class VolumeEditionFormsetContainer:
         if not all([formset.is_valid() for formset in self.formsets.values()]):
             return False
 
-        if not self._is_container_valid():
-            return False
-
         return True
-
-    def _is_container_valid(self):
-        # Check consistency between formsets
-        return all(self.formsets[luy].validate_parent_partim(self.formsets[self.parent]) for luy in self.formsets
-                   if luy != self.parent)
 
     def save(self):
         for formset in self.formsets.values():
