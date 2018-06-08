@@ -15,7 +15,7 @@
 #
 #    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #    GNU General Public License for more details.
 #
 #    A copy of this license - GNU General Public License - is available
@@ -23,22 +23,26 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import factory
-import factory.fuzzy
-import string
-import operator
-from base.models.enums import component_type
-from base.tests.factories.learning_unit_year import LearningUnitYearFactory
-from base.tests.factories.learning_component_year import LearningComponentYearFactory
-from factory.django import DjangoModelFactory
+from django.contrib.auth.decorators import login_required, permission_required
+
+from base.forms.search.search_tutor import TutorSearchForm
+from base.models.tutor import Tutor
+from base.views import layout
+from base.views.common import paginate_queryset
 
 
-class LearningUnitComponentFactory(DjangoModelFactory):
-    class Meta:
-        model = "base.LearningUnitComponent"
+@login_required
+@permission_required('base.can_access_learningunit', raise_exception=True)
+def search_tutors(request):
+    tutors_qs = Tutor.objects.none()
+    form = TutorSearchForm(data=request.GET)
 
-    external_id = factory.fuzzy.FuzzyText(length=10, chars=string.digits)
+    if form.is_valid():
+        tutors_qs = form.search()
 
-    learning_unit_year = factory.SubFactory(LearningUnitYearFactory)
-    learning_component_year = factory.SubFactory(LearningComponentYearFactory)
-    type = factory.Iterator(component_type.COMPONENT_TYPES, getter=operator.itemgetter(0))
+    tutors = paginate_queryset(tutors_qs, request.GET)
+
+    return layout.render(request, "search/search.html", {
+        "form": form,
+        "tutors": tutors
+    })
