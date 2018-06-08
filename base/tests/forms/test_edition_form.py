@@ -199,8 +199,6 @@ class TestVolumeEditionForm(TestCase):
         learning_component_year_0.planned_classes = 2
         learning_component_year_0.save()
 
-        war = learning_component_year_0.warnings
-
         excepted_error_1 = "{} ({})".format(
             _('Volumes are inconsistent'), _('Vol_global is not equal to Vol_tot * planned_classes'))
         self.assertIn(excepted_error_1, learning_component_year_0.warnings)
