@@ -219,8 +219,7 @@ class LearningUnitYearDeletion(TestCase):
 
     def test_delete_learning_unit_component_class(self):
         # Composant annualisé est associé à son composant et à son conteneur annualisé
-        learning_component_year = LearningComponentYearFactory(title="Cours magistral",
-                                                               acronym="/C",
+        learning_component_year = LearningComponentYearFactory(acronym="/C",
                                                                comment="TEST")
         learning_container_year = learning_component_year.learning_container_year
 
