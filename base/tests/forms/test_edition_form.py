@@ -181,6 +181,35 @@ class TestVolumeEditionForm(TestCase):
         self.assertIn(excepted_error, learning_component_year_0.warnings)
         self.assertIn(excepted_error, self.first_learning_unit_year.warnings)
 
+    def test_warning_volumes_vol_global_and_total(self):
+        learning_component_year_0 = LearningComponentYear.objects.filter(
+            learningunitcomponent__learning_unit_year=self.first_learning_unit_year
+        ).first()
+        entity_component_year_0 = EntityComponentYear.objects.get(
+            learning_component_year=learning_component_year_0,
+            entity_container_year__type=REQUIREMENT_ENTITY
+        )
+
+        entity_component_year_0.repartition_volume = 42.0
+        entity_component_year_0.save()
+
+        learning_component_year_0.hourly_volume_partial_q1 = 10.0
+        learning_component_year_0.hourly_volume_partial_q2 = 15.0
+        learning_component_year_0.hourly_volume_total_annual = 36.0
+        learning_component_year_0.planned_classes = 2
+        learning_component_year_0.save()
+
+        war = learning_component_year_0.warnings
+
+        excepted_error_1 = "{} ({})".format(
+            _('Volumes are inconsistent'), _('Vol_global is not equal to Vol_tot * planned_classes'))
+        self.assertIn(excepted_error_1, learning_component_year_0.warnings)
+        self.assertIn(excepted_error_1, self.first_learning_unit_year.warnings)
+
+        excepted_error_2 = "{} ({})".format(_('Volumes are inconsistent'), _('Vol_tot is not equal to vol_q1 + vol_q2'))
+        self.assertIn(excepted_error_2, learning_component_year_0.warnings)
+        self.assertIn(excepted_error_2, self.first_learning_unit_year.warnings)
+
     def test_warning_volumes_no_warning(self):
         learning_component_year_0 = LearningComponentYear.objects.filter(
             learningunitcomponent__learning_unit_year=self.first_learning_unit_year
