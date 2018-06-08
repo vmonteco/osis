@@ -2247,8 +2247,8 @@ msgstr "l'unité d'enseignement"
 msgid "Delete from this academic year"
 msgstr "Supprimer à partir de cette année académique"
 
-msgid "Delete all the learning unit"
-msgstr "Supprimer toute l'unité d'enseignement (sur toutes les années académiques)"
+msgid "Delete the learning unit for all academic years"
+msgstr "Supprimer l'unité d'enseignement pour toutes les années académiques"
 
 msgid "You asked the deletion of the learning unit %(acronym)s from the year %(year)s"
 msgstr "Vous avez demandé la suppression de l'unité d'enseignement %(acronym)s à partir de l'année %(year)s"
@@ -2454,23 +2454,20 @@ msgstr "Entité académique"
 msgid "folder_number"
 msgstr "Dossier n°{}"
 
-msgid "produce_xls"
-msgstr "Produire un excel avec la liste des résultats"
-
-msgid "produce_xls_lu"
-msgstr "Xls avec les activités"
+msgid "produce_xls_lus"
+msgstr "Les unités d'enseignement"
 
 msgid "%(date)s must be set within %(start_date)s and %(end_date)s"
 msgstr "%(date)s doit être comprise entre %(start_date)s et %(end_date)s"
 
-msgid "cancel_proposal"
-msgstr "Annuler proposition"
+msgid "Cancel the proposal"
+msgstr "Annuler la proposition"
 
-msgid "edit_proposal"
-msgstr "Editer proposition"
+msgid "Edit the proposal"
+msgstr "Editer la proposition"
 
-msgid "Consolidate proposal"
-msgstr "Consolider proposition"
+msgid "Consolidate the proposal"
+msgstr "Consolider la proposition"
 
 msgid "msg_confirm_cancel_proposal"
 msgstr "Etes-vous certain de vouloir annuler la proposition ?"
@@ -2505,11 +2502,14 @@ msgstr "Suppléé"
 msgid "not_end_year"
 msgstr "pas de fin prévue"
 
-msgid "edit_learning_unit_end_date"
-msgstr "Modifier la date de fin l'unité d'enseignement"
+msgid "Modify"
+msgstr "Modifier"
 
-msgid "new_partim"
-msgstr "Créer un nouveau partim"
+msgid "Edit learning unit end date"
+msgstr "Modifier la date de fin de l'unité d'enseignement"
+
+msgid "Modify end date"
+msgstr "Modifier la date de fin"
 
 msgid "partim"
 msgstr "Partim"
@@ -2556,7 +2556,7 @@ msgstr "Assurez-vous que cette valeur est supérieure à %(limit_value)s."
 msgid "Entity_not_exist"
 msgstr "L'entité %(entity_acronym)s n'existe pas pour l'année académique sélectionnée %(academic_year)s"
 
-msgid "edit_learning_unit"
+msgid "Edit the learning unit"
 msgstr "Modifier l'unité d'enseignement"
 
 msgid "requirement_entity_end_date_too_short"
@@ -2865,7 +2865,7 @@ msgid "start_year"
 msgstr "Début"
 
 msgid "produce_xls_attributions"
-msgstr "Xls avec les activités et les attributions"
+msgstr "Les unités d'enseignement et les attributions"
 
 msgid "produce_xls_proposals"
 msgstr "Xls avec les propositions"
@@ -2975,5 +2975,29 @@ msgstr "Nouvelle unité d'enseignement externe"
 msgid "New partim"
 msgstr "Nouveau partim"
 
+msgid "middle_name"
+msgstr "Deuxième nom"
 
+msgid "Select the missing term for the offer"
+msgstr "Sélectionner le terme manquant de l'offre"
 
+msgid "Remove the term"
+msgstr "Supprimer un terme"
+
+msgid "Do you want to remove this term?"
+msgstr "Êtes-vous certain de supprimer ce terme de l'offre ?"
+
+msgid "Sorry but you can not remove the term of an offer"
+msgstr "Désolé mais vous ne pouvez pas supprimer le terme d'une offre"
+
+msgid "Do you want to remove the term?"
+msgstr "Voulez-vous supprimer le terme ?"
+
+msgid "Export"
+msgstr "Exporter"
+
+msgid "produce_xls_lus_desc"
+msgstr "Produire un fichier Excel avec la liste des unités d'enseignement"
+
+msgid "produce_xls_attributions_desc"
+msgstr "Produire un fichier Excel avec la liste des unités d'enseignement et les attributions"

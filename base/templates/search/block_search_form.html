@@ -1,5 +1,6 @@
-{% load staticfiles %}
-{% load i18n %}
+{% extends "blocks/forms/search_form.html" %}
+{% load bootstrap3 %}
+
 {% comment "License" %}
     * OSIS stands for Open Student Information System. It's an application
     * designed to manage the core business of higher education institutions,
@@ -24,32 +25,12 @@
     * see http://www.gnu.org/licenses/.
 {% endcomment %}
 
+{% block search_form_row_1 %}
 
-<div class="modal-dialog" role="document" style="width: 850px;">
-    <div class="modal-content">
-        <form class="pedagogy-form" role="form" method="POST"
-              action="{{ request.path }}">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">×</button>
-                <h4>{{ text_label_translated.label }} - {{ language_translated.1 }}</h4>
-            </div>
-            <div class="modal-body">
-                {% csrf_token %}
-                {{ form.trans_text }}
-                {{ form.cms_id }}
-            </div>
-            <div class="modal-footer">
-               <button class="btn btn-primary" type="submit">{% trans 'save' %}</button>
-               <button type="submit" class="btn" data-dismiss="modal">{% trans 'cancel' %}</button>
-          </div>
-        </form>
+{% endblock %}
+
+{% block search_form_row_2 %}
+    <div class="col-md-8">
+        {% bootstrap_field form.name %}
     </div>
-</div>
-
-<script>
-    $(function() {
-        var richText = $('#id_trans_text');
-        var config = richText.data('config');
-        CKEDITOR.replace('id_trans_text', config);
-    });
-</script>
+{% endblock %}
