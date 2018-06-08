@@ -29,7 +29,7 @@ from django.http import QueryDict
 from django.test import TestCase
 from django.utils.translation import ugettext_lazy as _
 
-from base.forms.learning_unit.search_form import filter_is_borrowed_learning_unit_year, SearchForm, LearningUnitYearForm
+from base.forms.learning_unit.search_form import filter_is_borrowed_learning_unit_year, LearningUnitSearchForm, LearningUnitYearForm
 from base.models.enums import entity_container_year_link_type, entity_type, learning_container_year_types
 from base.models.group_element_year import GroupElementYear
 from base.models.learning_unit_year import LearningUnitYear
@@ -57,7 +57,7 @@ class TestSearchForm(TestCase):
             "tutor": "Jean Marcel",
             "academic_year_id": str(self.academic_years[0].id),
         })
-        form = SearchForm(data)
+        form = LearningUnitSearchForm(data)
         self.assertTrue(form.is_valid())
         expected_research_criteria = [(_('academic_year_small'), self.academic_years[0]),
                                       (_('requirement_entity_small'), "INFO"),

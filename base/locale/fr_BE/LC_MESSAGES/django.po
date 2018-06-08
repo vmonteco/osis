@@ -2975,6 +2975,9 @@ msgstr "Nouvelle unité d'enseignement externe"
 msgid "New partim"
 msgstr "Nouveau partim"
 
+msgid "middle_name"
+msgstr "Deuxième nom"
+
 msgid "Select the missing term for the offer"
 msgstr "Sélectionner le terme manquant de l'offre"
 

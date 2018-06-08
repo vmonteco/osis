@@ -15,7 +15,7 @@
 #
 #    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #    GNU General Public License for more details.
 #
 #    A copy of this license - GNU General Public License - is available
@@ -23,22 +23,16 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import factory
-import factory.fuzzy
-import string
-import operator
-from base.models.enums import component_type
-from base.tests.factories.learning_unit_year import LearningUnitYearFactory
-from base.tests.factories.learning_component_year import LearningComponentYearFactory
-from factory.django import DjangoModelFactory
+from django import forms
+from django.utils.translation import ugettext_lazy as _
+
+from base.forms.search.search_form import BaseSearchForm
+from base.models import tutor
 
 
-class LearningUnitComponentFactory(DjangoModelFactory):
-    class Meta:
-        model = "base.LearningUnitComponent"
+class TutorSearchForm(BaseSearchForm):
+    name = forms.CharField(max_length=40,
+                           label=_("name"))
 
-    external_id = factory.fuzzy.FuzzyText(length=10, chars=string.digits)
-
-    learning_unit_year = factory.SubFactory(LearningUnitYearFactory)
-    learning_component_year = factory.SubFactory(LearningComponentYearFactory)
-    type = factory.Iterator(component_type.COMPONENT_TYPES, getter=operator.itemgetter(0))
+    def search(self):
+        return tutor.search(**self.cleaned_data).order_by("person__last_name", "person__first_name")
