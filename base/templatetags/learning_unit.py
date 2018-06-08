@@ -116,12 +116,3 @@ def get_style_of_label_text(label_text, style, title):
     label_text = '<label style="{style}" title="{inherited_title}">{label_text}</label>' \
         .format(style=style, inherited_title=_(title), label_text=label_text)
     return label_text
-
-
-@register.filter
-def get_old_acronym(learning_unit_yr):
-    luy = learning_unit_year.find_lt_learning_unit_year_with_different_acronym(learning_unit_yr)
-    if luy:
-        return luy.acronym
-    return None
-

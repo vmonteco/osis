@@ -87,9 +87,9 @@
 
                                 </div>
 
-                                {% with  old_acronym=learning_unit_year|get_old_acronym %}
+                                {% with  old_acronym=learning_unit_year.get_previous_acronym %}
                                     {% if old_acronym%}
-                                        <div>({% trans 'formerly' %} : {{ old_acronym }})</div>
+                                        <div>({% trans 'formerly' %} : {{ old_acronym.acronym }})</div>
                                         <br>
                                     {% endif %}
                                 {% endwith %}
