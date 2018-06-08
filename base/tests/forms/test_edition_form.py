@@ -317,12 +317,7 @@ class TestVolumeEditionFormsetContainer(TestCase):
             request_factory.post(None, data=data_forms),
             self.learning_units_with_context, self.central_manager)
 
-        self.assertFalse(volume_edition_formset_container.is_valid())
-        self.assertEqual(
-            volume_edition_formset_container.formsets[self.learning_unit_year_partim].errors[0].get('volume_total'),
-            [_('vol_tot_full_must_be_greater_or_equal_than_partim')]
-        )
-
+        self.assertTrue(volume_edition_formset_container.is_valid()) # Volumes of partims can be greater than parent's
 
     def test_post_volume_edition_formset_container__vol_tot_full_can_be_equal_to_partim(self):
         request_factory = RequestFactory()
