@@ -113,5 +113,6 @@ def find_distinct_folder_entities():
     entities = ProposalLearningUnit.objects.distinct('entity').values_list('entity__id', flat=True)
     return entity.Entity.objects.filter(pk__in=entities)
 
+
 def is_learning_unit_year_in_proposal(luy):
     return ProposalLearningUnit.objects.filter(learning_unit_year=luy).exists()
