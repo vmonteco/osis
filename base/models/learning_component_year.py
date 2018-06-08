@@ -88,8 +88,7 @@ class LearningComponentYear(SerializableModel):
     def _check_volumes_consistency(self):
         _warnings = []
 
-        vol_total_global = self.entitycomponentyear_set.aggregate(Sum('repartition_volume'))['repartition_volume__sum']\
-                           or 0
+        vol_global = self.entitycomponentyear_set.aggregate(Sum('repartition_volume'))['repartition_volume__sum'] or 0
         vol_total_annual = self.hourly_volume_total_annual or 0
         vol_q1 = self.hourly_volume_partial_q1 or 0
         vol_q2 = self.hourly_volume_partial_q2 or 0
@@ -98,9 +97,9 @@ class LearningComponentYear(SerializableModel):
         if vol_q1 + vol_q2 != vol_total_annual:
             _warnings.append("{} ({})".format(
                 _('Volumes are inconsistent'), _('Vol_tot is not equal to vol_q1 + vol_q2')))
-        if vol_total_annual * planned_classes != vol_total_global:
+        if vol_total_annual * planned_classes != vol_global:
             _warnings.append("{} ({})".format(
-                _('Volumes are inconsistent'),_('Vol_global is not equal to Vol_tot * planned_classes')))
+                _('Volumes are inconsistent'), _('Vol_global is not equal to Vol_tot * planned_classes')))
         if self.planned_classes == 0:
             _warnings.append("{} ({})".format(_('Volumes are inconsistent'), _('planned classes cannot be 0')))
         return _warnings
