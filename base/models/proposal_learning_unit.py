@@ -26,13 +26,11 @@
 from django.contrib.postgres.fields import JSONField
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
-from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
 
 from base.models.enums import proposal_type, proposal_state
 from osis_common.models.osis_model_admin import OsisModelAdmin
-from base.models import entity, entity_version
-from base.models.learning_unit_year import search as search_learning_unit_year
+from base.models import entity, entity_version, learning_unit_year
 
 
 class ProposalLearningUnitAdmin(OsisModelAdmin):
@@ -89,7 +87,7 @@ def find_by_learning_unit(a_learning_unit):
 def search(entity_folder_id=None, folder_id=None, proposal_type=None,
            proposal_state=None, **kwargs):
 
-    learning_unit_year_qs = search_learning_unit_year.search(**kwargs)
+    learning_unit_year_qs = learning_unit_year.search(**kwargs)
     queryset = ProposalLearningUnit.objects.filter(learning_unit_year__in=learning_unit_year_qs)
 
     if entity_folder_id:
@@ -114,3 +112,6 @@ def count_search_results(**kwargs):
 def find_distinct_folder_entities():
     entities = ProposalLearningUnit.objects.distinct('entity').values_list('entity__id', flat=True)
     return entity.Entity.objects.filter(pk__in=entities)
+
+def is_learning_unit_year_in_proposal(luy):
+    return ProposalLearningUnit.objects.filter(learning_unit_year=luy).exists()
