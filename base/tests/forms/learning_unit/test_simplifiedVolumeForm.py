@@ -38,12 +38,14 @@ class TestSimplifiedVolumeManagementForm(TestCase):
             'form-TOTAL_FORMS': '2',
             'form-INITIAL_FORMS': '0',
             'form-MAX_NUM_FORMS': '2',
-            'form-0-volume_declared_vacant': 20,
-            'form-0-planned_classes': 2,
-            'form-0-hourly_volume_partial':31,
-            'form-1-volume_declared_vacant': 20,
-            'form-1-planned_classes': 2,
-            'form-1-hourly_volume_partial': 31
+            'form-0-hourly_volume_total_annual': 20,
+            'form-0-hourly_volume_partial_q1': 10,
+            'form-0-hourly_volume_partial_q2': 10,
+            'form-0-planned_classes': 1,
+            'form-1-hourly_volume_total_annual': 20,
+            'form-1-hourly_volume_partial_q1': 10,
+            'form-1-hourly_volume_partial_q2': 10,
+            'form-1-planned_classes': 1,
         }
         generator = GenerateContainer(get_current_year(), get_current_year())
         self.learning_unit_year = generator[0].learning_unit_year_full
