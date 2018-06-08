@@ -178,7 +178,7 @@ def is_learning_unit_year_a_partim(learning_unit_year, _):
 
 
 def is_learning_unit_year_in_proposal(learning_unit_year, _):
-    return proposal_learning_unit.is_learning_unit_year_in_proposal(learning_unit_year)
+    return proposal_learning_unit.is_learning_unit_in_proposal(learning_unit_year.learning_unit)
 
 
 def is_academic_year_in_range_to_create_partim(learning_unit_year, person):
