@@ -32,6 +32,7 @@ from attribution.models import attribution
 from base import models as mdl_base
 from base.business.entity import get_entity_calendar
 from base.business.learning_unit_year_with_context import volume_learning_component_year
+from base.business.xls import get_name_or_username
 from base.models import entity_container_year
 from base.models import learning_achievement
 from base.models.academic_year import find_academic_year_by_year
@@ -190,11 +191,6 @@ def prepare_xls_parameters_list(user, workingsheets_data):
                   xls_build.WORKSHEET_TITLE_KEY: _(WORKSHEET_TITLE),
                   }
                  ]}
-
-
-def get_name_or_username(a_user):
-    person = mdl_base.person.find_by_user(a_user)
-    return "{}, {}".format(person.last_name, person.first_name) if person else a_user.username
 
 
 def get_entity_acronym(an_entity):

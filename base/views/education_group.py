@@ -23,6 +23,8 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+import itertools
+import collections
 from collections import OrderedDict
 
 from django.conf import settings
@@ -56,6 +58,8 @@ from cms.models.translated_text import TranslatedText
 from cms.models.translated_text_label import TranslatedTextLabel
 from osis_common.decorators.ajax import ajax_required
 from . import layout
+from base.business.education_group import create_xls
+from base.forms.research import get_research_criteria
 
 CODE_SCS = 'code_scs'
 TITLE = 'title'
@@ -81,6 +85,11 @@ def education_groups(request):
         object_list = form.get_object_list()
         if not _check_if_display_message(request, object_list):
             object_list = None
+
+    if request.GET.get('xls_status') == "xls":
+        order_col = request.GET.get('xls_order_col')
+        order_direction = request.GET.get('xls_order')
+        return create_xls(request.user, object_list, _get_filter(form), order_col, order_direction )
 
     context = {
         'form': form,
@@ -443,3 +452,7 @@ def translated_text_labels2dict(translated_text_label):
         'label': translated_text_label.text_label.label,
         'translation': translated_text_label.label
     }
+
+
+def _get_filter(form):
+    return collections.OrderedDict(itertools.chain(get_research_criteria(form)))

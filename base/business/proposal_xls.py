@@ -27,7 +27,8 @@
 from django.utils.translation import ugettext_lazy as _
 
 from osis_common.document import xls_build
-from base.business.learning_unit import get_name_or_username, get_entity_acronym
+from base.business.learning_unit import get_entity_acronym
+from base.business.xls import get_name_or_username
 
 WORKSHEET_TITLE = 'Proposals'
 XLS_FILENAME = 'Proposals'

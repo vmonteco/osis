@@ -23,6 +23,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+import operator
 from django.core.exceptions import PermissionDenied
 
 from base.models.entity import Entity
@@ -30,6 +31,17 @@ from base.models.enums import offer_year_entity_type
 from base.models.person import Person
 from base.models.program_manager import is_program_manager
 from base.models import person_entity
+from osis_common.document import xls_build
+from django.utils.translation import ugettext_lazy as _
+from base.business.xls import get_name_or_username
+
+# List of key that a user can modify
+DESC = "desc"
+WORKSHEET_TITLE = 'education_groups'
+XLS_FILENAME = 'education_groups_filename'
+XLS_DESCRIPTION = "list_education_groups"
+EDUCATION_GROUP_TITLES = [str(_('academic_year_small')), str(_('code')), str(_('title')), str(_('type')),
+                          str(_('entity')), str(_('code'))]
 
 
 def can_user_edit_administrative_data(a_user, an_education_group_year):
@@ -58,3 +70,55 @@ def _is_management_entity_linked_to_user(person, an_education_group_year):
 def assert_category_of_education_group_year(education_group_year, authorized_categories):
     if education_group_year.education_group_type.category not in authorized_categories:
         raise PermissionDenied("Education group category is not correct.")
+
+
+def create_xls(user, found_education_groups_param, filters, order_col, order_direction):
+    found_education_groups = ordering_data(found_education_groups_param, order_col, order_direction)
+    working_sheets_data = prepare_xls_content(found_education_groups)
+    return xls_build.generate_xls(prepare_xls_parameters_list(user, working_sheets_data), filters)
+
+
+def prepare_xls_content(found_education_groups):
+    return [extract_xls_data_from_education_group(eg) for eg in found_education_groups]
+
+
+def extract_xls_data_from_education_group(an_education_group):
+    return [
+        an_education_group.academic_year.name,
+        an_education_group.acronym,
+        an_education_group.title,
+        an_education_group.education_group_type,
+        an_education_group.entity_management.acronym,
+        an_education_group.partial_acronym
+    ]
+
+
+def prepare_xls_parameters_list(user, working_sheets_data):
+    return {xls_build.LIST_DESCRIPTION_KEY: _(XLS_DESCRIPTION),
+            xls_build.FILENAME_KEY: _(XLS_FILENAME),
+            xls_build.USER_KEY: get_name_or_username(user),
+            xls_build.WORKSHEETS_DATA:
+                [{xls_build.CONTENT_KEY: working_sheets_data,
+                  xls_build.HEADER_TITLES_KEY: EDUCATION_GROUP_TITLES,
+                  xls_build.WORKSHEET_TITLE_KEY: _(WORKSHEET_TITLE),
+                  }
+                 ]}
+
+
+def ordering_data(object_list, order_col, order_direction):
+    reverse_direction = False
+    if order_direction == DESC:
+        reverse_direction = True
+
+    return sorted(list(object_list), key=lambda t: get_field(t, order_col), reverse=reverse_direction)
+
+
+def get_field(instance, field):
+    field_path = field.split('.')
+    attr = instance
+    for elem in field_path:
+        try:
+            attr = getattr(attr, elem) or ''
+        except AttributeError:
+            return None
+    return attr
