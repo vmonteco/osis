@@ -23,40 +23,14 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.test import TestCase
-from django.urls import reverse
-
-from base.tests.factories.campus import CampusFactory
-from base.tests.factories.organization_address import OrganizationAddressFactory
-from base.views.learning_units.external.create import filter_campus_by_country
-from reference.tests.factories.country import CountryFactory
+from django import forms
+from django.core.exceptions import ValidationError
 
 
-class TestFilterCampusByCountry(TestCase):
-    def setUp(self):
-        self.country = CountryFactory()
-
-        self.campuses = [CampusFactory() for _ in range(10)]
-
-        self.organization_addresses = [
-            OrganizationAddressFactory(organization=campus.organization)
-            for campus in self.campuses
-        ]
-
-    def test_filter_campus_by_country(self):
-
-        self.organization_addresses[0].country = self.country
-        self.organization_addresses[0].save()
-
-        campus = self.campuses[0]
-
-        kwargs = {'HTTP_X_REQUESTED_WITH': 'XMLHttpRequest'}
-        url = reverse(filter_campus_by_country)
-
-        get_data = {'country': self.country.pk,}
-
-        response = self.client.get(url, get_data, **kwargs)
-        self.assertJSONEqual(response.content.decode('utf-8'), [
-            {
-                'pk': campus.id, 'organization__name': campus.organization.name
-             }])
+class DynamicChoiceField(forms.ChoiceField):
+    """ This field accepts a value even this value was not in the initial list
+        It is used for list with ajax filtering
+    """
+    def validate(self, value):
+        if self.required and not value:
+            ValidationError(self.error_messages['required'])

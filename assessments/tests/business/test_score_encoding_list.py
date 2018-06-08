@@ -23,14 +23,24 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.contrib import admin
+import decimal
+from django.test import TestCase
+
+from assessments.business import score_encoding_list
 
 
-NON_UPDATABLE_FIELDS = ["id", "uuid", "external_id", "changed", "deleted"]
+class TestConvertToDecimal(TestCase):
+    """Unit tests on _convert_to_decimal()"""
 
+    def test_when_2_decimals_in_encoded_score(self):
+        result = score_encoding_list._convert_to_decimal(float(15.55), True)
+        self.assertIsInstance(result, decimal.Decimal)
+        self.assertEqual(str(result), '15.55')
 
-class OsisModelAdmin(admin.ModelAdmin):
+    def test_when_3_decimals_in_encoded_score(self):
+        with self.assertRaises(ValueError):
+            score_encoding_list._convert_to_decimal(float(15.555), True)
 
-    def __init__(self, model, admin_site):
-        self.readonly_fields = [field.name for field in model._meta.fields if field.name in NON_UPDATABLE_FIELDS]
-        super(OsisModelAdmin, self).__init__(model, admin_site)
+    def test_when_deciamls_unothorized(self):
+        with self.assertRaises(ValueError):
+            score_encoding_list._convert_to_decimal(float(15.555), False)

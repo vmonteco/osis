@@ -30,12 +30,12 @@ from django.db import transaction
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
+from base.forms.learning_unit.entity_form import EntityContainerBaseForm
 from base.forms.learning_unit.learning_unit_create import LearningUnitModelForm, LearningUnitYearModelForm, \
-    LearningContainerModelForm, LearningContainerYearModelForm, EntityContainerBaseForm
+    LearningContainerModelForm, LearningContainerYearModelForm
 from base.models import learning_unit_year, academic_year
 from base.models.academic_year import MAX_ACADEMIC_YEAR_FACULTY, MAX_ACADEMIC_YEAR_CENTRAL
 from base.models.campus import Campus
-from base.models.enums import learning_container_year_types
 from base.models.enums import learning_unit_year_subtypes
 from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES_FOR_FACULTY
 from reference.models import language
@@ -43,8 +43,17 @@ from reference.models import language
 FULL_READ_ONLY_FIELDS = {"acronym", "academic_year", "container_type"}
 FULL_PROPOSAL_READ_ONLY_FIELDS = {"academic_year", "container_type", "professional_integration"}
 
-FACULTY_OPEN_FIELDS = {'quadrimester', 'session', 'team', "faculty_remark", "other_remark", 'common_title_english',
-                       'specific_title_english', "status", "professional_integration"}
+FACULTY_OPEN_FIELDS = {
+    'quadrimester',
+    'session',
+    'team',
+    "faculty_remark",
+    "other_remark",
+    'common_title_english',
+    'specific_title_english',
+    "status",
+    "professional_integration"
+}
 
 
 class LearningUnitBaseForm(metaclass=ABCMeta):
@@ -71,6 +80,7 @@ class LearningUnitBaseForm(metaclass=ABCMeta):
                 if cls in self.form_cls_to_validate]):
             return False
 
+        self.learning_unit_year_form.post_clean(self.learning_container_year_form.instance.container_type)
         self.learning_container_year_form.post_clean(self.learning_unit_year_form.cleaned_data["specific_title"])
         return not self.errors
 
@@ -202,9 +212,6 @@ class FullForm(LearningUnitBaseForm):
         else:
             self._restrict_academic_years_choice()
 
-        self.fields['internship_subtype'].disabled =\
-            not self.instance or self.instances_data["container_type"] != learning_container_year_types.INTERNSHIP
-
     def _restrict_academic_years_choice(self):
         current_academic_year = academic_year.current_academic_year()
         end_year_range = MAX_ACADEMIC_YEAR_FACULTY if self.person.is_faculty_manager() else MAX_ACADEMIC_YEAR_CENTRAL
@@ -262,9 +269,7 @@ class FullForm(LearningUnitBaseForm):
             'proposal': proposal,
             'initial': {
                 # Default campus selected 'Louvain-la-Neuve' if exist
-                'campus': Campus.objects.filter(name='Louvain-la-Neuve').first(),
-                # Default language French
-                'language': language.find_by_code('FR')
+                'campus': Campus.objects.filter(name='Louvain-la-Neuve').first()
             } if not self.instance else None,
             'person': self.person
         }
@@ -274,7 +279,10 @@ class FullForm(LearningUnitBaseForm):
             'data': data,
             'instance': self.instance,
             'initial': {
-                'status': True, 'academic_year': default_ac_year,
+                'status': True,
+                'academic_year': default_ac_year,
+                # Default language French
+                'language': language.find_by_code('FR')
             } if not self.instance else None,
             'person': self.person,
             'subtype': self.subtype
@@ -298,17 +306,17 @@ class FullForm(LearningUnitBaseForm):
             learning_container=learning_container,
             commit=commit
         )
-        container_year = self.forms[LearningContainerYearModelForm].save(
+        container_year = self.learning_container_year_form.save(
             academic_year=academic_year,
             learning_container=learning_container,
-            acronym=self.forms[LearningUnitYearModelForm].instance.acronym,
+            acronym=self.learning_unit_year_form.instance.acronym,
             commit=commit
         )
 
         entity_container_years = self.entity_container_form.save(commit=commit, learning_container_year=container_year)
 
         # Save learning unit year (learning_unit_component +  learning_component_year + entity_component_year)
-        learning_unit_yr = self.forms[LearningUnitYearModelForm].save(
+        learning_unit_yr = self.learning_unit_year_form.save(
             learning_container_year=container_year,
             learning_unit=learning_unit,
             entity_container_years=entity_container_years,

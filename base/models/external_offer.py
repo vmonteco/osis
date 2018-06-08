@@ -29,7 +29,6 @@ from osis_common.models.serializable_model import SerializableModel, Serializabl
 
 class ExternalOfferAdmin(SerializableModelAdmin):
     list_display = ('name', 'adhoc', 'domain', 'grade_type', 'offer_year', 'changed')
-    fieldsets = ((None, {'fields': ('name', 'adhoc', 'domain', 'grade_type', 'offer_year')}),)
     ordering = ('name',)
     search_fields = ['name']
 

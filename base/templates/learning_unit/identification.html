@@ -99,13 +99,13 @@
                                         {% dl_tooltip differences 'credits' label_text='nominal_credits' value=learning_unit_year.credits %}
                                     </div>
                                     <div class="col-md-3">
-                                        {% dl_tooltip differences 'periodicity' not_annualized=True value=learning_unit_year.learning_unit.periodicity %}
+                                        {% dl_tooltip differences 'periodicity' not_annualized=True value=learning_unit_year.learning_unit.periodicity_verbose %}
                                     </div>
                                     <div class="col-md-3">
                                         {% dl_tooltip differences 'status' label_text='status' value=learning_unit_year.status_verbose.title %}
                                     </div>
                                     <div class="col-md-3">
-                                        {% dl_tooltip differences 'language' inherited=learning_unit_year.subtype value=learning_unit_year.learning_container_year.language %}
+                                        {% dl_tooltip differences 'language' value=learning_unit_year.language %}
                                     </div>
 
                                     {% endblock content_row2 %}
@@ -199,8 +199,8 @@
                             <div class="panel-body">
                             {% block institution %}
                                 {% url 'organization_read' organization_id=organization.id as url_organization%}
-                                {% dl_tooltip differences 'institution' inherited=learning_unit_year.subtype value=organization.name url=url_organization %}
-                                {% dl_tooltip differences 'campus' inherited=learning_unit_year.subtype label_text='learning_location'  value=campus.name %}
+                                {% dl_tooltip differences 'institution' value=organization.name url=url_organization %}
+                                {% dl_tooltip differences 'campus' label_text='learning_location'  value=campus.name %}
 
                                 {% url 'entity_read' entity_version_id=requirement_entity.id as url_entity_requirement %}
                                 {% url 'entity_read' entity_version_id=allocation_entity.id as url_entity_allocation %}

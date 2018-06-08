@@ -35,10 +35,8 @@ from osis_common.models.serializable_model import SerializableModelAdmin, Serial
 
 class EntityContainerYearAdmin(SerializableModelAdmin):
     list_display = ('external_id', 'learning_container_year', 'entity', 'type')
-    fieldsets = ((None, {'fields': ('entity', 'learning_container_year', 'type')}),)
     search_fields = ['learning_container_year__acronym', 'type']
     list_filter = ('learning_container_year__academic_year',)
-    raw_id_fields = ('entity', 'learning_container_year')
 
 
 class EntityContainerYear(SerializableModel):

@@ -31,7 +31,7 @@ from django.db import transaction
 
 from base.business.learning_unit_proposal import compute_proposal_type, \
     compute_proposal_state, copy_learning_unit_data
-from base.forms.learning_unit.learning_unit_create import EntitiesVersionChoiceField
+from base.forms.learning_unit.entity_form import EntitiesVersionChoiceField
 from base.forms.learning_unit.learning_unit_create_2 import FullForm
 from base.forms.learning_unit.learning_unit_partim import PartimForm
 from base.models.academic_year import current_academic_year
@@ -86,7 +86,7 @@ class ProposalBaseForm:
     # Default values
     proposal_type = ProposalType.MODIFICATION.name
 
-    # TODO :: set acdemic_year as mandatory param and use a kwarg learning_unit_instance (like FullForm and PartimForm)
+    # TODO :: set academic_year as mandatory param and use a kwarg learning_unit_instance (like FullForm and PartimForm)
     def __init__(self, data, person, learning_unit_year=None, proposal=None, proposal_type=None, default_ac_year=None):
         self.person = person
         self.learning_unit_year = learning_unit_year
@@ -110,8 +110,7 @@ class ProposalBaseForm:
                                                            data=data,
                                                            proposal=True)
 
-        self.form_proposal = ProposalLearningUnitForm(data, person=person, instance=proposal,
-                                                      initial=initial)
+        self.form_proposal = ProposalLearningUnitForm(data, person=person, instance=proposal, initial=initial)
 
     def is_valid(self):
         return all([self.learning_unit_form_container.is_valid() and self.form_proposal.is_valid()])
@@ -136,10 +135,10 @@ class ProposalBaseForm:
 
     def _get_initial(self):
         initial = {
-                'learning_unit_year': self.learning_unit_year,
-                'type': self.proposal_type,
-                'state': compute_proposal_state(self.person),
-                'author': self.person
+            'learning_unit_year': self.learning_unit_year,
+            'type': self.proposal_type,
+            'state': compute_proposal_state(self.person),
+            'author': self.person
         }
         if self.proposal:
             initial['type'] = self.proposal.type

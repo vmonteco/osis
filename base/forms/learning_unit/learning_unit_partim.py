@@ -29,8 +29,9 @@ from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
 from base.business.utils.model import merge_two_dicts
+from base.forms.learning_unit.entity_form import EntityContainerBaseForm
 from base.forms.learning_unit.learning_unit_create import LearningUnitYearModelForm, \
-    LearningContainerYearModelForm, EntityContainerBaseForm, LearningContainerModelForm, \
+    LearningContainerYearModelForm, LearningContainerModelForm, \
     LearningUnitModelForm
 from base.forms.learning_unit.learning_unit_create_2 import LearningUnitBaseForm
 from base.forms.utils.acronym_field import split_acronym
@@ -42,8 +43,8 @@ from base.models.learning_unit import LearningUnit
 
 PARTIM_FORM_READ_ONLY_FIELD = {
     'acronym_0', 'acronym_1', 'common_title', 'common_title_english',
-    'requirement_entity', 'allocation_entity', 'language', 'periodicity',
-    'campus', 'academic_year', 'container_type', 'internship_subtype',
+    'requirement_entity', 'allocation_entity', 'periodicity',
+    'academic_year', 'container_type', 'internship_subtype',
     'additional_requirement_entity_1', 'additional_requirement_entity_2'
 }
 
@@ -184,7 +185,9 @@ class PartimForm(LearningUnitBaseForm):
             'quadrimester': self.learning_unit_year_full.quadrimester,
             'status': self.learning_unit_year_full.status,
             'specific_title': self.learning_unit_year_full.specific_title,
-            'specific_title_english': self.learning_unit_year_full.specific_title_english
+            'specific_title_english': self.learning_unit_year_full.specific_title_english,
+            'language': self.learning_unit_year_full.language,
+            'campus': self.learning_unit_year_full.campus
         }
         acronym_splited = split_acronym(acronym)
         initial_learning_unit_year.update({

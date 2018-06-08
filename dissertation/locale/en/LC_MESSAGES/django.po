@@ -163,6 +163,9 @@ msgstr "Co-Promotor"
 msgid "copromotor"
 msgstr "Co-Promotor"
 
+msgid "count_places"
+msgstr "Number of places"
+
 msgid "create_dissertation"
 msgstr "Add dissertation"
 

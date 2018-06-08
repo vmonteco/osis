@@ -50,11 +50,6 @@ REGEX_BY_SUBTYPE = {
 
 class LearningUnitAdmin(SerializableModelAdmin):
     list_display = ('learning_container', 'acronym', 'title', 'start_year', 'end_year', 'changed')
-    fieldsets = ((None, {
-                    'fields': ('learning_container', 'start_year', 'end_year', 'periodicity',
-                               'faculty_remark', 'other_remark')
-                 }),)
-    raw_id_fields = ('learning_container',)
     search_fields = ['learningunityear__acronym', 'learningunityear__specific_title', 'learning_container__external_id']
     list_filter = ('periodicity', 'start_year')
 
@@ -87,6 +82,12 @@ class LearningUnit(SerializableModel):
     @property
     def title(self):
         return self.most_recent_learning_unit_year().specific_title
+
+    @property
+    def periodicity_verbose(self):
+        if self.periodicity:
+            return _(self.periodicity)
+        return None
 
     def delete(self, *args, **kwargs):
         if self.start_year < 2015:

@@ -24,20 +24,20 @@
 #
 ##############################################################################
 from datetime import datetime
-
 from decimal import Decimal
+
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError
 from django.forms import model_to_dict
 from django.test import TestCase
 from django.utils.translation import ugettext_lazy as _
 
-from base.models.academic_year import compute_max_academic_year_adjournment
 from base.business.learning_units.edition import edit_learning_unit_end_date, update_learning_unit_year_with_report, \
     ConsistencyError
 from base.models import academic_year
-from base.models import learning_unit_year as mdl_luy
 from base.models import bibliography as mdl_bibliography
+from base.models import learning_unit_year as mdl_luy
+from base.models.academic_year import compute_max_academic_year_adjournment
 from base.models.entity_component_year import EntityComponentYear
 from base.models.entity_container_year import EntityContainerYear
 from base.models.enums import learning_component_year_type
@@ -801,19 +801,18 @@ class TestModifyLearningUnit(TestCase, LearningUnitsMixin):
             "status": False,
             "session": learning_unit_year_session.SESSION_123,
             "quadrimester": learning_unit_year_quadrimesters.Q2,
-            "attribution_procedure": attribution_procedure.EXTERNAL
+            "attribution_procedure": attribution_procedure.EXTERNAL,
+            "language": self.other_language
         }
 
         update_learning_unit_year_with_report(self.learning_unit_year, fields_to_update, {})
-
+        fields_to_update["language"] = fields_to_update["language"].pk
         self.assert_fields_updated(self.learning_unit_year, fields_to_update)
 
     def test_with_learning_container_year_fields_to_update(self):
         fields_to_update = {
             "common_title": "Mon common",
             "common_title_english": "My common",
-            "language": self.other_language,
-            "campus": self.other_campus,
             "team": True,
             "is_vacant": True,
             "type_declaration_vacant": vacant_declaration_type.VACANT_NOT_PUBLISH
@@ -824,8 +823,6 @@ class TestModifyLearningUnit(TestCase, LearningUnitsMixin):
 
         new_lcy_values = model_to_dict(self.learning_container_year, fields=fields_to_update.keys())
         expected_model_dict_values = fields_to_update
-        expected_model_dict_values["language"] = fields_to_update["language"].pk
-        expected_model_dict_values["campus"] = fields_to_update["campus"].id
 
         self.assertDictEqual(expected_model_dict_values, new_lcy_values)
 

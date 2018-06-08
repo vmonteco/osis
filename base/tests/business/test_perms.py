@@ -128,6 +128,13 @@ class PermsTestCase(TestCase):
 
             self.assertFalse(perms.is_eligible_for_modification(luy, self.create_person_with_permission_and_group(FACULTY_MANAGER_GROUP)))
 
+    def test_when_existing_proposal_in_epc(self):
+        luy = LearningUnitYearFactory(academic_year=self.academic_yr, existing_proposal_in_epc=True)
+        self.assertFalse(perms.is_eligible_for_modification(luy, None))
+        self.assertFalse(perms.is_eligible_for_modification_end_date(luy, None))
+        self.assertFalse(perms.is_eligible_to_create_partim(luy, None))
+        self.assertFalse(perms.is_eligible_to_create_modification_proposal(luy, None))
+
     def test_cannot_faculty_manager_modify_end_date_no_container(self):
         luy = LearningUnitYearFactory(academic_year=self.academic_yr,
                                       learning_container_year=None)
@@ -310,12 +317,13 @@ class PermsTestCase(TestCase):
         a_proposal = ProposalLearningUnitFactory(
             learning_unit_year=luy,
             type=proposal_type.ProposalType.MODIFICATION.name,
-            state=proposal_state.ProposalState.FACULTY.name,
+            state=proposal_state.ProposalState.CENTRAL.name,
             initial_data={
                 "entities": {
                     entity_container_year_link_type.REQUIREMENT_ENTITY: an_requirement_entity.id,
                 }
             })
+        PersonEntityFactory(person=a_person, entity=an_requirement_entity)
         self.assertTrue(perms.is_eligible_for_cancel_of_proposal(a_proposal, a_person))
 
     @staticmethod

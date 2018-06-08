@@ -27,14 +27,17 @@ from collections.__init__ import OrderedDict
 
 from django import forms
 from django.db import transaction
+from django.db.models import BLANK_CHOICE_DASH
 from django.forms import ModelChoiceField
 from django.utils.translation import ugettext_lazy as _
 
+from base.forms.learning_unit.entity_form import EntitiesVersionChoiceField
 from base.forms.learning_unit.learning_unit_create import LearningUnitModelForm, LearningUnitYearModelForm, \
-    LearningContainerModelForm, EntitiesVersionChoiceField, LearningContainerYearModelForm
+    LearningContainerModelForm, LearningContainerYearModelForm
 from base.forms.learning_unit.learning_unit_create_2 import LearningUnitBaseForm
 from base.forms.learning_unit.learning_unit_partim import merge_data
 from base.forms.utils.acronym_field import ExternalAcronymField
+from base.forms.utils.dynamic_field import DynamicChoiceField
 from base.models import entity_version
 from base.models.campus import Campus
 from base.models.entity_version import get_last_version, EntityVersion
@@ -56,15 +59,15 @@ class LearningContainerYearExternalModelForm(LearningContainerYearModelForm):
         required=False,
         label=_("country")
     )
-    campus = CampusChoiceField(queryset=Campus.objects.none())
+    city = DynamicChoiceField(required=False, label=_('city'), choices=BLANK_CHOICE_DASH)
 
     def prepare_fields(self):
-        self.fields['campus'].queryset = Campus.objects.order_by('organization__name').distinct('organization__name')
         self.fields["container_type"].choices = ((EXTERNAL, _(EXTERNAL)),)
         self.fields['container_type'].disabled = True
         self.fields['container_type'].required = False
 
-    def clean_container_type(self):
+    @staticmethod
+    def clean_container_type():
         return EXTERNAL
 
 
@@ -122,6 +125,9 @@ class ExternalLearningUnitBaseForm(LearningUnitBaseForm):
         instances_data = self._build_instance_data(data, academic_year)
         super().__init__(instances_data, *args, **kwargs)
         self.learning_unit_year_form.fields['acronym'] = ExternalAcronymField()
+        self.learning_unit_year_form.fields['campus'] = CampusChoiceField(
+            queryset=Campus.objects.order_by('organization__name').distinct('organization__name')
+        )
 
     @property
     def learning_unit_external_form(self):

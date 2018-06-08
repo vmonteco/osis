@@ -29,6 +29,7 @@ import itertools
 from django import forms
 from django.core.exceptions import ValidationError
 from django.db.models import OuterRef, Subquery
+from django.db.models.fields import BLANK_CHOICE_DASH
 from django.utils.translation import ugettext_lazy as _
 
 from base import models as mdl
@@ -36,20 +37,21 @@ from base.business.entity import get_entities_ids, get_entity_container_list, bu
 from base.business.entity_version import SERVICE_COURSE
 from base.business.learning_unit_year_with_context import append_latest_entities
 from base.forms.common import get_clean_data, treat_empty_or_str_none_as_none, TooManyResultsException
+from base.forms.utils.choice_field import add_blank
+from base.forms.utils.dynamic_field import DynamicChoiceField
 from base.forms.utils.uppercase import convert_to_uppercase
 from base.models import learning_unit_year, group_element_year
 from base.models.academic_year import AcademicYear, current_academic_year
+from base.models.campus import Campus
 from base.models.entity_container_year import EntityContainerYear
 from base.models.entity_version import EntityVersion, build_current_entity_version_structure_in_memory
 from base.models.enums import entity_container_year_link_type, learning_container_year_types, \
     learning_unit_year_subtypes, active_status, entity_type
 from base.models.learning_unit_year import convert_status_bool
 from base.models.offer_year_entity import OfferYearEntity
-from reference.models.country import Country
-from base.models.campus import Campus
 from base.models.organization_address import find_distinct_by_country
-from django.db.models.fields import BLANK_CHOICE_DASH
-from base.forms.utils.choice_field import add_blank
+from reference.models.country import Country
+
 MAX_RECORDS = 1000
 
 
@@ -355,12 +357,6 @@ def _get_entity_ids_list(allocation_entity_acronym, entities_id_list_allocation,
         return None
 
 
-class DynamicChoiceField(forms.ChoiceField):
-    def validate(self, value):
-        if self.required and not value:
-            ValidationError(self.error_messages['required'])
-
-
 class ExternalLearningUnitYearForm(LearningUnitYearForm):
     country = forms.ModelChoiceField(queryset=Country.objects.filter(organizationaddress__isnull=False)
                                      .distinct().order_by('name'),
@@ -399,13 +395,14 @@ class ExternalLearningUnitYearForm(LearningUnitYearForm):
 
     def get_learning_units(self):
         clean_data = self.cleaned_data
-        learning_units = mdl.external_learning_unit_year.search(academic_year_id=clean_data['academic_year_id'],
-                                                                acronym=clean_data['acronym'],
-                                                                title=clean_data['title'],
-                                                                country=clean_data['country'],
-                                                                city=clean_data['city'],
-                                                                campus=clean_data['campus']) \
-            .select_related('learning_unit_year__academic_year', ) \
+        learning_units = mdl.external_learning_unit_year.search(
+            academic_year_id=clean_data['academic_year_id'],
+            acronym=clean_data['acronym'],
+            title=clean_data['title'],
+            country=clean_data['country'],
+            city=clean_data['city'],
+            campus=clean_data['campus']
+        ).select_related('learning_unit_year__academic_year', ) \
             .order_by('learning_unit_year__academic_year__year', 'learning_unit_year__acronym')
 
         return learning_units

@@ -30,8 +30,8 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 
 from base import models as mdl
-from base.business.learning_unit import get_organization_from_learning_unit_year, get_campus_from_learning_unit_year, \
-    get_all_attributions, get_components_identification
+from base.business.learning_unit import get_organization_from_learning_unit_year, get_all_attributions, \
+    get_components_identification
 from base.business.learning_unit_proposal import get_difference_of_proposal
 from base.business.learning_units.edition import create_learning_unit_year_creation_message
 from base.business.learning_units.perms import learning_unit_year_permissions, learning_unit_proposal_permissions, \
@@ -88,7 +88,7 @@ def get_learning_unit_identification_context(learning_unit_year_id, person):
     context["can_create_partim"] = is_eligible_to_create_partim(learning_unit_year, person)
     context['learning_container_year_partims'] = learning_unit_year.get_partims_related()
     context['organization'] = get_organization_from_learning_unit_year(learning_unit_year)
-    context['campus'] = get_campus_from_learning_unit_year(learning_unit_year)
+    context['campus'] = learning_unit_year.campus
     context['experimental_phase'] = True
     context.update(get_all_attributions(learning_unit_year))
     components = get_components_identification(learning_unit_year)

@@ -24,14 +24,13 @@
 #
 ##############################################################################
 from collections import OrderedDict
-from decimal import Decimal
 
 from django.db import models
-from django.utils.translation import ugettext_lazy as _
 
 from base import models as mdl
 from base.business import entity_version as business_entity_version
 from base.models.enums import entity_container_year_link_type as entity_types
+from osis_common.utils.numbers import to_float_or_zero
 
 ENTITY_TYPES_VOLUME = [
     entity_types.REQUIREMENT_ENTITY,
@@ -115,14 +114,12 @@ def _append_components(learning_unit):
             vol_add_req_entity_1 = req_entities_volumes.get(entity_types.ADDITIONAL_REQUIREMENT_ENTITY_1, 0) or 0
             vol_add_req_entity_2 = req_entities_volumes.get(entity_types.ADDITIONAL_REQUIREMENT_ENTITY_2, 0) or 0
             volume_global = vol_req_entity + vol_add_req_entity_1 + vol_add_req_entity_2
-            volume_partial_component = float(component.hourly_volume_partial) if component.hourly_volume_partial else 0
-            planned_classes = component.planned_classes or 1
-            volume_total = volume_global / planned_classes
+            planned_classes = component.planned_classes or 0
 
             learning_unit.components[component] = {
-                'VOLUME_TOTAL': volume_total,
-                'VOLUME_Q1': volume_partial_component,
-                'VOLUME_Q2': volume_total - volume_partial_component,
+                'VOLUME_TOTAL': to_float_or_zero(component.hourly_volume_total_annual),
+                'VOLUME_Q1': to_float_or_zero(component.hourly_volume_partial_q1),
+                'VOLUME_Q2': to_float_or_zero(component.hourly_volume_partial_q2),
                 'PLANNED_CLASSES': planned_classes,
                 'VOLUME_' + entity_types.REQUIREMENT_ENTITY: vol_req_entity,
                 'VOLUME_' + entity_types.ADDITIONAL_REQUIREMENT_ENTITY_1: vol_add_req_entity_1,
@@ -155,45 +152,16 @@ def _get_floated_only_element_of_list(a_list, default=None):
 
 
 def volume_learning_component_year(learning_component_year, entity_components_year):
-    requirement_entities_volumes = _get_requirement_entities_volumes(entity_components_year)
-    vol_req_entity = requirement_entities_volumes.get(entity_types.REQUIREMENT_ENTITY, 0)
-    vol_add_req_entity_1 = requirement_entities_volumes.get(entity_types.ADDITIONAL_REQUIREMENT_ENTITY_1, 0)
-    vol_add_req_entity_2 = requirement_entities_volumes.get(entity_types.ADDITIONAL_REQUIREMENT_ENTITY_2, 0)
-    volume_total_charge = vol_req_entity + vol_add_req_entity_1 + vol_add_req_entity_2
-    volume_partial = learning_component_year.hourly_volume_partial
-    planned_classes = learning_component_year.planned_classes or 1
-    volume_total = round(Decimal(volume_total_charge / planned_classes), 2)
-    distribution = component_volume_distribution(volume_total, volume_partial)
-
-    if distribution is None:
-        volume_partial = None
-        volume_remaining = None
-    else:
-        volume_remaining = volume_total - volume_partial
-
+    requirement_vols = _get_requirement_entities_volumes(entity_components_year)
     return {
-        'VOLUME_TOTAL': volume_total,
-        'VOLUME_QUARTER': distribution,
-        'VOLUME_Q1': volume_partial,
-        'VOLUME_Q2': volume_remaining,
-        'PLANNED_CLASSES': planned_classes,
-        'VOLUME_REQUIREMENT_ENTITY': vol_req_entity,
-        'VOLUME_ADDITIONAL_REQUIREMENT_ENTITY_1': vol_add_req_entity_1,
-        'VOLUME_ADDITIONAL_REQUIREMENT_ENTITY_2': vol_add_req_entity_2
+        'VOLUME_TOTAL': learning_component_year.hourly_volume_total_annual,
+        'VOLUME_Q1': learning_component_year.hourly_volume_partial_q1,
+        'VOLUME_Q2': learning_component_year.hourly_volume_partial_q2,
+        'PLANNED_CLASSES': learning_component_year.planned_classes or 1,
+        'VOLUME_REQUIREMENT_ENTITY': requirement_vols.get(entity_types.REQUIREMENT_ENTITY, 0),
+        'VOLUME_ADDITIONAL_REQUIREMENT_ENTITY_1': requirement_vols.get(entity_types.ADDITIONAL_REQUIREMENT_ENTITY_1, 0),
+        'VOLUME_ADDITIONAL_REQUIREMENT_ENTITY_2': requirement_vols.get(entity_types.ADDITIONAL_REQUIREMENT_ENTITY_2, 0)
     }
-
-
-def component_volume_distribution(volume_total, volume_partial):
-    if volume_total is None or volume_total == 0.00 or volume_partial is None:
-        return None
-    elif volume_partial == volume_total:
-        return _('partial')
-    elif volume_partial == 0.00:
-        return _('remaining')
-    elif 0.00 < volume_partial < volume_total:
-        return _('partial_remaining')
-    else:
-        return None
 
 
 def is_service_course(academic_year, requirement_entity_version, allocation_entity_version):

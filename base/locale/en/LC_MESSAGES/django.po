@@ -1504,9 +1504,6 @@ msgstr "The start's date of '%s' of the academic calendar can't be higher than %
 msgid "component_type"
 msgstr "Component type"
 
-msgid "volume_quarter"
-msgstr "Quarter"
-
 msgid "vol_q1"
 msgstr "Vol. q1"
 
@@ -1823,9 +1820,6 @@ msgstr "Site with one letter\n"
 
 msgid "end_year_title"
 msgstr "End year"
-
-msgid "basic_informations_title"
-msgstr "Basics informations"
 
 msgid "active_title"
 msgstr "Active"
@@ -2892,6 +2886,12 @@ msgstr "Vol.global"
 msgid "volume_global"
 msgstr "volume total global"
 
+msgid "Vol. tot. annual"
+msgstr ""
+
+msgid "Volume total annual"
+msgstr ""
+
 msgid "missing_internship_subtype"
 msgstr "It is necessary to indicate the internship subtype"
 
@@ -2976,3 +2976,17 @@ msgstr ""
 msgid "New partim"
 msgstr ""
 
+msgid "Select the missing term for the offer"
+msgstr "Select the missing term for the offer"
+
+msgid "Remove the term"
+msgstr "Remove the term"
+
+msgid "Do you want to remove this term?"
+msgstr "Do you want to remove this term?"
+
+msgid "Sorry but you can not remove the term of an offer"
+msgstr "Sorry but you can not remove the term of an offer"
+
+msgid "Do you want to remove the term?"
+msgstr "Do you want to remove the term?"

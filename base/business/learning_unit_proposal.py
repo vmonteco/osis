@@ -24,6 +24,7 @@
 #
 ##############################################################################
 import functools
+
 from django.contrib.messages import ERROR, SUCCESS
 from django.contrib.messages import INFO
 from django.db import IntegrityError
@@ -31,9 +32,9 @@ from django.forms import model_to_dict
 from django.utils.translation import ugettext_lazy as _
 
 from base import models as mdl_base
+from base.business.learning_units import perms
 from base.business.learning_units.edition import update_or_create_entity_container_year_with_components, \
     edit_learning_unit_end_date, update_learning_unit_year_with_report
-from base.business.learning_units import perms
 from base.business.learning_units.simple import deletion as business_deletion
 from base.models import entity_container_year, campus, entity
 from base.models.academic_year import find_academic_year_by_year
@@ -51,11 +52,17 @@ NO_PREVIOUS_VALUE = '-'
 VALUES_WHICH_NEED_TRANSLATION = ["periodicity", "container_type", "internship_subtype"]
 LABEL_ACTIVE = _('active')
 LABEL_INACTIVE = _('inactive')
-INITIAL_DATA_FIELDS = {'learning_container_year': ["id", "acronym", "common_title", "container_type",
-                                                   "campus", "language", "in_charge"],
-                       'learning_unit': ["id", "periodicity", "end_year"],
-                       'learning_unit_year': ["id", "acronym", "specific_title", "internship_subtype", "credits"]
-                       }
+INITIAL_DATA_FIELDS = {
+        'learning_container_year': [
+            "id", "acronym", "common_title", "container_type", "in_charge"
+        ],
+        'learning_unit': [
+            "id", "periodicity", "end_year"
+        ],
+        'learning_unit_year': [
+            "id", "acronym", "specific_title", "internship_subtype", "credits", "campus", "language"
+        ]
+    }
 
 
 def compute_proposal_type(proposal_learning_unit_year, learning_unit_year):

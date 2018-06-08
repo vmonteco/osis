@@ -34,7 +34,6 @@ class LanguageAdmin(SerializableModelAdmin):
     list_filter = ('recognized',)
     ordering = ('code',)
     search_fields = ['code', 'name']
-    fieldsets = ((None, {'fields': ('code', 'name', 'recognized')}),)
 
 
 class Language(SerializableModel):

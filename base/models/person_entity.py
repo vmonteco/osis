@@ -28,7 +28,7 @@ from django.db import models
 from base.models import entity_version
 from base.models.entity import Entity
 from base.models.entity_version import EntityVersion
-from base.models.osis_model_admin import OsisModelAdmin
+from osis_common.models.osis_model_admin import OsisModelAdmin
 
 
 class PersonEntityAdmin(OsisModelAdmin):

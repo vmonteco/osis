@@ -26,7 +26,7 @@
 from django.contrib.auth.models import Permission
 from django.test import TestCase
 
-from base.forms.learning_unit.learning_unit_create import EntityContainerBaseForm
+from base.forms.learning_unit.entity_form import EntityContainerBaseForm
 from base.models.entity import Entity
 from base.models.enums import organization_type, entity_container_year_link_type, learning_unit_year_subtypes, \
     entity_type, learning_container_year_types
@@ -58,14 +58,16 @@ class TestEntityContainerYearForm(TestCase):
             acronym="LOSIS1212",
             academic_year=current_academic_year,
             container_type=learning_container_year_types.COURSE,
+        )
+        self.learning_unit_year = LearningUnitYearFakerFactory(
+            acronym=learning_container_year.acronym,
+            subtype=learning_unit_year_subtypes.FULL,
+            academic_year=current_academic_year,
+            learning_container_year=learning_container_year,
+            quadrimester=None,
+            specific_title_english="title english",
             campus=CampusFactory(organization=an_organization, is_administration=True)
         )
-        self.learning_unit_year = LearningUnitYearFakerFactory(acronym=learning_container_year.acronym,
-                                                               subtype=learning_unit_year_subtypes.FULL,
-                                                               academic_year=current_academic_year,
-                                                               learning_container_year=learning_container_year,
-                                                               quadrimester=None,
-                                                               specific_title_english="title english")
 
         self.learning_container_year = self.learning_unit_year.learning_container_year
         an_entity = EntityFactory(organization=an_organization)

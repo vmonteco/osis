@@ -31,18 +31,19 @@ from django.forms import model_to_dict
 from django.test import TestCase
 from django.utils.translation import ugettext_lazy as _
 
-from base.forms.learning_unit.learning_unit_create import EntityContainerBaseForm
+from base.forms.learning_unit.entity_form import EntityContainerBaseForm
 from base.forms.learning_unit.learning_unit_create import LearningUnitYearModelForm, \
     LearningUnitModelForm, LearningContainerYearModelForm, LearningContainerModelForm
 from base.forms.learning_unit.learning_unit_partim import PARTIM_FORM_READ_ONLY_FIELD, PartimForm, \
     LearningUnitPartimModelForm
 from base.forms.utils import acronym_field
-from base.models.enums import learning_unit_year_subtypes
+from base.models.enums import learning_unit_year_subtypes, organization_type
 from base.models.enums.learning_unit_periodicity import ANNUAL, BIENNIAL_EVEN
 from base.models.learning_unit import LearningUnit
 from base.models.learning_unit_year import LearningUnitYear
 from base.tests.factories.academic_year import create_current_academic_year
 from base.tests.factories.business.learning_units import GenerateContainer, GenerateAcademicYear
+from base.tests.factories.campus import CampusFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from base.tests.factories.person import PersonFactory
 
@@ -129,7 +130,9 @@ class TestPartimFormInit(LearningUnitPartimFormContextMixin):
                 'quadrimester': self.learning_unit_year_full.quadrimester,
                 'status': self.learning_unit_year_full.status,
                 'specific_title': self.learning_unit_year_full.specific_title,
-                'specific_title_english': self.learning_unit_year_full.specific_title_english
+                'specific_title_english': self.learning_unit_year_full.specific_title_english,
+                'language': self.learning_unit_year_full.language,
+                'campus': self.learning_unit_year_full.campus
             }
         }
         partim_form = _instanciate_form(learning_unit_full=self.learning_unit_year_full.learning_unit,
@@ -154,8 +157,8 @@ class TestPartimFormInit(LearningUnitPartimFormContextMixin):
         expected_disabled_fields = {
             'common_title', 'common_title_english',
             'requirement_entity', 'allocation_entity',
-            'language', 'periodicity', 'campus',
-            'academic_year', 'container_type', 'internship_subtype',
+            'periodicity', 'academic_year',
+            'container_type', 'internship_subtype',
             'additional_requirement_entity_1', 'additional_requirement_entity_2'
         }
         all_fields = partim_form.fields.items()
@@ -181,7 +184,8 @@ class TestPartimFormIsValid(LearningUnitPartimFormContextMixin):
         a_new_learning_unit_partim = LearningUnitYearFactory.build(
             academic_year=self.current_academic_year,
             acronym=FULL_ACRONYM + 'B',
-            subtype=learning_unit_year_subtypes.PARTIM
+            subtype=learning_unit_year_subtypes.PARTIM,
+            language=self.learning_unit_year_full.language
         )
         post_data = get_valid_form_data(a_new_learning_unit_partim)
         form = _instanciate_form(learning_unit_full=self.learning_unit_year_full.learning_unit,
@@ -299,7 +303,8 @@ class TestPartimFormIsValid(LearningUnitPartimFormContextMixin):
         a_new_learning_unit_partim = LearningUnitYearFactory.build(
             academic_year=self.current_academic_year,
             acronym=FULL_ACRONYM + 'B',
-            subtype=learning_unit_year_subtypes.PARTIM
+            subtype=learning_unit_year_subtypes.PARTIM,
+            language=self.learning_unit_year_full.language
         )
         post_data = get_valid_form_data(a_new_learning_unit_partim)
         form = _instanciate_form(learning_unit_full=self.learning_unit_year_full.learning_unit,
@@ -319,7 +324,8 @@ class TestPartimFormSave(LearningUnitPartimFormContextMixin):
         a_new_learning_unit_partim = LearningUnitYearFactory.build(
             academic_year=self.current_academic_year,
             acronym=FULL_ACRONYM + 'C',
-            subtype=learning_unit_year_subtypes.PARTIM
+            subtype=learning_unit_year_subtypes.PARTIM,
+            language=self.learning_unit_year_full.language
         )
         post_data = get_valid_form_data(a_new_learning_unit_partim)
         start_year = self.learning_unit_year_full.academic_year.year
@@ -354,7 +360,8 @@ class TestPartimFormSave(LearningUnitPartimFormContextMixin):
         a_new_learning_unit_partim = LearningUnitYearFactory.build(
             academic_year=self.current_academic_year,
             acronym=partim_acronym,
-            subtype=learning_unit_year_subtypes.PARTIM
+            subtype=learning_unit_year_subtypes.PARTIM,
+            language=self.learning_unit_year_full.language
         )
         post_data = get_valid_form_data(a_new_learning_unit_partim)
 
@@ -363,7 +370,7 @@ class TestPartimFormSave(LearningUnitPartimFormContextMixin):
             academic_year=self.learning_unit_year_full.academic_year,
             post_data=post_data, instance=None
         )
-        self.assertTrue(form.is_valid())
+        self.assertTrue(form.is_valid(), form.errors)
         form.save()
 
         # Check all related object is created
@@ -448,6 +455,8 @@ def get_valid_form_data(learning_unit_year_partim):
         'session': learning_unit_year_partim.session,
         'quadrimester': learning_unit_year_partim.quadrimester,
         'status': learning_unit_year_partim.status,
+        'language': learning_unit_year_partim.language.id,
+        'campus': CampusFactory(name='Louvain-la-Neuve', organization__type=organization_type.MAIN).pk,
 
         # Learning unit data model form
         'periodicity': learning_unit_year_partim.learning_unit.periodicity,
