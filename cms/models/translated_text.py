@@ -25,20 +25,18 @@
 ##############################################################################
 from ckeditor.fields import RichTextField
 from django.db import models
-from django.contrib import admin
+from osis_common.models import osis_model_admin
 from django.conf import settings
 from cms.enums.entity_name import ENTITY_NAME
 from .text_label import TextLabel
 
 
-class TranslatedTextAdmin(admin.ModelAdmin):
+class TranslatedTextAdmin(osis_model_admin.OsisModelAdmin):
     actions = None  # Remove ability to delete in Admin Interface
     list_display = ('text_label', 'entity', 'reference', 'language', 'text')
     ordering = ('text_label',)
     list_filter = ('entity',)
     search_fields = ['reference', 'text_label__label']
-    raw_id_fields = ('text_label',)
-    fieldsets = ((None, {'fields': ('text_label', 'entity', 'reference', 'language', 'text')}),)
 
     def has_delete_permission(self, request, obj=None):
         return False

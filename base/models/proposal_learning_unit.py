@@ -30,7 +30,7 @@ from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
 
 from base.models.enums import proposal_type, proposal_state
-from base.models.osis_model_admin import OsisModelAdmin
+from osis_common.models.osis_model_admin import OsisModelAdmin
 from base.models import entity, entity_version
 
 

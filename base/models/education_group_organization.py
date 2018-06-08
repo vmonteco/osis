@@ -24,12 +24,10 @@
 #
 ##############################################################################
 from django.db import models
-from django.contrib import admin
 
 from base.models import organization_address
 from base.models.enums import diploma_coorganization
-from base.models.organization_address import OrganizationAddress
-from base.models.osis_model_admin import OsisModelAdmin
+from osis_common.models.osis_model_admin import OsisModelAdmin
 
 
 class EducationGroupOrganizationAdmin(OsisModelAdmin):

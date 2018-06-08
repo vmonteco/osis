@@ -24,11 +24,11 @@
 #
 ##############################################################################
 from django.db import models
-from django.contrib import admin
+from osis_common.models import osis_model_admin
 from django.core import serializers
 
 
-class ContinentAdmin(admin.ModelAdmin):
+class ContinentAdmin(osis_model_admin.OsisModelAdmin):
     list_display = ('name', 'code',)
     ordering = ('name',)
 

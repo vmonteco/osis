@@ -35,11 +35,7 @@ from osis_common.models.serializable_model import SerializableModel, Serializabl
 
 class LearningContainerYearAdmin(SerializableModelAdmin):
     list_display = ('learning_container', 'academic_year', 'container_type', 'acronym', 'common_title')
-    fieldsets = ((None, {'fields': ('academic_year', 'learning_container',  'container_type', 'acronym', 'common_title',
-                                    'common_title_english', 'is_vacant',
-                                    'type_declaration_vacant', 'team', 'in_charge')}),)
     search_fields = ['acronym']
-    raw_id_fields = ('learning_container',)
     list_filter = ('academic_year', 'in_charge', 'is_vacant',)
 
 

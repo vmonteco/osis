@@ -26,10 +26,9 @@
 import datetime
 
 from django.db import models
-from django.contrib import admin
 from base.models.enums import number_session, academic_calendar_type
 from base.models import offer_year_calendar, academic_year
-from base.models.osis_model_admin import OsisModelAdmin
+from osis_common.models.osis_model_admin import OsisModelAdmin
 
 
 class SessionExamCalendarAdmin(OsisModelAdmin):

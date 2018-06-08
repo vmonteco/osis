@@ -30,7 +30,6 @@ from osis_common.models.serializable_model import SerializableModel, Serializabl
 
 class LearningContainerAdmin(SerializableModelAdmin):
     list_display = ('external_id',)
-    fieldsets = ((None, {'fields': ('external_id',)}),)
     search_fields = ['external_id', 'learningcontaineryear__acronym']
 
 

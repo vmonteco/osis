@@ -31,14 +31,7 @@ from osis_common.models.serializable_model import SerializableModel, Serializabl
 
 class OfferYearAdmin(SerializableModelAdmin):
     list_display = ('acronym', 'title', 'academic_year', 'offer', 'parent', 'offer_type', 'changed')
-    fieldsets = ((None, {'fields': ('offer', 'academic_year', 'entity_administration', 'entity_administration_fac',
-                                    'entity_management', 'entity_management_fac', 'acronym', 'title', 'parent',
-                                    'title_international', 'title_short', 'title_printable', 'grade', 'grade_type',
-                                    'recipient', 'location', 'postal_code', 'city', 'country', 'phone', 'fax', 'email',
-                                    'campus', 'offer_type')}),)
     list_filter = ('academic_year', 'grade', 'offer_type', 'campus')
-    raw_id_fields = ('offer', 'parent', 'offer_type', 'grade_type','campus','country','entity_administration',
-                     'entity_administration_fac', 'entity_management', 'entity_management_fac', 'academic_year')
     search_fields = ['acronym']
 
 

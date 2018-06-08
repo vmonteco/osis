@@ -27,7 +27,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 
 from base.models.enums import offer_year_entity_type
-from base.models.osis_model_admin import OsisModelAdmin
+from osis_common.models.osis_model_admin import OsisModelAdmin
 
 
 class OfferYearEntityAdmin(OsisModelAdmin):
