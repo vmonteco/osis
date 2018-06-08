@@ -57,7 +57,8 @@ class VolumeEditionForm(forms.Form):
     add_field = EmptyField(label='+')
     volume_q2 = VolumeField(label=_('partial_volume_2Q'), help_text=_('partial_volume_2'))
     equal_field_1 = EmptyField(label='=')
-    volume_total = VolumeField(label=_('Vol. tot. annual'), help_text=_('Volume total annual'))
+    help_volume_total = "{} = {} + {}".format(_('Volume total annual'), _('partial_volume_1'), _('partial_volume_2'))
+    volume_total = VolumeField(label=_('Vol. tot. annual'), help_text=help_volume_total)
     closing_parenthesis_field = EmptyField(label=')')
     mult_field = EmptyField(label='*')
     planned_classes = forms.IntegerField(label=_('planned_classes_pc'), help_text=_('planned_classes'), min_value=0)
@@ -78,9 +79,9 @@ class VolumeEditionForm(forms.Form):
         self.title_help += self.component.acronym
 
         super().__init__(*args, **kwargs)
-
+        help_volume_global = "{} = {} * {}".format(_('volume_global'), _('Volume total annual'), _('planned_classes'))
         self.fields['volume_total_requirement_entities'] = VolumeField(
-            label=_('vol_global'), help_text=_('volume_global'))
+            label=_('vol_global'), help_text=help_volume_global)
         self.fields['equal_field_3'] = EmptyField(label='=')
 
         # Append dynamic fields
