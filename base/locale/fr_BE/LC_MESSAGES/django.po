@@ -2247,8 +2247,8 @@ msgstr "l'unité d'enseignement"
 msgid "Delete from this academic year"
 msgstr "Supprimer à partir de cette année académique"
 
-msgid "Delete all the learning unit"
-msgstr "Supprimer toute l'unité d'enseignement (sur toutes les années académiques)"
+msgid "Delete the learning unit for all academic years"
+msgstr "Supprimer l'unité d'enseignement pour toutes les années académiques"
 
 msgid "You asked the deletion of the learning unit %(acronym)s from the year %(year)s"
 msgstr "Vous avez demandé la suppression de l'unité d'enseignement %(acronym)s à partir de l'année %(year)s"
@@ -2460,14 +2460,14 @@ msgstr "Les unités d'enseignement"
 msgid "%(date)s must be set within %(start_date)s and %(end_date)s"
 msgstr "%(date)s doit être comprise entre %(start_date)s et %(end_date)s"
 
-msgid "cancel_proposal"
-msgstr "Annuler proposition"
+msgid "Cancel the proposal"
+msgstr "Annuler la proposition"
 
-msgid "edit_proposal"
-msgstr "Editer proposition"
+msgid "Edit the proposal"
+msgstr "Editer la proposition"
 
-msgid "Consolidate proposal"
-msgstr "Consolider proposition"
+msgid "Consolidate the proposal"
+msgstr "Consolider la proposition"
 
 msgid "msg_confirm_cancel_proposal"
 msgstr "Etes-vous certain de vouloir annuler la proposition ?"
@@ -2502,11 +2502,14 @@ msgstr "Suppléé"
 msgid "not_end_year"
 msgstr "pas de fin prévue"
 
-msgid "edit_learning_unit_end_date"
-msgstr "Modifier la date de fin l'unité d'enseignement"
+msgid "Modify"
+msgstr "Modifier"
 
-msgid "new_partim"
-msgstr "Créer un nouveau partim"
+msgid "Edit learning unit end date"
+msgstr "Modifier la date de fin de l'unité d'enseignement"
+
+msgid "Modify end date"
+msgstr "Modifier la date de fin"
 
 msgid "partim"
 msgstr "Partim"
@@ -2553,7 +2556,7 @@ msgstr "Assurez-vous que cette valeur est supérieure à %(limit_value)s."
 msgid "Entity_not_exist"
 msgstr "L'entité %(entity_acronym)s n'existe pas pour l'année académique sélectionnée %(academic_year)s"
 
-msgid "edit_learning_unit"
+msgid "Edit the learning unit"
 msgstr "Modifier l'unité d'enseignement"
 
 msgid "requirement_entity_end_date_too_short"
