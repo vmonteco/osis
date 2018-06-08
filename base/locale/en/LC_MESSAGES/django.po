@@ -2976,6 +2976,9 @@ msgstr ""
 msgid "New partim"
 msgstr ""
 
+msgid "middle_name"
+msgstr "Middle name"
+
 msgid "Select the missing term for the offer"
 msgstr "Select the missing term for the offer"
 

@@ -45,6 +45,7 @@ from base.models.enums import learning_unit_periodicity, learning_unit_year_subt
 from base.models.enums.entity_container_year_link_type import ENTITY_TYPE_LIST
 from base.models.learning_container_year import LearningContainerYear
 from base.models.learning_unit_year import LearningUnitYear
+from base.models.proposal_learning_unit import is_learning_unit_year_in_proposal
 from cms.models import translated_text
 
 FIELDS_TO_EXCLUDE_WITH_REPORT = ("is_vacant", "type_declaration_vacant", "attribution_procedure")
@@ -453,7 +454,7 @@ def _get_translated_value(value):
 def _check_postponement_learning_unit_year_proposal_state(nex_luy):
     error_msg = _("learning_unit_in_proposal_cannot_save") % {'luy': nex_luy.acronym,
                                                               'academic_year': nex_luy.academic_year}
-    return [error_msg] if nex_luy.is_in_proposal() else []
+    return [error_msg] if is_learning_unit_year_in_proposal(nex_luy) else []
 
 
 def _check_postponement_conflict_on_entity_container_year(lcy, next_lcy):

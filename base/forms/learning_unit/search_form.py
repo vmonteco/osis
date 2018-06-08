@@ -37,6 +37,7 @@ from base.business.entity import get_entities_ids, get_entity_container_list, bu
 from base.business.entity_version import SERVICE_COURSE
 from base.business.learning_unit_year_with_context import append_latest_entities
 from base.forms.common import get_clean_data, treat_empty_or_str_none_as_none, TooManyResultsException
+from base.forms.search.search_form import BaseSearchForm
 from base.forms.utils.choice_field import add_blank
 from base.forms.utils.dynamic_field import DynamicChoiceField
 from base.forms.utils.uppercase import convert_to_uppercase
@@ -55,7 +56,7 @@ from reference.models.country import Country
 MAX_RECORDS = 1000
 
 
-class SearchForm(forms.Form):
+class LearningUnitSearchForm(BaseSearchForm):
     MAX_RECORDS = 1000
     ALL_LABEL = (None, _('all_label'))
     ALL_CHOICES = (ALL_LABEL,)
@@ -77,7 +78,7 @@ class SearchForm(forms.Form):
     )
 
     tutor = forms.CharField(
-        max_length=20,
+        max_length=40,
         label=_('tutor')
     )
 
@@ -96,9 +97,6 @@ class SearchForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['academic_year_id'].initial = current_academic_year()
-        for field in self.fields.values():
-            # In a search form, the fields are never required
-            field.required = False
 
     def clean_requirement_entity_acronym(self):
         return convert_to_uppercase(self.cleaned_data.get('requirement_entity_acronym'))
@@ -106,42 +104,21 @@ class SearchForm(forms.Form):
     def clean_allocation_entity_acronym(self):
         return convert_to_uppercase(self.cleaned_data.get('allocation_entity_acronym'))
 
-    def get_research_criteria(self):
-        tuples_label_value = []
-        for field_name, field in self.fields.items():
-            if not self.cleaned_data[field_name]:
-                continue
-            tuple_to_append = (str(field.label), self.cleaned_data[field_name])
-            if type(field) == forms.ChoiceField:
-                dict_choices = {str(key): value for key, value in field.choices}
-                label_choice = dict_choices[self.cleaned_data[field_name]]
-                tuple_to_append = (str(field.label), label_choice)
-            tuples_label_value.append(tuple_to_append)
-        return tuples_label_value
 
-    def _has_criteria(self):
-        criteria_present = False
-        for name in self.fields:
-            if self.cleaned_data[name]:
-                criteria_present = True
-                break
-        return criteria_present
-
-
-class LearningUnitYearForm(SearchForm):
+class LearningUnitYearForm(LearningUnitSearchForm):
     container_type = forms.ChoiceField(
         label=_('type'),
-        choices=SearchForm.ALL_CHOICES + learning_container_year_types.LEARNING_CONTAINER_YEAR_TYPES,
+        choices=LearningUnitSearchForm.ALL_CHOICES + learning_container_year_types.LEARNING_CONTAINER_YEAR_TYPES,
     )
 
     subtype = forms.ChoiceField(
         label=_('subtype'),
-        choices=SearchForm.ALL_CHOICES + learning_unit_year_subtypes.LEARNING_UNIT_YEAR_SUBTYPES,
+        choices=LearningUnitSearchForm.ALL_CHOICES + learning_unit_year_subtypes.LEARNING_UNIT_YEAR_SUBTYPES,
     )
 
     status = forms.ChoiceField(
         label=_('status'),
-        choices=SearchForm.ALL_CHOICES + active_status.ACTIVE_STATUS_LIST[:-1],
+        choices=LearningUnitSearchForm.ALL_CHOICES + active_status.ACTIVE_STATUS_LIST[:-1],
     )
 
     title = forms.CharField(
@@ -204,7 +181,7 @@ class LearningUnitYearForm(SearchForm):
 
         if not service_course_search \
                 and clean_data \
-                and mdl.learning_unit_year.count_search_results(**clean_data) > SearchForm.MAX_RECORDS:
+                and mdl.learning_unit_year.count_search_results(**clean_data) > LearningUnitSearchForm.MAX_RECORDS:
             raise TooManyResultsException
 
         learning_units = mdl.learning_unit_year.search(**clean_data) \
