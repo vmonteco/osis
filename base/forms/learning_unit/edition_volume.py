@@ -59,7 +59,7 @@ class VolumeEditionForm(forms.Form):
     add_field = EmptyField(label='+')
     volume_q2 = VolumeField(label=_('partial_volume_2Q'), help_text=_('partial_volume_2'))
     equal_field_1 = EmptyField(label='=')
-    volume_total = VolumeField(label=_('Vol. tot. annual'), help_text=_('Volume total annual'))
+    volume_total = VolumeField(label=_('Vol. annual'), help_text=_('Volume annual'))
     closing_parenthesis_field = EmptyField(label=')')
     mult_field = EmptyField(label='*')
     planned_classes = forms.IntegerField(label=_('planned_classes_pc'), help_text=_('planned_classes'), min_value=0)

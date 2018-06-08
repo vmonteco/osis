@@ -114,7 +114,18 @@ class TestLearningUnitYearModelFormSave(TestCase):
             'internship_subtype': PROFESSIONAL_INTERNSHIP,
             'attribution_procedure': INTERNAL_TEAM,
             'campus': campus.pk,
-            'language': self.language.pk
+            'language': self.language.pk,
+
+            # Learning component year data model form
+            'form-TOTAL_FORMS': '2',
+            'form-INITIAL_FORMS': '0',
+            'form-MAX_NUM_FORMS': '2',
+            'form-0-volume_declared_vacant': 20,
+            'form-0-planned_classes': 2,
+            'form-0-hourly_volume_partial': 31,
+            'form-1-volume_declared_vacant': 20,
+            'form-1-planned_classes': 2,
+            'form-1-hourly_volume_partial': 31
         }
 
         self.requirement_entity = EntityContainerYearFactory(type=REQUIREMENT_ENTITY,

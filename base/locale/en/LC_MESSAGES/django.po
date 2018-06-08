@@ -1851,9 +1851,6 @@ msgstr "Classes prévues"
 msgid "planned_classes_pc"
 msgstr "P.C."
 
-msgid "total_volume"
-msgstr "Volume total annual"
-
 msgid "total_volume_voltot"
 msgstr "Vol.tot"
 
@@ -2886,10 +2883,10 @@ msgstr "Vol.global"
 msgid "volume_global"
 msgstr "volume total global"
 
-msgid "Vol. tot. annual"
+msgid "Vol. annual"
 msgstr ""
 
-msgid "Volume total annual"
+msgid "Volume annual"
 msgstr ""
 
 msgid "missing_internship_subtype"

@@ -111,6 +111,17 @@ class TestSave(TestCase):
             'allocation_entity-entity': self.entity_version.id,
             'additional_requirement_entity_1-entity': self.entity_version.id,
             'additional_requirement_entity_2-entity': self.entity_version.id,
+
+            # Learning component year data model form
+            'form-TOTAL_FORMS': '2',
+            'form-INITIAL_FORMS': '0',
+            'form-MAX_NUM_FORMS': '2',
+            'form-0-volume_declared_vacant': 20,
+            'form-0-planned_classes': 2,
+            'form-0-hourly_volume_partial': 31,
+            'form-1-volume_declared_vacant': 20,
+            'form-1-planned_classes': 2,
+            'form-1-hourly_volume_partial': 31
         }
 
     def test_learning_unit_proposal_form_get_as_faculty_manager(self):
