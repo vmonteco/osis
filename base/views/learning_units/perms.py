@@ -35,7 +35,7 @@ def can_delete_learning_unit_year(view_func):
     def f_can_delete_learning_unit_year(request, learning_unit_year_id):
         learn_unit_year = get_object_or_404(learning_unit_year.LearningUnitYear, pk=learning_unit_year_id)
         pers = get_object_or_404(person.Person, user=request.user)
-        if not business_perms.can_delete_learning_unit_year(learn_unit_year, pers):
+        if not business_perms.is_eligible_to_delete_learning_unit_year(learn_unit_year, pers):
             raise PermissionDenied
         return view_func(request, learning_unit_year_id)
     return f_can_delete_learning_unit_year
