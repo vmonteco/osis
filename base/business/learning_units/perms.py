@@ -23,6 +23,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from base.models import proposal_learning_unit
 from base.models.academic_year import current_academic_year, MAX_ACADEMIC_YEAR_FACULTY, MAX_ACADEMIC_YEAR_CENTRAL
 from base.models.entity import Entity
 from base.models.enums import learning_container_year_types
@@ -177,7 +178,7 @@ def is_learning_unit_year_a_partim(learning_unit_year, _):
 
 
 def is_learning_unit_year_in_proposal(learning_unit_year, _):
-    return learning_unit_year.learning_unit.has_proposal()
+    return proposal_learning_unit.is_learning_unit_year_in_proposal(learning_unit_year)
 
 
 def is_academic_year_in_range_to_create_partim(learning_unit_year, person):
