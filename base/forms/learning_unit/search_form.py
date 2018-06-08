@@ -93,6 +93,8 @@ class LearningUnitSearchForm(BaseSearchForm):
     )
 
     with_entity_subordinated = forms.BooleanField(label=_('with_entity_subordinated_small'))
+    with_entity_subordinated_allocation = forms.BooleanField(label=_('with_entity_subordinated_small'))
+
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -143,21 +145,22 @@ class LearningUnitYearForm(LearningUnitSearchForm):
 
         if self.borrowed_course_search:
             self.fields["with_entity_subordinated"].initial = True
+            self.fields["with_entity_subordinated_allocation"].initial = True
             self.fields["academic_year_id"].required = True
             self.fields["academic_year_id"].empty_label = None
 
     def clean_acronym(self):
-        data_cleaned = self.cleaned_data.get('acronym')
-        data_cleaned = treat_empty_or_str_none_as_none(data_cleaned)
-        if data_cleaned and learning_unit_year.check_if_acronym_regex_is_valid(data_cleaned) is None:
+        acronym = self.cleaned_data.get('acronym')
+        acronym = treat_empty_or_str_none_as_none(acronym)
+        if acronym and learning_unit_year.check_if_acronym_regex_is_valid(acronym) is None:
             raise ValidationError(_('LU_ERRORS_INVALID_REGEX_SYNTAX'))
-        return data_cleaned
+        return acronym
 
     def clean_allocation_entity_acronym(self):
-        data_cleaned = self.cleaned_data.get('allocation_entity_acronym')
-        if data_cleaned:
-            return data_cleaned.upper()
-        return data_cleaned
+        allocation_entity_acronym = self.cleaned_data.get('allocation_entity_acronym')
+        if allocation_entity_acronym:
+            return allocation_entity_acronym.upper()
+        return allocation_entity_acronym
 
     def clean(self):
         return get_clean_data(self.cleaned_data)
@@ -168,23 +171,34 @@ class LearningUnitYearForm(LearningUnitSearchForm):
         else:
             return self.get_learning_units()
 
+    def _get_service_course_learning_units(self):
+        service_courses = []
+
+        for learning_unit in self.get_learning_units(True):
+            if not learning_unit.entities.get(SERVICE_COURSE):
+                continue
+
+            service_courses.append(learning_unit)
+
+        return service_courses
+
     def get_learning_units(self, service_course_search=None, requirement_entities=None, luy_status=None):
         service_course_search = service_course_search or self.service_course_search
-        clean_data = self.cleaned_data
-        clean_data['status'] = self._set_status(luy_status)
+        search_criterias = self.cleaned_data.copy()
+        search_criterias['status'] = self._set_status(luy_status)
 
         if requirement_entities:
-            clean_data['requirement_entities'] = requirement_entities
+            search_criterias['requirement_entities'] = requirement_entities
 
         # TODO Use a queryset instead !!
-        clean_data['learning_container_year_id'] = get_filter_learning_container_ids(clean_data)
+        search_criterias['learning_container_year_id'] = get_filter_learning_container_ids(search_criterias)
 
         if not service_course_search \
-                and clean_data \
-                and mdl.learning_unit_year.count_search_results(**clean_data) > LearningUnitSearchForm.MAX_RECORDS:
+                and search_criterias \
+                and mdl.learning_unit_year.count_search_results(**search_criterias) > LearningUnitSearchForm.MAX_RECORDS:
             raise TooManyResultsException
 
-        learning_units = mdl.learning_unit_year.search(**clean_data) \
+        learning_units = mdl.learning_unit_year.search(**search_criterias) \
             .select_related('academic_year', 'learning_container_year', 'learning_container_year__academic_year') \
             .prefetch_related(build_entity_container_prefetch()) \
             .order_by('academic_year__year', 'acronym')
@@ -197,17 +211,6 @@ class LearningUnitYearForm(LearningUnitSearchForm):
 
     def _set_status(self, luy_status):
         return convert_status_bool(luy_status) if luy_status else self.cleaned_data['status']
-
-    def _get_service_course_learning_units(self):
-        service_courses = []
-
-        for learning_unit in self.get_learning_units(True):
-            if not learning_unit.entities.get(SERVICE_COURSE):
-                continue
-
-            service_courses.append(learning_unit)
-
-        return service_courses
 
     def _filter_borrowed_learning_units(self, learning_units):
         try:
@@ -223,6 +226,7 @@ def get_filter_learning_container_ids(filter_data):
     requirement_entity_acronym = filter_data.get('requirement_entity_acronym')
     allocation_entity_acronym = filter_data.get('allocation_entity_acronym')
     with_entity_subordinated = filter_data.get('with_entity_subordinated', False)
+    with_entity_subordinated_allocation = filter_data.get('with_entity_subordinated_allocation', False)
     entities_id_list_requirement = []
     entities_id_list_allocation = []
 
@@ -232,7 +236,7 @@ def get_filter_learning_container_ids(filter_data):
                                                                   entity_container_year_link_type.REQUIREMENT_ENTITY)
 
     if allocation_entity_acronym:
-        entity_ids = get_entities_ids(allocation_entity_acronym, with_entity_subordinated)
+        entity_ids = get_entities_ids(allocation_entity_acronym, with_entity_subordinated_allocation)
         entities_id_list_allocation += get_entity_container_list(entity_ids,
                                                                  entity_container_year_link_type.ALLOCATION_ENTITY)
 
