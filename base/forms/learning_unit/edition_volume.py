@@ -105,41 +105,6 @@ class VolumeEditionForm(forms.Form):
                        self.additional_requirement_entity_2_key]
         return [self.fields[key] for key in entity_keys if key in self.fields]
 
-    def clean(self):
-        cleaned_data = super().clean().copy()
-
-        self._check_tot_annual_equal_to_q1_q2(cleaned_data)
-        self._check_tot_req_entities_equal_to_tot_annual_mult_cp(cleaned_data)
-        self._check_tot_req_entities_equal_to_vol_req_entity(cleaned_data)
-
-    def _check_tot_annual_equal_to_q1_q2(self, cleaned_data):
-        total_annual = cleaned_data.get('volume_total', 0)
-        q1 = cleaned_data.get('volume_q1', 0)
-        q2 = cleaned_data.get('volume_q2', 0)
-
-        if total_annual != (q1 + q2):
-            self.add_error("volume_total", _('vol_tot_not_equal_to_q1_q2'))
-
-    def _check_tot_req_entities_equal_to_vol_req_entity(self, cleaned_data):
-        requirement_entity = cleaned_data.get(self.requirement_entity_key, 0)
-        # Optional fields
-        additional_requirement_entity_1 = cleaned_data.get(self.additional_requirement_entity_1_key, 0)
-        additional_requirement_entity_2 = cleaned_data.get(self.additional_requirement_entity_2_key, 0)
-        total = requirement_entity + additional_requirement_entity_1 + additional_requirement_entity_2
-
-        if cleaned_data.get('volume_total_requirement_entities') != total:
-            error_msg = ' + '.join([self.entities.get(t).acronym for t in ENTITY_TYPES_VOLUME if self.entities.get(t)])
-            error_msg += ' = {}'.format(_('vol_global'))
-            self.add_error("volume_total_requirement_entities", error_msg)
-
-    def _check_tot_req_entities_equal_to_tot_annual_mult_cp(self, cleaned_data):
-        total_annual = cleaned_data.get('volume_total', 0)
-        cp = cleaned_data.get('planned_classes', 0)
-        total_requirement_entities = cleaned_data.get('volume_total_requirement_entities', 0)
-
-        if total_requirement_entities != (total_annual * cp):
-            self.add_error('volume_total_requirement_entities', _('vol_tot_req_entities_not_equal_to_vol_tot_mult_cp'))
-
     def validate_parent_partim_component(self, parent_data):
         self._parent_data = parent_data
 
