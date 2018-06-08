@@ -166,21 +166,11 @@ class LearningUnitYearForm(LearningUnitSearchForm):
         return get_clean_data(self.cleaned_data)
 
     def get_activity_learning_units(self):
-        if self.service_course_search:
-            return self._get_service_course_learning_units()
-        else:
-            return self.get_learning_units()
+        return self._get_service_course_learning_units() if self.service_course_search else self.get_learning_units()
 
     def _get_service_course_learning_units(self):
-        service_courses = []
-
-        for learning_unit in self.get_learning_units(True):
-            if not learning_unit.entities.get(SERVICE_COURSE):
-                continue
-
-            service_courses.append(learning_unit)
-
-        return service_courses
+        learning_units = self.get_learning_units(service_course_search=True)
+        return [lu for lu in learning_units if lu.entities.get(SERVICE_COURSE)]
 
     def get_learning_units(self, service_course_search=None, requirement_entities=None, luy_status=None):
         service_course_search = service_course_search or self.service_course_search
@@ -195,7 +185,7 @@ class LearningUnitYearForm(LearningUnitSearchForm):
 
         if not service_course_search \
                 and search_criterias \
-                and mdl.learning_unit_year.count_search_results(**search_criterias) > LearningUnitSearchForm.MAX_RECORDS:
+                and mdl.learning_unit_year.count_search_results(**search_criterias) > self.MAX_RECORDS:
             raise TooManyResultsException
 
         learning_units = mdl.learning_unit_year.search(**search_criterias) \
