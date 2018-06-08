@@ -2454,11 +2454,8 @@ msgstr "Entité académique"
 msgid "folder_number"
 msgstr "Dossier n°{}"
 
-msgid "produce_xls"
-msgstr "Produire un excel avec la liste des résultats"
-
-msgid "produce_xls_lu"
-msgstr "Xls avec les activités"
+msgid "produce_xls_lus"
+msgstr "Les unités d'enseignement"
 
 msgid "%(date)s must be set within %(start_date)s and %(end_date)s"
 msgstr "%(date)s doit être comprise entre %(start_date)s et %(end_date)s"
@@ -2865,7 +2862,7 @@ msgid "start_year"
 msgstr "Début"
 
 msgid "produce_xls_attributions"
-msgstr "Xls avec les activités et les attributions"
+msgstr "Les unités d'enseignement et les attributions"
 
 msgid "produce_xls_proposals"
 msgstr "Xls avec les propositions"
@@ -2992,3 +2989,12 @@ msgstr "Désolé mais vous ne pouvez pas supprimer le terme d'une offre"
 
 msgid "Do you want to remove the term?"
 msgstr "Voulez-vous supprimer le terme ?"
+
+msgid "Export"
+msgstr "Exporter"
+
+msgid "produce_xls_lus_desc"
+msgstr "Produire un fichier Excel avec la liste des unités d'enseignement"
+
+msgid "produce_xls_attributions_desc"
+msgstr "Produire un fichier Excel avec la liste des unités d'enseignement et les attributions"
