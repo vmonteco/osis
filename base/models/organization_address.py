@@ -25,7 +25,7 @@
 ##############################################################################
 from django.db import models
 
-from base.models.osis_model_admin import OsisModelAdmin
+from osis_common.models.osis_model_admin import OsisModelAdmin
 
 
 class OrganizationAddressAdmin(OsisModelAdmin):

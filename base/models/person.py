@@ -48,10 +48,6 @@ class PersonAdmin(SerializableModelAdmin):
     list_display = ('get_first_name', 'middle_name', 'last_name', 'username', 'email', 'gender', 'global_id',
                     'changed', 'source', 'employee')
     search_fields = ['first_name', 'middle_name', 'last_name', 'user__username', 'email', 'global_id']
-    fieldsets = ((None, {'fields': ('user', 'global_id', 'gender', 'first_name',
-                                    'middle_name', 'last_name', 'birth_date', 'email', 'phone',
-                                    'phone_mobile', 'language', 'employee')}),)
-    raw_id_fields = ('user',)
     list_filter = ('gender', 'language')
 
 

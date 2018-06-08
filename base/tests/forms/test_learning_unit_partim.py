@@ -37,12 +37,13 @@ from base.forms.learning_unit.learning_unit_create import LearningUnitYearModelF
 from base.forms.learning_unit.learning_unit_partim import PARTIM_FORM_READ_ONLY_FIELD, PartimForm, \
     LearningUnitPartimModelForm
 from base.forms.utils import acronym_field
-from base.models.enums import learning_unit_year_subtypes
+from base.models.enums import learning_unit_year_subtypes, organization_type
 from base.models.enums.learning_unit_periodicity import ANNUAL, BIENNIAL_EVEN
 from base.models.learning_unit import LearningUnit
 from base.models.learning_unit_year import LearningUnitYear
 from base.tests.factories.academic_year import create_current_academic_year
 from base.tests.factories.business.learning_units import GenerateContainer, GenerateAcademicYear
+from base.tests.factories.campus import CampusFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from base.tests.factories.person import PersonFactory
 
@@ -155,7 +156,7 @@ class TestPartimFormInit(LearningUnitPartimFormContextMixin):
         expected_disabled_fields = {
             'common_title', 'common_title_english',
             'requirement_entity', 'allocation_entity',
-            'periodicity', 'campus', 'academic_year',
+            'periodicity', 'academic_year',
             'container_type', 'internship_subtype',
             'additional_requirement_entity_1', 'additional_requirement_entity_2'
         }
@@ -368,7 +369,7 @@ class TestPartimFormSave(LearningUnitPartimFormContextMixin):
             academic_year=self.learning_unit_year_full.academic_year,
             post_data=post_data, instance=None
         )
-        self.assertTrue(form.is_valid())
+        self.assertTrue(form.is_valid(), form.errors)
         form.save()
 
         # Check all related object is created
@@ -454,6 +455,7 @@ def get_valid_form_data(learning_unit_year_partim):
         'quadrimester': learning_unit_year_partim.quadrimester,
         'status': learning_unit_year_partim.status,
         'language': learning_unit_year_partim.language.id,
+        'campus': CampusFactory(name='Louvain-la-Neuve', organization__type=organization_type.MAIN).pk,
 
         # Learning unit data model form
         'periodicity': learning_unit_year_partim.learning_unit.periodicity,

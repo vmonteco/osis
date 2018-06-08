@@ -28,7 +28,7 @@ from django.db import models
 
 from base.models.abstracts.abstract_calendar import AbstractCalendar
 from base.models.academic_year import current_academic_year
-from base.models.osis_model_admin import OsisModelAdmin
+from osis_common.models.osis_model_admin import OsisModelAdmin
 
 
 class EntityCalendarAdmin(OsisModelAdmin):

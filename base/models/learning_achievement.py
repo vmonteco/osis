@@ -34,10 +34,8 @@ from django.core.exceptions import ObjectDoesNotExist
 
 class LearningAchievementAdmin(OrderedModelAdmin):
     list_display = ('learning_unit_year', 'code_name', 'order', 'move_up_down_links', 'language')
-    fieldsets = ((None, {'fields': ('learning_unit_year', 'code_name', 'order', 'text', 'language')}),)
     readonly_fields = ['order']
     search_fields = ['learning_unit_year__acronym', 'code_name', 'order']
-    raw_id_fields = ('learning_unit_year', 'language')
 
 
 class LearningAchievement(OrderedModel):

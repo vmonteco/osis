@@ -59,13 +59,7 @@ def academic_year_validator(value):
 class LearningUnitYearAdmin(SerializableModelAdmin):
     list_display = ('external_id', 'acronym', 'specific_title', 'academic_year', 'credits', 'changed', 'structure',
                     'status')
-    fieldsets = ((None, {'fields': ('academic_year', 'learning_unit', 'learning_container_year', 'acronym',
-                                    'specific_title', 'specific_title_english', 'subtype', 'credits', 'decimal_scores',
-                                    'structure', 'internship_subtype', 'status', 'session',
-                                    'quadrimester', 'attribution_procedure', 'summary_locked',
-                                    'professional_integration', 'campus', 'language')}),)
     list_filter = ('academic_year', 'decimal_scores', 'summary_locked')
-    raw_id_fields = ('learning_unit', 'learning_container_year', 'structure', 'campus', 'language')
     search_fields = ['acronym', 'structure__acronym', 'external_id']
 
 

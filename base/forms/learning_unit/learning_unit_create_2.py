@@ -45,8 +45,17 @@ from reference.models import language
 FULL_READ_ONLY_FIELDS = {"acronym", "academic_year", "container_type"}
 FULL_PROPOSAL_READ_ONLY_FIELDS = {"academic_year", "container_type", "professional_integration"}
 
-FACULTY_OPEN_FIELDS = {'quadrimester', 'session', 'team', "faculty_remark", "other_remark", 'common_title_english',
-                       'specific_title_english', "status", "professional_integration"}
+FACULTY_OPEN_FIELDS = {
+    'quadrimester',
+    'session',
+    'team',
+    "faculty_remark",
+    "other_remark",
+    'common_title_english',
+    'specific_title_english',
+    "status",
+    "professional_integration"
+}
 
 
 class LearningUnitBaseForm(metaclass=ABCMeta):

@@ -114,7 +114,7 @@ def _append_components(learning_unit):
             vol_add_req_entity_1 = req_entities_volumes.get(entity_types.ADDITIONAL_REQUIREMENT_ENTITY_1, 0) or 0
             vol_add_req_entity_2 = req_entities_volumes.get(entity_types.ADDITIONAL_REQUIREMENT_ENTITY_2, 0) or 0
             volume_global = vol_req_entity + vol_add_req_entity_1 + vol_add_req_entity_2
-            planned_classes = component.planned_classes or 1
+            planned_classes = component.planned_classes or 0
 
             learning_unit.components[component] = {
                 'VOLUME_TOTAL': to_float_or_zero(component.hourly_volume_total_annual),
