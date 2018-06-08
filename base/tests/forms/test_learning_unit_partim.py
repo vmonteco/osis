@@ -131,7 +131,8 @@ class TestPartimFormInit(LearningUnitPartimFormContextMixin):
                 'status': self.learning_unit_year_full.status,
                 'specific_title': self.learning_unit_year_full.specific_title,
                 'specific_title_english': self.learning_unit_year_full.specific_title_english,
-                'language': self.learning_unit_year_full.language
+                'language': self.learning_unit_year_full.language,
+                'campus': self.learning_unit_year_full.campus
             }
         }
         partim_form = _instanciate_form(learning_unit_full=self.learning_unit_year_full.learning_unit,

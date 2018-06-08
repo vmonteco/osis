@@ -40,7 +40,6 @@ from base.models.enums import learning_unit_year_subtypes, internship_subtypes, 
     learning_unit_year_session, entity_container_year_link_type, learning_unit_year_quadrimesters, attribution_procedure
 from base.models.enums.learning_container_year_types import COURSE, INTERNSHIP
 from base.models.learning_unit import LEARNING_UNIT_ACRONYM_REGEX_ALL, REGEX_BY_SUBTYPE
-from base.models.proposal_learning_unit import ProposalLearningUnit
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
 
 AUTHORIZED_REGEX_CHARS = "$*+.^"
@@ -70,6 +69,7 @@ class LearningUnitYearWithContainerManager(models.Manager):
 
 
 class LearningUnitYear(SerializableModel):
+    existing_proposal_in_epc = models.BooleanField(default=False)
     external_id = models.CharField(max_length=100, blank=True, null=True)
     academic_year = models.ForeignKey(AcademicYear,  verbose_name=_('academic_year'),
                                       validators=[academic_year_validator])
@@ -198,9 +198,6 @@ class LearningUnitYear(SerializableModel):
         return _('to_complete') if self.learning_container_year and \
                                    self.learning_container_year.container_type == INTERNSHIP and \
                                    not self.internship_subtype else self.internship_subtype
-
-    def is_in_proposal(self):
-        return ProposalLearningUnit.objects.filter(learning_unit_year=self).exists()
 
     def find_gte_learning_units_year(self):
         return LearningUnitYear.objects.filter(learning_unit=self.learning_unit,

@@ -23,6 +23,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from base.models import proposal_learning_unit
 from base.models.academic_year import current_academic_year, MAX_ACADEMIC_YEAR_FACULTY, MAX_ACADEMIC_YEAR_CENTRAL
 from base.models.entity import Entity
 from base.models.enums import learning_container_year_types
@@ -47,8 +48,13 @@ def is_person_linked_to_entity_in_charge_of_learning_unit(learning_unit_year, pe
     return is_attached_entities(person, entity)
 
 
+def _any_existing_proposal_in_epc(learning_unit_year, _):
+    return not learning_unit_year.existing_proposal_in_epc
+
+
 def is_eligible_for_modification(learning_unit_year, person):
     return _conjunction(
+        _any_existing_proposal_in_epc,
         _is_learning_unit_year_in_range_to_be_modified,
         is_person_linked_to_entity_in_charge_of_learning_unit
     )(learning_unit_year, person)
@@ -56,6 +62,7 @@ def is_eligible_for_modification(learning_unit_year, person):
 
 def is_eligible_for_modification_end_date(learning_unit_year, person):
     return _conjunction(
+        _any_existing_proposal_in_epc,
         _negation(is_learning_unit_year_in_past),
         is_eligible_for_modification,
         _is_person_eligible_to_modify_end_date_based_on_container_type
@@ -64,6 +71,7 @@ def is_eligible_for_modification_end_date(learning_unit_year, person):
 
 def is_eligible_to_create_partim(learning_unit_year, person):
     return _conjunction(
+        _any_existing_proposal_in_epc,
         is_person_linked_to_entity_in_charge_of_learning_unit,
         is_academic_year_in_range_to_create_partim,
         is_learning_unit_year_full
@@ -72,6 +80,7 @@ def is_eligible_to_create_partim(learning_unit_year, person):
 
 def is_eligible_to_create_modification_proposal(learning_unit_year, person):
     return _conjunction(
+        _any_existing_proposal_in_epc,
         _negation(is_learning_unit_year_in_past),
         _negation(is_learning_unit_year_a_partim),
         _is_container_type_course_dissertation_or_internship,
@@ -177,7 +186,7 @@ def is_learning_unit_year_a_partim(learning_unit_year, _):
 
 
 def is_learning_unit_year_in_proposal(learning_unit_year, _):
-    return learning_unit_year.learning_unit.has_proposal()
+    return proposal_learning_unit.is_learning_unit_in_proposal(learning_unit_year.learning_unit)
 
 
 def is_academic_year_in_range_to_create_partim(learning_unit_year, person):
