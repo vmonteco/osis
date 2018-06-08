@@ -88,7 +88,7 @@ class LearningComponentYear(SerializableModel):
     def _check_volumes_consistency(self):
         _warnings = []
 
-        vol_total_global = self.entitycomponentyear_set.aggregate(Sum('repartition_volume'))['repartition_volume__sum'] \
+        vol_total_global = self.entitycomponentyear_set.aggregate(Sum('repartition_volume'))['repartition_volume__sum']\
                            or 0
         vol_total_annual = self.hourly_volume_total_annual or 0
         vol_q1 = self.hourly_volume_partial_q1 or 0
