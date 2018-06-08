@@ -2452,11 +2452,8 @@ msgstr "Academic entity"
 msgid "folder_number"
 msgstr "Folder n°{}"
 
-msgid "produce_xls"
-msgstr "Produce an Excel file with the list of results"
-
-msgid "produce_xls_lu"
-msgstr "Xls with learning units"
+msgid "produce_xls_lus"
+msgstr "The learning units"
 
 msgid "%(date)s must be set within %(start_date)s and %(end_date)s"
 msgstr ""
@@ -2863,7 +2860,7 @@ msgid "start_year"
 msgstr "Starting year"
 
 msgid "produce_xls_attributions"
-msgstr "Xls with learning units and attributions"
+msgstr "The learning units and attributions"
 
 msgid "produce_xls_proposals"
 msgstr "Xls with proposals"
@@ -2993,3 +2990,12 @@ msgstr "Sorry but you can not remove the term of an offer"
 
 msgid "Do you want to remove the term?"
 msgstr "Do you want to remove the term?"
+
+msgid "Export"
+msgstr ""
+
+msgid "produce_xls_lus_desc"
+msgstr "Produce xls with a list of learning units"
+
+msgid "produce_xls_attributions_desc"
+msgstr "Produce xls with a list of learning units and attributions"
