@@ -125,9 +125,10 @@ def can_update_learning_achievement(learning_unit_year, person):
 
 
 def is_eligible_to_delete_learning_unit_year(learning_unit_year, person):
-    if not _can_delete_learning_unit_year_according_type(learning_unit_year, person):
-        return False
-    return person.is_linked_to_entity_in_charge_of_learning_unit_year(learning_unit_year)
+    return _conjunction(
+        _any_existing_proposal_in_epc,
+        _can_delete_learning_unit_year_according_type
+    )(learning_unit_year, person) and person.is_linked_to_entity_in_charge_of_learning_unit_year(learning_unit_year)
 
 
 def _is_person_eligible_to_edit_proposal_based_on_state(proposal, person):
