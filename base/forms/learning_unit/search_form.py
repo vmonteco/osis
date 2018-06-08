@@ -95,7 +95,6 @@ class LearningUnitSearchForm(BaseSearchForm):
     with_entity_subordinated = forms.BooleanField(label=_('with_entity_subordinated_small'))
     with_entity_subordinated_allocation = forms.BooleanField(label=_('with_entity_subordinated_small'))
 
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['academic_year_id'].initial = current_academic_year()
