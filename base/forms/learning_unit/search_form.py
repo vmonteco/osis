@@ -93,7 +93,6 @@ class LearningUnitSearchForm(BaseSearchForm):
     )
 
     with_entity_subordinated = forms.BooleanField(label=_('with_entity_subordinated_small'))
-    with_entity_subordinated_allocation = forms.BooleanField(label=_('with_entity_subordinated_small'))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -144,7 +143,6 @@ class LearningUnitYearForm(LearningUnitSearchForm):
 
         if self.borrowed_course_search:
             self.fields["with_entity_subordinated"].initial = True
-            self.fields["with_entity_subordinated_allocation"].initial = True
             self.fields["academic_year_id"].required = True
             self.fields["academic_year_id"].empty_label = None
 
@@ -215,7 +213,6 @@ def get_filter_learning_container_ids(filter_data):
     requirement_entity_acronym = filter_data.get('requirement_entity_acronym')
     allocation_entity_acronym = filter_data.get('allocation_entity_acronym')
     with_entity_subordinated = filter_data.get('with_entity_subordinated', False)
-    with_entity_subordinated_allocation = filter_data.get('with_entity_subordinated_allocation', False)
     entities_id_list_requirement = []
     entities_id_list_allocation = []
 
@@ -225,7 +222,7 @@ def get_filter_learning_container_ids(filter_data):
                                                                   entity_container_year_link_type.REQUIREMENT_ENTITY)
 
     if allocation_entity_acronym:
-        entity_ids = get_entities_ids(allocation_entity_acronym, with_entity_subordinated_allocation)
+        entity_ids = get_entities_ids(allocation_entity_acronym, with_entity_subordinated)
         entities_id_list_allocation += get_entity_container_list(entity_ids,
                                                                  entity_container_year_link_type.ALLOCATION_ENTITY)
 
