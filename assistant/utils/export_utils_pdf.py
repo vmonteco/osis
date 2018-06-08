@@ -26,9 +26,15 @@
 import time
 import datetime
 from io import BytesIO
-from django.contrib.auth.decorators import user_passes_test
+
+from django.contrib.auth.decorators import user_passes_test, login_required
 from django.http import HttpResponse
 from django.db.models.query import QuerySet
+from django.shortcuts import redirect
+from django.utils.translation import ugettext_lazy as _
+from django.utils import timezone
+from django.views.decorators.http import require_http_methods
+
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.enums import TA_JUSTIFY, TA_LEFT
 from reportlab.platypus import SimpleDocTemplate, Paragraph, PageBreak, Table, TableStyle
@@ -39,11 +45,12 @@ from reportlab.lib.units import mm
 from reportlab.lib import colors
 from reportlab.lib.colors import black, HexColor
 from reportlab.graphics.charts.legends import Legend
-from django.utils.translation import ugettext_lazy as _
-from django.utils import timezone
+
 from base.models.entity import find_versions_from_entites
-from base.models import academic_year, entity_version
-from assistant.utils import manager_access
+from base.models import academic_year, entity_version, person
+
+from assistant.utils import assistant_access, manager_access
+from assistant.models import manager
 from assistant.models import assistant_mandate, review, tutoring_learning_unit_year
 from assistant.models.enums import review_status, assistant_type
 
@@ -61,11 +68,23 @@ def add_header_footer(canvas, doc):
     canvas.restoreState()
 
 
-@user_passes_test(manager_access.user_is_manager, login_url='assistants_home')
-def export_mandates(mandates=None):
-    if not isinstance(mandates, QuerySet):
+@require_http_methods(["POST"])
+@user_passes_test(assistant_access.user_is_assistant_and_procedure_is_open, login_url='access_denied')
+def export_mandate(request):
+    mandate_id = request.POST.get("mandate_id")
+    mandate = assistant_mandate.find_mandate_by_id(mandate_id)
+    return export_mandates(request, mandates=[mandate])
+
+
+@login_required
+def export_mandates(request, mandates=None):
+    global YEAR
+    if mandates is None:
+        if not manager_access.user_is_manager(request.user):
+            return redirect('access_denied')
         mandates = assistant_mandate.find_by_academic_year_by_excluding_declined(academic_year.current_academic_year())
-    filename = ('%s_%s.pdf' % (_('assistants_mandates'), time.strftime("%Y%m%d_%H%M")))
+    YEAR = mandates[0].academic_year
+    filename = ('%s_%s_%s.pdf' % (_('assistants_mandates'), YEAR, time.strftime("%Y%m%d_%H%M")))
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="%s"' % filename
     buffer = BytesIO()
@@ -78,16 +97,21 @@ def export_mandates(mandates=None):
                               firstLineIndent=0, alignment=TA_JUSTIFY, spaceBefore=25, spaceAfter=5, splitLongWords=1,
                               borderColor='#000000', borderWidth=1, borderPadding=10,))
     content = []
+    if manager_access.user_is_manager(request.user):
+        show_reviews = True
+    else:
+        show_reviews = False
     for mandate in mandates:
-        add_mandate_content(content, mandate, styles)
-    doc.build(content, onFirstPage=add_header_footer, onLaterPages=add_header_footer)
+        add_mandate_content(content, mandate, styles, show_reviews)
+    doc.build(content, onFirstPage=add_header_footer,
+              onLaterPages=add_header_footer)
     pdf = buffer.getvalue()
     buffer.close()
     response.write(pdf)
     return response
 
 
-def add_mandate_content(content, mandate, styles):
+def add_mandate_content(content, mandate, styles, show_reviews):
     content.append(create_paragraph(str(mandate.assistant.person), get_administrative_data(mandate),
                                     styles['StandardWithBorder']))
     content.append(create_paragraph("%s" % (_('entities')), get_entities(mandate), styles['StandardWithBorder']))
@@ -115,9 +139,10 @@ def add_mandate_content(content, mandate, styles):
     content.append(create_paragraph("%s" % (_('summary')), get_summary(mandate), styles['StandardWithBorder']))
     content += [draw_time_repartition(mandate)]
     content.append(PageBreak())
-    content.append(create_paragraph("%s<br />" % (_('reviews')), '', styles["BodyText"]))
-    write_table(content, get_reviews_for_mandate(mandate, styles['Tiny']), COLS_WIDTH_FOR_REVIEWS)
-    content.append(PageBreak())
+    if show_reviews:
+        content.append(create_paragraph("%s<br />" % (_('reviews')), '', styles["BodyText"]))
+        write_table(content, get_reviews_for_mandate(mandate, styles['Tiny']), COLS_WIDTH_FOR_REVIEWS)
+        content.append(PageBreak())
 
 
 def format_data(data, title):
@@ -353,7 +378,7 @@ def add_data_and_titles_to_pie(pie, titles, data, title):
 
 def header_building(canvas, doc):
     canvas.line(doc.leftMargin, 790, doc.width+doc.leftMargin, 790)
-    canvas.drawString(80, 800, "%s %s" % (_('assistant_mandates_renewals'), academic_year.current_academic_year()))
+    canvas.drawString(80, 800, "%s %s" % (_('assistant_mandates_renewals'), YEAR))
 
 
 def footer_building(canvas, doc, styles):
