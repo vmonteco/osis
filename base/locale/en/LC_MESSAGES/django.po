@@ -2248,7 +2248,7 @@ msgstr ""
 msgid "Delete from this academic year"
 msgstr ""
 
-msgid "Delete all the learning unit"
+msgid "Delete the learning unit for all academic years"
 msgstr ""
 
 msgid "publish_attribution_to_portal"
@@ -2461,13 +2461,13 @@ msgstr "Xls with learning units"
 msgid "%(date)s must be set within %(start_date)s and %(end_date)s"
 msgstr ""
 
-msgid "cancel_proposal"
-msgstr "Cancel proposal"
+msgid "Cancel the proposal"
+msgstr ""
 
-msgid "edit_proposal"
-msgstr "Edit proposal"
+msgid "Edit the proposal"
+msgstr ""
 
-msgid "Consolidate proposal"
+msgid "Consolidate the proposal"
 msgstr ""
 
 msgid "msg_confirm_cancel_proposal"
@@ -2503,11 +2503,14 @@ msgstr "Substitute"
 msgid "not_end_year"
 msgstr "no planned end"
 
-msgid "edit_learning_unit_end_date"
-msgstr "Edit learning unit end date"
+msgid "Modify"
+msgstr ""
 
-msgid "new_partim"
-msgstr "Create a new partim"
+msgid "Edit learning unit end date"
+msgstr ""
+
+msgid "Modify end date"
+msgstr ""
 
 msgid "learning_unit_successfuly_created"
 msgstr "Learning unit <a href='%(link)s'> %(acronym)s (%(academic_year)s) </a> successfuly created."
@@ -2554,8 +2557,8 @@ msgstr "Ensure this value is greater than %(limit_value)s."
 msgid "Entity_not_exist"
 msgstr "The entity %(entity_acronym)s does not exist for the selected academic year %(academic_year)s"
 
-msgid "edit_learning_unit"
-msgstr "Edit learning unit"
+msgid "Edit the learning unit"
+msgstr ""
 
 msgid "requirement_entity_end_date_too_short"
 msgstr "The requirement entity lifetime is too short."
