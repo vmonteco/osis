@@ -199,6 +199,10 @@ class LearningUnitYear(SerializableModel):
                                    self.learning_container_year.container_type == INTERNSHIP and \
                                    not self.internship_subtype else self.internship_subtype
 
+    @property
+    def get_previous_acronym(self):
+        return find_lt_learning_unit_year_with_different_acronym(self)
+
     def find_gte_learning_units_year(self):
         return LearningUnitYear.objects.filter(learning_unit=self.learning_unit,
                                                academic_year__year__gte=self.academic_year.year) \
@@ -422,3 +426,9 @@ def find_by_entities(entities):
 
 def find_latest_by_learning_unit(a_learning_unit):
     return search(learning_unit=a_learning_unit).order_by('academic_year').last()
+
+
+def find_lt_learning_unit_year_with_different_acronym(a_learning_unit_yr):
+    return LearningUnitYear.objects.filter(learning_unit=a_learning_unit_yr.learning_unit,
+                                           academic_year__year__lt=a_learning_unit_yr.academic_year.year) \
+        .exclude(acronym__iexact=a_learning_unit_yr.acronym).order_by('-academic_year__year').first()
