@@ -15,7 +15,7 @@
 #
 #    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #    GNU General Public License for more details.
 #
 #    A copy of this license - GNU General Public License - is available
@@ -23,22 +23,15 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import factory
-import factory.fuzzy
-import string
-import operator
-from base.models.enums import component_type
-from base.tests.factories.learning_unit_year import LearningUnitYearFactory
-from base.tests.factories.learning_component_year import LearningComponentYearFactory
-from factory.django import DjangoModelFactory
+from django.test import SimpleTestCase
+
+from base.forms.search.search_tutor import TutorSearchForm
 
 
-class LearningUnitComponentFactory(DjangoModelFactory):
-    class Meta:
-        model = "base.LearningUnitComponent"
+class TestSearchTutor(SimpleTestCase):
+    def test_form_fields(self):
+        FORM_FIELDS = ("name", )
+        form = TutorSearchForm()
 
-    external_id = factory.fuzzy.FuzzyText(length=10, chars=string.digits)
-
-    learning_unit_year = factory.SubFactory(LearningUnitYearFactory)
-    learning_component_year = factory.SubFactory(LearningComponentYearFactory)
-    type = factory.Iterator(component_type.COMPONENT_TYPES, getter=operator.itemgetter(0))
+        self.assertCountEqual(FORM_FIELDS,
+                              list(form.fields.keys()))

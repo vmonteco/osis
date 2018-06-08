@@ -396,7 +396,7 @@ class LearningUnitEditionTestCase(TestCase):
         self.assertIsInstance(error_list, list)
         self.assertFalse(error_list)
 
-    def test_check_postponement_conflict_on_volumes_case_additional_entity_lecturing_diff(self):
+    def test_check_postponement_conflict_on_volumes_multiples_differences(self):
         # Copy the same container + change academic year
         another_learning_container_year = _build_copy(self.learning_container_year)
         another_learning_container_year.academic_year = self.next_academic_year
@@ -408,11 +408,18 @@ class LearningUnitEditionTestCase(TestCase):
                                                                                 create_lecturing_component=True)
         another_learning_unit_year.learning_unit = self.learning_unit_year.learning_unit
         LearningComponentYear.objects.filter(
+            learningunitcomponent__learning_unit_year=self.learning_unit_year
+        ).update(
+            hourly_volume_total_annual=60,
+            hourly_volume_partial_q1=40,
+            hourly_volume_partial_q2=20
+        )
+        LearningComponentYear.objects.filter(
             learningunitcomponent__learning_unit_year=another_learning_unit_year
         ).update(
-            hourly_volume_total_annual=200,
-            hourly_volume_partial_q1=100,
-            hourly_volume_partial_q2=100
+            hourly_volume_total_annual=50,
+            hourly_volume_partial_q1=35,
+            hourly_volume_partial_q2=15
         )
         another_learning_unit_year.save()
 
@@ -435,18 +442,27 @@ class LearningUnitEditionTestCase(TestCase):
         self.assertIsInstance(error_list, list)
         self.assertEqual(len(error_list), 10)
 
-        error_expected = (_("The value of field '%(field)s' for the learning unit %(acronym)s (%(component_type)s) "
-                           "is different between year %(year)s - %(value)s and year %(next_year)s - %(next_value)s") %
-                          {
-                              'field': _('volume_additional_requirement_entity_1'),
-                              'acronym': another_learning_container_year.acronym,
-                              'component_type': _(learning_component_year_type.LECTURING),
-                              'year': self.learning_container_year.academic_year,
-                              'value': 10.0,
-                              'next_year': another_learning_container_year.academic_year,
-                              'next_value': 20.0,
-                          })
-        self.assertIn(error_expected, error_list)
+        tests_cases = [
+            {'field': 'volume_additional_requirement_entity_1', 'value': 10.0, 'next_value': 20.0},
+            {'field': 'volume_total', 'value': 60.0, 'next_value': 50.0},
+            {'field': 'volume_q1', 'value': 40.0, 'next_value': 35.0},
+            {'field': 'volume_q2', 'value': 20.0, 'next_value': 15.0}
+        ]
+        for test in tests_cases:
+            with self.subTest(test=test):
+                error_expected = (_("The value of field '%(field)s' for the learning unit %(acronym)s "
+                                    "(%(component_type)s) is different between year %(year)s - %(value)s and year "
+                                    "%(next_year)s - %(next_value)s") %
+                                  {
+                                      'field': _(test.get('field')),
+                                      'acronym': another_learning_container_year.acronym,
+                                      'component_type': _(learning_component_year_type.LECTURING),
+                                      'year': self.learning_container_year.academic_year,
+                                      'value': test.get('value'),
+                                      'next_year': another_learning_container_year.academic_year,
+                                      'next_value': test.get('next_value'),
+                                  })
+                self.assertIn(error_expected, error_list)
 
     def test_check_postponement_conflict_on_volumes_case_no_lecturing_component_next_year(self):
         """ The goal of this test is to ensure that there is an error IF the learning unit year on current year have

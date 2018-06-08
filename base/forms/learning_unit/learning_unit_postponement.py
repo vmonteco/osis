@@ -35,6 +35,7 @@ from base.forms.learning_unit.learning_unit_partim import PartimForm
 from base.models import academic_year, learning_unit_year
 from base.models.enums import learning_unit_year_subtypes
 from base.models.learning_unit import LearningUnit
+from base.models.proposal_learning_unit import is_learning_unit_year_in_proposal
 
 FIELDS_TO_NOT_POSTPONE = {
     'is_vacant': 'learning_container_year.is_vacant',
@@ -255,7 +256,7 @@ class LearningUnitPostponementForm:
         return self._warnings
 
     def _check_postponement_proposal_state(self, luy, ac_year):
-        if luy.is_in_proposal():
+        if is_learning_unit_year_in_proposal(luy):
             self.consistency_errors.setdefault(ac_year, []).append(
                 _("learning_unit_in_proposal_cannot_save") % {
                     'luy': luy.acronym, 'academic_year': ac_year

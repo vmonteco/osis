@@ -186,7 +186,8 @@ class PartimForm(LearningUnitBaseForm):
             'status': self.learning_unit_year_full.status,
             'specific_title': self.learning_unit_year_full.specific_title,
             'specific_title_english': self.learning_unit_year_full.specific_title_english,
-            'language': self.learning_unit_year_full.language
+            'language': self.learning_unit_year_full.language,
+            'campus': self.learning_unit_year_full.campus
         }
         acronym_splited = split_acronym(acronym)
         initial_learning_unit_year.update({
