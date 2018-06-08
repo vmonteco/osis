@@ -36,7 +36,7 @@ import base.views.learning_units.proposal.delete
 import base.views.learning_units.search
 import base.views.learning_units.update
 from attribution.views import attribution, tutor_application
-from base.views import learning_achievement
+from base.views import learning_achievement, search
 from base.views import learning_unit, offer, common, institution, organization, academic_calendar, \
     my_osis, entity, student, education_group
 from base.views.learning_units.external import create as create_external
@@ -255,6 +255,10 @@ urlpatterns = [
             url(r'^delete/$', organization.organization_address_delete,
                 name='organization_address_delete')
         ]))
+    ])),
+
+    url(r'^search/', include([
+        url(r'^tutors/$', search.search_tutors, name="search_tutors"),
     ])),
 
     url(r'^studies/$', common.studies, name='studies'),

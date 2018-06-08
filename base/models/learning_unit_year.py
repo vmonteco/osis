@@ -40,7 +40,6 @@ from base.models.enums import learning_unit_year_subtypes, internship_subtypes, 
     learning_unit_year_session, entity_container_year_link_type, learning_unit_year_quadrimesters, attribution_procedure
 from base.models.enums.learning_container_year_types import COURSE, INTERNSHIP
 from base.models.learning_unit import LEARNING_UNIT_ACRONYM_REGEX_ALL, REGEX_BY_SUBTYPE
-from base.models.proposal_learning_unit import ProposalLearningUnit
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
 
 AUTHORIZED_REGEX_CHARS = "$*+.^"
@@ -200,9 +199,6 @@ class LearningUnitYear(SerializableModel):
                                    self.learning_container_year.container_type == INTERNSHIP and \
                                    not self.internship_subtype else self.internship_subtype
 
-    def is_in_proposal(self):
-        return ProposalLearningUnit.objects.filter(learning_unit_year=self).exists()
-
     def find_gte_learning_units_year(self):
         return LearningUnitYear.objects.filter(learning_unit=self.learning_unit,
                                                academic_year__year__gte=self.academic_year.year) \
@@ -343,7 +339,7 @@ def search(academic_year_id=None, acronym=None, learning_container_year_id=None,
 
     if title:
         queryset = queryset.\
-            filter(Q(specific_title__icontains=title) | Q(learning_container_year__common_title__icontains=title))
+            filter(Q(specific_title__iregex=title) | Q(learning_container_year__common_title__iregex=title))
 
     if subtype:
         queryset = queryset.filter(subtype=subtype)

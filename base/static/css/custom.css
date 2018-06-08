@@ -2,6 +2,10 @@ body {
   padding-top: 70px;
 }
 
+#table_learning_units a:visited {
+    color:purple;
+}
+
 .info {
   color:blue;
 }
