@@ -36,7 +36,12 @@
     </li>
     <li id="lnk_learning_unit">{% trans 'New partim' %}</li>
 {% else %}
-    <li id="lnk_learning_unit">{% trans 'new_learning_unit' %}</li>
+    {% if form_proposal %}
+        <li id="lnk_learning_unit">{% trans 'proposal_creation' %}</li>
+    {% else %}
+        <li id="lnk_learning_unit">{% trans 'new_learning_unit' %}</li>
+    {% endif %}
+
 {% endif %}
 {% endblock %}
 
