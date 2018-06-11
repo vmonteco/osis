@@ -79,7 +79,13 @@ def assert_category_of_education_group_year(education_group_year, authorized_cat
 def create_xls(user, found_education_groups_param, filters, order_data):
     found_education_groups = ordering_data(found_education_groups_param, order_data)
     working_sheets_data = prepare_xls_content(found_education_groups)
-    return xls_build.generate_xls(prepare_xls_parameters_list(user, working_sheets_data), filters)
+    parameters = {xls_build.DESCRIPTION: XLS_DESCRIPTION,
+                  xls_build.USER: get_name_or_username(user),
+                  xls_build.FILENAME: XLS_FILENAME,
+                  xls_build.HEADER_TITLES: EDUCATION_GROUP_TITLES,
+                  xls_build.WS_TITLE: WORKSHEET_TITLE}
+
+    return xls_build.generate_xls(xls_build.prepare_xls_parameters_list(working_sheets_data, parameters), filters)
 
 
 def prepare_xls_content(found_education_groups):
@@ -95,18 +101,6 @@ def extract_xls_data_from_education_group(an_education_group):
         an_education_group.entity_management.acronym,
         an_education_group.partial_acronym
     ]
-
-
-def prepare_xls_parameters_list(user, working_sheets_data):
-    return {xls_build.LIST_DESCRIPTION_KEY: _(XLS_DESCRIPTION),
-            xls_build.FILENAME_KEY: _(XLS_FILENAME),
-            xls_build.USER_KEY: get_name_or_username(user),
-            xls_build.WORKSHEETS_DATA:
-                [{xls_build.CONTENT_KEY: working_sheets_data,
-                  xls_build.HEADER_TITLES_KEY: EDUCATION_GROUP_TITLES,
-                  xls_build.WORKSHEET_TITLE_KEY: _(WORKSHEET_TITLE),
-                  }
-                 ]}
 
 
 def ordering_data(object_list, order_data):
