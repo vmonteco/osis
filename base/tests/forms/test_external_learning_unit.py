@@ -148,10 +148,12 @@ class TestExternalLearningUnitSearchForm(TestCase):
     def setUp(self):
         self.academic_year = create_current_academic_year()
 
-        self.learning_unit_year_1 = LearningUnitYearFactory(academic_year=self.academic_year)
+        self.learning_unit_year_1 = LearningUnitYearFactory(academic_year=self.academic_year,
+                                                            acronym='XLDR1001')
         self.external_lu_1 = ExternalLearningUnitYearFactory(external_acronym='XLDR1001',
                                                              learning_unit_year=self.learning_unit_year_1)
-        self.learning_unit_year_2 = LearningUnitYearFactory(academic_year=self.academic_year)
+        self.learning_unit_year_2 = LearningUnitYearFactory(academic_year=self.academic_year,
+                                                            acronym='XLDR1002')
         self.external_lu_2 = ExternalLearningUnitYearFactory(external_acronym='XLDR1002',
                                                              learning_unit_year=self.learning_unit_year_2)
 
@@ -174,7 +176,7 @@ class TestExternalLearningUnitSearchForm(TestCase):
 
     def test_search_learning_units_on_acronym(self):
         form_data = {
-            "acronym": self.external_lu_1.external_acronym,
+            "acronym": self.external_lu_1.learning_unit_year.acronym,
         }
 
         form = ExternalLearningUnitYearForm(form_data)
@@ -183,7 +185,7 @@ class TestExternalLearningUnitSearchForm(TestCase):
 
     def test_search_learning_units_on_partial_acronym(self):
         form_data = {
-            "acronym": self.external_lu_1.external_acronym[:5],
+            "acronym": self.external_lu_1.learning_unit_year.acronym[:5],
         }
 
         form = ExternalLearningUnitYearForm(form_data)

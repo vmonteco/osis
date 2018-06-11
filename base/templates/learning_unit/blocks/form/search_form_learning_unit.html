@@ -56,7 +56,7 @@
     <div class="col-md-2">
         {% url 'search_tutors' as url_search_tutors %}
         {% with span_search_tutor='<a href="%s" class="link_data_lookup"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></a>'|format:url_search_tutors%}
-        {% bootstrap_field form.tutor addon_before=span_search_tutor %}
+            {% bootstrap_field form.tutor %}
         {% endwith %}
     </div>
     <div class="col-md-2">
@@ -64,26 +64,22 @@
     </div>
 
     {% if search_type == service_search_type or search_type == activity_search_type or search_type == borrowed_search_type%}
-         <div class="col-md-2">
-            {% bootstrap_field form.with_entity_subordinated %}
-        </div>
-
         <div class="col-md-2">
             {% bootstrap_field form.allocation_entity_acronym %}
         </div>
 
-        <div class="col-md-2">
-            {% bootstrap_field form.with_entity_subordinated_allocation %}
+         <div class="col-md-2">
+            {% bootstrap_field form.with_entity_subordinated %}
         </div>
     {% endif %}
 
     {% if search_type == borrowed_search_type %}
-        <div class="col-md-3">
+        <div class="col-md-2">
             {% bootstrap_field form.faculty_borrowing_acronym %}
         </div>
     {% endif %}
 
     {% endwith %}
-    <input type="hidden" id="xls_status" name="xls_status">
+
 
 {% endblock %}
