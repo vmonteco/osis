@@ -146,21 +146,16 @@ class TestLearningUnitYearModelFormSave(TestCase):
 
     def test_case_missing_required_learning_container_year_kwarg(self):
         with self.assertRaises(KeyError):
-            self.form.save(learning_unit=self.learning_unit, entity_container_years=[])
+            self.form.save(learning_unit=self.learning_unit)
 
     def test_case_missing_required_learning_unit_kwarg(self):
         with self.assertRaises(KeyError):
-            self.form.save(learning_container_year=self.learning_container_year, entity_container_years=[])
-
-    def test_case_missing_required_entity_container_years_kwarg(self):
-        with self.assertRaises(KeyError):
-            self.form.save(learning_container_year=self.learning_container_year, learning_unit=self.learning_unit)
+            self.form.save(learning_container_year=self.learning_container_year)
 
     def test_post_data_correctly_saved_case_creation(self):
         form = LearningUnitYearModelForm(data=self.post_data, person=self.central_manager, subtype=FULL)
         self.assertTrue(form.is_valid(), form.errors)
-        luy = form.save(learning_container_year=self.learning_container_year, learning_unit=self.learning_unit,
-                        entity_container_years=[])
+        luy = form.save(learning_container_year=self.learning_container_year, learning_unit=self.learning_unit)
 
         self.assertEqual(luy.acronym, ''.join([self.post_data['acronym_0'], self.post_data['acronym_1']]))
         self.assertEqual(luy.academic_year.pk, self.post_data['academic_year'])
@@ -178,8 +173,7 @@ class TestLearningUnitYearModelFormSave(TestCase):
         self.learning_container_year.save()
         form = LearningUnitYearModelForm(data=self.post_data, person=self.central_manager, subtype=FULL)
         self.assertTrue(form.is_valid(), form.errors)
-        luy = form.save(learning_container_year=self.learning_container_year, learning_unit=self.learning_unit,
-                        entity_container_years=[])
+        luy = form.save(learning_container_year=self.learning_container_year, learning_unit=self.learning_unit)
 
         qs = LearningComponentYear.objects.filter(learningunitcomponent__learning_unit_year=luy).order_by('acronym')
         self.assertEqual(qs.count(), 2, "should assert 2 components are created (1 TP - 1 LECTURING)")
@@ -191,8 +185,7 @@ class TestLearningUnitYearModelFormSave(TestCase):
         self.learning_container_year.save()
         form = LearningUnitYearModelForm(data=self.post_data, person=self.central_manager, subtype=FULL)
         self.assertTrue(form.is_valid(), form.errors)
-        luy = form.save(learning_container_year=self.learning_container_year, learning_unit=self.learning_unit,
-                        entity_container_years=[])
+        luy = form.save(learning_container_year=self.learning_container_year, learning_unit=self.learning_unit)
 
         qs = LearningComponentYear.objects.filter(learningunitcomponent__learning_unit_year=luy).order_by('acronym')
         self.assertEqual(qs.count(), 1, "should assert 1 only component of type=None is created with acronym 'NT1'")
@@ -201,8 +194,7 @@ class TestLearningUnitYearModelFormSave(TestCase):
     def test_entity_components_year_correctly_saved(self):
         form = LearningUnitYearModelForm(data=self.post_data, person=self.central_manager, subtype=FULL)
         self.assertTrue(form.is_valid(), form.errors)
-        luy = form.save(learning_container_year=self.learning_container_year, learning_unit=self.learning_unit,
-                        entity_container_years=self.entity_container_years)
+        luy = form.save(learning_container_year=self.learning_container_year, learning_unit=self.learning_unit)
 
         qs = EntityComponentYear.objects.filter(learning_component_year__learningunitcomponent__learning_unit_year=luy)
         self.assertEqual(qs.count(), 6)
@@ -218,15 +210,14 @@ class TestLearningUnitYearModelFormSave(TestCase):
         form = LearningUnitYearModelForm(data=self.post_data, person=self.central_manager, subtype=FULL,
                                          instance=learning_unit_year_to_update)
         self.assertTrue(form.is_valid(), form.errors)
-        luy = form.save(learning_container_year=self.learning_container_year, learning_unit=self.learning_unit,
-                        entity_container_years=self.entity_container_years)
+        luy = form.save(learning_container_year=self.learning_container_year, learning_unit=self.learning_unit)
 
         self.assertEqual(luy, learning_unit_year_to_update)
 
     def test_warnings_credit(self):
         learning_unit_year_to_update = LearningUnitYearFactory(
             learning_unit=self.learning_unit, learning_container_year=self.learning_container_year, subtype=FULL,
-            academic_year = self.current_academic_year
+            academic_year=self.current_academic_year
         )
 
         partim = LearningUnitYearFactory(learning_container_year=self.learning_container_year, subtype=PARTIM,
@@ -265,8 +256,7 @@ class TestLearningUnitYearModelFormSave(TestCase):
         form = LearningUnitYearModelForm(data=self.post_data, person=self.central_manager, subtype=FULL,
                                          instance=learning_unit_year_to_update)
         self.assertTrue(form.is_valid(), form.errors)
-        form.save(learning_container_year=self.learning_container_year, learning_unit=self.learning_unit,
-                  entity_container_years=self.entity_container_years)
+        form.save(learning_container_year=self.learning_container_year, learning_unit=self.learning_unit)
         created_entity_components = EntityComponentYear.objects.filter(
             learning_component_year__learning_container_year=self.learning_container_year).count()
         learning_units_count = LearningUnitYear.objects.filter(learning_container_year=self.learning_container_year)\

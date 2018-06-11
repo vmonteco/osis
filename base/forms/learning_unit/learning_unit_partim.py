@@ -212,14 +212,10 @@ class PartimForm(LearningUnitBaseForm):
             commit=commit
         )
 
-        # Get entity container form full learning container
-        entity_container_years = self._get_entity_container_year()
-
         # Save learning unit year
         learning_unit_yr = self.forms[LearningUnitYearModelForm].save(
             learning_container_year=self.learning_unit_year_full.learning_container_year,
             learning_unit=learning_unit,
-            entity_container_years=entity_container_years,
             commit=commit
         )
         return learning_unit_yr
