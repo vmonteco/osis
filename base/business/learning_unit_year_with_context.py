@@ -27,8 +27,8 @@ from collections import OrderedDict
 
 from django.db import models
 
-from base import models as mdl
 from base.business import entity_version as business_entity_version
+from base.models import entity_container_year, learning_unit_component, entity_component_year, learning_unit_year
 from base.models.enums import entity_container_year_link_type as entity_types
 from osis_common.utils.numbers import to_float_or_zero
 
@@ -47,7 +47,7 @@ class LearningUnitYearWithContext:
 def get_with_context(**learning_unit_year_data):
     entity_container_prefetch = models.Prefetch(
         'learning_container_year__entitycontaineryear_set',
-        queryset=mdl.entity_container_year.search(
+        queryset=entity_container_year.search(
             link_type=ENTITY_TYPES_VOLUME
         ).prefetch_related(
             models.Prefetch('entity__entityversion_set', to_attr='entity_versions')
@@ -57,13 +57,13 @@ def get_with_context(**learning_unit_year_data):
 
     learning_component_prefetch = models.Prefetch(
         'learningunitcomponent_set',
-        queryset=mdl.learning_unit_component.LearningUnitComponent.objects.all().order_by(
+        queryset=learning_unit_component.LearningUnitComponent.objects.all().order_by(
             'learning_component_year__type', 'learning_component_year__acronym'
         ).select_related(
             'learning_component_year'
         ).prefetch_related(
             models.Prefetch('learning_component_year__entitycomponentyear_set',
-                            queryset=mdl.entity_component_year.EntityComponentYear.objects.all()
+                            queryset=entity_component_year.EntityComponentYear.objects.all()
                             .select_related('entity_container_year'),
                             to_attr='entity_components_year'
                             )
@@ -71,7 +71,7 @@ def get_with_context(**learning_unit_year_data):
         to_attr='learning_unit_components'
     )
 
-    learning_unit_years = mdl.learning_unit_year.search(**learning_unit_year_data) \
+    learning_unit_years = learning_unit_year.search(**learning_unit_year_data) \
         .select_related('academic_year', 'learning_container_year') \
         .prefetch_related(entity_container_prefetch) \
         .prefetch_related(learning_component_prefetch) \

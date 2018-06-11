@@ -46,6 +46,7 @@ def get_learning_container_year_warnings(learning_container_year):
         ))
     return _warnings
 
+
 def volumes_are_inconsistent_between_partim_and_full(partim, full):
     for full_component, full_component_values in full.components.items():
         if any(volumes_are_inconsistent_between_components(partim_component_values, full_component_values)
@@ -53,6 +54,7 @@ def volumes_are_inconsistent_between_partim_and_full(partim, full):
                 if partim_component.type == full_component.type):
             return True
     return False
+
 
 def volumes_are_inconsistent_between_components(partim_component_values, full_component_values):
     return any(partim_component_values.get(key) > full_value for key, full_value in full_component_values.items())
