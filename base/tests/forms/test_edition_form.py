@@ -25,14 +25,10 @@
 ##############################################################################
 from django.contrib.auth.models import Group
 from django.test import TestCase, RequestFactory
-from django.utils.translation import ugettext_lazy as _
 
 from base.business.learning_unit_year_with_context import get_with_context
 from base.forms.learning_unit.edition_volume import VolumeEditionForm, VolumeEditionBaseFormset, \
     VolumeEditionFormsetContainer
-from base.models.entity_component_year import EntityComponentYear
-from base.models.enums.entity_container_year_link_type import REQUIREMENT_ENTITY
-from base.models.learning_component_year import LearningComponentYear
 from base.models.person import CENTRAL_MANAGER_GROUP, FACULTY_MANAGER_GROUP
 from base.tests.factories.business.learning_units import GenerateContainer, GenerateAcademicYear
 from base.tests.factories.person import PersonFactory
@@ -136,108 +132,7 @@ class TestVolumeEditionForm(TestCase):
             actual_entity_fields = form.get_entity_fields()
             self.assertEqual(len(actual_entity_fields), 3)
 
-    def test_warning_volumes_vol_tot(self):
-        learning_component_year_0 = LearningComponentYear.objects.filter(
-            learningunitcomponent__learning_unit_year=self.first_learning_unit_year
-        ).first()
-        entity_component_year_0 = EntityComponentYear.objects.get(
-            learning_component_year=learning_component_year_0,
-            entity_container_year__type=REQUIREMENT_ENTITY
-        )
 
-        learning_component_year_0.hourly_volume_partial_q1 = 15.0
-        learning_component_year_0.hourly_volume_partial_q2 = 15.0
-        learning_component_year_0.hourly_volume_total_annual = 40.0
-        learning_component_year_0.planned_classes = 1
-        learning_component_year_0.save()
-
-        entity_component_year_0.repartition_volume = 30.0
-        entity_component_year_0.save()
-
-        excepted_error = "{} ({})".format(_('Volumes are inconsistent'), _('Vol_tot is not equal to vol_q1 + vol_q2'))
-        self.assertIn(excepted_error, learning_component_year_0.warnings)
-        self.assertIn(excepted_error, self.first_learning_unit_year.warnings)
-
-    def test_warning_volumes_vol_global(self):
-        learning_component_year_0 = LearningComponentYear.objects.filter(
-            learningunitcomponent__learning_unit_year=self.first_learning_unit_year
-        ).first()
-        entity_component_year_0 = EntityComponentYear.objects.get(
-            learning_component_year=learning_component_year_0,
-            entity_container_year__type=REQUIREMENT_ENTITY
-        )
-
-        learning_component_year_0.hourly_volume_partial_q1 = 15.0
-        learning_component_year_0.hourly_volume_partial_q2 = 15.0
-        learning_component_year_0.hourly_volume_total_annual = 30.0
-        learning_component_year_0.planned_classes = 1
-        learning_component_year_0.save()
-
-        entity_component_year_0.repartition_volume = 40.0
-        entity_component_year_0.save()
-
-        excepted_error = "{} ({})".format(
-            _('Volumes are inconsistent'), _('Vol_global is not equal to Vol_tot * planned_classes'))
-        self.assertIn(excepted_error, learning_component_year_0.warnings)
-        self.assertIn(excepted_error, self.first_learning_unit_year.warnings)
-
-    def test_warning_volumes_vol_global_and_total(self):
-        learning_component_year_0 = LearningComponentYear.objects.filter(
-            learningunitcomponent__learning_unit_year=self.first_learning_unit_year
-        ).first()
-        entity_component_year_0 = EntityComponentYear.objects.get(
-            learning_component_year=learning_component_year_0,
-            entity_container_year__type=REQUIREMENT_ENTITY
-        )
-
-        entity_component_year_0.repartition_volume = 42.0
-        entity_component_year_0.save()
-
-        learning_component_year_0.hourly_volume_partial_q1 = 10.0
-        learning_component_year_0.hourly_volume_partial_q2 = 15.0
-        learning_component_year_0.hourly_volume_total_annual = 36.0
-        learning_component_year_0.planned_classes = 2
-        learning_component_year_0.save()
-
-        excepted_error_1 = "{} ({})".format(
-            _('Volumes are inconsistent'), _('Vol_global is not equal to Vol_tot * planned_classes'))
-        self.assertIn(excepted_error_1, learning_component_year_0.warnings)
-        self.assertIn(excepted_error_1, self.first_learning_unit_year.warnings)
-
-        excepted_error_2 = "{} ({})".format(_('Volumes are inconsistent'), _('Vol_tot is not equal to vol_q1 + vol_q2'))
-        self.assertIn(excepted_error_2, learning_component_year_0.warnings)
-        self.assertIn(excepted_error_2, self.first_learning_unit_year.warnings)
-
-    def test_warning_volumes_no_warning(self):
-        learning_component_year_0 = LearningComponentYear.objects.filter(
-            learningunitcomponent__learning_unit_year=self.first_learning_unit_year
-        ).first()
-        entity_component_year_0 = EntityComponentYear.objects.get(
-            learning_component_year=learning_component_year_0,
-            entity_container_year__type=REQUIREMENT_ENTITY
-        )
-
-        self.first_learning_unit_year.credits = self.first_learning_unit_year.credits + 1
-        self.first_learning_unit_year.save()
-
-        test_cases = [
-            {'vol_q1': 15, 'vol_q2': 15, 'vol_tot_annual': 30, 'planned_classes': 1, 'vol_tot_global': 30},
-            {'vol_q1': 10, 'vol_q2': 20, 'vol_tot_annual': 30, 'planned_classes': 2, 'vol_tot_global': 60}
-        ]
-
-        for case in test_cases:
-            with self.subTest(case=case):
-                learning_component_year_0.hourly_volume_partial_q1 = case.get('vol_q1')
-                learning_component_year_0.hourly_volume_partial_q2 = case.get('vol_q2')
-                learning_component_year_0.hourly_volume_total_annual = case.get('vol_tot_annual')
-                learning_component_year_0.planned_classes = case.get('planned_classes')
-                learning_component_year_0.save()
-
-                entity_component_year_0.repartition_volume = case.get('vol_tot_global')
-                entity_component_year_0.save()
-
-                self.assertFalse(learning_component_year_0.warnings)
-                self.assertFalse(self.first_learning_unit_year.warnings)
 
 
 def _get_wrong_data_empty_field():
