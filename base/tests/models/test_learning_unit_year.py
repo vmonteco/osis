@@ -315,7 +315,7 @@ class LearningUnitYearWarningsTest(TestCase):
                 self.assertFalse(self.learning_component_year_full_lecturing.warnings)
                 self.assertFalse(self.luy_full.warnings)
 
-    def test_warning_volumes_partim_greater_than_full(self):
+    def test_warning_all_volumes_partim_greater_than_full(self):
         luy_partim = self.generated_container.generated_container_years[0].learning_unit_year_partim
         learning_component_year_partim_lecturing = LearningComponentYear.objects.filter(
             type=LECTURING,
@@ -338,6 +338,40 @@ class LearningUnitYearWarningsTest(TestCase):
         learning_component_year_partim_lecturing.hourly_volume_partial_q2 = 20.0
         learning_component_year_partim_lecturing.hourly_volume_total_annual = 40.0
         learning_component_year_partim_lecturing.planned_classes = 2
+        learning_component_year_partim_lecturing.save()
+        entity_component_year_partim_lecturing_requirement.repartition_volume = 80.0
+        entity_component_year_partim_lecturing_requirement.save()
+
+        excepted_error = "{} ({})".format(
+            _('Volumes are inconsistent'),
+            _('At least a partim volume value is greater than corresponding volume of parent'))
+        self.assertIn(excepted_error, self.luy_full.learning_container_year.warnings)
+        self.assertIn(excepted_error, self.luy_full.warnings)
+        self.assertIn(excepted_error, luy_partim.warnings)
+
+    def test_warning_one_volume_partim_greater_than_full(self):
+        luy_partim = self.generated_container.generated_container_years[0].learning_unit_year_partim
+        learning_component_year_partim_lecturing = LearningComponentYear.objects.filter(
+            type=LECTURING,
+            learningunitcomponent__learning_unit_year=luy_partim
+        ).first()
+        entity_component_year_partim_lecturing_requirement = EntityComponentYear.objects.get(
+            learning_component_year=learning_component_year_partim_lecturing,
+            entity_container_year__type=REQUIREMENT_ENTITY
+        )
+
+        self.learning_component_year_full_lecturing.hourly_volume_partial_q1 = 15.0
+        self.learning_component_year_full_lecturing.hourly_volume_partial_q2 = 15.0
+        self.learning_component_year_full_lecturing.hourly_volume_total_annual = 30.0
+        self.learning_component_year_full_lecturing.planned_classes = 1
+        self.learning_component_year_full_lecturing.save()
+        self.entity_component_year_full_lecturing_requirement.repartition_volume = 30.0
+        self.entity_component_year_full_lecturing_requirement.save()
+
+        learning_component_year_partim_lecturing.hourly_volume_partial_q1 = 10.0
+        learning_component_year_partim_lecturing.hourly_volume_partial_q2 = 10.0
+        learning_component_year_partim_lecturing.hourly_volume_total_annual = 20.0
+        learning_component_year_partim_lecturing.planned_classes = 1
         learning_component_year_partim_lecturing.save()
         entity_component_year_partim_lecturing_requirement.repartition_volume = 80.0
         entity_component_year_partim_lecturing_requirement.save()
