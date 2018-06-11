@@ -219,7 +219,7 @@ class PartimForm(LearningUnitBaseForm):
         learning_unit_yr = self.forms[LearningUnitYearModelForm].save(
             learning_container_year=self.learning_unit_year_full.learning_container_year,
             learning_unit=learning_unit,
-            # chris entity_container_years=entity_container_years,
+            entity_container_years=entity_container_years,
             commit=commit
         )
         return learning_unit_yr

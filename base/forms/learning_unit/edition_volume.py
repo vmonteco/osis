@@ -39,6 +39,7 @@ from base.forms.utils.emptyfield import EmptyField
 from base.models.entity_component_year import EntityComponentYear
 from base.models.enums import entity_container_year_link_type as entity_types
 from base.models.enums.component_type import PRACTICAL_EXERCISES, LECTURING
+from base.models.enums.learning_container_year_types import INTERNSHIP, CONTAINER_TYPE_WITH_DEFAULT_COMPONENT
 from base.models.learning_component_year import LearningComponentYear
 from base.models.learning_unit_component import LearningUnitComponent
 
@@ -261,20 +262,23 @@ class SimplifiedVolumeForm(forms.ModelForm):
                   'hourly_volume_partial_q2')
 
     def save(self, commit=True):
-        instance = super().save(commit)
-
-        LearningUnitComponent.objects.get_or_create(
-            learning_unit_year=self._learning_unit_year,
-            learning_component_year=instance
-        )
-        requirement_entity_containers = self.get_requirement_entity_container()
-
-        for requirement_entity_container in requirement_entity_containers:
-            EntityComponentYear.objects.get_or_create(
-                entity_container_year=requirement_entity_container,
+        if self._learning_unit_year.learning_container_year.container_type != CONTAINER_TYPE_WITH_DEFAULT_COMPONENT \
+                and self.prefix == "form-1":
+            pass
+        else:
+            instance = super().save(commit)
+            LearningUnitComponent.objects.get_or_create(
+                learning_unit_year=self._learning_unit_year,
                 learning_component_year=instance
             )
-        return instance
+            requirement_entity_containers = self.get_requirement_entity_container()
+
+            for requirement_entity_container in requirement_entity_containers:
+                EntityComponentYear.objects.get_or_create(
+                    entity_container_year=requirement_entity_container,
+                    learning_component_year=instance
+                )
+            return instance
 
     def get_requirement_entity_container(self):
         requirement_entity_containers = []
