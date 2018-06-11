@@ -33,7 +33,7 @@ from osis_common.models.serializable_model import SerializableModel, Serializabl
 
 
 class LearningComponentYearAdmin(SerializableModelAdmin):
-    list_display = ('learning_container_year', 'title', 'acronym', 'type', 'comment')
+    list_display = ('learning_container_year', 'acronym', 'type', 'comment')
     search_fields = ['acronym', 'learning_container_year__acronym']
     list_filter = ('learning_container_year__academic_year',)
 
@@ -42,7 +42,6 @@ class LearningComponentYear(SerializableModel):
     external_id = models.CharField(max_length=100, blank=True, null=True)
     changed = models.DateTimeField(null=True, auto_now=True)
     learning_container_year = models.ForeignKey('LearningContainerYear')
-    title = models.CharField(max_length=255, blank=True, null=True)
     acronym = models.CharField(max_length=4, blank=True, null=True)
     type = models.CharField(max_length=30, choices=learning_component_year_type.LEARNING_COMPONENT_YEAR_TYPES,
                             blank=True, null=True)
@@ -56,7 +55,7 @@ class LearningComponentYear(SerializableModel):
     _warnings = None
 
     def __str__(self):
-        return u"%s - %s - %s" % (self.acronym, self.learning_container_year.acronym, self.title)
+        return u"%s - %s" % (self.acronym, self.learning_container_year.acronym)
 
     class Meta:
         permissions = (
