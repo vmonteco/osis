@@ -33,7 +33,7 @@ from osis_common.models.serializable_model import SerializableModel, Serializabl
 
 
 class LearningComponentYearAdmin(SerializableModelAdmin):
-    list_display = ('learning_container_year', 'title', 'acronym', 'type', 'comment')
+    list_display = ('learning_container_year', 'acronym', 'type', 'comment')
     search_fields = ['acronym', 'learning_container_year__acronym']
     list_filter = ('learning_container_year__academic_year',)
 
@@ -42,7 +42,6 @@ class LearningComponentYear(SerializableModel):
     external_id = models.CharField(max_length=100, blank=True, null=True)
     changed = models.DateTimeField(null=True, auto_now=True)
     learning_container_year = models.ForeignKey('LearningContainerYear')
-    title = models.CharField(max_length=255, blank=True, null=True)
     acronym = models.CharField(max_length=4, blank=True, null=True)
     type = models.CharField(max_length=30, choices=learning_component_year_type.LEARNING_COMPONENT_YEAR_TYPES,
                             blank=True, null=True)
@@ -56,7 +55,7 @@ class LearningComponentYear(SerializableModel):
     _warnings = None
 
     def __str__(self):
-        return u"%s - %s - %s" % (self.acronym, self.learning_container_year.acronym, self.title)
+        return u"%s - %s" % (self.acronym, self.learning_container_year.acronym)
 
     class Meta:
         permissions = (
@@ -88,8 +87,7 @@ class LearningComponentYear(SerializableModel):
     def _check_volumes_consistency(self):
         _warnings = []
 
-        vol_total_global = self.entitycomponentyear_set.aggregate(Sum('repartition_volume'))['repartition_volume__sum'] \
-                           or 0
+        vol_global = self.entitycomponentyear_set.aggregate(Sum('repartition_volume'))['repartition_volume__sum'] or 0
         vol_total_annual = self.hourly_volume_total_annual or 0
         vol_q1 = self.hourly_volume_partial_q1 or 0
         vol_q2 = self.hourly_volume_partial_q2 or 0
@@ -98,9 +96,9 @@ class LearningComponentYear(SerializableModel):
         if vol_q1 + vol_q2 != vol_total_annual:
             _warnings.append("{} ({})".format(
                 _('Volumes are inconsistent'), _('Vol_tot is not equal to vol_q1 + vol_q2')))
-        if vol_total_annual * planned_classes != vol_total_global:
+        if vol_total_annual * planned_classes != vol_global:
             _warnings.append("{} ({})".format(
-                _('Volumes are inconsistent'),_('Vol_global is not equal to Vol_tot * planned_classes')))
+                _('Volumes are inconsistent'), _('Vol_global is not equal to Vol_tot * planned_classes')))
         if self.planned_classes == 0:
             _warnings.append("{} ({})".format(_('Volumes are inconsistent'), _('planned classes cannot be 0')))
         return _warnings

@@ -134,6 +134,7 @@ class PermsTestCase(TestCase):
         self.assertFalse(perms.is_eligible_for_modification_end_date(luy, None))
         self.assertFalse(perms.is_eligible_to_create_partim(luy, None))
         self.assertFalse(perms.is_eligible_to_create_modification_proposal(luy, None))
+        self.assertFalse(perms.is_eligible_to_delete_learning_unit_year(luy, None))
 
     def test_cannot_faculty_manager_modify_end_date_no_container(self):
         luy = LearningUnitYearFactory(academic_year=self.academic_yr,

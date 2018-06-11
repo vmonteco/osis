@@ -74,9 +74,9 @@ def learning_units_search(request, search_type):
     except TooManyResultsException:
         messages.add_message(request, messages.ERROR, _('too_many_results'))
 
-    if request.GET.get('xls_status') == "xls":
+    if request.POST.get('xls_status') == "xls":
         return create_xls(request.user, found_learning_units, _get_filter(form, search_type))
-    if request.GET.get('xls_status') == "xls_attribution":
+    if request.POST.get('xls_status') == "xls_attribution":
         return create_xls_attribution(request.user, found_learning_units, _get_filter(form, search_type))
 
     a_person = find_by_user(request.user)

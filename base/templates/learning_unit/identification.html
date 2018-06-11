@@ -87,10 +87,12 @@
 
                                 </div>
 
-                                {% if proposal.type == 'TRANSFORMATION' and differences|get_old_acronym %}
-                                    <div>({% trans 'formerly' %} : {{ differences|get_old_acronym}})</div>
-                                    <br>
-                                {% endif %}
+                                {% with  old_acronym=learning_unit_year.get_previous_acronym %}
+                                    {% if old_acronym%}
+                                        <div>({% trans 'formerly' %} : {{ old_acronym.acronym }})</div>
+                                        <br>
+                                    {% endif %}
+                                {% endwith %}
 
                                 <div class="row">
                                     {% block content_row2 %}
