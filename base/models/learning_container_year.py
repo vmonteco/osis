@@ -125,4 +125,4 @@ def volumes_are_inconsistent_between_partim_and_full(partim, full):
 
 
 def volumes_are_inconsistent_between_components(partim_component_values, full_component_values):
-    return any(partim_component_values.get(key) > value for key, value in full_component_values.items())
+    return any(partim_component_values.get(key) > full_value for key, full_value in full_component_values.items())
