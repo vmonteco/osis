@@ -28,6 +28,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
 from base.models.proposal_learning_unit import ProposalLearningUnit
+from base.models import learning_unit_year
 
 register = template.Library()
 
@@ -115,8 +116,3 @@ def get_style_of_label_text(label_text, style, title):
     label_text = '<label style="{style}" title="{inherited_title}">{label_text}</label>' \
         .format(style=style, inherited_title=_(title), label_text=label_text)
     return label_text
-
-
-@register.filter
-def get_old_acronym(differences):
-    return differences.get('acronym', None)

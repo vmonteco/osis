@@ -1,5 +1,6 @@
 {% extends "blocks/forms/search_form.html" %}
 {% load bootstrap3 %}
+{% load format %}
 
 {% comment "License" %}
     * OSIS stands for Open Student Information System. It's an application
@@ -53,12 +54,10 @@
         {% bootstrap_field form.status %}
     </div>
     <div class="col-md-2">
-        <div class="form-group">
-            <label class="control-label" for="id_tutor">{{ form.tutor.label }}</label>
-            <div class="input-group">
-                <span class="input-group-addon"><a href="{% url 'search_tutors' %}" class="link_data_lookup"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></a></span>
-                <input type="text" name="tutor" class="form-control" title="" id="id_tutor" maxlength="40" /></div>
-        </div>
+        {% url 'search_tutors' as url_search_tutors %}
+        {% with span_search_tutor='<a href="%s" class="link_data_lookup"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></a>'|format:url_search_tutors%}
+        {% bootstrap_field form.tutor addon_before=span_search_tutor %}
+        {% endwith %}
     </div>
     <div class="col-md-2">
         {% bootstrap_field form.requirement_entity_acronym %}
@@ -85,6 +84,6 @@
     {% endif %}
 
     {% endwith %}
-    <input type="hidden" id="xls_status" name="xls_status">
+
 
 {% endblock %}
