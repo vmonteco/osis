@@ -27,9 +27,11 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 from attribution.models.attribution_new import AttributionNew
+from base.business import learning_unit_year_with_context
 from base.models import learning_unit_year
 from base.models.enums import learning_unit_year_subtypes, learning_container_year_types
 from base.models.enums import vacant_declaration_type
+from base.models.enums.learning_unit_year_subtypes import FULL, PARTIM
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
 
 
@@ -75,7 +77,19 @@ class LearningContainerYear(SerializableModel):
         return self._warnings
 
     def _check_volumes_consistency(self):
-        return []
+        _warnings = []
+        learning_unit_years_with_context = \
+            learning_unit_year_with_context.get_with_context(learning_container_year_id=self.id)
+
+        luy_full = next((luy for luy in learning_unit_years_with_context if luy.subtype == FULL))
+        luy_partims = [luy for luy in learning_unit_years_with_context if luy.subtype == PARTIM]
+
+        if any((volumes_are_inconsistent_between_partim_and_full(partim, luy_full) for partim in luy_partims)):
+            _warnings.append("{} ({})".format(
+                _('Volumes are inconsistent'),
+                _('A partim volume value is greater than corresponding volume of parent')
+            ))
+        return _warnings
 
     def get_partims_related(self):
         return learning_unit_year.search(learning_container_year_id=self,
@@ -98,3 +112,16 @@ def search(an_academic_year=None, a_learning_container=None):
         queryset = queryset.filter(learning_container=a_learning_container)
 
     return queryset
+
+
+def volumes_are_inconsistent_between_partim_and_full(partim, full):
+    for full_component, full_component_values in full.components.items():
+        if any(volumes_are_inconsistent_between_components(partim_component_values, full_component_values)
+                for partim_component, partim_component_values in partim.components.items()
+                if partim_component.type == full_component.type):
+            return True
+    return False
+
+
+def volumes_are_inconsistent_between_components(partim_component_values, full_component_values):
+    return any(partim_component_values.get(key) > value for key, value in full_component_values.items())
