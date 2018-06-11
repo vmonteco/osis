@@ -44,6 +44,11 @@ from cms.models import translated_text
 from osis_common.document import xls_build
 from osis_common.utils.datetime import convert_date_to_datetime
 
+DESCRIPTION = "description"
+FILENAME = "filename"
+TITLES = "titles"
+WS_TITLE = "ws_title"
+
 
 def get_name_or_username(a_user):
     person = mdl_base.person.find_by_user(a_user)

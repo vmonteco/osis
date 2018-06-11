@@ -41,7 +41,7 @@ from base.tests.factories.entity_version import EntityVersionFactory
 from base.tests.factories.group_element_year import GroupElementYearFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from base.tests.factories.offer_year_entity import OfferYearEntityFactory
-from base.forms.research import get_research_criteria
+from base.forms.search.search_form import get_research_criteria
 
 
 class TestSearchForm(TestCase):

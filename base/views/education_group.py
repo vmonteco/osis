@@ -58,8 +58,8 @@ from cms.models.translated_text import TranslatedText
 from cms.models.translated_text_label import TranslatedTextLabel
 from osis_common.decorators.ajax import ajax_required
 from . import layout
-from base.business.education_group import create_xls
-from base.forms.research import get_research_criteria
+from base.business.education_group import create_xls, ORDER_COL, ORDER_DIRECTION
+from base.forms.search.search_form import get_research_criteria
 
 CODE_SCS = 'code_scs'
 TITLE = 'title'
@@ -82,14 +82,11 @@ def education_groups(request):
 
     object_list = None
     if form.is_valid():
-        object_list = form.get_object_list()
-        if not _check_if_display_message(request, object_list):
-            object_list = None
+        object_list = get_object_list(form, object_list, request)
 
     if request.GET.get('xls_status') == "xls":
-        order_col = request.GET.get('xls_order_col')
-        order_direction = request.GET.get('xls_order')
-        return create_xls(request.user, object_list, _get_filter(form), order_col, order_direction )
+        return create_xls(request.user, object_list, _get_filter(form),
+                          {ORDER_COL: request.GET.get('xls_order_col'), ORDER_DIRECTION: request.GET.get('xls_order')})
 
     context = {
         'form': form,
@@ -97,6 +94,13 @@ def education_groups(request):
         'experimental_phase': True
     }
     return layout.render(request, "education_groups.html", context)
+
+
+def get_object_list(form, object_list, request):
+    object_list = form.get_object_list()
+    if not _check_if_display_message(request, object_list):
+        object_list = None
+    return object_list
 
 
 def _check_if_display_message(request, an_education_groups):

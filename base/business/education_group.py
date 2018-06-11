@@ -34,6 +34,8 @@ from base.models import person_entity
 from osis_common.document import xls_build
 from django.utils.translation import ugettext_lazy as _
 from base.business.xls import get_name_or_username
+from base.business import xls
+
 
 # List of key that a user can modify
 DESC = "desc"
@@ -42,6 +44,8 @@ XLS_FILENAME = 'education_groups_filename'
 XLS_DESCRIPTION = "list_education_groups"
 EDUCATION_GROUP_TITLES = [str(_('academic_year_small')), str(_('code')), str(_('title')), str(_('type')),
                           str(_('entity')), str(_('code'))]
+ORDER_COL = 'order_col'
+ORDER_DIRECTION = 'order_direction'
 
 
 def can_user_edit_administrative_data(a_user, an_education_group_year):
@@ -72,8 +76,8 @@ def assert_category_of_education_group_year(education_group_year, authorized_cat
         raise PermissionDenied("Education group category is not correct.")
 
 
-def create_xls(user, found_education_groups_param, filters, order_col, order_direction):
-    found_education_groups = ordering_data(found_education_groups_param, order_col, order_direction)
+def create_xls(user, found_education_groups_param, filters, order_data):
+    found_education_groups = ordering_data(found_education_groups_param, order_data)
     working_sheets_data = prepare_xls_content(found_education_groups)
     return xls_build.generate_xls(prepare_xls_parameters_list(user, working_sheets_data), filters)
 
@@ -105,7 +109,9 @@ def prepare_xls_parameters_list(user, working_sheets_data):
                  ]}
 
 
-def ordering_data(object_list, order_col, order_direction):
+def ordering_data(object_list, order_data):
+    order_col = order_data.get(ORDER_COL, None)
+    order_direction = order_data.get(ORDER_DIRECTION, None)
     reverse_direction = False
     if order_direction == DESC:
         reverse_direction = True

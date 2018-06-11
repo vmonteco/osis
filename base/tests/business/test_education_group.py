@@ -31,7 +31,7 @@ from django.test import TestCase
 from django.utils.translation import ugettext_lazy as _
 
 from base.business.education_group import can_user_edit_administrative_data, prepare_xls_content, create_xls, \
-    XLS_DESCRIPTION, XLS_FILENAME, WORKSHEET_TITLE, EDUCATION_GROUP_TITLES
+    XLS_DESCRIPTION, XLS_FILENAME, WORKSHEET_TITLE, EDUCATION_GROUP_TITLES, ORDER_COL, ORDER_DIRECTION
 from base.models.enums import offer_year_entity_type
 from base.models.person import Person, CENTRAL_MANAGER_GROUP
 from base.tests.factories.education_group_year import EducationGroupYearFactory
@@ -152,14 +152,17 @@ class EducationGroupXlsTestCase(TestCase):
 
     @mock.patch("osis_common.document.xls_build.generate_xls")
     def test_generate_xls_data_with_no_data(self, mock_generate_xls):
-        create_xls(self.user, [], None, None, None)
+        create_xls(self.user, [], None, {ORDER_COL: None, ORDER_DIRECTION: None})
 
         expected_argument = _generate_xls_build_parameter([], self.user)
         mock_generate_xls.assert_called_with(expected_argument, None)
 
     @mock.patch("osis_common.document.xls_build.generate_xls")
     def test_generate_xls_data_with_asc_ordering(self, mock_generate_xls):
-        create_xls(self.user, [self.education_group_year_1, self.education_group_year_2], None, 'acronym', None)
+        create_xls(self.user,
+                   [self.education_group_year_1, self.education_group_year_2],
+                   None,
+                   {ORDER_COL: 'acronym', ORDER_DIRECTION: None})
 
         xls_data = [get_xls_data(self.education_group_year_2), get_xls_data(self.education_group_year_1)]
 
@@ -168,7 +171,10 @@ class EducationGroupXlsTestCase(TestCase):
 
     @mock.patch("osis_common.document.xls_build.generate_xls")
     def test_generate_xls_data_with_desc_ordering(self, mock_generate_xls):
-        create_xls(self.user, [self.education_group_year_1, self.education_group_year_2], None, 'acronym', "desc")
+        create_xls(self.user,
+                   [self.education_group_year_1, self.education_group_year_2],
+                   None,
+                   {ORDER_COL: 'acronym', ORDER_DIRECTION: 'desc'})
 
         xls_data = [get_xls_data(self.education_group_year_1), get_xls_data(self.education_group_year_2)]
 

@@ -38,19 +38,6 @@ class BaseSearchForm(forms.Form):
     def search(self):
         pass
 
-    def get_research_criteria(self):
-        tuples_label_value = []
-        for field_name, field in self.fields.items():
-            if not self.cleaned_data[field_name]:
-                continue
-            tuple_to_append = (str(field.label), self.cleaned_data[field_name])
-            if type(field) == forms.ChoiceField:
-                dict_choices = {str(key): value for key, value in field.choices}
-                label_choice = dict_choices[self.cleaned_data[field_name]]
-                tuple_to_append = (str(field.label), label_choice)
-            tuples_label_value.append(tuple_to_append)
-        return tuples_label_value
-
     def _has_criteria(self):
         criteria_present = False
         for name in self.fields:
@@ -58,3 +45,17 @@ class BaseSearchForm(forms.Form):
                 criteria_present = True
                 break
         return criteria_present
+
+
+def get_research_criteria(search_form):
+    tuples_label_value = []
+    for field_name, field in search_form.fields.items():
+        if not search_form.cleaned_data[field_name]:
+            continue
+        tuple_to_append = (str(field.label), search_form.cleaned_data[field_name])
+        if type(field) == forms.ChoiceField:
+            dict_choices = {str(key): value for key, value in field.choices}
+            label_choice = dict_choices[search_form.cleaned_data[field_name]]
+            tuple_to_append = (str(field.label), label_choice)
+        tuples_label_value.append(tuple_to_append)
+    return tuples_label_value
