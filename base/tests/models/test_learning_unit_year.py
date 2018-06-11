@@ -343,7 +343,8 @@ class LearningUnitYearWarningsTest(TestCase):
         entity_component_year_partim_lecturing_requirement.save()
 
         excepted_error = "{} ({})".format(
-            _('Volumes are inconsistent'), _('A partim volume value is greater than corresponding volume of parent'))
+            _('Volumes are inconsistent'),
+            _('At least a partim volume value is greater than corresponding volume of parent'))
         self.assertIn(excepted_error, self.luy_full.learning_container_year.warnings)
         self.assertIn(excepted_error, self.luy_full.warnings)
         self.assertIn(excepted_error, luy_partim.warnings)
