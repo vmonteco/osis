@@ -378,7 +378,7 @@ def find_summary_responsible_by_name(queryset, name):
 
 def _build_tutor_filter(name_type):
     return '__'.join(['learningunitcomponent', 'learning_component_year', 'attributionchargenew', 'attribution',
-                      'tutor', 'person', name_type, 'icontains'])
+                      'tutor', 'person', name_type, 'iregex'])
 
 
 def convert_status_bool(status):
