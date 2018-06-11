@@ -42,7 +42,6 @@ class AssistantMandate(models.Model):
     fulltime_equivalent = models.DecimalField(max_digits=3, decimal_places=2)
     entry_date = models.DateField()
     end_date = models.DateField()
-    position_id = models.CharField(max_length=12)
     sap_id = models.CharField(max_length=12)
     assistant_type = models.CharField(max_length=20, choices=assistant_type.ASSISTANT_TYPES,
                                       default=assistant_type.ASSISTANT)
@@ -63,8 +62,11 @@ class AssistantMandate(models.Model):
     tutoring_percent = models.PositiveIntegerField(validators=[MinValueValidator(0), MaxValueValidator(100)], default=0)
     service_activities_percent = models.PositiveIntegerField(validators=[MinValueValidator(0),
                                                                          MaxValueValidator(100)], default=0)
-    formation_activities_percent = models.PositiveIntegerField(validators=[MinValueValidator(0),
-                                                                           MaxValueValidator(100)], default=0)
+    formation_activities_percent = models.PositiveIntegerField(
+        validators=[MinValueValidator(0),
+                    MaxValueValidator(100)],
+        default=0
+    )
     internships = models.TextField(null=True, blank=True)
     conferences = models.TextField(null=True, blank=True)
     publications = models.TextField(null=True, blank=True)
@@ -116,8 +118,7 @@ def find_by_academic_year_by_excluding_declined(academic_year):
 
 
 def find_before_year_for_assistant(year, assistant):
-    return AssistantMandate.objects.filter(academic_year__year__lt=year).\
-        filter(assistant=assistant).order_by('-academic_year')
+    return AssistantMandate.objects.filter(academic_year__year__lt=year).filter(assistant=assistant)
 
 
 def find_for_supervisor_for_academic_year(supervisor, academic_year):
