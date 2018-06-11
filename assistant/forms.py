@@ -131,6 +131,7 @@ class MandatesArchivesForm(ModelForm):
         model = mdl.assistant_mandate.AssistantMandate
         fields = ('academic_year',)
 
+
 RADIO_SELECT_REQUIRED = dict(
     required=True,
     widget=forms.RadioSelect(attrs={'onChange': 'Hide()'})
@@ -250,7 +251,8 @@ class ReviewForm(ModelForm):
 
     class Meta:
         model = mdl.review.Review
-        fields = ('mandate', 'advice', 'status', 'justification', 'remark', 'confidential', 'changed', 'comment_vice_rector')
+        fields = ('mandate', 'advice', 'status', 'justification', 'remark', 'confidential', 'changed',
+                  'comment_vice_rector')
         widgets = {'mandate': forms.HiddenInput(), 'reviewer': forms.HiddenInput, 'status': forms.HiddenInput,
                    'changed': forms.HiddenInput}
 
@@ -303,6 +305,7 @@ class ReviewerDelegationForm(ModelForm):
         entity.search(entity_type=entity_type.SCHOOL) | entity.search(entity_type=entity_type.PLATFORM) | \
         entity.search(entity_type=entity_type.POLE)
     entity = EntityChoiceField(required=True, queryset=base.models.entity.find_versions_from_entites(entities, None))
+
     class Meta:
         model = mdl.reviewer.Reviewer
         fields = ('entity', 'role')
