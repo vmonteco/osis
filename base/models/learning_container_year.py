@@ -57,6 +57,8 @@ class LearningContainerYear(SerializableModel):
                                                choices=vacant_declaration_type.DECLARATION_TYPE)
     in_charge = models.BooleanField(default=False)
 
+    _warnings = None
+
     def __str__(self):
         return u"%s - %s" % (self.acronym, self.common_title)
 
@@ -65,6 +67,15 @@ class LearningContainerYear(SerializableModel):
         permissions = (
             ("can_access_learningcontaineryear", "Can access learning container year"),
         )
+
+    @property
+    def warnings(self):
+        if self._warnings is None:
+            self._warnings = self._check_volumes_consistency()
+        return self._warnings
+
+    def _check_volumes_consistency(self):
+        return []
 
     def get_partims_related(self):
         return learning_unit_year.search(learning_container_year_id=self,

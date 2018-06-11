@@ -24,13 +24,18 @@
 #
 ##############################################################################
 from django.test import TestCase
+from django.utils.translation import ugettext_lazy as _
 
 from attribution.models import attribution
 from base.models import learning_unit_year
+from base.models.entity_component_year import EntityComponentYear
 from base.models.enums import learning_unit_year_subtypes
+from base.models.enums.entity_container_year_link_type import REQUIREMENT_ENTITY
+from base.models.enums.learning_component_year_type import LECTURING
+from base.models.learning_component_year import LearningComponentYear
 from base.models.learning_unit_year import find_max_credits_of_related_partims
 from base.tests.factories.academic_year import create_current_academic_year
-from base.tests.factories.business.learning_units import GenerateAcademicYear
+from base.tests.factories.business.learning_units import GenerateAcademicYear, GenerateContainer
 from base.tests.factories.external_learning_unit_year import ExternalLearningUnitYearFactory
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
 from base.tests.factories.learning_unit import LearningUnitFactory
@@ -220,3 +225,91 @@ class LearningUnitYearTest(TestCase):
     def test_is_not_external(self):
         luy = LearningUnitYearFactory()
         self.assertFalse(luy.is_external())
+
+
+class LearningUnitYearWarningsTest(TestCase):
+    def setUp(self):
+        self.start_year = 2010
+        self.end_year = 2020
+        self.generated_ac_years = GenerateAcademicYear(self.start_year, self.end_year)
+        self.generated_container = GenerateContainer(self.start_year, self.end_year)
+        self.luy_full = self.generated_container.generated_container_years[0].learning_unit_year_full
+        self.learning_component_year_full_lecturing = LearningComponentYear.objects.filter(
+            type=LECTURING,
+            learningunitcomponent__learning_unit_year=self.luy_full
+        ).first()
+        self.entity_component_year_full_lecturing_requirement = EntityComponentYear.objects.get(
+            learning_component_year=self.learning_component_year_full_lecturing,
+            entity_container_year__type=REQUIREMENT_ENTITY
+        )
+
+    def test_warning_volumes_vol_tot(self):
+        self.learning_component_year_full_lecturing.hourly_volume_partial_q1 = 15.0
+        self.learning_component_year_full_lecturing.hourly_volume_partial_q2 = 15.0
+        self.learning_component_year_full_lecturing.hourly_volume_total_annual = 40.0
+        self.learning_component_year_full_lecturing.planned_classes = 1
+        self.learning_component_year_full_lecturing.save()
+
+        self.entity_component_year_full_lecturing_requirement.repartition_volume = 30.0
+        self.entity_component_year_full_lecturing_requirement.save()
+
+        excepted_error = "{} ({})".format(_('Volumes are inconsistent'), _('Vol_tot is not equal to vol_q1 + vol_q2'))
+        self.assertIn(excepted_error, self.learning_component_year_full_lecturing.warnings)
+        self.assertIn(excepted_error, self.luy_full.warnings)
+
+    def test_warning_volumes_vol_global(self):
+        self.learning_component_year_full_lecturing.hourly_volume_partial_q1 = 15.0
+        self.learning_component_year_full_lecturing.hourly_volume_partial_q2 = 15.0
+        self.learning_component_year_full_lecturing.hourly_volume_total_annual = 30.0
+        self.learning_component_year_full_lecturing.planned_classes = 1
+        self.learning_component_year_full_lecturing.save()
+
+        self.entity_component_year_full_lecturing_requirement.repartition_volume = 40.0
+        self.entity_component_year_full_lecturing_requirement.save()
+
+        excepted_error = "{} ({})".format(
+            _('Volumes are inconsistent'), _('Vol_global is not equal to Vol_tot * planned_classes'))
+        self.assertIn(excepted_error, self.learning_component_year_full_lecturing.warnings)
+        self.assertIn(excepted_error, self.luy_full.warnings)
+
+    def test_warning_volumes_vol_global_and_total(self):
+        self.entity_component_year_full_lecturing_requirement.repartition_volume = 42.0
+        self.entity_component_year_full_lecturing_requirement.save()
+
+        self.learning_component_year_full_lecturing.hourly_volume_partial_q1 = 10.0
+        self.learning_component_year_full_lecturing.hourly_volume_partial_q2 = 15.0
+        self.learning_component_year_full_lecturing.hourly_volume_total_annual = 36.0
+        self.learning_component_year_full_lecturing.planned_classes = 2
+        self.learning_component_year_full_lecturing.save()
+
+        excepted_error_1 = "{} ({})".format(
+            _('Volumes are inconsistent'), _('Vol_global is not equal to Vol_tot * planned_classes'))
+        self.assertIn(excepted_error_1, self.learning_component_year_full_lecturing.warnings)
+        self.assertIn(excepted_error_1, self.luy_full.warnings)
+
+        excepted_error_2 = "{} ({})".format(_('Volumes are inconsistent'), _('Vol_tot is not equal to vol_q1 + vol_q2'))
+        self.assertIn(excepted_error_2, self.learning_component_year_full_lecturing.warnings)
+        self.assertIn(excepted_error_2, self.luy_full.warnings)
+
+    def test_warning_volumes_no_warning(self):
+        self.luy_full.credits = self.luy_full.credits + 1
+        self.luy_full.save()
+
+        test_cases = [
+            {'vol_q1': 15, 'vol_q2': 15, 'vol_tot_annual': 30, 'planned_classes': 1, 'vol_tot_global': 30},
+            {'vol_q1': 10, 'vol_q2': 20, 'vol_tot_annual': 30, 'planned_classes': 2, 'vol_tot_global': 60}
+        ]
+
+        for case in test_cases:
+            with self.subTest(case=case):
+                self.learning_component_year_full_lecturing.hourly_volume_partial_q1 = case.get('vol_q1')
+                self.learning_component_year_full_lecturing.hourly_volume_partial_q2 = case.get('vol_q2')
+                self.learning_component_year_full_lecturing.hourly_volume_total_annual = case.get('vol_tot_annual')
+                self.learning_component_year_full_lecturing.planned_classes = case.get('planned_classes')
+                self.learning_component_year_full_lecturing.save()
+
+                self.entity_component_year_full_lecturing_requirement.repartition_volume = case.get('vol_tot_global')
+                self.entity_component_year_full_lecturing_requirement.save()
+
+                self.assertFalse(self.learning_component_year_full_lecturing.warnings)
+                self.assertFalse(self.luy_full.warnings)
