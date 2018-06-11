@@ -29,8 +29,6 @@ from io import BytesIO
 
 from django.contrib.auth.decorators import user_passes_test, login_required
 from django.http import HttpResponse
-from django.db.models.query import QuerySet
-from django.shortcuts import redirect
 from django.utils.translation import ugettext_lazy as _
 from django.utils import timezone
 from django.views.decorators.http import require_http_methods
@@ -47,10 +45,9 @@ from reportlab.lib.colors import black, HexColor
 from reportlab.graphics.charts.legends import Legend
 
 from base.models.entity import find_versions_from_entites
-from base.models import academic_year, entity_version, person
+from base.models import academic_year, entity_version
 
 from assistant.utils import assistant_access, manager_access
-from assistant.models import manager
 from assistant.models import assistant_mandate, review, tutoring_learning_unit_year
 from assistant.models.enums import review_status, assistant_type
 
@@ -60,29 +57,9 @@ COLS_WIDTH_FOR_REVIEWS = [35*mm, 20*mm, 70*mm, 30*mm, 30*mm]
 COLS_WIDTH_FOR_TUTORING = [40*mm, 15*mm, 15*mm, 15*mm, 15*mm, 15*mm, 15*mm, 15*mm, 40*mm]
 
 
-def add_header_footer(canvas, doc):
-    styles = getSampleStyleSheet()
-    canvas.saveState()
-    header_building(canvas, doc)
-    footer_building(canvas, doc, styles)
-    canvas.restoreState()
-
-
-@require_http_methods(["POST"])
-@user_passes_test(assistant_access.user_is_assistant_and_procedure_is_open, login_url='access_denied')
-def export_mandate(request):
-    mandate_id = request.POST.get("mandate_id")
-    mandate = assistant_mandate.find_mandate_by_id(mandate_id)
-    return export_mandates(request, mandates=[mandate])
-
-
 @login_required
-def export_mandates(request, mandates=None):
+def build_doc(request, mandates, show_reviews):
     global YEAR
-    if mandates is None:
-        if not manager_access.user_is_manager(request.user):
-            return redirect('access_denied')
-        mandates = assistant_mandate.find_by_academic_year_by_excluding_declined(academic_year.current_academic_year())
     YEAR = mandates[0].academic_year
     filename = ('%s_%s_%s.pdf' % (_('assistants_mandates'), YEAR, time.strftime("%Y%m%d_%H%M")))
     response = HttpResponse(content_type='application/pdf')
@@ -92,23 +69,32 @@ def export_mandates(request, mandates=None):
                             bottomMargin=25)
     styles = getSampleStyleSheet()
     styles.add(ParagraphStyle(name='Tiny', fontSize=6, font='Helvetica', leading=8, leftIndent=0, rightIndent=0,
-                              firstLineIndent=0, alignment=TA_LEFT, spaceBefore=0, spaceAfter=0, splitLongWords=1,))
+                              firstLineIndent=0, alignment=TA_LEFT, spaceBefore=0, spaceAfter=0, splitLongWords=1, ))
     styles.add(ParagraphStyle(name='StandardWithBorder', font='Helvetica', leading=18, leftIndent=10, rightIndent=10,
                               firstLineIndent=0, alignment=TA_JUSTIFY, spaceBefore=25, spaceAfter=5, splitLongWords=1,
-                              borderColor='#000000', borderWidth=1, borderPadding=10,))
+                              borderColor='#000000', borderWidth=1, borderPadding=10, ))
     content = []
-    if manager_access.user_is_manager(request.user):
-        show_reviews = True
-    else:
-        show_reviews = False
     for mandate in mandates:
         add_mandate_content(content, mandate, styles, show_reviews)
-    doc.build(content, onFirstPage=add_header_footer,
-              onLaterPages=add_header_footer)
+    doc.build(content, onFirstPage=add_header_footer, onLaterPages=add_header_footer)
     pdf = buffer.getvalue()
     buffer.close()
     response.write(pdf)
     return response
+
+
+@require_http_methods(["POST"])
+@user_passes_test(assistant_access.user_is_assistant_and_procedure_is_open, login_url='access_denied')
+def export_mandate(request):
+    mandate_id = request.POST.get("mandate_id")
+    mandate = assistant_mandate.find_mandate_by_id(mandate_id)
+    return build_doc(request, mandates=[mandate], show_reviews=False)
+
+
+@user_passes_test(manager_access.user_is_manager, login_url='access_denied')
+def export_mandates(request):
+    mandates = assistant_mandate.find_by_academic_year_by_excluding_declined(academic_year.current_academic_year())
+    return build_doc(request, mandates, show_reviews=True)
 
 
 def add_mandate_content(content, mandate, styles, show_reviews):
@@ -374,6 +360,14 @@ def add_data_and_titles_to_pie(pie, titles, data, title):
         pie.data.append(data)
         pie.labels.append(str(data) + "%")
         titles.append(_(title))
+
+
+def add_header_footer(canvas, doc):
+    styles = getSampleStyleSheet()
+    canvas.saveState()
+    header_building(canvas, doc)
+    footer_building(canvas, doc, styles)
+    canvas.restoreState()
 
 
 def header_building(canvas, doc):
