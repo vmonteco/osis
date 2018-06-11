@@ -49,10 +49,29 @@
         {% bootstrap_field form.with_entity_subordinated form_group_class="col-md-2" %}
     {% endif %}
 
-    {% if search_type == borrowed_search_type %}
-        {% bootstrap_field form.faculty_borrowing_acronym form_group_class="col-md-2" %}
-    {% endif %}
 
     {% endwith %}
 
+{% endblock %}
+
+{% block search_form_buttons %}
+    {% with borrowed_search_type=5 %}
+    {% if search_type == borrowed_search_type %}
+    {% else %}
+        {{ block.super }}
+    {% endif %}
+    {% endwith %}
+{% endblock %}
+
+{% block extras %}
+    {% with borrowed_search_type=5 %}
+    {% if search_type == borrowed_search_type %}
+        <div class="row" style="margin-top:10px;">
+            {% bootstrap_field form.faculty_borrowing_acronym form_group_class="col-md-3" %}
+            <div class="col-md-1 text-right" style="line-height:70px;">
+                {% bootstrap_button "" value=_('learning_unit_search') button_type="submit" button_class="btn-primary" icon="search" %}
+            </div>
+        </div>
+    {% endif %}
+    {% endwith %}
 {% endblock %}
