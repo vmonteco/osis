@@ -34,6 +34,8 @@ from base.forms.learning_unit.learning_unit_create_2 import FullForm
 from base.forms.learning_unit.learning_unit_partim import PartimForm
 from base.models import academic_year, learning_unit_year
 from base.models.enums import learning_unit_year_subtypes
+from base.models.enums.learning_component_year_type import LECTURING
+from base.models.learning_component_year import LearningComponentYear
 from base.models.learning_unit import LearningUnit
 from base.models.proposal_learning_unit import is_learning_unit_year_in_proposal
 
@@ -42,7 +44,7 @@ FIELDS_TO_NOT_POSTPONE = {
     'type_declaration_vacant': 'learning_container_year.type_declaration_vacant',
     'attribution_procedure': 'attribution_procedure'
 }
-FIELDS_TO_NOT_CHECK = ['academic_year'] + list(FIELDS_TO_NOT_POSTPONE.keys())
+FIELDS_TO_NOT_CHECK = ['academic_year', 'id'] + list(FIELDS_TO_NOT_POSTPONE.keys())
 
 
 # @TODO: Use LearningUnitPostponementForm to manage END_DATE of learning unit year
@@ -152,12 +154,22 @@ class LearningUnitPostponementForm:
             data_to_postpone = data
         else:
             data_to_postpone = self._get_data_to_postpone(luy_to_update, data)
+            self._update_form_set_data(data_to_postpone, luy_to_update)
 
         return self._get_learning_unit_base_form(
             luy_to_update.academic_year,
             learning_unit_instance=luy_to_update.learning_unit,
             data=data_to_postpone
         )
+
+    def _update_form_set_data(self, data_to_postpone, luy_to_update):
+        learning_component_years = LearningComponentYear.objects.filter(
+            learningunitcomponent__learning_unit_year=luy_to_update)
+        for learning_component_year in learning_component_years:
+            if learning_component_year.type == LECTURING:
+                data_to_postpone['form-0-id'] = learning_component_year.id
+            else:
+                data_to_postpone['form-1-id'] = learning_component_year.id
 
     def _instanciate_base_form_as_insert(self, ac_year, data):
         return self._get_learning_unit_base_form(ac_year, data=data, start_year=self.start_postponement.year)
