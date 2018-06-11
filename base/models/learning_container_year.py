@@ -80,8 +80,8 @@ class LearningContainerYear(SerializableModel):
         learning_unit_years_with_context = \
             learning_unit_year_with_context.get_with_context(learning_container_year_id=self.id)
 
-        luy_full = next((luy for luy in learning_unit_years_with_context
-                         if luy.subtype == learning_unit_year_subtypes.FULL))
+        luy_full = next(luy for luy in learning_unit_years_with_context
+                         if luy.subtype == learning_unit_year_subtypes.FULL)
         luy_partims = [luy for luy in learning_unit_years_with_context
                        if luy.subtype == learning_unit_year_subtypes.PARTIM]
 
