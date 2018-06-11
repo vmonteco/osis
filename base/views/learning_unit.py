@@ -96,6 +96,8 @@ def learning_unit_formations(request, learning_unit_year_id):
 def learning_unit_components(request, learning_unit_year_id):
     person = get_object_or_404(Person, user=request.user)
     context = get_common_context_learning_unit_year(learning_unit_year_id, person)
+    learning_unit_year = context['learning_unit_year']
+    context['warnings'] = learning_unit_year.warnings
     data_components = get_same_container_year_components(context['learning_unit_year'], True)
     context['components'] = data_components.get('components')
     context['REQUIREMENT_ENTITY'] = data_components.get('REQUIREMENT_ENTITY')
