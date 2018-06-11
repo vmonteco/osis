@@ -31,7 +31,6 @@ from base.business import learning_unit_year_with_context
 from base.models import learning_unit_year
 from base.models.enums import learning_unit_year_subtypes, learning_container_year_types
 from base.models.enums import vacant_declaration_type
-from base.models.enums.learning_unit_year_subtypes import FULL, PARTIM
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
 
 
@@ -81,8 +80,10 @@ class LearningContainerYear(SerializableModel):
         learning_unit_years_with_context = \
             learning_unit_year_with_context.get_with_context(learning_container_year_id=self.id)
 
-        luy_full = next((luy for luy in learning_unit_years_with_context if luy.subtype == FULL))
-        luy_partims = [luy for luy in learning_unit_years_with_context if luy.subtype == PARTIM]
+        luy_full = next((luy for luy in learning_unit_years_with_context
+                         if luy.subtype == learning_unit_year_subtypes.FULL))
+        luy_partims = [luy for luy in learning_unit_years_with_context
+                       if luy.subtype == learning_unit_year_subtypes.PARTIM]
 
         if any((volumes_are_inconsistent_between_partim_and_full(partim, luy_full) for partim in luy_partims)):
             _warnings.append("{} ({})".format(
