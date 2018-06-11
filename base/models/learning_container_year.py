@@ -85,7 +85,7 @@ class LearningContainerYear(SerializableModel):
         luy_partims = [luy for luy in learning_unit_years_with_context
                        if luy.subtype == learning_unit_year_subtypes.PARTIM]
 
-        if any((volumes_are_inconsistent_between_partim_and_full(partim, luy_full) for partim in luy_partims)):
+        if any(volumes_are_inconsistent_between_partim_and_full(partim, luy_full) for partim in luy_partims):
             _warnings.append("{} ({})".format(
                 _('Volumes are inconsistent'),
                 _('At least a partim volume value is greater than corresponding volume of parent')
