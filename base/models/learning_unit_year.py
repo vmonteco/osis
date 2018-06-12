@@ -39,9 +39,9 @@ from base.models.enums import active_status, learning_container_year_types
 from base.models.enums import learning_unit_year_subtypes, internship_subtypes, \
     learning_unit_year_session, entity_container_year_link_type, learning_unit_year_quadrimesters, attribution_procedure
 from base.models.enums.learning_container_year_types import COURSE, INTERNSHIP
+from base.models.enums.learning_unit_periodicity import PERIODICITY_TYPES, ANNUAL
 from base.models.learning_unit import LEARNING_UNIT_ACRONYM_REGEX_ALL, REGEX_BY_SUBTYPE
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
-from base.models.enums.learning_unit_periodicity import PERIODICITY_TYPES, ANNUAL
 
 AUTHORIZED_REGEX_CHARS = "$*+.^"
 REGEX_ACRONYM_CHARSET = "[A-Z0-9" + AUTHORIZED_REGEX_CHARS + "]+"
@@ -59,7 +59,7 @@ def academic_year_validator(value):
 class LearningUnitYearAdmin(SerializableModelAdmin):
     list_display = ('external_id', 'acronym', 'specific_title', 'academic_year', 'credits', 'changed', 'structure',
                     'status')
-    list_filter = ('academic_year', 'decimal_scores', 'summary_locked', 'periodicity')
+    list_filter = ('academic_year', 'decimal_scores', 'summary_locked')
     search_fields = ['acronym', 'structure__acronym', 'external_id']
 
 
@@ -312,20 +312,6 @@ class LearningUnitYear(SerializableModel):
 
     def is_external(self):
         return hasattr(self, "externallearningunityear")
-
-    # def clean(self):
-    #     if self.learning_unit:
-    #         parent = self.learning_unit.parent or self
-    #         children = self.learning_unit.children or [self]
-    #
-    #         if parent.periodicity == ANNUAL:
-    #             return
-    #
-    #         for child in children:
-    #             if child.periodicity == ANNUAL:
-    #                 raise ValidationError(
-    #                     {'periodicity': _('The periodicity of the parent and the partims do not match')}
-    #                 )
 
 
 def get_by_id(learning_unit_year_id):

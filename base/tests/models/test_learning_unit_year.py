@@ -154,7 +154,6 @@ class LearningUnitYearTest(TestCase):
                                       specific_title=a_specific_title,
                                       learning_container_year=lunit_container_yr)
 
-
         self.assertEqual(learning_unit_year.search(title="{} en plus".format(a_common_title)).count(), 0)
         self.assertEqual(learning_unit_year.search(title=a_common_title)[0], luy)
         self.assertEqual(learning_unit_year.search(title=common_part)[0], luy)
@@ -225,26 +224,6 @@ class LearningUnitYearTest(TestCase):
     def test_is_not_external(self):
         luy = LearningUnitYearFactory()
         self.assertFalse(luy.is_external())
-
-    def test_previous_acronym(self):
-        learning_unit = LearningUnitFactory()
-        dict_learning_unit_year = create_learning_units_year(2013, 2016, learning_unit)
-
-        l_unit_1 = dict_learning_unit_year.get(2013)
-        l_unit_1.acronym = "LBIR1212"
-        l_unit_1.save()
-
-        l_unit_2 = dict_learning_unit_year.get(2014)
-        l_unit_2.acronym = "LBIR1213"
-        l_unit_2.save()
-
-        l_unit_3 = dict_learning_unit_year.get(2015)
-        l_unit_3.acronym="LBIR1214"
-        l_unit_3.save()
-
-        self.assertEqual(l_unit_3.get_previous_acronym.acronym, 'LBIR1213')
-        self.assertEqual(l_unit_2.get_previous_acronym.acronym, 'LBIR1212')
-        self.assertIsNone(l_unit_1.get_previous_acronym)
 
 
 class LearningUnitYearWarningsTest(TestCase):
