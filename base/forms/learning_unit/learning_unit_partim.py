@@ -202,7 +202,7 @@ class PartimForm(LearningUnitBaseForm):
     def _get_inherit_learning_unit_full_value(self):
         """This function will return the inherit value come from learning unit FULL"""
         return {
-            'periodicity': self.learning_unit_full_instance.periodicity
+            # 'periodicity': self.learning_unit_full_instance.periodicity
         }
 
     def save(self, commit=True):

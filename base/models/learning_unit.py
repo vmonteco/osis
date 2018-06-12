@@ -126,8 +126,6 @@ class LearningUnit(SerializableModel):
             )
         return []
 
-
-
     @property
     def max_end_year(self):
         """ Compute the maximal possible end_year value when the end_year is None """

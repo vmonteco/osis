@@ -68,7 +68,7 @@ class TestLearningUnitEditionView(TestCase, LearningUnitsMixin):
         self.client.force_login(self.user)
 
         self.setup_academic_years()
-        self.learning_unit = self.setup_learning_unit(self.current_academic_year.year, learning_unit_periodicity.ANNUAL)
+        self.learning_unit = self.setup_learning_unit(self.current_academic_year.year)
         self.learning_container_year = self.setup_learning_container_year(
             academic_year=self.current_academic_year,
             container_type=learning_container_year_types.COURSE
@@ -77,7 +77,8 @@ class TestLearningUnitEditionView(TestCase, LearningUnitsMixin):
             self.current_academic_year,
             self.learning_unit,
             self.learning_container_year,
-            learning_unit_year_subtypes.FULL
+            learning_unit_year_subtypes.FULL,
+            learning_unit_periodicity.ANNUAL
         )
 
         self.a_superuser = SuperUserFactory()
@@ -300,11 +301,11 @@ class TestEditLearningUnit(TestCase):
                 "professional_integration": self.learning_unit_year.professional_integration,
                 "campus": self.learning_unit_year.campus.pk,
                 "language": self.learning_unit_year.language.pk,
+                "periodicity": self.learning_unit_year.periodicity
             },
             'learning_unit_form': {
                 "faculty_remark": self.learning_unit_year.learning_unit.faculty_remark,
-                "other_remark": self.learning_unit_year.learning_unit.other_remark,
-                "periodicity": self.learning_unit_year.learning_unit.periodicity
+                "other_remark": self.learning_unit_year.learning_unit.other_remark
             }
         }
         for form_name, expected_initial in expected_initials.items():

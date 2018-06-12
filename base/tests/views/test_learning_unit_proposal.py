@@ -151,7 +151,7 @@ class TestLearningUnitModificationProposal(TestCase):
             "container_type": self.learning_unit_year.learning_container_year.container_type,
             "internship_subtype": "",
             "credits": self.learning_unit_year.credits,
-            "periodicity": self.learning_unit_year.learning_unit.periodicity,
+            "periodicity": self.learning_unit_year.periodicity,
             "status": self.learning_unit_year.status,
             "language": self.learning_unit_year.language.pk,
             "quadrimester": "",
@@ -212,7 +212,7 @@ class TestLearningUnitModificationProposal(TestCase):
         self.assertEqual(lcy_initial['container_type'], self.learning_unit_year.
                          learning_container_year.container_type)
         self.assertEqual(luy_initial['credits'], self.learning_unit_year.credits)
-        self.assertEqual(lu_initial['periodicity'], self.learning_unit_year.learning_unit.periodicity)
+        self.assertEqual(lu_initial['periodicity'], self.learning_unit_year.periodicity)
         self.assertEqual(luy_initial['status'], self.learning_unit_year.status)
         self.assertEqual(luy_initial['language'], self.learning_unit_year.language.pk)
         self.assertEqual(luy_initial['campus'], self.learning_unit_year.campus.id)
@@ -754,10 +754,10 @@ def _create_proposal_learning_unit():
             "credits": float(a_learning_unit_year.credits),
             "language": a_learning_unit_year.language.pk,
             "campus": a_learning_unit_year.campus.id,
+            "periodicity": a_learning_unit_year.periodicity
         },
         "learning_unit": {
             "id": a_learning_unit_year.learning_unit.id,
-            "periodicity": a_learning_unit_year.learning_unit.periodicity
         },
         "entities": {
             entity_container_year_link_type.REQUIREMENT_ENTITY: an_entity_container_year.entity.id,

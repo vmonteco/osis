@@ -37,6 +37,7 @@ from base.models.enums.entity_container_year_link_type import REQUIREMENT_ENTITY
 from base.models.enums.internship_subtypes import PROFESSIONAL_INTERNSHIP
 from base.models.enums.learning_container_year_types import MASTER_THESIS, OTHER_INDIVIDUAL
 from base.models.enums.learning_unit_year_subtypes import FULL, PARTIM
+from base.models.enums.learning_unit_periodicity import ANNUAL
 from base.models.learning_component_year import LearningComponentYear
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import CENTRAL_MANAGER_GROUP, FACULTY_MANAGER_GROUP
@@ -114,7 +115,8 @@ class TestLearningUnitYearModelFormSave(TestCase):
             'internship_subtype': PROFESSIONAL_INTERNSHIP,
             'attribution_procedure': INTERNAL_TEAM,
             'campus': campus.pk,
-            'language': self.language.pk
+            'language': self.language.pk,
+            'periodicity': ANNUAL
         }
 
         self.requirement_entity = EntityContainerYearFactory(type=REQUIREMENT_ENTITY,
@@ -213,7 +215,7 @@ class TestLearningUnitYearModelFormSave(TestCase):
     def test_warnings_credit(self):
         learning_unit_year_to_update = LearningUnitYearFactory(
             learning_unit=self.learning_unit, learning_container_year=self.learning_container_year, subtype=FULL,
-            academic_year = self.current_academic_year
+            academic_year=self.current_academic_year
         )
 
         partim = LearningUnitYearFactory(learning_container_year=self.learning_container_year, subtype=PARTIM,

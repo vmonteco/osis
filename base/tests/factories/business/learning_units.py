@@ -117,12 +117,11 @@ class LearningUnitsMixin:
         return results
 
     @staticmethod
-    def setup_learning_unit(start_year, periodicity=learning_unit_periodicity.ANNUAL, end_year=None):
+    def setup_learning_unit(start_year, end_year=None):
         result = None
         if start_year:
             result = LearningUnitFactory(
                 start_year=start_year,
-                periodicity=periodicity,
                 end_year=end_year)
         return result
 
@@ -137,7 +136,8 @@ class LearningUnitsMixin:
         return result
 
     @staticmethod
-    def setup_learning_unit_year(academic_year, learning_unit, learning_container_year, learning_unit_year_subtype, periodicity):
+    def setup_learning_unit_year(academic_year, learning_unit, learning_container_year, learning_unit_year_subtype,
+                                 periodicity):
         create = False
         result = None
         end_year = learning_unit.end_year or compute_max_academic_year_adjournment()
@@ -197,7 +197,8 @@ class LearningUnitsMixin:
                 academic_year=academic_year,
                 learning_unit=learning_unit_full,
                 learning_container_year=None,
-                learning_unit_year_subtype=learning_unit_year_subtypes.FULL
+                learning_unit_year_subtype=learning_unit_year_subtypes.FULL,
+                periodicity=learning_unit_periodicity.ANNUAL
             )
 
             if learning_unit_year_full:
@@ -207,7 +208,8 @@ class LearningUnitsMixin:
                     academic_year=academic_year,
                     learning_unit=learning_unit_partim,
                     learning_container_year=learning_unit_year_full.learning_container_year,
-                    learning_unit_year_subtype=learning_unit_year_subtypes.PARTIM
+                    learning_unit_year_subtype=learning_unit_year_subtypes.PARTIM,
+                    periodicity=learning_unit_periodicity.ANNUAL
                 )
                 if learning_unit_year_partim:
                     results.append(learning_unit_year_partim)
@@ -254,8 +256,7 @@ class GenerateContainer:
                 learning_unit_partim=self.learning_unit_partim,
                 entities=self.entities,
                 campus=self.campus,
-                language=self.language,
-                periodicity=learning_unit_periodicity.ANNUAL
+                language=self.language
             )
             for year in range(self.start_year, self.end_year + 1)
         ]
@@ -384,6 +385,7 @@ def _setup_learning_unit_year(learning_unit, learning_container_year, subtype, c
         academic_year=learning_container_year.academic_year,
         subtype=subtype,
         campus=campus,
+        periodicity=learning_unit_periodicity.ANNUAL,
         **common_luy_data
     )
     learning_unit = learning_unit_year.learning_unit

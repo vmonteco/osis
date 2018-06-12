@@ -70,7 +70,8 @@ class TestSave(TestCase):
             subtype=learning_unit_year_subtypes.FULL,
             academic_year=current_academic_year,
             learning_container_year=learning_container_year,
-            campus=CampusFactory(organization=an_organization, is_administration=True)
+            campus=CampusFactory(organization=an_organization, is_administration=True),
+            periodicity=learning_unit_periodicity.ANNUAL
         )
 
         today = datetime.date.today()
@@ -244,10 +245,10 @@ class TestSave(TestCase):
                 "language": self.learning_unit_year.language.pk,
                 "credits": self.learning_unit_year.credits,
                 "campus": self.learning_unit_year.campus.id,
+                "periodicity": self.learning_unit_year.periodicity,
             },
             "learning_unit": {
                 "id": self.learning_unit_year.learning_unit.id,
-                "periodicity": self.learning_unit_year.periodicity,
                 'end_year': self.learning_unit_year.learning_unit.end_year
             },
             "entities": {

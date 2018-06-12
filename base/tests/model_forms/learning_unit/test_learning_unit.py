@@ -26,7 +26,7 @@
 from django.test import TestCase
 from django.utils.translation import ugettext_lazy as _
 
-from base.forms.learning_unit.learning_unit_create import LearningUnitModelForm
+from base.forms.learning_unit.learning_unit_create import LearningUnitModelForm, LearningUnitYearModelForm
 from base.models.enums import learning_unit_year_subtypes
 from base.models.enums.learning_unit_periodicity import BIENNIAL_EVEN, ANNUAL
 from base.tests.factories.academic_year import create_current_academic_year
@@ -58,7 +58,7 @@ class TestLearningUnitModelFormSave(TestCase):
     quote_2 = """And then her heart changed, or at least she understood it; 
     and the winter passed, and the sun shone upon her."""
 
-    post_data = {'periodicity': BIENNIAL_EVEN, 'faculty_remark': quote_1, 'other_remark': quote_2}
+    post_data = {'faculty_remark': quote_1, 'other_remark': quote_2}
 
     def setUp(self):
         self.current_academic_year = create_current_academic_year()
@@ -89,30 +89,3 @@ class TestLearningUnitModelFormSave(TestCase):
         lu = self.form.save(**self.save_kwargs)
         self.assertEqual(lu.faculty_remark, self.quote_1)
         self.assertEqual(lu.other_remark, self.quote_2)
-
-    def test_full_periodicity_biannual_with_partim_annual(self):
-        a_new_learning_unit_full = LearningUnitYearFactory(
-            academic_year=self.current_academic_year,
-            subtype=learning_unit_year_subtypes.FULL,
-            credits=20)
-        a_new_learning_unit_partim = LearningUnitYearFactory(
-            academic_year=self.current_academic_year,
-            subtype=learning_unit_year_subtypes.PARTIM,
-            credits=12)
-
-        a_new_learning_unit_partim.learning_unit.learning_container = a_new_learning_unit_full.\
-            learning_unit.learning_container
-        a_new_learning_unit_partim.learning_container_year = a_new_learning_unit_full.learning_container_year
-        a_new_learning_unit_partim.learning_unit.save()
-        a_new_learning_unit_partim.save()
-
-        a_new_learning_unit_partim.periodicity = ANNUAL
-        a_new_learning_unit_partim.learning_unit.save()
-
-        post_data = {'periodicity': BIENNIAL_EVEN}
-        form = LearningUnitModelForm(data=post_data, instance=a_new_learning_unit_full.learning_unit)
-
-        # The form should be valid
-        self.assertFalse(form.is_valid(), form.errors)
-        self.assertEqual(form.errors.get('periodicity'),
-                         [_('The periodicity of the parent and the partims do not match')])

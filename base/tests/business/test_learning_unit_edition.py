@@ -116,7 +116,8 @@ class TestLearningUnitEdition(TestCase, LearningUnitsMixin):
 
         self.setup_list_of_learning_unit_years_full(
             list_of_academic_years=self.list_of_academic_years_after_now,
-            learning_unit_full=learning_unit_full_annual
+            learning_unit_full=learning_unit_full_annual,
+            periodicity=learning_unit_periodicity.ANNUAL
         )
 
         academic_year_of_new_end_date = academic_year.find_academic_year_by_year(expected_end_year)
@@ -165,7 +166,8 @@ class TestLearningUnitEdition(TestCase, LearningUnitsMixin):
 
         self.setup_list_of_learning_unit_years_full(
             list_of_academic_years=self.list_of_academic_years,
-            learning_unit_full=learning_unit_full_annual
+            learning_unit_full=learning_unit_full_annual,
+            periodicity=learning_unit_periodicity.ANNUAL
         )
 
         list_of_expected_learning_unit_years = list(range(start_year_full, expected_end_year_full + 1))
@@ -227,7 +229,8 @@ class TestLearningUnitEdition(TestCase, LearningUnitsMixin):
 
         self.setup_list_of_learning_unit_years_full(
             list_of_academic_years=self.list_of_academic_years,
-            learning_unit_full=learning_unit_full_annual
+            learning_unit_full=learning_unit_full_annual,
+            periodicity=learning_unit_periodicity.ANNUAL
         )
 
         list_of_expected_learning_unit_years = list(range(start_year, expected_end_year + 1))
@@ -285,7 +288,8 @@ class TestLearningUnitEdition(TestCase, LearningUnitsMixin):
 
         self.setup_list_of_learning_unit_years_full(
             list_of_academic_years=self.list_of_academic_years,
-            learning_unit_full=learning_unit_full_annual
+            learning_unit_full=learning_unit_full_annual,
+            periodicity=learning_unit_periodicity.ANNUAL
         )
 
         list_of_expected_learning_unit_years = []
@@ -332,13 +336,13 @@ class TestLearningUnitEdition(TestCase, LearningUnitsMixin):
     def test_edit_learning_unit_full_even_end_date_lt_old_end_date_with_start_date_lt_now(self):
         learning_unit_full_annual = self.setup_learning_unit(
             start_year=self.current_academic_year.year - 1,
-            end_year=self.current_academic_year.year + 6,
-            periodicity=learning_unit_periodicity.BIENNIAL_EVEN
+            end_year=self.current_academic_year.year + 6
         )
 
         self.setup_list_of_learning_unit_years_full(
             list_of_academic_years=self.list_of_academic_years,
-            learning_unit_full=learning_unit_full_annual
+            learning_unit_full=learning_unit_full_annual,
+            periodicity=learning_unit_periodicity.BIENNIAL_EVEN
         )
 
         list_of_expected_learning_unit_years = []
@@ -599,7 +603,8 @@ class TestLearningUnitEdition(TestCase, LearningUnitsMixin):
 
         learning_unit_full_annual = self.setup_learning_unit(start_year=start_year_full, end_year=end_year_full)
         learning_unit_years = self.setup_list_of_learning_unit_years_full(self.list_of_academic_years_after_now,
-                                                                          learning_unit_full_annual)
+                                                                          learning_unit_full_annual,
+                                                                          periodicity=learning_unit_periodicity.ANNUAL)
 
         _create_learning_component_years(learning_unit_years, self.number_classes)
         _create_entity_container_years(learning_unit_years, self.entity)
@@ -626,7 +631,8 @@ class TestLearningUnitEdition(TestCase, LearningUnitsMixin):
 
         learning_unit_full_annual = self.setup_learning_unit(start_year=start_year_full, end_year=end_year_full)
         learning_unit_years = self.setup_list_of_learning_unit_years_full(self.list_of_academic_years_after_now,
-                                                                          learning_unit_full_annual)
+                                                                          learning_unit_full_annual,
+                                                                          periodicity=learning_unit_periodicity.ANNUAL)
 
         _create_learning_component_years(learning_unit_years, self.number_classes)
         _create_entity_container_years(learning_unit_years, self.entity)
@@ -704,7 +710,8 @@ class TestLearningUnitEdition(TestCase, LearningUnitsMixin):
 
         luy_list = self.setup_list_of_learning_unit_years_full(
             list_of_academic_years=self.list_of_academic_years,
-            learning_unit_full=learning_unit_full_annual
+            learning_unit_full=learning_unit_full_annual,
+            periodicity=learning_unit_periodicity.ANNUAL
         )
 
         self.setup_educational_information(luy_list)
@@ -784,7 +791,6 @@ class TestModifyLearningUnit(TestCase, LearningUnitsMixin):
 
     def test_with_learning_unit_fields_to_update(self):
         fields_to_update = {
-            "periodicity": learning_unit_periodicity.BIENNIAL_EVEN,
             "faculty_remark": "Faculty remark",
             "other_remark": "Other remark"
         }
@@ -829,7 +835,8 @@ class TestModifyLearningUnit(TestCase, LearningUnitsMixin):
     def test_apply_updates_on_next_learning_unit_years(self):
         a_learning_unit = self.setup_learning_unit(self.current_academic_year.year)
         learning_unit_years = self.setup_list_of_learning_unit_years_full(self.list_of_academic_years_after_now,
-                                                                          a_learning_unit)
+                                                                          a_learning_unit,
+                                                                          learning_unit_periodicity.ANNUAL)
 
         learning_unit_fields_to_update = {
             "faculty_remark": "Faculty remark"
@@ -870,7 +877,8 @@ class TestModifyLearningUnit(TestCase, LearningUnitsMixin):
     def test_apply_updates_on_next_learning_unit_years_until_proposal(self):
         a_learning_unit = self.setup_learning_unit(self.current_academic_year.year)
         learning_unit_years = self.setup_list_of_learning_unit_years_full(
-            self.list_of_academic_years_after_now, a_learning_unit)
+            self.list_of_academic_years_after_now, a_learning_unit,
+            periodicity=learning_unit_periodicity.ANNUAL)
 
         luy_in_proposal = learning_unit_years[2]
         ProposalLearningUnitFactory(learning_unit_year=luy_in_proposal)
@@ -907,7 +915,8 @@ class TestModifyLearningUnit(TestCase, LearningUnitsMixin):
     def test_when_not_reporting(self):
         a_learning_unit = self.setup_learning_unit(self.current_academic_year.year)
         learning_unit_years = self.setup_list_of_learning_unit_years_full(self.list_of_academic_years_after_now,
-                                                                          a_learning_unit)
+                                                                          a_learning_unit,
+                                                                          periodicity=learning_unit_periodicity.ANNUAL)
 
         learning_unit_fields_to_update = {
             "faculty_remark": "Faculty remark"
@@ -1066,7 +1075,8 @@ class TestUpdateLearningUnitEntities(TestCase, LearningUnitsMixin):
     def test_apply_changes_to_next_learning_unit_year(self):
         a_learning_unit = self.setup_learning_unit(self.current_academic_year.year)
         learning_unit_years = self.setup_list_of_learning_unit_years_full(self.list_of_academic_years_after_now,
-                                                                          a_learning_unit)
+                                                                          a_learning_unit,
+                                                                          periodicity=learning_unit_periodicity.ANNUAL)
         current_requirement_entity = EntityFactory()
         for luy in learning_unit_years:
             EntityContainerYearFactory(
@@ -1092,7 +1102,8 @@ class TestUpdateLearningUnitEntities(TestCase, LearningUnitsMixin):
     def test_with_no_report(self):
         a_learning_unit = self.setup_learning_unit(self.current_academic_year.year)
         learning_unit_years = self.setup_list_of_learning_unit_years_full(self.list_of_academic_years_after_now,
-                                                                          a_learning_unit)
+                                                                          a_learning_unit,
+                                                                          periodicity=learning_unit_periodicity.ANNUAL)
         current_requirement_entity = EntityFactory()
         for luy in learning_unit_years:
             EntityContainerYearFactory(
