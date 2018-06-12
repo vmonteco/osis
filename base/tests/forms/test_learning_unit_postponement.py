@@ -241,6 +241,13 @@ class TestLearningUnitPostponementFormSave(LearningUnitPostponementFormContextMi
 
         instance_luy_base_form = _instanciate_base_learning_unit_form(self.learning_unit_year_partim, self.person)
         instance_luy_base_form.data['end_year'] = self.learning_unit_year_full.academic_year.year + 2
+        instance_luy_base_form.data['form-TOTAL_FORMS'] = 2
+        instance_luy_base_form.data['form-INITIAL_FORMS'] = 0
+        instance_luy_base_form.data['form-MAX_NUM_FORMS'] = 2
+        instance_luy_base_form.data['form-0-hourly_volume_total_annual'] = 20
+        instance_luy_base_form.data['form-0-hourly_volume_partial_q1'] = 10
+        instance_luy_base_form.data['form-0-hourly_volume_partial_q2'] = 10
+
         form = LearningUnitPostponementForm(self.person, self.learning_unit_year_full.academic_year,
                                             learning_unit_full_instance=self.learning_unit_year_full.learning_unit,
                                             data=instance_luy_base_form.data)
@@ -592,6 +599,17 @@ def _instanciate_base_learning_unit_form(learning_unit_year_instance, person):
         'learning_unit_full_instance': learning_unit_full_instance,
         'learning_unit_instance': learning_unit_instance,
         'data': {
+            # Learning component year data model form
+            'form-TOTAL_FORMS': '2',
+            'form-INITIAL_FORMS': '0',
+            'form-MAX_NUM_FORMS': '2',
+            'form-0-hourly_volume_total_annual': 20,
+            'form-0-hourly_volume_partial_q1': 10,
+            'form-0-hourly_volume_partial_q2': 10,
+            'form-1-hourly_volume_total_annual': 20,
+            'form-1-hourly_volume_partial_q1': 10,
+            'form-1-hourly_volume_partial_q2': 10,
+
             'acronym': learning_unit_year_instance.acronym,
             'acronym_0': learning_unit_year_instance.acronym[0],
             'acronym_1': learning_unit_year_instance.acronym[1:],
@@ -629,17 +647,6 @@ def _instanciate_base_learning_unit_form(learning_unit_year_instance, person):
                 entity_version_by_type.get(entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1).id,
             'additional_requirement_entity_2-entity':
                 entity_version_by_type.get(entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2).id,
-
-            # Learning component year data model form
-            'form-TOTAL_FORMS': '2',
-            'form-INITIAL_FORMS': '0',
-            'form-MAX_NUM_FORMS': '2',
-            'form-0-hourly_volume_total_annual': 20,
-            'form-0-hourly_volume_partial_q1': 10,
-            'form-0-hourly_volume_partial_q2': 10,
-            'form-1-hourly_volume_total_annual': 20,
-            'form-1-hourly_volume_partial_q1': 10,
-            'form-1-hourly_volume_partial_q2': 10,
         },
         'person': person
     }
