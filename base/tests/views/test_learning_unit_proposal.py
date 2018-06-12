@@ -212,7 +212,7 @@ class TestLearningUnitModificationProposal(TestCase):
         self.assertEqual(lcy_initial['container_type'], self.learning_unit_year.
                          learning_container_year.container_type)
         self.assertEqual(luy_initial['credits'], self.learning_unit_year.credits)
-        self.assertEqual(lu_initial['periodicity'], self.learning_unit_year.periodicity)
+        self.assertEqual(luy_initial['periodicity'], self.learning_unit_year.periodicity)
         self.assertEqual(luy_initial['status'], self.learning_unit_year.status)
         self.assertEqual(luy_initial['language'], self.learning_unit_year.language.pk)
         self.assertEqual(luy_initial['campus'], self.learning_unit_year.campus.id)
@@ -250,10 +250,10 @@ class TestLearningUnitModificationProposal(TestCase):
                 "id", "acronym", "common_title", "container_type", "in_charge"
             ],
             'learning_unit': [
-                "id", "periodicity", "end_year"
+                "id", "end_year"
             ],
             'learning_unit_year': [
-                "id", "acronym", "specific_title", "internship_subtype", "credits", "campus", "language"
+                "id", "acronym", "specific_title", "internship_subtype", "credits", "campus", "language", "periodicity"
             ]
         }
         self.assertEqual(expected_initial_data_fields, INITIAL_DATA_FIELDS)
@@ -396,8 +396,7 @@ class TestLearningUnitSuppressionProposal(TestCase):
             container_type=learning_container_year_types.COURSE
         )
         self.learning_unit = LearningUnitFactory(
-            end_year=None,
-            periodicity=learning_unit_periodicity.ANNUAL,
+            end_year=None
         )
 
         self.learning_unit_year = LearningUnitYearFakerFactory(
@@ -410,7 +409,8 @@ class TestLearningUnitSuppressionProposal(TestCase):
             campus=CampusFactory(
                 organization=an_organization,
                 is_administration=True
-            )
+            ),
+            periodicity=learning_unit_periodicity.ANNUAL
         )
 
         an_entity = EntityFactory(organization=an_organization)

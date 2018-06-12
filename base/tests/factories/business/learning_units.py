@@ -385,7 +385,6 @@ def _setup_learning_unit_year(learning_unit, learning_container_year, subtype, c
         academic_year=learning_container_year.academic_year,
         subtype=subtype,
         campus=campus,
-        periodicity=learning_unit_periodicity.ANNUAL,
         **common_luy_data
     )
     learning_unit = learning_unit_year.learning_unit
@@ -404,7 +403,8 @@ def _get_default_common_value_learning_unit_year(learning_container_year, subtyp
         'session': learning_unit_year_session.SESSION_1X3,
         'quadrimester': learning_unit_year_quadrimesters.Q1,
         'internship_subtype': None,
-        'language': language
+        'language': language,
+        'periodicity': learning_unit_periodicity.ANNUAL
     }
     if subtype == learning_unit_year_subtypes.PARTIM:
         common_data['acronym'] += 'A'

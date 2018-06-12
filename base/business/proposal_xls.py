@@ -52,7 +52,7 @@ def extract_xls_data_from_proposal(proposal):
             xls_build.translate(proposal.state),
             proposal.folder,
             xls_build.translate(proposal.learning_unit_year.learning_container_year.type_declaration_vacant),
-            xls_build.translate(proposal.learning_unit_year.learning_unit.periodicity),
+            xls_build.translate(proposal.learning_unit_year.periodicity),
             proposal.learning_unit_year.credits,
             get_entity_acronym(proposal.learning_unit_year.entities.get('ALLOCATION_ENTITY')),
             proposal.date.strftime('%d-%m-%Y')]
