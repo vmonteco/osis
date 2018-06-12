@@ -122,12 +122,17 @@ def get_style_of_label_text(label_text, style, title):
 @register.filter
 def get_previous_acronym(luy):
     if has_proposal(luy):
-        proposal = ProposalLearningUnit.objects \
-            .filter(learning_unit_year=luy) \
-            .order_by('-learning_unit_year__academic_year__year').first()
-        if proposal and proposal.initial_data and proposal.initial_data.get('learning_unit_year'):
-            return proposal.initial_data.get('learning_unit_year', None)
+        return _get_acronym_from_proposal(luy)
     else:
         luy = find_lt_learning_unit_year_with_different_acronym(luy)
         return luy.acronym if luy else None
+    return None
+
+
+def _get_acronym_from_proposal(luy):
+    proposal = ProposalLearningUnit.objects \
+        .filter(learning_unit_year=luy) \
+        .order_by('-learning_unit_year__academic_year__year').first()
+    if proposal and proposal.initial_data and proposal.initial_data.get('learning_unit_year'):
+        return proposal.initial_data['learning_unit_year']['acronym']
     return None
