@@ -37,6 +37,7 @@ class Review(models.Model):
     justification = models.TextField(null=True, blank=True)
     remark = models.TextField(null=True, blank=True)
     confidential = models.TextField(null=True, blank=True)
+    comment_vice_rector = models.TextField(null=True, blank=True)
     changed = models.DateTimeField(default=timezone.now, null=True)
 
 

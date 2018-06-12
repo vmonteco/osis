@@ -154,10 +154,10 @@ class LearningUnitYearForm(LearningUnitSearchForm):
         return acronym
 
     def clean_allocation_entity_acronym(self):
-        allocation_entity_acronym = self.cleaned_data.get('allocation_entity_acronym')
-        if allocation_entity_acronym:
-            return allocation_entity_acronym.upper()
-        return allocation_entity_acronym
+        return convert_to_uppercase(self.cleaned_data.get('allocation_entity_acronym'))
+
+    def clean_faculty_borrowing_acronym(self):
+        return convert_to_uppercase(self.cleaned_data.get('faculty_borrowing_acronym'))
 
     def clean(self):
         return get_clean_data(self.cleaned_data)
@@ -200,11 +200,13 @@ class LearningUnitYearForm(LearningUnitSearchForm):
         return convert_status_bool(luy_status) if luy_status else self.cleaned_data['status']
 
     def _filter_borrowed_learning_units(self, learning_units):
-        try:
-            faculty_borrowing_id = EntityVersion.objects.current(self.cleaned_data["academic_year_id"].start_date).\
-                get(acronym=self.cleaned_data["faculty_borrowing_acronym"]).entity.id
-        except EntityVersion.DoesNotExist:
-            faculty_borrowing_id = None
+        faculty_borrowing_id = None
+        if self.cleaned_data["faculty_borrowing_acronym"]:
+            try:
+                faculty_borrowing_id = EntityVersion.objects.current(self.cleaned_data["academic_year_id"].start_date).\
+                    get(acronym=self.cleaned_data["faculty_borrowing_acronym"]).entity.id
+            except EntityVersion.DoesNotExist:
+                return []
         return filter_is_borrowed_learning_unit_year(learning_units, self.cleaned_data["academic_year_id"].start_date,
                                                      faculty_borrowing=faculty_borrowing_id)
 

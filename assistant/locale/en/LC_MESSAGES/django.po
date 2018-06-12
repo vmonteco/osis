@@ -142,6 +142,9 @@ msgstr "The number of cols is wrong."
 msgid "comment"
 msgstr "Comment"
 
+msgid "comment_vice_rector"
+msgstr "Comment DAS/CAS - Vice-Rector"
+
 msgid "CONDITIONAL"
 msgstr "Conditional"
 
@@ -385,6 +388,9 @@ msgstr "In progress"
 
 msgid "information_not_provided_to_assistant"
 msgstr "This information will not be transmitted to the assistant"
+
+msgid "information_only_for_DAS_CAS_and_VICE_RECTOR"
+msgstr "This information is only transmitted to DAS/CAS and Vice-Rector"
 
 msgid "infrastructure_mgmt_service"
 msgstr "Management of collective facilities (lab, workshop, library, IT department, website,...)"
