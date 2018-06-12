@@ -1,4 +1,4 @@
-##############################################################################
+#############################################################################
 #
 #    OSIS stands for Open Student Information System. It's an application
 #    designed to manage the core business of higher education institutions,
@@ -29,6 +29,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from base.models.proposal_learning_unit import ProposalLearningUnit
 from base.models import learning_unit_year
+from base.models.learning_unit_year import find_lt_learning_unit_year_with_different_acronym
 
 register = template.Library()
 
@@ -116,3 +117,18 @@ def get_style_of_label_text(label_text, style, title):
     label_text = '<label style="{style}" title="{inherited_title}">{label_text}</label>' \
         .format(style=style, inherited_title=_(title), label_text=label_text)
     return label_text
+
+
+@register.filter
+def get_previous_acronym(luy):
+    if has_proposal:
+        proposal = ProposalLearningUnit.objects \
+            .filter(learning_unit_year=luy) \
+            .order_by('-learning_unit_year__academic_year__year').first()
+        if proposal:
+            return proposal.initial_data.get('learning_unit_year').get('acronym', None)
+    else:
+        luy = find_lt_learning_unit_year_with_different_acronym(self)
+        if luy:
+            return luy.acronym
+    return None
