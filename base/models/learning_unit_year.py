@@ -263,6 +263,7 @@ class LearningUnitYear(SerializableModel):
             self._warnings.extend(self._check_internship_subtype())
             self._warnings.extend(self._check_partim_parent_status())
             self._warnings.extend(self._check_learning_component_year_warnings())
+            self._warnings.extend(self._check_learning_container_year_warnings())
         return self._warnings
 
     def _check_partim_parent_credits(self):
@@ -295,6 +296,9 @@ class LearningUnitYear(SerializableModel):
             _warnings.extend(learning_unit_component.learning_component_year.warnings)
 
         return _warnings
+
+    def _check_learning_container_year_warnings(self):
+        return self.learning_container_year.warnings
 
     def is_external(self):
         return hasattr(self, "externallearningunityear")

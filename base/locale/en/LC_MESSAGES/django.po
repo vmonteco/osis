@@ -2928,6 +2928,9 @@ msgstr ""
 msgid "Vol_global is not equal to Vol_tot * planned_classes"
 msgstr ""
 
+msgid "At least a partim volume value is greater than corresponding volume of parent"
+msgstr ""
+
 msgid "url of the learning unit"
 msgstr "URL of the learning unit"
 
