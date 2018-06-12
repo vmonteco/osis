@@ -31,6 +31,7 @@ from django.forms import model_to_dict
 from django.test import TestCase
 from django.utils.translation import ugettext_lazy as _
 
+from base.forms.learning_unit.edition_volume import SimplifiedVolumeManagementForm
 from base.forms.learning_unit.entity_form import EntityContainerBaseForm
 from base.forms.learning_unit.learning_unit_create import LearningUnitYearModelForm, \
     LearningUnitModelForm, LearningContainerYearModelForm, LearningContainerModelForm
@@ -170,7 +171,7 @@ class TestPartimFormInit(LearningUnitPartimFormContextMixin):
            in form_cls_to_validate"""
         partim_form = _instanciate_form(learning_unit_full=self.learning_unit_year_full.learning_unit,
                                         academic_year=self.learning_unit_year_full.academic_year)
-        expected_form_cls = [LearningUnitPartimModelForm, LearningUnitYearModelForm]
+        expected_form_cls = [LearningUnitPartimModelForm, LearningUnitYearModelForm, SimplifiedVolumeManagementForm]
         self.assertEqual(partim_form.form_cls_to_validate, expected_form_cls)
 
 
@@ -315,9 +316,7 @@ class TestPartimFormIsValid(LearningUnitPartimFormContextMixin):
 
 class TestPartimFormSave(LearningUnitPartimFormContextMixin):
     """Unit tests for save() for save"""
-    @mock.patch('base.forms.learning_unit.learning_unit_create.LearningUnitModelForm.save')
-    @mock.patch('base.forms.learning_unit.learning_unit_create.LearningUnitYearModelForm.save')
-    def test_save_method_mocked(self, mock_luy_form_save, mock_lu_form_save):
+    def test_save(self):
         learning_container_year_full = self.learning_unit_year_full.learning_container_year
         a_new_learning_unit_partim = LearningUnitYearFactory.build(
             academic_year=self.current_academic_year,
@@ -326,30 +325,15 @@ class TestPartimFormSave(LearningUnitPartimFormContextMixin):
             language=self.learning_unit_year_full.language
         )
         post_data = get_valid_form_data(a_new_learning_unit_partim)
-        start_year = self.learning_unit_year_full.academic_year.year
 
-        # Define return mock value
-        mock_luy_form_save.return_value = a_new_learning_unit_partim
-        mock_lu_form_save.return_value = a_new_learning_unit_partim.learning_unit
         form = _instanciate_form(learning_unit_full=self.learning_unit_year_full.learning_unit,
                                  academic_year=self.learning_unit_year_full.academic_year,
                                  post_data=post_data, instance=None)
-        self.assertTrue(form.is_valid())
-        form.save()
-        # Ensure call to learning unit model form is done
-        self.assertTrue(mock_lu_form_save.called)
-        mock_lu_form_save.assert_called_once_with(
-            start_year=start_year,
-            learning_container=learning_container_year_full.learning_container,
-            commit=True
-        )
-        # Ensure call to learning unit year model form is done
-        self.assertTrue(mock_luy_form_save.called)
-        mock_luy_form_save.assert_called_once_with(
-            learning_container_year=learning_container_year_full,
-            learning_unit=a_new_learning_unit_partim.learning_unit,
-            commit=True
-        )
+        self.assertTrue(form.is_valid(), form.errors)
+        saved_instance = form.save()
+
+        self.assertIsInstance(saved_instance, LearningUnitYear)
+        self.assertEqual(saved_instance.learning_container_year, learning_container_year_full)
 
     def test_save_method_create_new_instance(self):
         partim_acronym = FULL_ACRONYM + 'C'

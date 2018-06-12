@@ -266,6 +266,9 @@ class SimplifiedVolumeForm(forms.ModelForm):
                 not in CONTAINER_TYPE_WITH_DEFAULT_COMPONENT and self.prefix == "form-1":
             pass
         else:
+            self.instance.learning_container_year = self._learning_unit_year.learning_container_year
+            print(self.instance.learning_container_year.pk)
+            self._learning_unit_year.save()
             instance = super().save(commit)
             LearningUnitComponent.objects.get_or_create(
                 learning_unit_year=self._learning_unit_year,
@@ -325,7 +328,6 @@ class SimplifiedVolumeFormset(forms.BaseModelFormSet):
         for form in self.forms:
             form._learning_unit_year = learning_unit_year
             form._entity_containers = entity_container_years
-            form.instance.learning_container_year = lcy
 
         return super().save(commit)
 
