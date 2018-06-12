@@ -92,10 +92,9 @@
                                 {% endblock titles %}
                             </div>
                         </div>
-                        {% block components %}
-                            {% include "learning_unit/blocks/components.html" %}
-                        {% endblock components %}
                     {% endblock learning_unit_identification %}
+
+                    {% include "learning_unit/blocks/components.html" %}
 
                     {% block remarks %}
                         {% include "learning_unit/blocks/remarks.html" %}

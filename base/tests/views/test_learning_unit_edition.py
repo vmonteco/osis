@@ -356,11 +356,9 @@ class TestEditLearningUnit(TestCase):
             'form-0-hourly_volume_total_annual': 20,
             'form-0-hourly_volume_partial_q1': 10,
             'form-0-hourly_volume_partial_q2': 10,
-            'form-0-planned_classes': 1,
             'form-1-hourly_volume_total_annual': 20,
             'form-1-hourly_volume_partial_q1': 10,
             'form-1-hourly_volume_partial_q2': 10,
-            'form-1-planned_classes': 1,
         }
         return form_data
 

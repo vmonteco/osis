@@ -317,9 +317,7 @@ class TestPartimFormSave(LearningUnitPartimFormContextMixin):
     """Unit tests for save() for save"""
     @mock.patch('base.forms.learning_unit.learning_unit_create.LearningUnitModelForm.save')
     @mock.patch('base.forms.learning_unit.learning_unit_create.LearningUnitYearModelForm.save')
-    @mock.patch('base.forms.learning_unit.learning_unit_partim.PartimForm._get_entity_container_year',
-                side_effect=lambda *args: [])
-    def test_save_method_mocked(self, mock_get_entity_container_year, mock_luy_form_save, mock_lu_form_save):
+    def test_save_method_mocked(self, mock_luy_form_save, mock_lu_form_save):
         learning_container_year_full = self.learning_unit_year_full.learning_container_year
         a_new_learning_unit_partim = LearningUnitYearFactory.build(
             academic_year=self.current_academic_year,
@@ -346,11 +344,9 @@ class TestPartimFormSave(LearningUnitPartimFormContextMixin):
             commit=True
         )
         # Ensure call to learning unit year model form is done
-        self.assertTrue(mock_get_entity_container_year.called)
         self.assertTrue(mock_luy_form_save.called)
         mock_luy_form_save.assert_called_once_with(
             learning_container_year=learning_container_year_full,
-            entity_container_years=[],
             learning_unit=a_new_learning_unit_partim.learning_unit,
             commit=True
         )
@@ -462,6 +458,17 @@ def get_valid_form_data(learning_unit_year_partim):
         'periodicity': learning_unit_year_partim.learning_unit.periodicity,
         'faculty_remark': learning_unit_year_partim.learning_unit.faculty_remark,
         'other_remark': learning_unit_year_partim.learning_unit.other_remark,
+
+        # Learning component year data model form
+        'form-TOTAL_FORMS': '2',
+        'form-INITIAL_FORMS': '0',
+        'form-MAX_NUM_FORMS': '2',
+        'form-0-hourly_volume_total_annual': 20,
+        'form-0-hourly_volume_partial_q1': 10,
+        'form-0-hourly_volume_partial_q2': 10,
+        'form-1-hourly_volume_total_annual': 20,
+        'form-1-hourly_volume_partial_q1': 10,
+        'form-1-hourly_volume_partial_q2': 10,
     }
 
 

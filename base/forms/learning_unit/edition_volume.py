@@ -262,8 +262,8 @@ class SimplifiedVolumeForm(forms.ModelForm):
                   'hourly_volume_partial_q2')
 
     def save(self, commit=True):
-        if self._learning_unit_year.learning_container_year.container_type != CONTAINER_TYPE_WITH_DEFAULT_COMPONENT \
-                and self.prefix == "form-1":
+        if self._learning_unit_year.learning_container_year.container_type \
+                not in CONTAINER_TYPE_WITH_DEFAULT_COMPONENT and self.prefix == "form-1":
             pass
         else:
             instance = super().save(commit)
