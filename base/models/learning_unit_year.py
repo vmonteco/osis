@@ -199,10 +199,6 @@ class LearningUnitYear(SerializableModel):
                                    self.learning_container_year.container_type == INTERNSHIP and \
                                    not self.internship_subtype else self.internship_subtype
 
-    @property
-    def get_previous_acronym(self):
-        return find_lt_learning_unit_year_with_different_acronym(self)
-
     def find_gte_learning_units_year(self):
         return LearningUnitYear.objects.filter(learning_unit=self.learning_unit,
                                                academic_year__year__gte=self.academic_year.year) \
