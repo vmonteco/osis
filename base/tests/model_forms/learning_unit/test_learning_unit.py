@@ -78,7 +78,6 @@ class TestLearningUnitModelFormSave(TestCase):
     def test_case_creation_correctly_saved(self):
         self.assertTrue(self.form.is_valid(), self.form.errors)
         lu = self.form.save(**self.save_kwargs)
-        self.assertEqual(lu.periodicity, BIENNIAL_EVEN)
         self.assertEqual(lu.faculty_remark, self.quote_1)
         self.assertEqual(lu.other_remark, self.quote_2)
 
@@ -88,7 +87,6 @@ class TestLearningUnitModelFormSave(TestCase):
         self.form = LearningUnitModelForm(self.post_data, instance=learning_unit_to_update)
         self.assertTrue(self.form.is_valid(), self.form.errors)
         lu = self.form.save(**self.save_kwargs)
-        self.assertEqual(lu.periodicity, BIENNIAL_EVEN)
         self.assertEqual(lu.faculty_remark, self.quote_1)
         self.assertEqual(lu.other_remark, self.quote_2)
 
@@ -108,7 +106,7 @@ class TestLearningUnitModelFormSave(TestCase):
         a_new_learning_unit_partim.learning_unit.save()
         a_new_learning_unit_partim.save()
 
-        a_new_learning_unit_partim.learning_unit.periodicity = ANNUAL
+        a_new_learning_unit_partim.periodicity = ANNUAL
         a_new_learning_unit_partim.learning_unit.save()
 
         post_data = {'periodicity': BIENNIAL_EVEN}

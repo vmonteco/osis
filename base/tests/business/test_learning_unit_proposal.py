@@ -141,7 +141,7 @@ class TestLearningUnitProposalCancel(TestCase):
             },
             "learning_unit": {
                 "id": self.learning_unit_year.learning_unit.id,
-                "periodicity": self.learning_unit_year.learning_unit.periodicity
+                "periodicity": self.learning_unit_year.periodicity
             },
             "entities": {
                 entity_container_year_link_type.REQUIREMENT_ENTITY: self.entity_container_year.entity.id,

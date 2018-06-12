@@ -64,7 +64,7 @@ def learning_unit_edition_end_date(request, learning_unit_year_id):
     context = get_learning_unit_identification_context(learning_unit_year_id, person)
 
     learning_unit_to_edit = learning_unit_year.learning_unit
-    form = LearningUnitEndDateForm(request.POST or None, learning_unit=learning_unit_to_edit)
+    form = LearningUnitEndDateForm(request.POST or None, learning_unit=learning_unit_year)
     if form.is_valid():
         try:
             result = form.save()

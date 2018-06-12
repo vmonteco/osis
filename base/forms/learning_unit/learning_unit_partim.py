@@ -78,7 +78,7 @@ class LearningUnitPartimModelForm(LearningUnitModelForm):
                                                   label=_('end_year_title'))
 
     class Meta(LearningUnitModelForm.Meta):
-        fields = ('periodicity', 'faculty_remark', 'other_remark', 'end_year')
+        fields = ('faculty_remark', 'other_remark', 'end_year')
 
 
 def merge_data(data, inherit_lu_values):
@@ -167,10 +167,14 @@ class PartimForm(LearningUnitBaseForm):
 
     def _get_inherit_learning_unit_year_full_value(self):
         """This function will return the inherit value come from learning unit year FULL"""
-        return {
+        data = {
+            'periodicity': self.learning_unit_year_full.periodicity
+        }
+        data.update({
             field: value for field, value in self._get_initial_learning_unit_year_form().items()
             if field in PARTIM_FORM_READ_ONLY_FIELD
-        }
+        })
+        return data
 
     def _get_initial_learning_unit_year_form(self):
         acronym = self.instance.acronym if self.instance else self.learning_unit_year_full.acronym

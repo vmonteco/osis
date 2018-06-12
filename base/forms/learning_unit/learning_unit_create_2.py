@@ -275,6 +275,7 @@ class FullForm(LearningUnitBaseForm):
         }
 
     def _build_instance_data_learning_unit_year(self, data, default_ac_year):
+        print('_build_instance_data_learning_unit_year')
         return {
             'data': data,
             'instance': self.instance,

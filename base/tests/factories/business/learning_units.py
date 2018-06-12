@@ -137,18 +137,18 @@ class LearningUnitsMixin:
         return result
 
     @staticmethod
-    def setup_learning_unit_year(academic_year, learning_unit, learning_container_year, learning_unit_year_subtype):
+    def setup_learning_unit_year(academic_year, learning_unit, learning_container_year, learning_unit_year_subtype, periodicity):
         create = False
         result = None
         end_year = learning_unit.end_year or compute_max_academic_year_adjournment()
         if learning_unit.start_year <= academic_year.year <= end_year:
-            if learning_unit.periodicity == learning_unit_periodicity.BIENNIAL_ODD:
+            if periodicity == learning_unit_periodicity.BIENNIAL_ODD:
                 if not (academic_year.year % 2):
                     create = True
-            elif learning_unit.periodicity == learning_unit_periodicity.BIENNIAL_EVEN:
+            elif periodicity == learning_unit_periodicity.BIENNIAL_EVEN:
                 if academic_year.year % 2:
                     create = True
-            elif learning_unit.periodicity == learning_unit_periodicity.ANNUAL:
+            elif periodicity == learning_unit_periodicity.ANNUAL:
                 create = True
 
             if create:
@@ -161,12 +161,13 @@ class LearningUnitsMixin:
                     academic_year=academic_year,
                     learning_unit=learning_unit,
                     learning_container_year=learning_container_year,
-                    subtype=learning_unit_year_subtype
+                    subtype=learning_unit_year_subtype,
+                    periodicity=periodicity
                 )
         return result
 
     @staticmethod
-    def setup_list_of_learning_unit_years_full(list_of_academic_years, learning_unit_full):
+    def setup_list_of_learning_unit_years_full(list_of_academic_years, learning_unit_full, periodicity):
         results = []
         if not list_of_academic_years or not learning_unit_full:
             return results
@@ -177,7 +178,8 @@ class LearningUnitsMixin:
                 academic_year=academic_year,
                 learning_unit=learning_unit_full,
                 learning_container_year=None,
-                learning_unit_year_subtype=learning_unit_year_subtypes.FULL)
+                learning_unit_year_subtype=learning_unit_year_subtypes.FULL,
+                periodicity=periodicity)
             if new_luy:
                 results.append(new_luy)
 
@@ -236,12 +238,11 @@ class GenerateContainer:
         self.learning_container = LearningContainerFactory()
         self.learning_unit_full = LearningUnitFactory(learning_container=self.learning_container,
                                                       start_year=start_year,
-                                                      end_year=end_year,
-                                                      periodicity=learning_unit_periodicity.ANNUAL)
+                                                      end_year=end_year)
         self.learning_unit_partim = LearningUnitFactory(learning_container=self.learning_container,
                                                         start_year=start_year,
-                                                        end_year=end_year,
-                                                        periodicity=learning_unit_periodicity.ANNUAL)
+                                                        end_year=end_year
+                                                        )
 
         self._setup_entities()
         self._setup_common_data()
@@ -253,7 +254,8 @@ class GenerateContainer:
                 learning_unit_partim=self.learning_unit_partim,
                 entities=self.entities,
                 campus=self.campus,
-                language=self.language
+                language=self.language,
+                periodicity=learning_unit_periodicity.ANNUAL
             )
             for year in range(self.start_year, self.end_year + 1)
         ]

@@ -247,7 +247,7 @@ class TestSave(TestCase):
             },
             "learning_unit": {
                 "id": self.learning_unit_year.learning_unit.id,
-                "periodicity": self.learning_unit_year.learning_unit.periodicity,
+                "periodicity": self.learning_unit_year.periodicity,
                 'end_year': self.learning_unit_year.learning_unit.end_year
             },
             "entities": {

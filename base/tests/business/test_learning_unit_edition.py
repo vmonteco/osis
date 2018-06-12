@@ -306,12 +306,12 @@ class TestLearningUnitEdition(TestCase, LearningUnitsMixin):
     def test_edit_learning_unit_full_odd_end_date_lt_old_end_date_with_start_date_lt_now(self):
         learning_unit_full_annual = self.setup_learning_unit(
             start_year=self.current_academic_year.year - 1,
-            end_year=self.current_academic_year.year + 6,
-            periodicity=learning_unit_periodicity.BIENNIAL_ODD
+            end_year=self.current_academic_year.year + 6
         )
         self.setup_list_of_learning_unit_years_full(
             list_of_academic_years=self.list_of_academic_years,
-            learning_unit_full=learning_unit_full_annual
+            learning_unit_full=learning_unit_full_annual,
+            periodicity=learning_unit_periodicity.BIENNIAL_ODD
         )
 
         list_of_expected_learning_unit_years = []
