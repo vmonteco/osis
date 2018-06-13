@@ -71,7 +71,7 @@ class LearningUnitModelForm(forms.ModelForm):
 
     class Meta:
         model = LearningUnit
-        fields = ('periodicity', 'faculty_remark', 'other_remark')
+        fields = ('faculty_remark', 'other_remark')
         widgets = {
             'faculty_remark': forms.Textarea(attrs={'rows': '5'}),
             'other_remark': forms.Textarea(attrs={'rows': '5'})
@@ -112,7 +112,7 @@ class LearningUnitYearModelForm(forms.ModelForm):
         model = LearningUnitYear
         fields = ('academic_year', 'acronym', 'specific_title', 'specific_title_english', 'credits',
                   'session', 'quadrimester', 'status', 'internship_subtype', 'attribution_procedure',
-                  'professional_integration', 'campus', 'language')
+                  'professional_integration', 'campus', 'language', 'periodicity')
         field_classes = {'acronym': AcronymField}
         error_messages = {
             'credits': {

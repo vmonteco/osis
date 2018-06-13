@@ -39,7 +39,7 @@ from base.forms.learning_unit.learning_unit_partim import PARTIM_FORM_READ_ONLY_
     LearningUnitPartimModelForm
 from base.forms.utils import acronym_field
 from base.models.enums import learning_unit_year_subtypes, organization_type
-from base.models.enums.learning_unit_periodicity import ANNUAL, BIENNIAL_EVEN
+from base.models.enums.learning_unit_year_periodicity import ANNUAL, BIENNIAL_EVEN
 from base.models.learning_unit import LearningUnit
 from base.models.learning_unit_year import LearningUnitYear
 from base.tests.factories.academic_year import create_current_academic_year
@@ -114,9 +114,7 @@ class TestPartimFormInit(LearningUnitPartimFormContextMixin):
     def test_inherit_initial_values(self):
         """This test will check if field are pre-full in by value of full learning unit year"""
         expected_initials = {
-            LearningUnitPartimModelForm: {
-                'periodicity': self.learning_unit_year_full.learning_unit.periodicity
-            },
+            LearningUnitPartimModelForm: {},
             LearningUnitYearModelForm: {
                 'acronym': ['L', 'BIR1200', ''],
                 'acronym_0': 'L',  # Multiwidget decomposition
@@ -133,7 +131,8 @@ class TestPartimFormInit(LearningUnitPartimFormContextMixin):
                 'specific_title': self.learning_unit_year_full.specific_title,
                 'specific_title_english': self.learning_unit_year_full.specific_title_english,
                 'language': self.learning_unit_year_full.language,
-                'campus': self.learning_unit_year_full.campus
+                'campus': self.learning_unit_year_full.campus,
+                'periodicity': self.learning_unit_year_full.periodicity
             }
         }
         partim_form = _instanciate_form(learning_unit_full=self.learning_unit_year_full.learning_unit,
@@ -158,8 +157,7 @@ class TestPartimFormInit(LearningUnitPartimFormContextMixin):
         expected_disabled_fields = {
             'common_title', 'common_title_english',
             'requirement_entity', 'allocation_entity',
-            'periodicity', 'academic_year',
-            'container_type', 'internship_subtype',
+            'academic_year', 'container_type', 'internship_subtype',
             'additional_requirement_entity_1', 'additional_requirement_entity_2'
         }
         all_fields = partim_form.fields.items()
@@ -202,32 +200,6 @@ class TestPartimFormIsValid(LearningUnitPartimFormContextMixin):
         self._test_learning_container_year_model_form_instance(form)
         self._test_entity_container_model_formset_instance(form)
 
-
-    def test_partim_periodicity_annual_with_parent_biannual(self):
-        a_new_learning_unit_partim = LearningUnitYearFactory(
-            academic_year=self.current_academic_year,
-            acronym=FULL_ACRONYM + 'W',
-            subtype=learning_unit_year_subtypes.PARTIM,
-            credits=0,
-            learning_container_year=self.learning_unit_year_full.learning_container_year,
-        )
-        a_new_learning_unit_partim.learning_unit.learning_container = \
-            self.learning_unit_year_full.learning_unit.learning_container
-        a_new_learning_unit_partim.learning_unit.save()
-
-        self.learning_unit_year_full.learning_unit.periodicity = BIENNIAL_EVEN
-        self.learning_unit_year_full.learning_unit.save()
-
-        post_data = get_valid_form_data(a_new_learning_unit_partim)
-        post_data['periodicity'] = ANNUAL
-
-        form = LearningUnitModelForm(data=post_data, instance=a_new_learning_unit_partim.learning_unit)
-
-        # The form should not be valid
-        self.assertFalse(form.is_valid(), form.errors)
-        self.assertEqual(form.errors.get('periodicity'),
-                         [_('The periodicity of the parent and the partims do not match')])
-
     def test_partim_periodicity_biannual_with_parent_annual(self):
         a_new_learning_unit_partim = LearningUnitYearFactory(
             academic_year=self.current_academic_year,
@@ -255,9 +227,6 @@ class TestPartimFormIsValid(LearningUnitPartimFormContextMixin):
         form_instance = partim_form.forms[LearningUnitPartimModelForm]
         fields_to_validate = ['faculty_remark', 'other_remark']
         self._assert_equal_values(form_instance.instance, post_data, fields_to_validate)
-        # Periodicity inherit from parent [Cannot be modify by user]
-        self.assertEqual(form_instance.instance.periodicity,
-                         self.learning_unit_year_full.learning_unit.periodicity)
 
     def _test_learning_unit_year_model_form_instance(self, partim_form, post_data):
         form_instance = partim_form.forms[LearningUnitYearModelForm]
@@ -437,9 +406,9 @@ def get_valid_form_data(learning_unit_year_partim):
         'status': learning_unit_year_partim.status,
         'language': learning_unit_year_partim.language.id,
         'campus': CampusFactory(name='Louvain-la-Neuve', organization__type=organization_type.MAIN).pk,
+        'periodicity': learning_unit_year_partim.periodicity,
 
         # Learning unit data model form
-        'periodicity': learning_unit_year_partim.learning_unit.periodicity,
         'faculty_remark': learning_unit_year_partim.learning_unit.faculty_remark,
         'other_remark': learning_unit_year_partim.learning_unit.other_remark,
 

@@ -625,9 +625,9 @@ def _instanciate_base_learning_unit_form(learning_unit_year_instance, person):
             'attribution_procedure': learning_unit_year_instance.attribution_procedure,
             'language': learning_unit_year_instance.language.id,
             'campus': learning_unit_year_instance.campus.id,
+            'periodicity': learning_unit_year_instance.periodicity,
 
             # Learning unit data model form
-            'periodicity': learning_unit_instance.periodicity,
             'faculty_remark': learning_unit_instance.faculty_remark,
             'other_remark': learning_unit_instance.other_remark,
 

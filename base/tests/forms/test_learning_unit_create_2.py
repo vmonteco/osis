@@ -41,13 +41,13 @@ from base.models.entity_component_year import EntityComponentYear
 from base.models.entity_container_year import EntityContainerYear
 from base.models.entity_version import EntityVersion
 from base.models.enums import learning_unit_year_subtypes, learning_container_year_types, organization_type, \
-    learning_unit_periodicity
+    learning_unit_year_periodicity
 from base.models.enums.entity_container_year_link_type import ADDITIONAL_REQUIREMENT_ENTITY_1, \
     ADDITIONAL_REQUIREMENT_ENTITY_2
 from base.models.enums.entity_type import FACULTY
 from base.models.enums.internship_subtypes import TEACHING_INTERNSHIP
 from base.models.enums.learning_container_year_types import MASTER_THESIS, INTERNSHIP
-from base.models.enums.learning_unit_periodicity import ANNUAL
+from base.models.enums.learning_unit_year_periodicity import ANNUAL
 from base.models.enums.organization_type import MAIN
 from base.models.learning_component_year import LearningComponentYear
 from base.models.learning_container import LearningContainer
@@ -97,7 +97,6 @@ def get_valid_form_data(academic_year, person, learning_unit_year=None):
             learning_container=learning_container,
             start_year=academic_year.year,
             end_year=academic_year.year,
-            periodicity=learning_unit_periodicity.ANNUAL
         )
 
         learning_unit_year = LearningUnitYearFactory.build(
@@ -106,7 +105,8 @@ def get_valid_form_data(academic_year, person, learning_unit_year=None):
             learning_container_year=container_year,
             subtype=learning_unit_year_subtypes.FULL,
             campus=campus,
-            language=language
+            language=language,
+            periodicity=learning_unit_year_periodicity.ANNUAL
         )
 
     cm_lcy = LearningComponentYear.objects.filter(learningunitcomponent__learning_unit_year=learning_unit_year).first()
@@ -129,9 +129,9 @@ def get_valid_form_data(academic_year, person, learning_unit_year=None):
         'attribution_procedure': learning_unit_year.attribution_procedure,
         'campus': learning_unit_year.campus.id,
         'language': learning_unit_year.language.pk,
+        'periodicity': learning_unit_year.periodicity,
 
         # Learning unit data model form
-        'periodicity': ANNUAL,
         'faculty_remark': learning_unit_year.learning_unit.faculty_remark,
         'other_remark': learning_unit_year.learning_unit.other_remark,
 
@@ -311,7 +311,7 @@ class TestFullFormIsValid(LearningUnitFullFormContextMixin):
 
     def _test_learning_unit_model_form_instance(self, full_form):
         form_instance = full_form.forms[LearningUnitModelForm]
-        fields_to_validate = ['faculty_remark', 'other_remark', 'periodicity']
+        fields_to_validate = ['faculty_remark', 'other_remark']
         self._assert_equal_values(form_instance.instance, self.post_data, fields_to_validate)
 
     def _test_learning_container_model_form_instance(self, full_form):
@@ -321,7 +321,7 @@ class TestFullFormIsValid(LearningUnitFullFormContextMixin):
         form_instance = full_form.forms[LearningUnitYearModelForm]
         fields_to_validate = ['acronym', 'specific_title', 'specific_title_english', 'credits',
                               'session', 'quadrimester', 'status', 'internship_subtype', 'attribution_procedure',
-                              'subtype', ]
+                              'subtype', 'periodicity']
         self._assert_equal_values(form_instance.instance, self.post_data, fields_to_validate)
         self.assertEqual(form_instance.instance.academic_year.id, self.post_data['academic_year'])
 

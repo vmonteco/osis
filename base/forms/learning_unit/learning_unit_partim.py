@@ -47,7 +47,7 @@ from base.models.learning_unit import LearningUnit
 
 PARTIM_FORM_READ_ONLY_FIELD = {
     'acronym_0', 'acronym_1', 'common_title', 'common_title_english',
-    'requirement_entity', 'allocation_entity', 'periodicity',
+    'requirement_entity', 'allocation_entity',
     'academic_year', 'container_type', 'internship_subtype',
     'additional_requirement_entity_1', 'additional_requirement_entity_2'
 }
@@ -82,7 +82,7 @@ class LearningUnitPartimModelForm(LearningUnitModelForm):
                                                   label=_('end_year_title'))
 
     class Meta(LearningUnitModelForm.Meta):
-        fields = ('periodicity', 'faculty_remark', 'other_remark', 'end_year')
+        fields = ('faculty_remark', 'other_remark', 'end_year')
 
 
 def merge_data(data, inherit_lu_values):
@@ -117,9 +117,8 @@ class PartimForm(LearningUnitBaseForm):
         self.learning_unit_instance = learning_unit_instance
 
         # Inherit values cannot be changed by user
-        inherit_lu_values = self._get_inherit_learning_unit_full_value()
         inherit_luy_values = self._get_inherit_learning_unit_year_full_value()
-        instances_data = self._build_instance_data(data, inherit_lu_values, inherit_luy_values)
+        instances_data = self._build_instance_data(data, inherit_luy_values)
 
         super().__init__(instances_data, *args, **kwargs)
         self.disable_fields(PARTIM_FORM_READ_ONLY_FIELD)
@@ -134,9 +133,9 @@ class PartimForm(LearningUnitBaseForm):
                                          learning_unit=self.learning_unit_full_instance.id,
                                          subtype=learning_unit_year_subtypes.FULL).get()
 
-    def _build_instance_data(self, data, inherit_lu_values, inherit_luy_values):
+    def _build_instance_data(self, data, inherit_luy_values):
         return {
-            LearningUnitPartimModelForm: self._build_instance_data_learning_unit(data, inherit_lu_values),
+            LearningUnitPartimModelForm: self._build_instance_data_learning_unit(data),
             LearningUnitYearModelForm: self._build_instance_data_learning_unit_year(data, inherit_luy_values),
             # Cannot be modify by user [No DATA args provided]
             LearningContainerModelForm: {
@@ -167,21 +166,18 @@ class PartimForm(LearningUnitBaseForm):
             'subtype': self.subtype
         }
 
-    def _build_instance_data_learning_unit(self, data, inherit_lu_values):
+    def _build_instance_data_learning_unit(self, data):
         return {
-            'data': merge_data(data, inherit_lu_values),
+            'data': data,
             'instance': self.instance.learning_unit if self.instance else None,
-            'initial': inherit_lu_values if not self.instance else None,
             'start_year': self.learning_unit_year_full.academic_year.year,
             'max_end_year': self.learning_unit_year_full.learning_unit.max_end_year
         }
 
     def _get_inherit_learning_unit_year_full_value(self):
         """This function will return the inherit value come from learning unit year FULL"""
-        return {
-            field: value for field, value in self._get_initial_learning_unit_year_form().items()
-            if field in PARTIM_FORM_READ_ONLY_FIELD
-        }
+        return {field: value for field, value in self._get_initial_learning_unit_year_form().items()
+                if field in PARTIM_FORM_READ_ONLY_FIELD}
 
     def _get_initial_learning_unit_year_form(self):
         acronym = self.instance.acronym if self.instance else self.learning_unit_year_full.acronym
@@ -198,19 +194,14 @@ class PartimForm(LearningUnitBaseForm):
             'specific_title': self.learning_unit_year_full.specific_title,
             'specific_title_english': self.learning_unit_year_full.specific_title_english,
             'language': self.learning_unit_year_full.language,
-            'campus': self.learning_unit_year_full.campus
+            'campus': self.learning_unit_year_full.campus,
+            'periodicity': self.learning_unit_year_full.periodicity
         }
         acronym_splited = split_acronym(acronym)
         initial_learning_unit_year.update({
             "acronym_{}".format(idx): acronym_part for idx, acronym_part in enumerate(acronym_splited)
         })
         return initial_learning_unit_year
-
-    def _get_inherit_learning_unit_full_value(self):
-        """This function will return the inherit value come from learning unit FULL"""
-        return {
-            'periodicity': self.learning_unit_full_instance.periodicity
-        }
 
     def save(self, commit=True):
         start_year = self.instance.learning_unit.start_year if self.instance else \

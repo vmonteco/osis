@@ -82,6 +82,7 @@ def get_valid_external_learning_unit_form_data(academic_year, person, learning_u
         'status': learning_unit_year.status,
         'campus': learning_unit_year.campus.id,
         'language': learning_unit_year.language.pk,
+        'periodicity': learning_unit_year.periodicity,
 
         # Learning unit data model form
         'faculty_remark': learning_unit_year.learning_unit.faculty_remark,
