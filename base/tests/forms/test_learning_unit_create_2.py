@@ -151,7 +151,7 @@ def get_valid_form_data(academic_year, person, learning_unit_year=None):
         'form-0-id': cm_lcy and cm_lcy.pk,
         'form-1-id': pp_lcy and pp_lcy.pk,
         'form-TOTAL_FORMS': '2',
-        'form-INITIAL_FORMS': '2',
+        'form-INITIAL_FORMS': '0' if not cm_lcy else '2',
         'form-MAX_NUM_FORMS': '2',
         'form-0-hourly_volume_total_annual': 20,
         'form-0-hourly_volume_partial_q1': 10,
