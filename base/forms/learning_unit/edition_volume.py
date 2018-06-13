@@ -267,7 +267,6 @@ class SimplifiedVolumeForm(forms.ModelForm):
             pass
         else:
             self.instance.learning_container_year = self._learning_unit_year.learning_container_year
-            print(self.instance.learning_container_year.pk)
             self._learning_unit_year.save()
             instance = super().save(commit)
             LearningUnitComponent.objects.get_or_create(
