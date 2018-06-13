@@ -28,7 +28,6 @@ import factory.fuzzy
 import string
 import datetime
 import operator
-from base.models.enums import learning_unit_periodicity
 from base.tests.factories.learning_container import LearningContainerFactory
 from django.utils import timezone
 from factory.django import DjangoModelFactory
@@ -47,7 +46,6 @@ class LearningUnitFactory(DjangoModelFactory):
                                           datetime.datetime(2017, 3, 1, tzinfo=get_tzinfo()))
     start_year = factory.fuzzy.FuzzyInteger(2015, timezone.now().year)
     end_year = factory.LazyAttribute(lambda obj: factory.fuzzy.FuzzyInteger(obj.start_year + 1, obj.start_year + 9).fuzz())
-    periodicity = factory.Iterator(learning_unit_periodicity.PERIODICITY_TYPES, getter=operator.itemgetter(0))
     faculty_remark = factory.fuzzy.FuzzyText(length=255)
     other_remark = factory.fuzzy.FuzzyText(length=255)
 
@@ -61,6 +59,5 @@ class LearningUnitFakerFactory(DjangoModelFactory):
     changed = fake.date_time_this_decade(before_now=True, after_now=True, tzinfo=get_tzinfo())
     start_year = factory.fuzzy.FuzzyInteger(2015, timezone.now().year)
     end_year = factory.LazyAttribute(lambda obj: factory.fuzzy.FuzzyInteger(obj.start_year + 1, obj.start_year + 9).fuzz())
-    periodicity = factory.Iterator(learning_unit_periodicity.PERIODICITY_TYPES, getter=operator.itemgetter(0))
     faculty_remark = factory.fuzzy.FuzzyText(length=255)
     other_remark = factory.fuzzy.FuzzyText(length=255)
