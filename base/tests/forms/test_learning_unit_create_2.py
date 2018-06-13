@@ -41,13 +41,13 @@ from base.models.entity_component_year import EntityComponentYear
 from base.models.entity_container_year import EntityContainerYear
 from base.models.entity_version import EntityVersion
 from base.models.enums import learning_unit_year_subtypes, learning_container_year_types, organization_type, \
-    learning_unit_periodicity
+    learning_unit_year_periodicity
 from base.models.enums.entity_container_year_link_type import ADDITIONAL_REQUIREMENT_ENTITY_1, \
     ADDITIONAL_REQUIREMENT_ENTITY_2
 from base.models.enums.entity_type import FACULTY
 from base.models.enums.internship_subtypes import TEACHING_INTERNSHIP
 from base.models.enums.learning_container_year_types import MASTER_THESIS, INTERNSHIP
-from base.models.enums.learning_unit_periodicity import ANNUAL
+from base.models.enums.learning_unit_year_periodicity import ANNUAL
 from base.models.enums.organization_type import MAIN
 from base.models.learning_component_year import LearningComponentYear
 from base.models.learning_container import LearningContainer
@@ -106,7 +106,7 @@ def get_valid_form_data(academic_year, person, learning_unit_year=None):
             subtype=learning_unit_year_subtypes.FULL,
             campus=campus,
             language=language,
-            periodicity=learning_unit_periodicity.ANNUAL
+            periodicity=learning_unit_year_periodicity.ANNUAL
         )
 
     return {

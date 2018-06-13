@@ -37,7 +37,7 @@ from base.models.enums.entity_container_year_link_type import REQUIREMENT_ENTITY
 from base.models.enums.internship_subtypes import PROFESSIONAL_INTERNSHIP
 from base.models.enums.learning_container_year_types import MASTER_THESIS, OTHER_INDIVIDUAL
 from base.models.enums.learning_unit_year_subtypes import FULL, PARTIM
-from base.models.enums.learning_unit_periodicity import ANNUAL
+from base.models.enums.learning_unit_year_periodicity import ANNUAL
 from base.models.learning_component_year import LearningComponentYear
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import CENTRAL_MANAGER_GROUP, FACULTY_MANAGER_GROUP

@@ -36,7 +36,7 @@ from base.forms.learning_unit.learning_unit_create import LearningUnitModelForm,
     LearningContainerYearModelForm
 from base.forms.learning_unit_proposal import ProposalLearningUnitForm, CreationProposalBaseForm
 from base.models.enums import learning_unit_year_subtypes, learning_container_year_types, organization_type, \
-    entity_type, learning_unit_periodicity
+    entity_type, learning_unit_year_periodicity
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import FACULTY_MANAGER_GROUP
 from base.models.proposal_learning_unit import ProposalLearningUnit
@@ -88,7 +88,7 @@ class LearningUnitViewTestCase(TestCase):
             "campus": self.campus.id,
             "common_title": "Common UE title",
             "language": self.language.pk,
-            "periodicity": learning_unit_periodicity.ANNUAL,
+            "periodicity": learning_unit_year_periodicity.ANNUAL,
             "entity": self.entity_version.id,
             "folder_id": 1,
             'requirement_entity-entity': self.entity_version.id,

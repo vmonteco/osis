@@ -47,7 +47,7 @@ from base.forms.learning_unit_proposal import ProposalLearningUnitForm
 from base.forms.proposal.learning_unit_proposal import LearningUnitProposalForm
 from base.models import entity_container_year, entity_version
 from base.models import proposal_learning_unit
-from base.models.enums import entity_container_year_link_type, learning_unit_periodicity
+from base.models.enums import entity_container_year_link_type, learning_unit_year_periodicity
 from base.models.enums import organization_type, entity_type, \
     learning_unit_year_subtypes, proposal_type, learning_container_year_types, proposal_state
 from base.models.enums.proposal_state import ProposalState
@@ -410,7 +410,7 @@ class TestLearningUnitSuppressionProposal(TestCase):
                 organization=an_organization,
                 is_administration=True
             ),
-            periodicity=learning_unit_periodicity.ANNUAL
+            periodicity=learning_unit_year_periodicity.ANNUAL
         )
 
         an_entity = EntityFactory(organization=an_organization)
@@ -877,7 +877,7 @@ class TestEditProposal(TestCase):
             "campus": self.campus.id,
             "common_title": "Common UE title",
             "language": self.language.pk,
-            "periodicity": learning_unit_periodicity.ANNUAL,
+            "periodicity": learning_unit_year_periodicity.ANNUAL,
             "entity": self.entity_version.id,
             "folder_id": 1,
             'requirement_entity-entity': self.entity_version.id,
@@ -1067,10 +1067,10 @@ class TestLearningUnitProposalDisplay(TestCase):
 
     def test_get_the_old_value_with_translation(self):
         key = proposal_business.VALUES_WHICH_NEED_TRANSLATION[0]
-        initial_data = {key: learning_unit_periodicity.ANNUAL}
-        current_data = {key: learning_unit_periodicity.BIENNIAL_EVEN}
+        initial_data = {key: learning_unit_year_periodicity.ANNUAL}
+        current_data = {key: learning_unit_year_periodicity.BIENNIAL_EVEN}
         differences = proposal_business._get_the_old_value(key, current_data, initial_data)
-        self.assertEqual(differences.get(key), _(learning_unit_periodicity.ANNUAL))
+        self.assertEqual(differences.get(key), _(learning_unit_year_periodicity.ANNUAL))
 
     def test_get_str_representing_old_data_from_foreign_key(self):
         differences = proposal_business._get_str_representing_old_data_from_foreign_key('campus', self.campus.id)

@@ -38,7 +38,7 @@ from base.forms.learning_unit.entity_form import EntityContainerBaseForm
 from base.forms.learning_unit.learning_unit_create import LearningUnitModelForm, LearningUnitYearModelForm, \
     LearningContainerYearModelForm
 from base.models.entity_component_year import EntityComponentYear
-from base.models.enums import learning_unit_periodicity, learning_container_year_types, learning_unit_year_subtypes, \
+from base.models.enums import learning_unit_year_periodicity, learning_container_year_types, learning_unit_year_subtypes, \
     entity_container_year_link_type, vacant_declaration_type, attribution_procedure, entity_type, organization_type
 from base.tests.factories.academic_year import create_current_academic_year, AcademicYearFactory, get_current_year
 from base.tests.factories.business.learning_units import LearningUnitsMixin, GenerateContainer, GenerateAcademicYear
@@ -78,7 +78,7 @@ class TestLearningUnitEditionView(TestCase, LearningUnitsMixin):
             self.learning_unit,
             self.learning_container_year,
             learning_unit_year_subtypes.FULL,
-            learning_unit_periodicity.ANNUAL
+            learning_unit_year_periodicity.ANNUAL
         )
 
         self.a_superuser = SuperUserFactory()
@@ -342,7 +342,7 @@ class TestEditLearningUnit(TestCase):
             "acronym_1": self.learning_unit_year.acronym[1:],
             "credits": self.learning_unit_year.credits,
             "specific_title": self.learning_unit_year.specific_title,
-            "periodicity": learning_unit_periodicity.ANNUAL,
+            "periodicity": learning_unit_year_periodicity.ANNUAL,
             "campus": self.learning_unit_year.campus.pk,
             "language": self.learning_unit_year.language.pk,
             "status": True,

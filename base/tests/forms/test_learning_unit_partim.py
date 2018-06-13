@@ -38,7 +38,7 @@ from base.forms.learning_unit.learning_unit_partim import PARTIM_FORM_READ_ONLY_
     LearningUnitPartimModelForm
 from base.forms.utils import acronym_field
 from base.models.enums import learning_unit_year_subtypes, organization_type
-from base.models.enums.learning_unit_periodicity import ANNUAL, BIENNIAL_EVEN
+from base.models.enums.learning_unit_year_periodicity import ANNUAL, BIENNIAL_EVEN
 from base.models.learning_unit import LearningUnit
 from base.models.learning_unit_year import LearningUnitYear
 from base.tests.factories.academic_year import create_current_academic_year

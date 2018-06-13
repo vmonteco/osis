@@ -39,7 +39,7 @@ from base.models.enums import active_status, learning_container_year_types
 from base.models.enums import learning_unit_year_subtypes, internship_subtypes, \
     learning_unit_year_session, entity_container_year_link_type, learning_unit_year_quadrimesters, attribution_procedure
 from base.models.enums.learning_container_year_types import COURSE, INTERNSHIP
-from base.models.enums.learning_unit_periodicity import PERIODICITY_TYPES, ANNUAL
+from base.models.enums.learning_unit_year_periodicity import PERIODICITY_TYPES, ANNUAL
 from base.models.learning_unit import LEARNING_UNIT_ACRONYM_REGEX_ALL, REGEX_BY_SUBTYPE
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
 

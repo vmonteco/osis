@@ -42,7 +42,7 @@ from base.tests.factories.learning_container_year import LearningContainerYearFa
 from base.tests.factories.learning_unit import LearningUnitFactory, LearningUnitFakerFactory
 from osis_common.utils.datetime import get_tzinfo
 from reference.tests.factories.language import LanguageFactory
-from base.models.enums import learning_unit_periodicity
+from base.models.enums import learning_unit_year_periodicity
 
 fake = Faker()
 
@@ -77,7 +77,7 @@ class LearningUnitYearFactory(DjangoModelFactory):
     language = factory.SubFactory(LanguageFactory)
     attribution_procedure = None
     campus = factory.SubFactory(CampusFactory)
-    periodicity = factory.Iterator(learning_unit_periodicity.PERIODICITY_TYPES, getter=operator.itemgetter(0))
+    periodicity = factory.Iterator(learning_unit_year_periodicity.PERIODICITY_TYPES, getter=operator.itemgetter(0))
 
 
 class LearningUnitYearFakerFactory(DjangoModelFactory):
@@ -103,5 +103,5 @@ class LearningUnitYearFakerFactory(DjangoModelFactory):
     language = factory.SubFactory(LanguageFactory)
     attribution_procedure = None
     campus = factory.SubFactory(CampusFactory)
-    periodicity = factory.Iterator(learning_unit_periodicity.PERIODICITY_TYPES, getter=operator.itemgetter(0))
+    periodicity = factory.Iterator(learning_unit_year_periodicity.PERIODICITY_TYPES, getter=operator.itemgetter(0))
 

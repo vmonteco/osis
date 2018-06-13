@@ -28,7 +28,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from base.forms.learning_unit.learning_unit_create import LearningUnitModelForm, LearningUnitYearModelForm
 from base.models.enums import learning_unit_year_subtypes
-from base.models.enums.learning_unit_periodicity import BIENNIAL_EVEN, ANNUAL
+from base.models.enums.learning_unit_year_periodicity import BIENNIAL_EVEN, ANNUAL
 from base.tests.factories.academic_year import create_current_academic_year
 from base.tests.factories.learning_container import LearningContainerFactory
 from base.tests.factories.learning_unit import LearningUnitFactory

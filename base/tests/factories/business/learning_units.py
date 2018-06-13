@@ -32,7 +32,7 @@ from base.models import academic_year as mdl_academic_year
 from base.models.academic_year import AcademicYear, LEARNING_UNIT_CREATION_SPAN_YEARS, \
     compute_max_academic_year_adjournment
 from base.models.enums import entity_container_year_link_type, learning_container_year_types, \
-    learning_unit_periodicity, learning_unit_year_subtypes, component_type
+    learning_unit_year_periodicity, learning_unit_year_subtypes, component_type
 from base.models.enums import entity_type
 from base.models.enums import learning_unit_year_quadrimesters
 from base.models.enums import learning_unit_year_session
@@ -142,13 +142,13 @@ class LearningUnitsMixin:
         result = None
         end_year = learning_unit.end_year or compute_max_academic_year_adjournment()
         if learning_unit.start_year <= academic_year.year <= end_year:
-            if periodicity == learning_unit_periodicity.BIENNIAL_ODD:
+            if periodicity == learning_unit_year_periodicity.BIENNIAL_ODD:
                 if not (academic_year.year % 2):
                     create = True
-            elif periodicity == learning_unit_periodicity.BIENNIAL_EVEN:
+            elif periodicity == learning_unit_year_periodicity.BIENNIAL_EVEN:
                 if academic_year.year % 2:
                     create = True
-            elif periodicity == learning_unit_periodicity.ANNUAL:
+            elif periodicity == learning_unit_year_periodicity.ANNUAL:
                 create = True
 
             if create:
@@ -198,7 +198,7 @@ class LearningUnitsMixin:
                 learning_unit=learning_unit_full,
                 learning_container_year=None,
                 learning_unit_year_subtype=learning_unit_year_subtypes.FULL,
-                periodicity=learning_unit_periodicity.ANNUAL
+                periodicity=learning_unit_year_periodicity.ANNUAL
             )
 
             if learning_unit_year_full:
@@ -209,7 +209,7 @@ class LearningUnitsMixin:
                     learning_unit=learning_unit_partim,
                     learning_container_year=learning_unit_year_full.learning_container_year,
                     learning_unit_year_subtype=learning_unit_year_subtypes.PARTIM,
-                    periodicity=learning_unit_periodicity.ANNUAL
+                    periodicity=learning_unit_year_periodicity.ANNUAL
                 )
                 if learning_unit_year_partim:
                     results.append(learning_unit_year_partim)
@@ -404,7 +404,7 @@ def _get_default_common_value_learning_unit_year(learning_container_year, subtyp
         'quadrimester': learning_unit_year_quadrimesters.Q1,
         'internship_subtype': None,
         'language': language,
-        'periodicity': learning_unit_periodicity.ANNUAL
+        'periodicity': learning_unit_year_periodicity.ANNUAL
     }
     if subtype == learning_unit_year_subtypes.PARTIM:
         common_data['acronym'] += 'A'
