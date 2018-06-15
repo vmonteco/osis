@@ -163,7 +163,8 @@ class LearningUnitPostponementForm:
             data=data_to_postpone
         )
 
-    def _update_form_set_data(self, data_to_postpone, luy_to_update):
+    @staticmethod
+    def _update_form_set_data(data_to_postpone, luy_to_update):
         learning_component_years = LearningComponentYear.objects.filter(
             learningunitcomponent__learning_unit_year=luy_to_update)
         for learning_component_year in learning_component_years:
@@ -278,13 +279,18 @@ class LearningUnitPostponementForm:
             )
 
     def _check_differences(self, current_form, next_form, ac_year):
+        for col_name, value in current_form.instances_data.items():
+            print(col_name, value)
+        for col_name, value in next_form.instances_data.items():
+            print(col_name, value)
+
         differences = [
             _("%(col_name)s has been already modified. ({%(new_value)s} instead of {%(current_value)s})") % {
-                'col_name': next_form.label_fields[col_name],
-                'new_value': self._get_translated_value(next_form.instances_data[col_name]),
+                'col_name': next_form.label_fields.get(col_name, col_name),
+                'new_value': self._get_translated_value(next_form.instances_data.get(col_name)),
                 'current_value': self._get_translated_value(value)
             } for col_name, value in current_form.instances_data.items()
-            if self._get_cmp_value(next_form.instances_data[col_name]) != self._get_cmp_value(value) and
+            if self._get_cmp_value(next_form.instances_data.get(col_name)) != self._get_cmp_value(value) and
             col_name not in FIELDS_TO_NOT_CHECK
         ]
 

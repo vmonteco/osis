@@ -2983,3 +2983,15 @@ msgstr "Produire un fichier Excel avec la liste des unités d'enseignement"
 
 msgid "produce_xls_attributions_desc"
 msgstr "Produire un fichier Excel avec la liste des unités d'enseignement et les attributions"
+
+msgid "hourly volume total annual"
+msgstr "volume horaire total annuel"
+
+msgid "hourly volume partial q1"
+msgstr "volume horaire partiel q1"
+
+msgid "hourly volume partial q2"
+msgstr "volume horaire partiel q2"
+
+msgid "volume declared vacant"
+msgstr "volume déclaré vacant"
