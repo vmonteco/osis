@@ -29,7 +29,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from base.models.proposal_learning_unit import ProposalLearningUnit
 from base.models import learning_unit_year
-from base.models.learning_unit_year import find_lt_learning_unit_year_with_different_acronym
+from base.models.learning_unit_year import find_lt_learning_unit_years_with_different_acronym
 
 register = template.Library()
 
@@ -124,8 +124,10 @@ def get_previous_acronym(luy):
     if has_proposal(luy):
         return _get_acronym_from_proposal(luy)
     else:
-        luy = find_lt_learning_unit_year_with_different_acronym(luy)
-        return luy.acronym if luy else None
+        luys = find_lt_learning_unit_years_with_different_acronym(luy)
+        for luy in luys:
+            if not has_proposal(luy):
+                return luy.acronym if luy else None
     return None
 
 
