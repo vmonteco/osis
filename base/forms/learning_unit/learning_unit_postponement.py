@@ -80,7 +80,8 @@ class LearningUnitPostponementForm:
         self.end_postponement = self._get_academic_end_year(end_postponement)
         self._compute_forms_to_insert_update_delete(data)
 
-    def check_input_instance(self, learning_unit_full_instance, learning_unit_instance):
+    @staticmethod
+    def check_input_instance(learning_unit_full_instance, learning_unit_instance):
         if learning_unit_instance and not isinstance(learning_unit_instance, LearningUnit):
             raise AttributeError('learning_unit_instance arg should be an instance of {}'.format(LearningUnit))
         if learning_unit_full_instance and not isinstance(learning_unit_full_instance, LearningUnit):
@@ -115,23 +116,23 @@ class LearningUnitPostponementForm:
         else:
             if self._is_update_action():
                 to_delete = [
-                    self._instanciate_base_form_as_update(luy, index=index)
+                    self._instantiate_base_form_as_update(luy, index_form=index)
                     for index, luy in enumerate(existing_learn_unit_years)
                     if luy.academic_year.year > max_postponement_year
                     ]
                 to_update = [
-                    self._instanciate_base_form_as_update(luy, index=index, data=data)
+                    self._instantiate_base_form_as_update(luy, index_form=index, data=data)
                     for index, luy in enumerate(existing_learn_unit_years)
                     if luy.academic_year.year <= max_postponement_year
                     ]
                 existing_ac_years = [luy.academic_year for luy in existing_learn_unit_years]
                 to_insert = [
-                    self._instanciate_base_form_as_insert(ac_year, data)
+                    self._instantiate_base_form_as_insert(ac_year, data)
                     for index, ac_year in enumerate(ac_year_postponement_range) if ac_year not in existing_ac_years
                     ]
             else:
                 to_insert = [
-                    self._instanciate_base_form_as_insert(ac_year, data)
+                    self._instantiate_base_form_as_insert(ac_year, data)
                     for index, ac_year in enumerate(ac_year_postponement_range)
                     ]
 
@@ -141,16 +142,16 @@ class LearningUnitPostponementForm:
     def _init_forms_in_past(self, luy_queryset, data):
         if self._is_update_action() and luy_queryset.exists():
             first_luy = luy_queryset.first()
-            return [self._instanciate_base_form_as_update(first_luy, data=data)]
+            return [self._instantiate_base_form_as_update(first_luy, data=data)]
         else:
-            return [self._instanciate_base_form_as_insert(self.start_postponement, data)]
+            return [self._instantiate_base_form_as_insert(self.start_postponement, data)]
 
-    def _instanciate_base_form_as_update(self, luy_to_update, index=0, data=None):
+    def _instantiate_base_form_as_update(self, luy_to_update, index_form=0, data=None):
 
         def is_first_form(index):
             return index == 0
 
-        if data is None or is_first_form(index):
+        if data is None or is_first_form(index_form):
             data_to_postpone = data
         else:
             data_to_postpone = self._get_data_to_postpone(luy_to_update, data)
@@ -171,21 +172,22 @@ class LearningUnitPostponementForm:
             else:
                 data_to_postpone['form-1-id'] = learning_component_year.id
 
-    def _instanciate_base_form_as_insert(self, ac_year, data):
+    def _instantiate_base_form_as_insert(self, ac_year, data):
         return self._get_learning_unit_base_form(ac_year, data=data, start_year=self.start_postponement.year)
 
-    def _get_data_to_postpone(self, lunit_year, data):
+    @staticmethod
+    def _get_data_to_postpone(lunit_year, data):
         data_to_postpone = QueryDict('', mutable=True)
         data_to_postpone.update({key: data[key] for key in data if key not in FIELDS_TO_NOT_POSTPONE.keys()})
         for key, attr_path in FIELDS_TO_NOT_POSTPONE.items():
             data_to_postpone[key] = operator.attrgetter(attr_path)(lunit_year)
         return data_to_postpone
 
-    def _get_learning_unit_base_form(self, academic_year, learning_unit_instance=None, data=None, start_year=None):
+    def _get_learning_unit_base_form(self, ac_year, learning_unit_instance=None, data=None, start_year=None):
         form_kwargs = {
             'person': self.person,
             'learning_unit_instance': learning_unit_instance,
-            'academic_year': academic_year,
+            'academic_year': ac_year,
             'start_year': start_year,
             'data': data.copy() if data else None,
             'learning_unit_full_instance': self.learning_unit_full_instance
@@ -289,13 +291,15 @@ class LearningUnitPostponementForm:
         if differences:
             self.consistency_errors.setdefault(ac_year, []).extend(differences)
 
-    def _get_cmp_value(self, value):
+    @staticmethod
+    def _get_cmp_value(value):
         """This function return comparable value. It consider empty string as null value"""
         if isinstance(value, str) and not value.strip():
             return None
         return value
 
-    def _get_translated_value(self, value):
+    @staticmethod
+    def _get_translated_value(value):
         if isinstance(value, bool):
             return _("yes") if value else _("no")
         elif value is None:

@@ -94,7 +94,7 @@ class TestLearningUnitPostponementFormInit(LearningUnitPostponementFormContextMi
             _instanciate_postponement_form(self.person, wrong_instance.academic_year, learning_unit_instance=wrong_instance)
 
     def test_consistency_property_default_value_is_true(self):
-        instance_luy_base_form = _instanciate_base_learning_unit_form(self.learning_unit_year_full, self.person)
+        instance_luy_base_form = _instantiate_base_learning_unit_form(self.learning_unit_year_full, self.person)
         form = _instanciate_postponement_form(self.person, self.learning_unit_year_full.academic_year,
                                               learning_unit_instance=instance_luy_base_form.learning_unit_instance,
                                               data=instance_luy_base_form.data)
@@ -103,7 +103,7 @@ class TestLearningUnitPostponementFormInit(LearningUnitPostponementFormContextMi
     def test_forms_property_end_year_is_none(self):
         self.learn_unit_structure.learning_unit_full.end_year = None
         self.learn_unit_structure.learning_unit_full.save()
-        instance_luy_base_form = _instanciate_base_learning_unit_form(self.learning_unit_year_full, self.person)
+        instance_luy_base_form = _instantiate_base_learning_unit_form(self.learning_unit_year_full, self.person)
         form = _instanciate_postponement_form(self.person, self.learning_unit_year_full.academic_year,
                                               learning_unit_instance=instance_luy_base_form.learning_unit_instance,
                                               data=instance_luy_base_form.data)
@@ -116,7 +116,7 @@ class TestLearningUnitPostponementFormInit(LearningUnitPostponementFormContextMi
     def test_forms_property_end_year_is_current_year(self):
         self.learn_unit_structure.learning_unit_full.end_year = self.current_academic_year.year
         self.learn_unit_structure.learning_unit_full.save()
-        instance_luy_base_form = _instanciate_base_learning_unit_form(self.learning_unit_year_full, self.person)
+        instance_luy_base_form = _instantiate_base_learning_unit_form(self.learning_unit_year_full, self.person)
         form = _instanciate_postponement_form(self.person, self.learning_unit_year_full.academic_year,
                                               learning_unit_instance=instance_luy_base_form.learning_unit_instance,
                                               data=instance_luy_base_form.data)
@@ -128,7 +128,7 @@ class TestLearningUnitPostponementFormInit(LearningUnitPostponementFormContextMi
         self.learn_unit_structure.learning_unit_full.end_year = self.current_academic_year.year + 2
         self.learn_unit_structure.learning_unit_full.save()
 
-        instance_luy_base_form = _instanciate_base_learning_unit_form(self.learning_unit_year_full, self.person)
+        instance_luy_base_form = _instantiate_base_learning_unit_form(self.learning_unit_year_full, self.person)
         form = _instanciate_postponement_form(self.person, self.learning_unit_year_full.academic_year,
                                               learning_unit_instance=instance_luy_base_form.learning_unit_instance,
                                               data=instance_luy_base_form.data)
@@ -144,7 +144,7 @@ class TestLearningUnitPostponementFormInit(LearningUnitPostponementFormContextMi
             academic_year__year__gt=self.current_academic_year.year
         ).delete()
 
-        instance_luy_base_form = _instanciate_base_learning_unit_form(self.learning_unit_year_full, self.person)
+        instance_luy_base_form = _instantiate_base_learning_unit_form(self.learning_unit_year_full, self.person)
         form = _instanciate_postponement_form(self.person, self.learning_unit_year_full.academic_year,
                                               learning_unit_instance=instance_luy_base_form.learning_unit_instance,
                                               data=instance_luy_base_form.data)
@@ -159,7 +159,7 @@ class TestLearningUnitPostponementFormInit(LearningUnitPostponementFormContextMi
     def test_get_end_postponement_partim(self):
         self.learn_unit_structure.learning_unit_partim.end_year = self.current_academic_year.year
         self.learn_unit_structure.learning_unit_partim.save()
-        instance_luy_base_form = _instanciate_base_learning_unit_form(self.learning_unit_year_partim, self.person)
+        instance_luy_base_form = _instantiate_base_learning_unit_form(self.learning_unit_year_partim, self.person)
         form = _instanciate_postponement_form(self.person, self.learning_unit_year_partim.academic_year,
                                               learning_unit_instance=instance_luy_base_form.learning_unit_instance,
                                               learning_unit_full_instance=self.learning_unit_year_full.learning_unit,
@@ -175,7 +175,7 @@ class TestLearningUnitPostponementFormIsValid(LearningUnitPostponementFormContex
     @mock.patch('base.forms.learning_unit.learning_unit_postponement.LearningUnitPostponementForm._check_consistency',
                 side_effect=None)
     def test_is_valid_with_consitency_property_to_false(self, mock_check_consistency):
-        instance_luy_base_form = _instanciate_base_learning_unit_form(self.learning_unit_year_full, self.person)
+        instance_luy_base_form = _instantiate_base_learning_unit_form(self.learning_unit_year_full, self.person)
         form = _instanciate_postponement_form(self.person, self.learning_unit_year_full.academic_year,
                                               learning_unit_instance=instance_luy_base_form.learning_unit_instance,
                                               data=instance_luy_base_form.data)
@@ -186,7 +186,7 @@ class TestLearningUnitPostponementFormIsValid(LearningUnitPostponementFormContex
     @mock.patch('base.forms.learning_unit.learning_unit_postponement.LearningUnitPostponementForm._check_consistency',
                 side_effect=None)
     def test_is_valid_with_consitency_property_to_true(self, mock_check_consistency):
-        instance_luy_base_form = _instanciate_base_learning_unit_form(self.learning_unit_year_full, self.person)
+        instance_luy_base_form = _instantiate_base_learning_unit_form(self.learning_unit_year_full, self.person)
         form = _instanciate_postponement_form(self.person, self.learning_unit_year_full.academic_year,
                                               learning_unit_instance=instance_luy_base_form.learning_unit_instance,
                                               data=instance_luy_base_form.data)
@@ -207,7 +207,7 @@ class TestLearningUnitPostponementFormSave(LearningUnitPostponementFormContextMi
             learning_unit=self.learn_unit_structure.learning_unit_full,
             academic_year__year__gt=self.current_academic_year.year
         ).delete()
-        instance_luy_base_form = _instanciate_base_learning_unit_form(self.learning_unit_year_full, self.person)
+        instance_luy_base_form = _instantiate_base_learning_unit_form(self.learning_unit_year_full, self.person)
         form = _instanciate_postponement_form(self.person, self.learning_unit_year_full.academic_year,
                                               learning_unit_instance=instance_luy_base_form.learning_unit_instance,
                                               data=instance_luy_base_form.data)
@@ -222,7 +222,7 @@ class TestLearningUnitPostponementFormSave(LearningUnitPostponementFormContextMi
             learning_unit=self.learn_unit_structure.learning_unit_partim,
             academic_year__year__gt=self.current_academic_year.year
         ).delete()
-        instance_luy_base_form = _instanciate_base_learning_unit_form(self.learning_unit_year_partim, self.person)
+        instance_luy_base_form = _instantiate_base_learning_unit_form(self.learning_unit_year_partim, self.person)
         form = LearningUnitPostponementForm(self.person, self.learning_unit_year_full.academic_year,
                                             learning_unit_full_instance=self.learning_unit_year_full.learning_unit,
                                             data=instance_luy_base_form.data)
@@ -239,7 +239,7 @@ class TestLearningUnitPostponementFormSave(LearningUnitPostponementFormContextMi
             academic_year__year__gt=self.current_academic_year.year
         ).delete()
 
-        instance_luy_base_form = _instanciate_base_learning_unit_form(self.learning_unit_year_partim, self.person)
+        instance_luy_base_form = _instantiate_base_learning_unit_form(self.learning_unit_year_partim, self.person)
         instance_luy_base_form.data['end_year'] = self.learning_unit_year_full.academic_year.year + 2
         instance_luy_base_form.data['form-TOTAL_FORMS'] = 2
         instance_luy_base_form.data['form-INITIAL_FORMS'] = 0
@@ -263,7 +263,7 @@ class TestLearningUnitPostponementFormSave(LearningUnitPostponementFormContextMi
 
         self.learning_unit_year_full.academic_year = AcademicYearFactory(year=2010)
         self.learning_unit_year_full.save()
-        instance_luy_base_form = _instanciate_base_learning_unit_form(self.learning_unit_year_full, self.person)
+        instance_luy_base_form = _instantiate_base_learning_unit_form(self.learning_unit_year_full, self.person)
         form = _instanciate_postponement_form(self.person, self.learning_unit_year_full.academic_year,
                                               learning_unit_instance=instance_luy_base_form.learning_unit_instance,
                                               data=instance_luy_base_form.data)
@@ -280,7 +280,7 @@ class TestLearningUnitPostponementFormSave(LearningUnitPostponementFormContextMi
         start_insert_year = AcademicYearFactory(year=self.current_academic_year.year - 10)
         self.learning_unit_year_full.academic_year = start_insert_year
         self.learning_unit_year_full.save()
-        instance_luy_base_form = _instanciate_base_learning_unit_form(self.learning_unit_year_full, self.person)
+        instance_luy_base_form = _instantiate_base_learning_unit_form(self.learning_unit_year_full, self.person)
         form = _instanciate_postponement_form(self.person, start_insert_year, data=instance_luy_base_form.data)
 
         self.assertEqual(len(form._forms_to_upsert), 1)
@@ -300,7 +300,7 @@ class TestLearningUnitPostponementFormSave(LearningUnitPostponementFormContextMi
             academic_year__year__gt=self.current_academic_year.year + 2
         ).delete()
 
-        instance_luy_base_form = _instanciate_base_learning_unit_form(self.learning_unit_year_full, self.person)
+        instance_luy_base_form = _instantiate_base_learning_unit_form(self.learning_unit_year_full, self.person)
         form = _instanciate_postponement_form(self.person, self.learning_unit_year_full.academic_year,
                                               learning_unit_instance=instance_luy_base_form.learning_unit_instance,
                                               data=instance_luy_base_form.data)
@@ -310,7 +310,7 @@ class TestLearningUnitPostponementFormSave(LearningUnitPostponementFormContextMi
         self.assertEqual(mock_baseform_save.call_count, 7)
 
     def test_all_learning_unit_years_have_same_learning_unit(self):
-        instance_luy_base_form = _instanciate_base_learning_unit_form(self.learning_unit_year_full, self.person)
+        instance_luy_base_form = _instantiate_base_learning_unit_form(self.learning_unit_year_full, self.person)
         data = dict(instance_luy_base_form.data)
         data['acronym'] = 'LDROI1001'
         data['acronym_0'] = 'L'
@@ -333,7 +333,7 @@ class TestLearningUnitPostponementFormSave(LearningUnitPostponementFormContextMi
         next_learning_unit_year.learning_container_year.type_declaration_vacant = vacant_declaration_type.DO_NOT_ASSIGN
         next_learning_unit_year.learning_container_year.save()
 
-        instance_luy_base_form = _instanciate_base_learning_unit_form(self.learning_unit_year_full, self.person)
+        instance_luy_base_form = _instantiate_base_learning_unit_form(self.learning_unit_year_full, self.person)
         data = dict(instance_luy_base_form.data)
         data['is_vacant'] = True
         data['attribution_procedure'] = attribution_procedure.INTERNAL_TEAM
@@ -365,14 +365,14 @@ class TestLearningUnitPostponementFormCheckConsistency(LearningUnitPostponementF
     """Unit tests for LearningUnitPostponementForm._check_consistency()"""
 
     def test_when_insert_postponement(self):
-        instance_luy_base_form = _instanciate_base_learning_unit_form(self.learning_unit_year_full, self.person)
+        instance_luy_base_form = _instantiate_base_learning_unit_form(self.learning_unit_year_full, self.person)
         form = _instanciate_postponement_form(self.person, self.learning_unit_year_full.academic_year,
                                               data=instance_luy_base_form.data)
         self.assertTrue(form._check_consistency())
 
     def test_when_end_postponement_updated_to_now(self):
         """Nothing to upsert in the future, only deletions."""
-        instance_luy_base_form = _instanciate_base_learning_unit_form(self.learning_unit_year_full, self.person)
+        instance_luy_base_form = _instantiate_base_learning_unit_form(self.learning_unit_year_full, self.person)
         academic_year = self.learning_unit_year_full.academic_year
         form = _instanciate_postponement_form(self.person, academic_year,
                                               learning_unit_instance=instance_luy_base_form.learning_unit_instance,
@@ -381,7 +381,7 @@ class TestLearningUnitPostponementFormCheckConsistency(LearningUnitPostponementF
 
     def test_when_end_postponement_updated_to_next_year(self):
         """Only 1 upsert to perform (next year)."""
-        instance_luy_base_form = _instanciate_base_learning_unit_form(self.learning_unit_year_full, self.person)
+        instance_luy_base_form = _instantiate_base_learning_unit_form(self.learning_unit_year_full, self.person)
         next_academic_year = AcademicYear.objects.get(year=self.learning_unit_year_full.academic_year.year + 1)
         form = _instanciate_postponement_form(self.person, next_academic_year,
                                               learning_unit_instance=instance_luy_base_form.learning_unit_instance,
@@ -393,7 +393,7 @@ class TestLearningUnitPostponementFormCheckConsistency(LearningUnitPostponementF
         mock_find_consistency_errors.return_value = {
             self.learning_unit_year_full.academic_year: {'credits': {'current': 10, 'old': 15}}
         }
-        instance_luy_base_form = _instanciate_base_learning_unit_form(self.learning_unit_year_full, self.person)
+        instance_luy_base_form = _instantiate_base_learning_unit_form(self.learning_unit_year_full, self.person)
         form = _instanciate_postponement_form(self.person, self.learning_unit_year_full.academic_year,
                                               learning_unit_instance=instance_luy_base_form.learning_unit_instance,
                                               data=instance_luy_base_form.data)
@@ -434,7 +434,7 @@ class TestLearningUnitPostponementFormFindConsistencyErrors(LearningUnitPostpone
         return initial_status_value, new_entity_value
 
     def test_when_no_differences_found_in_future(self):
-        instance_luy_base_form = _instanciate_base_learning_unit_form(self.learning_unit_year_full, self.person)
+        instance_luy_base_form = _instantiate_base_learning_unit_form(self.learning_unit_year_full, self.person)
         form = _instanciate_postponement_form(self.person, self.learning_unit_year_full.academic_year,
                                               learning_unit_instance=instance_luy_base_form.learning_unit_instance,
                                               data=instance_luy_base_form.data)
@@ -451,7 +451,7 @@ class TestLearningUnitPostponementFormFindConsistencyErrors(LearningUnitPostpone
                                         learning_unit=self.learning_unit_year_full.learning_unit) \
                                 .update(specific_title='')
 
-        instance_luy_base_form = _instanciate_base_learning_unit_form(self.learning_unit_year_full, self.person)
+        instance_luy_base_form = _instantiate_base_learning_unit_form(self.learning_unit_year_full, self.person)
         form = _instanciate_postponement_form(self.person, self.learning_unit_year_full.academic_year,
                                               learning_unit_instance=instance_luy_base_form.learning_unit_instance,
                                               data=instance_luy_base_form.data)
@@ -465,7 +465,7 @@ class TestLearningUnitPostponementFormFindConsistencyErrors(LearningUnitPostpone
         LearningUnitYear.objects.filter(academic_year=next_academic_year,
                                         learning_unit=self.learning_unit_year_full.learning_unit) \
                                 .update(specific_title=None)
-        instance_luy_base_form = _instanciate_base_learning_unit_form(self.learning_unit_year_full, self.person)
+        instance_luy_base_form = _instantiate_base_learning_unit_form(self.learning_unit_year_full, self.person)
         form = _instanciate_postponement_form(self.person, self.learning_unit_year_full.academic_year,
                                               learning_unit_instance=instance_luy_base_form.learning_unit_instance,
                                               data=instance_luy_base_form.data)
@@ -494,7 +494,7 @@ class TestLearningUnitPostponementFormFindConsistencyErrors(LearningUnitPostpone
                 }
             ]
         })
-        instance_luy_base_form = _instanciate_base_learning_unit_form(self.learning_unit_year_full, self.person)
+        instance_luy_base_form = _instantiate_base_learning_unit_form(self.learning_unit_year_full, self.person)
         form = _instanciate_postponement_form(self.person, self.learning_unit_year_full.academic_year,
                                               learning_unit_instance=instance_luy_base_form.learning_unit_instance,
                                               data=instance_luy_base_form.data)
@@ -526,7 +526,7 @@ class TestLearningUnitPostponementFormFindConsistencyErrors(LearningUnitPostpone
             ],
         })
 
-        instance_luy_base_form = _instanciate_base_learning_unit_form(self.learning_unit_year_full, self.person)
+        instance_luy_base_form = _instantiate_base_learning_unit_form(self.learning_unit_year_full, self.person)
         form = _instanciate_postponement_form(self.person, self.learning_unit_year_full.academic_year,
                                               learning_unit_instance=instance_luy_base_form.learning_unit_instance,
                                               data=instance_luy_base_form.data)
@@ -548,7 +548,7 @@ class TestLearningUnitPostponementFormFindConsistencyErrors(LearningUnitPostpone
                 }
             ],
         })
-        instance_luy_base_form = _instanciate_base_learning_unit_form(self.learning_unit_year_full, self.person)
+        instance_luy_base_form = _instantiate_base_learning_unit_form(self.learning_unit_year_full, self.person)
         form = _instanciate_postponement_form(self.person, self.learning_unit_year_full.academic_year,
                                               learning_unit_instance=instance_luy_base_form.learning_unit_instance,
                                               data=instance_luy_base_form.data)
@@ -572,7 +572,7 @@ class TestLearningUnitPostponementFormFindConsistencyErrors(LearningUnitPostpone
             next_academic_year: [msg_proposal],
         })
 
-        instance_luy_base_form = _instanciate_base_learning_unit_form(self.learning_unit_year_full, self.person)
+        instance_luy_base_form = _instantiate_base_learning_unit_form(self.learning_unit_year_full, self.person)
         form = _instanciate_postponement_form(self.person, self.learning_unit_year_full.academic_year,
                                               learning_unit_instance=instance_luy_base_form.learning_unit_instance,
                                               data=instance_luy_base_form.data)
@@ -583,7 +583,7 @@ class TestLearningUnitPostponementFormFindConsistencyErrors(LearningUnitPostpone
         self.assertEqual(expected_result[next_academic_year], result[next_academic_year])
 
 
-def _instanciate_base_learning_unit_form(learning_unit_year_instance, person):
+def _instantiate_base_learning_unit_form(learning_unit_year_instance, person):
     entity_version_by_type = entity_container_year.find_last_entity_version_grouped_by_linktypes(
         learning_unit_year_instance.learning_container_year
     )
