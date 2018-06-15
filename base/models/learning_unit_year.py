@@ -39,6 +39,7 @@ from base.models.enums import active_status, learning_container_year_types
 from base.models.enums import learning_unit_year_subtypes, internship_subtypes, \
     learning_unit_year_session, entity_container_year_link_type, learning_unit_year_quadrimesters, attribution_procedure
 from base.models.enums.learning_container_year_types import COURSE, INTERNSHIP
+from base.models.enums.learning_unit_year_periodicity import PERIODICITY_TYPES, ANNUAL
 from base.models.learning_unit import LEARNING_UNIT_ACRONYM_REGEX_ALL, REGEX_BY_SUBTYPE
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
 
@@ -93,8 +94,9 @@ class LearningUnitYear(SerializableModel):
                                           choices=internship_subtypes.INTERNSHIP_SUBTYPES)
     status = models.BooleanField(default=False, verbose_name=_('active_title'))
     session = models.CharField(max_length=50, blank=True, null=True,
-                               choices=learning_unit_year_session.LEARNING_UNIT_YEAR_SESSION)
-    quadrimester = models.CharField(max_length=4, blank=True, null=True, verbose_name=_('quadrimester'),
+                               choices=learning_unit_year_session.LEARNING_UNIT_YEAR_SESSION,
+                               verbose_name=_('session_title'))
+    quadrimester = models.CharField(max_length=9, blank=True, null=True, verbose_name=_('quadrimester'),
                                     choices=learning_unit_year_quadrimesters.LEARNING_UNIT_YEAR_QUADRIMESTERS)
     attribution_procedure = models.CharField(max_length=20, blank=True, null=True, verbose_name=_('procedure'),
                                              choices=attribution_procedure.ATTRIBUTION_PROCEDURES)
@@ -107,6 +109,9 @@ class LearningUnitYear(SerializableModel):
     campus = models.ForeignKey('Campus', null=True)
 
     language = models.ForeignKey('reference.Language', null=True, verbose_name=_('language'))
+
+    periodicity = models.CharField(max_length=20, choices=PERIODICITY_TYPES, default=ANNUAL,
+                                   verbose_name=_('periodicity'))
 
     objects_with_container = LearningUnitYearWithContainerManager()
     _warnings = None
@@ -203,6 +208,12 @@ class LearningUnitYear(SerializableModel):
     def get_previous_acronym(self):
         return find_lt_learning_unit_year_with_different_acronym(self)
 
+    @property
+    def periodicity_verbose(self):
+        if self.periodicity:
+            return _(self.periodicity)
+        return None
+
     def find_gte_learning_units_year(self):
         return LearningUnitYear.objects.filter(learning_unit=self.learning_unit,
                                                academic_year__year__gte=self.academic_year.year) \
@@ -263,6 +274,7 @@ class LearningUnitYear(SerializableModel):
             self._warnings.extend(self._check_internship_subtype())
             self._warnings.extend(self._check_partim_parent_status())
             self._warnings.extend(self._check_learning_component_year_warnings())
+            self._warnings.extend(self._check_learning_container_year_warnings())
         return self._warnings
 
     def _check_partim_parent_credits(self):
@@ -295,6 +307,9 @@ class LearningUnitYear(SerializableModel):
             _warnings.extend(learning_unit_component.learning_component_year.warnings)
 
         return _warnings
+
+    def _check_learning_container_year_warnings(self):
+        return self.learning_container_year.warnings
 
     def is_external(self):
         return hasattr(self, "externallearningunityear")
@@ -378,7 +393,7 @@ def find_summary_responsible_by_name(queryset, name):
 
 def _build_tutor_filter(name_type):
     return '__'.join(['learningunitcomponent', 'learning_component_year', 'attributionchargenew', 'attribution',
-                      'tutor', 'person', name_type, 'icontains'])
+                      'tutor', 'person', name_type, 'iregex'])
 
 
 def convert_status_bool(status):

@@ -55,7 +55,7 @@ from base.models.enums import entity_container_year_link_type, active_status, ed
 from base.models.enums import entity_type
 from base.models.enums import internship_subtypes
 from base.models.enums import learning_container_year_types, organization_type
-from base.models.enums import learning_unit_periodicity
+from base.models.enums import learning_unit_year_periodicity
 from base.models.enums import learning_unit_year_session
 from base.models.enums import learning_unit_year_subtypes
 from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES_MUST_HAVE_SAME_ENTITIES
@@ -199,7 +199,7 @@ class LearningUnitViewCreateFullTestCase(TestCase):
             "container_type": learning_container_year_types.COURSE,
             "academic_year": current_academic_year.id,
             "status": True,
-            "periodicity": learning_unit_periodicity.ANNUAL,
+            "periodicity": learning_unit_year_periodicity.ANNUAL,
             "credits": "5",
             "campus": campus.id,
             "internship_subtype": internship_subtypes.TEACHING_INTERNSHIP,
@@ -211,6 +211,17 @@ class LearningUnitViewCreateFullTestCase(TestCase):
             "session": learning_unit_year_session.SESSION_P23,
             "faculty_remark": "faculty remark",
             "other_remark": "other remark",
+
+            # Learning component year data model form
+            'form-TOTAL_FORMS': '2',
+            'form-INITIAL_FORMS': '0',
+            'form-MAX_NUM_FORMS': '2',
+            'form-0-hourly_volume_total_annual': 20,
+            'form-0-hourly_volume_partial_q1': 10,
+            'form-0-hourly_volume_partial_q2': 10,
+            'form-1-hourly_volume_total_annual': 20,
+            'form-1-hourly_volume_partial_q1': 10,
+            'form-1-hourly_volume_partial_q2': 10,
         }
 
         response = self.client.post(self.url, data=form_data)
@@ -1077,7 +1088,7 @@ class LearningUnitViewTestCase(TestCase):
             "container_type": learning_container_year_types.COURSE,
             "academic_year": self.current_academic_year.id,
             "status": True,
-            "periodicity": learning_unit_periodicity.ANNUAL,
+            "periodicity": learning_unit_year_periodicity.ANNUAL,
             "credits": "5",
             "campus": self.campus.id,
             "specific_title": "Specific UE title",

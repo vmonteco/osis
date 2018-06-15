@@ -131,6 +131,7 @@ class MandatesArchivesForm(ModelForm):
         model = mdl.assistant_mandate.AssistantMandate
         fields = ('academic_year',)
 
+
 RADIO_SELECT_REQUIRED = dict(
     required=True,
     widget=forms.RadioSelect(attrs={'onChange': 'Hide()'})
@@ -242,13 +243,16 @@ class ReviewForm(ModelForm):
     justification = forms.CharField(help_text=_("justification_required_if_conditional_or_negative"),
                                     required=False, widget=forms.Textarea(attrs={'cols': '80', 'rows': '5'}))
     remark = forms.CharField(required=False, widget=forms.Textarea(attrs={'cols': '80', 'rows': '5'}))
+    comment_vice_rector = forms.CharField(help_text=("information_only_for_DAS_CAS_and_VICE_RECTOR"),
+                                          required=False, widget=forms.Textarea(attrs={'cols': '80', 'rows': '5'}))
     confidential = forms.CharField(help_text=_("information_not_provided_to_assistant"),
                                    required=False, widget=forms.Textarea(attrs={'cols': '80', 'rows': '5'}))
     advice = forms.ChoiceField(choices=review_advice_choices.REVIEW_ADVICE_CHOICES, **RADIO_SELECT_REQUIRED)
 
     class Meta:
         model = mdl.review.Review
-        fields = ('mandate', 'advice', 'status', 'justification', 'remark', 'confidential', 'changed')
+        fields = ('mandate', 'advice', 'status', 'justification', 'remark', 'confidential', 'changed',
+                  'comment_vice_rector')
         widgets = {'mandate': forms.HiddenInput(), 'reviewer': forms.HiddenInput, 'status': forms.HiddenInput,
                    'changed': forms.HiddenInput}
 
@@ -256,6 +260,7 @@ class ReviewForm(ModelForm):
         super(ReviewForm, self).__init__(*args, **kwargs)
         self.fields['justification'].widget.attrs['class'] = 'form-control'
         self.fields['remark'].widget.attrs['class'] = 'form-control'
+        self.fields['comment_vice_rector'].widget.attrs['class'] = 'form-control'
         self.fields['confidential'].widget.attrs['class'] = 'form-control'
 
     def clean(self):
@@ -300,6 +305,7 @@ class ReviewerDelegationForm(ModelForm):
         entity.search(entity_type=entity_type.SCHOOL) | entity.search(entity_type=entity_type.PLATFORM) | \
         entity.search(entity_type=entity_type.POLE)
     entity = EntityChoiceField(required=True, queryset=base.models.entity.find_versions_from_entites(entities, None))
+
     class Meta:
         model = mdl.reviewer.Reviewer
         fields = ('entity', 'role')

@@ -1851,9 +1851,6 @@ msgstr "Classes prévues"
 msgid "planned_classes_pc"
 msgstr "P.C."
 
-msgid "total_volume"
-msgstr "Volume total annual"
-
 msgid "total_volume_voltot"
 msgstr "Vol.tot"
 
@@ -1867,7 +1864,7 @@ msgid "end_date_gt_begin_date"
 msgstr "The end year must be equals or upper than the start year"
 
 msgid "session_title"
-msgstr "Sessions"
+msgstr "Sessions derogations"
 
 msgid "remarks_title"
 msgstr "Remarks"
@@ -2862,10 +2859,10 @@ msgstr "Vol.global"
 msgid "volume_global"
 msgstr "volume total global"
 
-msgid "Vol. tot. annual"
+msgid "Vol. annual"
 msgstr ""
 
-msgid "Volume total annual"
+msgid "Volume annual"
 msgstr ""
 
 msgid "missing_internship_subtype"
@@ -2931,6 +2928,9 @@ msgstr ""
 msgid "Vol_global is not equal to Vol_tot * planned_classes"
 msgstr ""
 
+msgid "At least a partim volume value is greater than corresponding volume of parent"
+msgstr ""
+
 msgid "url of the learning unit"
 msgstr "URL of the learning unit"
 
@@ -2993,3 +2993,9 @@ msgstr "education_groups"
 
 msgid "list_education_groups"
 msgstr "Education group's list"
+
+msgid "Q1 and Q2"
+msgstr ""
+
+msgid "Q1 or Q2"
+msgstr ""

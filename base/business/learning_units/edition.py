@@ -41,7 +41,7 @@ from base.models.academic_year import AcademicYear, compute_max_academic_year_ad
 from base.models.entity_component_year import EntityComponentYear
 from base.models.entity_container_year import EntityContainerYear
 from base.models.entity_version import EntityVersion
-from base.models.enums import learning_unit_periodicity, learning_unit_year_subtypes
+from base.models.enums import learning_unit_year_periodicity, learning_unit_year_subtypes
 from base.models.enums.entity_container_year_link_type import ENTITY_TYPE_LIST
 from base.models.learning_container_year import LearningContainerYear
 from base.models.learning_unit_year import LearningUnitYear
@@ -265,8 +265,8 @@ def get_next_academic_years(learning_unit_to_edit, year):
 
 def filter_biennial(queryset, periodicity):
     result = queryset
-    if periodicity != learning_unit_periodicity.ANNUAL:
-        is_odd = periodicity == learning_unit_periodicity.BIENNIAL_ODD
+    if periodicity != learning_unit_year_periodicity.ANNUAL:
+        is_odd = periodicity == learning_unit_year_periodicity.BIENNIAL_ODD
         result = queryset.annotate(odd=F('year') % 2).filter(odd=is_odd)
     return result
 
