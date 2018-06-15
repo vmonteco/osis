@@ -1853,9 +1853,6 @@ msgstr "Classes prévues"
 msgid "planned_classes_pc"
 msgstr "C.P."
 
-msgid "total_volume"
-msgstr "Volume total annuel"
-
 msgid "total_volume_voltot"
 msgstr "Vol.tot"
 
@@ -1869,7 +1866,7 @@ msgid "end_date_gt_begin_date"
 msgstr "L'année de fin doit etre égale ou supérieur à l'année de départ"
 
 msgid "session_title"
-msgstr "Sessions"
+msgstr "Sessions dérogations"
 
 msgid "remarks_title"
 msgstr "Remarques"
@@ -2864,11 +2861,11 @@ msgstr "Vol.global"
 msgid "volume_global"
 msgstr "volume total global"
 
-msgid "Vol. tot. annual"
-msgstr "Vol. tot. annuel"
+msgid "Vol. annual"
+msgstr "Vol. annuel"
 
-msgid "Volume total annual"
-msgstr "Volume total annuel"
+msgid "Volume annual"
+msgstr "Volume annuel"
 
 msgid "missing_internship_subtype"
 msgstr "Il est nécessaire d'indiquer le sous-type de stage"
@@ -2986,3 +2983,9 @@ msgstr "Produire un fichier Excel avec la liste des unités d'enseignement"
 
 msgid "produce_xls_attributions_desc"
 msgstr "Produire un fichier Excel avec la liste des unités d'enseignement et les attributions"
+
+msgid "Q1 and Q2"
+msgstr "Q1 et Q2"
+
+msgid "Q1 or Q2"
+msgstr "Q1 ou Q2"

@@ -109,6 +109,9 @@ def get_valid_form_data(academic_year, person, learning_unit_year=None):
             periodicity=learning_unit_year_periodicity.ANNUAL
         )
 
+    cm_lcy = LearningComponentYear.objects.filter(learningunitcomponent__learning_unit_year=learning_unit_year).first()
+    pp_lcy = LearningComponentYear.objects.filter(learningunitcomponent__learning_unit_year=learning_unit_year).last()
+
     return {
         # Learning unit year data model form
         'acronym': learning_unit_year.acronym,
@@ -143,6 +146,19 @@ def get_valid_form_data(academic_year, person, learning_unit_year=None):
         'requirement_entity-entity': requirement_entity_version.id,
         'allocation_entity-entity': requirement_entity_version.id,
         'additional_requirement_entity_1-entity': '',
+
+        # Learning component year data model form
+        'form-0-id': cm_lcy and cm_lcy.pk,
+        'form-1-id': pp_lcy and pp_lcy.pk,
+        'form-TOTAL_FORMS': '2',
+        'form-INITIAL_FORMS': '0' if not cm_lcy else '2',
+        'form-MAX_NUM_FORMS': '2',
+        'form-0-hourly_volume_total_annual': 20,
+        'form-0-hourly_volume_partial_q1': 10,
+        'form-0-hourly_volume_partial_q2': 10,
+        'form-1-hourly_volume_total_annual': 20,
+        'form-1-hourly_volume_partial_q1': 10,
+        'form-1-hourly_volume_partial_q2': 10,
     }
 
 
@@ -470,6 +486,7 @@ class TestFullFormSave(LearningUnitFullFormContextMixin):
         })
 
     def test_when_update_instance(self):
+        self.post_data = get_valid_form_data(self.current_academic_year, self.person, self.learning_unit_year)
         EntityContainerYear.objects.filter(type__in=[ADDITIONAL_REQUIREMENT_ENTITY_1, ADDITIONAL_REQUIREMENT_ENTITY_2],
                                            learning_container_year=self.learning_unit_year.learning_container_year
                                            ).delete()
@@ -507,6 +524,8 @@ class TestFullFormSave(LearningUnitFullFormContextMixin):
         self.assertTrue(form.is_valid(), form.errors)
         form.save()
         self.assertEqual(LearningUnitYear.objects.filter(acronym='LAGRO1200').count(), 1)
+        self.assertEqual(LearningComponentYear.objects.filter(
+            learning_container_year=self.learning_unit_year.learning_container_year).count(), 4)
 
         self._assert_correctly_create_records_in_all_learning_unit_structure(initial_counts)
 
