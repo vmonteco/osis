@@ -70,7 +70,6 @@ class LearningUnitYearWithContainerManager(models.Manager):
 
 
 class LearningUnitYear(SerializableModel):
-    existing_proposal_in_epc = models.BooleanField(default=False)
     external_id = models.CharField(max_length=100, blank=True, null=True)
     academic_year = models.ForeignKey(AcademicYear,  verbose_name=_('academic_year'),
                                       validators=[academic_year_validator])
