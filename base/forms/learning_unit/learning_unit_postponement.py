@@ -28,7 +28,7 @@ from collections import OrderedDict
 
 from django.db import transaction
 from django.http import QueryDict
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext as _
 
 from base.forms.learning_unit.learning_unit_create_2 import FullForm
 from base.forms.learning_unit.learning_unit_partim import PartimForm
@@ -279,11 +279,6 @@ class LearningUnitPostponementForm:
             )
 
     def _check_differences(self, current_form, next_form, ac_year):
-        for col_name, value in current_form.instances_data.items():
-            print(col_name, value)
-        for col_name, value in next_form.instances_data.items():
-            print(col_name, value)
-
         differences = [
             _("%(col_name)s has been already modified. ({%(new_value)s} instead of {%(current_value)s})") % {
                 'col_name': next_form.label_fields.get(col_name, col_name),

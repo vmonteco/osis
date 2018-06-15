@@ -310,7 +310,7 @@ class SimplifiedVolumeFormset(forms.BaseModelFormSet):
         for i, form_instance in enumerate(self.forms):
             for col in ['hourly_volume_total_annual', 'hourly_volume_partial_q1', 'hourly_volume_partial_q2']:
                 value = getattr(form_instance.instance, col, None) or getattr(self.initial_forms[i].instance, col, None)
-                data[_(form_instance.instance.type) + ' ' + col] = value
+                data[_(form_instance.instance.type) + ' (' + self.label_fields[col].lower() + ')'] = value
         return data
 
     @property

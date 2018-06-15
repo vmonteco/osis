@@ -126,7 +126,6 @@ class LearningUnitBaseForm(metaclass=ABCMeta):
             else:
                 columns = form_instance.fields.keys()
                 data.update({col: getattr(form_instance.instance, col, None) for col in columns})
-        print(data)
         return data
 
     @property
