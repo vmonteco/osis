@@ -82,6 +82,7 @@ def get_valid_external_learning_unit_form_data(academic_year, person, learning_u
         'status': learning_unit_year.status,
         'campus': learning_unit_year.campus.id,
         'language': learning_unit_year.language.pk,
+        'periodicity': learning_unit_year.periodicity,
 
         # Learning unit data model form
         'faculty_remark': learning_unit_year.learning_unit.faculty_remark,
@@ -103,11 +104,9 @@ def get_valid_external_learning_unit_form_data(academic_year, person, learning_u
         'form-0-hourly_volume_total_annual': 20,
         'form-0-hourly_volume_partial_q1': 10,
         'form-0-hourly_volume_partial_q2': 10,
-        'form-0-planned_classes': 1,
         'form-1-hourly_volume_total_annual': 20,
         'form-1-hourly_volume_partial_q1': 10,
         'form-1-hourly_volume_partial_q2': 10,
-        'form-1-planned_classes': 1,
     }
 
 

@@ -262,10 +262,12 @@ class SimplifiedVolumeForm(forms.ModelForm):
                   'hourly_volume_partial_q2')
 
     def save(self, commit=True):
-        if self._learning_unit_year.learning_container_year.container_type != CONTAINER_TYPE_WITH_DEFAULT_COMPONENT \
-                and self.prefix == "form-1":
+        if self._learning_unit_year.learning_container_year.container_type \
+                not in CONTAINER_TYPE_WITH_DEFAULT_COMPONENT and self.prefix == "form-1":
             pass
         else:
+            self.instance.learning_container_year = self._learning_unit_year.learning_container_year
+            self._learning_unit_year.save()
             instance = super().save(commit)
             LearningUnitComponent.objects.get_or_create(
                 learning_unit_year=self._learning_unit_year,
@@ -274,11 +276,19 @@ class SimplifiedVolumeForm(forms.ModelForm):
             requirement_entity_containers = self.get_requirement_entity_container()
 
             for requirement_entity_container in requirement_entity_containers:
+                if not self.instance.hourly_volume_total_annual and self.initial:
+                    self.get_initial_volume_data()
                 EntityComponentYear.objects.get_or_create(
                     entity_container_year=requirement_entity_container,
                     learning_component_year=instance
                 )
             return instance
+
+    def get_initial_volume_data(self):
+        self.instance.hourly_volume_total_annual = self.initial.get('hourly_volume_total_annual')
+        self.instance.hourly_volume_partial_q1 = self.initial.get('hourly_volume_partial_q1')
+        self.instance.hourly_volume_partial_q2 = self.initial.get('hourly_volume_partial_q2')
+        self.instance.save()
 
     def get_requirement_entity_container(self):
         requirement_entity_containers = []
@@ -325,7 +335,6 @@ class SimplifiedVolumeFormset(forms.BaseModelFormSet):
         for form in self.forms:
             form._learning_unit_year = learning_unit_year
             form._entity_containers = entity_container_years
-            form.instance.learning_container_year = lcy
 
         return super().save(commit)
 

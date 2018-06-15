@@ -54,7 +54,8 @@ FACULTY_OPEN_FIELDS = {
     'common_title_english',
     'specific_title_english',
     "status",
-    "professional_integration"
+    "professional_integration",
+    "id"  # THIS IS A FIX, BUT A BETTER SOLUTION SHOULD BE FIND
 }
 
 
@@ -272,8 +273,8 @@ class FullForm(LearningUnitBaseForm):
             SimplifiedVolumeManagementForm: {
                 'data': data,
                 'queryset': LearningComponentYear.objects.filter(
-                    learningunitcomponent__learning_unit_year=
-                    self.instance) if self.instance else LearningComponentYear.objects.none()
+                    learningunitcomponent__learning_unit_year=self.instance
+                ) if self.instance else LearningComponentYear.objects.none()
             }
 
         }
@@ -329,8 +330,6 @@ class FullForm(LearningUnitBaseForm):
             commit=commit
         )
 
-        entity_container_years = self.entity_container_form.save(commit=commit, learning_container_year=container_year)
-
         # Save learning unit year (learning_unit_component +  learning_component_year + entity_component_year)
         learning_unit_yr = self.learning_unit_year_form.save(
             learning_container_year=container_year,
@@ -338,5 +337,15 @@ class FullForm(LearningUnitBaseForm):
             commit=commit
         )
 
-        self.simplified_volume_management_form.save_all_forms(learning_unit_yr, entity_container_years, commit=commit)
+        entity_container_years = self.entity_container_form.save(
+            commit=commit,
+            learning_container_year=learning_unit_yr.learning_container_year
+        )
+
+        self.simplified_volume_management_form.save_all_forms(
+            learning_unit_yr,
+            entity_container_years,
+            commit=commit
+        )
+
         return learning_unit_yr

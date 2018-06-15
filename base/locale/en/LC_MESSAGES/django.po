@@ -2928,6 +2928,9 @@ msgstr ""
 msgid "Vol_global is not equal to Vol_tot * planned_classes"
 msgstr ""
 
+msgid "At least a partim volume value is greater than corresponding volume of parent"
+msgstr ""
+
 msgid "url of the learning unit"
 msgstr "URL of the learning unit"
 
@@ -2981,3 +2984,18 @@ msgstr "Produce xls with a list of learning units"
 
 msgid "produce_xls_attributions_desc"
 msgstr "Produce xls with a list of learning units and attributions"
+
+msgid "Xls with education groups"
+msgstr ""
+
+msgid "education_groups_filename"
+msgstr "education_groups"
+
+msgid "list_education_groups"
+msgstr "Education group's list"
+
+msgid "Q1 and Q2"
+msgstr ""
+
+msgid "Q1 or Q2"
+msgstr ""

@@ -64,8 +64,8 @@
                             <div class="panel-body">
 
                                 <div class="row">
-                                    <div class="col-md-4 acronym-group">
-                                        {% bootstrap_label learning_unit_year_form.acronym.label %}
+                                    <div class="col-md-4 acronym-group required_field">
+                                        {% bootstrap_label learning_unit_year_form.acronym.label label_class="control-label" %}
                                         <abbr title="{% trans 'acronym_rules' %}">
                                             <span class="glyphicon glyphicon-question-sign " title="{% trans 'acronym_rules' %}" style="font-size: 14pt;"></span>
                                         </abbr>
@@ -78,7 +78,7 @@
                                 </div>
                                 <div class="row">
                                     {% bootstrap_field learning_unit_year_form.credits form_group_class="col-md-3" %}
-                                    {% bootstrap_field learning_unit_form.periodicity form_group_class="col-md-3" %}
+                                    {% bootstrap_field learning_unit_year_form.periodicity form_group_class="col-md-3" %}
                                     {% bootstrap_field learning_unit_year_form.status form_group_class="col-md-2" %}
                                     {% bootstrap_field learning_unit_year_form.language form_group_class="col-md-4" %}
                                 </div>
@@ -92,10 +92,9 @@
                                 {% endblock titles %}
                             </div>
                         </div>
-                        {% block components %}
-                            {% include "learning_unit/blocks/components.html" %}
-                        {% endblock components %}
                     {% endblock learning_unit_identification %}
+
+                    {% include "learning_unit/blocks/components.html" %}
 
                     {% block remarks %}
                         {% include "learning_unit/blocks/remarks.html" %}
