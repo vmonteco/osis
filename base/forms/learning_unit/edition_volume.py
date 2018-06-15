@@ -28,15 +28,19 @@ from collections import OrderedDict
 from django import forms
 from django.db import transaction
 from django.db.models import Prefetch
-from django.forms import formset_factory
+from django.forms import formset_factory, modelformset_factory
 from django.utils.translation import ugettext_lazy as _
 
 from base.business.learning_unit_year_with_context import ENTITY_TYPES_VOLUME
 from base.business.learning_units import edition
 from base.business.learning_units.edition import check_postponement_conflict_report_errors
+from base.forms.learning_unit.learning_unit_create import DEFAULT_ACRONYM_COMPONENT
 from base.forms.utils.emptyfield import EmptyField
 from base.models.entity_component_year import EntityComponentYear
 from base.models.enums import entity_container_year_link_type as entity_types
+from base.models.enums.component_type import PRACTICAL_EXERCISES, LECTURING
+from base.models.enums.learning_container_year_types import INTERNSHIP, CONTAINER_TYPE_WITH_DEFAULT_COMPONENT
+from base.models.learning_component_year import LearningComponentYear
 from base.models.learning_unit_component import LearningUnitComponent
 
 
@@ -56,8 +60,8 @@ class VolumeEditionForm(forms.Form):
     add_field = EmptyField(label='+')
     volume_q2 = VolumeField(label=_('partial_volume_2Q'), help_text=_('partial_volume_2'))
     equal_field_1 = EmptyField(label='=')
+    volume_total = VolumeField(label=_('Vol. annual'), help_text=_('Volume annual'))
     help_volume_total = "{} = {} + {}".format(_('Volume total annual'), _('partial_volume_1'), _('partial_volume_2'))
-    volume_total = VolumeField(label=_('Vol. tot. annual'), help_text=help_volume_total)
     closing_parenthesis_field = EmptyField(label=')')
     mult_field = EmptyField(label='*')
     planned_classes = forms.IntegerField(label=_('planned_classes_pc'), help_text=_('planned_classes'), min_value=0)
@@ -238,3 +242,103 @@ class VolumeEditionFormsetContainer:
             for name, error in form_errors.items():
                 errors["{}-{}-{}".format(formset.prefix, i, name)] = error
         return errors
+
+
+class SimplifiedVolumeForm(forms.ModelForm):
+    _learning_unit_year = None
+    _entity_containers = []
+    add_field = EmptyField(label="+")
+    equal_field = EmptyField(label='=')
+
+    def __init__(self, *args, **kwargs):
+        self.component_type = kwargs.pop('component_type')
+        super().__init__(*args, **kwargs)
+        self.instance.type = self.component_type
+        self.instance.acronym = DEFAULT_ACRONYM_COMPONENT[self.component_type]
+
+    class Meta:
+        model = LearningComponentYear
+        fields = ('hourly_volume_total_annual', 'hourly_volume_partial_q1',
+                  'hourly_volume_partial_q2')
+
+    def save(self, commit=True):
+        if self._learning_unit_year.learning_container_year.container_type \
+                not in CONTAINER_TYPE_WITH_DEFAULT_COMPONENT and self.prefix == "form-1":
+            pass
+        else:
+            self.instance.learning_container_year = self._learning_unit_year.learning_container_year
+            self._learning_unit_year.save()
+            instance = super().save(commit)
+            LearningUnitComponent.objects.get_or_create(
+                learning_unit_year=self._learning_unit_year,
+                learning_component_year=instance
+            )
+            requirement_entity_containers = self.get_requirement_entity_container()
+
+            for requirement_entity_container in requirement_entity_containers:
+                if not self.instance.hourly_volume_total_annual and self.initial:
+                    self.get_initial_volume_data()
+                EntityComponentYear.objects.get_or_create(
+                    entity_container_year=requirement_entity_container,
+                    learning_component_year=instance
+                )
+            return instance
+
+    def get_initial_volume_data(self):
+        self.instance.hourly_volume_total_annual = self.initial.get('hourly_volume_total_annual')
+        self.instance.hourly_volume_partial_q1 = self.initial.get('hourly_volume_partial_q1')
+        self.instance.hourly_volume_partial_q2 = self.initial.get('hourly_volume_partial_q2')
+        self.instance.save()
+
+    def get_requirement_entity_container(self):
+        requirement_entity_containers = []
+        for entity_container_year in self._entity_containers:
+            if entity_container_year and entity_container_year.type != entity_types.ALLOCATION_ENTITY:
+                requirement_entity_containers.append(entity_container_year)
+        return requirement_entity_containers
+
+
+class SimplifiedVolumeFormset(forms.BaseModelFormSet):
+    def get_form_kwargs(self, index):
+        kwargs = super().get_form_kwargs(index)
+        kwargs['component_type'] = [LECTURING, PRACTICAL_EXERCISES][index]
+        return kwargs
+
+    @property
+    def fields(self):
+        fields = OrderedDict()
+        for form_instance in self.forms:
+            fields.update(form_instance.fields)
+        return fields
+
+    @property
+    def instances_data(self):
+        data = {}
+        for form_instance in self.forms:
+            columns = form_instance.fields.keys()
+            data.update({col: getattr(form_instance.instance, col, None) for col in columns})
+        return data
+
+    @property
+    def label_fields(self):
+        """ Return a dictionary with the label of all fields """
+        data = {}
+        for form_instance in self.forms:
+            data.update({
+                key: field.label for key, field in form_instance.fields.items()
+            })
+        return data
+
+    def save_all_forms(self, learning_unit_year, entity_container_years, commit=True):
+        lcy = learning_unit_year.learning_container_year
+
+        for form in self.forms:
+            form._learning_unit_year = learning_unit_year
+            form._entity_containers = entity_container_years
+
+        return super().save(commit)
+
+
+SimplifiedVolumeManagementForm = modelformset_factory(model=LearningComponentYear, form=SimplifiedVolumeForm,
+                                                      formset=SimplifiedVolumeFormset,
+                                                      extra=2, max_num=2)

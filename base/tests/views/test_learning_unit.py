@@ -42,6 +42,7 @@ from django.utils.translation import ugettext_lazy as _
 
 import base.business.learning_unit
 from base.business import learning_unit as learning_unit_business
+import base.business.xls
 from base.forms.learning_unit.learning_unit_create import LearningUnitModelForm
 from base.forms.learning_unit.search_form import LearningUnitYearForm, LearningUnitSearchForm
 from base.forms.learning_unit_pedagogy import LearningUnitPedagogyForm, SummaryModelForm
@@ -210,6 +211,17 @@ class LearningUnitViewCreateFullTestCase(TestCase):
             "session": learning_unit_year_session.SESSION_P23,
             "faculty_remark": "faculty remark",
             "other_remark": "other remark",
+
+            # Learning component year data model form
+            'form-TOTAL_FORMS': '2',
+            'form-INITIAL_FORMS': '0',
+            'form-MAX_NUM_FORMS': '2',
+            'form-0-hourly_volume_total_annual': 20,
+            'form-0-hourly_volume_partial_q1': 10,
+            'form-0-hourly_volume_partial_q2': 10,
+            'form-1-hourly_volume_total_annual': 20,
+            'form-1-hourly_volume_partial_q1': 10,
+            'form-1-hourly_volume_partial_q2': 10,
         }
 
         response = self.client.post(self.url, data=form_data)
@@ -1236,14 +1248,14 @@ class LearningUnitViewTestCase(TestCase):
     def test_get_username_with_no_person(self):
         a_username = 'dupontm'
         a_user = UserFactory(username=a_username)
-        self.assertEqual(base.business.learning_unit.get_name_or_username(a_user), a_username)
+        self.assertEqual(base.business.xls.get_name_or_username(a_user), a_username)
 
     def test_get_username_with_person(self):
         a_user = UserFactory(username='dupontm')
         last_name = 'dupont'
         first_name = 'marcel'
         self.person = PersonFactory(user=a_user, last_name=last_name, first_name=first_name)
-        self.assertEqual(base.business.learning_unit.get_name_or_username(a_user),
+        self.assertEqual(base.business.xls.get_name_or_username(a_user),
                          '{}, {}'.format(last_name, first_name))
 
     def test_prepare_xls_content_no_data(self):

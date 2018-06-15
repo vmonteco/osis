@@ -70,7 +70,6 @@ class LearningUnitYearWithContainerManager(models.Manager):
 
 
 class LearningUnitYear(SerializableModel):
-    existing_proposal_in_epc = models.BooleanField(default=False)
     external_id = models.CharField(max_length=100, blank=True, null=True)
     academic_year = models.ForeignKey(AcademicYear,  verbose_name=_('academic_year'),
                                       validators=[academic_year_validator])
@@ -94,8 +93,9 @@ class LearningUnitYear(SerializableModel):
                                           choices=internship_subtypes.INTERNSHIP_SUBTYPES)
     status = models.BooleanField(default=False, verbose_name=_('active_title'))
     session = models.CharField(max_length=50, blank=True, null=True,
-                               choices=learning_unit_year_session.LEARNING_UNIT_YEAR_SESSION)
-    quadrimester = models.CharField(max_length=4, blank=True, null=True, verbose_name=_('quadrimester'),
+                               choices=learning_unit_year_session.LEARNING_UNIT_YEAR_SESSION,
+                               verbose_name=_('session_title'))
+    quadrimester = models.CharField(max_length=9, blank=True, null=True, verbose_name=_('quadrimester'),
                                     choices=learning_unit_year_quadrimesters.LEARNING_UNIT_YEAR_QUADRIMESTERS)
     attribution_procedure = models.CharField(max_length=20, blank=True, null=True, verbose_name=_('procedure'),
                                              choices=attribution_procedure.ATTRIBUTION_PROCEDURES)
@@ -443,6 +443,8 @@ def find_latest_by_learning_unit(a_learning_unit):
 
 
 def find_lt_learning_unit_year_with_different_acronym(a_learning_unit_yr):
-    return LearningUnitYear.objects.filter(learning_unit=a_learning_unit_yr.learning_unit,
-                                           academic_year__year__lt=a_learning_unit_yr.academic_year.year) \
-        .exclude(acronym__iexact=a_learning_unit_yr.acronym).order_by('-academic_year__year').first()
+    return LearningUnitYear.objects.filter(learning_unit__id=a_learning_unit_yr.learning_unit.id,
+                                           academic_year__year__lt=a_learning_unit_yr.academic_year.year,
+                                           proposallearningunit__isnull=True)\
+        .order_by('-academic_year')\
+        .exclude(acronym__iexact=a_learning_unit_yr.acronym).first()

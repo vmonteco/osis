@@ -24,15 +24,15 @@
 * at the root of the source code of this program.  If not,
 * see http://www.gnu.org/licenses/.
 {% endcomment %}
-<div class="panel panel-default">
-    <table class="table">
-        <thead>
+<table class="table volumes_read">
+    <thead>
+        <tr>
             <th>{% trans 'components'%}</th>
             <th>{% trans 'code'%}</th>
             <th>{% trans 'volume_partial'%}</th>
             <th>{% trans 'volume_remaining'%}</th>
             <th>
-                <abbr title="{% trans 'Volume total annual'%}">{% trans 'Vol. tot. annual' %}</abbr>
+                <abbr title="{% trans 'Volume annual'%}">{% trans 'Vol. annual' %}</abbr>
             </th>
             <th>
                 <abbr title="{% trans 'real_on_planned_classrooms'%}">{% trans 'Classes' %}</abbr>
@@ -40,6 +40,7 @@
             {% block additional_entities_titles %}
                 {% include "learning_unit/blocks/additional_entities_titles.html" %}
             {% endblock %}
+        </tr>
         </thead>
         <tbody>
         {% for component in components %}
@@ -62,7 +63,6 @@
                 {% include "learning_unit/blocks/additional_requirement_entity_volumes.html" %}
             {% endblock %}
         </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-</div>
+    {% endfor %}
+    </tbody>
+</table>

@@ -96,6 +96,17 @@ def get_valid_external_learning_unit_form_data(academic_year, person, learning_u
         'requesting_entity': requesting_entity.id,
         'external_acronym': 'Gorzyne',
         'external_credits': '5.5',
+
+        # Learning component year data model form
+        'form-TOTAL_FORMS': '2',
+        'form-INITIAL_FORMS': '0',
+        'form-MAX_NUM_FORMS': '2',
+        'form-0-hourly_volume_total_annual': 20,
+        'form-0-hourly_volume_partial_q1': 10,
+        'form-0-hourly_volume_partial_q2': 10,
+        'form-1-hourly_volume_total_annual': 20,
+        'form-1-hourly_volume_partial_q1': 10,
+        'form-1-hourly_volume_partial_q2': 10,
     }
 
 
