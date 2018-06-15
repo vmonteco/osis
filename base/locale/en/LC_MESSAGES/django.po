@@ -2996,3 +2996,17 @@ msgstr ""
 
 msgid "volume declared vacant"
 msgstr ""
+
+msgid "Xls with education groups"
+msgstr ""
+
+msgid "education_groups_filename"
+msgstr "education_groups"
+
+msgid "list_education_groups"
+msgstr "Education group's list"
+
+msgid "Q1 and Q2"
+msgstr ""
+
+msgid "Q1 or Q2"
