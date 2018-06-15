@@ -2985,6 +2985,15 @@ msgstr "Produce xls with a list of learning units"
 msgid "produce_xls_attributions_desc"
 msgstr "Produce xls with a list of learning units and attributions"
 
+msgid "Xls with education groups"
+msgstr ""
+
+msgid "education_groups_filename"
+msgstr "education_groups"
+
+msgid "list_education_groups"
+msgstr "Education group's list"
+
 msgid "Q1 and Q2"
 msgstr ""
 

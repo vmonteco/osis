@@ -2984,6 +2984,15 @@ msgstr "Produire un fichier Excel avec la liste des unités d'enseignement"
 msgid "produce_xls_attributions_desc"
 msgstr "Produire un fichier Excel avec la liste des unités d'enseignement et les attributions"
 
+msgid "Xls with education groups"
+msgstr "Xls avec les formations"
+
+msgid "education_groups_filename"
+msgstr "formations"
+
+msgid "list_education_groups"
+msgstr "Liste d'organisations de formation"
+
 msgid "Q1 and Q2"
 msgstr "Q1 et Q2"
 
