@@ -24,6 +24,11 @@
 * at the root of the source code of this program.  If not,
 * see http://www.gnu.org/licenses/.
 {% endcomment %}
+{{ simplified_volume_management_form.management_form }}
+{% for form in simplified_volume_management_form %}
+        {% bootstrap_field form.id %}
+{% endfor %}
+{% if not learning_unit_year %}
 <table class="table volumes_read">
     <thead>
         <tr>
@@ -36,12 +41,10 @@
         </tr>
     </thead>
     <tbody>
-        {{ simplified_volume_management_form.management_form }}
         {% for form in simplified_volume_management_form %}
-        {% bootstrap_field form.id %}
         <tr>
             <td>
-                {% blocktrans with prefix=form.prefix|make_list|last title=_('component') %}
+                {% blocktrans with prefix=forloop.counter title=_('component') %}
                     <label class="inline-group">{{ title }} {{ prefix }}</label>
                 {% endblocktrans %}
             </td>
@@ -54,3 +57,4 @@
         {% endfor %}
     </tbody>
 </table>
+{% endif %}

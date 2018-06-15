@@ -2984,3 +2984,9 @@ msgstr "Produce xls with a list of learning units"
 
 msgid "produce_xls_attributions_desc"
 msgstr "Produce xls with a list of learning units and attributions"
+
+msgid "Q1 and Q2"
+msgstr ""
+
+msgid "Q1 or Q2"
+msgstr ""
