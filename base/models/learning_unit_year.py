@@ -205,7 +205,7 @@ class LearningUnitYear(SerializableModel):
 
     @property
     def get_previous_acronym(self):
-        return find_lt_learning_unit_years_with_different_acronym(self)
+        return find_lt_learning_unit_year_with_different_acronym(self)
 
     @property
     def periodicity_verbose(self):
@@ -442,7 +442,8 @@ def find_latest_by_learning_unit(a_learning_unit):
     return search(learning_unit=a_learning_unit).order_by('academic_year').last()
 
 
-def find_lt_learning_unit_years_with_different_acronym(a_learning_unit_yr):
-    return LearningUnitYear.objects.filter(learning_unit=a_learning_unit_yr.learning_unit,
-                                           academic_year__year__lt=a_learning_unit_yr.academic_year.year) \
-        .exclude(acronym__iexact=a_learning_unit_yr.acronym).order_by('-academic_year__year')
+def find_lt_learning_unit_year_with_different_acronym(a_learning_unit_yr):
+    return LearningUnitYear.objects.filter(learning_unit_id=a_learning_unit_yr.learning_unit.id,
+                                           academic_year__year__lt=a_learning_unit_yr.academic_year.year,
+                                           proposallearningunit__isnull=True)\
+        .exclude(acronym__iexact=a_learning_unit_yr.acronym).first()
