@@ -104,16 +104,14 @@ def extract_xls_data_from_education_group(an_education_group):
 
 
 def ordering_data(object_list, order_data):
-    order_col = order_data.get(ORDER_COL, None)
-    order_direction = order_data.get(ORDER_DIRECTION, None)
-    reverse_direction = False
-    if order_direction == DESC:
-        reverse_direction = True
+    order_col = order_data.get(ORDER_COL)
+    order_direction = order_data.get(ORDER_DIRECTION)
+    reverse_direction = order_direction == DESC
 
-    return sorted(list(object_list), key=lambda t: get_field(t, order_col), reverse=reverse_direction)
+    return sorted(list(object_list), key=lambda t: _get_field_value(t, order_col), reverse=reverse_direction)
 
 
-def get_field(instance, field):
+def _get_field_value(instance, field):
     field_path = field.split('.')
     attr = instance
     for elem in field_path:

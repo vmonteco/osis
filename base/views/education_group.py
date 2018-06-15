@@ -82,10 +82,10 @@ def education_groups(request):
 
     object_list = None
     if form.is_valid():
-        object_list = get_object_list(form, object_list, request)
+        object_list = _get_object_list(form, object_list, request)
 
     if request.GET.get('xls_status') == "xls":
-        return create_xls(request.user, object_list, _get_filter(form),
+        return create_xls(request.user, object_list, _get_filter_keys(form),
                           {ORDER_COL: request.GET.get('xls_order_col'), ORDER_DIRECTION: request.GET.get('xls_order')})
 
     context = {
@@ -96,7 +96,7 @@ def education_groups(request):
     return layout.render(request, "education_groups.html", context)
 
 
-def get_object_list(form, object_list, request):
+def _get_object_list(form, object_list, request):
     object_list = form.get_object_list()
     if not _check_if_display_message(request, object_list):
         object_list = None
@@ -458,5 +458,5 @@ def translated_text_labels2dict(translated_text_label):
     }
 
 
-def _get_filter(form):
+def _get_filter_keys(form):
     return collections.OrderedDict(itertools.chain(get_research_criteria(form)))
