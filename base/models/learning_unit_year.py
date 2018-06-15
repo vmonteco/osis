@@ -443,7 +443,8 @@ def find_latest_by_learning_unit(a_learning_unit):
 
 
 def find_lt_learning_unit_year_with_different_acronym(a_learning_unit_yr):
-    return LearningUnitYear.objects.filter(learning_unit_id=a_learning_unit_yr.learning_unit.id,
+    return LearningUnitYear.objects.filter(learning_unit__id=a_learning_unit_yr.learning_unit.id,
                                            academic_year__year__lt=a_learning_unit_yr.academic_year.year,
                                            proposallearningunit__isnull=True)\
+        .order_by('-academic_year')\
         .exclude(acronym__iexact=a_learning_unit_yr.acronym).first()
