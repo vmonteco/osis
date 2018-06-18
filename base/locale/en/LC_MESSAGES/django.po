@@ -1864,7 +1864,7 @@ msgid "end_date_gt_begin_date"
 msgstr "The end year must be equals or upper than the start year"
 
 msgid "session_title"
-msgstr "Sessions derogations"
+msgstr "Session derogation"
 
 msgid "remarks_title"
 msgstr "Remarks"
@@ -2984,6 +2984,15 @@ msgstr "Produce xls with a list of learning units"
 
 msgid "produce_xls_attributions_desc"
 msgstr "Produce xls with a list of learning units and attributions"
+
+msgid "Xls with education groups"
+msgstr ""
+
+msgid "education_groups_filename"
+msgstr "education_groups"
+
+msgid "list_education_groups"
+msgstr "Education group's list"
 
 msgid "Q1 and Q2"
 msgstr ""

@@ -70,7 +70,6 @@ class LearningUnitYearWithContainerManager(models.Manager):
 
 
 class LearningUnitYear(SerializableModel):
-    existing_proposal_in_epc = models.BooleanField(default=False)
     external_id = models.CharField(max_length=100, blank=True, null=True)
     academic_year = models.ForeignKey(AcademicYear,  verbose_name=_('academic_year'),
                                       validators=[academic_year_validator])
@@ -86,7 +85,8 @@ class LearningUnitYear(SerializableModel):
     subtype = models.CharField(max_length=50, choices=learning_unit_year_subtypes.LEARNING_UNIT_YEAR_SUBTYPES,
                                default=learning_unit_year_subtypes.FULL)
     credits = models.DecimalField(max_digits=5, decimal_places=2, null=True,
-                                  validators=[MinValueValidator(MINIMUM_CREDITS), MaxValueValidator(MAXIMUM_CREDITS)])
+                                  validators=[MinValueValidator(MINIMUM_CREDITS), MaxValueValidator(MAXIMUM_CREDITS)],
+                                  verbose_name=_('credits'))
     decimal_scores = models.BooleanField(default=False)
     structure = models.ForeignKey('Structure', blank=True, null=True)
     internship_subtype = models.CharField(max_length=250, blank=True, null=True,
@@ -444,6 +444,8 @@ def find_latest_by_learning_unit(a_learning_unit):
 
 
 def find_lt_learning_unit_year_with_different_acronym(a_learning_unit_yr):
-    return LearningUnitYear.objects.filter(learning_unit=a_learning_unit_yr.learning_unit,
-                                           academic_year__year__lt=a_learning_unit_yr.academic_year.year) \
-        .exclude(acronym__iexact=a_learning_unit_yr.acronym).order_by('-academic_year__year').first()
+    return LearningUnitYear.objects.filter(learning_unit__id=a_learning_unit_yr.learning_unit.id,
+                                           academic_year__year__lt=a_learning_unit_yr.academic_year.year,
+                                           proposallearningunit__isnull=True)\
+        .order_by('-academic_year')\
+        .exclude(acronym__iexact=a_learning_unit_yr.acronym).first()

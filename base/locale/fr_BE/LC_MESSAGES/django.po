@@ -1866,7 +1866,7 @@ msgid "end_date_gt_begin_date"
 msgstr "L'année de fin doit etre égale ou supérieur à l'année de départ"
 
 msgid "session_title"
-msgstr "Sessions dérogations"
+msgstr "Session dérogation"
 
 msgid "remarks_title"
 msgstr "Remarques"
@@ -2983,6 +2983,15 @@ msgstr "Produire un fichier Excel avec la liste des unités d'enseignement"
 
 msgid "produce_xls_attributions_desc"
 msgstr "Produire un fichier Excel avec la liste des unités d'enseignement et les attributions"
+
+msgid "Xls with education groups"
+msgstr "Xls avec les formations"
+
+msgid "education_groups_filename"
+msgstr "formations"
+
+msgid "list_education_groups"
+msgstr "Liste d'organisations de formation"
 
 msgid "Q1 and Q2"
 msgstr "Q1 et Q2"

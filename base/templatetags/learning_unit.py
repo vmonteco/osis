@@ -126,9 +126,8 @@ def get_previous_acronym(luy):
     if has_proposal(luy):
         return _get_acronym_from_proposal(luy)
     else:
-        luy = find_lt_learning_unit_year_with_different_acronym(luy)
-        return luy.acronym if luy else None
-    return None
+        previous_luy = find_lt_learning_unit_year_with_different_acronym(luy)
+        return previous_luy.acronym if previous_luy else None
 
 
 def _get_acronym_from_proposal(luy):
