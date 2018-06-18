@@ -24,9 +24,10 @@
 #
 ##############################################################################
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse
+
+from base.views import layout
 
 
 @login_required
 def create_education_group(response):
-    return HttpResponse()
+    return layout.render(response, "education_group/creation.html", {})
