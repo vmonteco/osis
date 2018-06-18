@@ -26,7 +26,7 @@
 from django.test import TestCase
 from django.urls import reverse
 
-from base.forms.education_group.create import CreateEducationGroupYearForm
+from base.forms.education_group.create import CreateEducationGroupYearForm, CreateOfferYearEntityForm
 from base.tests.factories.person import PersonFactory
 
 
@@ -53,5 +53,8 @@ class TestCreate(TestCase):
     def test_response_context(self):
         response = self.client.get(self.url)
 
-        form = response.context["form"]
-        self.assertIsInstance(form, CreateEducationGroupYearForm)
+        form_education_group_year = response.context["form_education_group_year"]
+        form_offer_year_entity  =  response.context["form_offer_year_entity"]
+
+        self.assertIsInstance(form_education_group_year, CreateEducationGroupYearForm)
+        self.assertIsInstance(form_offer_year_entity, CreateOfferYearEntityForm)

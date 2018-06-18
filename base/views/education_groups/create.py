@@ -25,11 +25,12 @@
 ##############################################################################
 from django.contrib.auth.decorators import login_required
 
-from base.forms.education_group.create import CreateEducationGroupYearForm
+from base.forms.education_group.create import CreateEducationGroupYearForm, CreateOfferYearEntityForm
 from base.views import layout
 
 
 @login_required
 def create_education_group(response):
-    form  = CreateEducationGroupYearForm(response.POST or None)
-    return layout.render(response, "education_group/creation.html", {'form': form})
+    form_education_group_year  = CreateEducationGroupYearForm(response.POST or None)
+    form_offer_year_entity = CreateOfferYearEntityForm(response.POST or None)
+    return layout.render(response, "education_group/creation.html", locals())
