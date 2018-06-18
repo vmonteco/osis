@@ -28,7 +28,9 @@ from django.http import QueryDict
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
+from base.business import learning_container_year
 from base.business.utils.model import merge_two_dicts
+from base.forms.learning_unit.edition_volume import SimplifiedVolumeManagementForm
 from base.forms.learning_unit.entity_form import EntityContainerBaseForm
 from base.forms.learning_unit.learning_unit_create import LearningUnitYearModelForm, \
     LearningContainerYearModelForm, LearningContainerModelForm, \
@@ -38,7 +40,9 @@ from base.forms.utils.acronym_field import split_acronym
 from base.forms.utils.choice_field import add_blank
 from base.models import learning_unit_year
 from base.models.academic_year import current_academic_year, LEARNING_UNIT_CREATION_SPAN_YEARS
+from base.models.entity_container_year import EntityContainerYear
 from base.models.enums import learning_unit_year_subtypes
+from base.models.learning_component_year import LearningComponentYear
 from base.models.learning_unit import LearningUnit
 
 PARTIM_FORM_READ_ONLY_FIELD = {
@@ -95,10 +99,11 @@ class PartimForm(LearningUnitBaseForm):
         LearningUnitYearModelForm,
         LearningContainerModelForm,
         LearningContainerYearModelForm,
-        EntityContainerBaseForm
+        EntityContainerBaseForm,
+        SimplifiedVolumeManagementForm
     ]
 
-    form_cls_to_validate = [LearningUnitPartimModelForm, LearningUnitYearModelForm]
+    form_cls_to_validate = [LearningUnitPartimModelForm, LearningUnitYearModelForm, SimplifiedVolumeManagementForm]
 
     def __init__(self, person, learning_unit_full_instance, academic_year, learning_unit_instance=None,
                  data=None, *args, **kwargs):
@@ -143,6 +148,12 @@ class PartimForm(LearningUnitBaseForm):
             EntityContainerBaseForm: {
                 'learning_container_year': self.learning_unit_year_full.learning_container_year,
                 'person': self.person
+            },
+            SimplifiedVolumeManagementForm: {
+                'data': data,
+                'queryset': LearningComponentYear.objects.filter(
+                    learningunitcomponent__learning_unit_year=self.instance)
+                if self.instance else LearningComponentYear.objects.none()
             }
         }
 
@@ -196,23 +207,27 @@ class PartimForm(LearningUnitBaseForm):
         start_year = self.instance.learning_unit.start_year if self.instance else \
                         self.learning_unit_full_instance.start_year
 
+        lcy = self.learning_unit_year_full.learning_container_year
         # Save learning unit
         learning_unit = self.learning_unit_form.save(
             start_year=start_year,
-            learning_container=self.learning_unit_year_full.learning_container_year.learning_container,
+            learning_container=lcy.learning_container,
             commit=commit
         )
-
-        # Get entity container form full learning container
-        entity_container_years = self._get_entity_container_year()
 
         # Save learning unit year
-        learning_unit_yr = self.forms[LearningUnitYearModelForm].save(
-            learning_container_year=self.learning_unit_year_full.learning_container_year,
+        learning_unit_yr = self.learning_unit_year_form.save(
+            learning_container_year=lcy,
             learning_unit=learning_unit,
-            entity_container_years=entity_container_years,
             commit=commit
         )
+
+        self.simplified_volume_management_form.save_all_forms(
+            learning_unit_yr,
+            EntityContainerYear.objects.filter(learning_container_year=lcy),
+            commit=commit
+        )
+
         return learning_unit_yr
 
     def _get_entity_container_year(self):
