@@ -26,6 +26,7 @@
 from django.test import TestCase
 from django.urls import reverse
 
+from base.forms.education_group.create import CreateEducationGroupYearForm
 from base.tests.factories.person import PersonFactory
 
 
@@ -48,3 +49,9 @@ class TestCreate(TestCase):
         response = self.client.get(self.url)
 
         self.assertTemplateUsed(response, "education_group/creation.html")
+
+    def test_response_context(self):
+        response = self.client.get(self.url)
+
+        form = response.context["form"]
+        self.assertIsInstance(form, CreateEducationGroupYearForm)

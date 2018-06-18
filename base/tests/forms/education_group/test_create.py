@@ -1,4 +1,3 @@
-##############################################################################
 #
 #    OSIS stands for Open Student Information System. It's an application
 #    designed to manage the core business of higher education institutions,
@@ -23,13 +22,22 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.contrib.auth.decorators import login_required
+from django.test import TestCase
 
 from base.forms.education_group.create import CreateEducationGroupYearForm
-from base.views import layout
 
 
-@login_required
-def create_education_group(response):
-    form  = CreateEducationGroupYearForm(response.POST or None)
-    return layout.render(response, "education_group/creation.html", {'form': form})
+class TestCreateEducationGroupForm(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        pass
+
+    def setUp(self):
+        pass
+
+    def test_fields(self):
+        fields = ("acronym", "partial_acronym", "education_group_type", "title", "title_english", "credits",
+                  "main_teaching_campus", "academic_year", "education_group", "remark", "remark_english")
+
+        form = CreateEducationGroupYearForm()
+        self.assertCountEqual(tuple(form.fields.keys()), fields)
