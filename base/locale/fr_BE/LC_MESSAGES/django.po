@@ -2998,3 +2998,6 @@ msgstr "Q1 et Q2"
 
 msgid "Q1 or Q2"
 msgstr "Q1 ou Q2"
+
+msgid "New Education Group"
+msgstr "Nouveau Groupement"

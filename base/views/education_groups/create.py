@@ -31,6 +31,6 @@ from base.views import layout
 
 @login_required
 def create_education_group(response):
-    form_education_group_year  = CreateEducationGroupYearForm(response.POST or None)
+    form_education_group_year = CreateEducationGroupYearForm(response.POST or None)
     form_offer_year_entity = CreateOfferYearEntityForm(response.POST or None)
     return layout.render(response, "education_group/creation.html", locals())
