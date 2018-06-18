@@ -46,7 +46,9 @@
         {% for component in components %}
         <tr>
             <td>{% if component.learning_component_year.type %}
-                {% trans component.learning_component_year.type %}
+                    {% trans component.learning_component_year.type %}
+                {% else %}
+                    {% trans 'untyped' %}
                 {% endif %}
             </td>
             <td>/{{ component.learning_component_year.acronym  | default_if_none:'' }}</td>
