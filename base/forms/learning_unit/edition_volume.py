@@ -271,12 +271,11 @@ class SimplifiedVolumeForm(forms.ModelForm):
         return self._create_structure_components(commit)
 
     def need_to_create_untyped_component(self):
-        if self._learning_unit_year.learning_container_year.container_type not in CONTAINER_TYPE_WITH_DEFAULT_COMPONENT:
-            return True
+        container_type = self._learning_unit_year.learning_container_year.container_type
+        return container_type not in CONTAINER_TYPE_WITH_DEFAULT_COMPONENT
 
     def is_first_form_in_formset(self):
-        if self.prefix == "form-0":
-            return True
+        return self.prefix == "form-0"
 
     def _create_structure_components(self, commit):
         self.instance.learning_container_year = self._learning_unit_year.learning_container_year
