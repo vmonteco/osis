@@ -22,12 +22,12 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.test import TestCase
+from django.test import TestCase, SimpleTestCase
 
-from base.forms.education_group.create import CreateEducationGroupYearForm
+from base.forms.education_group.create import CreateEducationGroupYearForm, CreateOfferYearEntityForm
 
 
-class TestCreateEducationGroupForm(TestCase):
+class TestCreateEducationGroupYearForm(SimpleTestCase):
     @classmethod
     def setUpTestData(cls):
         pass
@@ -40,4 +40,19 @@ class TestCreateEducationGroupForm(TestCase):
                   "main_teaching_campus", "academic_year", "education_group", "remark", "remark_english")
 
         form = CreateEducationGroupYearForm()
+        self.assertCountEqual(tuple(form.fields.keys()), fields)
+
+
+class TestCreateOfferYearEntityForm(SimpleTestCase):
+    @classmethod
+    def setUpTestData(cls):
+        pass
+
+    def setUp(self):
+        pass
+
+    def test_fields(self):
+        fields = ("entity", )
+
+        form = CreateOfferYearEntityForm()
         self.assertCountEqual(tuple(form.fields.keys()), fields)

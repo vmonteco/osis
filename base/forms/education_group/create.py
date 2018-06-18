@@ -26,6 +26,7 @@
 from django import forms
 
 from base.models.education_group_year import EducationGroupYear
+from base.models.offer_year_entity import OfferYearEntity
 
 
 class CreateEducationGroupYearForm(forms.ModelForm):
@@ -34,3 +35,10 @@ class CreateEducationGroupYearForm(forms.ModelForm):
         model = EducationGroupYear
         fields = ("acronym", "partial_acronym", "education_group_type", "title", "title_english", "credits",
                   "main_teaching_campus", "academic_year", "education_group", "remark", "remark_english")
+
+
+class CreateOfferYearEntityForm(forms.ModelForm):
+
+    class Meta:
+        model = OfferYearEntity
+        fields = ("entity", )
