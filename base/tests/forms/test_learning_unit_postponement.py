@@ -522,14 +522,14 @@ class TestLearningUnitPostponementFormFindConsistencyErrors(LearningUnitPostpone
         expected_result = OrderedDict({
             next_academic_year: [
                 _("%(col_name)s has been already modified. ({%(new_value)s} instead of {%(current_value)s})") % {
-                    'col_name': "Credits",
+                    'col_name': "Crédits",
                     'current_value': initial_credits_value,
                     'new_value': new_credits_value
                 }
             ],
             next_academic_year_2: [
                 _("%(col_name)s has been already modified. ({%(new_value)s} instead of {%(current_value)s})") % {
-                    'col_name': "Credits",
+                    'col_name': "Crédits",
                     'current_value': initial_credits_value_2,
                     'new_value': new_credits_value_2
                 }
