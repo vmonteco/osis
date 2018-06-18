@@ -25,7 +25,12 @@
 ##############################################################################
 from django import forms
 
+from base.forms.learning_unit.entity_form import EntitiesVersionChoiceField
+from base.models import campus
+from base.models.education_group import EducationGroup
 from base.models.education_group_year import EducationGroupYear
+from base.models.entity_version import find_main_entities_version
+from base.models.enums import offer_year_entity_type
 from base.models.offer_year_entity import OfferYearEntity
 
 
@@ -36,9 +41,34 @@ class CreateEducationGroupYearForm(forms.ModelForm):
         fields = ("acronym", "partial_acronym", "education_group_type", "title", "title_english", "credits",
                   "main_teaching_campus", "academic_year", "remark", "remark_english")
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields["main_teaching_campus"].queryset = campus.find_main_campuses()
+
+    def save(self):
+        education_group_year = super().save(commit=False)
+        education_group_year.education_group = self._create_education_group()
+        education_group_year.save()
+        return education_group_year
+
+    def _create_education_group(self):
+        start_year = self.cleaned_data["academic_year"].year
+        return EducationGroup.objects.create(start_year=start_year)
+
 
 class CreateOfferYearEntityForm(forms.ModelForm):
-
+    entity = EntitiesVersionChoiceField(find_main_entities_version())
     class Meta:
         model = OfferYearEntity
         fields = ("entity", )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def save(self, education_group_year):
+        offer_year_entity = super().save(commit=False)
+        offer_year_entity.education_group_year = education_group_year
+        offer_year_entity.type = offer_year_entity_type.ENTITY_ADMINISTRATION
+        offer_year_entity.save()
+        return offer_year_entity

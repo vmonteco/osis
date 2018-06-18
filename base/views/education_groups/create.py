@@ -24,13 +24,22 @@
 #
 ##############################################################################
 from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404, redirect
 
 from base.forms.education_group.create import CreateEducationGroupYearForm, CreateOfferYearEntityForm
+from base.models.person import Person
 from base.views import layout
 
 
 @login_required
 def create_education_group(response):
+    person = get_object_or_404(Person, user=response.user)
     form_education_group_year = CreateEducationGroupYearForm(response.POST or None)
     form_offer_year_entity = CreateOfferYearEntityForm(response.POST or None)
+
+    if form_offer_year_entity.is_valid() and form_education_group_year.is_valid():
+        education_group_year = form_education_group_year.save()
+        form_offer_year_entity.save(education_group_year)
+        return redirect("education_group_read", education_group_year.id)
+
     return layout.render(response, "education_group/creation.html", locals())
