@@ -601,7 +601,8 @@ class TestFullFormSave(LearningUnitFullFormContextMixin):
         ).count(), 1)
         self.assertEqual(
             LearningComponentYear.objects.get(
-                learning_container_year=saved_luy.learning_container_year, type=None).acronym, "NT1")
+                learning_container_year=saved_luy.learning_container_year, type=None).acronym,
+            DEFAULT_ACRONYM_COMPONENT[None])
 
     def _assert_correctly_create_records_in_all_learning_unit_structure(self, initial_counts):
         # NUMBER_OF_POSTPONMENTS = 7
