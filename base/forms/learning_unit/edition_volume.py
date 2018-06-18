@@ -258,7 +258,7 @@ class SimplifiedVolumeForm(forms.ModelForm):
 
     class Meta:
         model = LearningComponentYear
-        fields = ('hourly_volume_total_annual', 'hourly_volume_partial_q1',
+        fields = ('planned_classes', 'hourly_volume_total_annual', 'hourly_volume_partial_q1',
                   'hourly_volume_partial_q2')
 
     def save(self, commit=True):
