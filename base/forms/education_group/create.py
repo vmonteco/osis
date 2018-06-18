@@ -58,13 +58,17 @@ class CreateEducationGroupYearForm(forms.ModelForm):
 
 
 class CreateOfferYearEntityForm(forms.ModelForm):
-    entity = EntitiesVersionChoiceField(find_main_entities_version())
+
     class Meta:
         model = OfferYearEntity
         fields = ("entity", )
+        field_classes = {
+            "entity": EntitiesVersionChoiceField
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields["entity"].queryset = find_main_entities_version()
 
     def save(self, education_group_year):
         offer_year_entity = super().save(commit=False)
