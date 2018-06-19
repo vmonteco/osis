@@ -3011,3 +3011,6 @@ msgstr ""
 
 msgid "Q1 or Q2"
 msgstr ""
+
+msgid "untyped"
+msgstr ""
