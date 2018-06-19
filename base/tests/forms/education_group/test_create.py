@@ -66,7 +66,6 @@ class TestCreateEducationGroupYearForm(TestCase):
         self.assertIsNone(education_group_year.education_group.end_year)
 
 
-
 class TestCreateOfferYearEntityForm(TestCase):
     @classmethod
     def setUpTestData(cls):
