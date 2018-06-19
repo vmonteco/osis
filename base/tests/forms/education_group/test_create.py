@@ -25,9 +25,12 @@
 from django.test import TestCase, SimpleTestCase
 
 from base.forms.education_group.create import CreateEducationGroupYearForm, CreateOfferYearEntityForm
+from base.models.enums import offer_year_entity_type
+from base.tests.factories.education_group_year import EducationGroupYearFactory
+from base.tests.factories.entity_version import MainEntityVersionFactory
 
 
-class TestCreateEducationGroupYearForm(SimpleTestCase):
+class TestCreateEducationGroupYearForm(TestCase):
     @classmethod
     def setUpTestData(cls):
         pass
@@ -43,16 +46,31 @@ class TestCreateEducationGroupYearForm(SimpleTestCase):
         self.assertCountEqual(tuple(form.fields.keys()), fields)
 
 
-class TestCreateOfferYearEntityForm(SimpleTestCase):
+class TestCreateOfferYearEntityForm(TestCase):
     @classmethod
     def setUpTestData(cls):
-        pass
-
-    def setUp(self):
-        pass
+        cls.entity_version = MainEntityVersionFactory()
+        cls.education_group_year = EducationGroupYearFactory()
+        cls.form_data = {
+            "entity": cls.entity_version.id
+        }
 
     def test_fields(self):
         fields = ("entity", )
 
         form = CreateOfferYearEntityForm()
         self.assertCountEqual(tuple(form.fields.keys()), fields)
+
+    def test_save(self):
+        form = CreateOfferYearEntityForm(data=self.form_data)
+        self.assertTrue(form.is_valid(), form.errors)
+
+        offer_year_entity = form.save(self.education_group_year)
+
+        self.assertEqual(offer_year_entity.education_group_year, self.education_group_year)
+        self.assertEqual(offer_year_entity.type, offer_year_entity_type.ENTITY_ADMINISTRATION)
+        self.assertIsNone(offer_year_entity.offer_year)
+
+
+
+

@@ -40,3 +40,16 @@ class EntityVersionFactory(factory.DjangoModelFactory):
     parent = factory.SubFactory(EntityFactory)
     start_date = datetime.date(2015, 1, 1).isoformat()
     end_date = None
+
+
+class MainEntityVersionFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = 'base.EntityVersion'
+
+    entity = factory.SubFactory(EntityFactory)
+    title = factory.Faker('text', max_nb_chars=255)
+    acronym = factory.Faker('text', max_nb_chars=20)
+    entity_type = factory.Iterator(entity_type.MAIN_ENTITY_TYPE)
+    parent = factory.SubFactory(EntityFactory)
+    start_date = datetime.date(2015, 1, 1).isoformat()
+    end_date = None
