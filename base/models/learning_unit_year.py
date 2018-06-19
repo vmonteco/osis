@@ -85,7 +85,8 @@ class LearningUnitYear(SerializableModel):
     subtype = models.CharField(max_length=50, choices=learning_unit_year_subtypes.LEARNING_UNIT_YEAR_SUBTYPES,
                                default=learning_unit_year_subtypes.FULL)
     credits = models.DecimalField(max_digits=5, decimal_places=2, null=True,
-                                  validators=[MinValueValidator(MINIMUM_CREDITS), MaxValueValidator(MAXIMUM_CREDITS)])
+                                  validators=[MinValueValidator(MINIMUM_CREDITS), MaxValueValidator(MAXIMUM_CREDITS)],
+                                  verbose_name=_('credits'))
     decimal_scores = models.BooleanField(default=False)
     structure = models.ForeignKey('Structure', blank=True, null=True)
     internship_subtype = models.CharField(max_length=250, blank=True, null=True,
@@ -228,17 +229,12 @@ class LearningUnitYear(SerializableModel):
 
     # FIXME move this method to business/perm file
     def can_update_by_faculty_manager(self):
-        result = False
-
         if not self.learning_container_year:
-            return result
+            return False
 
         current_year = current_academic_year().year
         year = self.academic_year.year
-
-        if year <= current_year + MAX_ACADEMIC_YEAR_FACULTY:
-            result = True
-        return result
+        return current_year <= year <= current_year + MAX_ACADEMIC_YEAR_FACULTY
 
     def is_full(self):
         return self.subtype == learning_unit_year_subtypes.FULL

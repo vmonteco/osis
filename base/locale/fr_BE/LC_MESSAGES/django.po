@@ -1866,7 +1866,7 @@ msgid "end_date_gt_begin_date"
 msgstr "L'année de fin doit etre égale ou supérieur à l'année de départ"
 
 msgid "session_title"
-msgstr "Sessions dérogations"
+msgstr "Session dérogation"
 
 msgid "remarks_title"
 msgstr "Remarques"
@@ -2998,3 +2998,6 @@ msgstr "Q1 et Q2"
 
 msgid "Q1 or Q2"
 msgstr "Q1 ou Q2"
+
+msgid "untyped"
+msgstr "Non-typée"
