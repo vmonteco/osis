@@ -33,6 +33,7 @@ from django.utils.translation import ugettext as _
 from base.forms.learning_unit.learning_unit_create_2 import FullForm
 from base.forms.learning_unit.learning_unit_partim import PartimForm
 from base.models import academic_year, learning_unit_year
+from base.models.entity_component_year import EntityComponentYear
 from base.models.enums import learning_unit_year_subtypes
 from base.models.enums.learning_component_year_type import LECTURING
 from base.models.learning_component_year import LearningComponentYear
@@ -248,6 +249,7 @@ class LearningUnitPostponementForm:
         for ac_year in academic_years:
             next_form = self._get_learning_unit_base_form(ac_year, **form_kwargs)
             self._check_postponement_proposal_state(next_form.learning_unit_year_form.instance, ac_year)
+            self._check_postponement_repartition_volume(next_form.learning_unit_year_form.instance)
             self._check_differences(current_form, next_form, ac_year)
 
         return self.consistency_errors
@@ -277,6 +279,36 @@ class LearningUnitPostponementForm:
                     'luy': luy.acronym, 'academic_year': ac_year
                 }
             )
+
+    def _check_postponement_repartition_volume(self, luy):
+        """ Check if the repartition volume foreach entities has been changed in the future
+
+        This volume is never edited in the form, so we have to load data separably
+        """
+        initial_learning_unit_year = self._forms_to_upsert[0].instance
+        initial_values = EntityComponentYear.objects.filter(
+            learning_component_year__learningunitcomponent__learning_unit_year=initial_learning_unit_year
+        ).values_list('repartition_volume', 'learning_component_year__type', 'entity_container_year__type')
+
+        for reparation_volume, component_type, entity_type in initial_values:
+            component = EntityComponentYear.objects.filter(
+                learning_component_year__type=component_type,
+                entity_container_year__type=entity_type,
+                learning_component_year__learningunitcomponent__learning_unit_year=luy
+            ).get()
+
+            if component.repartition_volume != reparation_volume:
+                name = component.learning_component_year.acronym + "-"\
+                       + component.entity_container_year.entity.most_recent_acronym
+
+                self.consistency_errors.setdefault(luy.academic_year, []).append(
+                    _("The repartition volume of %(col_name)s has been already modified. "
+                      "({%(new_value)s} instead of {%(current_value)s})") % {
+                        'col_name': name,
+                        'new_value': component.repartition_volume,
+                        'current_value': reparation_volume
+                    }
+                )
 
     def _check_differences(self, current_form, next_form, ac_year):
         differences = [
