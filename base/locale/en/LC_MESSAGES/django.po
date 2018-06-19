@@ -3002,3 +3002,6 @@ msgstr ""
 
 msgid "New Education Group"
 msgstr ""
+
+msgid "untyped"
+msgstr ""

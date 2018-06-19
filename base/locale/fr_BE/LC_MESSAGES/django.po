@@ -3001,3 +3001,6 @@ msgstr "Q1 ou Q2"
 
 msgid "New Education Group"
 msgstr "Nouveau Groupement"
+
+msgid "untyped"
+msgstr "Non-typée"
