@@ -25,6 +25,7 @@
 from django.test import TestCase
 from base.forms.education_group.create import CreateEducationGroupYearForm, CreateOfferYearEntityForm
 from base.models.enums import offer_year_entity_type, education_group_categories, organization_type
+from base.models.group_element_year import GroupElementYear
 from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.campus import CampusFactory
 from base.tests.factories.education_group_type import EducationGroupTypeFactory
@@ -48,6 +49,8 @@ class TestCreateEducationGroupYearForm(TestCase):
             "remark": "This is a test!!"
         }
 
+        cls.parent_education_group_year = EducationGroupYearFactory()
+
     def test_fields(self):
         fields = ("acronym", "partial_acronym", "education_group_type", "title", "title_english", "credits",
                   "main_teaching_campus", "academic_year", "remark", "remark_english")
@@ -64,6 +67,16 @@ class TestCreateEducationGroupYearForm(TestCase):
 
         self.assertEqual(education_group_year.education_group.start_year, self.academic_year.year)
         self.assertIsNone(education_group_year.education_group.end_year)
+
+    def test_save_with_parent(self):
+        form = CreateEducationGroupYearForm(data=self.form_data)
+
+        self.assertTrue(form.is_valid(), form.errors)
+
+        education_group_year = form.save(self.parent_education_group_year)
+
+        self.assertTrue(GroupElementYear.objects.get(child_branch=education_group_year,
+                                                     parent=self.parent_education_group_year))
 
 
 class TestCreateOfferYearEntityForm(TestCase):

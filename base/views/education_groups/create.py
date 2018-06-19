@@ -29,6 +29,7 @@ from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from base.forms.education_group.create import CreateEducationGroupYearForm, CreateOfferYearEntityForm
+from base.models.education_group_year import EducationGroupYear
 from base.models.person import Person
 from base.views import layout
 from base.views.common import display_success_messages
@@ -36,13 +37,15 @@ from base.views.common import display_success_messages
 
 @login_required
 @permission_required('base.add_educationgroup', raise_exception=True)
-def create_education_group(request):
+def create_education_group(request, parent_id=None):
     person = get_object_or_404(Person, user=request.user)
+    parent = get_object_or_404(EducationGroupYear, id=parent_id) if parent_id is not None else None
+
     form_education_group_year = CreateEducationGroupYearForm(request.POST or None)
     form_offer_year_entity = CreateOfferYearEntityForm(request.POST or None)
 
     if form_offer_year_entity.is_valid() and form_education_group_year.is_valid():
-        education_group_year = form_education_group_year.save()
+        education_group_year = form_education_group_year.save(parent)
         form_offer_year_entity.save(education_group_year)
 
         success_msg = create_success_message_for_creation_education_group_year(education_group_year)
