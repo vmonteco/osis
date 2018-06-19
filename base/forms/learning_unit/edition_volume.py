@@ -83,9 +83,6 @@ class VolumeEditionForm(forms.Form):
 
         super().__init__(*args, **kwargs)
         help_volume_global = "{} = {} * {}".format(_('volume_global'), _('Volume total annual'), _('planned_classes'))
-        self.fields['volume_total_requirement_entities'] = VolumeField(
-            label=_('vol_global'), help_text=help_volume_global)
-        self.fields['equal_field_3'] = EmptyField(label='=')
 
         # Append dynamic fields
         entities_to_add = [entity for entity in ENTITY_TYPES_VOLUME if entity in self.entities]
