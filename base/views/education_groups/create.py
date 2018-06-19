@@ -35,7 +35,7 @@ from base.views.common import display_success_messages
 
 
 @login_required
-@permission_required('base.can_create_education_group', raise_exception=True)
+@permission_required('base.add_educationgroup', raise_exception=True)
 def create_education_group(request):
     person = get_object_or_404(Person, user=request.user)
     form_education_group_year = CreateEducationGroupYearForm(request.POST or None)

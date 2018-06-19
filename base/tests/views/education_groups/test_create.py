@@ -35,7 +35,7 @@ class TestCreate(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.url = reverse("new_education_group")
-        cls.person = PersonWithPermissionsFactory("can_create_education_group")
+        cls.person = PersonWithPermissionsFactory("add_educationgroup")
 
     def setUp(self):
         self.client.force_login(self.person.user)
