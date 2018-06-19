@@ -26,7 +26,9 @@
 {% endcomment %}
 
 {% block breadcrumb %}
-    {% include "education_group/breadcrumb.html" %}
+    <li><a href="{% url 'catalog' %}" id="lnk_catalog">{% trans 'formation_catalogue' %}</a></li>
+    <li><a href="{% url 'education_groups' %}" id="lnk_formations">{% trans 'formations' %}</a></li>
+    <li class="active">{% trans 'New Education Group' %}</li>
 {% endblock %}
 
 {% block content %}
