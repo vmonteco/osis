@@ -3007,3 +3007,6 @@ msgstr "Non-typée"
 
 msgid "validity"
 msgstr "validité"
+
+msgid "Education group year <a href='%(link)s'> %(acronym)s (%(academic_year)s) </a> successfuly created."
+msgstr "Formation <a href='%(link)s'> %(acronym)s (%(academic_year)s) </a> créée avec succès."
