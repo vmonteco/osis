@@ -26,12 +26,13 @@
 from django import forms
 
 from base.forms.learning_unit.entity_form import EntitiesVersionChoiceField
-from base.models import campus
+from base.models import campus, education_group_type
 from base.models.education_group import EducationGroup
 from base.models.education_group_year import EducationGroupYear
 from base.models.entity_version import find_main_entities_version
-from base.models.enums import offer_year_entity_type
+from base.models.enums import offer_year_entity_type, education_group_categories
 from base.models.offer_year_entity import OfferYearEntity
+from django.utils.translation import ugettext_lazy as _
 
 
 class CreateEducationGroupYearForm(forms.ModelForm):
@@ -45,6 +46,8 @@ class CreateEducationGroupYearForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         self.fields["main_teaching_campus"].queryset = campus.find_main_campuses()
+        self.fields["education_group_type"].queryset = \
+            education_group_type.find_by_category(education_group_categories.GROUP)
 
     def save(self):
         education_group_year = super().save(commit=False)
@@ -64,6 +67,9 @@ class CreateOfferYearEntityForm(forms.ModelForm):
         fields = ("entity", )
         field_classes = {
             "entity": EntitiesVersionChoiceField
+        }
+        labels = {
+            "entity": _("administration_entity")
         }
 
     def __init__(self, *args, **kwargs):

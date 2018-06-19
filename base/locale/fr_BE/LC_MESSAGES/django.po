@@ -3004,3 +3004,6 @@ msgstr "Nouveau Groupement"
 
 msgid "untyped"
 msgstr "Non-typée"
+
+msgid "validity"
+msgstr "validité"
