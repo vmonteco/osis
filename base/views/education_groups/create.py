@@ -23,7 +23,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import get_object_or_404, redirect
 
 from base.forms.education_group.create import CreateEducationGroupYearForm, CreateOfferYearEntityForm
@@ -32,6 +32,7 @@ from base.views import layout
 
 
 @login_required
+@permission_required('base.can_create_education_group', raise_exception=True)
 def create_education_group(response):
     person = get_object_or_404(Person, user=response.user)
     form_education_group_year = CreateEducationGroupYearForm(response.POST or None)

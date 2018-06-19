@@ -25,16 +25,17 @@
 ##############################################################################
 from django.test import TestCase
 from django.urls import reverse
+from django.http import HttpResponseForbidden
 
 from base.forms.education_group.create import CreateEducationGroupYearForm, CreateOfferYearEntityForm
-from base.tests.factories.person import PersonFactory
+from base.tests.factories.person import PersonFactory, PersonWithPermissionsFactory
 
 
 class TestCreate(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.url = reverse("new_education_group")
-        cls.person = PersonFactory()
+        cls.person = PersonWithPermissionsFactory("can_create_education_group")
 
     def setUp(self):
         self.client.force_login(self.person.user)
@@ -44,6 +45,14 @@ class TestCreate(TestCase):
         response = self.client.get(self.url)
 
         self.assertRedirects(response, '/login/?next={}'.format(self.url))
+
+    def test_permission_required(self):
+        person_without_permission = PersonFactory()
+        self.client.force_login(person_without_permission.user)
+
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
 
     def test_template_used(self):
         response = self.client.get(self.url)
