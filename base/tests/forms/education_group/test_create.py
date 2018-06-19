@@ -48,9 +48,6 @@ class TestCreateEducationGroupYearForm(TestCase):
             "remark": "This is a test!!"
         }
 
-    def setUp(self):
-        pass
-
     def test_fields(self):
         fields = ("acronym", "partial_acronym", "education_group_type", "title", "title_english", "credits",
                   "main_teaching_campus", "academic_year", "remark", "remark_english")
@@ -94,7 +91,3 @@ class TestCreateOfferYearEntityForm(TestCase):
         self.assertEqual(offer_year_entity.education_group_year, self.education_group_year)
         self.assertEqual(offer_year_entity.type, offer_year_entity_type.ENTITY_ADMINISTRATION)
         self.assertIsNone(offer_year_entity.offer_year)
-
-
-
-
