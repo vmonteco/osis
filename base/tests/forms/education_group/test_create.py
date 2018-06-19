@@ -22,10 +22,12 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.test import TestCase, SimpleTestCase
-
+from django.test import TestCase
 from base.forms.education_group.create import CreateEducationGroupYearForm, CreateOfferYearEntityForm
-from base.models.enums import offer_year_entity_type
+from base.models.enums import offer_year_entity_type, education_group_categories, organization_type
+from base.tests.factories.academic_year import AcademicYearFactory
+from base.tests.factories.campus import CampusFactory
+from base.tests.factories.education_group_type import EducationGroupTypeFactory
 from base.tests.factories.education_group_year import EducationGroupYearFactory
 from base.tests.factories.entity_version import MainEntityVersionFactory
 
@@ -33,7 +35,18 @@ from base.tests.factories.entity_version import MainEntityVersionFactory
 class TestCreateEducationGroupYearForm(TestCase):
     @classmethod
     def setUpTestData(cls):
-        pass
+        cls.education_group_type = EducationGroupTypeFactory(category=education_group_categories.GROUP)
+        cls.campus = CampusFactory(organization__type=organization_type.MAIN)
+        cls.academic_year = AcademicYearFactory()
+        cls.form_data = {
+            "acronym": "ACRO4569",
+            "partial_acronym": "PACR8974",
+            "education_group_type": cls.education_group_type.id,
+            "title": "Test data",
+            "main_teaching_campus": cls.campus.id,
+            "academic_year": cls.academic_year.id,
+            "remark": "This is a test!!"
+        }
 
     def setUp(self):
         pass
@@ -44,6 +57,17 @@ class TestCreateEducationGroupYearForm(TestCase):
 
         form = CreateEducationGroupYearForm()
         self.assertCountEqual(tuple(form.fields.keys()), fields)
+
+    def test_save(self):
+        form = CreateEducationGroupYearForm(data=self.form_data)
+
+        self.assertTrue(form.is_valid(), form.errors)
+
+        education_group_year = form.save()
+
+        self.assertEqual(education_group_year.education_group.start_year, self.academic_year.year)
+        self.assertIsNone(education_group_year.education_group.end_year)
+
 
 
 class TestCreateOfferYearEntityForm(TestCase):
