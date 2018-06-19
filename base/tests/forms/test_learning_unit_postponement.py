@@ -469,7 +469,7 @@ class TestLearningUnitPostponementFormFindConsistencyErrors(LearningUnitPostpone
         self.learning_unit_year_full.specific_title = None
         self.learning_unit_year_full.save()
         # Set specific title to '' for all next academic year
-        LearningUnitYear.objects.filter(entitycademic_year__year__gt=self.learning_unit_year_full.academic_year.year,
+        LearningUnitYear.objects.filter(academic_year__year__gt=self.learning_unit_year_full.academic_year.year,
                                         learning_unit=self.learning_unit_year_full.learning_unit) \
                                 .update(specific_title='')
 
