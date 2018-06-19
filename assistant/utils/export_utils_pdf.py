@@ -59,9 +59,8 @@ COLS_WIDTH_FOR_TUTORING = [40*mm, 15*mm, 15*mm, 15*mm, 15*mm, 15*mm, 15*mm, 15*m
 
 @login_required
 def build_doc(request, mandates, show_reviews):
-    global YEAR
-    YEAR = mandates[0].academic_year
-    filename = ('%s_%s_%s.pdf' % (_('assistants_mandates'), YEAR, time.strftime("%Y%m%d_%H%M")))
+    year = mandates[0].academic_year
+    filename = ('%s_%s_%s.pdf' % (_('assistants_mandates'), year, time.strftime("%Y%m%d_%H%M")))
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="%s"' % filename
     buffer = BytesIO()
@@ -76,7 +75,7 @@ def build_doc(request, mandates, show_reviews):
     content = []
     for mandate in mandates:
         add_mandate_content(content, mandate, styles, show_reviews)
-    doc.build(content, onFirstPage=add_header_footer, onLaterPages=add_header_footer)
+    doc.build(content, add_header_footer)
     pdf = buffer.getvalue()
     buffer.close()
     response.write(pdf)
@@ -98,8 +97,13 @@ def export_mandates(request):
 
 
 def add_mandate_content(content, mandate, styles, show_reviews):
-    content.append(create_paragraph(str(mandate.assistant.person), get_administrative_data(mandate),
-                                    styles['StandardWithBorder']))
+    content.append(
+        create_paragraph(
+            "%s (%s)" % (mandate.assistant.person, mandate.academic_year),
+            get_administrative_data(mandate),
+            styles['StandardWithBorder']
+        )
+    )
     content.append(create_paragraph("%s" % (_('entities')), get_entities(mandate), styles['StandardWithBorder']))
     content.append(create_paragraph("<strong>%s</strong>" % (_('absences')), get_absences(mandate),
                                     styles['StandardWithBorder']))
@@ -372,7 +376,7 @@ def add_header_footer(canvas, doc):
 
 def header_building(canvas, doc):
     canvas.line(doc.leftMargin, 790, doc.width+doc.leftMargin, 790)
-    canvas.drawString(80, 800, "%s %s" % (_('assistant_mandates_renewals'), YEAR))
+    canvas.drawString(110, 800, "%s" % (_('assistant_mandates_renewals')))
 
 
 def footer_building(canvas, doc, styles):
