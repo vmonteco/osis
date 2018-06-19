@@ -38,6 +38,7 @@ from base.models.exceptions import MaximumOneParentAllowedException
 from osis_common.models.osis_model_admin import OsisModelAdmin
 from django.utils.translation import ugettext_lazy as _
 
+
 class EducationGroupYearAdmin(OsisModelAdmin):
     list_display = ('acronym', 'title', 'academic_year', 'education_group_type', 'changed')
     list_filter = ('academic_year', 'education_group_type')
