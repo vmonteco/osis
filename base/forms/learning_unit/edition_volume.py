@@ -39,7 +39,7 @@ from base.forms.utils.emptyfield import EmptyField
 from base.models.entity_component_year import EntityComponentYear
 from base.models.enums import entity_container_year_link_type as entity_types
 from base.models.enums.component_type import PRACTICAL_EXERCISES, LECTURING
-from base.models.enums.learning_container_year_types import INTERNSHIP, CONTAINER_TYPE_WITH_DEFAULT_COMPONENT
+from base.models.enums.learning_container_year_types import CONTAINER_TYPE_WITH_DEFAULT_COMPONENT
 from base.models.learning_component_year import LearningComponentYear
 from base.models.learning_unit_component import LearningUnitComponent
 
@@ -83,9 +83,6 @@ class VolumeEditionForm(forms.Form):
 
         super().__init__(*args, **kwargs)
         help_volume_global = "{} = {} * {}".format(_('volume_global'), _('Volume total annual'), _('planned_classes'))
-        self.fields['volume_total_requirement_entities'] = VolumeField(
-            label=_('vol_global'), help_text=help_volume_global)
-        self.fields['equal_field_3'] = EmptyField(label='=')
 
         # Append dynamic fields
         entities_to_add = [entity for entity in ENTITY_TYPES_VOLUME if entity in self.entities]
@@ -247,6 +244,7 @@ class VolumeEditionFormsetContainer:
 class SimplifiedVolumeForm(forms.ModelForm):
     _learning_unit_year = None
     _entity_containers = []
+
     add_field = EmptyField(label="+")
     equal_field = EmptyField(label='=')
 
@@ -325,9 +323,10 @@ class SimplifiedVolumeFormset(forms.BaseModelFormSet):
     @property
     def instances_data(self):
         data = {}
-        for form_instance in self.forms:
-            columns = form_instance.fields.keys()
-            data.update({col: getattr(form_instance.instance, col, None) for col in columns})
+        for i, form_instance in enumerate(self.forms):
+            for col in ['hourly_volume_total_annual', 'hourly_volume_partial_q1', 'hourly_volume_partial_q2']:
+                value = getattr(form_instance.instance, col, None) or getattr(self.initial_forms[i].instance, col, None)
+                data[_(form_instance.instance.type) + ' (' + self.label_fields[col].lower() + ')'] = value
         return data
 
     @property
