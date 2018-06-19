@@ -2985,6 +2985,18 @@ msgstr "Produce xls with a list of learning units"
 msgid "produce_xls_attributions_desc"
 msgstr "Produce xls with a list of learning units and attributions"
 
+msgid "hourly volume total annual"
+msgstr ""
+
+msgid "hourly volume partial q1"
+msgstr ""
+
+msgid "hourly volume partial q2"
+msgstr ""
+
+msgid "volume declared vacant"
+msgstr ""
+
 msgid "Xls with education groups"
 msgstr ""
 
