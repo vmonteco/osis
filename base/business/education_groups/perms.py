@@ -43,4 +43,3 @@ def is_education_group_creation_period_opened(person):
 
 def has_person_the_right_to_add_education_group(person):
     return person.user.has_perm('base.add_educationgroup')
-
