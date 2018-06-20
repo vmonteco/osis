@@ -28,13 +28,16 @@ from django.urls import reverse
 from django.http import HttpResponseForbidden
 
 from base.forms.education_group.create import CreateEducationGroupYearForm, CreateOfferYearEntityForm
+from base.tests.factories.education_group_year import EducationGroupYearFactory
 from base.tests.factories.person import PersonFactory, PersonWithPermissionsFactory
 
 
 class TestCreate(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.url = reverse("new_education_group")
+        cls.parent_education_group_year = EducationGroupYearFactory()
+        cls.url_without_parent = reverse("new_education_group")
+        cls.url_with_parent = reverse("new_education_group", kwargs={"parent_id":cls.parent_education_group_year.id})
         cls.person = PersonWithPermissionsFactory("add_educationgroup")
 
     def setUp(self):
@@ -42,25 +45,30 @@ class TestCreate(TestCase):
 
     def test_login_required(self):
         self.client.logout()
-        response = self.client.get(self.url)
+        response = self.client.get(self.url_without_parent)
 
-        self.assertRedirects(response, '/login/?next={}'.format(self.url))
+        self.assertRedirects(response, '/login/?next={}'.format(self.url_without_parent))
 
     def test_permission_required(self):
         person_without_permission = PersonFactory()
         self.client.force_login(person_without_permission.user)
 
-        response = self.client.get(self.url)
+        response = self.client.get(self.url_without_parent)
 
         self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
 
     def test_template_used(self):
-        response = self.client.get(self.url)
+        response = self.client.get(self.url_without_parent)
+
+        self.assertTemplateUsed(response, "education_group/creation.html")
+
+    def test_with_parent_set(self):
+        response = self.client.get(self.url_without_parent)
 
         self.assertTemplateUsed(response, "education_group/creation.html")
 
     def test_response_context(self):
-        response = self.client.get(self.url)
+        response = self.client.get(self.url_without_parent)
 
         form_education_group_year = response.context["form_education_group_year"]
         form_offer_year_entity  =  response.context["form_offer_year_entity"]

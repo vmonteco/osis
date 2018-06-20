@@ -31,6 +31,7 @@ from base.models.education_group import EducationGroup
 from base.models.education_group_year import EducationGroupYear
 from base.models.entity_version import find_main_entities_version
 from base.models.enums import offer_year_entity_type, education_group_categories
+from base.models.group_element_year import GroupElementYear
 from base.models.offer_year_entity import OfferYearEntity
 from django.utils.translation import ugettext_lazy as _
 
@@ -49,15 +50,23 @@ class CreateEducationGroupYearForm(forms.ModelForm):
         self.fields["education_group_type"].queryset = \
             education_group_type.find_by_category(education_group_categories.GROUP)
 
-    def save(self):
+    def save(self, parent=None):
         education_group_year = super().save(commit=False)
         education_group_year.education_group = self._create_education_group()
         education_group_year.save()
+
+        if parent:
+            self._create_group_element_year(parent, education_group_year)
+
         return education_group_year
 
     def _create_education_group(self):
         start_year = self.cleaned_data["academic_year"].year
         return EducationGroup.objects.create(start_year=start_year)
+
+    @staticmethod
+    def _create_group_element_year(parent, child):
+        return GroupElementYear.objects.create(parent=parent, child_branch=child)
 
 
 class CreateOfferYearEntityForm(forms.ModelForm):
