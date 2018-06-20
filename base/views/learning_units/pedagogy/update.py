@@ -42,7 +42,7 @@ from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
 from base.views import layout
 from base.views.common import display_error_messages, display_success_messages
-from base.views.learning_units.common import get_common_context_learning_unit_year
+from base.views.learning_units.common import get_common_context_learning_unit_year, get_text_label_translated
 from base.views.learning_units.perms import can_update_learning_unit_pedagogy
 from cms.models import text_label
 
@@ -118,7 +118,6 @@ def edit_learning_unit_pedagogy(request, learning_unit_year_id, redirect_url):
     form.load_initial()  # Load data from database
     context['form'] = form
     user_language = mdl.person.get_user_interface_language(request.user)
-    context['text_label_translated'] = next((txt for txt in text_lb.translated_text_labels
-                                             if txt.language == user_language), None)
+    context['text_label_translated'] = get_text_label_translated(text_lb, user_language)
     context['language_translated'] = find_language_in_settings(language)
     return layout.render(request, "learning_unit/pedagogy_edit.html", context)
