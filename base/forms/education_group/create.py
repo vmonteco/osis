@@ -41,7 +41,7 @@ class CreateEducationGroupYearForm(forms.ModelForm):
     class Meta:
         model = EducationGroupYear
         fields = ("acronym", "partial_acronym", "education_group_type", "title", "title_english", "credits",
-                  "main_teaching_campus", "academic_year", "remark", "remark_english")
+                  "main_teaching_campus", "academic_year", "remark", "remark_english", "min_credits", "max_credits")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

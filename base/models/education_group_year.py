@@ -105,6 +105,10 @@ class EducationGroupYear(models.Model):
     credits = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True, verbose_name=_("credits"))
     remark = models.TextField(blank=True, null=True, verbose_name=_("remark"))
     remark_english = models.TextField(blank=True, null=True, verbose_name=_("remark_english"))
+    min_credits = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True,
+                                      verbose_name=_("minimum credits"))
+    max_credits = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True,
+                                      verbose_name=_("maximum credits"))
 
     _coorganizations = None
 
