@@ -205,7 +205,8 @@ urlpatterns = [
     url(r'^educationgroups/', include([
         url(r'^$', education_group.education_groups, name='education_groups'),
         url(r'^new/$', base.views.education_groups.create.create_education_group, name='new_education_group'),
-        url(r'^new/(?P<parent_id>[0-9]+)/$', base.views.education_groups.create.create_education_group, name='new_education_group'),
+        url(r'^new/(?P<parent_id>[0-9]+)/$', base.views.education_groups.create.create_education_group,
+            name='new_education_group'),
         url(r'^(?P<education_group_year_id>[0-9]+)/', include([
             url(r'^$', education_group.education_group_read, name='education_group_read'),
             url(r'^diplomas/$', education_group.education_group_diplomas, name='education_group_diplomas'),
