@@ -56,8 +56,6 @@ class CreateEducationGroupYearForm(forms.ModelForm):
             self.fields["academic_year"].disabled = True
             self.fields["academic_year"].required = False
 
-
-
     def save(self):
         education_group_year = super().save(commit=False)
         education_group_year.education_group = self._create_education_group()
