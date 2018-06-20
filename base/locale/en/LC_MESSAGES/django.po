@@ -3023,3 +3023,9 @@ msgstr ""
 
 msgid "Education group year <a href='%(link)s'> %(acronym)s (%(academic_year)s) </a> successfuly created."
 msgstr ""
+
+msgid "minimum credits"
+msgstr ""
+
+msgid "maximum credits"
+msgstr ""
