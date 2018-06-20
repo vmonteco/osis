@@ -43,7 +43,7 @@ def create_education_group(request, parent_id=None):
     form_offer_year_entity = CreateOfferYearEntityForm(request.POST or None)
 
     if form_offer_year_entity.is_valid() and form_education_group_year.is_valid():
-        education_group_year = form_education_group_year.save(parent)
+        education_group_year = form_education_group_year.save()
         form_offer_year_entity.save(education_group_year)
 
         success_msg = create_success_message_for_creation_education_group_year(education_group_year)
