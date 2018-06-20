@@ -88,9 +88,9 @@ from base.views.learning_unit import learning_unit_components, learning_class_ye
     learning_unit_formations
 from base.views.learning_unit import learning_unit_identification
 from base.views.learning_units.create import create_partim_form
+from base.views.learning_units.pedagogy.read import learning_unit_pedagogy
 from base.views.learning_units.search import learning_units
 from base.views.learning_units.search import learning_units_service_course
-from base.views.learning_units.update import learning_unit_pedagogy
 from cms.enums import entity_name
 from cms.tests.factories.text_label import TextLabelFactory
 from cms.tests.factories.translated_text import TranslatedTextFactory

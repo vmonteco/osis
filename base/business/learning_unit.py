@@ -38,6 +38,7 @@ from base.models import learning_achievement
 from base.models.academic_year import find_academic_year_by_year
 from base.models.entity_component_year import EntityComponentYear
 from base.models.enums import entity_container_year_link_type, academic_calendar_type
+from base.models.enums.entity_container_year_link_type import REQUIREMENT_ENTITIES
 from cms import models as mdl_cms
 from cms.enums import entity_name
 from cms.enums.entity_name import LEARNING_UNIT_YEAR
@@ -213,13 +214,9 @@ def _compose_components_dict(components, additional_entities):
 
 
 def _get_entities(entity_components_yr):
-    additional_requirement_entities_types = [entity_container_year_link_type.REQUIREMENT_ENTITY,
-                                             entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1,
-                                             entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2]
-
     return {e.entity_container_year.type: e.entity_container_year.entity.most_recent_acronym
             for e in entity_components_yr
-            if e.entity_container_year.type in additional_requirement_entities_types}
+            if e.entity_container_year.type in REQUIREMENT_ENTITIES}
 
 
 def _get_summary_status(a_calendar, cms_list, lu):
