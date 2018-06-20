@@ -277,7 +277,6 @@ class SimplifiedVolumeForm(forms.ModelForm):
 
     def _create_structure_components(self, commit):
         self.instance.learning_container_year = self._learning_unit_year.learning_container_year
-        # self._learning_unit_year.save()
         instance = super().save(commit)
         LearningUnitComponent.objects.get_or_create(
             learning_unit_year=self._learning_unit_year,
