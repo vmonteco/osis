@@ -277,7 +277,7 @@ class SimplifiedVolumeForm(forms.ModelForm):
 
     def _create_structure_components(self, commit):
         self.instance.learning_container_year = self._learning_unit_year.learning_container_year
-        self._learning_unit_year.save()
+        # self._learning_unit_year.save()
         instance = super().save(commit)
         LearningUnitComponent.objects.get_or_create(
             learning_unit_year=self._learning_unit_year,
@@ -287,12 +287,8 @@ class SimplifiedVolumeForm(forms.ModelForm):
         for requirement_entity_container in requirement_entity_containers:
             if not self.instance.hourly_volume_total_annual and self.initial:
                 self._get_initial_volume_data()
-            EntityComponentYear.objects.get_or_create(
-                entity_container_year=requirement_entity_container,
-                learning_component_year=instance
-            )
-            children = self._learning_unit_year.get_partims_related()
-            learning_unit_components = LearningUnitComponent.objects.filter(learning_unit_year__in=children)
+            learning_unit_components = LearningUnitComponent.objects.filter(
+                learning_unit_year__learning_container_year=self._learning_unit_year.learning_container_year)
             for learning_unit_component in learning_unit_components:
                 EntityComponentYear.objects.get_or_create(
                     entity_container_year=requirement_entity_container,
