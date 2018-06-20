@@ -282,19 +282,19 @@ class SimplifiedVolumeForm(forms.ModelForm):
             learning_unit_year=self._learning_unit_year,
             learning_component_year=instance
         )
-        for entity_container_year in self._entity_containers:
-            if entity_container_year and entity_container_year.type != entity_types.ALLOCATION_ENTITY:
-                if not self.instance.hourly_volume_total_annual and self.initial:
-                    self._get_initial_volume_data()
-                learning_unit_components = LearningUnitComponent.objects.filter(
-                    learning_unit_year__learning_container_year=self._learning_unit_year.learning_container_year)
-                self._create_entity_component_years(entity_container_year, learning_unit_components)
+        requirement_entity_containers = self._get_requirement_entity_container()
+        for requirement_entity_container in requirement_entity_containers:
+            if not self.instance.hourly_volume_total_annual and self.initial:
+                self._get_initial_volume_data()
+            learning_unit_components = LearningUnitComponent.objects.filter(
+                learning_unit_year__learning_container_year=self._learning_unit_year.learning_container_year)
+            self._create_entity_component_years(learning_unit_components, requirement_entity_container)
         return instance
 
-    def _create_entity_component_years(self, entity_container_year, learning_unit_components):
+    def _create_entity_component_years(self, learning_unit_components, requirement_entity_container):
         for learning_unit_component in learning_unit_components:
             EntityComponentYear.objects.get_or_create(
-                entity_container_year=entity_container_year,
+                entity_container_year=requirement_entity_container,
                 learning_component_year=learning_unit_component.learning_component_year
             )
 
@@ -303,6 +303,13 @@ class SimplifiedVolumeForm(forms.ModelForm):
         self.instance.hourly_volume_partial_q1 = self.initial.get('hourly_volume_partial_q1')
         self.instance.hourly_volume_partial_q2 = self.initial.get('hourly_volume_partial_q2')
         self.instance.save()
+
+    def _get_requirement_entity_container(self):
+        requirement_entity_containers = []
+        for entity_container_year in self._entity_containers:
+            if entity_container_year and entity_container_year.type != entity_types.ALLOCATION_ENTITY:
+                requirement_entity_containers.append(entity_container_year)
+        return requirement_entity_containers
 
 
 class SimplifiedVolumeFormset(forms.BaseModelFormSet):
