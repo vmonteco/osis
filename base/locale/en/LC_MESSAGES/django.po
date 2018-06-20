@@ -3029,3 +3029,6 @@ msgstr ""
 
 msgid "maximum credits"
 msgstr ""
+
+msgid "EDUCATION_GROUP_EDITION"
+msgstr "Edition group edition"
