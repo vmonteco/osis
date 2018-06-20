@@ -309,7 +309,7 @@ def find_educational_information_submission_dates_of_learning_unit_year(learning
     return find_summary_course_submission_dates_for_entity_version(entity_version)
 
 
-def can_update_learning_unit_pedagogy(learning_unit_year, person):
+def is_eligible_to_update_learning_unit_pedagogy(learning_unit_year, person):
     """
     Permission to edit learning unit pedagogy needs many conditions:
         - The person must have the permission can_edit_learning_pedagogy
