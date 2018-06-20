@@ -49,7 +49,7 @@ class TestCreateEducationGroupYearForm(TestCase):
             "remark": "This is a test!!"
         }
 
-        cls.parent_education_group_year = EducationGroupYearFactory()
+        cls.parent_education_group_year = EducationGroupYearFactory(academic_year=cls.academic_year)
 
     def test_fields(self):
         fields = ("acronym", "partial_acronym", "education_group_type", "title", "title_english", "credits",
@@ -57,6 +57,13 @@ class TestCreateEducationGroupYearForm(TestCase):
 
         form = CreateEducationGroupYearForm()
         self.assertCountEqual(tuple(form.fields.keys()), fields)
+
+    def test_init_with_parent_set(self):
+        form = CreateEducationGroupYearForm(parent=self.parent_education_group_year)
+
+        academic_year_field = form.fields["academic_year"]
+        self.assertTrue(academic_year_field.disabled)
+        self.assertTrue(academic_year_field.initial, self.academic_year)
 
     def test_save(self):
         form = CreateEducationGroupYearForm(data=self.form_data)

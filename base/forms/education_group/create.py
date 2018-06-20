@@ -44,11 +44,19 @@ class CreateEducationGroupYearForm(forms.ModelForm):
                   "main_teaching_campus", "academic_year", "remark", "remark_english", "min_credits", "max_credits")
 
     def __init__(self, *args, **kwargs):
+        parent_education_group_year = kwargs.pop("parent")
         super().__init__(*args, **kwargs)
 
         self.fields["main_teaching_campus"].queryset = campus.find_main_campuses()
         self.fields["education_group_type"].queryset = \
             education_group_type.find_by_category(education_group_categories.GROUP)
+
+        if parent_education_group_year:
+            self.fields["academic_year"].initial = parent_education_group_year.academic_year.id
+            self.fields["academic_year"].disabled = True
+            self.fields["academic_year"].required = False
+
+
 
     def save(self, parent=None):
         education_group_year = super().save(commit=False)
