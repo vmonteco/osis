@@ -291,6 +291,13 @@ class SimplifiedVolumeForm(forms.ModelForm):
                 entity_container_year=requirement_entity_container,
                 learning_component_year=instance
             )
+            children = self._learning_unit_year.get_partims_related()
+            learning_unit_components = LearningUnitComponent.objects.filter(learning_unit_year__in=children)
+            for learning_unit_component in learning_unit_components:
+                EntityComponentYear.objects.get_or_create(
+                    entity_container_year=requirement_entity_container,
+                    learning_component_year=learning_unit_component.learning_component_year
+                )
         return instance
 
     def _get_initial_volume_data(self):
