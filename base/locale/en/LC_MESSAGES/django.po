@@ -3029,3 +3029,6 @@ msgstr ""
 
 msgid "maximum credits"
 msgstr ""
+
+msgid "Other teacher(s)"
+msgstr ""

@@ -66,7 +66,8 @@ class AttributionTest(TestCase):
                                                                                                  academic_year=self.academic_year)
         self.attribution = create_attribution(tutor=self.tutor,
                                               learning_unit_year=self.learning_unit_year,
-                                              score_responsible=True)
+                                              score_responsible=True,
+                                              summary_responsible=True)
         self.attribution_children = create_attribution(tutor=self.tutor,
                                                        learning_unit_year=self.learning_unit_year_children,
                                                        score_responsible=False)
@@ -93,3 +94,7 @@ class AttributionTest(TestCase):
 
     def test_is_score_responsible_without_attribution(self):
         self.assertFalse(attribution.is_score_responsible(self.user, self.learning_unit_year_without_attribution))
+
+    def test_find_summary_responsible(self):
+        responsible = attribution.find_summary_responsible(self.learning_unit_year)
+        self.assertEqual(responsible.person.first_name, self.tutor.person.first_name)

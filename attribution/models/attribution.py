@@ -235,3 +235,18 @@ def _prefetch_entity_version(queryset):
                      Prefetch('entity__entityversion_set', to_attr='entity_versions')
                  ), to_attr='entities_containers_year')
     )
+
+
+def find_all_summary_responsibles_by_learning_unit_year(a_learning_unit_year):
+    attribution_list = Attribution.objects.filter(learning_unit_year=a_learning_unit_year,
+                                                  summary_responsible=True) \
+        .distinct("tutor") \
+        .select_related("tutor")
+    return [attribution.tutor for attribution in attribution_list]
+
+
+def find_summary_responsible(a_learning_unit_year):
+    tutors_list = find_all_summary_responsibles_by_learning_unit_year(a_learning_unit_year)
+    if tutors_list:
+        return tutors_list[0]
+    return None
