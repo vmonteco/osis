@@ -3030,5 +3030,11 @@ msgstr ""
 msgid "maximum credits"
 msgstr ""
 
+msgid "The learning unit %(acronym)s is not included in any education group"
+msgstr ""
+
+msgid "No enrollment for this learning unit"
+msgstr ""
+
 msgid "Other teacher(s)"
 msgstr ""
