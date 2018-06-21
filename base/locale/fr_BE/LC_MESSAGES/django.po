@@ -2690,7 +2690,7 @@ msgstr "obligatoire"
 msgid "Bibliography"
 msgstr "Bibliographie"
 
-msgid "Modalities specific to IN and OUT mobility"
+msgid "Mobility"
 msgstr "Mobilité"
 
 msgid "updated"

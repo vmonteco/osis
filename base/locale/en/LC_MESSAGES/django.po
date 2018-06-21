@@ -2697,8 +2697,8 @@ msgstr ""
 msgid "Bibliography"
 msgstr ""
 
-msgid "Modalities specific to IN and OUT mobility"
-msgstr "Mobility"
+msgid "Mobility"
+msgstr ""
 
 msgid "The periodicity of the parent and the partims do not match"
 msgstr ""
