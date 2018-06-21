@@ -2618,7 +2618,7 @@ msgid "in_proposal"
 msgstr "Existing proposal"
 
 msgid "summary_locked"
-msgstr "blocked update"
+msgstr "blocked update for tutor"
 
 msgid "get_back_to_initial"
 msgstr "Get back to initial data"
@@ -3012,5 +3012,26 @@ msgstr ""
 msgid "Q1 or Q2"
 msgstr ""
 
+msgid "New Education Group"
+msgstr ""
+
 msgid "untyped"
+msgstr ""
+
+msgid "validity"
+msgstr ""
+
+msgid "Education group year <a href='%(link)s'> %(acronym)s (%(academic_year)s) </a> successfuly created."
+msgstr ""
+
+msgid "minimum credits"
+msgstr ""
+
+msgid "maximum credits"
+msgstr ""
+
+msgid "The learning unit %(acronym)s is not included in any education group"
+msgstr ""
+
+msgid "No enrollment for this learning unit"
 msgstr ""
