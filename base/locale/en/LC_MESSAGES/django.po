@@ -3035,3 +3035,6 @@ msgstr ""
 
 msgid "No enrollment for this learning unit"
 msgstr ""
+
+msgid "Changed"
+msgstr ""

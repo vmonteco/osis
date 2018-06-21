@@ -3039,3 +3039,5 @@ msgstr "L'unité d'enseignement %(acronym)s n'est incluse dans aucun groupement"
 msgid "No enrollment for this learning unit"
 msgstr "Il n'y a aucune inscription pour cette unité d'enseignement"
 
+msgid "Changed"
+msgstr "Modification apportée"
