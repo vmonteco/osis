@@ -2620,7 +2620,7 @@ msgid "by"
 msgstr "Par"
 
 msgid "summary_locked"
-msgstr "mise-à-jour bloquée"
+msgstr "mise-à-jour bloquée pour l'enseignant"
 
 msgid "get_back_to_initial"
 msgstr "Retour à l'état initial"
