@@ -32,7 +32,6 @@ def is_eligible_to_add_education_group(person):
     return _conjunction(
             has_person_the_right_to_add_education_group,
             _disjunction(is_central_manager, is_education_group_creation_period_opened),
-            is_education_group_creation_period_opened
     )(person)
 
 
