@@ -43,17 +43,6 @@ class TestPerms(TestCase):
         person_with_right = PersonWithPermissionsFactory("add_educationgroup")
         self.assertTrue(has_person_the_right_to_add_education_group(person_with_right))
 
-    def test_is_education_group_creation_period_opened_for_central_manager(self):
-        central_manager = CentralManagerFactory()
-
-        today = datetime.date.today()
-        closed_period = AcademicCalendarFactory(start_date=today + datetime.timedelta(days=1),
-                                                end_date=today + datetime.timedelta(days=3),
-                                                reference=academic_calendar_type.EDUCATION_GROUP_EDITION)
-
-        self.assertTrue(is_education_group_creation_period_opened(central_manager))
-
-
     def test_is_education_group_creation_period_opened(self):
         person = PersonFactory()
         today = datetime.date.today()
