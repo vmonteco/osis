@@ -28,7 +28,7 @@ import datetime
 from django.test import TestCase
 
 from base.business.education_groups.perms import has_person_the_right_to_add_education_group, \
-    is_education_group_creation_period_opened
+    is_education_group_creation_period_opened, is_central_manager
 from base.models.enums import academic_calendar_type
 from base.tests.factories.academic_calendar import AcademicCalendarFactory
 from base.tests.factories.person import PersonFactory, PersonWithPermissionsFactory, PersonWithGroupsFactory, \
@@ -68,3 +68,10 @@ class TestPerms(TestCase):
         opened_period.start_date = today
         opened_period.save()
         self.assertTrue(is_education_group_creation_period_opened(person))
+
+    def is_person_central_manager(self):
+        person = PersonFactory()
+        self.assertFalse(is_central_manager(person))
+
+        central_manager = CentralManagerFactory()
+        self.assertTrue(is_central_manager(central_manager))

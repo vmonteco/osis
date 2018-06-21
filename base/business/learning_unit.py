@@ -141,11 +141,11 @@ def get_components_identification(learning_unit_yr):
         learning_component_year_list = mdl_base.learning_component_year.find_by_learning_container_year(
             a_learning_container_yr)
 
-        for indx, learning_component_year in enumerate(learning_component_year_list):
+        for learning_component_year in learning_component_year_list:
             if mdl_base.learning_unit_component.search(learning_component_year, learning_unit_yr).exists():
                 entity_components_yr = EntityComponentYear.objects.filter(
                     learning_component_year=learning_component_year)
-                if indx == 0:
+                if not additionnal_entities:
                     additionnal_entities = _get_entities(entity_components_yr)
 
                 components.append({'learning_component_year': learning_component_year,

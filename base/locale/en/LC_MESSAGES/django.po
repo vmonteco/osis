@@ -2618,7 +2618,7 @@ msgid "in_proposal"
 msgstr "Existing proposal"
 
 msgid "summary_locked"
-msgstr "blocked update"
+msgstr "blocked update for tutor"
 
 msgid "get_back_to_initial"
 msgstr "Get back to initial data"
@@ -3032,3 +3032,9 @@ msgstr ""
 
 msgid "EDUCATION_GROUP_EDITION"
 msgstr "Edition group edition"
+=======
+msgid "The learning unit %(acronym)s is not included in any education group"
+msgstr ""
+
+msgid "No enrollment for this learning unit"
+msgstr ""
