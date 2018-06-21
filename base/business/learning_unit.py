@@ -198,8 +198,9 @@ def create_xls(user, found_learning_units, filters):
 
 def is_summary_submission_opened():
     current_academic_year = mdl_base.academic_year.current_academic_year()
-    return mdl_base.academic_calendar.is_academic_calendar_opened(current_academic_year,
-                                                                  academic_calendar_type.SUMMARY_COURSE_SUBMISSION)
+    return mdl_base.academic_calendar.\
+        is_academic_calendar_opened_for_specific_academic_year(current_academic_year,
+                                                               academic_calendar_type.SUMMARY_COURSE_SUBMISSION)
 
 
 def find_language_in_settings(language_code):
