@@ -39,11 +39,11 @@ from base.views.common import display_success_messages
 def create_education_group(request, parent_id=None):
     parent = get_object_or_404(EducationGroupYear, id=parent_id) if parent_id is not None else None
 
-    form_education_group_year = CreateEducationGroupYearForm(request.POST or None)
+    form_education_group_year = CreateEducationGroupYearForm(request.POST or None, parent=parent)
     form_offer_year_entity = CreateOfferYearEntityForm(request.POST or None)
 
     if form_offer_year_entity.is_valid() and form_education_group_year.is_valid():
-        education_group_year = form_education_group_year.save(parent)
+        education_group_year = form_education_group_year.save()
         form_offer_year_entity.save(education_group_year)
 
         success_msg = create_success_message_for_creation_education_group_year(education_group_year)
@@ -52,7 +52,8 @@ def create_education_group(request, parent_id=None):
 
     return layout.render(request, "education_group/creation.html", {
         "form_education_group_year": form_education_group_year,
-        "form_offer_year_entity": form_offer_year_entity
+        "form_offer_year_entity": form_offer_year_entity,
+        "parent": parent
     })
 
 
