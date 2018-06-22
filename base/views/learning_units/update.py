@@ -52,7 +52,7 @@ from base.views.learning_unit import learning_unit_components
 from base.views.learning_units import perms
 from base.views.learning_units.common import get_learning_unit_identification_context, \
     get_common_context_learning_unit_year
-from attribution.models.attribution import find_summary_responsible
+from attribution.models.attribution import find_all_summary_responsibles_by_learning_unit_year
 
 
 @login_required
@@ -167,7 +167,6 @@ def _save_form_and_display_messages(request, form):
 
 
 def update_learning_unit_pedagogy(request, learning_unit_year_id, context, template):
-    print('update_learning_unit_pedagogy')
     person = get_object_or_404(Person, user=request.user)
     context.update(get_common_context_learning_unit_year(learning_unit_year_id, person))
     learning_unit_year = context['learning_unit_year']
@@ -195,9 +194,9 @@ def update_learning_unit_pedagogy(request, learning_unit_year_id, context, templ
     context.update(get_cms_pedagogy_form(request, learning_unit_year))
     context['summary_editable_form'] = summary_form
     context['bibliography_formset'] = bibliography_formset
-    summary_responsible = find_summary_responsible(learning_unit_year)
-    context.update({'summary_responsible': summary_responsible})
-    context.update({'teachers': get_no_summary_responsible_teachers(learning_unit_year, summary_responsible)})
+    summary_responsibles = find_all_summary_responsibles_by_learning_unit_year(learning_unit_year)
+    context.update({'summary_responsibles': summary_responsibles})
+    context.update({'other_teachers': get_no_summary_responsible_teachers(learning_unit_year, summary_responsibles)})
     return layout.render(request, template, context)
 
 

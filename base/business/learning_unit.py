@@ -280,10 +280,6 @@ def get_achievements_group_by_language(learning_unit_year):
     return achievement_grouped
 
 
-def get_no_summary_responsible_teachers(learning_unit_yr, summary_responsible):
+def get_no_summary_responsible_teachers(learning_unit_yr, summary_responsibles):
     tutors = find_all_tutors_by_learning_unit_year(learning_unit_yr, "-summary_responsible")
-    tutor_list = []
-    for tutor in tutors:
-        if tutor[0] != summary_responsible:
-            tutor_list.append(tutor[0])
-    return tutor_list
+    return [tutor[0] for tutor in tutors if tutor[0] not in summary_responsibles]

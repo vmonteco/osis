@@ -32,9 +32,19 @@
         {% csrf_token %}
         <div class="row well">
             <div class="col-md-6">
-                <label>{% trans 'summary_responsible' %} : </label>
-                {{ summary_responsible | default_if_none:'-' }}
-                {% if teachers %}
+                <label>{% trans 'Summary responsible(s)' %} : </label>
+                {%  if summary_responsibles %}
+                    {% for summary_responsible in summary_responsibles %}
+                        {% if not forloop.first %}
+                            ;
+                        {% else %}
+                            {{ summary_responsible }}
+                        {% endif %}
+                    {% endfor %}
+                {% else %}
+                    -
+                {% endif %}
+                {% if other_teachers %}
                     <br><br>
                     <label>{% trans 'Other teacher(s)' %} : </label>
                     <a role="button" data-toggle="collapse" href="#CollapseTeachers" aria-expanded="false"
@@ -45,7 +55,7 @@
                     <br>
                     <div class="collapse" id="CollapseTeachers">
                         <ul>
-                            {% for teacher in teachers %}
+                            {% for teacher in other_teachers %}
                                 <li>{{ teacher.person }}</li>
                             {% endfor %}
                         </ul>

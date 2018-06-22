@@ -3046,3 +3046,7 @@ msgstr "Modification apportée"
 
 msgid "Other teacher(s)"
 msgstr "Autre(s) enseignant(s)"
+
+msgid "Summary responsible(s)"
+msgstr "Responsable(s) des informations"
+
