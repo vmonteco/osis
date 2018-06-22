@@ -52,7 +52,7 @@ from base.views.learning_unit import learning_unit_components
 from base.views.learning_units import perms
 from base.views.learning_units.common import get_learning_unit_identification_context, \
     get_common_context_learning_unit_year
-from attribution.models.attribution import find_all_summary_responsibles_by_learning_unit_year
+from base.models.tutor import find_all_summary_responsibles_by_learning_unit_year
 
 
 @login_required

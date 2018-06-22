@@ -25,14 +25,11 @@
 ##############################################################################
 import datetime
 
-from django.core.exceptions import ObjectDoesNotExist
-from django.db import connection
 from django.test import TestCase
 
 from attribution.models import attribution
 from base.tests.factories import tutor, user, structure, entity_manager, academic_year, learning_unit_year
 from base.tests.models.test_person import create_person_with_user
-from base.models.enums import component_type
 
 
 def create_attribution(tutor, learning_unit_year, score_responsible=False, summary_responsible=False):
@@ -94,7 +91,3 @@ class AttributionTest(TestCase):
 
     def test_is_score_responsible_without_attribution(self):
         self.assertFalse(attribution.is_score_responsible(self.user, self.learning_unit_year_without_attribution))
-
-    def test_find_all_summary_responsibles_by_learning_unit_year(self):
-        responsibles = attribution.find_all_summary_responsibles_by_learning_unit_year(self.learning_unit_year)
-        self.assertCountEqual(responsibles, [self.tutor])
