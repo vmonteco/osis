@@ -236,6 +236,7 @@ class LearningUnitYearTest(TestCase):
         self.assertTrue(check_if_acronym_regex_is_valid('TEST*'))
         self.assertTrue(check_if_acronym_regex_is_valid('TE*ST'))
         self.assertFalse(check_if_acronym_regex_is_valid('*TEST'))
+        self.assertFalse(check_if_acronym_regex_is_valid('?TEST'))
         self.assertFalse(check_if_acronym_regex_is_valid(self.learning_unit_year))
 
 
