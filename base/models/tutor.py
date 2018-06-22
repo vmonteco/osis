@@ -119,5 +119,5 @@ def search(**criterias):
 
 
 def find_all_summary_responsibles_by_learning_unit_year(a_learning_unit_year):
-    return list(Tutor.objects.filter(attribution__learning_unit_year=a_learning_unit_year,
-                                     attribution__summary_responsible=True))
+    return Tutor.objects.filter(attribution__learning_unit_year=a_learning_unit_year,
+                                attribution__summary_responsible=True)
