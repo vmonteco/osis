@@ -244,4 +244,5 @@ def find_all_summary_responsibles_by_learning_unit_year(a_learning_unit_year):
         .select_related("tutor")
     return [attribution.tutor for attribution in attribution_list]
 
-    return list(Tutor.objects.filter(attribution__learning_unit_year=a_learning_unit_year, attribution__summary_responsible=True))
+    return list(Tutor.objects.filter(attribution__learning_unit_year=a_learning_unit_year,
+                                     attribution__summary_responsible=True))
