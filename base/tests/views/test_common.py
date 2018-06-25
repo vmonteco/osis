@@ -53,13 +53,15 @@ class UtilityMethods(SimpleTestCase):
         self.assertEqual(expected_url, actual_url)
 
     def test_reverse_url_with_query_string(self):
-        expected_url = "{path}?{query}".format(path=reverse('academic_calendar_read', args=[46898]),
-                                                query="value1=hello&value2=&value3=54")
-        query_parameters = {"value1": "hello", "value2": None, "value3": 54}
+        expected_url = "{path}?".format(path=reverse('academic_calendar_read', args=[46898]))
 
+        query_parameters = {"value1": "hello", "value2": None, "value3": 54}
         actual_url = reverse_url_with_query_string(
             'academic_calendar_read',
             args=[46898],
             query=OrderedDict(sorted(query_parameters.items(), key=lambda t: t[0]))
         )
-        self.assertEqual(expected_url, actual_url)
+        self.assertTrue(actual_url.startswith(expected_url))
+        self.assertTrue("value1=hello" in actual_url)
+        self.assertTrue("value2=" in actual_url)
+        self.assertTrue("value3=54" in actual_url)
