@@ -39,7 +39,8 @@ from base.models.entity_component_year import EntityComponentYear
 from base.models.entity_container_year import EntityContainerYear
 from base.models.enums import attribution_procedure, entity_container_year_link_type, learning_unit_year_subtypes, \
     vacant_declaration_type
-from base.models.enums.entity_container_year_link_type import REQUIREMENT_ENTITY
+from base.models.enums.entity_container_year_link_type import REQUIREMENT_ENTITY, ADDITIONAL_REQUIREMENT_ENTITY_1, \
+    ADDITIONAL_REQUIREMENT_ENTITY_2
 from base.models.enums.learning_component_year_type import LECTURING
 from base.models.learning_component_year import LearningComponentYear
 from base.models.learning_unit_year import LearningUnitYear
@@ -455,6 +456,24 @@ class TestLearningUnitPostponementFormFindConsistencyErrors(LearningUnitPostpone
         qs.update(repartition_volume=repartition_volume)
         return qs.get()
 
+    def _remove_additional_requirement_entity_2(self, academic_year):
+        # Remove additional requirements entities component year
+        learning_unit_full = self.learning_unit_year_full.learning_unit
+        EntityComponentYear.objects.filter(
+            entity_container_year__type=ADDITIONAL_REQUIREMENT_ENTITY_2,
+            learning_component_year__learning_container_year__academic_year=academic_year,
+            learning_component_year__learningunitcomponent__learning_unit_year__learning_unit=learning_unit_full
+        ).delete()
+
+        # Remove additional requirement entity 2 container year
+        initial_entity_container_year = EntityContainerYear.objects.get(
+            type=ADDITIONAL_REQUIREMENT_ENTITY_2,
+            learning_container_year__academic_year=academic_year
+        )
+        initial_entity = initial_entity_container_year.entity
+        initial_entity_container_year.delete()
+        return initial_entity
+
     def test_when_no_differences_found_in_future(self):
         instance_luy_base_form = _instantiate_base_learning_unit_form(self.learning_unit_year_full, self.person)
         form = _instanciate_postponement_form(self.person, self.learning_unit_year_full.academic_year,
@@ -655,6 +674,31 @@ class TestLearningUnitPostponementFormFindConsistencyErrors(LearningUnitPostpone
         result = form.consistency_errors
         self.assertIsInstance(result, OrderedDict)  # Need to be ordered by academic_year
         self.assertEqual(expected_result[next_academic_year], result[next_academic_year])
+
+    def test_when_differences_found_on_additional_requirement_entities(self):
+        """
+        In this test, we ensure that if N year have additional_requirement_entity_2 AND N+1 doesn't have,
+        it display an error and prevent crash on _check_postponement_repartition_volume [ GET() ]
+        """
+        next_academic_year = AcademicYear.objects.get(year=self.learning_unit_year_full.academic_year.year + 1)
+        initial_entity = self._remove_additional_requirement_entity_2(academic_year=next_academic_year)
+
+        expected_result = OrderedDict({
+            next_academic_year: [
+                _("%(col_name)s has been already modified. ({%(new_value)s} instead of {%(current_value)s})") % {
+                    'col_name': _('additional_requirement_entity_2'),
+                    'new_value': '-',
+                    'current_value': initial_entity
+                }
+            ],
+        })
+        instance_luy_base_form = _instantiate_base_learning_unit_form(self.learning_unit_year_full, self.person)
+        form = _instanciate_postponement_form(self.person, self.learning_unit_year_full.academic_year,
+                                              learning_unit_instance=instance_luy_base_form.learning_unit_instance,
+                                              data=instance_luy_base_form.data)
+        self.assertTrue(form.is_valid(), form.errors)
+        result = form.consistency_errors
+        self.assertEqual(result, expected_result)
 
 
 def _instantiate_base_learning_unit_form(learning_unit_year_instance, person):

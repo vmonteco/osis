@@ -291,13 +291,18 @@ class LearningUnitPostponementForm:
         ).values_list('repartition_volume', 'learning_component_year__type', 'entity_container_year__type')
 
         for reparation_volume, component_type, entity_type in initial_values:
-            component = EntityComponentYear.objects.filter(
-                learning_component_year__type=component_type,
-                entity_container_year__type=entity_type,
-                learning_component_year__learningunitcomponent__learning_unit_year=luy
-            ).get()
+            try:
+                component = EntityComponentYear.objects.filter(
+                    learning_component_year__type=component_type,
+                    entity_container_year__type=entity_type,
+                    learning_component_year__learningunitcomponent__learning_unit_year=luy
+                ).get()
+            except EntityComponentYear.DoesNotExist:
+                # Case: N year have additional requirement but N+1 doesn't have.
+                # Not need to display message because, already done on _check_differences function
+                component = None
 
-            if component.repartition_volume != reparation_volume:
+            if component and component.repartition_volume != reparation_volume:
                 name = component.learning_component_year.acronym + "-"\
                        + component.entity_container_year.entity.most_recent_acronym
 
