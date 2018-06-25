@@ -313,15 +313,12 @@ def is_eligible_to_update_learning_unit_pedagogy(learning_unit_year, person):
     """
     Permission to edit learning unit pedagogy needs many conditions:
         - The person must have the permission can_edit_learning_pedagogy
-        - The person must be link to the requirement entity
+        - The person must be link to requirement entity
         - The person can be a faculty or a central manager
         - The person can be a tutor:
             - The learning unit must have its flag summary_locked to false
             - The person must have an attribution for the learning unit year
             - The attribution must have its flag summary responsible to true.
-
-    TODO :: The complexity of the algorithm to obtain the permission makes the system unreliable.
-    TODO :: A simplification is necessary before a real use
 
     :param learning_unit_year: LearningUnitYear
     :param person: Person

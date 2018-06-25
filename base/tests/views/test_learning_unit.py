@@ -1366,7 +1366,7 @@ class LearningUnitViewTestCase(TestCase):
 
         learning_unit_year.refresh_from_db()
         self.assertFalse(learning_unit_year.summary_locked)
-        self.assertEqual(Bibliography.objects.filter(learning_unit_year=learning_unit_year).count(), 3)
+        self.assertEqual(Bibliography.objects.filter(learning_unit_year=learning_unit_year).count(), 0)
 
     @mock.patch('base.models.person.Person.is_faculty_manager')
     def test_learning_unit_pedagogy_summary_editable_as_tutor(self, mock_faculty_manager):

@@ -24,7 +24,7 @@
 #
 ##############################################################################
 from django.conf import settings
-from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.decorators import login_required
 from django.forms import inlineformset_factory
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
@@ -43,7 +43,7 @@ from base.models.person import Person
 from base.views import layout
 from base.views.common import display_error_messages, display_success_messages
 from base.views.learning_units.common import get_common_context_learning_unit_year, get_text_label_translated
-from base.views.learning_units.perms import can_update_learning_unit_pedagogy
+from base.views.learning_units.perms import PermissionDecorator
 from cms.models import text_label
 
 
@@ -92,7 +92,7 @@ def get_cms_pedagogy_form(request, learning_unit_year):
 
 
 @login_required
-@can_update_learning_unit_pedagogy
+@PermissionDecorator(is_eligible_to_update_learning_unit_pedagogy, "learning_unit_year_id", LearningUnitYear)
 @require_http_methods(["GET", "POST"])
 def learning_unit_pedagogy_edit(request, learning_unit_year_id):
     redirect_url = reverse("learning_unit_pedagogy", kwargs={'learning_unit_year_id': learning_unit_year_id})

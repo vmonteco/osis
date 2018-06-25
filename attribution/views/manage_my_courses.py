@@ -64,5 +64,5 @@ def view_educational_information(request, learning_unit_year_id):
 @login_required
 @tutor_can_edit_educational_information
 def edit_educational_information(request, learning_unit_year_id):
-    redirect_url = reverse("view_educational_information", kwargs={'learning_unit_year_id': learning_unit_year_id})
+    redirect_url = reverse(view_educational_information, kwargs={'learning_unit_year_id': learning_unit_year_id})
     return edit_learning_unit_pedagogy(request, learning_unit_year_id, redirect_url)
