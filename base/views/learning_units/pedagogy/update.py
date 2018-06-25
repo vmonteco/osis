@@ -24,7 +24,6 @@
 #
 ##############################################################################
 from django.conf import settings
-from django.contrib.auth.decorators import login_required
 from django.forms import inlineformset_factory
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
@@ -78,9 +77,9 @@ def update_learning_unit_pedagogy(request, learning_unit_year_id, context, templ
     context['summary_editable_form'] = summary_form
     context['bibliography_formset'] = bibliography_formset
     context['can_edit_information'] = perm_to_edit
-    summary_responsibles = find_all_summary_responsibles_by_learning_unit_year(learning_unit_year)
-    context.update({'summary_responsibles': summary_responsibles})
-    context.update({'other_teachers': get_no_summary_responsible_teachers(learning_unit_year, summary_responsibles)})
+
+    context['summary_responsibles'] = find_all_summary_responsibles_by_learning_unit_year(learning_unit_year)
+    context['other_teachers'] = get_no_summary_responsible_teachers(learning_unit_year, context['summary_responsibles'])
     return layout.render(request, template, context)
 
 
