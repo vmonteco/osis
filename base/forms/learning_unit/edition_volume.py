@@ -61,7 +61,8 @@ class VolumeEditionForm(forms.Form):
     add_field = EmptyField(label='+')
     volume_q2 = VolumeField(label=_('partial_volume_2Q'), help_text=_('partial_volume_2'))
     equal_field_1 = EmptyField(label='=')
-    volume_total = VolumeField(label=_('Vol. annual'), help_text=_('Volume annual'))
+    volume_total = VolumeField(label=_('Vol. annual'),
+                               help_text=_('The annual volume must be equal to the sum of the volumes Q1 and Q2'))
     help_volume_total = "{} = {} + {}".format(_('Volume total annual'), _('partial_volume_1'), _('partial_volume_2'))
     closing_parenthesis_field = EmptyField(label=')')
     mult_field = EmptyField(label='*')
@@ -332,9 +333,10 @@ class SimplifiedVolumeFormset(forms.BaseModelFormSet):
     @property
     def instances_data(self):
         data = {}
-        for i, form_instance in enumerate(self.forms):
+        zip_form_and_initial_forms = zip(self.forms, self.initial_forms)
+        for form_instance, initial_form in zip_form_and_initial_forms:
             for col in ['hourly_volume_total_annual', 'hourly_volume_partial_q1', 'hourly_volume_partial_q2']:
-                value = getattr(form_instance.instance, col, None) or getattr(self.initial_forms[i].instance, col, None)
+                value = getattr(form_instance.instance, col, None) or getattr(initial_form.instance, col, None)
                 data[_(form_instance.instance.type) + ' (' + self.label_fields[col].lower() + ')'] = value
         return data
 
