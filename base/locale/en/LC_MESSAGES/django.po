@@ -3053,3 +3053,9 @@ msgstr ""
 
 msgid "The global volume corresponding to the product of the annual volume and the number of planned classes must be equal to the sum of the volumes for each entity"
 msgstr ""
+
+msgid "This partim is %(partim_periodicity)s and the parent is %(parent_periodicty)s"
+msgstr ""
+
+msgid "The parent is %(parent_periodicty)s and there is at least one partim which is not %(parent_periodicty)s"
+msgstr ""
