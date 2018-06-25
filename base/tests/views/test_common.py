@@ -55,6 +55,11 @@ class UtilityMethods(SimpleTestCase):
     def test_reverse_url_with_query_string(self):
         expected_url = "{path}?{query}".format(path=reverse('academic_calendar_read', args=[46898]),
                                                 query="value1=hello&value2=&value3=54")
-        actual_url = reverse_url_with_query_string('academic_calendar_read',  args=[46898],
-                                                   query=OrderedDict({"value1": "hello", "value2": None, "value3": 54}))
+        query_parameters = {"value1": "hello", "value2": None, "value3": 54}
+
+        actual_url = reverse_url_with_query_string(
+            'academic_calendar_read',
+            args=[46898],
+            query=OrderedDict(sorted(query_parameters.items(), key=lambda t: t[0]))
+        )
         self.assertEqual(expected_url, actual_url)
