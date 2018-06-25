@@ -23,6 +23,8 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from collections import OrderedDict
+
 from django.test import TestCase, SimpleTestCase
 from django.core.urlresolvers import reverse
 from django.test.utils import override_settings
@@ -54,5 +56,5 @@ class UtilityMethods(SimpleTestCase):
         expected_url = "{path}?{query}".format(path=reverse('academic_calendar_read', args=[46898]),
                                                 query="value1=hello&value2=&value3=54")
         actual_url = reverse_url_with_query_string('academic_calendar_read',  args=[46898],
-                                                   query={"value1": "hello", "value2": None, "value3": 54})
+                                                   query=OrderedDict({"value1": "hello", "value2": None, "value3": 54}))
         self.assertEqual(expected_url, actual_url)
