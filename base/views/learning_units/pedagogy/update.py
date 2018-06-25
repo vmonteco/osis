@@ -33,13 +33,15 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_http_methods
 
 from base import models as mdl
-from base.business.learning_unit import CMS_LABEL_PEDAGOGY, get_cms_label_data, find_language_in_settings
+from base.business.learning_unit import CMS_LABEL_PEDAGOGY, get_cms_label_data, find_language_in_settings, \
+    get_no_summary_responsible_teachers
 from base.business.learning_units.perms import is_eligible_to_update_learning_unit_pedagogy
 from base.forms.learning_unit_pedagogy import SummaryModelForm, LearningUnitPedagogyForm, \
     BibliographyModelForm, LearningUnitPedagogyEditForm
 from base.models.bibliography import Bibliography
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
+from base.models.tutor import find_all_summary_responsibles_by_learning_unit_year
 from base.views import layout
 from base.views.common import display_error_messages, display_success_messages
 from base.views.learning_units.common import get_common_context_learning_unit_year, get_text_label_translated
@@ -76,6 +78,9 @@ def update_learning_unit_pedagogy(request, learning_unit_year_id, context, templ
     context['summary_editable_form'] = summary_form
     context['bibliography_formset'] = bibliography_formset
     context['can_edit_information'] = perm_to_edit
+    summary_responsibles = find_all_summary_responsibles_by_learning_unit_year(learning_unit_year)
+    context.update({'summary_responsibles': summary_responsibles})
+    context.update({'other_teachers': get_no_summary_responsible_teachers(learning_unit_year, summary_responsibles)})
     return layout.render(request, template, context)
 
 

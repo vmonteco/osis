@@ -2697,7 +2697,7 @@ msgstr ""
 msgid "Bibliography"
 msgstr ""
 
-msgid "Modalities specific to IN and OUT mobility"
+msgid "Mobility"
 msgstr ""
 
 msgid "The periodicity of the parent and the partims do not match"
@@ -3030,8 +3030,20 @@ msgstr ""
 msgid "maximum credits"
 msgstr ""
 
+msgid "EDUCATION_GROUP_EDITION"
+msgstr "Edition group edition"
+
 msgid "The learning unit %(acronym)s is not included in any education group"
 msgstr ""
 
 msgid "No enrollment for this learning unit"
+msgstr ""
+
+msgid "Changed"
+msgstr ""
+
+msgid "Other teacher(s)"
+msgstr ""
+
+msgid "Summary responsible(s)"
 msgstr ""

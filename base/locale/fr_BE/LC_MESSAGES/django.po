@@ -2690,8 +2690,8 @@ msgstr "obligatoire"
 msgid "Bibliography"
 msgstr "Bibliographie"
 
-msgid "Modalities specific to IN and OUT mobility"
-msgstr "Modalités propres à la mobilité IN et OUT"
+msgid "Mobility"
+msgstr "Mobilité"
 
 msgid "updated"
 msgstr "Mis à jour"
@@ -3032,10 +3032,21 @@ msgstr "crédits minimum"
 msgid "maximum credits"
 msgstr "crédits maximum"
 
+msgid "EDUCATION_GROUP_EDITION"
+msgstr "Edition programme"
 
 msgid "The learning unit %(acronym)s is not included in any education group"
 msgstr "L'unité d'enseignement %(acronym)s n'est incluse dans aucun groupement"
 
 msgid "No enrollment for this learning unit"
 msgstr "Il n'y a aucune inscription pour cette unité d'enseignement"
+
+msgid "Changed"
+msgstr "Modification apportée"
+
+msgid "Other teacher(s)"
+msgstr "Autre(s) enseignant(s)"
+
+msgid "Summary responsible(s)"
+msgstr "Responsable(s) des informations"
 
