@@ -96,7 +96,6 @@ def get_cms_pedagogy_form(request, learning_unit_year):
         }
 
 
-@login_required
 @PermissionDecorator(is_eligible_to_update_learning_unit_pedagogy, "learning_unit_year_id", LearningUnitYear)
 @require_http_methods(["GET", "POST"])
 def learning_unit_pedagogy_edit(request, learning_unit_year_id):
