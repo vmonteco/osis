@@ -33,7 +33,7 @@
         <ul class="dropdown-menu dropdown-menu-large row text-right pull-right">
 
                 <li {% if not can_create_education_group %} class="disabled" {% endif %}>
-                    <a {% if can_create_education_group %} href="{% url 'new_education_group' parent_id=education_group_year.id %}" {% endif %}>
+                    <a {% if can_create_education_group %} href="{% url 'new_education_group' parent_id=education_group_year.id %}?root={{ request.GET.root }}" {% endif %}>
                         {% trans 'New Education Group' %}
                     </a>
                 </li>
