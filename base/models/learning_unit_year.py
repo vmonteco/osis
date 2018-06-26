@@ -39,7 +39,7 @@ from base.models.enums import active_status, learning_container_year_types
 from base.models.enums import learning_unit_year_subtypes, internship_subtypes, \
     learning_unit_year_session, entity_container_year_link_type, learning_unit_year_quadrimesters, attribution_procedure
 from base.models.enums.learning_container_year_types import COURSE, INTERNSHIP
-from base.models.enums.learning_unit_year_periodicity import PERIODICITY_TYPES, ANNUAL
+from base.models.enums.learning_unit_year_periodicity import PERIODICITY_TYPES, ANNUAL, BIENNIAL_EVEN, BIENNIAL_ODD
 from base.models.learning_unit import LEARNING_UNIT_ACRONYM_REGEX_ALL, REGEX_BY_SUBTYPE
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
 
@@ -268,6 +268,7 @@ class LearningUnitYear(SerializableModel):
             self._warnings.extend(self._check_partim_parent_credits())
             self._warnings.extend(self._check_internship_subtype())
             self._warnings.extend(self._check_partim_parent_status())
+            self._warnings.extend(self._check_partim_parent_periodicity())
             self._warnings.extend(self._check_learning_component_year_warnings())
             self._warnings.extend(self._check_learning_container_year_warnings())
         return self._warnings
@@ -294,6 +295,20 @@ class LearningUnitYear(SerializableModel):
         else:
             if self.status is False and find_partims_with_active_status(self).exists():
                 warnings.append(_("The parent is inactive and there is at least one partim active"))
+        return warnings
+
+    def _check_partim_parent_periodicity(self):
+        warnings = []
+        if self.parent:
+            if self.parent.periodicity in [BIENNIAL_EVEN, BIENNIAL_ODD] and self.periodicity != self.parent.periodicity:
+                warnings.append(_("This partim is %(partim_periodicity)s and the parent is %(parent_periodicty)s")
+                                % {'partim_periodicity': self.periodicity_verbose,
+                                   'parent_periodicty': self.parent.periodicity_verbose})
+        else:
+            if self.periodicity in [BIENNIAL_EVEN, BIENNIAL_ODD] and \
+                    find_partims_with_different_periodicity(self).exists():
+                warnings.append(_("The parent is %(parent_periodicty)s and there is at least one partim which is not "
+                                  "%(parent_periodicty)s") % {'parent_periodicty': self.periodicity_verbose})
         return warnings
 
     def _check_learning_component_year_warnings(self):
@@ -425,6 +440,10 @@ def find_max_credits_of_related_partims(a_learning_unit_year):
 
 def find_partims_with_active_status(a_learning_unit_year):
     return a_learning_unit_year.get_partims_related().filter(status=True)
+
+
+def find_partims_with_different_periodicity(a_learning_unit_year):
+    return a_learning_unit_year.get_partims_related().exclude(periodicity=a_learning_unit_year.periodicity)
 
 
 def find_by_learning_unit(a_learning_unit):

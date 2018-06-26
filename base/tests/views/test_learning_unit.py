@@ -655,11 +655,13 @@ class LearningUnitViewTestCase(TestCase):
                                          learning_container_year=learning_container_year,
                                          internship_subtype=internship_subtypes.TEACHING_INTERNSHIP,
                                          subtype=learning_unit_year_subtypes.FULL,
+                                         periodicity=learning_unit_year_periodicity.BIENNIAL_ODD,
                                          status=False)
         partim_without_internship = LearningUnitYearFactory(academic_year=self.current_academic_year,
                                                             learning_container_year=learning_container_year,
                                                             internship_subtype=None,
                                                             subtype=learning_unit_year_subtypes.PARTIM,
+                                                            periodicity=learning_unit_year_periodicity.ANNUAL,
                                                             status=True)
 
         request = self.create_learning_unit_request(partim_without_internship)
@@ -671,7 +673,7 @@ class LearningUnitViewTestCase(TestCase):
         request, template, context = mock_render.call_args[0]
 
         self.assertEqual(template, 'learning_unit/identification.html')
-        self.assertEqual(len(context['warnings']), 2)
+        self.assertEqual(len(context['warnings']), 3)
 
     def test_learning_unit__with_faculty_manager_when_can_edit_end_date(self):
         learning_container_year = LearningContainerYearFactory(
