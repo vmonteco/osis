@@ -39,6 +39,7 @@ from base.views.education_groups.perms import can_create_education_group
 @can_create_education_group
 def create_education_group(request, parent_id=None):
     parent = get_object_or_404(EducationGroupYear, id=parent_id) if parent_id is not None else None
+    root = request.GET.get("root")
 
     form_education_group_year = CreateEducationGroupYearForm(request.POST or None, parent=parent)
     form_offer_year_entity = CreateOfferYearEntityForm(request.POST or None)
@@ -51,7 +52,7 @@ def create_education_group(request, parent_id=None):
         display_success_messages(request, success_msg, extra_tags='safe')
         url = reverse_url_with_query_string("education_group_read",
                                             args=[education_group_year.id],
-                                            query={"root": parent_id})
+                                            query={"root": root})
         return redirect(url)
 
     return layout.render(request, "education_group/creation.html", {
