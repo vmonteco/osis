@@ -37,7 +37,11 @@
                         {% trans 'New Education Group' %}
                     </a>
                 </li>
-
+                <li {% if not can_change_education_group %} class="disabled" {% endif %}>
+                    <a {% if can_change_education_group %} href="{% url 'update_education_group' education_group_year_id=education_group_year.id %}?root={{ request.GET.root }}" {% endif %}>
+                        {% trans 'Update Education Group' %}
+                    </a>
+                </li>
         </ul>
     </div>
 
