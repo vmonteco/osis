@@ -62,7 +62,7 @@ def find_by_entity_and_reference_for_current_academic_year(entity_id, reference)
 def find_interval_dates_for_entity(ac_year, reference, entity):
     return next((
         date_computed for entity_id, date_computed in build_calendar_by_entities(ac_year, reference).items()
-                      if entity.id == entity_id
+        if entity.id == entity_id
     ), None)
 
 
@@ -86,7 +86,7 @@ def build_calendar_by_entities(ac_year, reference):
         }
         entities_id.remove(entity_calendar.entity_id)
 
-    default_dates = {'start_date': ac_calendar.start_date,'end_date': ac_calendar.end_date}
+    default_dates = {'start_date': ac_calendar.start_date, 'end_date': ac_calendar.end_date}
     entity_calendar_computed.update({
         entity_id: _get_start_end_date_of_parent(entity_id, entity_structure, entity_calendar_computed, default_dates)
         for entity_id in entities_id
