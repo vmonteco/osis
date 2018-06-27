@@ -32,7 +32,7 @@ from django.db.models import Q
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
-from base.models import entity_container_year
+from base.models import entity_container_year as mdl_entity_container_year
 from base.models.academic_year import current_academic_year, compute_max_academic_year_adjournment, AcademicYear, \
     MAX_ACADEMIC_YEAR_FACULTY
 from base.models.enums import active_status, learning_container_year_types
@@ -243,8 +243,9 @@ class LearningUnitYear(SerializableModel):
         return self.subtype == learning_unit_year_subtypes.PARTIM
 
     def get_entity(self, entity_type):
-        entity_container_yr = entity_container_year.search(link_type=entity_type,
-                                                           learning_container_year=self.learning_container_year).get()
+        entity_container_yr = mdl_entity_container_year.search(
+            link_type=entity_type, learning_container_year=self.learning_container_year
+        ).get()
         return entity_container_yr.entity if entity_container_yr else None
 
     def clean(self):
@@ -271,6 +272,7 @@ class LearningUnitYear(SerializableModel):
             self._warnings.extend(self._check_partim_parent_periodicity())
             self._warnings.extend(self._check_learning_component_year_warnings())
             self._warnings.extend(self._check_learning_container_year_warnings())
+            self._warnings.extend(self._check_entity_container_year_warnings())
         return self._warnings
 
     def _check_partim_parent_credits(self):
@@ -320,6 +322,13 @@ class LearningUnitYear(SerializableModel):
 
     def _check_learning_container_year_warnings(self):
         return self.learning_container_year.warnings
+
+    def _check_entity_container_year_warnings(self):
+        _warnings = []
+        entity_container_years = mdl_entity_container_year.find_by_learning_container_year(self.learning_container_year)
+        for entity_container_year in entity_container_years:
+            _warnings.extend(entity_container_year.warnings)
+        return _warnings
 
     def is_external(self):
         return hasattr(self, "externallearningunityear")

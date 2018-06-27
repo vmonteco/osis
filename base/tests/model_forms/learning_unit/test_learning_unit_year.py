@@ -23,6 +23,8 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+import datetime
+
 from django.contrib.auth.models import Group
 from django.test import TestCase
 from django.utils.translation import ugettext_lazy as _
@@ -41,6 +43,7 @@ from base.models.person import CENTRAL_MANAGER_GROUP, FACULTY_MANAGER_GROUP
 from base.tests.factories.academic_year import create_current_academic_year
 from base.tests.factories.campus import CampusFactory
 from base.tests.factories.entity_container_year import EntityContainerYearFactory
+from base.tests.factories.entity_version import EntityVersionFactory
 from base.tests.factories.learning_container import LearningContainerFactory
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
 from base.tests.factories.learning_unit import LearningUnitFactory
@@ -156,6 +159,22 @@ class TestLearningUnitYearModelFormSave(TestCase):
             type=ADDITIONAL_REQUIREMENT_ENTITY_2,
             learning_container_year=self.learning_container_year)
 
+        EntityVersionFactory(entity=self.additional_requirement_entity_1.entity,
+                             start_date=self.learning_container_year.academic_year.start_date,
+                             end_date=self.learning_container_year.academic_year.end_date)
+
+        EntityVersionFactory(entity=self.additional_requirement_entity_2.entity,
+                             start_date=self.learning_container_year.academic_year.start_date,
+                             end_date=self.learning_container_year.academic_year.end_date)
+
+        self.allocation_entity_version = EntityVersionFactory(
+            entity=self.allocation_entity.entity, start_date=self.learning_container_year.academic_year.start_date,
+            end_date=self.learning_container_year.academic_year.end_date)
+
+        self.requirement_entity_version = EntityVersionFactory(
+            entity=self.requirement_entity.entity, start_date=self.learning_container_year.academic_year.start_date,
+            end_date=self.learning_container_year.academic_year.end_date)
+
         self.entity_container_years = [self.requirement_entity, self.allocation_entity,
                                        self.additional_requirement_entity_1, self.additional_requirement_entity_2]
 
@@ -230,3 +249,44 @@ class TestLearningUnitYearModelFormSave(TestCase):
                                          instance=learning_unit_year_to_update)
         self.assertTrue(form.is_valid(), form.errors)
         self.assertFalse(form.instance.warnings)
+
+    def test_single_warnings_entity_container_year(self):
+        learning_unit_year_to_update = LearningUnitYearFactory(
+            learning_unit=self.learning_unit, learning_container_year=self.learning_container_year, subtype=FULL,
+            academic_year=self.current_academic_year
+        )
+        self.requirement_entity_version.start_date = datetime.date(1990, 9, 15)
+        self.requirement_entity_version.end_date = datetime.date(1990, 9, 15)
+        self.requirement_entity_version.save()
+        self.requirement_entity.refresh_from_db()
+        form = LearningUnitYearModelForm(data=self.post_data, person=self.central_manager, subtype=FULL,
+                                         instance=learning_unit_year_to_update)
+        self.assertTrue(form.is_valid(), form.errors)
+        self.assertEqual(len(form.instance.warnings), 1)
+        self.assertEqual(form.instance.warnings,
+                         [_("The linked %(entity)s does not exist at the start date of the academic year linked to this"
+                            " learning unit") % {'entity': _(REQUIREMENT_ENTITY.lower())}])
+
+    def test_multiple_warnings_entity_container_year(self):
+        learning_unit_year_to_update = LearningUnitYearFactory(
+            learning_unit=self.learning_unit, learning_container_year=self.learning_container_year, subtype=FULL,
+            academic_year=self.current_academic_year
+        )
+        self.requirement_entity_version.start_date = datetime.date(1990, 9, 15)
+        self.requirement_entity_version.end_date = datetime.date(1990, 9, 15)
+        self.requirement_entity_version.save()
+        self.requirement_entity.refresh_from_db()
+
+        self.allocation_entity_version.start_date = datetime.date(1990, 9, 15)
+        self.allocation_entity_version.end_date = datetime.date(1990, 9, 15)
+        self.allocation_entity_version.save()
+        self.allocation_entity_version.refresh_from_db()
+
+        form = LearningUnitYearModelForm(data=self.post_data, person=self.central_manager, subtype=FULL,
+                                         instance=learning_unit_year_to_update)
+        self.assertTrue(form.is_valid(), form.errors)
+        self.assertEqual(len(form.instance.warnings), 2)
+        self.assertTrue(_("The linked %(entity)s does not exist at the start date of the academic year linked to this"
+                          " learning unit") % {'entity': _(REQUIREMENT_ENTITY.lower())} in form.instance.warnings)
+        self.assertTrue(_("The linked %(entity)s does not exist at the start date of the academic year linked to this"
+                          " learning unit") % {'entity': _(ALLOCATION_ENTITY.lower())} in form.instance.warnings)
