@@ -81,8 +81,8 @@ class ManageMyCoursesViewTestCase(TestCase):
 
         context = response.context
         self.assertCountEqual(context['learning_unit_years_summary_editable'], expected_luys_summary_editable)
-        self.assertDictEqual(context['submission_dates'], model_to_dict(self.academic_calendar,
-                                                                        fields=("start_date", "end_date")))
+        self.assertIsInstance(context['entity_calendars'], dict)
+        self.assertIsInstance(context['score_responsibles'], dict)
 
 
 class TestViewEducationalInformation(TestCase):
