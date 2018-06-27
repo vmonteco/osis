@@ -272,6 +272,9 @@
         {% endif %}
 
         {% include "template_messages.html" %}
+    
+        {% block header_content %}
+        {% endblock %}
         {% block content %}
         {% endblock %}
         <br>
