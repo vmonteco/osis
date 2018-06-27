@@ -243,8 +243,9 @@ class LearningUnitYear(SerializableModel):
         return self.subtype == learning_unit_year_subtypes.PARTIM
 
     def get_entity(self, entity_type):
-        entity_container_yr = entity_container_year.search(link_type=entity_type,
-                                                           learning_container_year=self.learning_container_year).get()
+        entity_container_yr = mdl_entity_container_year.search(
+            link_type=entity_type, learning_container_year=self.learning_container_year
+        ).get()
         return entity_container_yr.entity if entity_container_yr else None
 
     def clean(self):
