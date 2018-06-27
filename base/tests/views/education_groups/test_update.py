@@ -25,6 +25,7 @@
 ##############################################################################
 from unittest import mock
 
+from django.contrib.auth.models import Permission
 from django.test import TestCase
 from django.urls import reverse
 
@@ -32,7 +33,7 @@ from base.forms.education_group.create import CreateEducationGroupYearForm, Crea
 from base.models.enums import offer_year_entity_type, education_group_categories
 from base.tests.factories.education_group_type import EducationGroupTypeFactory
 from base.tests.factories.education_group_year import EducationGroupYearFactory
-from base.tests.factories.entity_version import EntityVersionFactory
+from base.tests.factories.entity_version import EntityVersionFactory, MainEntityVersionFactory
 from base.tests.factories.offer_year_entity import OfferYearEntityFactory
 from base.tests.factories.person import PersonFactory
 from base.views.education_groups.update import update_education_group
@@ -49,6 +50,8 @@ class TestUpdate(TestCase):
         self.person = PersonFactory()
 
         self.client.force_login(self.person.user)
+        permission = Permission.objects.get(codename='change_educationgroup')
+        self.person.user.user_permissions.add(permission)
         self.perm_patcher = mock.patch("base.business.education_groups.perms.is_eligible_to_change_education_group",
                                        return_value=True)
         self.mocked_perm = self.perm_patcher.start()
@@ -83,7 +86,7 @@ class TestUpdate(TestCase):
         self.assertIsInstance(form_offer_year_entity, CreateOfferYearEntityForm)
 
     def test_post(self):
-        new_entity = EntityVersionFactory()
+        new_entity = MainEntityVersionFactory()
         new_education_group_type = EducationGroupTypeFactory(category=education_group_categories.GROUP)
 
         data = {
