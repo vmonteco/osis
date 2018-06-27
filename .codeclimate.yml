@@ -12,4 +12,3 @@ exclude_patterns:
 - "**/tests/"
 - "**/migrations/"
 - "**/fixtures/"
-- "**/base/"
