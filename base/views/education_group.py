@@ -23,8 +23,6 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import itertools
-import collections
 from collections import OrderedDict
 
 from django.conf import settings
@@ -45,7 +43,6 @@ from base.business.education_groups import perms
 from base.business.learning_unit import find_language_in_settings
 from base.forms.education_group_general_informations import EducationGroupGeneralInformationsForm
 from base.forms.education_group_pedagogy_edit import EducationGroupPedagogyEditForm
-from base.forms.education_groups import EducationGroupFilter, MAX_RECORDS
 from base.forms.education_groups_administrative_data import CourseEnrollmentForm, AdministrativeDataFormset
 from base.models.education_group_year import EducationGroupYear
 from base.models.enums import academic_calendar_type
@@ -59,8 +56,6 @@ from cms.models.translated_text import TranslatedText
 from cms.models.translated_text_label import TranslatedTextLabel
 from osis_common.decorators.ajax import ajax_required
 from . import layout
-from base.business.education_group import create_xls, ORDER_COL, ORDER_DIRECTION
-from base.forms.search.search_form import get_research_criteria
 
 CODE_SCS = 'code_scs'
 TITLE = 'title'
@@ -69,50 +64,6 @@ CREDITS_MAX = "credits_max"
 BLOCK = "block"
 SESSIONS_DEROGATION = "sessions_derogation"
 NUMBER_SESSIONS = 3
-
-
-@login_required
-@permission_required('base.can_access_education_group', raise_exception=True)
-def education_groups(request):
-    person = get_object_or_404(Person, user=request.user)
-    if request.GET:
-        form = EducationGroupFilter(request.GET)
-    else:
-        current_academic_year = mdl.academic_year.current_academic_year()
-        form = EducationGroupFilter(initial={'academic_year': current_academic_year,
-                                             'category': education_group_categories.TRAINING})
-
-    object_list = None
-    if form.is_valid():
-        object_list = _get_object_list(form, object_list, request)
-
-    if request.GET.get('xls_status') == "xls":
-        return create_xls(request.user, object_list, _get_filter_keys(form),
-                          {ORDER_COL: request.GET.get('xls_order_col'), ORDER_DIRECTION: request.GET.get('xls_order')})
-
-    context = {
-        'form': form,
-        'object_list': object_list,
-        'experimental_phase': True,
-        'can_create_education_group': perms.is_eligible_to_add_education_group(person)
-    }
-    return layout.render(request, "education_groups.html", context)
-
-
-def _get_object_list(form, object_list, request):
-    object_list = form.get_object_list()
-    if not _check_if_display_message(request, object_list):
-        object_list = None
-    return object_list
-
-
-def _check_if_display_message(request, an_education_groups):
-    if not an_education_groups:
-        messages.add_message(request, messages.WARNING, _('no_result'))
-    elif len(an_education_groups) > MAX_RECORDS:
-        messages.add_message(request, messages.WARNING, _('too_many_results'))
-        return False
-    return True
 
 
 @login_required
@@ -462,5 +413,3 @@ def translated_text_labels2dict(translated_text_label):
     }
 
 
-def _get_filter_keys(form):
-    return collections.OrderedDict(itertools.chain(get_research_criteria(form)))

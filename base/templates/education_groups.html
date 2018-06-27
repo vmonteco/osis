@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 {% load staticfiles %}
-{% load i18n %}
+{% load i18n bootstrap3 %}
 
 {% comment "License" %}
  * OSIS stands for Open Student Information System. It's an application
@@ -118,7 +118,7 @@
             {% if object_list %}
                 <div class="row">
                 <div class="col-md-6">
-                    <strong style="margin-left:10px;color:grey;"> {{object_list|length}} {% trans 'education_groups'|lower %} </strong>
+                    <strong style="margin-left:10px;color:grey;"> {{object_list_count}} {% trans 'education_groups'|lower %} </strong>
                 </div>
                 <div class="col-md-6">
                     <a id="btn_produce_xls"
@@ -156,6 +156,10 @@
                     </tr>
                 {% endfor %}
             </table>
+                <div class="text-center">
+
+                    {% bootstrap_pagination object_list extra=request.GET.urlencode %}
+                </div>
             {% endif %}
         </div>
     </div>

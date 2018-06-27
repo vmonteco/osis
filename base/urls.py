@@ -27,6 +27,8 @@ from django.conf import settings
 from django.conf.urls import url, include
 from django.conf.urls.static import static
 
+import base.views.education_groups.create
+import base.views.education_groups.search
 import base.views.learning_units.common
 import base.views.learning_units.create
 import base.views.learning_units.delete
@@ -35,7 +37,6 @@ import base.views.learning_units.proposal.consolidate
 import base.views.learning_units.proposal.delete
 import base.views.learning_units.search
 import base.views.learning_units.update
-import base.views.education_groups.create
 from attribution.views import attribution, tutor_application
 from base.views import learning_achievement, search
 from base.views import learning_unit, offer, common, institution, organization, academic_calendar, \
@@ -204,7 +205,7 @@ urlpatterns = [
         ]))
     ])),
     url(r'^educationgroups/', include([
-        url(r'^$', education_group.education_groups, name='education_groups'),
+        url(r'^$', base.views.education_groups.search.education_groups, name='education_groups'),
         url(r'^new/$', base.views.education_groups.create.create_education_group, name='new_education_group'),
         url(r'^new/(?P<parent_id>[0-9]+)/$', base.views.education_groups.create.create_education_group,
             name='new_education_group'),
