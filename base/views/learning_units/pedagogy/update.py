@@ -69,7 +69,6 @@ def update_learning_unit_pedagogy(request, learning_unit_year_id, context, templ
             display_success_messages(request, _("success_modification_learning_unit"))
             # Redirection on the same page
             return HttpResponseRedirect(request.path_info)
-
         except ValueError as e:
             display_error_messages(request, e.args[0])
 
@@ -77,7 +76,6 @@ def update_learning_unit_pedagogy(request, learning_unit_year_id, context, templ
     context['summary_editable_form'] = summary_form
     context['teaching_material_formset'] = teaching_material_formset
     context['can_edit_information'] = perm_to_edit
-
     context['summary_responsibles'] = find_all_summary_responsibles_by_learning_unit_year(learning_unit_year)
     context['other_teachers'] = get_no_summary_responsible_teachers(learning_unit_year, context['summary_responsibles'])
     return layout.render(request, template, context)
