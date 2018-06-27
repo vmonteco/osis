@@ -411,5 +411,3 @@ def translated_text_labels2dict(translated_text_label):
         'label': translated_text_label.text_label.label,
         'translation': translated_text_label.label
     }
-
-
