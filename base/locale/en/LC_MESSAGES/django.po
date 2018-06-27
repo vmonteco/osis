@@ -2847,7 +2847,7 @@ msgstr "Proposals date"
 msgid "search_type"
 msgstr "Search type"
 
-msgid "The linked entity does not exist at the start date of the academic year linked to this learning unit"
+msgid "The linked %(entity)s does not exist at the start date of the academic year linked to this learning unit"
 msgstr ""
 
 msgid "COURSE_ENROLLMENT"
