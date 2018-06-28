@@ -3067,3 +3067,9 @@ msgstr "Ce partim est %(partim_periodicity)s alors que l'UE parent est %(parent_
 
 msgid "The parent is %(parent_periodicty)s and there is at least one partim which is not %(parent_periodicty)s"
 msgstr "L'UE parent est %(parent_periodicty)s et au moins un partim n'est pas %(parent_periodicty)s"
+
+msgid "YES"
+msgstr "Oui"
+
+msgid "NO"
+msgstr "Non"

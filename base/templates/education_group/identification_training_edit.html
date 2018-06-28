@@ -1,4 +1,4 @@
-{% extends "layout.html" %}
+{% extends "education_group/layout_detail.html" %}
 {% load staticfiles bootstrap3 %}
 {% load i18n %}
 
@@ -26,7 +26,8 @@
     * see http://www.gnu.org/licenses/.
 {% endcomment %}
 {% block breadcrumb %}
-    {% include "education_group/breadcrumb.html" %}
+    {{ block.super }}
+    <li>{% trans "MODIFICATION" %}</li>
 {% endblock %}
 
 {% block content %}
@@ -37,10 +38,8 @@
         <div class="panel-heading">{% include 'education_group/blocks/form/update_cancel_buttons.html'  %}</div>
         <div class="panel-body">
             <div class="row">
-                {{ form_education_group_year.errors }}
-                {% bootstrap_form_errors form %}
-                {% bootstrap_form_errors form_education_group_type %}
-                {% bootstrap_form_errors form_administrative_entity %}
+                {% bootstrap_form_errors form_education_group_year %}
+                {% bootstrap_form_errors form_offer_year_entity %}
                 {% bootstrap_form_errors form_management_entity %}
             </div>
             <form method="post" id="EducationGroupYearUpdateForm">
@@ -55,7 +54,7 @@
                                     <strong class="text-primary">{{ parent.title_english | default_if_none:'' }}</strong><br>
                                     {% bootstrap_field form_education_group_year.title_english %}
                                     <strong class="text-primary">{{ parent.keywords | default_if_none:'' }}</strong>
-                                    {% bootstrap_field form_education_group_year.keywords %}
+                                    {% bootstrap_field form_education_group_year.keywords %}ssss
                                     <br>
                                 </div>
                             </div>
@@ -63,15 +62,10 @@
                                 <div class="panel-body">
                                     <div class="row">
                                         <div class="col-md-6">
-                                           {% if form_education_group_type.category %}
-                                                {% bootstrap_field form_education_group_type.category %}
+                                           {% if form_education_group_year.education_group_type %}
+                                                {% bootstrap_field form_education_group_year.education_group_type %}
                                             {%else%}
-                                               <strong class="text-primary">{% bootstrap_field parent.education_group_type.category %}</strong>
-                                            {% endif %}
-                                            {% if form_education_group_type.name%}
-                                                {% bootstrap_field form_education_group_type.name %}
-                                            {%else%}
-                                                <strong class="text-primary">{% bootstrap_field parent.education_group_type.name %}</strong>
+                                               <strong class="text-primary">{% bootstrap_field parent.education_group_type %}</strong>
                                             {% endif %}
                                             {% if form_education_group_year.academic_type %}
                                                 {% bootstrap_field form_education_group_year.academic_type %}
@@ -181,8 +175,8 @@
                                     <br>
                                     <div class="row">
                                         <div class="col-md-6">
-                                            {% if form_administrative_entity.entity %}
-                                                {% bootstrap_field form_administrative_entity.entity %}
+                                            {% if form_offer_year_entity.entity %}
+                                                {% bootstrap_field form_offer_year_entity.entity %}
                                             {% else %}
                                                 <strong class="text-primary">
                                                     {{ parent.administration_entity.acronym }}
