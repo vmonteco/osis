@@ -36,10 +36,10 @@ from base.business.learning_unit import CMS_LABEL_PEDAGOGY, get_cms_label_data, 
     get_no_summary_responsible_teachers
 from base.business.learning_units.perms import is_eligible_to_update_learning_unit_pedagogy
 from base.forms.learning_unit_pedagogy import SummaryModelForm, LearningUnitPedagogyForm, \
-    BibliographyModelForm, LearningUnitPedagogyEditForm
-from base.models.bibliography import Bibliography
+    TeachingMaterialModelForm, LearningUnitPedagogyEditForm
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
+from base.models.teaching_material import TeachingMaterial
 from base.models.tutor import find_all_summary_responsibles_by_learning_unit_year
 from base.views import layout
 from base.views.common import display_error_messages, display_success_messages
@@ -56,28 +56,26 @@ def update_learning_unit_pedagogy(request, learning_unit_year_id, context, templ
 
     post = request.POST or None
     summary_form = SummaryModelForm(post, person, context['is_person_linked_to_entity'], instance=learning_unit_year)
-    BibliographyFormset = inlineformset_factory(LearningUnitYear, Bibliography, fields=('title', 'mandatory'),
-                                                max_num=10, extra=perm_to_edit, form=BibliographyModelForm,
-                                                can_delete=perm_to_edit)
-    bibliography_formset = BibliographyFormset(post, instance=learning_unit_year, form_kwargs={'person': person})
+    TeachingMaterialFormset = inlineformset_factory(LearningUnitYear, TeachingMaterial, fields=('title', 'mandatory'),
+                                                    max_num=10, extra=perm_to_edit, form=TeachingMaterialModelForm,
+                                                    can_delete=perm_to_edit, labels={'title': ''})
+    teaching_material_formset = TeachingMaterialFormset(post, instance=learning_unit_year,
+                                                        form_kwargs={'person': person})
 
-    if perm_to_edit and summary_form.is_valid() and bibliography_formset.is_valid():
+    if perm_to_edit and summary_form.is_valid() and teaching_material_formset.is_valid():
         try:
             summary_form.save()
-            bibliography_formset.save()
-
+            teaching_material_formset.save()
             display_success_messages(request, _("success_modification_learning_unit"))
             # Redirection on the same page
             return HttpResponseRedirect(request.path_info)
-
         except ValueError as e:
             display_error_messages(request, e.args[0])
 
     context.update(get_cms_pedagogy_form(request, learning_unit_year))
     context['summary_editable_form'] = summary_form
-    context['bibliography_formset'] = bibliography_formset
+    context['teaching_material_formset'] = teaching_material_formset
     context['can_edit_information'] = perm_to_edit
-
     context['summary_responsibles'] = find_all_summary_responsibles_by_learning_unit_year(learning_unit_year)
     context['other_teachers'] = get_no_summary_responsible_teachers(learning_unit_year, context['summary_responsibles'])
     return layout.render(request, template, context)

@@ -2679,16 +2679,22 @@ msgstr "Interdiction de supprimer une unité d'enseignement avant 2015."
 msgid "The entity '%(acronym)s' doesn't exist anymore in %(year)s"
 msgstr "L'entité '%(acronym)s' n'existe plus en %(year)s"
 
-msgctxt "bibliography"
+msgctxt "teachingmaterial"
 msgid "title"
 msgstr "titre"
 
-msgctxt "bibliography"
+msgctxt "teachingmaterial"
 msgid "mandatory"
 msgstr "obligatoire"
 
 msgid "Bibliography"
 msgstr "Bibliographie"
+
+msgid "bibliography"
+msgstr "bibliographie"
+
+msgid "Teaching material"
+msgstr "Supports de cours"
 
 msgid "Mobility"
 msgstr "Mobilité"
@@ -2849,8 +2855,8 @@ msgstr "Date proposition"
 msgid "search_type"
 msgstr "Type de recherche"
 
-msgid "The linked entity does not exist at the start date of the academic year linked to this learning unit"
-msgstr "L'entité liée n'existe pas à la date de début de l'année académique liée à cette unité d'enseignement"
+msgid "The linked %(entity)s does not exist at the start date of the academic year linked to this learning unit"
+msgstr "L'%(entity)s liée n'existe pas à la date de début de l'année académique liée à cette unité d'enseignement"
 
 msgid "COURSE_ENROLLMENT"
 msgstr "Inscription aux cours"
