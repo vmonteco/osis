@@ -63,8 +63,10 @@ class EducationGroupYear(models.Model):
     admission_exam = models.BooleanField(default=False, verbose_name=_('admission_exam'))
     funding = models.BooleanField(default=False, verbose_name=_('funding'))
     funding_direction = models.CharField(max_length=1, blank=True, null=True, verbose_name=_('funding_direction'))
-    funding_cud = models.BooleanField(default=False, verbose_name=_('funding_cud'))  #cud = commission universitaire au développement
-    funding_direction_cud = models.CharField(max_length=1, blank=True, null=True, verbose_name=_('cud_funding_direction'))
+    funding_cud = models.BooleanField(default=False,
+                                      verbose_name=_('funding_cud'))  #cud = commission universitaire au développement
+    funding_direction_cud = models.CharField(max_length=1, blank=True, null=True,
+                                             verbose_name=_('cud_funding_direction'))
     academic_type = models.CharField(max_length=20, choices=academic_type.ACADEMIC_TYPES, blank=True, null=True,
                                      verbose_name=_('academic_type'))
     university_certificate = models.BooleanField(default=False, verbose_name=_('university_certificate'))
@@ -93,7 +95,8 @@ class EducationGroupYear(models.Model):
     inter_university_french_community = models.BooleanField(default=False)
     inter_university_belgium = models.BooleanField(default=False)
     inter_university_abroad = models.BooleanField(default=False)
-    primary_language = models.ForeignKey('reference.Language', blank=True, null=True, verbose_name=_('primary_language'))
+    primary_language = models.ForeignKey('reference.Language', blank=True, null=True,
+                                         verbose_name=_('primary_language'))
     language_association = models.CharField(max_length=5,
                                             choices=education_group_association.EducationGroupAssociations.choices(),
                                             blank=True, null=True)
