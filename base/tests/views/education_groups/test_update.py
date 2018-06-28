@@ -41,7 +41,8 @@ from base.views.education_groups.update import update_education_group
 
 class TestUpdate(TestCase):
     def setUp(self):
-        self.education_group_year = EducationGroupYearFactory()
+        an_education_group_type = EducationGroupTypeFactory(category=education_group_categories.GROUP)
+        self.education_group_year = EducationGroupYearFactory(education_group_type=an_education_group_type)
         self.offer_year_entity = OfferYearEntityFactory(education_group_year=self.education_group_year,
                                                         type=offer_year_entity_type.ENTITY_ADMINISTRATION)
         EntityVersionFactory(entity=self.offer_year_entity.entity)
@@ -55,6 +56,19 @@ class TestUpdate(TestCase):
         self.perm_patcher = mock.patch("base.business.education_groups.perms.is_eligible_to_change_education_group",
                                        return_value=True)
         self.mocked_perm = self.perm_patcher.start()
+
+        self.training_url = self._get_training_url()
+
+    def _get_training_url(self):
+        an_training_education_group_type = EducationGroupTypeFactory(category=education_group_categories.TRAINING)
+        self.training_education_group_year = EducationGroupYearFactory(
+            education_group_type=an_training_education_group_type)
+        self.offer_year_entity_training = OfferYearEntityFactory(
+            education_group_year=self.training_education_group_year,
+            type=offer_year_entity_type.ENTITY_ADMINISTRATION)
+        EntityVersionFactory(entity=self.offer_year_entity_training.entity)
+        return reverse(update_education_group,
+                       kwargs={'education_group_year_id': self.training_education_group_year.pk})
 
     def tearDown(self):
         self.perm_patcher.stop()
@@ -112,3 +126,7 @@ class TestUpdate(TestCase):
         self.offer_year_entity.refresh_from_db()
         self.assertEqual(self.offer_year_entity.entity, new_entity.entity)
 
+    def test_template_used_for_training(self):
+        response = self.client.get(self.training_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "education_group/identification_training_edit.html")
