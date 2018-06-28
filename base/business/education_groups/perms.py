@@ -35,6 +35,13 @@ def is_eligible_to_add_education_group(person):
     )(person)
 
 
+def is_eligible_to_change_education_group(person):
+    return _conjunction(
+        has_person_the_right_to_change_education_group,
+        _disjunction(is_central_manager, is_education_group_creation_period_opened),
+    )(person)
+
+
 def is_central_manager(person):
     return person.is_central_manager()
 
@@ -45,3 +52,7 @@ def is_education_group_creation_period_opened(person):
 
 def has_person_the_right_to_add_education_group(person):
     return person.user.has_perm('base.add_educationgroup')
+
+
+def has_person_the_right_to_change_education_group(person):
+    return person.user.has_perm('base.change_educationgroup')

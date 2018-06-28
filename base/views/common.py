@@ -234,3 +234,15 @@ def paginate_queryset(qs, request_get):
     except EmptyPage:
         paginated_qs = paginator.page(paginator.num_pages)
     return paginated_qs
+
+
+def reverse_url_with_query_string(*args, **kwargs):
+    query = kwargs.pop("query", {})
+    url = reverse(*args, **kwargs)
+    if not query:
+        return url
+
+    formatted_query = {key: value if value else "" for key, value in query.items()}
+    q = QueryDict(mutable=True)
+    q.update(formatted_query)
+    return "{path}?{query}".format(path=url, query=q.urlencode())

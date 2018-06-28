@@ -125,6 +125,7 @@ def education_group_read(request, education_group_year_id):
     enums = mdl.enums.education_group_categories
     parent = _get_education_group_root(root, education_group_year)
     can_create_education_group = perms.is_eligible_to_add_education_group(person)
+    can_edit_education_group = True
 
     return layout.render(request, "education_group/tab_identification.html", locals())
 

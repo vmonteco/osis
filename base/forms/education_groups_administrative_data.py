@@ -104,21 +104,9 @@ class AdministrativeDataSessionForm(BootstrapForm):
 
     def _init_fields(self):
         for name, field in self.fields.items():
-            oyc = self._get_offer_year_calendar(name)
-            if not oyc:
-                continue
+            field.initial = 'zzz'
 
-            if isinstance(field, DateRangeField):
-                field.initial = (convert_datetime_to_date(oyc.start_date),
-                                 convert_datetime_to_date(oyc.end_date))
 
-            elif isinstance(field, forms.DateField):
-                field.initial = convert_datetime_to_date(oyc.start_date)
-
-            else:
-                field.initial = oyc.start_date
-
-            field.widget.add_min_max_value(oyc.academic_calendar.start_date, oyc.academic_calendar.end_date)
 
     def save(self):
         for name, value in self.cleaned_data.items():
