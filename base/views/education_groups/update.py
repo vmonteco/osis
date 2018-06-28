@@ -61,13 +61,7 @@ def update_education_group(request, education_group_year_id):
     form_offer_year_entity = CreateOfferYearEntityForm(request.POST or None, instance=offer_year_entity)
 
     if form_offer_year_entity.is_valid() and form_education_group_year.is_valid():
-        education_group_year = form_education_group_year.save()
-        form_offer_year_entity.save(education_group_year)
-
-        display_success_messages(request, _("Education group successfully updated"))
-        url = reverse_url_with_query_string("education_group_read",
-                                            args=[education_group_year.id],
-                                            query={"root": request.GET.get("root")})
+        url = save_forms(form_education_group_year, form_offer_year_entity, request)
         return redirect(url)
 
     return layout.render(request, html_page, {
@@ -77,3 +71,13 @@ def update_education_group(request, education_group_year_id):
         "form_management_entity": form_management_entity,
         "form_education_group": form_education_group
     })
+
+
+def save_forms(form_education_group_year, form_offer_year_entity, request):
+    education_group_year = form_education_group_year.save()
+    form_offer_year_entity.save(education_group_year)
+    display_success_messages(request, _("Education group successfully updated"))
+    url = reverse_url_with_query_string("education_group_read",
+                                        args=[education_group_year.id],
+                                        query={"root": request.GET.get("root")})
+    return url
