@@ -43,13 +43,11 @@ from base.views.education_groups.perms import can_change_education_group
 @user_passes_test(can_change_education_group)
 def update_education_group(request, education_group_year_id):
     education_group_year = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
-    root = request.GET.get("root")
     html_page = "education_group/update.html"
     form_management_entity = None
     form_education_group = None
-    offer_year_entity = get_object_or_404(
-        OfferYearEntity, education_group_year=education_group_year, type=offer_year_entity_type.ENTITY_ADMINISTRATION
-    )
+    offer_year_entity = get_object_or_404(OfferYearEntity, education_group_year=education_group_year,
+                                          type=offer_year_entity_type.ENTITY_ADMINISTRATION)
 
     if education_group_year.education_group_type.category == education_group_categories.GROUP:
         form_education_group_year = CreateEducationGroupYearForm(request.POST or None, instance=education_group_year)
@@ -69,7 +67,7 @@ def update_education_group(request, education_group_year_id):
         display_success_messages(request, _("Education group successfully updated"))
         url = reverse_url_with_query_string("education_group_read",
                                             args=[education_group_year.id],
-                                            query={"root": root})
+                                            query={"root": request.GET.get("root")})
         return redirect(url)
 
     return layout.render(request, html_page, {
