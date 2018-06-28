@@ -24,16 +24,16 @@
 #
 ##############################################################################
 from django import forms
+from django.utils.translation import ugettext_lazy as _
 
 from base.forms.learning_unit.entity_form import EntitiesVersionChoiceField
 from base.models import campus, education_group_type
 from base.models.education_group import EducationGroup
 from base.models.education_group_year import EducationGroupYear
-from base.models.entity_version import find_main_entities_version
+from base.models.entity_version import find_main_entities_version, get_last_version
 from base.models.enums import offer_year_entity_type, education_group_categories
 from base.models.group_element_year import GroupElementYear
 from base.models.offer_year_entity import OfferYearEntity
-from django.utils.translation import ugettext_lazy as _
 
 
 class CreateEducationGroupYearForm(forms.ModelForm):
@@ -44,12 +44,13 @@ class CreateEducationGroupYearForm(forms.ModelForm):
                   "main_teaching_campus", "academic_year", "remark", "remark_english", "min_credits", "max_credits")
 
     def __init__(self, *args, **kwargs):
-        self.parent_education_group_year = kwargs.pop("parent")
+        self.parent_education_group_year = kwargs.pop("parent", None)
         super().__init__(*args, **kwargs)
 
         self.fields["main_teaching_campus"].queryset = campus.find_main_campuses()
         self.fields["education_group_type"].queryset = \
             education_group_type.find_by_category(education_group_categories.GROUP)
+        self.fields["education_group_type"].required = True
 
         if self.parent_education_group_year:
             self.fields["academic_year"].initial = self.parent_education_group_year.academic_year.id
@@ -90,6 +91,9 @@ class CreateOfferYearEntityForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["entity"].queryset = find_main_entities_version()
+
+        if hasattr(self.instance, 'entity'):
+            self.initial['entity'] = get_last_version(self.instance.entity).pk
 
     def save(self, education_group_year):
         offer_year_entity = super().save(commit=False)

@@ -23,13 +23,37 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from django.contrib.admin import ModelAdmin
+from django.db import models
+from django.utils.translation import pgettext_lazy as _
+
 from base.models.learning_unit_year import LearningUnitYear
 
 
-def find_learning_unit_years_summary_editable(tutor):
-    qs = LearningUnitYear.objects.filter(
-            summary_locked=False,
-            attribution__summary_responsible=True,
-            attribution__tutor=tutor)\
-        .order_by('academic_year__year', 'acronym')
-    return qs
+class TeachingMaterialAdmin(ModelAdmin):
+    list_display = ('title', 'mandatory', 'learning_unit_year')
+    search_fields = ['title', 'learning_unit_year']
+    raw_id_fields = ('learning_unit_year',)
+
+
+class TeachingMaterial(models.Model):
+    title = models.CharField(max_length=255, verbose_name=_('teachingmaterial', 'title'))
+    mandatory = models.BooleanField(verbose_name=_('teachingmaterial', 'mandatory'))
+    learning_unit_year = models.ForeignKey(LearningUnitYear, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.title
+
+    class Meta:
+        verbose_name_plural = 'bibliographies'
+
+
+def find_by_learning_unit_year(learning_unit_year):
+    return TeachingMaterial.objects.filter(learning_unit_year=learning_unit_year)
+
+
+def build_list_of_teaching_material_content_by_learning_unit_year(learning_unit_year):
+    return [
+        (material.title, material.mandatory)
+        for material in find_by_learning_unit_year(learning_unit_year)
+    ]

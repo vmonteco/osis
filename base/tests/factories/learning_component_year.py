@@ -23,9 +23,11 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import factory
+import operator
+
 import factory.fuzzy
 
+from base.models.enums import learning_component_year_type
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
 
 
@@ -35,7 +37,8 @@ class LearningComponentYearFactory(factory.django.DjangoModelFactory):
 
     learning_container_year = factory.SubFactory(LearningContainerYearFactory)
     acronym = factory.Sequence(lambda n: '%d' % n)
-    type = factory.Sequence(lambda n: 'Type-%d' % n)
+    type = factory.Iterator(learning_component_year_type.LEARNING_COMPONENT_YEAR_TYPES,
+                            getter=operator.itemgetter(0))
     comment = factory.Sequence(lambda n: 'Comment-%d' % n)
     planned_classes = factory.fuzzy.FuzzyInteger(10)
 

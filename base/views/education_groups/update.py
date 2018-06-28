@@ -59,6 +59,7 @@ from base.views import layout
 from base.views.common import display_success_messages, reverse_url_with_query_string
 from base.views.education_groups.perms import can_change_education_group
 
+
 @login_required
 @user_passes_test(can_change_education_group)
 def update_education_group(request, education_group_year_id):

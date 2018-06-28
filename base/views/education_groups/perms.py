@@ -26,8 +26,8 @@
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
 
-from base.models import person
 from base.business.education_groups import perms as business_perms
+from base.models import person
 
 
 def can_create_education_group(view_func):

@@ -2679,16 +2679,22 @@ msgstr "Interdiction de supprimer une unité d'enseignement avant 2015."
 msgid "The entity '%(acronym)s' doesn't exist anymore in %(year)s"
 msgstr "L'entité '%(acronym)s' n'existe plus en %(year)s"
 
-msgctxt "bibliography"
+msgctxt "teachingmaterial"
 msgid "title"
 msgstr "titre"
 
-msgctxt "bibliography"
+msgctxt "teachingmaterial"
 msgid "mandatory"
 msgstr "obligatoire"
 
 msgid "Bibliography"
 msgstr "Bibliographie"
+
+msgid "bibliography"
+msgstr "bibliographie"
+
+msgid "Teaching material"
+msgstr "Supports de cours"
 
 msgid "Mobility"
 msgstr "Mobilité"
@@ -2849,8 +2855,8 @@ msgstr "Date proposition"
 msgid "search_type"
 msgstr "Type de recherche"
 
-msgid "The linked entity does not exist at the start date of the academic year linked to this learning unit"
-msgstr "L'entité liée n'existe pas à la date de début de l'année académique liée à cette unité d'enseignement"
+msgid "The linked %(entity)s does not exist at the start date of the academic year linked to this learning unit"
+msgstr "L'%(entity)s liée n'existe pas à la date de début de l'année académique liée à cette unité d'enseignement"
 
 msgid "COURSE_ENROLLMENT"
 msgstr "Inscription aux cours"
@@ -3043,3 +3049,21 @@ msgstr "Il n'y a aucune inscription pour cette unité d'enseignement"
 
 msgid "Changed"
 msgstr "Modification apportée"
+
+msgid "Other teacher(s)"
+msgstr "Autre(s) enseignant(s)"
+
+msgid "Summary responsible(s)"
+msgstr "Responsable(s) des informations"
+
+msgid "The annual volume must be equal to the sum of the volumes Q1 and Q2"
+msgstr "Le volume annuel doit être égal à la somme des volumes Q1 et Q2"
+
+msgid "The global volume corresponding to the product of the annual volume and the number of planned classes must be equal to the sum of the volumes for each entity"
+msgstr "Le volume global correspondant au volume annuel multiplié par le nombre de classes doit être égal à la somme des volumes pour chaque entité"
+
+msgid "This partim is %(partim_periodicity)s and the parent is %(parent_periodicty)s"
+msgstr "Ce partim est %(partim_periodicity)s alors que l'UE parent est %(parent_periodicty)s"
+
+msgid "The parent is %(parent_periodicty)s and there is at least one partim which is not %(parent_periodicty)s"
+msgstr "L'UE parent est %(parent_periodicty)s et au moins un partim n'est pas %(parent_periodicty)s"

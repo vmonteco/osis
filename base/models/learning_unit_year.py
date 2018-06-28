@@ -25,6 +25,7 @@
 ##############################################################################
 import re
 
+from ckeditor.fields import RichTextField
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator, RegexValidator
 from django.db import models
@@ -32,14 +33,14 @@ from django.db.models import Q
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
-from base.models import entity_container_year
+from base.models import entity_container_year as mdl_entity_container_year
 from base.models.academic_year import current_academic_year, compute_max_academic_year_adjournment, AcademicYear, \
     MAX_ACADEMIC_YEAR_FACULTY
 from base.models.enums import active_status, learning_container_year_types
 from base.models.enums import learning_unit_year_subtypes, internship_subtypes, \
     learning_unit_year_session, entity_container_year_link_type, learning_unit_year_quadrimesters, attribution_procedure
 from base.models.enums.learning_container_year_types import COURSE, INTERNSHIP
-from base.models.enums.learning_unit_year_periodicity import PERIODICITY_TYPES, ANNUAL
+from base.models.enums.learning_unit_year_periodicity import PERIODICITY_TYPES, ANNUAL, BIENNIAL_EVEN, BIENNIAL_ODD
 from base.models.learning_unit import LEARNING_UNIT_ACRONYM_REGEX_ALL, REGEX_BY_SUBTYPE
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
 
@@ -102,6 +103,7 @@ class LearningUnitYear(SerializableModel):
                                              choices=attribution_procedure.ATTRIBUTION_PROCEDURES)
     summary_locked = models.BooleanField(default=False, verbose_name=_("summary_locked"))
 
+    bibliography = RichTextField(blank=True, null=True, verbose_name=_('bibliography'))
     mobility_modality = models.CharField(max_length=250, verbose_name=_('Mobility'),
                                          blank=True, null=True)
     professional_integration = models.BooleanField(default=False, verbose_name=_('professional_integration'))
@@ -243,8 +245,9 @@ class LearningUnitYear(SerializableModel):
         return self.subtype == learning_unit_year_subtypes.PARTIM
 
     def get_entity(self, entity_type):
-        entity_container_yr = entity_container_year.search(link_type=entity_type,
-                                                           learning_container_year=self.learning_container_year).get()
+        entity_container_yr = mdl_entity_container_year.search(
+            link_type=entity_type, learning_container_year=self.learning_container_year
+        ).get()
         return entity_container_yr.entity if entity_container_yr else None
 
     def clean(self):
@@ -268,8 +271,10 @@ class LearningUnitYear(SerializableModel):
             self._warnings.extend(self._check_partim_parent_credits())
             self._warnings.extend(self._check_internship_subtype())
             self._warnings.extend(self._check_partim_parent_status())
+            self._warnings.extend(self._check_partim_parent_periodicity())
             self._warnings.extend(self._check_learning_component_year_warnings())
             self._warnings.extend(self._check_learning_container_year_warnings())
+            self._warnings.extend(self._check_entity_container_year_warnings())
         return self._warnings
 
     def _check_partim_parent_credits(self):
@@ -296,6 +301,20 @@ class LearningUnitYear(SerializableModel):
                 warnings.append(_("The parent is inactive and there is at least one partim active"))
         return warnings
 
+    def _check_partim_parent_periodicity(self):
+        warnings = []
+        if self.parent:
+            if self.parent.periodicity in [BIENNIAL_EVEN, BIENNIAL_ODD] and self.periodicity != self.parent.periodicity:
+                warnings.append(_("This partim is %(partim_periodicity)s and the parent is %(parent_periodicty)s")
+                                % {'partim_periodicity': self.periodicity_verbose,
+                                   'parent_periodicty': self.parent.periodicity_verbose})
+        else:
+            if self.periodicity in [BIENNIAL_EVEN, BIENNIAL_ODD] and \
+                    find_partims_with_different_periodicity(self).exists():
+                warnings.append(_("The parent is %(parent_periodicty)s and there is at least one partim which is not "
+                                  "%(parent_periodicty)s") % {'parent_periodicty': self.periodicity_verbose})
+        return warnings
+
     def _check_learning_component_year_warnings(self):
         _warnings = []
         for learning_unit_component in self.learningunitcomponent_set.all().select_related('learning_component_year'):
@@ -305,6 +324,13 @@ class LearningUnitYear(SerializableModel):
 
     def _check_learning_container_year_warnings(self):
         return self.learning_container_year.warnings
+
+    def _check_entity_container_year_warnings(self):
+        _warnings = []
+        entity_container_years = mdl_entity_container_year.find_by_learning_container_year(self.learning_container_year)
+        for entity_container_year in entity_container_years:
+            _warnings.extend(entity_container_year.warnings)
+        return _warnings
 
     def is_external(self):
         return hasattr(self, "externallearningunityear")
@@ -414,8 +440,9 @@ def find_lt_year_acronym(academic_yr, acronym):
 
 
 def check_if_acronym_regex_is_valid(acronym):
-    if isinstance(acronym, str):
-        return re.fullmatch(REGEX_ACRONYM_CHARSET, acronym.upper())
+    return isinstance(acronym, str) and \
+           not acronym.startswith('*') and \
+           re.fullmatch(REGEX_ACRONYM_CHARSET, acronym.upper()) is not None
 
 
 def find_max_credits_of_related_partims(a_learning_unit_year):
@@ -424,6 +451,10 @@ def find_max_credits_of_related_partims(a_learning_unit_year):
 
 def find_partims_with_active_status(a_learning_unit_year):
     return a_learning_unit_year.get_partims_related().filter(status=True)
+
+
+def find_partims_with_different_periodicity(a_learning_unit_year):
+    return a_learning_unit_year.get_partims_related().exclude(periodicity=a_learning_unit_year.periodicity)
 
 
 def find_by_learning_unit(a_learning_unit):

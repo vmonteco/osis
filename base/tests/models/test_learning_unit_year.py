@@ -29,11 +29,12 @@ from django.utils.translation import ugettext_lazy as _
 from attribution.models import attribution
 from base.models import learning_unit_year
 from base.models.entity_component_year import EntityComponentYear
+from base.models.enums import learning_unit_year_periodicity
 from base.models.enums import learning_unit_year_subtypes
 from base.models.enums.entity_container_year_link_type import REQUIREMENT_ENTITY
 from base.models.enums.learning_component_year_type import LECTURING, PRACTICAL_EXERCISES
 from base.models.learning_component_year import LearningComponentYear
-from base.models.learning_unit_year import find_max_credits_of_related_partims
+from base.models.learning_unit_year import find_max_credits_of_related_partims, check_if_acronym_regex_is_valid
 from base.tests.factories.academic_year import create_current_academic_year
 from base.tests.factories.business.learning_units import GenerateAcademicYear, GenerateContainer
 from base.tests.factories.external_learning_unit_year import ExternalLearningUnitYearFactory
@@ -231,6 +232,13 @@ class LearningUnitYearTest(TestCase):
     def test_is_not_external(self):
         luy = LearningUnitYearFactory()
         self.assertFalse(luy.is_external())
+
+    def test_check_if_acronym_regex_is_valid(self):
+        self.assertTrue(check_if_acronym_regex_is_valid('TEST*'))
+        self.assertTrue(check_if_acronym_regex_is_valid('TE*ST'))
+        self.assertFalse(check_if_acronym_regex_is_valid('*TEST'))
+        self.assertFalse(check_if_acronym_regex_is_valid('?TEST'))
+        self.assertFalse(check_if_acronym_regex_is_valid(self.learning_unit_year))
 
 
 class LearningUnitYearWarningsTest(TestCase):
@@ -455,3 +463,46 @@ class LearningUnitYearWarningsTest(TestCase):
 
         self.assertFalse(self.luy_full.learning_container_year.warnings)
         self.assertFalse(self.luy_full.warnings)
+
+    def test_warning_when_partim_parent_periodicity_different_from_parent(self):
+        # Set Parent UE to biannual odd
+        self.luy_full.periodicity = learning_unit_year_periodicity.BIENNIAL_ODD
+        self.luy_full.save()
+        # Set Partim UE to annual
+        luy_partim = self.generated_container.generated_container_years[0].learning_unit_year_partim
+        luy_partim.periodicity = learning_unit_year_periodicity.ANNUAL
+        luy_partim.save()
+
+        expected_result = [
+            _("The parent is %(parent_periodicty)s and there is at least one partim which is not "
+              "%(parent_periodicty)s") % {'parent_periodicty': self.luy_full.periodicity_verbose}
+        ]
+        result = self.luy_full._check_partim_parent_periodicity()
+        self.assertEqual(result, expected_result)
+
+    def test_warning_when_partim_parent_periodicity_different_from_partim(self):
+        # Set Parent UE to biannual even
+        self.luy_full.periodicity = learning_unit_year_periodicity.BIENNIAL_EVEN
+        self.luy_full.save()
+        # Set Partim UE to biannual odd
+        luy_partim = self.generated_container.generated_container_years[0].learning_unit_year_partim
+        luy_partim.periodicity = learning_unit_year_periodicity.BIENNIAL_ODD
+        luy_partim.save()
+
+        expected_result = [
+            _("This partim is %(partim_periodicity)s and the parent is %(parent_periodicty)s") % {
+                'partim_periodicity': luy_partim.periodicity_verbose,
+                'parent_periodicty': self.luy_full.periodicity_verbose
+            }
+        ]
+        result = luy_partim._check_partim_parent_periodicity()
+        self.assertEqual(result, expected_result)
+
+    def test_no_warning_when_partim_parent_periodicity_different(self):
+        """In this test, we ensure that if parent is annual, the partim can be annual/bi-annual"""
+        self.luy_full.periodicity = learning_unit_year_periodicity.ANNUAL
+        self.luy_full.save()
+        luy_partim = self.generated_container.generated_container_years[0].learning_unit_year_partim
+        luy_partim.periodicity = learning_unit_year_periodicity.BIENNIAL_ODD
+        result = luy_partim._check_partim_parent_periodicity()
+        self.assertFalse(result)

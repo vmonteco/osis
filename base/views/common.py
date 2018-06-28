@@ -32,7 +32,9 @@ from django.contrib.auth import authenticate, logout
 from django.contrib.auth.decorators import login_required, permission_required, user_passes_test
 from django.contrib.auth.views import login as django_login
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.http import QueryDict
 from django.shortcuts import redirect
+from django.urls import reverse
 from django.utils import translation
 from django.utils.translation import ugettext_lazy as _
 

@@ -23,37 +23,14 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.contrib.admin import ModelAdmin
-from django.db import models
-from django.utils.translation import pgettext_lazy as _
+from django.contrib.auth.decorators import login_required, permission_required
 
-from base.models.learning_unit_year import LearningUnitYear
+from base.views.learning_units.pedagogy.update import update_learning_unit_pedagogy
 
 
-class BibliographyAdmin(ModelAdmin):
-    list_display = ('title', 'mandatory', 'learning_unit_year')
-    search_fields = ['title', 'learning_unit_year']
-    raw_id_fields = ('learning_unit_year',)
-
-
-class Bibliography(models.Model):
-    title = models.CharField(max_length=255, verbose_name=_('bibliography', 'title'))
-    mandatory = models.BooleanField(verbose_name=_('bibliography', 'mandatory'))
-    learning_unit_year = models.ForeignKey(LearningUnitYear, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return self.title
-
-    class Meta:
-        verbose_name_plural = 'bibliographies'
-
-
-def find_by_learning_unit_year(learning_unit_year):
-    return Bibliography.objects.filter(learning_unit_year=learning_unit_year)
-
-
-def build_list_of_bibliography_content_by_learning_unit_year(learning_unit_year):
-    return [
-        (bib.title, bib.mandatory)
-        for bib in find_by_learning_unit_year(learning_unit_year)
-    ]
+@login_required
+@permission_required('base.can_access_learningunit', raise_exception=True)
+def learning_unit_pedagogy(request, learning_unit_year_id):
+    context = {'experimental_phase': True}
+    template = "learning_unit/pedagogy.html"
+    return update_learning_unit_pedagogy(request, learning_unit_year_id, context, template)

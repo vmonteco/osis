@@ -2686,15 +2686,21 @@ msgstr "Unupdated"
 msgid "summary_list"
 msgstr "Education information status"
 
-msgctxt "bibliography"
+msgctxt "teachingmaterial"
 msgid "title"
 msgstr ""
 
-msgctxt "bibliography"
+msgctxt "teachingmaterial"
 msgid "mandatory"
 msgstr ""
 
 msgid "Bibliography"
+msgstr ""
+
+msgid "bibliography"
+msgstr ""
+
+msgid "Teaching material"
 msgstr ""
 
 msgid "Mobility"
@@ -2847,7 +2853,7 @@ msgstr "Proposals date"
 msgid "search_type"
 msgstr "Search type"
 
-msgid "The linked entity does not exist at the start date of the academic year linked to this learning unit"
+msgid "The linked %(entity)s does not exist at the start date of the academic year linked to this learning unit"
 msgstr ""
 
 msgid "COURSE_ENROLLMENT"
@@ -3040,4 +3046,22 @@ msgid "No enrollment for this learning unit"
 msgstr ""
 
 msgid "Changed"
+msgstr ""
+
+msgid "Other teacher(s)"
+msgstr ""
+
+msgid "Summary responsible(s)"
+msgstr ""
+
+msgid "The annual volume must be equal to the sum of the volumes Q1 and Q2"
+msgstr ""
+
+msgid "The global volume corresponding to the product of the annual volume and the number of planned classes must be equal to the sum of the volumes for each entity"
+msgstr ""
+
+msgid "This partim is %(partim_periodicity)s and the parent is %(parent_periodicty)s"
+msgstr ""
+
+msgid "The parent is %(parent_periodicty)s and there is at least one partim which is not %(parent_periodicty)s"
 msgstr ""

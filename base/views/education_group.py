@@ -23,8 +23,8 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import itertools
 import collections
+import itertools
 from collections import OrderedDict
 
 from django.conf import settings
@@ -41,16 +41,19 @@ from django.views.decorators.http import require_http_methods
 from base import models as mdl
 from base.business import education_group as education_group_business
 from base.business.education_group import assert_category_of_education_group_year
+from base.business.education_group import create_xls, ORDER_COL, ORDER_DIRECTION
 from base.business.education_groups import perms
 from base.business.learning_unit import find_language_in_settings
 from base.forms.education_group_general_informations import EducationGroupGeneralInformationsForm
 from base.forms.education_group_pedagogy_edit import EducationGroupPedagogyEditForm
 from base.forms.education_groups import EducationGroupFilter, MAX_RECORDS
 from base.forms.education_groups_administrative_data import CourseEnrollmentForm, AdministrativeDataFormset
+from base.forms.search.search_form import get_research_criteria
 from base.models.education_group_year import EducationGroupYear
 from base.models.enums import academic_calendar_type
 from base.models.enums import education_group_categories
 from base.models.person import Person
+from base.views.learning_units.common import get_text_label_translated
 from cms import models as mdl_cms
 from cms.enums import entity_name
 from cms.models.text_label import TextLabel
@@ -58,8 +61,6 @@ from cms.models.translated_text import TranslatedText
 from cms.models.translated_text_label import TranslatedTextLabel
 from osis_common.decorators.ajax import ajax_required
 from . import layout
-from base.business.education_group import create_xls, ORDER_COL, ORDER_DIRECTION
-from base.forms.search.search_form import get_research_criteria
 
 CODE_SCS = 'code_scs'
 TITLE = 'title'
@@ -124,8 +125,9 @@ def education_group_read(request, education_group_year_id):
                                  mdl.education_group_language.find_by_education_group_year(education_group_year)]
     enums = mdl.enums.education_group_categories
     parent = _get_education_group_root(root, education_group_year)
+
     can_create_education_group = perms.is_eligible_to_add_education_group(person)
-    can_edit_education_group = True
+    can_change_education_group = perms.is_eligible_to_change_education_group(person)
 
     return layout.render(request, "education_group/tab_identification.html", locals())
 
@@ -381,8 +383,7 @@ def education_group_year_pedagogy_edit(request, education_group_year_id):
     form.load_initial()
     context['form'] = form
     user_language = mdl.person.get_user_interface_language(request.user)
-    context['text_label_translated'] = next((txt for txt in text_lb.translated_text_labels
-                                             if txt.language == user_language), None)
+    context['text_label_translated'] = get_text_label_translated(text_lb, user_language)
     context['language_translated'] = find_language_in_settings(language)
 
     return layout.render(request, 'education_group/pedagogy_edit.html', context)
