@@ -25,6 +25,7 @@
 ##############################################################################
 import re
 
+from ckeditor.fields import RichTextField
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator, RegexValidator
 from django.db import models
@@ -102,6 +103,7 @@ class LearningUnitYear(SerializableModel):
                                              choices=attribution_procedure.ATTRIBUTION_PROCEDURES)
     summary_locked = models.BooleanField(default=False, verbose_name=_("summary_locked"))
 
+    bibliography = RichTextField(blank=True, null=True, verbose_name=_('bibliography'))
     mobility_modality = models.CharField(max_length=250, verbose_name=_('Mobility'),
                                          blank=True, null=True)
     professional_integration = models.BooleanField(default=False, verbose_name=_('professional_integration'))

@@ -41,6 +41,7 @@ from attribution.views import attribution, tutor_application
 from base.views import learning_achievement, search
 from base.views import learning_unit, offer, common, institution, organization, academic_calendar, \
     my_osis, entity, student, education_group
+from base.views.education_groups.update import update_education_group
 from base.views.learning_units.external import create as create_external
 from base.views.learning_units.external.search import filter_cities_by_country, filter_campus_by_city
 from base.views.learning_units.pedagogy.read import learning_unit_pedagogy
@@ -211,6 +212,7 @@ urlpatterns = [
             name='new_education_group'),
         url(r'^(?P<education_group_year_id>[0-9]+)/', include([
             url(r'^$', education_group.education_group_read, name='education_group_read'),
+            url(r'^update/$', update_education_group, name="update_education_group"),
             url(r'^diplomas/$', education_group.education_group_diplomas, name='education_group_diplomas'),
             url(r'^informations/$', education_group.education_group_general_informations,
                 name='education_group_general_informations'),
