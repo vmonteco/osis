@@ -28,9 +28,9 @@ from django.db.models import Count
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
+from base.business import entity_version
 from base.models import offer_year_domain as mdl_offer_year_domain, education_group_organization
 from base.models.entity import Entity
-from base.models.entity_version import _find_entity_version_according_academic_year
 from base.models.enums import academic_type, fee, internship_presence, schedule_type, activity_presence, \
     diploma_printing_orientation, active_status, duration_unit
 from base.models.enums import education_group_association
@@ -62,7 +62,7 @@ class EducationGroupYear(models.Model):
     admission_exam = models.BooleanField(default=False)
     funding = models.BooleanField(default=False)
     funding_direction = models.CharField(max_length=1, blank=True, null=True)
-    funding_cud = models.BooleanField(default=False)  #cud = commission universitaire au développement
+    funding_cud = models.BooleanField(default=False)  # cud = commission universitaire au développement
     funding_direction_cud = models.CharField(max_length=1, blank=True, null=True)
     academic_type = models.CharField(max_length=20, choices=academic_type.ACADEMIC_TYPES, blank=True, null=True)
     university_certificate = models.BooleanField(default=False)
@@ -138,11 +138,15 @@ class EducationGroupYear(models.Model):
 
     @cached_property
     def administration_entity_version(self):
-        return _find_entity_version_according_academic_year(self.administration_entity, self.academic_year)
+        return entity_version.find_entity_version_according_academic_year(
+            self.administration_entity, self.academic_year
+        )
 
     @cached_property
     def management_entity_version(self):
-        return _find_entity_version_according_academic_year(self.management_entity, self.academic_year)
+        return entity_version.find_entity_version_according_academic_year(
+            self.management_entity, self.academic_year
+        )
 
     @property
     def parent_by_training(self):

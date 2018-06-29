@@ -252,5 +252,5 @@ def reverse_url_with_query_string(*args, **kwargs):
 
 def reverse_url_with_root(request, template, args):
     return reverse_url_with_query_string(
-        template, args, query={"root": request.GET.get("root")}
+        template, args=args, query={"root": request.GET.get("root")}
     )
