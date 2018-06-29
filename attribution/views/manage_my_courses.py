@@ -46,13 +46,14 @@ from base.views.learning_units.perms import PermissionDecorator
 def list_my_attributions_summary_editable(request):
     tutor = get_object_or_404(Tutor, person__user=request.user)
     tutor_learning_unit_years = find_tutor_learning_unit_years(tutor=tutor)
-    # Get all score responsibles
+
     score_responsibles = find_all_summary_responsibles_by_learning_unit_years(tutor_learning_unit_years)
-    # Build entity calendar
+
     entity_calendars = entity_calendar.build_calendar_by_entities(
         ac_year=academic_year.current_academic_year(),
         reference=academic_calendar_type.SUMMARY_COURSE_SUBMISSION
     )
+
     context = {
         'learning_unit_years_summary_editable': tutor_learning_unit_years,
         'entity_calendars': entity_calendars,

@@ -72,7 +72,7 @@ class TestPerms(TestCase):
 
     def test_is_calendar_opened_to_edit_educational_information(self):
         patcher = mock.patch(
-            'attribution.business.perms.find_educational_information_submission_dates_of_learning_unit_year')
+            'base.business.learning_units.perms.find_educational_information_submission_dates_of_learning_unit_year')
         MockClass = patcher.start()
 
         today = datetime.datetime.now(tz=get_tzinfo())
