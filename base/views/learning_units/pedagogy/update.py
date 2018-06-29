@@ -45,7 +45,8 @@ from base.views import layout
 from base.views.common import display_error_messages, display_success_messages
 from base.views.learning_units.common import get_common_context_learning_unit_year, get_text_label_translated
 from base.views.learning_units.perms import PermissionDecorator
-from cms.models import text_label
+from cms.enums import entity_name
+from cms.models import text_label, translated_text
 
 
 def update_learning_unit_pedagogy(request, learning_unit_year_id, context, template):
@@ -66,6 +67,7 @@ def update_learning_unit_pedagogy(request, learning_unit_year_id, context, templ
         try:
             summary_form.save()
             teaching_material_formset.save()
+            _update_bibliography_in_cms(learning_unit_year)
             display_success_messages(request, _("success_modification_learning_unit"))
             # Redirection on the same page
             return HttpResponseRedirect(request.path_info)
@@ -80,6 +82,18 @@ def update_learning_unit_pedagogy(request, learning_unit_year_id, context, templ
     context['other_teachers'] = get_no_summary_responsible_teachers(learning_unit_year, context['summary_responsibles'])
     context['cms_label_pedagogy_fr_only'] = CMS_LABEL_PEDAGOGY_FR_ONLY
     return layout.render(request, template, context)
+
+
+def _update_bibliography_in_cms(learning_unit_year):
+    txt_label = text_label.TextLabel.objects.get(label='bibliography')
+    for language in settings.LANGUAGES:
+        translated_text.update_or_create(
+            entity=entity_name.LEARNING_UNIT_YEAR,
+            reference=learning_unit_year.id,
+            text_label=txt_label,
+            language=language[0],
+            defaults={}
+        )
 
 
 # TODO Method similar with all cms forms
