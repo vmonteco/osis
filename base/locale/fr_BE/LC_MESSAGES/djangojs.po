@@ -56,3 +56,21 @@ msgstr "Supprimer"
 
 msgid "confirm_achievement_delete"
 msgstr "Etes-vous sûre de vouloir supprimer l'acquis d'apprentissage?"
+
+msgid "We can't remove this line of section because it does not exist on the server"
+msgstr "Nous ne pouvons supprimer la ligne de cette section parce qu'elle n'existe pas sur le serveur"
+
+msgid "There is an error on the server, please contact the OSIS team."
+msgstr "Il y a une erreur sur le serveur, veuillez contacter la team OSIS."
+
+msgid "We can't edit this line of section because it does not exist on the server"
+msgstr "Nous ne pouvons pas éditer la ligne de cette section car elle n'existe pas"
+
+msgid "We can't read the text because it does not exist on the server"
+msgstr "Nous ne pouvons pas lire ce texte car il n'existe pas sur le serveur"
+
+msgid "We can't modify the text because it does not exist on the server"
+msgstr "Nous ne pouvons pas modifer ce texte car il n'existe pas sur le serveur"
+
+msgid "We can't save this line because it (the offer or the line) does not exist on the server"
+msgstr "Nous ne pouvons pas enregister cette ligne car l'offre ou la ligne n'existe pas sur le serveur"
