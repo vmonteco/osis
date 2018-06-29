@@ -24,16 +24,14 @@
 #
 ##############################################################################
 from django import forms
-from django.utils.translation import ugettext_lazy as _
 
 from base.forms.learning_unit.entity_form import EntitiesVersionChoiceField
 from base.models import campus, education_group_type
 from base.models.education_group import EducationGroup
 from base.models.education_group_year import EducationGroupYear
 from base.models.entity_version import find_main_entities_version, get_last_version
-from base.models.enums import offer_year_entity_type, education_group_categories
+from base.models.enums import education_group_categories
 from base.models.group_element_year import GroupElementYear
-from base.models.offer_year_entity import OfferYearEntity
 
 
 class CreateEducationGroupYearForm(forms.ModelForm):
@@ -41,7 +39,11 @@ class CreateEducationGroupYearForm(forms.ModelForm):
     class Meta:
         model = EducationGroupYear
         fields = ("acronym", "partial_acronym", "education_group_type", "title", "title_english", "credits",
-                  "main_teaching_campus", "academic_year", "remark", "remark_english", "min_credits", "max_credits")
+                  "main_teaching_campus", "academic_year", "remark", "remark_english", "min_credits", "max_credits",
+                  "administration_entity")
+        field_classes = {
+            "administration_entity": EntitiesVersionChoiceField
+        }
 
     def __init__(self, *args, **kwargs):
         self.parent_education_group_year = kwargs.pop("parent", None)
@@ -56,6 +58,11 @@ class CreateEducationGroupYearForm(forms.ModelForm):
             self.fields["academic_year"].initial = self.parent_education_group_year.academic_year.id
             self.fields["academic_year"].disabled = True
             self.fields["academic_year"].required = False
+
+        self.fields["administration_entity"].queryset = find_main_entities_version()
+
+        if getattr(self.instance, 'administration_entity', None):
+            self.initial['administration_entity'] = get_last_version(self.instance.administration_entity).pk
 
     def save(self):
         education_group_year = super().save(commit=False)
@@ -74,30 +81,3 @@ class CreateEducationGroupYearForm(forms.ModelForm):
     @staticmethod
     def _create_group_element_year(parent, child):
         return GroupElementYear.objects.create(parent=parent, child_branch=child)
-
-
-class CreateOfferYearEntityForm(forms.ModelForm):
-
-    class Meta:
-        model = OfferYearEntity
-        fields = ("entity", )
-        field_classes = {
-            "entity": EntitiesVersionChoiceField
-        }
-        labels = {
-            "entity": _("administration_entity")
-        }
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields["entity"].queryset = find_main_entities_version()
-
-        if hasattr(self.instance, 'entity'):
-            self.initial['entity'] = get_last_version(self.instance.entity).pk
-
-    def save(self, education_group_year):
-        offer_year_entity = super().save(commit=False)
-        offer_year_entity.education_group_year = education_group_year
-        offer_year_entity.type = offer_year_entity_type.ENTITY_ADMINISTRATION
-        offer_year_entity.save()
-        return offer_year_entity

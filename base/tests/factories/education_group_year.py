@@ -23,12 +23,12 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import factory
 import factory.fuzzy
 
 from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.education_group import EducationGroupFactory
 from base.tests.factories.education_group_type import EducationGroupTypeFactory
+from base.tests.factories.entity import EntityFactory
 
 
 def generate_title(education_group_year):
@@ -46,3 +46,5 @@ class EducationGroupYearFactory(factory.django.DjangoModelFactory):
     title = factory.LazyAttribute(generate_title)
     title_english = factory.LazyAttribute(generate_title)
     education_group_type = factory.SubFactory(EducationGroupTypeFactory)
+    management_entity = factory.SubFactory(EntityFactory)
+    administration_entity = factory.SubFactory(EntityFactory)
