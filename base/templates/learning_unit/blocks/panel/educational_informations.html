@@ -91,14 +91,16 @@
                     {{ form_french|getattr:label_key }}
                     </td>
                     <td style="padding: 20px;">
-                    {% if can_edit_information %}
-                        <a class="pedagogy-edit-btn pull-right" href="#"
-                           data-form="{{post_url}}?language={{ form_english.language.0 }}&label={{ label_key }}"
-                           title="{% trans 'edit' %}">
-                            <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
-                        </a>
+                    {% if label_key not in cms_label_pedagogy_fr_only %}
+                        {% if can_edit_information %}
+                            <a class="pedagogy-edit-btn pull-right" href="#"
+                               data-form="{{post_url}}?language={{ form_english.language.0 }}&label={{ label_key }}"
+                               title="{% trans 'edit' %}">
+                                <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+                            </a>
+                        {% endif %}
+                        {{ form_english|getattr:label_key}}
                     {% endif %}
-                    {{ form_english|getattr:label_key}}
                     </td>
                 </tr>
             {% endfor %}
