@@ -344,7 +344,7 @@ def find_educational_information_submission_dates_of_learning_unit_year(learning
     requirement_entity_version = requirement_entity_version = find_last_entity_version_by_learning_unit_year_id(
         learning_unit_year_id=learning_unit_year_id,
         entity_type=entity_container_year_link_type.REQUIREMENT_ENTITY
-)
+    )
     if requirement_entity_version is None:
         return {}
 
