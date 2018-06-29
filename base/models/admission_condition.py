@@ -72,3 +72,10 @@ class AdmissionConditionLine(models.Model):
     conditions_en = models.TextField(default='')
     access_en = models.TextField(default='')
     remarks_en = models.TextField(default='')
+
+
+class AdmissionConditionLineAdmin(osis_model_admin.OsisModelAdmin):
+    list_display = ('name', 'section')
+
+    def name(self, obj):
+        return obj.admission_condition.education_group_year.acronym
