@@ -26,7 +26,7 @@
 from ckeditor.widgets import CKEditorWidget
 from django import forms
 
-from base.business.learning_unit import find_language_in_settings, CMS_LABEL_PEDAGOGY
+from base.business.learning_unit import find_language_in_settings, CMS_LABEL_PEDAGOGY, CMS_LABEL_PEDAGOGY_FR_ONLY
 from base.business.learning_units.perms import can_edit_summary_locked_field
 from base.forms.common import set_trans_txt
 from base.models.learning_unit_year import LearningUnitYear
@@ -76,8 +76,17 @@ class LearningUnitPedagogyEditForm(forms.Form):
     def save(self):
         cleaned_data = self.cleaned_data
         trans_text = translated_text.find_by_id(cleaned_data['cms_id'])
-        trans_text.text = cleaned_data.get('trans_text')
-        trans_text.save()
+        label = trans_text.text_label.label
+
+        if label in CMS_LABEL_PEDAGOGY_FR_ONLY:
+            trans_texts_en_and_fr = translated_text.search(
+                entity=trans_text.entity,
+                reference=trans_text.reference,
+                text_labels_name=[label])
+            trans_texts_en_and_fr.update(text=cleaned_data.get('trans_text'))
+        else:
+            trans_text.text = cleaned_data.get('trans_text')
+            trans_text.save()
 
 
 class SummaryModelForm(forms.ModelForm):
