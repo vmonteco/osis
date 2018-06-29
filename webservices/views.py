@@ -56,6 +56,10 @@ Context = collections.namedtuple(
 )
 
 
+class AcronymError(Exception):
+    pass
+
+
 def new_description(education_group_year, language, title):
     return {
         'language': language,
@@ -315,7 +319,7 @@ def get_texts_for_section(column_name, admission_condition, admission_condition_
 def get_conditions_admissions(context):
     acronym_match = re.match(ACRONYM_PATTERN, context.acronym.lower())
     if not acronym_match:
-        raise Exception('error')
+        raise AcronymError("The acronym does not match the pattern")
 
     acronym_suffix = acronym_match.group('suffix').lower()
 
