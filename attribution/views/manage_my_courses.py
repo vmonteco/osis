@@ -30,7 +30,7 @@ from django.urls import reverse
 from attribution.business.manage_my_courses import find_learning_unit_years_summary_editable
 from attribution.models.attribution import find_all_summary_responsibles_by_learning_unit_years
 from attribution.views.perms import tutor_can_edit_educational_information, tutor_can_view_educational_information
-from base.business.learning_units.perms import can_user_edit_educational_information, \
+from attribution.business.perms import can_user_edit_educational_information, \
     find_educational_information_submission_dates_of_learning_unit_year
 from base.models import academic_year, entity_calendar
 from base.models.enums import academic_calendar_type

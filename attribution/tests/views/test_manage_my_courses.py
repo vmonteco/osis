@@ -32,7 +32,7 @@ from django.urls import reverse
 
 from attribution.tests.factories.attribution import AttributionFactory
 from attribution.views.manage_my_courses import list_my_attributions_summary_editable, view_educational_information
-from base.business.learning_units.perms import can_user_view_educational_information
+from attribution.business.perms import can_tutor_view_educational_information
 from base.forms.learning_unit_pedagogy import LearningUnitPedagogyForm
 from base.models.enums import academic_calendar_type
 from base.tests.factories.academic_calendar import AcademicCalendarFactory

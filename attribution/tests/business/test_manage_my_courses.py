@@ -30,7 +30,7 @@ from django.test import TestCase
 
 from attribution.business.manage_my_courses import find_learning_unit_years_summary_editable
 from attribution.tests.factories.attribution import AttributionFactory
-from base.business.learning_units.perms import can_user_edit_educational_information
+from attribution.business.perms import can_user_edit_educational_information
 from base.models.enums import entity_container_year_link_type
 from base.tests.factories.entity_container_year import EntityContainerYearFactory
 from base.tests.factories.entity_version import EntityVersionFactory
