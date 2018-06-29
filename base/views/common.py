@@ -248,3 +248,9 @@ def reverse_url_with_query_string(*args, **kwargs):
     q = QueryDict(mutable=True)
     q.update(formatted_query)
     return "{path}?{query}".format(path=url, query=q.urlencode())
+
+
+def reverse_url_with_root(request, template, args):
+    return reverse_url_with_query_string(
+        template, args, query={"root": request.GET.get("root")}
+    )

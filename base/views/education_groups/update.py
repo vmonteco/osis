@@ -30,7 +30,7 @@ from django.utils.translation import ugettext_lazy as _
 from base.forms.education_group.create import CreateEducationGroupYearForm
 from base.models.education_group_year import EducationGroupYear
 from base.views import layout
-from base.views.common import display_success_messages, reverse_url_with_query_string
+from base.views.common import display_success_messages, reverse_url_with_root
 from base.views.education_groups.perms import can_change_education_group
 
 
@@ -45,9 +45,9 @@ def update_education_group(request, education_group_year_id):
         education_group_year = form_education_group_year.save()
 
         display_success_messages(request, _("Education group successfully updated"))
-        url = reverse_url_with_query_string("education_group_read",
-                                            args=[education_group_year.id],
-                                            query={"root": request.GET.get("root")})
+
+        url = reverse_url_with_root(request, "education_group_read", args=[education_group_year.id])
+
         return redirect(url)
 
     return layout.render(request, "education_group/update.html", {
