@@ -24,18 +24,15 @@
 #
 ##############################################################################
 from django import forms
-from django.db import models
 from django.forms import ModelChoiceField
 from django.utils.functional import lazy
 from django.utils.translation import ugettext_lazy as _
 
 from base.business.entity import get_entities_ids
 from base.forms.bootstrap import BootstrapForm
-from base.models import academic_year, education_group_year, offer_year_entity
+from base.models import academic_year, education_group_year
 from base.models.education_group_type import EducationGroupType
-from base.models.entity_version import _find_entity_version_according_academic_year
 from base.models.enums import education_group_categories
-from base.models.enums import offer_year_entity_type
 
 
 class EntityManagementModelChoiceField(ModelChoiceField):
@@ -99,28 +96,19 @@ class EducationGroupFilter(BootstrapForm):
     def get_object_list(self):
         clean_data = {key: value for key, value in self.cleaned_data.items() if value is not None}
 
-        entity_versions_prefetch = models.Prefetch('management_entity__entityversion_set', to_attr='entity_versions')
+        result = education_group_year.search(**clean_data)
 
         if clean_data.get('requirement_entity_acronym'):
-            clean_data['id'] = _get_filter_entity_management(
-                clean_data['requirement_entity_acronym'], clean_data.get('with_entity_subordinated',False)
+            result = _get_filter_entity_management(
+                result,
+                clean_data['requirement_entity_acronym'],
+                clean_data.get('with_entity_subordinated',False)
             )
 
-        return education_group_year.search(**clean_data).prefetch_related(entity_versions_prefetch).order_by('acronym')
-        return [_append_entity_management(education_group) for education_group in education_groups]
+        # TODO User should choice the order
+        return result.order_by('acronym')
 
 
-def _get_filter_entity_management(requirement_entity_acronym, with_entity_subordinated):
+def _get_filter_entity_management(qs, requirement_entity_acronym, with_entity_subordinated):
     entity_ids = get_entities_ids(requirement_entity_acronym, with_entity_subordinated)
-    return list(offer_year_entity.search(type=offer_year_entity_type.ENTITY_MANAGEMENT, entity=entity_ids)
-                .values_list('education_group_year', flat=True).distinct())
-
-
-def _append_entity_management(education_group):
-    education_group.entity_management = None
-    if education_group.offer_year_entities:
-        education_group.entity_management = _find_entity_version_according_academic_year(
-            education_group.entity_management,
-            education_group.academic_year
-        )
-    return education_group
+    return qs.filter(management_entity__in=entity_ids)
