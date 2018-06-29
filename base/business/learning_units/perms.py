@@ -283,13 +283,13 @@ def _negation(predicate):
 
 
 def can_user_view_educational_information(user, learning_unit_year_id):
-    return LearningUnitYear.objects.filter(pk=learning_unit_year_id, summary_locked=False,
-                                           attribution__summary_responsible=True,
-                                           attribution__tutor__person__user=user).exists()
+    return LearningUnitYear.objects.filter(pk=learning_unit_year_id,  attribution__tutor__person__user=user).exists()
 
 
 def can_user_edit_educational_information(user, learning_unit_year_id):
-    if not can_user_view_educational_information(user, learning_unit_year_id):
+    if not LearningUnitYear.objects.filter(pk=learning_unit_year_id, summary_locked=False,
+                                           attribution__summary_responsible=True,
+                                           attribution__tutor__person__user=user).exists():
         return False
 
     submission_dates = find_educational_information_submission_dates_of_learning_unit_year(learning_unit_year_id)
