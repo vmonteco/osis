@@ -44,10 +44,6 @@ class TestPerms(TestCase):
         cls.tutor = cls.attribution.tutor
         cls.learning_unit_year = cls.attribution.learning_unit_year
 
-    def setUp(self):
-        pass
-
-
     def test_is_tutor_attributed_to_the_learning_unit(self):
         learning_unit_year_not_attributed = LearningUnitYearFactory()
         self.assertFalse(_is_tutor_attributed_to_the_learning_unit(self.tutor.person.user,
