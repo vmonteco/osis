@@ -46,7 +46,7 @@
                                     {% render_condition_text 'alert_message' _('Alert Message') admission_condition.text_alert_message can_edit_information %}
                                 {% endif %}
                                 {% if info.show_free_text %}
-                                    {% render_condition_text 'standard' _('Free Text') admission_condition.text_standard can_edit_information %}
+                                    {% render_condition_text 'free' _('Free Text') admission_condition.text_free can_edit_information %}
                                 {% endif %}
                                 {% if info.is_specific and info.is_master %}
                                     <div id="university_bachelors">
