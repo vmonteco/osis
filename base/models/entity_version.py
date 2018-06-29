@@ -421,5 +421,6 @@ def search_by_acronyms(entities):
 
 def _find_entity_version_according_academic_year(an_entity, an_academic_year):
     return EntityVersion.objects.filter(
-        Q(entity=an_entity, start_date__lte=an_academic_year.start_date), Q(end_date__isnull=True) | Q(end_date__gt=an_academic_year.end_date)
+        Q(entity=an_entity, start_date__lte=an_academic_year.start_date),
+        Q(end_date__isnull=True) | Q(end_date__gt=an_academic_year.end_date)
     ).last()

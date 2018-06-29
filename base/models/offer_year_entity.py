@@ -36,7 +36,7 @@ class OfferYearEntityAdmin(OsisModelAdmin):
     list_filter = ('type', 'offer_year__academic_year',)
     raw_id_fields = ('offer_year', 'entity', 'education_group_year')
 
-# TODO This module
+
 class OfferYearEntity(models.Model):
     external_id = models.CharField(max_length=100, blank=True, null=True)
     changed = models.DateTimeField(null=True, auto_now=True)
