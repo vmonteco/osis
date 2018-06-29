@@ -28,15 +28,11 @@ from unittest import mock
 
 from django.test import TestCase
 
-from attribution.tests.factories.attribution import AttributionFactory
-from attribution.business.perms import can_user_edit_educational_information, _is_tutor_attributed_to_the_learning_unit, \
+from attribution.business.perms import _is_tutor_attributed_to_the_learning_unit, \
     _is_tutor_summary_responsible_of_learning_unit_year, _is_learning_unit_year_summary_editable, \
     _is_calendar_opened_to_edit_educational_information
-from base.models.enums import entity_container_year_link_type
-from base.tests.factories.entity_container_year import EntityContainerYearFactory
-from base.tests.factories.entity_version import EntityVersionFactory
+from attribution.tests.factories.attribution import AttributionFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
-from base.tests.factories.tutor import TutorFactory
 from osis_common.utils.datetime import get_tzinfo
 
 
