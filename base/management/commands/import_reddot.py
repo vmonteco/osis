@@ -251,7 +251,7 @@ class Command(BaseCommand):
             if not value:
                 continue
             if key == 'introduction':
-                self.set_admission_condition_value(admission_condition, 'standard', value['text'])
+                self.set_admission_condition_value(admission_condition, 'free', value['text'])
             elif key in ('personalized_access', 'admission_enrollment_procedures',
                          'adults_taking_up_university_training'):
                 self.set_admission_condition_value(admission_condition, key, value['text'])
