@@ -210,6 +210,7 @@ LOCALE_PATHS = ()
 def define_style_sheet(name, class_name):
     return {'name': name, 'element': 'div', 'attributes': {'class': class_name}}
 
+
 REDDOT_STYLES = [
     define_style_sheet('Intro', 'reddot_intro'),
     define_style_sheet('Teaser', 'reddot_teaser'),
@@ -232,10 +233,11 @@ CKEDITOR_CONFIGS = {
         "removePlugins": "stylesheetparser",
         'allowedContent': True,
         'extraAllowedContent': 'div(reddot_*,contacts_*)',
-        'extraPlugins': 'reddot',
+        'extraPlugins': ','.join(['reddot', 'pastefromword']),
         'stylesSet': REDDOT_STYLES,
         'toolbar': 'Custom',
         'toolbar_Custom': [
+            {'name': 'clipboard', 'items': ['PasteFromWord', '-', 'Undo', 'Redo']},
             ['Bold', 'Italic', 'Underline'],
             ['NumberedList', 'BulletedList'],
             ['Link', 'Unlink'],
@@ -246,9 +248,10 @@ CKEDITOR_CONFIGS = {
         "removePlugins": "stylesheetparser",
         'allowedContent': True,
         'extraAllowedContent': 'div(reddot_*,contacts_*)',
-        'extraPlugins': 'reddot',
+        'extraPlugins': ','.join(['reddot', 'pastefromword']),
         'toolbar': 'Custom',
         'toolbar_Custom': [
+            {'name': 'clipboard', 'items': ['PasteFromWord', '-', 'Undo', 'Redo']},
             {'name': 'basicstyles', 'items': ['Bold', 'Italic', 'Underline', 'Strike', '-', 'RemoveFormat']},
             {'name': 'links', 'items': ['Link']},
             {'name': 'styles', 'items': ['Styles', 'Format', 'Font', 'FontSize', 'Source']},
@@ -268,6 +271,7 @@ CKEDITOR_CONFIGS = {
     'minimal': {
         'toolbar': 'Custom',
         'toolbar_Custom': [
+            {'name': 'clipboard', 'items': ['PasteFromWord', '-', 'Undo', 'Redo']},
             ['Bold', 'Italic', 'Underline'],
             ['NumberedList', 'BulletedList'],
             ['Link', 'Unlink']
@@ -276,6 +280,7 @@ CKEDITOR_CONFIGS = {
     'minimal_plus_headers': {
         'toolbar': 'Custom',
         'toolbar_Custom': [
+            {'name': 'clipboard', 'items': ['PasteFromWord', '-', 'Undo', 'Redo']},
             ['Format', 'Styles'],
             ['Bold', 'Italic', 'Underline'],
             ['Link', 'Unlink'],
