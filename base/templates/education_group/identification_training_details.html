@@ -290,7 +290,7 @@
                     {% elif parent.education_group.start_year %}
                         <strong class="text-primary">{{ parent.education_group.start_year }}</strong>
                     {% else %}
-                        '-'
+                        {% trans 'unspecified' %}
                     {% endif %}
                 </div>
                 <br>
@@ -316,7 +316,7 @@
                             {{ parent.main_teaching_campus }}
                         </strong>
                     {% else %}
-                        '-'
+                        <br>
                     {% endif %}
                 </div>
                 <br>
@@ -329,7 +329,7 @@
                             {{ parent.enrollment_campus }}
                         </strong>
                     {% else %}
-                        '-'
+                        <br>
                     {% endif %}
                 </div>
                 <br>
