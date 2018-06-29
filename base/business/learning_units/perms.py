@@ -30,7 +30,7 @@ from base.models import proposal_learning_unit, tutor
 from base.models.academic_year import current_academic_year, MAX_ACADEMIC_YEAR_FACULTY, MAX_ACADEMIC_YEAR_CENTRAL
 from base.models.entity import Entity
 from base.models.entity_version import find_last_entity_version_by_learning_unit_year_id
-from base.models.enums import learning_container_year_types
+from base.models.enums import learning_container_year_types, entity_container_year_link_type
 from base.models.enums.entity_container_year_link_type import REQUIREMENT_ENTITY
 from base.models.enums.proposal_state import ProposalState
 from base.models.enums.proposal_type import ProposalType
@@ -282,33 +282,6 @@ def _negation(predicate):
     return negation_method
 
 
-def can_user_view_educational_information(user, learning_unit_year_id):
-    return LearningUnitYear.objects.filter(pk=learning_unit_year_id, summary_locked=False,
-                                           attribution__summary_responsible=True,
-                                           attribution__tutor__person__user=user).exists()
-
-
-def can_user_edit_educational_information(user, learning_unit_year_id):
-    if not can_user_view_educational_information(user, learning_unit_year_id):
-        return False
-
-    submission_dates = find_educational_information_submission_dates_of_learning_unit_year(learning_unit_year_id)
-    if not submission_dates:
-        return False
-
-    now = datetime.datetime.now(tz=get_tzinfo())
-    return convert_date_to_datetime(submission_dates["start_date"]) <= now <= \
-        convert_date_to_datetime(submission_dates["end_date"])
-
-
-def find_educational_information_submission_dates_of_learning_unit_year(learning_unit_year_id):
-    entity_version = find_last_entity_version_by_learning_unit_year_id(learning_unit_year_id)
-    if entity_version is None:
-        return {}
-
-    return find_summary_course_submission_dates_for_entity_version(entity_version)
-
-
 def is_eligible_to_update_learning_unit_pedagogy(learning_unit_year, person):
     """
     Permission to edit learning unit pedagogy needs many conditions:
@@ -336,3 +309,42 @@ def is_eligible_to_update_learning_unit_pedagogy(learning_unit_year, person):
         return can_user_edit_educational_information(person.user, learning_unit_year.id)
 
     return False
+
+
+def can_user_edit_educational_information(user, learning_unit_year_id):
+    return _conjunction(
+        _is_tutor_summary_responsible_of_learning_unit_year,
+        _is_learning_unit_year_summary_editable,
+        _is_calendar_opened_to_edit_educational_information
+    )(user, learning_unit_year_id)
+
+
+def _is_tutor_summary_responsible_of_learning_unit_year(user, learning_unit_year_id):
+    return LearningUnitYear.objects.filter(pk=learning_unit_year_id,
+                                           attribution__summary_responsible=True,
+                                           attribution__tutor__person__user=user).exists()
+
+
+def _is_learning_unit_year_summary_editable(_, learning_unit_year_id):
+    return LearningUnitYear.objects.filter(pk=learning_unit_year_id, summary_locked=False).exists()
+
+
+def _is_calendar_opened_to_edit_educational_information(_, learning_unit_year_id):
+    submission_dates = find_educational_information_submission_dates_of_learning_unit_year(learning_unit_year_id)
+    if not submission_dates:
+        return False
+
+    now = datetime.datetime.now(tz=get_tzinfo())
+    return convert_date_to_datetime(submission_dates["start_date"]) <= now <= \
+        convert_date_to_datetime(submission_dates["end_date"])
+
+
+def find_educational_information_submission_dates_of_learning_unit_year(learning_unit_year_id):
+    requirement_entity_version = find_last_entity_version_by_learning_unit_year_id(
+        learning_unit_year_id=learning_unit_year_id,
+        entity_type=entity_container_year_link_type.REQUIREMENT_ENTITY
+    )
+    if requirement_entity_version is None:
+        return {}
+
+    return find_summary_course_submission_dates_for_entity_version(requirement_entity_version)

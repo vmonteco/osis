@@ -1390,29 +1390,6 @@ class LearningUnitViewTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.context["can_edit_information"])
 
-    @mock.patch('base.models.person.Person.is_faculty_manager')
-    def test_learning_unit_pedagogy_summary_editable_as_tutor_ouside_summary_period(self, mock_faculty_manager):
-        mock_faculty_manager.return_value = False
-
-        learning_unit_year = LearningUnitYearFactory(academic_year=self.current_academic_year,
-                                                     learning_container_year=self.learning_container_yr,
-                                                     subtype=learning_unit_year_subtypes.FULL,
-                                                     summary_locked=False)
-
-        tutor = TutorFactory(person=self.person)
-        today = datetime.date.today()
-
-        AttributionFactory(summary_responsible=True, learning_unit_year=learning_unit_year, tutor=tutor)
-
-        AcademicCalendarSummaryCourseSubmissionFactory(academic_year=create_current_academic_year(),
-                                                       start_date=today.replace(year=1900),
-                                                       end_date=today.replace(year=1900))
-
-        url = reverse(learning_unit_pedagogy, args=[learning_unit_year.id])
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-        self.assertFalse(response.context["can_edit_information"])
-
     def test_learning_unit_pedagogy_without_permission(self):
         learning_unit_year = LearningUnitYearFactory(academic_year=self.current_academic_year,
                                                      learning_container_year=self.learning_container_yr,

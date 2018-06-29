@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2018 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -23,14 +23,16 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.core.exceptions import PermissionDenied
 
-from attribution.business.perms import can_tutor_view_educational_information
+from base.business.learning_units.perms import _conjunction
+from base.models.learning_unit_year import LearningUnitYear
 
 
-def tutor_can_view_educational_information(view_func):
-    def f_tutor_can_view_educational_information(request, learning_unit_year_id):
-        if not can_tutor_view_educational_information(request.user, learning_unit_year_id):
-            raise PermissionDenied("User cannot view educational information")
-        return view_func(request, learning_unit_year_id)
-    return f_tutor_can_view_educational_information
+def can_tutor_view_educational_information(user, learning_unit_year_id):
+    return _conjunction(
+        _is_tutor_attributed_to_the_learning_unit
+    )(user, learning_unit_year_id)
+
+
+def _is_tutor_attributed_to_the_learning_unit(user, learning_unit_year_id):
+    return LearningUnitYear.objects.filter(pk=learning_unit_year_id,  attribution__tutor__person__user=user).exists()
