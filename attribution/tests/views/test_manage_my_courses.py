@@ -25,14 +25,13 @@
 ##############################################################################
 from unittest import mock
 
-from django.forms import model_to_dict
+from django.contrib.auth.models import Permission
 from django.http import HttpResponse, HttpResponseNotFound
 from django.test import TestCase
 from django.urls import reverse
 
 from attribution.tests.factories.attribution import AttributionFactory
 from attribution.views.manage_my_courses import list_my_attributions_summary_editable, view_educational_information
-from attribution.business.perms import can_tutor_view_educational_information
 from base.forms.learning_unit_pedagogy import LearningUnitPedagogyForm
 from base.models.enums import academic_calendar_type
 from base.tests.factories.academic_calendar import AcademicCalendarFactory
@@ -88,6 +87,7 @@ class TestViewEducationalInformation(TestCase):
         cls.tutor = TutorFactory()
         cls.attribution = AttributionFactory(tutor=cls.tutor, summary_responsible=True)
         cls.url = reverse(view_educational_information, args=[cls.attribution.learning_unit_year.id])
+        cls.tutor.person.user.user_permissions.add(Permission.objects.get(codename='can_edit_learningunit_pedagogy'))
 
     def setUp(self):
         self.client.force_login(self.tutor.person.user)
@@ -133,6 +133,7 @@ class TestManageEducationalInformation(TestCase):
         cls.tutor = TutorFactory()
         cls.attribution = AttributionFactory(tutor=cls.tutor, summary_responsible=True)
         cls.url = reverse("tutor_edit_educational_information", args=[cls.attribution.learning_unit_year.id])
+        cls.tutor.person.user.user_permissions.add(Permission.objects.get(codename='can_edit_learningunit_pedagogy'))
 
     def setUp(self):
         self.client.force_login(self.tutor.person.user)
@@ -142,7 +143,7 @@ class TestManageEducationalInformation(TestCase):
         response = self.client.get(self.url)
         self.assertRedirects(response, '/login/?next={}'.format(self.url))
 
-    @mock.patch("attribution.views.perms.can_user_edit_educational_information",
+    @mock.patch("base.business.learning_units.perms.can_user_edit_educational_information",
                 side_effect=lambda req, luy: False)
     def test_check_if_user_can_view_educational_information(self, mock_perm):
         response = self.client.get(self.url)
@@ -150,7 +151,8 @@ class TestManageEducationalInformation(TestCase):
         self.assertTemplateUsed(response, "access_denied.html")
 
     @mock.patch("attribution.views.manage_my_courses.edit_learning_unit_pedagogy", return_value=HttpResponse())
-    @mock.patch("attribution.views.perms.can_user_edit_educational_information", return_value=True)
-    def test_use_edit_learning_unit_pedagogy_method(self, mock_can_edit, mock_edit_learning_unit_pedagogy):
+    @mock.patch("base.business.learning_units.perms.can_user_edit_educational_information",
+                side_effect=lambda req, luy: True)
+    def test_use_edit_learning_unit_pedagogy_method(self, mock_perm, mock_edit_learning_unit_pedagogy):
         self.client.get(self.url)
         self.assertTrue(mock_edit_learning_unit_pedagogy.called)

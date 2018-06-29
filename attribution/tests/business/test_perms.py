@@ -28,9 +28,9 @@ from unittest import mock
 
 from django.test import TestCase
 
-from attribution.business.perms import _is_tutor_attributed_to_the_learning_unit, \
-    _is_tutor_summary_responsible_of_learning_unit_year, _is_learning_unit_year_summary_editable, \
-    _is_calendar_opened_to_edit_educational_information
+from attribution.business.perms import _is_tutor_attributed_to_the_learning_unit
+from base.business.learning_units.perms import _is_tutor_summary_responsible_of_learning_unit_year, \
+    _is_learning_unit_year_summary_editable, _is_calendar_opened_to_edit_educational_information
 from attribution.tests.factories.attribution import AttributionFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from osis_common.utils.datetime import get_tzinfo

@@ -27,16 +27,19 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 
+from attribution.views.perms import tutor_can_view_educational_information
+from base.business.learning_units.perms import is_eligible_to_update_learning_unit_pedagogy, \
+    find_educational_information_submission_dates_of_learning_unit_year
 from base.models.learning_unit_year import find_tutor_learning_unit_years
 from attribution.models.attribution import find_all_summary_responsibles_by_learning_unit_years
-from attribution.views.perms import tutor_can_edit_educational_information, tutor_can_view_educational_information
-from attribution.business.perms import can_user_edit_educational_information, \
-    find_educational_information_submission_dates_of_learning_unit_year
+
 from base.models import academic_year, entity_calendar
 from base.models.enums import academic_calendar_type
+from base.models.learning_unit_year import LearningUnitYear
 from base.models.tutor import Tutor
 from base.views import layout
 from base.views.learning_units.pedagogy.update import update_learning_unit_pedagogy, edit_learning_unit_pedagogy
+from base.views.learning_units.perms import PermissionDecorator
 
 
 @login_required
@@ -62,7 +65,6 @@ def list_my_attributions_summary_editable(request):
 @tutor_can_view_educational_information
 def view_educational_information(request, learning_unit_year_id):
     context = {
-        'can_edit_information': can_user_edit_educational_information(request.user, learning_unit_year_id),
         'submission_dates': find_educational_information_submission_dates_of_learning_unit_year(
                 learning_unit_year_id)
     }
@@ -71,7 +73,7 @@ def view_educational_information(request, learning_unit_year_id):
 
 
 @login_required
-@tutor_can_edit_educational_information
+@PermissionDecorator(is_eligible_to_update_learning_unit_pedagogy, "learning_unit_year_id", LearningUnitYear)
 def edit_educational_information(request, learning_unit_year_id):
     redirect_url = reverse(view_educational_information, kwargs={'learning_unit_year_id': learning_unit_year_id})
     return edit_learning_unit_pedagogy(request, learning_unit_year_id, redirect_url)
