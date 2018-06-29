@@ -27,12 +27,10 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import ugettext_lazy as _
 
-from base.forms.education_group.create import CreateEducationGroupYearForm, CreateOfferYearEntityForm
+from base.forms.education_group.create import CreateEducationGroupYearForm
 from base.models.education_group_year import EducationGroupYear
-from base.models.enums import offer_year_entity_type
-from base.models.offer_year_entity import OfferYearEntity
 from base.views import layout
-from base.views.common import display_success_messages, reverse_url_with_query_string
+from base.views.common import display_success_messages, reverse_url_with_root
 from base.views.education_groups.perms import can_change_education_group
 
 
@@ -40,27 +38,19 @@ from base.views.education_groups.perms import can_change_education_group
 @user_passes_test(can_change_education_group)
 def update_education_group(request, education_group_year_id):
     education_group_year = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
-    root = request.GET.get("root")
-
-    offer_year_entity = get_object_or_404(
-        OfferYearEntity, education_group_year=education_group_year, type=offer_year_entity_type.ENTITY_ADMINISTRATION
-    )
 
     form_education_group_year = CreateEducationGroupYearForm(request.POST or None, instance=education_group_year)
-    form_offer_year_entity = CreateOfferYearEntityForm(request.POST or None, instance=offer_year_entity)
 
-    if form_offer_year_entity.is_valid() and form_education_group_year.is_valid():
+    if form_education_group_year.is_valid():
         education_group_year = form_education_group_year.save()
-        form_offer_year_entity.save(education_group_year)
 
         display_success_messages(request, _("Education group successfully updated"))
-        url = reverse_url_with_query_string("education_group_read",
-                                            args=[education_group_year.id],
-                                            query={"root": root})
+
+        url = reverse_url_with_root(request, "education_group_read", args=[education_group_year.id])
+
         return redirect(url)
 
     return layout.render(request, "education_group/update.html", {
         "form_education_group_year": form_education_group_year,
-        "form_offer_year_entity": form_offer_year_entity,
         "education_group_year": education_group_year,
     })
