@@ -26,10 +26,11 @@
 import datetime
 
 from base.business.institution import find_summary_course_submission_dates_for_entity_version
-from base.models import proposal_learning_unit
+from base.models import proposal_learning_unit, tutor
 from base.models.academic_year import current_academic_year, MAX_ACADEMIC_YEAR_FACULTY, MAX_ACADEMIC_YEAR_CENTRAL
 from base.models.entity import Entity
 from base.models.entity_version import find_last_entity_version_by_learning_unit_year_id
+from base.models.enums import entity_container_year_link_type
 from base.models.enums import learning_container_year_types
 from base.models.enums.entity_container_year_link_type import REQUIREMENT_ENTITY
 from base.models.enums.proposal_state import ProposalState
@@ -302,11 +303,13 @@ def can_user_edit_educational_information(user, learning_unit_year_id):
 
 
 def find_educational_information_submission_dates_of_learning_unit_year(learning_unit_year_id):
-    entity_version = find_last_entity_version_by_learning_unit_year_id(learning_unit_year_id)
-    if entity_version is None:
+    requirement_entity_version = find_last_entity_version_by_learning_unit_year_id(
+        learning_unit_year_id=learning_unit_year_id,
+        entity_type=entity_container_year_link_type.REQUIREMENT_ENTITY
+    )
+    if requirement_entity_version is None:
         return {}
-
-    return find_summary_course_submission_dates_for_entity_version(entity_version)
+    return find_summary_course_submission_dates_for_entity_version(requirement_entity_version)
 
 
 def is_eligible_to_update_learning_unit_pedagogy(learning_unit_year, person):
@@ -327,10 +330,12 @@ def is_eligible_to_update_learning_unit_pedagogy(learning_unit_year, person):
     if not person.user.has_perm('base.can_edit_learningunit_pedagogy'):
         return False
 
-    if not person.is_linked_to_entity_in_charge_of_learning_unit_year(learning_unit_year):
-        return False
-
+    # Case faculty/central: We need to check if user is linked to entity
     if person.is_faculty_manager() or person.is_central_manager():
-        return True
+        return person.is_linked_to_entity_in_charge_of_learning_unit_year(learning_unit_year)
 
-    return can_user_edit_educational_information(person.user, learning_unit_year.id)
+    # Case Tutor: We need to check if today is between submission date
+    if tutor.is_tutor(person.user):
+        return can_user_edit_educational_information(person.user, learning_unit_year.id)
+
+    return False
