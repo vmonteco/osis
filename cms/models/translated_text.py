@@ -24,10 +24,11 @@
 #
 ##############################################################################
 from ckeditor.fields import RichTextField
-from django.db import models
-from osis_common.models import osis_model_admin
 from django.conf import settings
+from django.db import models
+
 from cms.enums.entity_name import ENTITY_NAME
+from osis_common.models import osis_model_admin
 from .text_label import TextLabel
 
 
@@ -75,6 +76,16 @@ def get_or_create(entity, reference, text_label, language):
                                                                     reference=reference,
                                                                     text_label=text_label,
                                                                     language=language)
+    return translated_text
+
+
+def update_text_or_create(entity, reference, text_label, language, text):
+    translated_text, created = TranslatedText.objects.update_or_create(
+        entity=entity,
+        reference=reference,
+        text_label=text_label,
+        language=language,
+        defaults={'text': text})
     return translated_text
 
 

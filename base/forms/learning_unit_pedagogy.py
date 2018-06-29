@@ -25,6 +25,8 @@
 ##############################################################################
 from ckeditor.widgets import CKEditorWidget
 from django import forms
+from django.conf import settings
+from django.db import transaction
 
 from base.business.learning_unit import find_language_in_settings, CMS_LABEL_PEDAGOGY, CMS_LABEL_PEDAGOGY_FR_ONLY
 from base.business.learning_units.perms import can_edit_summary_locked_field
@@ -73,17 +75,20 @@ class LearningUnitPedagogyEditForm(forms.Form):
         self.fields['cms_id'].initial = value.id
         self.fields['trans_text'].initial = value.text
 
+    @transaction.atomic
     def save(self):
         cleaned_data = self.cleaned_data
         trans_text = translated_text.find_by_id(cleaned_data['cms_id'])
-        label = trans_text.text_label.label
+        text_label = trans_text.text_label
 
-        if label in CMS_LABEL_PEDAGOGY_FR_ONLY:
-            trans_texts_en_and_fr = translated_text.search(
-                entity=trans_text.entity,
-                reference=trans_text.reference,
-                text_labels_name=[label])
-            trans_texts_en_and_fr.update(text=cleaned_data.get('trans_text'))
+        if text_label.label in CMS_LABEL_PEDAGOGY_FR_ONLY:
+            for language in settings.LANGUAGES:
+                translated_text.update_text_or_create(
+                    entity=trans_text.entity,
+                    reference=trans_text.reference,
+                    text_label=text_label,
+                    language=language[0],
+                    text=cleaned_data.get('trans_text'))
         else:
             trans_text.text = cleaned_data.get('trans_text')
             trans_text.save()
