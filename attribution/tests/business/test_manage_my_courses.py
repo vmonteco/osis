@@ -28,7 +28,7 @@ from unittest import mock
 
 from django.test import TestCase
 
-from attribution.business.manage_my_courses import find_learning_unit_years_summary_editable
+from base.models.learning_unit_year import find_tutor_learning_unit_years
 from attribution.tests.factories.attribution import AttributionFactory
 from attribution.business.perms import can_user_edit_educational_information
 from base.models.enums import entity_container_year_link_type
@@ -126,7 +126,7 @@ class TestFindLearningUnitYearsSummaryEditable(TestCase):
 
     def test_when_summary_responsible_for_all_attributions_and_all_are_summary_editable(self):
         expected_luys = self.learning_unit_years
-        actual_luys = find_learning_unit_years_summary_editable(self.tutor)
+        actual_luys = find_tutor_learning_unit_years(self.tutor)
         self.assertCountEqual(expected_luys, list(actual_luys))
 
     def test_not_return_luy_which_are_summary_locked(self):
@@ -136,7 +136,7 @@ class TestFindLearningUnitYearsSummaryEditable(TestCase):
         self.learning_unit_years[2].save()
 
         expected_luys = [self.learning_unit_years[1], self.learning_unit_years[3]]
-        actual_luys = find_learning_unit_years_summary_editable(self.tutor)
+        actual_luys = find_tutor_learning_unit_years(self.tutor)
         self.assertCountEqual(expected_luys, list(actual_luys))
 
     def test_not_return_luy_for_which_tutor_is_not_summary_responsible(self):
@@ -146,7 +146,7 @@ class TestFindLearningUnitYearsSummaryEditable(TestCase):
         self.attributions[2].save()
 
         expected_luys = [self.learning_unit_years[1], self.learning_unit_years[3]]
-        actual_luys = find_learning_unit_years_summary_editable(self.tutor)
+        actual_luys = find_tutor_learning_unit_years(self.tutor)
         self.assertCountEqual(expected_luys, list(actual_luys))
 
     def test_not_return_luy_which_are_not_summary_editable_and_for_wich_tutor_is_not_summary_responsible(self):
@@ -161,5 +161,5 @@ class TestFindLearningUnitYearsSummaryEditable(TestCase):
         self.attributions[2].save()
 
         expected_luys = [self.learning_unit_years[1], self.learning_unit_years[3]]
-        actual_luys = find_learning_unit_years_summary_editable(self.tutor)
+        actual_luys = find_tutor_learning_unit_years(self.tutor)
         self.assertCountEqual(expected_luys, list(actual_luys))

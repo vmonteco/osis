@@ -475,3 +475,10 @@ def find_lt_learning_unit_year_with_different_acronym(a_learning_unit_yr):
                                            proposallearningunit__isnull=True)\
         .order_by('-academic_year')\
         .exclude(acronym__iexact=a_learning_unit_yr.acronym).first()
+
+
+def find_tutor_learning_unit_years(tutor):
+    qs = LearningUnitYear.objects.filter(
+            attribution__tutor=tutor)\
+        .order_by('academic_year__year', 'acronym')
+    return qs
