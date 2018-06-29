@@ -63,6 +63,3 @@ def create_success_message_for_creation_education_group_year(education_group_yea
     link = reverse("education_group_read", args=[education_group_year.id])
     return _(MSG_KEY) % {"link": link, "acronym": education_group_year.acronym,
                          "academic_year": education_group_year.academic_year}
-
-
-
