@@ -79,13 +79,13 @@ def get_or_create(entity, reference, text_label, language):
     return translated_text
 
 
-def update_text_or_create(entity, reference, text_label, language, text):
+def update_or_create(entity, reference, text_label, language, defaults):
     translated_text, created = TranslatedText.objects.update_or_create(
         entity=entity,
         reference=reference,
         text_label=text_label,
         language=language,
-        defaults={'text': text})
+        defaults=defaults)
     return translated_text
 
 

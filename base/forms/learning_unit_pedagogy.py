@@ -83,12 +83,13 @@ class LearningUnitPedagogyEditForm(forms.Form):
 
         if text_label.label in CMS_LABEL_PEDAGOGY_FR_ONLY:
             for language in settings.LANGUAGES:
-                translated_text.update_text_or_create(
+                translated_text.update_or_create(
                     entity=trans_text.entity,
                     reference=trans_text.reference,
                     text_label=text_label,
                     language=language[0],
-                    text=cleaned_data.get('trans_text'))
+                    defaults={'text': cleaned_data.get('trans_text')}
+                )
         else:
             trans_text.text = cleaned_data.get('trans_text')
             trans_text.save()
