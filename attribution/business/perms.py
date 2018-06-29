@@ -38,16 +38,16 @@ def can_tutor_view_educational_information(user, learning_unit_year_id):
     )(user, learning_unit_year_id)
 
 
-def _is_tutor_attributed_to_the_learning_unit(user, learning_unit_year_id):
-    return LearningUnitYear.objects.filter(pk=learning_unit_year_id,  attribution__tutor__person__user=user).exists()
-
-
 def can_user_edit_educational_information(user, learning_unit_year_id):
     return _conjunction(
         _is_tutor_summary_responsible_of_learning_unit_year,
         _is_learning_unit_year_summary_editable,
         _is_calendar_opened_to_edit_educational_information
     )(user, learning_unit_year_id)
+
+
+def _is_tutor_attributed_to_the_learning_unit(user, learning_unit_year_id):
+    return LearningUnitYear.objects.filter(pk=learning_unit_year_id,  attribution__tutor__person__user=user).exists()
 
 
 def _is_tutor_summary_responsible_of_learning_unit_year(user, learning_unit_year_id):
@@ -57,7 +57,7 @@ def _is_tutor_summary_responsible_of_learning_unit_year(user, learning_unit_year
 
 
 def _is_learning_unit_year_summary_editable(user, learning_unit_year_id):
-    return LearningUnitYear.objects.filter(pk=learning_unit_year_id, summary_locked=False)
+    return LearningUnitYear.objects.filter(pk=learning_unit_year_id, summary_locked=False).exists()
 
 
 def _is_calendar_opened_to_edit_educational_information(user, learning_unit_year_id):
