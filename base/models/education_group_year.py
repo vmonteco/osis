@@ -28,7 +28,7 @@ from django.db.models import Count
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
-from base.business import entity_version
+from base.models import entity_version
 from base.models import offer_year_domain as mdl_offer_year_domain, education_group_organization
 from base.models.entity import Entity
 from base.models.enums import academic_type, fee, internship_presence, schedule_type, activity_presence, \
