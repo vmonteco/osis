@@ -295,17 +295,6 @@ def get_texts_for_section(column_name, admission_condition, admission_condition_
     }
 
 
-@renderer_classes((JSONRenderer,))
-def ws_get_conditions_admissions(request, year, language, acronym):
-    education_group_year, iso_language, year = parameters_validation(acronym, language, year)
-
-    context = new_context(education_group_year, iso_language, language, acronym)
-
-    result = get_conditions_admissions(context)
-
-    return JsonResponse(result)
-
-
 def get_conditions_admissions(context):
     acronym_match = re.match(ACRONYM_PATTERN, context.acronym.lower())
     if not acronym_match:
