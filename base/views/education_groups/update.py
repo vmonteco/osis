@@ -27,12 +27,10 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import ugettext_lazy as _
 
-from base.forms.education_group.edition import EditionEducationGroupYearForm, EducationGroupForm, \
-    UpdateOfferYearManagementEntityForm
-from base.models.enums import education_group_categories, offer_year_entity_type
 from base.forms.education_group.create import CreateEducationGroupYearForm
+from base.forms.education_group.edition import EducationGroupForm
 from base.models.education_group_year import EducationGroupYear
-from base.models.offer_year_entity import OfferYearEntity
+from base.models.enums import education_group_categories
 from base.views import layout
 from base.views.common import display_success_messages, reverse_url_with_root
 from base.views.education_groups.perms import can_change_education_group
@@ -43,55 +41,21 @@ from base.views.education_groups.perms import can_change_education_group
 def update_education_group(request, education_group_year_id):
     education_group_year = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
 
+    form_education_group = EducationGroupForm(request.POST or None, instance=education_group_year.education_group)
     form_education_group_year = CreateEducationGroupYearForm(request.POST or None, instance=education_group_year)
-    html_page = "education_group/update.html"
-    form_management_entity = None
-    form_education_group = None
-    offer_year_entity = get_object_or_404(OfferYearEntity, education_group_year=education_group_year,
-                                          type=offer_year_entity_type.ENTITY_ADMINISTRATION)
 
-    if education_group_year.education_group_type.category == education_group_categories.GROUP:
-        form_education_group_year = CreateEducationGroupYearForm(request.POST or None, instance=education_group_year)
-    else:
-        form_education_group_year = EditionEducationGroupYearForm(request.POST or None, instance=education_group_year)
+    if education_group_year.education_group_type.category != education_group_categories.GROUP:
         html_page = "education_group/identification_training_edit.html"
-        form_management_entity = UpdateOfferYearManagementEntityForm(
-            initial={'entity': education_group_year.management_entity})
-        form_education_group = EducationGroupForm(instance=education_group_year.education_group)
+    else:
+        html_page = "education_group/update.html"
 
-    form_offer_year_entity = CreateOfferYearEntityForm(request.POST or None, instance=offer_year_entity)
-
-    if form_education_group_year.is_valid():
-        education_group_year = form_education_group_year.save()
-
+    if form_education_group.is_valid() and form_education_group_year.is_valid():
         display_success_messages(request, _("Education group successfully updated"))
-
         url = reverse_url_with_root(request, "education_group_read", args=[education_group_year.id])
-
-        return redirect(url)
-
-    return layout.render(request, "education_group/update.html", {
-        "form_education_group_year": form_education_group_year,
-        "education_group_year": education_group_year,
-    })
-    if form_offer_year_entity.is_valid() and form_education_group_year.is_valid():
-        url = save_forms(form_education_group_year, form_offer_year_entity, request)
         return redirect(url)
 
     return layout.render(request, html_page, {
         "form_education_group_year": form_education_group_year,
-        "form_offer_year_entity": form_offer_year_entity,
         "education_group_year": education_group_year,
-        "form_management_entity": form_management_entity,
         "form_education_group": form_education_group
     })
-
-
-def save_forms(form_education_group_year, form_offer_year_entity, request):
-    education_group_year = form_education_group_year.save()
-    form_offer_year_entity.save(education_group_year)
-    display_success_messages(request, _("Education group successfully updated"))
-    url = reverse_url_with_query_string("education_group_read",
-                                        args=[education_group_year.id],
-                                        query={"root": request.GET.get("root")})
-    return url

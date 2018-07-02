@@ -24,13 +24,11 @@
 #
 ##############################################################################
 from django import forms
-from django.utils.translation import ugettext_lazy as _
 
 from base.models import campus, education_group_type
 from base.models.education_group import EducationGroup
 from base.models.education_group_year import EducationGroupYear
 from base.models.enums import education_group_categories
-from base.forms.education_group.create import CreateOfferYearEntityForm
 
 
 class EditionEducationGroupYearForm(forms.ModelForm):
@@ -75,12 +73,3 @@ class EducationGroupForm(forms.ModelForm):
     class Meta:
         model = EducationGroup
         fields = ['start_year', 'end_year']
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-
-class UpdateOfferYearManagementEntityForm(CreateOfferYearEntityForm):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields["entity"].label = _('management_entity')
