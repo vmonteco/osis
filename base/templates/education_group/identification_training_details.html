@@ -70,7 +70,7 @@
                         <br><br>
                         <label>{% trans 'studies_domain'%}</label><br>
                         {% if education_group_year.domains %}
-                            {% trans education_group_year.domains %}
+                            {% trans education_group_year.domains_str %}
                         {% else %}
                             <strong class="text-primary">{% trans parent.domains %}</strong><br>
                         {% endif %}

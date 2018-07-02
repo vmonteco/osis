@@ -23,7 +23,10 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from ajax_select import register, LookupChannel
+from ajax_select.fields import AutoCompleteSelectMultipleField
 from django import forms
+from django.utils.translation import ugettext_lazy as _
 
 from base.forms.education_group.create import CreateEducationGroupYearForm
 from base.forms.learning_unit.entity_form import EntitiesVersionChoiceField
@@ -32,9 +35,14 @@ from base.models.education_group import EducationGroup
 from base.models.education_group_year import EducationGroupYear
 from base.models.entity_version import find_main_entities_version, get_last_version
 from base.models.enums import education_group_categories
+from reference.models.domain import Domain
 
 
 class EditionEducationGroupYearForm(CreateEducationGroupYearForm):
+
+    domains = AutoCompleteSelectMultipleField(
+        'domains', required=False, help_text=None, label=_('domains'),
+        plugin_options={'max-height': '100px', 'overflow-y': 'auto', 'overflow-x': 'hidden'})
 
     class Meta:
         model = EducationGroupYear
@@ -48,7 +56,7 @@ class EditionEducationGroupYearForm(CreateEducationGroupYearForm):
                   "other_campus_activities", "funding", "funding_direction", "funding_cud",
                   "funding_direction_cud",
                   "diploma_printing_title", "diploma_printing_orientation", "professional_title", "min_credits",
-                  "max_credits", "administration_entity", "management_entity"]
+                  "max_credits", "administration_entity", "management_entity", "domains"]
 
         field_classes = {
             "administration_entity": EntitiesVersionChoiceField,
@@ -70,8 +78,25 @@ class EditionEducationGroupYearForm(CreateEducationGroupYearForm):
         if getattr(self.instance, 'management_entity', None):
             self.initial['management_entity'] = get_last_version(self.instance.management_entity).pk
 
+    def save(self, commit=True):
+        education_group_year = super().save()
+        education_group_year.save_m2m()
+        return education_group_year
+
 
 class EducationGroupForm(forms.ModelForm):
     class Meta:
         model = EducationGroup
         fields = ['start_year', 'end_year']
+
+
+@register('domains')
+class DomainsLookup(LookupChannel):
+
+    model = Domain
+
+    def get_query(self, q, request):
+        return self.model.objects.filter(name__icontains=q)
+
+    def format_item_display(self, item):
+        return u"<span class='tag'>%s</span>" % item.name

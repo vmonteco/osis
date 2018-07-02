@@ -40,6 +40,7 @@
         <div class="panel-body">
             <div class="row">
                 {% bootstrap_form_errors form_education_group_year %}
+                {{ form_education_group_year.media }}
             </div>
             <form method="post" id="EducationGroupYearUpdateForm">
                 {% csrf_token %}
@@ -291,6 +292,7 @@
                     <div class="panel-body">
                         {% bootstrap_field form_education_group_year.remark %}
                         {% bootstrap_field form_education_group_year.remark_english %}
+                        {% bootstrap_field form_education_group_year.domains %}
                     </div>
                     </div>
                 {% endwith %}
@@ -307,3 +309,20 @@
 {% block script %}
     <script type="text/javascript" src="{% static 'js/education_group/edition.js' %}"></script>
 {% endblock script %}
+
+{% block style %}
+<style>
+  .ui-autocomplete {
+      max-height: 200px;
+      overflow-y: auto;
+      /* prevent horizontal scrollbar */
+      overflow-x: hidden;
+  }
+    /* IE 6 doesn't support max-height
+     * we use height instead, but this forces the menu to always be this tall
+     */
+  * html .ui-autocomplete {
+      height: 200px;
+  }
+</style>
+{% endblock %}
