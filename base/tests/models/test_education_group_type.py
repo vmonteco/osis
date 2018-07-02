@@ -57,4 +57,10 @@ class TestAuthorizedTypes(TestCase):
         UnauthorizedRelationshipFactory(parent_type=self.complementary_module, child_type=self.options_list)
         educ_group_year = EducationGroupYearFactory(education_group_type=self.subgroup)
         result = find_authorized_types(education_group_year_parent=educ_group_year)
-        self.assertEqual(result.count(), EducationGroupType.objects.all().count())
+        self.assertEqual(result.count(), EducationGroupType.objects.filter(category=self.subgroup.category).count())
+
+    def test_all_types_returned_when_no_filters_given(self):
+        """If no category and no parent is given, then the function should return all education group types"""
+        result = find_authorized_types()
+        self.assertNotEqual(list(result), [])
+        self.assertEqual(len(result), EducationGroupType.objects.all().count())
