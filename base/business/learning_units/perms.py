@@ -37,6 +37,7 @@ from base.models.enums.proposal_type import ProposalType
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import is_person_linked_to_entity_in_charge_of_learning_unit
 from base.models.person_entity import is_attached_entities
+from base.utils.perms import conjunction, disjunction, negation
 from osis_common.utils.datetime import get_tzinfo, convert_date_to_datetime
 
 FACULTY_UPDATABLE_CONTAINER_TYPES = (learning_container_year_types.COURSE,
@@ -52,7 +53,7 @@ def _any_existing_proposal_in_epc(learning_unit_year, _):
 
 
 def is_eligible_for_modification(learning_unit_year, person):
-    return _conjunction(
+    return conjunction(
         _any_existing_proposal_in_epc,
         _is_learning_unit_year_in_range_to_be_modified,
         is_person_linked_to_entity_in_charge_of_learning_unit
@@ -60,16 +61,16 @@ def is_eligible_for_modification(learning_unit_year, person):
 
 
 def is_eligible_for_modification_end_date(learning_unit_year, person):
-    return _conjunction(
+    return conjunction(
         _any_existing_proposal_in_epc,
-        _negation(is_learning_unit_year_in_past),
+        negation(is_learning_unit_year_in_past),
         is_eligible_for_modification,
         _is_person_eligible_to_modify_end_date_based_on_container_type
     )(learning_unit_year, person)
 
 
 def is_eligible_to_create_partim(learning_unit_year, person):
-    return _conjunction(
+    return conjunction(
         _any_existing_proposal_in_epc,
         is_person_linked_to_entity_in_charge_of_learning_unit,
         is_academic_year_in_range_to_create_partim,
@@ -78,18 +79,18 @@ def is_eligible_to_create_partim(learning_unit_year, person):
 
 
 def is_eligible_to_create_modification_proposal(learning_unit_year, person):
-    return _conjunction(
+    return conjunction(
         _any_existing_proposal_in_epc,
-        _negation(is_learning_unit_year_in_past),
-        _negation(is_learning_unit_year_a_partim),
+        negation(is_learning_unit_year_in_past),
+        negation(is_learning_unit_year_a_partim),
         _is_container_type_course_dissertation_or_internship,
-        _negation(is_learning_unit_year_in_proposal),
+        negation(is_learning_unit_year_in_proposal),
         is_person_linked_to_entity_in_charge_of_learning_unit
     )(learning_unit_year, person)
 
 
 def is_eligible_for_cancel_of_proposal(proposal, person):
-    return _conjunction(
+    return conjunction(
         _is_person_in_accordance_with_proposal_state,
         _is_attached_to_initial_or_current_requirement_entity,
         _has_person_the_right_to_make_proposal
@@ -100,7 +101,7 @@ def is_eligible_to_edit_proposal(proposal, person):
     if not proposal:
         return False
 
-    return _conjunction(
+    return conjunction(
         _is_attached_to_initial_or_current_requirement_entity,
         _is_person_eligible_to_edit_proposal_based_on_state,
         _has_person_the_right_edit_proposal,
@@ -108,7 +109,7 @@ def is_eligible_to_edit_proposal(proposal, person):
 
 
 def is_eligible_to_consolidate_proposal(proposal, person):
-    return _conjunction(
+    return conjunction(
         _has_person_the_right_to_consolidate,
         _is_proposal_in_state_to_be_consolidated,
         _is_attached_to_initial_or_current_requirement_entity
@@ -124,7 +125,7 @@ def can_update_learning_achievement(learning_unit_year, person):
 
 
 def is_eligible_to_delete_learning_unit_year(learning_unit_year, person):
-    return _conjunction(
+    return conjunction(
         _any_existing_proposal_in_epc,
         _can_delete_learning_unit_year_according_type
     )(learning_unit_year, person) and person.is_linked_to_entity_in_charge_of_learning_unit_year(learning_unit_year)
@@ -142,10 +143,10 @@ def _is_person_eligible_to_edit_proposal_based_on_state(proposal, person):
 
 
 def _is_person_eligible_to_modify_end_date_based_on_container_type(learning_unit_year, person):
-    return _disjunction(
+    return disjunction(
         _is_person_central_manager,
         _is_learning_unit_year_a_partim,
-        _negation(_is_container_type_course_dissertation_or_internship)
+        negation(_is_container_type_course_dissertation_or_internship)
     )(learning_unit_year, person)
 
 
@@ -254,34 +255,6 @@ def learning_unit_proposal_permissions(proposal, person, current_learning_unit_y
     return permissions
 
 
-def _conjunction(*predicates):
-
-    def conjunction_method(*args, **kwargs):
-        return all(
-            p(*args, **kwargs) for p in predicates
-        )
-
-    return conjunction_method
-
-
-def _disjunction(*predicates):
-
-    def disjunction_method(*args, **kwargs):
-        return any(
-            p(*args, **kwargs) for p in predicates
-        )
-
-    return disjunction_method
-
-
-def _negation(predicate):
-
-    def negation_method(*args, **kwargs):
-        return not predicate(*args, **kwargs)
-
-    return negation_method
-
-
 def is_eligible_to_update_learning_unit_pedagogy(learning_unit_year, person):
     """
     Permission to edit learning unit pedagogy needs many conditions:
@@ -312,7 +285,7 @@ def is_eligible_to_update_learning_unit_pedagogy(learning_unit_year, person):
 
 
 def can_user_edit_educational_information(user, learning_unit_year_id):
-    return _conjunction(
+    return conjunction(
         _is_tutor_summary_responsible_of_learning_unit_year,
         _is_learning_unit_year_summary_editable,
         _is_calendar_opened_to_edit_educational_information

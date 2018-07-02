@@ -23,16 +23,29 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+def conjunction(*predicates):
 
-from base.utils.perms import conjunction
-from base.models.learning_unit_year import LearningUnitYear
+    def conjunction_method(*args, **kwargs):
+        return all(
+            p(*args, **kwargs) for p in predicates
+        )
+
+    return conjunction_method
 
 
-def can_tutor_view_educational_information(user, learning_unit_year_id):
-    return conjunction(
-        _is_tutor_attributed_to_the_learning_unit
-    )(user, learning_unit_year_id)
+def disjunction(*predicates):
+
+    def disjunction_method(*args, **kwargs):
+        return any(
+            p(*args, **kwargs) for p in predicates
+        )
+
+    return disjunction_method
 
 
-def _is_tutor_attributed_to_the_learning_unit(user, learning_unit_year_id):
-    return LearningUnitYear.objects.filter(pk=learning_unit_year_id,  attribution__tutor__person__user=user).exists()
+def negation(predicate):
+
+    def negation_method(*args, **kwargs):
+        return not predicate(*args, **kwargs)
+
+    return negation_method

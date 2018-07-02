@@ -23,22 +23,22 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from base.business.learning_units.perms import _conjunction, _disjunction
+from base.utils.perms import conjunction, disjunction
 from base.models import academic_calendar
 from base.models.enums import academic_calendar_type
 
 
 def is_eligible_to_add_education_group(person):
-    return _conjunction(
+    return conjunction(
             has_person_the_right_to_add_education_group,
-            _disjunction(is_central_manager, is_education_group_creation_period_opened),
+            disjunction(is_central_manager, is_education_group_creation_period_opened),
     )(person)
 
 
 def is_eligible_to_change_education_group(person):
-    return _conjunction(
+    return conjunction(
         has_person_the_right_to_change_education_group,
-        _disjunction(is_central_manager, is_education_group_creation_period_opened),
+        disjunction(is_central_manager, is_education_group_creation_period_opened),
     )(person)
 
 
