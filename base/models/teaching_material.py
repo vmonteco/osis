@@ -71,7 +71,7 @@ def postpone_teaching_materials(start_luy, commit=True):
         # Remove all previous teaching materials
         next_luy.teachingmaterial_set.all().delete()
         # Inserts all teaching materials comes from start_luy
-        to_inserts = [TeachingMaterial(title=tm.title,mandatory=tm.mandatory, learning_unit_year=next_luy)
+        to_inserts = [TeachingMaterial(title=tm.title, mandatory=tm.mandatory, learning_unit_year=next_luy)
                       for tm in teaching_materials]
         bulk_save(to_inserts, commit)
 
