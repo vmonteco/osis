@@ -151,13 +151,12 @@
 			            </td>
                         <td>{{ education_group_year.title }}</td>
                         <td>{{ education_group_year.education_group_type.name }}</td>
-                        <td>{{ education_group_year.entity_management.acronym }}</td>
+                        <td>{{ education_group_year.management_entity_version.acronym }}</td>
                         <td>{{ education_group_year.partial_acronym | default_if_none:""  }}</td>
                     </tr>
                 {% endfor %}
             </table>
                 <div class="text-center">
-
                     {% bootstrap_pagination object_list extra=request.GET.urlencode %}
                 </div>
             {% endif %}

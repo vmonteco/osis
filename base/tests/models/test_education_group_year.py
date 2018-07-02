@@ -23,21 +23,21 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from django.test import TestCase
+
+from base.models.education_group_year import find_by_id, search, find_with_enrollments_count
+from base.models.enums import education_group_categories
+from base.models.exceptions import MaximumOneParentAllowedException
+from base.tests.factories.academic_year import AcademicYearFactory, create_current_academic_year
+from base.tests.factories.education_group_type import EducationGroupTypeFactory
+from base.tests.factories.education_group_year import EducationGroupYearFactory
+from base.tests.factories.entity_version import EntityVersionFactory
+from base.tests.factories.group_element_year import GroupElementYearFactory
 from base.tests.factories.learning_unit_enrollment import LearningUnitEnrollmentFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from base.tests.factories.offer_enrollment import OfferEnrollmentFactory
-from django.test import TestCase
-from base.models.education_group_year import offer_year_entity_type, find_by_id, search, find_with_enrollments_count
-from base.models.exceptions import MaximumOneParentAllowedException
-from base.models.enums import education_group_categories
-from base.tests.factories.academic_year import AcademicYearFactory, create_current_academic_year
-from base.tests.factories.education_group_year import EducationGroupYearFactory
-from base.tests.factories.education_group_type import EducationGroupTypeFactory
 from base.tests.factories.offer_year import OfferYearFactory
 from base.tests.factories.offer_year_domain import OfferYearDomainFactory
-from base.tests.factories.offer_year_entity import OfferYearEntityFactory
-from base.tests.factories.entity_version import EntityVersionFactory
-from base.tests.factories.group_element_year import GroupElementYearFactory
 
 
 class EducationGroupYearTest(TestCase):
@@ -46,7 +46,11 @@ class EducationGroupYearTest(TestCase):
 
         academic_year = AcademicYearFactory()
         self.education_group_type_training = EducationGroupTypeFactory(category=education_group_categories.TRAINING)
-        self.education_group_type_minitraining = EducationGroupTypeFactory(category=education_group_categories.MINI_TRAINING)
+
+        self.education_group_type_minitraining = EducationGroupTypeFactory(
+            category=education_group_categories.MINI_TRAINING
+        )
+
         self.education_group_type_group = EducationGroupTypeFactory(category=education_group_categories.GROUP)
 
         self.education_group_year_1 = EducationGroupYearFactory(academic_year=academic_year,
@@ -64,18 +68,20 @@ class EducationGroupYearTest(TestCase):
         self.offer_year_2 = OfferYearFactory(academic_year=academic_year)
         self.offer_year_domain = OfferYearDomainFactory(offer_year=self.offer_year_2,
                                                         education_group_year=self.education_group_year_2)
-        self.offer_year_entity_admin = OfferYearEntityFactory(offer_year=self.offer_year_2,
-                                                              education_group_year=self.education_group_year_2,
-                                                              type=offer_year_entity_type.ENTITY_ADMINISTRATION)
-        self.entity_version_admin = EntityVersionFactory(entity=self.offer_year_entity_admin.entity,
-                                                         parent=None)
+
+        self.entity_version_admin = EntityVersionFactory(
+            entity=self.education_group_year_2.administration_entity,
+            start_date=self.education_group_year_2.academic_year.start_date,
+            parent=None
+        )
 
         self.offer_year_3 = OfferYearFactory(academic_year=academic_year)
-        self.offer_year_entity_management = OfferYearEntityFactory(offer_year=self.offer_year_3,
-                                                                   education_group_year=self.education_group_year_3,
-                                                                   type=offer_year_entity_type.ENTITY_MANAGEMENT)
-        self.entity_version_management = EntityVersionFactory(entity=self.offer_year_entity_management.entity,
-                                                         parent=None)
+
+        self.entity_version_management = EntityVersionFactory(
+            entity=self.education_group_year_3.management_entity,
+            start_date=self.education_group_year_3.academic_year.start_date,
+            parent=None
+        )
 
         self.group_element_year_4 = GroupElementYearFactory(parent=self.education_group_year_3,
                                                      child_branch=self.education_group_year_1)
@@ -109,19 +115,11 @@ class EducationGroupYearTest(TestCase):
         offer_year_domain = "{}-{} ".format(self.offer_year_domain.domain.decree, self.offer_year_domain.domain.name)
         self.assertEqual(domains, offer_year_domain)
 
-    def test_administration_entity_property(self):
-        administration_entity = self.education_group_year_1.administration_entity
-        self.assertIsNone(administration_entity)
+    def test_administration_entity_version_property(self):
+        self.assertEqual(self.education_group_year_2.administration_entity_version, self.entity_version_admin)
 
-        administration_entity = self.education_group_year_2.administration_entity
-        self.assertEqual(administration_entity, self.entity_version_admin)
-
-    def test_management_entity_property(self):
-        management_entity = self.education_group_year_1.management_entity
-        self.assertIsNone(management_entity)
-
-        management_entity = self.education_group_year_3.management_entity
-        self.assertEqual(management_entity, self.entity_version_management)
+    def test_management_entity_version_property(self):
+        self.assertEqual(self.education_group_year_3.management_entity_version, self.entity_version_management)
 
     def test_parent_by_training_property(self):
         parent_by_training = self.education_group_year_3.is_training()

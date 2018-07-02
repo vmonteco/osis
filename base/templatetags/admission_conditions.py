@@ -15,7 +15,7 @@
 #
 #    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #    GNU General Public License for more details.
 #
 #    A copy of this license - GNU General Public License - is available
@@ -23,28 +23,26 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import factory.fuzzy
+from django import template
 
-from base.tests.factories.academic_year import AcademicYearFactory
-from base.tests.factories.education_group import EducationGroupFactory
-from base.tests.factories.education_group_type import EducationGroupTypeFactory
-from base.tests.factories.entity import EntityFactory
+register = template.Library()
 
 
-def generate_title(education_group_year):
-    return '{obj.academic_year} {obj.acronym}'.format(obj=education_group_year).lower()
+@register.inclusion_tag('templatetags/admission_condition_table_row.html')
+def render_condition_rows(section_name, header_text, records, condition):
+    return {
+        'section_name': section_name,
+        'header_text': header_text,
+        'records': records,
+        'condition': condition,
+    }
 
 
-class EducationGroupYearFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = "base.EducationGroupYear"
-
-    education_group = factory.SubFactory(EducationGroupFactory)
-    academic_year = factory.SubFactory(AcademicYearFactory)
-    acronym = factory.Sequence(lambda n: 'Education%d' % n)
-    partial_acronym = factory.Sequence(lambda n: 'SCS%d' % n)
-    title = factory.LazyAttribute(generate_title)
-    title_english = factory.LazyAttribute(generate_title)
-    education_group_type = factory.SubFactory(EducationGroupTypeFactory)
-    management_entity = factory.SubFactory(EntityFactory)
-    administration_entity = factory.SubFactory(EntityFactory)
+@register.inclusion_tag('templatetags/admission_condition_text.html')
+def render_condition_text(section_name, text, field, condition):
+    return {
+        'section': section_name,
+        'text': text,
+        'field': field,
+        'condition': condition,
+    }
