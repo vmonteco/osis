@@ -64,7 +64,7 @@ class CreateEducationGroupYearForm(forms.ModelForm):
         if getattr(self.instance, 'administration_entity', None):
             self.initial['administration_entity'] = get_last_version(self.instance.administration_entity).pk
 
-    def save(self):
+    def save(self, *args, **kwargs):
         education_group_year = super().save(commit=False)
         education_group_year.education_group = self._create_education_group()
         education_group_year.save()
