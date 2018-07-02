@@ -23,13 +23,16 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+
+from base.business.learning_units.perms import _conjunction
 from base.models.learning_unit_year import LearningUnitYear
 
 
-def find_learning_unit_years_summary_editable(tutor):
-    qs = LearningUnitYear.objects.filter(
-            summary_locked=False,
-            attribution__summary_responsible=True,
-            attribution__tutor=tutor)\
-        .order_by('academic_year__year', 'acronym')
-    return qs
+def can_tutor_view_educational_information(user, learning_unit_year_id):
+    return _conjunction(
+        _is_tutor_attributed_to_the_learning_unit
+    )(user, learning_unit_year_id)
+
+
+def _is_tutor_attributed_to_the_learning_unit(user, learning_unit_year_id):
+    return LearningUnitYear.objects.filter(pk=learning_unit_year_id,  attribution__tutor__person__user=user).exists()

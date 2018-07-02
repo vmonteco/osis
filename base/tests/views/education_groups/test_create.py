@@ -27,11 +27,10 @@ from unittest import mock
 
 from django.test import TestCase
 from django.urls import reverse
-from django.http import HttpResponseForbidden
 
-from base.forms.education_group.create import CreateEducationGroupYearForm, CreateOfferYearEntityForm
+from base.forms.education_group.create import CreateEducationGroupYearForm
 from base.tests.factories.education_group_year import EducationGroupYearFactory
-from base.tests.factories.person import PersonFactory, PersonWithPermissionsFactory
+from base.tests.factories.person import PersonFactory
 
 
 class TestCreate(TestCase):
@@ -77,7 +76,5 @@ class TestCreate(TestCase):
         response = self.client.get(self.url_without_parent)
 
         form_education_group_year = response.context["form_education_group_year"]
-        form_offer_year_entity  =  response.context["form_offer_year_entity"]
 
         self.assertIsInstance(form_education_group_year, CreateEducationGroupYearForm)
-        self.assertIsInstance(form_offer_year_entity, CreateOfferYearEntityForm)

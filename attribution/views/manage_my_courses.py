@@ -27,13 +27,13 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 
-from attribution.business.manage_my_courses import find_learning_unit_years_summary_editable
-from attribution.models.attribution import find_all_summary_responsibles_by_learning_unit_years
 from attribution.views.perms import tutor_can_view_educational_information
 from base.business.learning_units.perms import is_eligible_to_update_learning_unit_pedagogy, \
     find_educational_information_submission_dates_of_learning_unit_year
-from base.models import academic_year
-from base.models import entity_calendar
+from base.models.learning_unit_year import find_tutor_learning_unit_years
+from attribution.models.attribution import find_all_summary_responsibles_by_learning_unit_years
+
+from base.models import academic_year, entity_calendar
 from base.models.enums import academic_calendar_type
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.tutor import Tutor
@@ -45,16 +45,17 @@ from base.views.learning_units.perms import PermissionDecorator
 @login_required
 def list_my_attributions_summary_editable(request):
     tutor = get_object_or_404(Tutor, person__user=request.user)
-    learning_unit_years_summary_editable = find_learning_unit_years_summary_editable(tutor=tutor)
-    # Get all score responsibles
-    score_responsibles = find_all_summary_responsibles_by_learning_unit_years(learning_unit_years_summary_editable)
-    # Build entity calendar
+    tutor_learning_unit_years = find_tutor_learning_unit_years(tutor=tutor)
+
+    score_responsibles = find_all_summary_responsibles_by_learning_unit_years(tutor_learning_unit_years)
+
     entity_calendars = entity_calendar.build_calendar_by_entities(
         ac_year=academic_year.current_academic_year(),
         reference=academic_calendar_type.SUMMARY_COURSE_SUBMISSION
     )
+
     context = {
-        'learning_unit_years_summary_editable': learning_unit_years_summary_editable,
+        'learning_unit_years_summary_editable': tutor_learning_unit_years,
         'entity_calendars': entity_calendars,
         'score_responsibles': score_responsibles
     }

@@ -136,7 +136,7 @@
                     <div class="col-md-6">
                         <label>{% trans 'administration_entity' %}</label><br>
                         {% if education_group_year.administration_entity %}
-                            {{ education_group_year.administration_entity.acronym}}
+                            {{ education_group_year.administration_entity}}
                         {% elif parent.administration_entity %}
                             <strong class="text-primary">
                             {{ parent.administration_entity.acronym }}

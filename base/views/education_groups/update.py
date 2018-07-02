@@ -29,13 +29,12 @@ from django.utils.translation import ugettext_lazy as _
 
 from base.forms.education_group.edition import EditionEducationGroupYearForm, EducationGroupForm, \
     UpdateOfferYearManagementEntityForm
-from base.models.enums import education_group_categories
-from base.forms.education_group.create import CreateEducationGroupYearForm, CreateOfferYearEntityForm
+from base.models.enums import education_group_categories, offer_year_entity_type
+from base.forms.education_group.create import CreateEducationGroupYearForm
 from base.models.education_group_year import EducationGroupYear
-from base.models.enums import offer_year_entity_type
 from base.models.offer_year_entity import OfferYearEntity
 from base.views import layout
-from base.views.common import display_success_messages, reverse_url_with_query_string
+from base.views.common import display_success_messages, reverse_url_with_root
 from base.views.education_groups.perms import can_change_education_group
 
 
@@ -43,6 +42,8 @@ from base.views.education_groups.perms import can_change_education_group
 @user_passes_test(can_change_education_group)
 def update_education_group(request, education_group_year_id):
     education_group_year = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
+
+    form_education_group_year = CreateEducationGroupYearForm(request.POST or None, instance=education_group_year)
     html_page = "education_group/update.html"
     form_management_entity = None
     form_education_group = None
@@ -60,6 +61,19 @@ def update_education_group(request, education_group_year_id):
 
     form_offer_year_entity = CreateOfferYearEntityForm(request.POST or None, instance=offer_year_entity)
 
+    if form_education_group_year.is_valid():
+        education_group_year = form_education_group_year.save()
+
+        display_success_messages(request, _("Education group successfully updated"))
+
+        url = reverse_url_with_root(request, "education_group_read", args=[education_group_year.id])
+
+        return redirect(url)
+
+    return layout.render(request, "education_group/update.html", {
+        "form_education_group_year": form_education_group_year,
+        "education_group_year": education_group_year,
+    })
     if form_offer_year_entity.is_valid() and form_education_group_year.is_valid():
         url = save_forms(form_education_group_year, form_offer_year_entity, request)
         return redirect(url)

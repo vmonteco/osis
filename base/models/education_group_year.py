@@ -25,18 +25,18 @@
 ##############################################################################
 from django.db import models
 from django.db.models import Count
+from django.utils.functional import cached_property
+from django.utils.translation import ugettext_lazy as _
 
-from base.models import entity_version as mdl_entity_version
+from base.models import entity_version
 from base.models import offer_year_domain as mdl_offer_year_domain, education_group_organization
-from base.models import offer_year_entity as mdl_offer_year_entity
+from base.models.entity import Entity
 from base.models.enums import academic_type, fee, internship_presence, schedule_type, activity_presence, \
     diploma_printing_orientation, active_status, duration_unit
 from base.models.enums import education_group_association
 from base.models.enums import education_group_categories
-from base.models.enums import offer_year_entity_type
 from base.models.exceptions import MaximumOneParentAllowedException
 from osis_common.models.osis_model_admin import OsisModelAdmin
-from django.utils.translation import ugettext_lazy as _
 
 
 class EducationGroupYearAdmin(OsisModelAdmin):
@@ -64,7 +64,7 @@ class EducationGroupYear(models.Model):
     funding = models.BooleanField(default=False, verbose_name=_('funding'))
     funding_direction = models.CharField(max_length=1, blank=True, null=True, verbose_name=_('funding_direction'))
     funding_cud = models.BooleanField(default=False,
-                                      verbose_name=_('funding_cud'))  #cud = commission universitaire au développement
+                                      verbose_name=_('funding_cud'))  # cud = commission universitaire au développement
     funding_direction_cud = models.CharField(max_length=1, blank=True, null=True,
                                              verbose_name=_('cud_funding_direction'))
     academic_type = models.CharField(max_length=20, choices=academic_type.ACADEMIC_TYPES, blank=True, null=True,
@@ -117,6 +117,19 @@ class EducationGroupYear(models.Model):
     max_credits = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True,
                                       verbose_name=_("maximum credits"))
 
+    management_entity = models.ForeignKey(
+        Entity,
+        verbose_name=_("management_entity"),
+        blank=True, null=True,
+        related_name="management_entity"
+    )
+
+    administration_entity = models.ForeignKey(
+        Entity, null=True,
+        verbose_name=_("administration_entity"),
+        related_name='administration_entity'
+    )
+
     _coorganizations = None
 
     def __str__(self):
@@ -130,21 +143,17 @@ class EducationGroupYear(models.Model):
             ch = "{}-{} ".format(offer_yr_domain.domain.decree, offer_yr_domain.domain.name)
         return ch
 
-    @property
-    def administration_entity(self):
-        result = mdl_offer_year_entity.find_by_education_group_year_first(self,
-                                                                          offer_year_entity_type.ENTITY_ADMINISTRATION)
-        if result:
-            return mdl_entity_version.get_last_version(result.entity)
-        return None
+    @cached_property
+    def administration_entity_version(self):
+        return entity_version.find_entity_version_according_academic_year(
+            self.administration_entity, self.academic_year
+        )
 
-    @property
-    def management_entity(self):
-        result = mdl_offer_year_entity.find_by_education_group_year_first(self,
-                                                                          offer_year_entity_type.ENTITY_MANAGEMENT)
-        if result:
-            return mdl_entity_version.get_last_version(result.entity)
-        return None
+    @cached_property
+    def management_entity_version(self):
+        return entity_version.find_entity_version_according_academic_year(
+            self.management_entity, self.academic_year
+        )
 
     @property
     def parent_by_training(self):

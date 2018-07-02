@@ -34,6 +34,7 @@ from django.db.models import Q
 
 from base.models.academic_year import AcademicYear
 from base.models.admission_condition import AdmissionCondition, AdmissionConditionLine
+from base.models.education_group_type import EducationGroupType
 from base.models.education_group_year import EducationGroupYear
 from cms.models.text_label import TextLabel
 from cms.models.translated_text import TranslatedText
@@ -182,6 +183,13 @@ class Command(BaseCommand):
 
         mapping_label_text_label = get_mapping_label_texts(context, labels)
 
+        # FIXME: EducationGroupType is not required on the EducationGroupYear, but we use the category of the type in
+        # base.business.education_group.assert_category_of_education_group_year
+        # without this type, there is a crash during the rendering of the template
+        education_group_type = EducationGroupType.objects.filter(name='Master en un an', category='TRAINING').first()
+        queryset = EducationGroupYear.objects.filter(acronym='common', education_group_type__isnull=True)
+        queryset.update(education_group_type=education_group_type)
+
         create_offers(context, self.json_content, mapping_label_text_label)
 
     def load_admission_conditions(self):
@@ -251,7 +259,7 @@ class Command(BaseCommand):
             if not value:
                 continue
             if key == 'introduction':
-                self.set_admission_condition_value(admission_condition, 'standard', value['text'])
+                self.set_admission_condition_value(admission_condition, 'free', value['text'])
             elif key in ('personalized_access', 'admission_enrollment_procedures',
                          'adults_taking_up_university_training'):
                 self.set_admission_condition_value(admission_condition, key, value['text'])
@@ -272,10 +280,17 @@ class Command(BaseCommand):
             academic_year=academic_year,
             acronym='common'
         )
+        # FIXME: EducationGroupType is not required on the EducationGroupYear, but we use the category of the type in
+        # base.business.education_group.assert_category_of_education_group_year
+        # without this type, there is a crash during the rendering of the template
+        education_group_type = EducationGroupType.objects.filter(name='Bachelier', category='TRAINING').first()
         education_group_year, created = EducationGroupYear.objects.get_or_create(
             academic_year=academic_year,
             acronym='common-bacs',
-            education_group=education_group_year_common.education_group
+            education_group=education_group_year_common.education_group,
+            defaults={
+                'education_group_type': education_group_type,
+            }
         )
         admission_condition, created = AdmissionCondition.objects.get_or_create(
             education_group_year=education_group_year)
@@ -294,10 +309,17 @@ class Command(BaseCommand):
         for key, value in self.json_content.items():
             offer_type, text_label = key.split('.')
 
+            # FIXME: EducationGroupType is not required on the EducationGroupYear, but we use the category of the type in
+            # base.business.education_group.assert_category_of_education_group_year
+            # without this type, there is a crash during the rendering of the template
+            education_group_type = EducationGroupType.objects.filter(name='Master en un an', category='TRAINING').first()
             education_group_year, created = EducationGroupYear.objects.get_or_create(
                 academic_year=academic_year,
                 acronym='common-{}'.format(offer_type),
-                education_group=education_group_year_common.education_group
+                education_group=education_group_year_common.education_group,
+                defaults={
+                    'education_group_type': education_group_type,
+                }
             )
 
             admission_condition, created = AdmissionCondition.objects.get_or_create(
