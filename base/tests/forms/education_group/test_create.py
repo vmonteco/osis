@@ -23,8 +23,9 @@
 #
 ##############################################################################
 from django.test import TestCase
-from base.forms.education_group.create import CreateEducationGroupYearForm, CreateOfferYearEntityForm
-from base.models.enums import offer_year_entity_type, education_group_categories, organization_type
+
+from base.forms.education_group.create import CreateEducationGroupYearForm
+from base.models.enums import education_group_categories, organization_type
 from base.models.group_element_year import GroupElementYear
 from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.campus import CampusFactory
@@ -39,6 +40,8 @@ class TestCreateEducationGroupYearForm(TestCase):
         cls.education_group_type = EducationGroupTypeFactory(category=education_group_categories.GROUP)
         cls.campus = CampusFactory(organization__type=organization_type.MAIN)
         cls.academic_year = AcademicYearFactory()
+        new_entity_version = MainEntityVersionFactory()
+
         cls.form_data = {
             "acronym": "ACRO4569",
             "partial_acronym": "PACR8974",
@@ -46,6 +49,7 @@ class TestCreateEducationGroupYearForm(TestCase):
             "title": "Test data",
             "main_teaching_campus": cls.campus.id,
             "academic_year": cls.academic_year.id,
+            "administration_entity": new_entity_version.pk,
             "remark": "This is a test!!"
         }
 
@@ -53,7 +57,8 @@ class TestCreateEducationGroupYearForm(TestCase):
 
     def test_fields(self):
         fields = ("acronym", "partial_acronym", "education_group_type", "title", "title_english", "credits",
-                  "main_teaching_campus", "academic_year", "remark", "remark_english", "min_credits", "max_credits")
+                  "main_teaching_campus", "academic_year", "remark", "remark_english", "min_credits", "max_credits",
+                  "administration_entity")
 
         form = CreateEducationGroupYearForm(parent=None)
         self.assertCountEqual(tuple(form.fields.keys()), fields)
@@ -85,29 +90,3 @@ class TestCreateEducationGroupYearForm(TestCase):
 
         self.assertTrue(GroupElementYear.objects.get(child_branch=education_group_year,
                                                      parent=self.parent_education_group_year))
-
-
-class TestCreateOfferYearEntityForm(TestCase):
-    @classmethod
-    def setUpTestData(cls):
-        cls.entity_version = MainEntityVersionFactory()
-        cls.education_group_year = EducationGroupYearFactory()
-        cls.form_data = {
-            "entity": cls.entity_version.id
-        }
-
-    def test_fields(self):
-        fields = ("entity", )
-
-        form = CreateOfferYearEntityForm()
-        self.assertCountEqual(tuple(form.fields.keys()), fields)
-
-    def test_save(self):
-        form = CreateOfferYearEntityForm(data=self.form_data)
-        self.assertTrue(form.is_valid(), form.errors)
-
-        offer_year_entity = form.save(self.education_group_year)
-
-        self.assertEqual(offer_year_entity.education_group_year, self.education_group_year)
-        self.assertEqual(offer_year_entity.type, offer_year_entity_type.ENTITY_ADMINISTRATION)
-        self.assertIsNone(offer_year_entity.offer_year)

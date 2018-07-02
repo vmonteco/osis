@@ -29,12 +29,11 @@ from django.contrib.auth.models import Permission
 from django.test import TestCase
 from django.urls import reverse
 
-from base.forms.education_group.create import CreateEducationGroupYearForm, CreateOfferYearEntityForm
-from base.models.enums import offer_year_entity_type, education_group_categories
+from base.forms.education_group.create import CreateEducationGroupYearForm
+from base.models.enums import education_group_categories
 from base.tests.factories.education_group_type import EducationGroupTypeFactory
 from base.tests.factories.education_group_year import EducationGroupYearFactory
 from base.tests.factories.entity_version import EntityVersionFactory, MainEntityVersionFactory
-from base.tests.factories.offer_year_entity import OfferYearEntityFactory
 from base.tests.factories.person import PersonFactory
 from base.views.education_groups.update import update_education_group
 
@@ -42,9 +41,12 @@ from base.views.education_groups.update import update_education_group
 class TestUpdate(TestCase):
     def setUp(self):
         self.education_group_year = EducationGroupYearFactory()
-        self.offer_year_entity = OfferYearEntityFactory(education_group_year=self.education_group_year,
-                                                        type=offer_year_entity_type.ENTITY_ADMINISTRATION)
-        EntityVersionFactory(entity=self.offer_year_entity.entity)
+
+        EntityVersionFactory(entity=self.education_group_year.management_entity,
+                             start_date=self.education_group_year.academic_year.start_date)
+
+        EntityVersionFactory(entity=self.education_group_year.administration_entity,
+                             start_date=self.education_group_year.academic_year.start_date)
 
         self.url = reverse(update_education_group, kwargs={'education_group_year_id': self.education_group_year.pk})
         self.person = PersonFactory()
@@ -80,13 +82,11 @@ class TestUpdate(TestCase):
         response = self.client.get(self.url)
 
         form_education_group_year = response.context["form_education_group_year"]
-        form_offer_year_entity = response.context["form_offer_year_entity"]
 
         self.assertIsInstance(form_education_group_year, CreateEducationGroupYearForm)
-        self.assertIsInstance(form_offer_year_entity, CreateOfferYearEntityForm)
 
     def test_post(self):
-        new_entity = MainEntityVersionFactory()
+        new_entity_version = MainEntityVersionFactory()
         new_education_group_type = EducationGroupTypeFactory(category=education_group_categories.GROUP)
 
         data = {
@@ -96,7 +96,7 @@ class TestUpdate(TestCase):
             'credits': 42,
             'acronym': 'CRSCHOIXDVLD',
             'partial_acronym': 'LDVLD101R',
-            'entity': new_entity.pk,
+            'administration_entity': new_entity_version.pk,
             'main_teaching_campus': "",
             'academic_year': self.education_group_year.academic_year.pk
         }
@@ -109,6 +109,4 @@ class TestUpdate(TestCase):
         self.assertEqual(self.education_group_year.credits, 42)
         self.assertEqual(self.education_group_year.acronym, 'CRSCHOIXDVLD')
         self.assertEqual(self.education_group_year.partial_acronym, 'LDVLD101R')
-        self.offer_year_entity.refresh_from_db()
-        self.assertEqual(self.offer_year_entity.entity, new_entity.entity)
-
+        self.assertEqual(self.education_group_year.administration_entity, new_entity_version.entity)

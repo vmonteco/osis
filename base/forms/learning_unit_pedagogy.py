@@ -25,12 +25,14 @@
 ##############################################################################
 from ckeditor.widgets import CKEditorWidget
 from django import forms
+from django.db.transaction import atomic
 from django.conf import settings
-from django.db import transaction
 
 from base.business.learning_unit import find_language_in_settings, CMS_LABEL_PEDAGOGY, CMS_LABEL_PEDAGOGY_FR_ONLY
 from base.business.learning_units.perms import can_edit_summary_locked_field
 from base.forms.common import set_trans_txt
+from base.models import academic_year
+from base.models import learning_unit_year
 from base.models.learning_unit_year import LearningUnitYear
 from cms.enums import entity_name
 from cms.models import translated_text
@@ -68,17 +70,24 @@ class LearningUnitPedagogyEditForm(forms.Form):
         super().__init__(*args, **kwargs)
 
     def load_initial(self):
-        value = translated_text.get_or_create(entity=entity_name.LEARNING_UNIT_YEAR,
-                                              reference=self.learning_unit_year.id,
-                                              language=self.language_iso,
-                                              text_label=self.text_label)
+        value = self._get_or_create_translated_text()
         self.fields['cms_id'].initial = value.id
         self.fields['trans_text'].initial = value.text
 
-    @transaction.atomic
+    @atomic
     def save(self):
-        cleaned_data = self.cleaned_data
-        trans_text = translated_text.find_by_id(cleaned_data['cms_id'])
+        trans_text = self._get_or_create_translated_text()
+        start_luy = learning_unit_year.get_by_id(trans_text.reference)
+
+        reference_ids = [start_luy.id]
+        if _is_pedagogy_data_must_be_postponed(start_luy):
+            reference_ids += [luy.id for luy in start_luy.find_gt_learning_units_year()]
+
+        for reference_id in reference_ids:
+            translated_text.update_or_create(entity=trans_text.entity, reference=reference_id,
+                                             language=trans_text.language, text_label=trans_text.text_label,
+                                             text=self.cleaned_data['trans_text'])
+
         text_label = trans_text.text_label
 
         if text_label.label in CMS_LABEL_PEDAGOGY_FR_ONLY:
@@ -93,6 +102,23 @@ class LearningUnitPedagogyEditForm(forms.Form):
         else:
             trans_text.text = cleaned_data.get('trans_text')
             trans_text.save()
+
+    def _get_or_create_translated_text(self):
+        if hasattr(self, 'cleaned_data'):
+            cms_id = self.cleaned_data['cms_id']
+            return translated_text.find_by_id(cms_id)
+        return translated_text.get_or_create(
+            entity=entity_name.LEARNING_UNIT_YEAR,
+            reference=self.learning_unit_year.id,
+            language=self.language_iso,
+            text_label=self.text_label
+        )
+
+
+def _is_pedagogy_data_must_be_postponed(luy):
+    # We must postpone pedagogy information, if we modify data form N+1
+    current_academic_year = academic_year.current_academic_year()
+    return luy.academic_year.year > current_academic_year.year
 
 
 class SummaryModelForm(forms.ModelForm):

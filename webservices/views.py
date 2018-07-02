@@ -24,15 +24,18 @@
 #
 ##############################################################################
 import collections
+import functools
 import re
 
 from django.core.exceptions import SuspiciousOperation
+from django.db.models import Q
 from django.http import Http404
 from rest_framework.decorators import api_view, renderer_classes
 from rest_framework.generics import get_object_or_404
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 
+from base.models.admission_condition import AdmissionCondition, AdmissionConditionLine
 from base.models.education_group_year import EducationGroupYear
 from cms.enums.entity_name import OFFER_YEAR
 from cms.models.text_label import TextLabel
@@ -43,14 +46,18 @@ from webservices.utils import convert_sections_to_list_of_dict
 LANGUAGES = {'fr': 'fr-be', 'en': 'en'}
 INTRO_PATTERN = r'intro-(?P<acronym>\w+)'
 COMMON_PATTERN = r'(?P<section_name>\w+)-commun'
-
+ACRONYM_PATTERN = re.compile(r'(?P<prefix>[a-z]+)(?P<cycle>[0-9]{1,3})(?P<suffix>[a-z]+)(?P<year>[0-9]?)')
 
 Context = collections.namedtuple(
     'Context',
-    ['year', 'language', 'acronym',
+    ['year', 'language', 'acronym', 'suffix_language',
      'title', 'description',
      'academic_year', 'education_group_year']
 )
+
+
+class AcronymError(Exception):
+    pass
 
 
 def new_description(education_group_year, language, title):
@@ -98,13 +105,13 @@ def ws_catalog_offer(request, year, language, acronym):
     validate_json_request(request, year, acronym)
 
     # Processing
-    context = new_context(acronym, education_group_year, iso_language, language)
+    context = new_context(education_group_year, iso_language, language, acronym)
     items = request.data['sections']
 
-    # sections = collections.OrderedDict()
     sections = process_message(context, education_group_year, items)
 
     context.description['sections'] = convert_sections_to_list_of_dict(sections)
+    context.description['sections'].append(get_conditions_admissions(context))
     return Response(context.description, content_type='application/json')
 
 
@@ -139,17 +146,23 @@ def process_section(context, education_group_year, item):
     return None
 
 
-def new_context(acronym, education_group_year, iso_language, language):
+def new_context(education_group_year, iso_language, language, original_acronym):
     title = get_title_of_education_group_year(education_group_year, iso_language)
     description = new_description(education_group_year, language, title)
+    partial_acronym = education_group_year.partial_acronym.upper()
+    acronym = education_group_year.acronym.upper()
+
+    is_partial = original_acronym.upper() == partial_acronym
+
     context = Context(
-        acronym=acronym.upper(),
+        acronym=partial_acronym if is_partial else acronym,
         year=int(education_group_year.academic_year.year),
         title=title,
         description=description,
         education_group_year=education_group_year,
         academic_year=education_group_year.academic_year,
         language=iso_language,
+        suffix_language='' if iso_language == 'fr-be' else '_en'
     )
     return context
 
@@ -160,13 +173,15 @@ def parameters_validation(acronym, language, year):
     if not iso_language:
         raise Http404
     education_group_year = get_object_or_404(EducationGroupYear,
-                                             acronym__iexact=acronym,
+                                             Q(acronym__iexact=acronym) | Q(partial_acronym__iexact=acronym),
                                              academic_year__year=year)
     return education_group_year, iso_language, year
 
 
 def insert_section(context, education_group_year, text_label):
-    translated_text_label = TranslatedTextLabel.objects.filter(text_label=text_label, language=context.language).first()
+    translated_text_label = TranslatedTextLabel.objects.filter(text_label=text_label,
+                                                               language=context.language).first()
+
     translated_text = TranslatedText.objects.filter(text_label=text_label,
                                                     language=context.language,
                                                     entity=text_label.entity,
@@ -182,3 +197,151 @@ def insert_section_if_checked(context, education_group_year, text_label):
     if education_group_year and text_label:
         return insert_section(context, education_group_year, text_label)
     return {'label': None, 'content': None}
+
+
+def admission_condition_line_to_dict(context, admission_condition_line):
+    fields = ('diploma', 'conditions', 'access', 'remarks')
+
+    return {
+        field: (getattr(admission_condition_line, field + context.suffix_language) or '').strip()
+        for field in fields
+    }
+
+
+def response_for_bachelor(context):
+    education_group_year = EducationGroupYear.objects.filter(acronym__iexact='common-bacs',
+                                                             academic_year=context.academic_year).first()
+
+    result = {
+        'id': 'conditions_admission',
+        "label": "conditions_admission",
+        "content": None,
+    }
+
+    if education_group_year:
+        admission_condition, created = AdmissionCondition.objects.get_or_create(
+            education_group_year=education_group_year
+        )
+        result['content'] = {
+            "bachelor_text": getattr(admission_condition, 'text_bachelor' + context.suffix_language),
+        }
+
+    return result
+
+
+def build_content_response(context, admission_condition, admission_condition_common, acronym_suffix):
+    response = {
+        "free_text": getattr(admission_condition, 'text_free' + context.suffix_language),
+    }
+
+    if acronym_suffix in ('2a', '2mc'):
+        response.update({
+            "standard_text": getattr(admission_condition_common, 'text_standard' + context.suffix_language),
+        })
+
+    if acronym_suffix in ('2m', '2m1'):
+        response.update(build_response_for_master(context, admission_condition, admission_condition_common))
+
+    return response
+
+
+def build_response_for_master(context, admission_condition, admission_condition_common):
+    admission_condition_lines = AdmissionConditionLine.objects.filter(admission_condition=admission_condition)
+    group_by_section_name = collections.defaultdict(list)
+    for item in admission_condition_lines:
+        group_by_section_name[item.section].append(admission_condition_line_to_dict(context, item))
+
+    get_texts = functools.partial(get_texts_for_section,
+                                  admission_condition=admission_condition,
+                                  admission_condition_common=admission_condition_common,
+                                  lang=context.suffix_language)
+
+    alert_message = None
+    if admission_condition_common:
+        alert_message = getattr(admission_condition_common, 'text_alert_message' + context.suffix_language, '')
+
+    sections = build_response_master_sections(admission_condition,
+                                              get_texts,
+                                              group_by_section_name,
+                                              context.suffix_language)
+    return {
+        "alert_message": alert_message,
+        "sections": sections
+    }
+
+
+def build_response_master_sections(admission_condition, get_texts, group_by_section_name, lang):
+    return {
+        "university_bachelors": build_response_for_master_university_bachelors(admission_condition,
+                                                                               group_by_section_name, lang),
+        "non_university_bachelors": get_texts('text_non_university_bachelors'),
+        "holders_second_university_degree": build_response_for_master_holders_second_university_degree(
+            admission_condition, group_by_section_name, lang),
+        "holders_non_university_second_degree": {
+            "text": getattr(admission_condition, 'text_holders_non_university_second_degree' + lang) or None,
+        },
+        "adults_taking_up_university_training": get_texts('text_adults_taking_up_university_training'),
+        "personalized_access": get_texts('text_personalized_access'),
+        "admission_enrollment_procedures": get_texts('text_admission_enrollment_procedures'),
+    }
+
+
+def build_response_for_master_holders_second_university_degree(admission_condition, group_by_section_name, lang):
+    return {
+        "text": getattr(admission_condition, 'text_holders_second_university_degree' + lang),
+        "records": {
+            "graduates": group_by_section_name['graduates'],
+            "masters": group_by_section_name['masters']
+        }
+    }
+
+
+def build_response_for_master_university_bachelors(admission_condition, group_by_section_name, lang):
+    return {
+        "text": getattr(admission_condition, 'text_university_bachelors' + lang),
+        "records": {
+            "ucl_bachelors": group_by_section_name['ucl_bachelors'],
+            "others_bachelors_french": group_by_section_name['others_bachelors_french'],
+            "bachelors_dutch": group_by_section_name['bachelors_dutch'],
+            "foreign_bachelors": group_by_section_name['foreign_bachelors'],
+        }
+    }
+
+
+def get_texts_for_section(column_name, admission_condition, admission_condition_common, lang):
+    column = column_name + lang
+    return {
+        "text": getattr(admission_condition, column) or None,
+        "text-common": getattr(admission_condition_common, column) if admission_condition_common else None
+    }
+
+
+def get_conditions_admissions(context):
+    acronym_match = re.match(ACRONYM_PATTERN, context.acronym.lower())
+    if not acronym_match:
+        raise AcronymError("The acronym does not match the pattern")
+
+    acronym_suffix = acronym_match.group('suffix').lower()
+
+    full_suffix = '{cycle}{suffix}{year}'.format(**acronym_match.groupdict())
+
+    is_bachelor = acronym_suffix == 'ba'
+
+    if is_bachelor:
+        # special case, if it's a bachelor, just return the text for the bachelor
+        return response_for_bachelor(context)
+
+    common_acronym = 'common-{}'.format(full_suffix)
+    admission_condition, created = AdmissionCondition.objects.get_or_create(
+        education_group_year=context.education_group_year
+    )
+
+    admission_condition_common = AdmissionCondition.objects.filter(
+        education_group_year__acronym__iexact=common_acronym).first()
+
+    result = {
+        'id': 'conditions_admission',
+        "label": "conditions_admission",
+        "content": build_content_response(context, admission_condition, admission_condition_common, full_suffix)
+    }
+    return result
