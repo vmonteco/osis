@@ -49,14 +49,14 @@ class TestAuthorizedTypes(TestCase):
         doctorate = EducationGroupTypeFactory(name='PhD', category=education_group_categories.TRAINING)
         UnauthorizedRelationshipFactory(parent_type=doctorate, child_type=self.options_list)
         educ_group_year = EducationGroupYearFactory(education_group_type=doctorate)
-        result = find_authorized_types(education_group_year_parent=educ_group_year)
+        result = find_authorized_types(parent_education_group_year=educ_group_year)
         self.assertEqual(len(result), 3)
         self.assertNotIn(self.options_list, result)
 
     def test_when_no_unauthorized_type_matches(self):
         UnauthorizedRelationshipFactory(parent_type=self.complementary_module, child_type=self.options_list)
         educ_group_year = EducationGroupYearFactory(education_group_type=self.subgroup)
-        result = find_authorized_types(education_group_year_parent=educ_group_year)
+        result = find_authorized_types(parent_education_group_year=educ_group_year)
         self.assertEqual(result.count(), EducationGroupType.objects.filter(category=self.subgroup.category).count())
 
     def test_all_types_returned_when_no_filters_given(self):

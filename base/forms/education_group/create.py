@@ -52,7 +52,7 @@ class CreateEducationGroupYearForm(forms.ModelForm):
         self.fields["main_teaching_campus"].queryset = campus.find_main_campuses()
         self.fields["education_group_type"].queryset = \
             education_group_type.find_authorized_types(category=education_group_categories.GROUP,
-                                                       education_group_year_parent=self.parent_education_group_year)
+                                                       parent_education_group_year=self.parent_education_group_year)
         self.fields["education_group_type"].required = True
 
         if self.parent_education_group_year:
