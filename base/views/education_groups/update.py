@@ -28,7 +28,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import ugettext_lazy as _
 
 from base.forms.education_group.create import CreateEducationGroupYearForm
-from base.forms.education_group.edition import EducationGroupForm, EditionEducationGroupYearForm
+from base.forms.education_group.update import EducationGroupForm, TrainingEducationGroupYearForm
 from base.models.education_group_year import EducationGroupYear
 from base.models.enums import education_group_categories
 from base.views import layout
@@ -44,7 +44,7 @@ def update_education_group(request, education_group_year_id):
     form_education_group = EducationGroupForm(request.POST or None, instance=education_group_year.education_group)
 
     if education_group_year.education_group_type.category != education_group_categories.GROUP:
-        form_education_group_year = EditionEducationGroupYearForm(request.POST or None, instance=education_group_year)
+        form_education_group_year = TrainingEducationGroupYearForm(request.POST or None, instance=education_group_year)
         html_page = "education_group/identification_training_edit.html"
     else:
         form_education_group_year = CreateEducationGroupYearForm(request.POST or None, instance=education_group_year)

@@ -34,7 +34,7 @@ from base.models.entity_version import find_main_entities_version, get_last_vers
 from base.models.enums import education_group_categories
 
 
-class EditionEducationGroupYearForm(CreateEducationGroupYearForm):
+class TrainingEducationGroupYearForm(CreateEducationGroupYearForm):
 
     class Meta:
         model = EducationGroupYear

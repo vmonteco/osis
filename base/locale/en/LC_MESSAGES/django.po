@@ -3066,12 +3066,6 @@ msgstr ""
 msgid "The parent is %(parent_periodicty)s and there is at least one partim which is not %(parent_periodicty)s"
 msgstr ""
 
-msgid "YES"
-msgstr "Yes"
-
-msgid "NO"
-msgstr "No"
-
 msgid "Admission Conditions for Bachelors"
 msgstr "Admission Conditions for Bachelors"
 
