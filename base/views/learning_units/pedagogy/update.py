@@ -24,6 +24,7 @@
 #
 ##############################################################################
 from django.conf import settings
+from django.db.transaction import atomic
 from django.forms import inlineformset_factory
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
@@ -66,9 +67,11 @@ def update_learning_unit_pedagogy(request, learning_unit_year_id, context, templ
     if perm_to_edit and summary_form.is_valid() and teaching_material_formset.is_valid():
         try:
             summary_form.save()
-            teaching_material_formset.save()
-            _update_bibliography_in_cms(learning_unit_year)
-            display_success_messages(request, _("success_modification_learning_unit"))
+            with atomic():
+                # For sync purpose, we need to trigger an update of the bibliography when we update teaching materials
+                teaching_material_formset.save()
+                _update_bibliography_in_cms(learning_unit_year)
+                display_success_messages(request, _("success_modification_learning_unit"))
             # Redirection on the same page
             return HttpResponseRedirect(request.path_info)
         except ValueError as e:
