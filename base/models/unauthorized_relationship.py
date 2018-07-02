@@ -39,4 +39,4 @@ class UnauthorizedRelationship(models.Model):
     changed = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return '{} - {}'.format(self.parent, self.child)
+        return '{} - {}'.format(self.parent_type, self.child_type)
