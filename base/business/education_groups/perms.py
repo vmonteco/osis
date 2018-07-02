@@ -23,7 +23,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from base.utils.perms import conjunction, disjunction
+from osis_common.utils.perms import conjunction, disjunction
 from base.models import academic_calendar
 from base.models.enums import academic_calendar_type
 

@@ -37,7 +37,7 @@ from base.models.enums.proposal_type import ProposalType
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import is_person_linked_to_entity_in_charge_of_learning_unit
 from base.models.person_entity import is_attached_entities
-from base.utils.perms import conjunction, disjunction, negation
+from osis_common.utils.perms import conjunction, disjunction, negation
 from osis_common.utils.datetime import get_tzinfo, convert_date_to_datetime
 
 FACULTY_UPDATABLE_CONTAINER_TYPES = (learning_container_year_types.COURSE,

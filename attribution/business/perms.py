@@ -24,7 +24,7 @@
 #
 ##############################################################################
 
-from base.utils.perms import conjunction
+from osis_common.utils.perms import conjunction
 from base.models.learning_unit_year import LearningUnitYear
 
 
