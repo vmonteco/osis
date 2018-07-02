@@ -56,7 +56,6 @@ from . import layout
 def learning_unit_identification(request, learning_unit_year_id):
     person = get_object_or_404(Person, user=request.user)
     context = get_learning_unit_identification_context(learning_unit_year_id, person)
-    context['can_manage_volume'] = business_perms.is_eligible_for_modification(context["learning_unit_year"], person)
 
     learning_unit_year = context['learning_unit_year']
 
