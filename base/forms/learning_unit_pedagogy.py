@@ -114,6 +114,18 @@ class SummaryModelForm(forms.ModelForm):
         model = LearningUnitYear
         fields = ["summary_locked", 'bibliography', 'mobility_modality']
 
+    @atomic
+    def save(self, commit=True):
+        instance = super().save(commit)
+        if _is_pedagogy_data_must_be_postponed(instance):
+            self._postpone_pedagogy_data(instance)
+        return instance
+
+    def _postpone_pedagogy_data(self, instance):
+        for luy in instance.find_gt_learning_units_year():
+            luy.mobility_modality = instance.mobility_modality
+            luy.save()
+
 
 def teachingmaterialformset_factory(can_edit=False):
     return inlineformset_factory(

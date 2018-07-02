@@ -38,28 +38,35 @@ from base.tests.factories.person import PersonFactory
 from base.tests.factories.teaching_material import TeachingMaterialFactory
 from cms.tests.factories.translated_text import TranslatedTextFactory
 from reference.tests.factories.language import LanguageFactory
-from base.forms.learning_unit_pedagogy import LearningUnitPedagogyEditForm, teachingmaterialformset_factory
+from base.forms.learning_unit_pedagogy import LearningUnitPedagogyEditForm, teachingmaterialformset_factory, \
+    SummaryModelForm
 from cms.enums import entity_name
 
 
-class TestValidation(TestCase):
+class LearningUnitPedagogyContextMixin(TestCase):
+    """"This mixin is used in this test file in order to setup an environment for testing pedagogy"""
     def setUp(self):
         self.language = LanguageFactory(code="EN")
+        self.person = PersonFactory()
+        self.person.user.user_permissions.add(Permission.objects.get(codename="can_edit_learningunit_pedagogy"))
         self.current_ac = create_current_academic_year()
-        # Create multiple academic year
         self.ac_years_containers = GenerateAcademicYear(start_year=self.current_ac.year + 1,
                                                         end_year=self.current_ac.year + 5)
         self.current_luy = LearningUnitYearFactory(
             learning_container_year__academic_year=self.current_ac,
             academic_year=self.current_ac,
-            acronym="LBIR1200",
+            acronym="LAGRO1000",
             subtype=FULL
         )
-        # Build a map academic_year:learningunityear
         self.luys = {self.current_ac.year: self.current_luy}
         self.luys.update(
             _duplicate_learningunityears(self.current_luy, academic_years=self.ac_years_containers.academic_years)
         )
+
+
+class TestValidation(LearningUnitPedagogyContextMixin):
+    def setUp(self):
+        super().setUp()
         self.cms_translated_text = TranslatedTextFactory(
             entity=entity_name.LEARNING_UNIT_YEAR,
             reference=self.luys[self.current_ac.year].id,
@@ -108,24 +115,7 @@ class TestValidation(TestCase):
         self.assertEqual(mock_update_or_create.call_count, 5)
 
 
-class TestTeachingMaterialFormSet(TestCase):
-    def setUp(self):
-        self.person = PersonFactory()
-        self.person.user.user_permissions.add(Permission.objects.get(codename="can_edit_learningunit_pedagogy"))
-        self.current_ac = create_current_academic_year()
-        self.ac_years_containers = GenerateAcademicYear(start_year=self.current_ac.year + 1,
-                                                        end_year=self.current_ac.year + 2)
-        self.current_luy = LearningUnitYearFactory(
-            learning_container_year__academic_year=self.current_ac,
-            academic_year=self.current_ac,
-            acronym="LAGRO1000",
-            subtype=FULL
-        )
-        self.luys = {self.current_ac.year: self.current_luy}
-        self.luys.update(
-            _duplicate_learningunityears(self.current_luy, academic_years=self.ac_years_containers.academic_years)
-        )
-
+class TestTeachingMaterialFormSet(LearningUnitPedagogyContextMixin):
     @patch('base.models.teaching_material.postpone_teaching_materials', side_effect=lambda *args: None)
     def test_save_without_postponement(self, mock_postpone_teaching_materials):
         """In this test, we ensure that if we modify UE of N or N-... => The postponement is not done for teaching
@@ -157,6 +147,25 @@ class TestTeachingMaterialFormSet(TestCase):
         self.assertTrue(teaching_material_formset.is_valid(), teaching_material_formset.errors)
         teaching_material_formset.save()
         self.assertTrue(mock_postpone_teaching_materials.called)
+
+
+class TestSummaryModelForm(LearningUnitPedagogyContextMixin):
+    @patch('base.forms.learning_unit_pedagogy.SummaryModelForm._postpone_pedagogy_data', side_effect=lambda *args: None)
+    def test_save_without_postponement(self, mock_postpone_summary):
+        post_data = _get_valid_summary_form_data(self.current_luy)
+        form = SummaryModelForm(post_data, self.person, is_person_linked_to_entity=True, instance=self.current_luy)
+        self.assertTrue(form.is_valid(), form.errors)
+        form.save()
+        self.assertFalse(mock_postpone_summary.called)
+
+    @patch('base.forms.learning_unit_pedagogy.SummaryModelForm._postpone_pedagogy_data', side_effect=lambda *args: None)
+    def test_save_with_postponement(self, mock_postpone_summary):
+        luy_in_future = self.luys[self.current_ac.year + 1]
+        post_data = _get_valid_summary_form_data(luy_in_future)
+        form = SummaryModelForm(post_data, self.person, is_person_linked_to_entity=True, instance=luy_in_future)
+        self.assertTrue(form.is_valid(), form.errors)
+        form.save()
+        self.assertTrue(mock_postpone_summary.called)
 
 
 def _duplicate_learningunityears(luy_to_duplicate, academic_years):
@@ -202,3 +211,11 @@ def _get_valid_teaching_materials_formset_data(teaching_materials):
             row_data['{}-mandatory'.format(row_prefix)] = 'on'
         formset_data.update(row_data)
     return dict(management_form, **formset_data)
+
+
+def _get_valid_summary_form_data(luy):
+    return {
+        'summary_locked': luy.summary_locked,
+        'bibliography': luy.bibliography,
+        'mobility_modality' : luy.mobility_modality
+    }
