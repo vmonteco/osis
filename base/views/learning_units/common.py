@@ -33,10 +33,9 @@ from base import models as mdl
 from base.business.learning_unit import get_organization_from_learning_unit_year, get_all_attributions, \
     get_components_identification
 from base.business.learning_unit_proposal import get_difference_of_proposal
-from base.business.learning_units import perms as business_perms
 from base.business.learning_units.edition import create_learning_unit_year_creation_message
 from base.business.learning_units.perms import learning_unit_year_permissions, learning_unit_proposal_permissions, \
-    is_eligible_to_create_partim
+    is_eligible_to_create_partim, is_eligible_for_modification
 from base.models import proposal_learning_unit
 from base.models.learning_unit import REGEX_BY_SUBTYPE
 from base.models.learning_unit_year import LearningUnitYear
@@ -107,7 +106,7 @@ def get_learning_unit_identification_context(learning_unit_year_id, person):
     # append permissions
     context.update(learning_unit_year_permissions(learning_unit_year, person))
     context.update(learning_unit_proposal_permissions(proposal, person, learning_unit_year))
-    context['can_manage_volume'] = business_perms.is_eligible_for_modification(context["learning_unit_year"], person)
+    context['can_manage_volume'] = is_eligible_for_modification(context["learning_unit_year"], person)
 
     return context
 
