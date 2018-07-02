@@ -103,7 +103,6 @@ class LearningUnitPedagogyEditForm(forms.Form):
                     text_label=text_label,
                     defaults={'text': self.cleaned_data['trans_text']})
 
-
     def _get_or_create_translated_text(self):
         if hasattr(self, 'cleaned_data'):
             cms_id = self.cleaned_data['cms_id']
