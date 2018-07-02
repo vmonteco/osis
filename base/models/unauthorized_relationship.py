@@ -34,8 +34,8 @@ class UnauthorizedRelationshipAdmin(OsisModelAdmin):
 
 
 class UnauthorizedRelationship(models.Model):
-    parent_type = models.ForeignKey(EducationGroupType, related_name='parent_group_type')
-    child_type = models.ForeignKey(EducationGroupType, related_name='child_group_type')
+    parent_type = models.ForeignKey(EducationGroupType, related_name='unauthorized_parent_type')
+    child_type = models.ForeignKey(EducationGroupType, related_name='unauthorized_child_type')
     changed = models.DateTimeField(auto_now=True)
 
     def __str__(self):
