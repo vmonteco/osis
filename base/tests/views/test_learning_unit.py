@@ -1322,6 +1322,20 @@ class LearningUnitViewTestCase(TestCase):
                                                      learning_container_year=self.learning_container_yr,
                                                      subtype=learning_unit_year_subtypes.FULL,
                                                      summary_locked=False)
+
+        text_label_bibliography = TextLabelFactory(
+            entity=entity_name.LEARNING_UNIT_YEAR,
+            label='bibliography'
+        )
+        cms_translated_text_fr = TranslatedTextFactory(
+            entity=entity_name.LEARNING_UNIT_YEAR,
+            reference=learning_unit_year.id,
+            language='fr-be',
+            text_label=text_label_bibliography,
+            text='Some random text'
+        )
+        bibliography_changed_initial_value = cms_translated_text_fr.changed
+
         url = reverse(learning_unit_pedagogy, args=[learning_unit_year.id])
         request_factory = RequestFactory()
 
@@ -1343,6 +1357,9 @@ class LearningUnitViewTestCase(TestCase):
 
         learning_unit_year.refresh_from_db()
         self.assertTrue(learning_unit_year.summary_locked)
+
+        cms_translated_text_fr.refresh_from_db()
+        self.assertNotEqual(bibliography_changed_initial_value, cms_translated_text_fr.changed)
 
     @mock.patch('base.models.person.Person.is_faculty_manager')
     def test_learning_unit_pedagogy_summary_editable_cannot_update_entity_not_linked(self, mock_faculty_manager):

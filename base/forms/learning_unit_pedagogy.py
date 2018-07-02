@@ -86,7 +86,7 @@ class LearningUnitPedagogyEditForm(forms.Form):
 
         for reference_id in reference_ids:
             if text_label.label in CMS_LABEL_PEDAGOGY_FR_ONLY:
-                # In case of FR only CMS field, save text to corresponding EN field
+                # In case of FR only CMS field, also save text to corresponding EN field
                 for language in settings.LANGUAGES:
                     translated_text.update_or_create(
                         entity=trans_text.entity,
