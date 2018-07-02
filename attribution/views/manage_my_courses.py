@@ -45,17 +45,17 @@ from base.views.learning_units.perms import PermissionDecorator
 @login_required
 def list_my_attributions_summary_editable(request):
     tutor = get_object_or_404(Tutor, person__user=request.user)
-    tutor_learning_unit_years = find_tutor_learning_unit_years(tutor=tutor)
+    learning_unit_years = find_tutor_learning_unit_years(tutor=tutor)
 
-    score_responsibles = find_all_summary_responsibles_by_learning_unit_years(tutor_learning_unit_years)
+    score_responsibles = find_all_summary_responsibles_by_learning_unit_years(learning_unit_years)
 
     entity_calendars = entity_calendar.build_calendar_by_entities(
         ac_year=academic_year.current_academic_year(),
         reference=academic_calendar_type.SUMMARY_COURSE_SUBMISSION
     )
-    errors = (can_user_edit_educational_information(tutor.person.user, luy.id) for luy in tutor_learning_unit_years)
+    errors = (can_user_edit_educational_information(tutor.person.user, luy.id) for luy in learning_unit_years)
     context = {
-        'learning_unit_years_summary_editable': zip(tutor_learning_unit_years, errors),
+        'learning_unit_years_with_errors': zip(learning_unit_years, errors),
         'entity_calendars': entity_calendars,
         'score_responsibles': score_responsibles,
     }
