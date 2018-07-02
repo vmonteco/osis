@@ -25,6 +25,8 @@
 ##############################################################################
 import datetime
 
+from django.core.exceptions import PermissionDenied
+
 from base.business.institution import find_summary_course_submission_dates_for_entity_version
 from base.models import proposal_learning_unit, tutor
 from base.models.academic_year import current_academic_year, MAX_ACADEMIC_YEAR_FACULTY, MAX_ACADEMIC_YEAR_CENTRAL
@@ -37,7 +39,7 @@ from base.models.enums.proposal_type import ProposalType
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import is_person_linked_to_entity_in_charge_of_learning_unit
 from base.models.person_entity import is_attached_entities
-from osis_common.utils.perms import conjunction, disjunction, negation
+from osis_common.utils.perms import conjunction, disjunction, negation, BasePerm
 from osis_common.utils.datetime import get_tzinfo, convert_date_to_datetime
 
 FACULTY_UPDATABLE_CONTAINER_TYPES = (learning_container_year_types.COURSE,
@@ -279,37 +281,34 @@ def is_eligible_to_update_learning_unit_pedagogy(learning_unit_year, person):
 
     # Case Tutor: We need to check if today is between submission date
     if tutor.is_tutor(person.user):
-        return can_user_edit_educational_information(person.user, learning_unit_year.id)
+        return can_user_edit_educational_information(person.user, learning_unit_year.id).is_valid()
 
     return False
 
 
-def can_user_edit_educational_information(user, learning_unit_year_id):
-    return conjunction(
-        _is_tutor_summary_responsible_of_learning_unit_year,
-        _is_learning_unit_year_summary_editable,
-        _is_calendar_opened_to_edit_educational_information
-    )(user, learning_unit_year_id)
-
-
 def _is_tutor_summary_responsible_of_learning_unit_year(user, learning_unit_year_id):
-    return LearningUnitYear.objects.filter(pk=learning_unit_year_id,
-                                           attribution__summary_responsible=True,
-                                           attribution__tutor__person__user=user).exists()
+    value = LearningUnitYear.objects.filter(pk=learning_unit_year_id, attribution__summary_responsible=True,
+                                            attribution__tutor__person__user=user).exists()
+    if not value:
+        raise PermissionDenied("You are not summary responsible for this learning unit.")
 
 
 def _is_learning_unit_year_summary_editable(_, learning_unit_year_id):
-    return LearningUnitYear.objects.filter(pk=learning_unit_year_id, summary_locked=False).exists()
+    value = LearningUnitYear.objects.filter(pk=learning_unit_year_id, summary_locked=False).exists()
+    if not value:
+        raise PermissionDenied("The learning unit is not summary editable")
 
 
 def _is_calendar_opened_to_edit_educational_information(_, learning_unit_year_id):
     submission_dates = find_educational_information_submission_dates_of_learning_unit_year(learning_unit_year_id)
     if not submission_dates:
-        return False
+        raise PermissionDenied("Submission date are not set")
 
     now = datetime.datetime.now(tz=get_tzinfo())
-    return convert_date_to_datetime(submission_dates["start_date"]) <= now <= \
+    value =  convert_date_to_datetime(submission_dates["start_date"]) <= now <= \
         convert_date_to_datetime(submission_dates["end_date"])
+    if not value:
+        raise PermissionDenied("Not in period to edit educational information")
 
 
 def find_educational_information_submission_dates_of_learning_unit_year(learning_unit_year_id):
@@ -321,3 +320,11 @@ def find_educational_information_submission_dates_of_learning_unit_year(learning
         return {}
 
     return find_summary_course_submission_dates_for_entity_version(requirement_entity_version)
+
+
+class can_user_edit_educational_information(BasePerm):
+    predicates = (
+        _is_tutor_summary_responsible_of_learning_unit_year,
+        _is_learning_unit_year_summary_editable,
+        _is_calendar_opened_to_edit_educational_information
+    )
