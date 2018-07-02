@@ -25,8 +25,8 @@
 ##############################################################################
 from ckeditor.widgets import CKEditorWidget
 from django import forms
-from django.db.transaction import atomic
 from django.conf import settings
+from django.db.transaction import atomic
 
 from base.business.learning_unit import find_language_in_settings, CMS_LABEL_PEDAGOGY, CMS_LABEL_PEDAGOGY_FR_ONLY
 from base.business.learning_units.perms import can_edit_summary_locked_field
@@ -78,30 +78,30 @@ class LearningUnitPedagogyEditForm(forms.Form):
     def save(self):
         trans_text = self._get_or_create_translated_text()
         start_luy = learning_unit_year.get_by_id(trans_text.reference)
+        text_label = trans_text.text_label
 
         reference_ids = [start_luy.id]
         if _is_pedagogy_data_must_be_postponed(start_luy):
             reference_ids += [luy.id for luy in start_luy.find_gt_learning_units_year()]
 
         for reference_id in reference_ids:
-            translated_text.update_or_create(entity=trans_text.entity, reference=reference_id,
-                                             language=trans_text.language, text_label=trans_text.text_label,
-                                             text=self.cleaned_data['trans_text'])
-
-        text_label = trans_text.text_label
-
-        if text_label.label in CMS_LABEL_PEDAGOGY_FR_ONLY:
-            for language in settings.LANGUAGES:
+            if text_label.label in CMS_LABEL_PEDAGOGY_FR_ONLY:
+                for language in settings.LANGUAGES:
+                    translated_text.update_or_create(
+                        entity=trans_text.entity,
+                        reference=reference_id,
+                        text_label=text_label,
+                        language=language[0],
+                        defaults={'text': self.cleaned_data['trans_text']}
+                    )
+            else:
                 translated_text.update_or_create(
                     entity=trans_text.entity,
-                    reference=trans_text.reference,
+                    reference=reference_id,
+                    language=trans_text.language,
                     text_label=text_label,
-                    language=language[0],
-                    defaults={'text': cleaned_data.get('trans_text')}
-                )
-        else:
-            trans_text.text = cleaned_data.get('trans_text')
-            trans_text.save()
+                    defaults={'text': self.cleaned_data['trans_text']})
+
 
     def _get_or_create_translated_text(self):
         if hasattr(self, 'cleaned_data'):

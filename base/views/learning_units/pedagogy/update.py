@@ -85,15 +85,16 @@ def update_learning_unit_pedagogy(request, learning_unit_year_id, context, templ
 
 
 def _update_bibliography_in_cms(learning_unit_year):
-    txt_label = text_label.TextLabel.objects.get(label='bibliography')
-    for language in settings.LANGUAGES:
-        translated_text.update_or_create(
-            entity=entity_name.LEARNING_UNIT_YEAR,
-            reference=learning_unit_year.id,
-            text_label=txt_label,
-            language=language[0],
-            defaults={}
-        )
+    txt_label = text_label.get_by_label_or_none('bibliography')
+    if txt_label:
+        for language in settings.LANGUAGES:
+            translated_text.update_or_create(
+                entity=entity_name.LEARNING_UNIT_YEAR,
+                reference=learning_unit_year.id,
+                text_label=txt_label,
+                language=language[0],
+                defaults={}
+            )
 
 
 # TODO Method similar with all cms forms
@@ -128,7 +129,7 @@ def edit_learning_unit_pedagogy(request, learning_unit_year_id, redirect_url):
     )
     label_name = request.GET.get('label')
     language = request.GET.get('language')
-    text_lb = text_label.find_by_name(label_name)
+    text_lb = text_label.get_by_name(label_name)
     form = LearningUnitPedagogyEditForm(**{
         'learning_unit_year': context['learning_unit_year'],
         'language': language,

@@ -29,14 +29,14 @@ from unittest.mock import patch
 
 from django.test import TestCase
 
+from base.forms.learning_unit_pedagogy import LearningUnitPedagogyEditForm
 from base.models.enums.learning_unit_year_subtypes import FULL
 from base.tests.factories.academic_year import create_current_academic_year
 from base.tests.factories.business.learning_units import GenerateAcademicYear
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
+from cms.enums import entity_name
 from cms.tests.factories.translated_text import TranslatedTextFactory
 from reference.tests.factories.language import LanguageFactory
-from base.forms.learning_unit_pedagogy import LearningUnitPedagogyEditForm
-from cms.enums import entity_name
 
 
 class TestValidation(TestCase):
@@ -72,7 +72,7 @@ class TestValidation(TestCase):
                                                       reference=self.cms_translated_text.reference,
                                                       language=self.cms_translated_text.language,
                                                       text_label=self.cms_translated_text.text_label,
-                                                      text=self.cms_translated_text.text)
+                                                      defaults={'text': self.cms_translated_text.text})
 
     @patch("cms.models.translated_text.update_or_create")
     def test_save_with_postponement(self, mock_update_or_create):

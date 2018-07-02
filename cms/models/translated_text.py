@@ -79,7 +79,7 @@ def get_or_create(entity, reference, text_label, language):
     return translated_text
 
 
-def update_or_create2(entity, reference, text_label, language, defaults):
+def update_or_create(entity, reference, text_label, language, defaults):
     translated_text, created = TranslatedText.objects.update_or_create(
         entity=entity,
         reference=reference,
@@ -87,11 +87,6 @@ def update_or_create2(entity, reference, text_label, language, defaults):
         language=language,
         defaults=defaults)
     return translated_text
-
-
-def update_or_create(entity, reference, text_label, language, text=None):
-    return TranslatedText.objects.update_or_create(entity=entity, reference=reference, language=language,
-                                                   text_label=text_label, defaults={'text': text})
 
 
 def find_labels_list_by_label_entity_and_reference(an_entity_name, an_education_group_year_id):
