@@ -1341,7 +1341,6 @@ class LearningUnitViewTestCase(TestCase):
 
         data = self.data_teachingmaterial_formset(learning_unit_year)
         data['summary_locked'] = True
-        data['bibliography'] = "test"
         request = request_factory.post(url, data=data)
 
         request.user = fac_manager_user
