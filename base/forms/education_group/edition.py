@@ -25,14 +25,16 @@
 ##############################################################################
 from django import forms
 
-from base.models import campus, education_group_type
+from base.forms.education_group.create import CreateEducationGroupYearForm
+from base.forms.learning_unit.entity_form import EntitiesVersionChoiceField
+from base.models import education_group_type
 from base.models.education_group import EducationGroup
 from base.models.education_group_year import EducationGroupYear
+from base.models.entity_version import find_main_entities_version, get_last_version
 from base.models.enums import education_group_categories
 
 
-class EditionEducationGroupYearForm(forms.ModelForm):
-    education_group_year = None
+class EditionEducationGroupYearForm(CreateEducationGroupYearForm):
 
     class Meta:
         model = EducationGroupYear
@@ -46,30 +48,30 @@ class EditionEducationGroupYearForm(forms.ModelForm):
                   "other_campus_activities", "funding", "funding_direction", "funding_cud",
                   "funding_direction_cud",
                   "diploma_printing_title", "diploma_printing_orientation", "professional_title", "min_credits",
-                  "max_credits"]
+                  "max_credits", "administration_entity", "management_entity"]
+
+        field_classes = {
+            "administration_entity": EntitiesVersionChoiceField,
+            "management_entity": EntitiesVersionChoiceField,
+        }
 
     def __init__(self, *args, **kwargs):
-        self.education_group_year = kwargs.get('instance', None)
         super().__init__(*args, **kwargs)
         self.prepare_fields()
 
     def prepare_fields(self):
         self.fields["academic_year"].required = False
         self.fields["education_group"].required = False
-        self.fields["main_teaching_campus"].queryset = campus.find_main_campuses()
         self.fields["education_group_type"].queryset = \
             education_group_type.find_by_category(education_group_categories.TRAINING)
-        self.fields["education_group_type"].required = True
 
-    def clean(self):
-        cleaned_data = self.cleaned_data
-        cleaned_data['academic_year'] = self.education_group_year.academic_year
-        cleaned_data['education_group'] = self.education_group_year.education_group
-        return cleaned_data
+        self.fields["management_entity"].queryset = find_main_entities_version()
+
+        if getattr(self.instance, 'management_entity', None):
+            self.initial['management_entity'] = get_last_version(self.instance.management_entity).pk
 
 
 class EducationGroupForm(forms.ModelForm):
-
     class Meta:
         model = EducationGroup
         fields = ['start_year', 'end_year']

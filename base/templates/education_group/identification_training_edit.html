@@ -25,6 +25,7 @@
     * at the root of the source code of this program.  If not,
     * see http://www.gnu.org/licenses/.
 {% endcomment %}
+
 {% block breadcrumb %}
     {{ block.super }}
     <li>{% trans "MODIFICATION" %}</li>
@@ -39,8 +40,6 @@
         <div class="panel-body">
             <div class="row">
                 {% bootstrap_form_errors form_education_group_year %}
-                {% bootstrap_form_errors form_offer_year_entity %}
-                {% bootstrap_form_errors form_management_entity %}
             </div>
             <form method="post" id="EducationGroupYearUpdateForm">
                 {% csrf_token %}
@@ -54,7 +53,7 @@
                                     <strong class="text-primary">{{ parent.title_english | default_if_none:'' }}</strong><br>
                                     {% bootstrap_field form_education_group_year.title_english %}
                                     <strong class="text-primary">{{ parent.keywords | default_if_none:'' }}</strong>
-                                    {% bootstrap_field form_education_group_year.keywords %}ssss
+                                    {% bootstrap_field form_education_group_year.keywords %}
                                     <br>
                                 </div>
                             </div>
@@ -175,20 +174,20 @@
                                     <br>
                                     <div class="row">
                                         <div class="col-md-6">
-                                            {% if form_offer_year_entity.entity %}
-                                                {% bootstrap_field form_offer_year_entity.entity %}
+                                            {% if form_education_group_year.administration_entity %}
+                                                {% bootstrap_field form_education_group_year.administration_entity %}
                                             {% else %}
                                                 <strong class="text-primary">
-                                                    {{ parent.administration_entity.acronym }}
+                                                    {{ parent.administration_entity_version.acronym }}
                                                 </strong>
                                             {% endif %}
                                         </div>
                                         <div class="col-md-6">
-                                            {% if form_management_entity.entity %}
-                                            {% bootstrap_field form_management_entity.entity %}
+                                            {% if form_education_group_year.management_entity %}
+                                                {% bootstrap_field form_education_group_year.management_entity %}
                                             {% else %}
                                                 <strong class="text-primary">
-                                                    {{ parent.management_entity.acronym }}
+                                                    {{ parent.management_entity_version.acronym }}
                                                 </strong>
                                             {% endif %}
                                         </div>
