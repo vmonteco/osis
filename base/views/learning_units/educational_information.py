@@ -84,7 +84,8 @@ def learning_units_summary_list(request):
 
     responsible_and_learning_unit_yr_list = get_responsible_and_learning_unit_yr_list(learning_units_found)
     learning_units = sorted(learning_units_found, key=lambda learning_yr: learning_yr.acronym)
-    errors = [can_learning_unit_year_educational_information_be_udpated(learning_unit_year_id=luy.id) for luy in learning_units]
+    errors = [can_learning_unit_year_educational_information_be_udpated(learning_unit_year_id=luy.id)
+              for luy in learning_units]
     context = {
         'form': search_form,
         'formset': _get_formset(request, responsible_and_learning_unit_yr_list),
