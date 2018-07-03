@@ -65,10 +65,7 @@ class TestUpdate(TestCase):
         an_training_education_group_type = EducationGroupTypeFactory(category=education_group_categories.TRAINING)
         self.training_education_group_year = EducationGroupYearFactory(
             education_group_type=an_training_education_group_type)
-        self.offer_year_entity_training = OfferYearEntityFactory(
-            education_group_year=self.training_education_group_year,
-            type=offer_year_entity_type.ENTITY_ADMINISTRATION)
-        EntityVersionFactory(entity=self.offer_year_entity_training.entity)
+        EntityVersionFactory(entity=self.training_education_group_year.administration_entity)
         return reverse(update_education_group,
                        kwargs={'education_group_year_id': self.training_education_group_year.pk})
 
