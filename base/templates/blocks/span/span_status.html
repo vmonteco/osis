@@ -22,7 +22,15 @@
 * see http://www.gnu.org/licenses/.
 {% endcomment %}
 
-<span class="glyphicon glyphicon-ok-circle" aria-hidden="true"
-      {% if status %} style="color:green;" {% else %} style="color:gray;" {% endif %}
-      {% if title %} data-toggle="tooltip" data-html="true" title="{{ title }}"{% endif %} >
-</span>
+{% if status %}
+    <span class="glyphicon glyphicon-ok-circle" aria-hidden="true"
+          style="color:green;"
+          {% if title_status_true %} data-toggle="tooltip" data-html="true" title="{{ title_status_true }}"{% endif %} >
+    </span>
+{% else %}
+    <span class="glyphicon glyphicon-remove-circle" aria-hidden="true"
+          style="color:red;"
+          {% if title_status_false %} data-toggle="tooltip" data-html="true" title="{{ title_status_false }}"{% endif %} >
+    </span>
+{% endif %}
+
