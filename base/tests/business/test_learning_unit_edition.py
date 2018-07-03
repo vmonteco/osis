@@ -717,20 +717,18 @@ class TestLearningUnitEdition(TestCase, LearningUnitsMixin):
         self.setup_educational_information(luy_list)
 
         last_luy = mdl_luy.find_latest_by_learning_unit(learning_unit_full_annual)
-        last_luy_teaching_material = \
-            mdl_teaching_material.build_list_of_teaching_material_content_by_learning_unit_year(last_luy)
+        last_luy_teaching_material_count = mdl_teaching_material.find_by_learning_unit_year(last_luy).count()
         last_luy_mobility_modalities = last_luy.mobility_modality
         last_luy_educational_information = translated_text.build_list_of_cms_content_by_reference(last_luy.id)
 
         edit_learning_unit_end_date(learning_unit_full_annual, academic_year_of_new_end_date)
 
         new_luy = mdl_luy.find_latest_by_learning_unit(learning_unit_full_annual)
-        new_luy_teaching_material = \
-            mdl_teaching_material.build_list_of_teaching_material_content_by_learning_unit_year(new_luy)
+        new_luy_teaching_material_count = mdl_teaching_material.find_by_learning_unit_year(new_luy).count()
         new_luy_mobility_modalities = new_luy.mobility_modality
         new_luy_educational_information = translated_text.build_list_of_cms_content_by_reference(new_luy.id)
 
-        self.assertCountEqual(last_luy_teaching_material, new_luy_teaching_material)
+        self.assertEquals(last_luy_teaching_material_count, new_luy_teaching_material_count)
         self.assertEquals(last_luy_mobility_modalities, new_luy_mobility_modalities)
         self.assertCountEqual(last_luy_educational_information, new_luy_educational_information)
 
