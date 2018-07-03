@@ -8,7 +8,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('base', '0297_auto_20180629_1443'),
+        ('base', '0298_unauthorizedrelationship'),
     ]
 
     operations = [

@@ -247,6 +247,5 @@ def _get_valid_teaching_materials_formset_data(teaching_materials):
 def _get_valid_summary_form_data(luy):
     return {
         'summary_locked': luy.summary_locked,
-        'bibliography': luy.bibliography,
         'mobility_modality' : luy.mobility_modality
     }
