@@ -47,6 +47,28 @@ class MainEntitiesVersionChoiceField(EntitiesVersionChoiceField):
         super(MainEntitiesVersionChoiceField, self).__init__(queryset, *args, **kwargs)
 
 
+def _init_education_group_type_field(form_field, parent_education_group_year):
+    parent_group_type = None
+    if parent_education_group_year:
+        parent_group_type = parent_education_group_year.education_group_type
+
+    form_field.queryset = education_group_type.find_authorized_types(category=education_group_categories.GROUP,
+                                                                parent_type=parent_group_type)
+    form_field.required = True
+
+
+def _init_academic_year(form_field, parent_education_group_year):
+    if parent_education_group_year:
+        form_field.initial = parent_education_group_year.academic_year.id
+        form_field.disabled = True
+        form_field.required = False
+
+
+def _preselect_entity_version_from_entity_value(modelform):
+    if getattr(modelform.instance, 'administration_entity', None):
+        modelform.initial['administration_entity'] = get_last_version(modelform.instance.administration_entity).pk
+
+
 class CreateEducationGroupYearForm(forms.ModelForm):
 
     class Meta:
@@ -55,7 +77,7 @@ class CreateEducationGroupYearForm(forms.ModelForm):
                   "main_teaching_campus", "academic_year", "remark", "remark_english", "min_credits", "max_credits",
                   "administration_entity")
         field_classes = {
-            "administration_entity": EntitiesVersionChoiceField,
+            "administration_entity": MainEntitiesVersionChoiceField,
             "main_teaching_campus": MainTeachingCampusChoiceField
         }
 
@@ -65,26 +87,29 @@ class CreateEducationGroupYearForm(forms.ModelForm):
 
         # self.fields["main_teaching_campus"].queryset = campus.find_main_campuses()
 
-        self.fields["education_group_type"].queryset = self._get_authorized_education_group_types_queryset()
-        self.fields["education_group_type"].required = True
+        # self.fields["education_group_type"].queryset = self._get_authorized_education_group_types_queryset()
+        # self.fields["education_group_type"].required = True
+        _init_education_group_type_field(self.fields["education_group_type"], self.parent_education_group_year)
 
-        if self.parent_education_group_year:
-            self.fields["academic_year"].initial = self.parent_education_group_year.academic_year.id
-            self.fields["academic_year"].disabled = True
-            self.fields["academic_year"].required = False
+        # if self.parent_education_group_year:
+        #     self.fields["academic_year"].initial = self.parent_education_group_year.academic_year.id
+        #     self.fields["academic_year"].disabled = True
+        #     self.fields["academic_year"].required = False
+        _init_academic_year(self.fields["academic_year"], self.parent_education_group_year)
 
         # self.fields["administration_entity"].queryset = find_main_entities_version()
 
-        if getattr(self.instance, 'administration_entity', None):
-            self.initial['administration_entity'] = get_last_version(self.instance.administration_entity).pk
+        # if getattr(self.instance, 'administration_entity', None):
+        #     self.initial['administration_entity'] = get_last_version(self.instance.administration_entity).pk
+        _preselect_entity_version_from_entity_value(self)
 
-    def _get_authorized_education_group_types_queryset(self):
-        parent_group_type = None
-        if self.parent_education_group_year:
-            parent_group_type = self.parent_education_group_year.education_group_type
-        return education_group_type.find_authorized_types(
-            category=education_group_categories.GROUP, parent_type=parent_group_type
-        )
+    # def _get_authorized_education_group_types_queryset(self):
+    #     parent_group_type = None
+    #     if self.parent_education_group_year:
+    #         parent_group_type = self.parent_education_group_year.education_group_type
+    #     return education_group_type.find_authorized_types(
+    #         category=education_group_categories.GROUP, parent_type=parent_group_type
+    #     )
 
     def save(self, *args, **kwargs):
         education_group_year = super().save(commit=False)
