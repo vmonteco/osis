@@ -37,10 +37,9 @@ from base.business.learning_unit import CMS_LABEL_PEDAGOGY, get_cms_label_data, 
     get_no_summary_responsible_teachers, CMS_LABEL_PEDAGOGY_FR_ONLY
 from base.business.learning_units.perms import is_eligible_to_update_learning_unit_pedagogy
 from base.forms.learning_unit_pedagogy import SummaryModelForm, LearningUnitPedagogyForm, \
-    TeachingMaterialModelForm, LearningUnitPedagogyEditForm
+    LearningUnitPedagogyEditForm, teachingmaterialformset_factory
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
-from base.models.teaching_material import TeachingMaterial
 from base.models.tutor import find_all_summary_responsibles_by_learning_unit_year
 from base.views import layout
 from base.views.common import display_error_messages, display_success_messages
@@ -58,12 +57,9 @@ def update_learning_unit_pedagogy(request, learning_unit_year_id, context, templ
 
     post = request.POST or None
     summary_form = SummaryModelForm(post, person, context['is_person_linked_to_entity'], instance=learning_unit_year)
-    TeachingMaterialFormset = inlineformset_factory(LearningUnitYear, TeachingMaterial, fields=('title', 'mandatory'),
-                                                    max_num=10, extra=perm_to_edit, form=TeachingMaterialModelForm,
-                                                    can_delete=perm_to_edit, labels={'title': ''})
+    TeachingMaterialFormset = teachingmaterialformset_factory(can_edit=perm_to_edit)
     teaching_material_formset = TeachingMaterialFormset(post, instance=learning_unit_year,
                                                         form_kwargs={'person': person})
-
     if perm_to_edit and summary_form.is_valid() and teaching_material_formset.is_valid():
         try:
             summary_form.save()
