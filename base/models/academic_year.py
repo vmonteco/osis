@@ -51,9 +51,6 @@ class AcademicYear(SerializableModel):
         return self.__str__()
 
     def save(self, *args, **kwargs):
-        now = timezone.now()
-        if self.year > now.year:
-            raise AttributeError("An academic year cannot be created in the future.")
         if self.start_date and self.year != self.start_date.year:
             raise AttributeError("The start date should be in the same year of the academic year.")
         if self.start_date and self.end_date and self.start_date >= self.end_date:
