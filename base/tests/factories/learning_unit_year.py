@@ -77,6 +77,9 @@ class LearningUnitYearFactory(DjangoModelFactory):
     attribution_procedure = None
     campus = factory.SubFactory(CampusFactory)
     periodicity = factory.Iterator(learning_unit_year_periodicity.PERIODICITY_TYPES, getter=operator.itemgetter(0))
+    summary_locked = False
+    bibliography = None
+    mobility_modality = factory.fuzzy.FuzzyText(length=250)
 
 
 class LearningUnitYearFakerFactory(DjangoModelFactory):
