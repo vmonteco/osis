@@ -24,12 +24,12 @@
 #
 ##############################################################################
 
-from base.business.learning_units.perms import _conjunction
+from osis_common.utils.perms import conjunction
 from base.models.learning_unit_year import LearningUnitYear
 
 
 def can_tutor_view_educational_information(user, learning_unit_year_id):
-    return _conjunction(
+    return conjunction(
         _is_tutor_attributed_to_the_learning_unit
     )(user, learning_unit_year_id)
 

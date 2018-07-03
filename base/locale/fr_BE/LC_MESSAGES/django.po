@@ -3130,3 +3130,12 @@ msgstr "Ajouter une nouvelle ligne"
 
 msgid "Modify an existing line"
 msgstr "Modifier une ligne existante"
+
+msgid "You are not summary responsible for this learning unit."
+msgstr "Vous n'êtes pas responsable des informations pédagogiques pour cette unité d'enseignement."
+
+msgid "The learning unit is not summary editable."
+msgstr "La mise-à-jour des informations pédagogiques est bloqué pour cette unité d'enseignement."
+
+msgid "Not in period to edit educational information."
+msgstr "Vous n'êtes pas en période d'édition des informations pédagogiques."
