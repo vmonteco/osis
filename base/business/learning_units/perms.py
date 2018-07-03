@@ -282,7 +282,8 @@ def is_eligible_to_update_learning_unit_pedagogy(learning_unit_year, person):
 
     # Case Tutor: We need to check if today is between submission date
     if tutor.is_tutor(person.user):
-        return can_user_edit_educational_information(user=person.user, learning_unit_year_id=learning_unit_year.id).is_valid()
+        return can_user_edit_educational_information(user=person.user, learning_unit_year_id=learning_unit_year.id).\
+            is_valid()
 
     return False
 
@@ -306,7 +307,7 @@ def _is_calendar_opened_to_edit_educational_information(*, learning_unit_year_id
         raise PermissionDenied(_("Not in period to edit educational information."))
 
     now = datetime.datetime.now(tz=get_tzinfo())
-    value =  convert_date_to_datetime(submission_dates["start_date"]) <= now <= \
+    value = convert_date_to_datetime(submission_dates["start_date"]) <= now <= \
         convert_date_to_datetime(submission_dates["end_date"])
     if not value:
         raise PermissionDenied(_("Not in period to edit educational information."))
