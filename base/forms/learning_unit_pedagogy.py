@@ -25,10 +25,12 @@
 ##############################################################################
 from ckeditor.widgets import CKEditorWidget
 from django import forms
+from django.conf import settings
 from django.db.transaction import atomic
 from django.forms import BaseInlineFormSet, inlineformset_factory
 
-from base.business.learning_unit import find_language_in_settings, CMS_LABEL_PEDAGOGY
+from base.business.learning_unit import find_language_in_settings, CMS_LABEL_PEDAGOGY, CMS_LABEL_PEDAGOGY_FR_ONLY
+from base.business.learning_units.pedagogy import update_bibliography_changed_field_in_cms
 from base.business.learning_units.perms import can_edit_summary_locked_field
 from base.forms.common import set_trans_txt
 from base.models import academic_year, learning_unit_year, teaching_material
@@ -84,9 +86,23 @@ class LearningUnitPedagogyEditForm(forms.Form):
             reference_ids += [luy.id for luy in start_luy.find_gt_learning_units_year()]
 
         for reference_id in reference_ids:
-            translated_text.update_or_create(entity=trans_text.entity, reference=reference_id,
-                                             language=trans_text.language, text_label=trans_text.text_label,
-                                             text=self.cleaned_data['trans_text'])
+            if trans_text.text_label.label in CMS_LABEL_PEDAGOGY_FR_ONLY:
+                # In case of FR only CMS field, also save text to corresponding EN field
+                languages = [language[0] for language in settings.LANGUAGES]
+            else:
+                languages = [trans_text.language]
+
+            self._update_or_create_translated_texts(languages, reference_id, trans_text)
+
+    def _update_or_create_translated_texts(self, languages, reference_id, trans_text):
+        for language in languages:
+            translated_text.update_or_create(
+                entity=trans_text.entity,
+                reference=reference_id,
+                language=language,
+                text_label=trans_text.text_label,
+                defaults={'text': self.cleaned_data['trans_text']}
+            )
 
     def _get_or_create_translated_text(self):
         if hasattr(self, 'cleaned_data'):
@@ -112,7 +128,7 @@ class SummaryModelForm(forms.ModelForm):
 
     class Meta:
         model = LearningUnitYear
-        fields = ["summary_locked", 'bibliography', 'mobility_modality']
+        fields = ["summary_locked", 'mobility_modality']
 
     @atomic
     def save(self, commit=True):
@@ -148,6 +164,10 @@ class TeachingMaterialFormsetPostponement(BaseInlineFormSet):
         luy = self.instance
         if _is_pedagogy_data_must_be_postponed(luy):
             teaching_material.postpone_teaching_materials(luy)
+
+        # For sync purpose, we need to trigger an update of the bibliography when we update teaching materials
+        update_bibliography_changed_field_in_cms(luy)
+
         return instance_list
 
 
