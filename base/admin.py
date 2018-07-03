@@ -57,6 +57,9 @@ admin.site.register(education_group_type.EducationGroupType,
 admin.site.register(education_group_year.EducationGroupYear,
                     education_group_year.EducationGroupYearAdmin)
 
+admin.site.register(education_group_year_domain.EducationGroupYearDomain,
+                    education_group_year_domain.EducationGroupYearDomainAdmin)
+
 admin.site.register(entity.Entity,
                     entity.EntityAdmin)
 
