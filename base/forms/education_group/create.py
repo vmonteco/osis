@@ -34,6 +34,13 @@ from base.models.enums import education_group_categories
 from base.models.group_element_year import GroupElementYear
 
 
+class MainTeachingCampusChoiceField(forms.ModelChoiceField):
+
+    def __init__(self, queryset, *args, **kwargs):
+        queryset = campus.find_main_campuses()
+        super(MainTeachingCampusChoiceField, self).__init__(queryset, *args, **kwargs)
+
+
 class CreateEducationGroupYearForm(forms.ModelForm):
 
     class Meta:
@@ -42,14 +49,15 @@ class CreateEducationGroupYearForm(forms.ModelForm):
                   "main_teaching_campus", "academic_year", "remark", "remark_english", "min_credits", "max_credits",
                   "administration_entity")
         field_classes = {
-            "administration_entity": EntitiesVersionChoiceField
+            "administration_entity": EntitiesVersionChoiceField,
+            "main_teaching_campus": MainTeachingCampusChoiceField
         }
 
     def __init__(self, *args, **kwargs):
         self.parent_education_group_year = kwargs.pop("parent", None)
         super().__init__(*args, **kwargs)
 
-        self.fields["main_teaching_campus"].queryset = campus.find_main_campuses()
+        # self.fields["main_teaching_campus"].queryset = campus.find_main_campuses()
 
         self.fields["education_group_type"].queryset = self._get_authorized_education_group_types_queryset()
         self.fields["education_group_type"].required = True
