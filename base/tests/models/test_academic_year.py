@@ -29,7 +29,6 @@ from django.test import TestCase
 from base.models import academic_year
 
 from base.tests.factories.academic_year import AcademicYearFactory
-from django.core.exceptions import ObjectDoesNotExist
 
 now = datetime.datetime.now()
 
@@ -81,13 +80,6 @@ class SingleAcademicYearTest(TestCase):
 
 
 class PeriodAcademicYearTest(TestCase):
-    def test_future_academic_year(self):
-        academic_year = AcademicYearFactory.build(year=(now.year + 1),
-                                                  start_date=datetime.datetime(now.year + 1, now.month, 15),
-                                                  end_date=datetime.datetime(now.year + 2, now.month, 28))
-        with self.assertRaises(AttributeError):
-            academic_year.save()
-
     def test_start_date_year_same_of_year(self):
         academic_year = AcademicYearFactory.build(year=now.year,
                                                   start_date=datetime.datetime(now.year + 1, now.month, 15),

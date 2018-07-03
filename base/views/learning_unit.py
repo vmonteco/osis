@@ -102,8 +102,7 @@ def learning_unit_components(request, learning_unit_year_id):
     context['ADDITIONAL_REQUIREMENT_ENTITY_1'] = data_components.get('ADDITIONAL_REQUIREMENT_ENTITY_1')
     context['ADDITIONAL_REQUIREMENT_ENTITY_2'] = data_components.get('ADDITIONAL_REQUIREMENT_ENTITY_2')
     context['tab_active'] = 'components'
-    context['can_manage_volume'] = business_perms.is_eligible_for_modification(context["learning_unit_year"],
-                                                                               person)
+    context['can_manage_volume'] = business_perms.is_eligible_for_modification(context["learning_unit_year"], person)
     context['experimental_phase'] = True
     return layout.render(request, "learning_unit/components.html", context)
 

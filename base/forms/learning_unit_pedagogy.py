@@ -26,13 +26,14 @@
 from ckeditor.widgets import CKEditorWidget
 from django import forms
 from django.db.transaction import atomic
+from django.forms import BaseInlineFormSet, inlineformset_factory
 
 from base.business.learning_unit import find_language_in_settings, CMS_LABEL_PEDAGOGY
 from base.business.learning_units.perms import can_edit_summary_locked_field
 from base.forms.common import set_trans_txt
-from base.models import academic_year
-from base.models import learning_unit_year
+from base.models import academic_year, learning_unit_year, teaching_material
 from base.models.learning_unit_year import LearningUnitYear
+from base.models.teaching_material import TeachingMaterial
 from cms.enums import entity_name
 from cms.models import translated_text
 
@@ -99,12 +100,6 @@ class LearningUnitPedagogyEditForm(forms.Form):
         )
 
 
-def _is_pedagogy_data_must_be_postponed(luy):
-    # We must postpone pedagogy information, if we modify data form N+1
-    current_academic_year = academic_year.current_academic_year()
-    return luy.academic_year.year > current_academic_year.year
-
-
 class SummaryModelForm(forms.ModelForm):
     def __init__(self, data, person, is_person_linked_to_entity, *args, **kwargs):
         super().__init__(data, *args, **kwargs)
@@ -119,6 +114,42 @@ class SummaryModelForm(forms.ModelForm):
         model = LearningUnitYear
         fields = ["summary_locked", 'bibliography', 'mobility_modality']
 
+    @atomic
+    def save(self, commit=True):
+        instance = super().save(commit)
+        if _is_pedagogy_data_must_be_postponed(instance):
+            self._postpone_pedagogy_data(instance)
+        return instance
+
+    def _postpone_pedagogy_data(self, instance):
+        for luy in instance.find_gt_learning_units_year():
+            luy.mobility_modality = instance.mobility_modality
+            luy.save()
+
+
+def teachingmaterialformset_factory(can_edit=False):
+    return inlineformset_factory(
+        LearningUnitYear,
+        TeachingMaterial,
+        fields=('title', 'mandatory'),
+        formset=TeachingMaterialFormsetPostponement,
+        form=TeachingMaterialModelForm,
+        max_num=10,
+        extra=can_edit,
+        can_delete=can_edit,
+        labels={'title': ''}
+    )
+
+
+class TeachingMaterialFormsetPostponement(BaseInlineFormSet):
+    @atomic
+    def save(self, commit=True):
+        instance_list = super().save(commit)
+        luy = self.instance
+        if _is_pedagogy_data_must_be_postponed(luy):
+            teaching_material.postpone_teaching_materials(luy)
+        return instance_list
+
 
 class TeachingMaterialModelForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
@@ -127,3 +158,9 @@ class TeachingMaterialModelForm(forms.ModelForm):
         if not person.user.has_perm('base.can_edit_learningunit_pedagogy'):
             for field in self.fields.values():
                 field.disabled = True
+
+
+def _is_pedagogy_data_must_be_postponed(luy):
+    # We must postpone pedagogy information, if we modify data form N+1
+    current_academic_year = academic_year.current_academic_year()
+    return luy.academic_year.year > current_academic_year.year

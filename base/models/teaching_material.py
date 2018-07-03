@@ -57,3 +57,25 @@ def build_list_of_teaching_material_content_by_learning_unit_year(learning_unit_
         (material.title, material.mandatory)
         for material in find_by_learning_unit_year(learning_unit_year)
     ]
+
+
+def postpone_teaching_materials(start_luy, commit=True):
+    """
+    This function override all teaching materials from start_luy until latest version of this luy
+    :param start_luy: The learning unit year which we want to start postponement
+    :param commit:
+    :return:
+    """
+    teaching_materials = start_luy.teachingmaterial_set.all()
+    for next_luy in [luy for luy in start_luy.find_gt_learning_units_year()]:
+        # Remove all previous teaching materials
+        next_luy.teachingmaterial_set.all().delete()
+        # Inserts all teaching materials comes from start_luy
+        to_inserts = [TeachingMaterial(title=tm.title, mandatory=tm.mandatory, learning_unit_year=next_luy)
+                      for tm in teaching_materials]
+        bulk_save(to_inserts, commit)
+
+
+def bulk_save(teaching_materials, commit=True):
+    for teaching_material in teaching_materials:
+        teaching_material.save(commit)

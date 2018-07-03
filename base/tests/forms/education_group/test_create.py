@@ -22,6 +22,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from unittest.mock import patch
 from django.test import TestCase
 
 from base.forms.education_group.group import CreateEducationGroupYearForm
@@ -70,6 +71,11 @@ class TestCreateEducationGroupYearForm(TestCase):
         self.assertTrue(academic_year_field.disabled)
         self.assertTrue(academic_year_field.disabled)
         self.assertTrue(academic_year_field.initial, self.academic_year)
+
+    @patch('base.models.education_group_type.find_authorized_types')
+    def test_education_group_types_queryset_correctly_filtered(self, mock_authorized_types):
+        CreateEducationGroupYearForm(parent=self.parent_education_group_year)
+        self.assertTrue(mock_authorized_types.called)
 
     def test_save(self):
         form = CreateEducationGroupYearForm(data=self.form_data, parent=None)
