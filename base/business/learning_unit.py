@@ -55,7 +55,12 @@ LEARNING_UNIT_TITLES = [str(_('academic_year_small')), str(_('code')), str(_('ti
                         str(_('subtype')), str(_('requirement_entity_small')), str(_('allocation_entity_small')),
                         str(_('credits')), str(_('active_title'))]
 CMS_LABEL_SPECIFICATIONS = ['themes_discussed', 'prerequisite']
-CMS_LABEL_PEDAGOGY = ['resume', 'teaching_methods', 'evaluation_methods', 'other_informations', 'online_resources']
+
+CMS_LABEL_PEDAGOGY_FR_AND_EN = ['resume', 'teaching_methods', 'evaluation_methods', 'other_informations',
+                                'online_resources']
+CMS_LABEL_PEDAGOGY_FR_ONLY = ['bibliography']
+CMS_LABEL_PEDAGOGY = CMS_LABEL_PEDAGOGY_FR_AND_EN + CMS_LABEL_PEDAGOGY_FR_ONLY
+
 CMS_LABEL_SUMMARY = ['resume']
 
 

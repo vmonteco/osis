@@ -23,16 +23,20 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-
-from osis_common.utils.perms import conjunction
-from base.models.learning_unit_year import LearningUnitYear
-
-
-def can_tutor_view_educational_information(user, learning_unit_year_id):
-    return conjunction(
-        _is_tutor_attributed_to_the_learning_unit
-    )(user, learning_unit_year_id)
+from django.db import models
+from osis_common.models.osis_model_admin import OsisModelAdmin
+from base.models.education_group_type import EducationGroupType
 
 
-def _is_tutor_attributed_to_the_learning_unit(user, learning_unit_year_id):
-    return LearningUnitYear.objects.filter(pk=learning_unit_year_id,  attribution__tutor__person__user=user).exists()
+class UnauthorizedRelationshipAdmin(OsisModelAdmin):
+    list_display = ('parent_type', 'child_type', 'changed')
+    search_fields = ['parent_type__name', 'child_type__name']
+
+
+class UnauthorizedRelationship(models.Model):
+    parent_type = models.ForeignKey(EducationGroupType, related_name='unauthorized_parent_type')
+    child_type = models.ForeignKey(EducationGroupType, related_name='unauthorized_child_type')
+    changed = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return '{} - {}'.format(self.parent_type, self.child_type)

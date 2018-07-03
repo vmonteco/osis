@@ -61,8 +61,15 @@ def find_all():
     return EducationGroupType.objects.order_by('name')
 
 
-def find_by_category(category=None):
-    return search(category=category).order_by('name')
+def find_authorized_types(category=None, parent_type=None):
+    if category:
+        queryset = search(category=category)
+    else:
+        queryset = EducationGroupType.objects.all()
+    if parent_type:
+        queryset = queryset.exclude(pk__in=parent_type.unauthorized_parent_type.all().values_list('child_type',
+                                                                                                  flat=True))
+    return queryset.order_by('name')
 
 
 def find_by_name(name=None):

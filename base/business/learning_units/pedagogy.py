@@ -23,16 +23,20 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from django.conf import settings
 
-from osis_common.utils.perms import conjunction
-from base.models.learning_unit_year import LearningUnitYear
-
-
-def can_tutor_view_educational_information(user, learning_unit_year_id):
-    return conjunction(
-        _is_tutor_attributed_to_the_learning_unit
-    )(user, learning_unit_year_id)
+from cms.enums import entity_name
+from cms.models import text_label, translated_text
 
 
-def _is_tutor_attributed_to_the_learning_unit(user, learning_unit_year_id):
-    return LearningUnitYear.objects.filter(pk=learning_unit_year_id,  attribution__tutor__person__user=user).exists()
+def update_bibliography_changed_field_in_cms(learning_unit_year):
+    txt_label = text_label.get_by_label_or_none('bibliography')
+    if txt_label:
+        for language in settings.LANGUAGES:
+            translated_text.update_or_create(
+                entity=entity_name.LEARNING_UNIT_YEAR,
+                reference=learning_unit_year.id,
+                text_label=txt_label,
+                language=language[0],
+                defaults={}
+            )

@@ -3131,3 +3131,15 @@ msgstr "Modify an existing line"
 
 msgid "Are you sure you want to delete %(education_group_year)s?"
 msgstr ""
+
+msgid "You are not summary responsible for this learning unit."
+msgstr ""
+
+msgid "The learning unit is not summary editable."
+msgstr ""
+
+msgid "Submission dates are not set."
+msgstr ""
+
+msgid "Not in period to edit educational information."
+msgstr ""

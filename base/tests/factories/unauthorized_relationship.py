@@ -15,7 +15,7 @@
 #
 #    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 #    GNU General Public License for more details.
 #
 #    A copy of this license - GNU General Public License - is available
@@ -23,16 +23,14 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-
-from osis_common.utils.perms import conjunction
-from base.models.learning_unit_year import LearningUnitYear
-
-
-def can_tutor_view_educational_information(user, learning_unit_year_id):
-    return conjunction(
-        _is_tutor_attributed_to_the_learning_unit
-    )(user, learning_unit_year_id)
+from base.tests.factories.education_group_type import EducationGroupTypeFactory
+import factory
+import factory.fuzzy
 
 
-def _is_tutor_attributed_to_the_learning_unit(user, learning_unit_year_id):
-    return LearningUnitYear.objects.filter(pk=learning_unit_year_id,  attribution__tutor__person__user=user).exists()
+class UnauthorizedRelationshipFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = 'base.UnauthorizedRelationship'
+
+    parent_type = factory.SubFactory(EducationGroupTypeFactory)
+    child_type = factory.SubFactory(EducationGroupTypeFactory)
