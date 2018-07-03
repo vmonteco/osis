@@ -24,8 +24,6 @@
 #
 ##############################################################################
 from django.conf import settings
-from django.db.transaction import atomic
-from django.forms import inlineformset_factory
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
@@ -45,8 +43,7 @@ from base.views import layout
 from base.views.common import display_error_messages, display_success_messages
 from base.views.learning_units.common import get_common_context_learning_unit_year, get_text_label_translated
 from base.views.learning_units.perms import PermissionDecorator
-from cms.enums import entity_name
-from cms.models import text_label, translated_text
+from cms.models import text_label
 
 
 def update_learning_unit_pedagogy(request, learning_unit_year_id, context, template):
@@ -63,11 +60,8 @@ def update_learning_unit_pedagogy(request, learning_unit_year_id, context, templ
     if perm_to_edit and summary_form.is_valid() and teaching_material_formset.is_valid():
         try:
             summary_form.save()
-            with atomic():
-                # For sync purpose, we need to trigger an update of the bibliography when we update teaching materials
-                teaching_material_formset.save()
-                _update_bibliography_in_cms(learning_unit_year)
-                display_success_messages(request, _("success_modification_learning_unit"))
+            teaching_material_formset.save()
+            display_success_messages(request, _("success_modification_learning_unit"))
             # Redirection on the same page
             return HttpResponseRedirect(request.path_info)
         except ValueError as e:
@@ -81,19 +75,6 @@ def update_learning_unit_pedagogy(request, learning_unit_year_id, context, templ
     context['other_teachers'] = get_no_summary_responsible_teachers(learning_unit_year, context['summary_responsibles'])
     context['cms_label_pedagogy_fr_only'] = CMS_LABEL_PEDAGOGY_FR_ONLY
     return layout.render(request, template, context)
-
-
-def _update_bibliography_in_cms(learning_unit_year):
-    txt_label = text_label.get_by_label_or_none('bibliography')
-    if txt_label:
-        for language in settings.LANGUAGES:
-            translated_text.update_or_create(
-                entity=entity_name.LEARNING_UNIT_YEAR,
-                reference=learning_unit_year.id,
-                text_label=txt_label,
-                language=language[0],
-                defaults={}
-            )
 
 
 # TODO Method similar with all cms forms

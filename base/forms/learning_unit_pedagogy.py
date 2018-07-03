@@ -30,6 +30,7 @@ from django.db.transaction import atomic
 from django.forms import BaseInlineFormSet, inlineformset_factory
 
 from base.business.learning_unit import find_language_in_settings, CMS_LABEL_PEDAGOGY, CMS_LABEL_PEDAGOGY_FR_ONLY
+from base.business.learning_units.pedagogy import update_bibliography_changed_field_in_cms
 from base.business.learning_units.perms import can_edit_summary_locked_field
 from base.forms.common import set_trans_txt
 from base.models import academic_year, learning_unit_year, teaching_material
@@ -163,6 +164,10 @@ class TeachingMaterialFormsetPostponement(BaseInlineFormSet):
         luy = self.instance
         if _is_pedagogy_data_must_be_postponed(luy):
             teaching_material.postpone_teaching_materials(luy)
+
+        # For sync purpose, we need to trigger an update of the bibliography when we update teaching materials
+        update_bibliography_changed_field_in_cms(luy)
+
         return instance_list
 
 

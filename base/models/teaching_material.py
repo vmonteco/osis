@@ -27,6 +27,7 @@ from django.contrib.admin import ModelAdmin
 from django.db import models
 from django.utils.translation import pgettext_lazy as _
 
+from base.business.learning_units.pedagogy import update_bibliography_changed_field_in_cms
 from base.models.learning_unit_year import LearningUnitYear
 
 
@@ -74,6 +75,9 @@ def postpone_teaching_materials(start_luy, commit=True):
         to_inserts = [TeachingMaterial(title=tm.title, mandatory=tm.mandatory, learning_unit_year=next_luy)
                       for tm in teaching_materials]
         bulk_save(to_inserts, commit)
+
+        # For sync purpose, we need to trigger an update of the bibliography when we update teaching materials
+        update_bibliography_changed_field_in_cms(next_luy)
 
 
 def bulk_save(teaching_materials, commit=True):
