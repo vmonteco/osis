@@ -56,17 +56,20 @@ class TestPerms(TestCase):
         attribution_not_summary_responsible = AttributionFactory(tutor=self.tutor)
         luy = attribution_not_summary_responsible.learning_unit_year
         with self.assertRaises(PermissionDenied):
-            _is_tutor_summary_responsible_of_learning_unit_year(self.tutor.person.user, luy.id)
+            _is_tutor_summary_responsible_of_learning_unit_year(user=self.tutor.person.user,
+                                                                learning_unit_year_id=luy.id)
 
-        self.assertIsNone(_is_tutor_summary_responsible_of_learning_unit_year(self.tutor.person.user,
-                                                                              self.learning_unit_year.id))
+        self.assertIsNone(
+            _is_tutor_summary_responsible_of_learning_unit_year(user=self.tutor.person.user,
+                                                                learning_unit_year_id=self.learning_unit_year.id)
+        )
 
     def test_is_learning_unit_year_summary_editable(self):
         luy_not_editable = LearningUnitYearFactory(summary_locked=True)
         with self.assertRaises(PermissionDenied):
-            _is_learning_unit_year_summary_editable(None, luy_not_editable.id)
+            _is_learning_unit_year_summary_editable(learning_unit_year_id=luy_not_editable.id)
 
-        self.assertIsNone(_is_learning_unit_year_summary_editable(None, self.learning_unit_year.id))
+        self.assertIsNone(_is_learning_unit_year_summary_editable(learning_unit_year_id=self.learning_unit_year.id))
 
     def test_is_calendar_opened_to_edit_educational_information(self):
         patcher = mock.patch(
@@ -79,21 +82,22 @@ class TestPerms(TestCase):
 
         MockClass.return_value = {}
         with self.assertRaises(PermissionDenied):
-            _is_calendar_opened_to_edit_educational_information(None, self.learning_unit_year.id)
+            _is_calendar_opened_to_edit_educational_information(learning_unit_year_id=self.learning_unit_year.id)
 
         MockClass.return_value = {"start_date": yesterday,
                                   "end_date": yesterday}
         with self.assertRaises(PermissionDenied):
-            _is_calendar_opened_to_edit_educational_information(None, self.learning_unit_year.id)
+            _is_calendar_opened_to_edit_educational_information(learning_unit_year_id=self.learning_unit_year.id)
 
         MockClass.return_value = {"start_date": tomorrow,
                                   "end_date": tomorrow}
         with self.assertRaises(PermissionDenied):
-            _is_calendar_opened_to_edit_educational_information(None, self.learning_unit_year.id)
+            _is_calendar_opened_to_edit_educational_information(learning_unit_year_id=self.learning_unit_year.id)
 
         MockClass.return_value = {"start_date": today - datetime.timedelta(days=1),
                                   "end_date": today + datetime.timedelta(days=1)}
-        self.assertIsNone(_is_calendar_opened_to_edit_educational_information(None,
-                                                                              self.learning_unit_year.id))
+        self.assertIsNone(
+            _is_calendar_opened_to_edit_educational_information(learning_unit_year_id=self.learning_unit_year.id)
+        )
 
         patcher.stop()

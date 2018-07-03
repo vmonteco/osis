@@ -26,6 +26,7 @@
 import datetime
 
 from django.core.exceptions import PermissionDenied
+from django.utils.translation import ugettext_lazy as _
 
 from base.business.institution import find_summary_course_submission_dates_for_entity_version
 from base.models import proposal_learning_unit, tutor
@@ -281,34 +282,34 @@ def is_eligible_to_update_learning_unit_pedagogy(learning_unit_year, person):
 
     # Case Tutor: We need to check if today is between submission date
     if tutor.is_tutor(person.user):
-        return can_user_edit_educational_information(person.user, learning_unit_year.id).is_valid()
+        return can_user_edit_educational_information(user=person.user, learning_unit_year_id=learning_unit_year.id).is_valid()
 
     return False
 
 
-def _is_tutor_summary_responsible_of_learning_unit_year(user, learning_unit_year_id):
+def _is_tutor_summary_responsible_of_learning_unit_year(*, user, learning_unit_year_id, **kwargs):
     value = LearningUnitYear.objects.filter(pk=learning_unit_year_id, attribution__summary_responsible=True,
                                             attribution__tutor__person__user=user).exists()
     if not value:
-        raise PermissionDenied("You are not summary responsible for this learning unit.")
+        raise PermissionDenied(_("You are not summary responsible for this learning unit."))
 
 
-def _is_learning_unit_year_summary_editable(_, learning_unit_year_id):
+def _is_learning_unit_year_summary_editable(*, learning_unit_year_id, **kwargs):
     value = LearningUnitYear.objects.filter(pk=learning_unit_year_id, summary_locked=False).exists()
     if not value:
-        raise PermissionDenied("The learning unit is not summary editable")
+        raise PermissionDenied(_("The learning unit is not summary editable."))
 
 
-def _is_calendar_opened_to_edit_educational_information(_, learning_unit_year_id):
+def _is_calendar_opened_to_edit_educational_information(*, learning_unit_year_id, **kwargs):
     submission_dates = find_educational_information_submission_dates_of_learning_unit_year(learning_unit_year_id)
     if not submission_dates:
-        raise PermissionDenied("Submission date are not set")
+        raise PermissionDenied(_("Not in period to edit educational information."))
 
     now = datetime.datetime.now(tz=get_tzinfo())
     value =  convert_date_to_datetime(submission_dates["start_date"]) <= now <= \
         convert_date_to_datetime(submission_dates["end_date"])
     if not value:
-        raise PermissionDenied("Not in period to edit educational information")
+        raise PermissionDenied(_("Not in period to edit educational information."))
 
 
 def find_educational_information_submission_dates_of_learning_unit_year(learning_unit_year_id):

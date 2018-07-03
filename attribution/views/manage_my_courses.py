@@ -53,7 +53,7 @@ def list_my_attributions_summary_editable(request):
         ac_year=academic_year.current_academic_year(),
         reference=academic_calendar_type.SUMMARY_COURSE_SUBMISSION
     )
-    errors = (can_user_edit_educational_information(tutor.person.user, luy.id) for luy in learning_unit_years)
+    errors = (can_user_edit_educational_information(user=tutor.person.user, learning_unit_year_id=luy.id) for luy in learning_unit_years)
     context = {
         'learning_unit_years_with_errors': zip(learning_unit_years, errors),
         'entity_calendars': entity_calendars,
