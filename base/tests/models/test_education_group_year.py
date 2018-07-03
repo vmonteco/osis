@@ -106,11 +106,11 @@ class EducationGroupYearTest(TestCase):
         self.assertEqual(len(result), 3)
 
     def test_domains_property(self):
-        domains = self.education_group_year_1.domains
+        domains = self.education_group_year_1.str_domains
         self.assertEqual(domains, '')
 
-        domains = self.education_group_year_2.domains
-        offer_year_domain = "{}-{} ".format(self.offer_year_domain.domain.decree, self.offer_year_domain.domain.name)
+        domains = self.education_group_year_2.str_domains
+        offer_year_domain = "{}-{}\n".format(self.offer_year_domain.domain.decree, self.offer_year_domain.domain.name)
         self.assertEqual(domains, offer_year_domain)
 
     def test_administration_entity_version_property(self):
