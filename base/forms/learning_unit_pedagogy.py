@@ -79,30 +79,29 @@ class LearningUnitPedagogyEditForm(forms.Form):
     def save(self):
         trans_text = self._get_or_create_translated_text()
         start_luy = learning_unit_year.get_by_id(trans_text.reference)
-        text_label = trans_text.text_label
 
         reference_ids = [start_luy.id]
         if _is_pedagogy_data_must_be_postponed(start_luy):
             reference_ids += [luy.id for luy in start_luy.find_gt_learning_units_year()]
 
         for reference_id in reference_ids:
-            if text_label.label in CMS_LABEL_PEDAGOGY_FR_ONLY:
+            if trans_text.text_label.label in CMS_LABEL_PEDAGOGY_FR_ONLY:
                 # In case of FR only CMS field, also save text to corresponding EN field
-                for language in settings.LANGUAGES:
-                    translated_text.update_or_create(
-                        entity=trans_text.entity,
-                        reference=reference_id,
-                        text_label=text_label,
-                        language=language[0],
-                        defaults={'text': self.cleaned_data['trans_text']}
-                    )
+                languages = [language[0] for language in settings.LANGUAGES]
             else:
-                translated_text.update_or_create(
-                    entity=trans_text.entity,
-                    reference=reference_id,
-                    language=trans_text.language,
-                    text_label=text_label,
-                    defaults={'text': self.cleaned_data['trans_text']})
+                languages = [trans_text.language]
+
+            self._update_or_create_translated_texts(languages, reference_id, trans_text)
+
+    def _update_or_create_translated_texts(self, languages, reference_id, trans_text):
+        for language in languages:
+            translated_text.update_or_create(
+                entity=trans_text.entity,
+                reference=reference_id,
+                language=language,
+                text_label=trans_text.text_label,
+                defaults={'text': self.cleaned_data['trans_text']}
+            )
 
     def _get_or_create_translated_text(self):
         if hasattr(self, 'cleaned_data'):
