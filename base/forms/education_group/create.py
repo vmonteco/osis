@@ -41,6 +41,12 @@ class MainTeachingCampusChoiceField(forms.ModelChoiceField):
         super(MainTeachingCampusChoiceField, self).__init__(queryset, *args, **kwargs)
 
 
+class MainEntitiesVersionChoiceField(EntitiesVersionChoiceField):
+    def __init__(self, queryset, *args, **kwargs):
+        queryset = find_main_entities_version()
+        super(MainEntitiesVersionChoiceField, self).__init__(queryset, *args, **kwargs)
+
+
 class CreateEducationGroupYearForm(forms.ModelForm):
 
     class Meta:
@@ -67,7 +73,7 @@ class CreateEducationGroupYearForm(forms.ModelForm):
             self.fields["academic_year"].disabled = True
             self.fields["academic_year"].required = False
 
-        self.fields["administration_entity"].queryset = find_main_entities_version()
+        # self.fields["administration_entity"].queryset = find_main_entities_version()
 
         if getattr(self.instance, 'administration_entity', None):
             self.initial['administration_entity'] = get_last_version(self.instance.administration_entity).pk
