@@ -27,20 +27,22 @@ import uuid
 from copy import copy
 from unittest.mock import patch
 
+from django.conf import settings
 from django.contrib.auth.models import Permission
 from django.test import TestCase
 
+from base.forms.learning_unit_pedagogy import LearningUnitPedagogyEditForm, teachingmaterialformset_factory, \
+    SummaryModelForm
 from base.models.enums.learning_unit_year_subtypes import FULL
 from base.tests.factories.academic_year import create_current_academic_year
 from base.tests.factories.business.learning_units import GenerateAcademicYear
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.teaching_material import TeachingMaterialFactory
+from cms.enums import entity_name
+from cms.tests.factories.text_label import TextLabelFactory
 from cms.tests.factories.translated_text import TranslatedTextFactory
 from reference.tests.factories.language import LanguageFactory
-from base.forms.learning_unit_pedagogy import LearningUnitPedagogyEditForm, teachingmaterialformset_factory, \
-    SummaryModelForm
-from cms.enums import entity_name
 
 
 class LearningUnitPedagogyContextMixin(TestCase):
@@ -95,7 +97,7 @@ class TestValidation(LearningUnitPedagogyContextMixin):
                                                       reference=self.cms_translated_text.reference,
                                                       language=self.cms_translated_text.language,
                                                       text_label=self.cms_translated_text.text_label,
-                                                      text=self.cms_translated_text.text)
+                                                      defaults={'text': self.cms_translated_text.text})
 
     @patch("cms.models.translated_text.update_or_create")
     def test_save_with_postponement(self, mock_update_or_create):
@@ -167,6 +169,35 @@ class TestSummaryModelForm(LearningUnitPedagogyContextMixin):
         form.save()
         self.assertTrue(mock_postpone_summary.called)
 
+    @patch("cms.models.translated_text.update_or_create")
+    def test_save_fr_bibliography_also_updates_en_bibliography(self, mock_update_or_create):
+        """Ensure that if we modify bibliography in FR => bibliography in EN is updated with same text"""
+        text_label_bibliography = TextLabelFactory(
+            entity=entity_name.LEARNING_UNIT_YEAR,
+            label='bibliography'
+        )
+        cms_translated_text_fr = TranslatedTextFactory(
+            entity=entity_name.LEARNING_UNIT_YEAR,
+            reference=self.luys[self.current_ac.year].id,
+            language='fr-be',
+            text_label=text_label_bibliography,
+            text='Some random text'
+        )
+        valid_form_data_fr = _get_valid_cms_form_data(cms_translated_text_fr)
+
+        form = LearningUnitPedagogyEditForm(valid_form_data_fr)
+        self.assertTrue(form.is_valid(), form.errors)
+        form.save()
+
+        for language in settings.LANGUAGES:
+            mock_update_or_create.assert_any_call(
+                entity=cms_translated_text_fr.entity,
+                reference=cms_translated_text_fr.reference,
+                language=language[0],
+                text_label=cms_translated_text_fr.text_label,
+                defaults={'text': cms_translated_text_fr.text}
+            )
+
 
 def _duplicate_learningunityears(luy_to_duplicate, academic_years):
     # Duplicate learning unit year with different academic year
@@ -216,6 +247,5 @@ def _get_valid_teaching_materials_formset_data(teaching_materials):
 def _get_valid_summary_form_data(luy):
     return {
         'summary_locked': luy.summary_locked,
-        'bibliography': luy.bibliography,
         'mobility_modality' : luy.mobility_modality
     }

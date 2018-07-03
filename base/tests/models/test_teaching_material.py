@@ -25,7 +25,7 @@
 ##############################################################################
 from django.test import TestCase
 
-from base.models.teaching_material import postpone_teaching_materials, TeachingMaterial
+from base.models.teaching_material import postpone_teaching_materials, TeachingMaterial, find_by_learning_unit_year
 from base.tests.factories.business.learning_units import GenerateAcademicYear
 from base.tests.factories.learning_container import LearningContainerFactory
 from base.tests.factories.learning_unit import LearningUnitFactory
@@ -81,3 +81,25 @@ class TeachingMaterialTest(TestCase):
         result = TeachingMaterial.objects.filter(learning_unit_year=luy_in_future)\
                                          .values('title', 'mandatory', 'learning_unit_year_id')
         self.assertListEqual(list(result), expected_result)
+
+    def test_find_by_learning_unit_year(self):
+        """This test will ensure that the order is determied by 'ORDER' field"""
+        ac_year_2015 = self.ac_years_containers.academic_years[0]
+        luy = self.luys[ac_year_2015]
+        tm_1 = TeachingMaterialFactory(learning_unit_year=luy)
+        tm_2 = TeachingMaterialFactory(learning_unit_year=luy)
+        tm_3 = TeachingMaterialFactory(learning_unit_year=luy)
+
+        result = find_by_learning_unit_year(luy)
+        self.assertEqual(result.count(), 3)
+        self.assertEqual(result[0], tm_1)
+        self.assertEqual(result[1], tm_2)
+        self.assertEqual(result[2], tm_3)
+
+        # Set tm_1 to bottom and check result [Must use QS]
+        TeachingMaterial.objects.get(pk=tm_1.pk).bottom()
+        result = find_by_learning_unit_year(luy)
+        self.assertEqual(result.count(), 3)
+        self.assertEqual(result[0], tm_2)
+        self.assertEqual(result[1], tm_3)
+        self.assertEqual(result[2], tm_1)
