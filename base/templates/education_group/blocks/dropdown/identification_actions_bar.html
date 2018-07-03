@@ -42,7 +42,7 @@
                 </a>
             </li>
             <li {% if not can_delete_education_group %} class="disabled" {% endif %}>
-                <a {% if can_delete_education_group %} href="{% url 'update_education_group' education_group_year_id=education_group_year.id %}?root={{ request.GET.root }}" {% endif %}>
+                <a {% if can_delete_education_group %} href="{% url 'delete_education_group' education_group_year_id=education_group_year.id %}?root={{ request.GET.root }}" {% endif %}>
                     {% trans 'Delete Education Group' %}
                 </a>
             </li>

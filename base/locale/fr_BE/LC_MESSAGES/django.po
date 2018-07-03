@@ -3130,3 +3130,6 @@ msgstr "Ajouter une nouvelle ligne"
 
 msgid "Modify an existing line"
 msgstr "Modifier une ligne existante"
+
+msgid "Are you sure you want to delete %(object)s?"
+msgstr "Êtes-vous sûr·e que vous voulez supprimer %(object)s?"

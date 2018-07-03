@@ -1,11 +1,11 @@
 {% extends "education_group/layout_detail.html" %}
-{% load bootstrap3 %}
+{% load bootstrap3 i18n %}
 
 
 {% block content %}
 
 <form method="post">{% csrf_token %}
-    <p>Are you sure you want to delete "{{ education_group_year }}"?</p>
+    <p>{% blocktrans %}Are you sure you want to delete {{ education_group_year }}?{% endblocktrans %}</p>
     <input type="submit" value="Confirm" class="btn btn-danger"/>
 </form>
 

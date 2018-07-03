@@ -42,6 +42,12 @@ def is_eligible_to_change_education_group(person):
     )(person)
 
 
+def is_eligible_to_delete_education_group(person):
+    return _conjunction(
+        has_person_the_right_to_delete_education_group,
+    )(person)
+
+
 def is_central_manager(person):
     return person.is_central_manager()
 
@@ -56,3 +62,7 @@ def has_person_the_right_to_add_education_group(person):
 
 def has_person_the_right_to_change_education_group(person):
     return person.user.has_perm('base.change_educationgroup')
+
+
+def has_person_the_right_to_delete_education_group(person):
+    return person.user.has_perm('base.delete_educationgroupyear')
