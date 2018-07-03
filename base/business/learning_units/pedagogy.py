@@ -23,36 +23,20 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from osis_common.utils.perms import conjunction, disjunction
-from base.models import academic_calendar
-from base.models.enums import academic_calendar_type
+from django.conf import settings
+
+from cms.enums import entity_name
+from cms.models import text_label, translated_text
 
 
-def is_eligible_to_add_education_group(person):
-    return conjunction(
-            has_person_the_right_to_add_education_group,
-            disjunction(is_central_manager, is_education_group_creation_period_opened),
-    )(person)
-
-
-def is_eligible_to_change_education_group(person):
-    return conjunction(
-        has_person_the_right_to_change_education_group,
-        disjunction(is_central_manager, is_education_group_creation_period_opened),
-    )(person)
-
-
-def is_central_manager(person):
-    return person.is_central_manager()
-
-
-def is_education_group_creation_period_opened(person):
-    return academic_calendar.is_academic_calendar_opened(academic_calendar_type.EDUCATION_GROUP_EDITION)
-
-
-def has_person_the_right_to_add_education_group(person):
-    return person.user.has_perm('base.add_educationgroup')
-
-
-def has_person_the_right_to_change_education_group(person):
-    return person.user.has_perm('base.change_educationgroup')
+def update_bibliography_changed_field_in_cms(learning_unit_year):
+    txt_label = text_label.get_by_label_or_none('bibliography')
+    if txt_label:
+        for language in settings.LANGUAGES:
+            translated_text.update_or_create(
+                entity=entity_name.LEARNING_UNIT_YEAR,
+                reference=learning_unit_year.id,
+                text_label=txt_label,
+                language=language[0],
+                defaults={}
+            )

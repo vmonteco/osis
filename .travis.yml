@@ -3,7 +3,7 @@ env:
     - CC_TEST_REPORTER_ID=6616c6e25065bb63a246ac0540dbc30acb39d4d2a792adb02110283b4194b6fe
 
 language: python
-python: "3.4.5"
+python: "3.5.5"
 cache: pip
 
 install:
