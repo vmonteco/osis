@@ -28,7 +28,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
-from base.forms.education_group.group import CreateEducationGroupYearForm
+from base.forms.education_group.create import CreateEducationGroupYearForm
 from base.models.education_group_year import EducationGroupYear
 from base.views import layout
 from base.views.common import display_success_messages, reverse_url_with_root

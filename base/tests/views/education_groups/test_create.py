@@ -28,7 +28,7 @@ from unittest import mock
 from django.test import TestCase
 from django.urls import reverse
 
-from base.forms.education_group.group import CreateEducationGroupYearForm
+from base.forms.education_group.create import CreateEducationGroupYearForm
 from base.tests.factories.education_group_year import EducationGroupYearFactory
 from base.tests.factories.person import PersonFactory
 

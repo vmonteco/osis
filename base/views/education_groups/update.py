@@ -27,7 +27,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import ugettext_lazy as _
 
-from base.forms.education_group.group import CreateEducationGroupYearForm
+from base.forms.education_group.create import CreateEducationGroupYearForm
 from base.forms.education_group.training import EducationGroupForm, TrainingEducationGroupYearForm
 from base.models.education_group_year import EducationGroupYear
 from base.models.enums import education_group_categories

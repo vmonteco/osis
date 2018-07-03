@@ -29,7 +29,7 @@ from django.contrib.auth.models import Permission
 from django.test import TestCase
 from django.urls import reverse
 
-from base.forms.education_group.group import CreateEducationGroupYearForm
+from base.forms.education_group.create import CreateEducationGroupYearForm
 from base.models.enums import education_group_categories
 from base.tests.factories.education_group_type import EducationGroupTypeFactory
 from base.tests.factories.education_group_year import EducationGroupYearFactory
