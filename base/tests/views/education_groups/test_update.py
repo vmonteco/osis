@@ -65,7 +65,10 @@ class TestUpdate(TestCase):
         an_training_education_group_type = EducationGroupTypeFactory(category=education_group_categories.TRAINING)
         self.training_education_group_year = EducationGroupYearFactory(
             education_group_type=an_training_education_group_type)
-        EntityVersionFactory(entity=self.training_education_group_year.administration_entity)
+        EntityVersionFactory(entity=self.training_education_group_year.administration_entity,
+                             start_date=self.education_group_year.academic_year.start_date)
+        EntityVersionFactory(entity=self.training_education_group_year.management_entity,
+                             start_date=self.education_group_year.academic_year.start_date)
         return reverse(update_education_group,
                        kwargs={'education_group_year_id': self.training_education_group_year.pk})
 
@@ -125,4 +128,4 @@ class TestUpdate(TestCase):
     def test_template_used_for_training(self):
         response = self.client.get(self.training_url)
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "education_group/training.html")
+        self.assertTemplateUsed(response, "education_group/update_trainings.html")

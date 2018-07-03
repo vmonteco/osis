@@ -112,7 +112,7 @@ class LearningUnitViewTestCase(TestCase):
         url = reverse(get_proposal_learning_unit_creation_form, args=[self.academic_year.id])
         response = self.client.get(url)
         self.assertEqual(response.status_code, HttpResponse.status_code)
-        self.assertTemplateUsed(response, 'learning_unit/proposal/create_groups.html')
+        self.assertTemplateUsed(response, 'learning_unit/proposal/creation.html')
         self.assertIsInstance(response.context['learning_unit_form'], LearningUnitModelForm)
         self.assertIsInstance(response.context['form_proposal'], ProposalLearningUnitForm)
 
@@ -121,7 +121,7 @@ class LearningUnitViewTestCase(TestCase):
         url = reverse(get_proposal_learning_unit_creation_form, args=[self.academic_year.id])
         response = self.client.get(url)
         self.assertEqual(response.status_code, HttpResponse.status_code)
-        self.assertTemplateUsed(response, 'learning_unit/proposal/create_groups.html')
+        self.assertTemplateUsed(response, 'learning_unit/proposal/creation.html')
         self.assertIsInstance(response.context['learning_unit_form'], LearningUnitModelForm)
         self.assertIsInstance(response.context['form_proposal'], ProposalLearningUnitForm)
 
