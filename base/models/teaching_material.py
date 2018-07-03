@@ -23,41 +23,39 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.contrib.admin import ModelAdmin
 from django.db import models
 from django.utils.translation import pgettext_lazy as _
+from ordered_model.admin import OrderedModelAdmin
+from ordered_model.models import OrderedModel
 
 from base.business.learning_units.pedagogy import update_bibliography_changed_field_in_cms
 from base.models.learning_unit_year import LearningUnitYear
 
 
-class TeachingMaterialAdmin(ModelAdmin):
-    list_display = ('title', 'mandatory', 'learning_unit_year')
+class TeachingMaterialAdmin(OrderedModelAdmin):
+    list_display = ('title', 'mandatory', 'learning_unit_year', 'order', 'move_up_down_links')
+    readonly_fields = ['order']
     search_fields = ['title', 'learning_unit_year']
     raw_id_fields = ('learning_unit_year',)
 
 
-class TeachingMaterial(models.Model):
+class TeachingMaterial(OrderedModel):
     title = models.CharField(max_length=255, verbose_name=_('teachingmaterial', 'title'))
     mandatory = models.BooleanField(verbose_name=_('teachingmaterial', 'mandatory'))
     learning_unit_year = models.ForeignKey(LearningUnitYear, on_delete=models.CASCADE)
+    order_with_respect_to = 'learning_unit_year'
 
     def __str__(self):
         return self.title
 
     class Meta:
         verbose_name_plural = 'bibliographies'
+        ordering = ('learning_unit_year', 'order')
 
 
 def find_by_learning_unit_year(learning_unit_year):
-    return TeachingMaterial.objects.filter(learning_unit_year=learning_unit_year)
-
-
-def build_list_of_teaching_material_content_by_learning_unit_year(learning_unit_year):
-    return [
-        (material.title, material.mandatory)
-        for material in find_by_learning_unit_year(learning_unit_year)
-    ]
+    return TeachingMaterial.objects.filter(learning_unit_year=learning_unit_year)\
+                                   .order_by('order')
 
 
 def postpone_teaching_materials(start_luy, commit=True):
@@ -67,7 +65,7 @@ def postpone_teaching_materials(start_luy, commit=True):
     :param commit:
     :return:
     """
-    teaching_materials = start_luy.teachingmaterial_set.all()
+    teaching_materials = find_by_learning_unit_year(start_luy)
     for next_luy in [luy for luy in start_luy.find_gt_learning_units_year()]:
         # Remove all previous teaching materials
         next_luy.teachingmaterial_set.all().delete()
