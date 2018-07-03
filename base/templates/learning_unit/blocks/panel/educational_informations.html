@@ -67,7 +67,7 @@
         </div>
 
         <table class="table">
-            <thead >
+            <thead>
                 <tr>
                     <th class="col-md-2" style="padding: 20px;">{% trans 'language' %}</th>
                     <th class="col-md-5" style="padding: 20px;">{{ form_french.language.1 }}</th>
@@ -78,30 +78,31 @@
             {% for label_key, label_translated in cms_labels_translated.items %}
                 <tr>
                     <td style="padding: 20px;">
-                    <label> {{ label_translated }} </label>
+                        <label> {{ label_translated }} </label>
                     </td>
-                    <td style="padding: 20px;">
-                    {% if can_edit_information %}
-                        <a class="pedagogy-edit-btn pull-right" href="#"
-                           data-form="{{post_url}}?language={{ form_french.language.0 }}&label={{ label_key }}"
-                           title="{% trans 'edit' %}">
-                            <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
-                        </a>
-                    {% endif %}
-                    {{ form_french|getattr:label_key }}
-                    </td>
-                    <td style="padding: 20px;">
-                    {% if label_key not in cms_label_pedagogy_fr_only %}
+                    <td style="padding: 20px;" {% if label_key in cms_label_pedagogy_fr_only %}colspan="2"{% endif %}>
                         {% if can_edit_information %}
                             <a class="pedagogy-edit-btn pull-right" href="#"
-                               data-form="{{post_url}}?language={{ form_english.language.0 }}&label={{ label_key }}"
+                               data-form="{{post_url}}?language={{ form_french.language.0 }}&label={{ label_key }}"
                                title="{% trans 'edit' %}">
                                 <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
                             </a>
                         {% endif %}
-                        {{ form_english|getattr:label_key}}
-                    {% endif %}
+                        {{ form_french|getattr:label_key }}
                     </td>
+                    {% if label_key not in cms_label_pedagogy_fr_only %}
+                        <td style="padding: 20px;">
+
+                                {% if can_edit_information %}
+                                    <a class="pedagogy-edit-btn pull-right" href="#"
+                                       data-form="{{post_url}}?language={{ form_english.language.0 }}&label={{ label_key }}"
+                                       title="{% trans 'edit' %}">
+                                        <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+                                    </a>
+                                {% endif %}
+                                {{ form_english|getattr:label_key }}
+                        </td>
+                    {% endif %}
                 </tr>
             {% endfor %}
             </tbody>
