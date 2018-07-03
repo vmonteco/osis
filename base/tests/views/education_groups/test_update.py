@@ -29,7 +29,7 @@ from django.contrib.auth.models import Permission
 from django.test import TestCase
 from django.urls import reverse
 
-from base.forms.education_group.create import CreateEducationGroupYearForm
+from base.forms.education_group.group import CreateEducationGroupYearForm
 from base.models.enums import education_group_categories
 from base.tests.factories.education_group_type import EducationGroupTypeFactory
 from base.tests.factories.education_group_year import EducationGroupYearFactory
@@ -90,7 +90,7 @@ class TestUpdate(TestCase):
         response = self.client.get(self.url)
 
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "education_group/update.html")
+        self.assertTemplateUsed(response, "education_group/update_groups.html")
 
     def test_response_context(self):
         response = self.client.get(self.url)
@@ -128,4 +128,4 @@ class TestUpdate(TestCase):
     def test_template_used_for_training(self):
         response = self.client.get(self.training_url)
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "education_group/identification_training_edit.html")
+        self.assertTemplateUsed(response, "education_group/training.html")

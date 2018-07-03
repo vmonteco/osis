@@ -27,8 +27,8 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import ugettext_lazy as _
 
-from base.forms.education_group.create import CreateEducationGroupYearForm
-from base.forms.education_group.update import EducationGroupForm, TrainingEducationGroupYearForm
+from base.forms.education_group.group import CreateEducationGroupYearForm
+from base.forms.education_group.training import EducationGroupForm, TrainingEducationGroupYearForm
 from base.models.education_group_year import EducationGroupYear
 from base.models.enums import education_group_categories
 from base.views import layout
@@ -45,14 +45,16 @@ def update_education_group(request, education_group_year_id):
 
     if education_group_year.education_group_type.category != education_group_categories.GROUP:
         form_education_group_year = TrainingEducationGroupYearForm(request.POST or None, instance=education_group_year)
-        html_page = "education_group/identification_training_edit.html"
+        html_page = "education_group/update_trainings.html"
     else:
         form_education_group_year = CreateEducationGroupYearForm(request.POST or None, instance=education_group_year)
-        html_page = "education_group/update.html"
+        html_page = "education_group/update_groups.html"
 
     if form_education_group.is_valid() and form_education_group_year.is_valid():
         display_success_messages(request, _("Education group successfully updated"))
         url = reverse_url_with_root(request, "education_group_read", args=[education_group_year.id])
+        form_education_group.save()
+        form_education_group_year.save()
         return redirect(url)
 
     return layout.render(request, html_page, {

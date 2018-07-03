@@ -129,14 +129,14 @@ class LearningUnitViewCreateFullTestCase(TestCase):
 
     def test_create_full_get_form(self):
         response = self.client.get(self.url)
-        self.assertTemplateUsed(response, "learning_unit/simple/creation.html")
+        self.assertTemplateUsed(response, "learning_unit/simple/create_groups.html")
         self.assertEqual(response.status_code, HttpResponse.status_code)
         self.assertIsInstance(response.context['learning_unit_form'], LearningUnitModelForm)
 
     @mock.patch('base.forms.learning_unit.learning_unit_create_2.FullForm.is_valid', side_effect=lambda *args: False)
     def test_create_full_when_invalid_form_no_redirection(self, mock_is_valid):
         response = self.client.post(self.url, data={})
-        self.assertTemplateUsed(response, "learning_unit/simple/creation.html")
+        self.assertTemplateUsed(response, "learning_unit/simple/create_groups.html")
         self.assertEqual(response.status_code, HttpResponse.status_code)
 
     @mock.patch('base.forms.learning_unit.learning_unit_create_2.FullForm.is_valid', side_effect=lambda *args: True)

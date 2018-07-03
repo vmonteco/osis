@@ -24,7 +24,7 @@
 ##############################################################################
 from django.test import TestCase
 
-from base.forms.education_group.create import CreateEducationGroupYearForm
+from base.forms.education_group.group import CreateEducationGroupYearForm
 from base.models.enums import education_group_categories, organization_type
 from base.models.group_element_year import GroupElementYear
 from base.tests.factories.academic_year import AcademicYearFactory
