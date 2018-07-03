@@ -62,8 +62,8 @@ class TrainingEducationGroupYearForm(forms.ModelForm):
 
     def prepare_fields(self):
         self.fields["main_teaching_campus"].queryset = campus.find_main_campuses()
-        self.fields["education_group_type"].queryset = \
-            education_group_type.find_by_category(education_group_categories.TRAINING)
+
+        self.fields["education_group_type"].queryset = self._get_authorized_education_group_types_queryset()
         self.fields["education_group_type"].required = True
 
         if self.parent_education_group_year:
@@ -98,6 +98,14 @@ class TrainingEducationGroupYearForm(forms.ModelForm):
     @staticmethod
     def _create_group_element_year(parent, child):
         return GroupElementYear.objects.create(parent=parent, child_branch=child)
+
+    def _get_authorized_education_group_types_queryset(self):
+        parent_group_type = None
+        if self.parent_education_group_year:
+            parent_group_type = self.parent_education_group_year.education_group_type
+        return education_group_type.find_authorized_types(
+            category=education_group_categories.GROUP, parent_type=parent_group_type
+        )
 
 
 class EducationGroupForm(forms.ModelForm):
