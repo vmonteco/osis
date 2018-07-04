@@ -35,7 +35,7 @@ from base.business.learning_unit import get_organization_from_learning_unit_year
 from base.business.learning_unit_proposal import get_difference_of_proposal
 from base.business.learning_units.edition import create_learning_unit_year_creation_message
 from base.business.learning_units.perms import learning_unit_year_permissions, learning_unit_proposal_permissions, \
-    is_eligible_to_create_partim
+    is_eligible_to_create_partim, is_eligible_for_modification
 from base.models import proposal_learning_unit
 from base.models.learning_unit import REGEX_BY_SUBTYPE
 from base.models.learning_unit_year import LearningUnitYear
@@ -106,6 +106,7 @@ def get_learning_unit_identification_context(learning_unit_year_id, person):
     # append permissions
     context.update(learning_unit_year_permissions(learning_unit_year, person))
     context.update(learning_unit_proposal_permissions(proposal, person, learning_unit_year))
+    context['can_manage_volume'] = is_eligible_for_modification(context["learning_unit_year"], person)
 
     return context
 
@@ -119,3 +120,8 @@ def get_common_context_learning_unit_year(learning_unit_year_id, person):
         'is_person_linked_to_entity': person.is_linked_to_entity_in_charge_of_learning_unit_year(learning_unit_year),
         'experimental_phase': True
     }
+
+
+def get_text_label_translated(text_lb, user_language):
+    return next((txt for txt in text_lb.translated_text_labels
+                 if txt.language == user_language), None)

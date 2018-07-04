@@ -24,20 +24,15 @@
 #
 ##############################################################################
 from django import forms
-from django.db import models
-from django.db.models.fields import BLANK_CHOICE_DASH
 from django.forms import ModelChoiceField
 from django.utils.functional import lazy
 from django.utils.translation import ugettext_lazy as _
 
 from base.business.entity import get_entities_ids
 from base.forms.bootstrap import BootstrapForm
-from base.models import academic_year, education_group_year, offer_year_entity
+from base.models import academic_year, education_group_year
 from base.models.education_group_type import EducationGroupType
-from base.models.enums import offer_year_entity_type
 from base.models.enums import education_group_categories
-
-MAX_RECORDS = 1000
 
 
 class EntityManagementModelChoiceField(ModelChoiceField):
@@ -66,14 +61,26 @@ class ModelChoiceFieldWithData(forms.ModelChoiceField):
 
 
 class EducationGroupFilter(BootstrapForm):
-    academic_year = forms.ModelChoiceField(queryset=academic_year.find_academic_years(), required=False,
-                                           empty_label=_('all_label'), label=_('academic_year_small'))
 
-    category = forms.ChoiceField(choices=[("", _('all_label'))] + list(education_group_categories.CATEGORIES),
-                                 required=False, label=_('category'))
+    academic_year = forms.ModelChoiceField(
+        queryset=academic_year.find_academic_years(),
+        required=False,
+        empty_label=_('all_label'),
+        label=_('academic_year_small')
+    )
 
-    education_group_type = ModelChoiceFieldWithData(queryset=EducationGroupType.objects.all(), required=False,
-                                                    empty_label=_('all_label'), label=_('type'))
+    category = forms.ChoiceField(
+        choices=[("", _('all_label'))] + list(education_group_categories.CATEGORIES),
+        required=False,
+        label=_('category')
+    )
+
+    education_group_type = ModelChoiceFieldWithData(
+        queryset=EducationGroupType.objects.all(),
+        required=False,
+        empty_label=_('all_label'),
+        label=_('type')
+    )
 
     acronym = forms.CharField(max_length=40, required=False, label=_('acronym'))
     title = forms.CharField(max_length=255, required=False, label=_('title'))
@@ -89,35 +96,19 @@ class EducationGroupFilter(BootstrapForm):
     def get_object_list(self):
         clean_data = {key: value for key, value in self.cleaned_data.items() if value is not None}
 
-        entity_versions_prefetch = models.Prefetch('entity__entityversion_set', to_attr='entity_versions')
-        offer_year_entity_prefetch = models.Prefetch('offeryearentity_set',
-            queryset=offer_year_entity.search(type=offer_year_entity_type.ENTITY_MANAGEMENT)\
-                                                     .prefetch_related(entity_versions_prefetch),
-                                                     to_attr='offer_year_entities')
+        result = education_group_year.search(**clean_data)
+
         if clean_data.get('requirement_entity_acronym'):
-            clean_data['id'] = _get_filter_entity_management(clean_data['requirement_entity_acronym'],
-                                                             clean_data.get('with_entity_subordinated',False))
-        education_groups = education_group_year.search(**clean_data).prefetch_related(offer_year_entity_prefetch)
-        return [_append_entity_management(education_group) for education_group in education_groups]
+            result = _get_filter_entity_management(
+                result,
+                clean_data['requirement_entity_acronym'],
+                clean_data.get('with_entity_subordinated',False)
+            )
+
+        # TODO User should choice the order
+        return result.order_by('acronym')
 
 
-def _get_filter_entity_management(requirement_entity_acronym, with_entity_subordinated):
+def _get_filter_entity_management(qs, requirement_entity_acronym, with_entity_subordinated):
     entity_ids = get_entities_ids(requirement_entity_acronym, with_entity_subordinated)
-    return list(offer_year_entity.search(type=offer_year_entity_type.ENTITY_MANAGEMENT, entity=entity_ids)
-                .values_list('education_group_year', flat=True).distinct())
-
-
-def _append_entity_management(education_group):
-    education_group.entity_management = None
-    if education_group.offer_year_entities:
-        education_group.entity_management = _find_entity_version_according_academic_year(education_group.
-                                                                                         offer_year_entities[0].entity,
-                                                                                         education_group.academic_year)
-    return education_group
-
-
-def _find_entity_version_according_academic_year(an_entity, an_academic_year):
-    if getattr(an_entity, 'entity_versions'):
-        return next((entity_vers for entity_vers in an_entity.entity_versions
-                     if entity_vers.start_date <= an_academic_year.start_date and
-                     (entity_vers.end_date is None or entity_vers.end_date > an_academic_year.end_date)), None)
+    return qs.filter(management_entity__in=entity_ids)

@@ -25,6 +25,7 @@
 ##############################################################################
 from django.db import models
 from osis_common.models.osis_model_admin import OsisModelAdmin
+from django.utils.translation import ugettext_lazy as _
 
 
 class EducationGroupAdmin(OsisModelAdmin):
@@ -35,8 +36,8 @@ class EducationGroupAdmin(OsisModelAdmin):
 class EducationGroup(models.Model):
     external_id = models.CharField(max_length=100, blank=True, null=True)
     changed = models.DateTimeField(null=True, auto_now=True)
-    start_year = models.IntegerField(blank=True, null=True)
-    end_year = models.IntegerField(blank=True, null=True)
+    start_year = models.IntegerField(blank=True, null=True, verbose_name=_('start'))
+    end_year = models.IntegerField(blank=True, null=True, verbose_name=_('end'))
 
     @property
     def most_recent_acronym(self):
@@ -50,5 +51,5 @@ class EducationGroup(models.Model):
     class Meta:
         permissions = (
             ("can_access_education_group", "Can access education_group"),
-            ("can_edit_educationgroup_pedagogy", "Can edit education group pedagogy"),
+            ("can_edit_educationgroup_pedagogy", "Can edit education group pedagogy")
         )

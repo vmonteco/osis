@@ -32,7 +32,7 @@
         {% include "learning_unit/blocks/form/search_form_summary_list.html" %}
 
         <div style="margin-top:10px;">
-            {% if learning_units %}
+            {% if learning_units_with_errors %}
                 <div class="row">
                     <div class="col-md-3">
                         <button type="button" class="btn btn-default" style="margin-left:10px;"
@@ -61,10 +61,10 @@
                         <th>{% trans 'type'%}</th>
                         <th>{% trans 'subtype'%}</th>
                         <th>{% trans 'summary_responsible' %}</th>
-                        <th>{% trans 'updated' %}</th>
+                        <th>{% trans 'Modification made' %}</th>
                     </tr>
                     </thead>
-                    {% for learning_unit in learning_units %}
+                    {% for learning_unit, error in learning_units_with_errors %}
                         <tr data-id="{{learning_unit.id}}" data-value="{{learning_unit.acronym}}">
                             <td>{{learning_unit.academic_year.name}}</td>
                             <td>
@@ -90,15 +90,7 @@
                                 {% endfor %}
                             </td>
                             <td>
-                                {% if learning_unit.summary_status %}
-                                    <span class="glyphicon glyphicon-ok-circle" aria-hidden="true" style="color:green;"
-                                          title="{% trans  'updated' %}"></span>
-                                    <div style="display:none;">1</div>
-                                {% else %}
-                                    <span class="glyphicon glyphicon-ok-circle" aria-hidden="true" style="color:gray;"
-                                          title="{% trans  'unupdated' %}"></span>
-                                    <div style="display:none;">0</div>
-                                {% endif %}
+                                {% include "blocks/span/span_status.html" with status=learning_unit.summary_status title_status_false=error.as_ul %}
                             </td>
                         </tr>
                     {% endfor %}

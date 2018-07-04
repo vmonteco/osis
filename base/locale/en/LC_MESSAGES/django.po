@@ -2618,7 +2618,7 @@ msgid "in_proposal"
 msgstr "Existing proposal"
 
 msgid "summary_locked"
-msgstr "blocked update"
+msgstr "blocked update for tutor"
 
 msgid "get_back_to_initial"
 msgstr "Get back to initial data"
@@ -2686,18 +2686,24 @@ msgstr "Unupdated"
 msgid "summary_list"
 msgstr "Education information status"
 
-msgctxt "bibliography"
+msgctxt "teachingmaterial"
 msgid "title"
 msgstr ""
 
-msgctxt "bibliography"
+msgctxt "teachingmaterial"
 msgid "mandatory"
 msgstr ""
 
 msgid "Bibliography"
 msgstr ""
 
-msgid "Modalities specific to IN and OUT mobility"
+msgid "bibliography"
+msgstr ""
+
+msgid "Teaching material"
+msgstr ""
+
+msgid "Mobility"
 msgstr ""
 
 msgid "The periodicity of the parent and the partims do not match"
@@ -2847,7 +2853,7 @@ msgstr "Proposals date"
 msgid "search_type"
 msgstr "Search type"
 
-msgid "The linked entity does not exist at the start date of the academic year linked to this learning unit"
+msgid "The linked %(entity)s does not exist at the start date of the academic year linked to this learning unit"
 msgstr ""
 
 msgid "COURSE_ENROLLMENT"
@@ -2926,7 +2932,7 @@ msgid "Vol_tot is not equal to vol_q1 + vol_q2"
 msgstr ""
 
 msgid "Vol_global is not equal to Vol_tot * planned_classes"
-msgstr ""
+msgstr "The overall volume must be equal to the annual volume multiplied by the number of classes"
 
 msgid "At least a partim volume value is greater than corresponding volume of parent"
 msgstr ""
@@ -2985,6 +2991,18 @@ msgstr "Produce xls with a list of learning units"
 msgid "produce_xls_attributions_desc"
 msgstr "Produce xls with a list of learning units and attributions"
 
+msgid "hourly volume total annual"
+msgstr ""
+
+msgid "hourly volume partial q1"
+msgstr ""
+
+msgid "hourly volume partial q2"
+msgstr ""
+
+msgid "volume declared vacant"
+msgstr ""
+
 msgid "Xls with education groups"
 msgstr ""
 
@@ -3000,5 +3018,131 @@ msgstr ""
 msgid "Q1 or Q2"
 msgstr ""
 
+msgid "New Education Group"
+msgstr ""
+
 msgid "untyped"
+msgstr ""
+
+msgid "validity"
+msgstr ""
+
+msgid "Education group year <a href='%(link)s'> %(acronym)s (%(academic_year)s) </a> successfuly created."
+msgstr ""
+
+msgid "minimum credits"
+msgstr ""
+
+msgid "maximum credits"
+msgstr ""
+
+msgid "EDUCATION_GROUP_EDITION"
+msgstr "Edition group edition"
+
+msgid "The learning unit %(acronym)s is not included in any education group"
+msgstr ""
+
+msgid "No enrollment for this learning unit"
+msgstr ""
+
+msgid "Changed"
+msgstr ""
+
+msgid "Other teacher(s)"
+msgstr ""
+
+msgid "Summary responsible(s)"
+msgstr ""
+
+msgid "The annual volume must be equal to the sum of the volumes Q1 and Q2"
+msgstr ""
+
+msgid "The global volume corresponding to the product of the annual volume and the number of planned classes must be equal to the sum of the volumes for each entity"
+msgstr ""
+
+msgid "This partim is %(partim_periodicity)s and the parent is %(parent_periodicty)s"
+msgstr ""
+
+msgid "The parent is %(parent_periodicty)s and there is at least one partim which is not %(parent_periodicty)s"
+msgstr ""
+
+msgid "Admission Conditions for Bachelors"
+msgstr "Admission Conditions for Bachelors"
+
+msgid "Alert Message"
+msgstr "Alert Message"
+
+msgid "Free Text"
+msgstr "Free Text"
+
+msgid "University Bachelors"
+msgstr "University Bachelors"
+
+msgid "Diploma"
+msgstr "Diploma"
+
+msgid "Conditions"
+msgstr "Conditions"
+
+msgid "Access"
+msgstr "Access"
+
+msgid "Actions"
+msgstr "Actions"
+
+msgid "UCL Bachelors"
+msgstr "UCL Bachelors"
+
+msgid "Others Bachelors of the French speaking Community of Belgium"
+msgstr "Others Bachelors of the French speaking Community of Belgium"
+
+msgid "Bachelors of the Dutch speaking Community of Beligum"
+msgstr "Bachelors of the Dutch speaking Community of Beligum"
+
+msgid "Foreign Bachelors"
+msgstr "Foreign Bachelors"
+
+msgid "Non university Bachelors"
+msgstr "Non university Bachelors"
+
+msgid "Holders of a 2nd cycle University degree"
+msgstr "Holders of a 2nd cycle University degree"
+
+msgid "Holders of a non-University 2nd cycle degree"
+msgstr "Holders of a non-University 2nd cycle degree"
+
+msgid "Adults taking up their university training"
+msgstr "Adults taking up their university training"
+
+msgid "Personalized access"
+msgstr "Personalized access"
+
+msgid "Admission and Enrolment Procedures for general registration"
+msgstr "Admission and Enrolment Procedures for general registration"
+
+msgid "Modify text"
+msgstr "Modify text"
+
+msgid "Add a new line"
+msgstr "Add a new line"
+
+msgid "Modify an existing line"
+msgstr "Modify an existing line"
+
+msgid "Are you sure you want to delete %(education_group_year)s?"
+msgstr ""
+
+msgid "You are not summary responsible for this learning unit."
+msgstr ""
+
+msgid "The learning unit is not summary editable."
+msgstr ""
+
+msgid "Submission dates are not set."
+msgstr ""
+
+msgid "Not in period to edit educational information."
+msgstr ""
+
+msgid "Modification made"
 msgstr ""

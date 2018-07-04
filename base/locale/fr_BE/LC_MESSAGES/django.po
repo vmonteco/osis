@@ -2620,7 +2620,7 @@ msgid "by"
 msgstr "Par"
 
 msgid "summary_locked"
-msgstr "mise-à-jour bloquée"
+msgstr "mise-à-jour bloquée pour l'enseignant"
 
 msgid "get_back_to_initial"
 msgstr "Retour à l'état initial"
@@ -2679,19 +2679,25 @@ msgstr "Interdiction de supprimer une unité d'enseignement avant 2015."
 msgid "The entity '%(acronym)s' doesn't exist anymore in %(year)s"
 msgstr "L'entité '%(acronym)s' n'existe plus en %(year)s"
 
-msgctxt "bibliography"
+msgctxt "teachingmaterial"
 msgid "title"
 msgstr "titre"
 
-msgctxt "bibliography"
+msgctxt "teachingmaterial"
 msgid "mandatory"
 msgstr "obligatoire"
 
 msgid "Bibliography"
 msgstr "Bibliographie"
 
-msgid "Modalities specific to IN and OUT mobility"
-msgstr "Modalités propres à la mobilité IN et OUT"
+msgid "bibliography"
+msgstr "bibliographie"
+
+msgid "Teaching material"
+msgstr "Supports de cours"
+
+msgid "Mobility"
+msgstr "Mobilité"
 
 msgid "updated"
 msgstr "Mis à jour"
@@ -2849,14 +2855,14 @@ msgstr "Date proposition"
 msgid "search_type"
 msgstr "Type de recherche"
 
-msgid "The linked entity does not exist at the start date of the academic year linked to this learning unit"
-msgstr "L'entité liée n'existe pas à la date de début de l'année académique liée à cette unité d'enseignement"
+msgid "The linked %(entity)s does not exist at the start date of the academic year linked to this learning unit"
+msgstr "L'%(entity)s liée n'existe pas à la date de début de l'année académique liée à cette unité d'enseignement"
 
 msgid "COURSE_ENROLLMENT"
 msgstr "Inscription aux cours"
 
 msgid "vol_global"
-msgstr "Vol.global"
+msgstr "Vol. global"
 
 msgid "volume_global"
 msgstr "volume total global"
@@ -2922,10 +2928,10 @@ msgid "planned classes cannot be 0"
 msgstr "le nombre de classes prévues ne peut être 0"
 
 msgid "Vol_tot is not equal to vol_q1 + vol_q2"
-msgstr "Vol_tot n'est pas égal à vol_q1 + vol_q2"
+msgstr "Le volume total doit être égal à la somme des volumes de Q1 et de Q2"
 
 msgid "Vol_global is not equal to Vol_tot * planned_classes"
-msgstr "Vol_global n'est pas égal à Vol_tot * planned_classes"
+msgstr "Le volume global doit être égal au volume annuel multiplié par le nombre de classes"
 
 msgid "At least a partim volume value is greater than corresponding volume of parent"
 msgstr "Au moins une valeur de volume d'un partim est supérieure à celle du volume correspondant du parent"
@@ -2984,6 +2990,18 @@ msgstr "Produire un fichier Excel avec la liste des unités d'enseignement"
 msgid "produce_xls_attributions_desc"
 msgstr "Produire un fichier Excel avec la liste des unités d'enseignement et les attributions"
 
+msgid "hourly volume total annual"
+msgstr "volume horaire total annuel"
+
+msgid "hourly volume partial q1"
+msgstr "volume horaire partiel q1"
+
+msgid "hourly volume partial q2"
+msgstr "volume horaire partiel q2"
+
+msgid "volume declared vacant"
+msgstr "volume déclaré vacant"
+
 msgid "Xls with education groups"
 msgstr "Xls avec les formations"
 
@@ -2999,5 +3017,131 @@ msgstr "Q1 et Q2"
 msgid "Q1 or Q2"
 msgstr "Q1 ou Q2"
 
+msgid "New Education Group"
+msgstr "Nouveau Groupement"
+
+msgid "The repartition volume of %(col_name)s has been already modified. ({%(new_value)s} instead of {%(current_value)s})"
+msgstr "La répartition de volume de %(col_name)s a déjà été modifiée. ({%(new_value)s} a la place de {%(current_value)s})"
+
 msgid "untyped"
 msgstr "Non-typée"
+
+msgid "validity"
+msgstr "validité"
+
+msgid "Education group year <a href='%(link)s'> %(acronym)s (%(academic_year)s) </a> successfuly created."
+msgstr "Formation <a href='%(link)s'> %(acronym)s (%(academic_year)s) </a> créée avec succès."
+
+msgid "minimum credits"
+msgstr "crédits minimum"
+
+msgid "maximum credits"
+msgstr "crédits maximum"
+
+msgid "EDUCATION_GROUP_EDITION"
+msgstr "Edition programme"
+
+msgid "The learning unit %(acronym)s is not included in any education group"
+msgstr "L'unité d'enseignement %(acronym)s n'est incluse dans aucun groupement"
+
+msgid "No enrollment for this learning unit"
+msgstr "Il n'y a aucune inscription pour cette unité d'enseignement"
+
+msgid "Changed"
+msgstr "Modification apportée"
+
+msgid "Other teacher(s)"
+msgstr "Autre(s) enseignant(s)"
+
+msgid "Summary responsible(s)"
+msgstr "Responsable(s) des informations"
+
+msgid "The annual volume must be equal to the sum of the volumes Q1 and Q2"
+msgstr "Le volume annuel doit être égal à la somme des volumes Q1 et Q2"
+
+msgid "The global volume corresponding to the product of the annual volume and the number of planned classes must be equal to the sum of the volumes for each entity"
+msgstr "Le volume global correspondant au volume annuel multiplié par le nombre de classes doit être égal à la somme des volumes pour chaque entité"
+
+msgid "This partim is %(partim_periodicity)s and the parent is %(parent_periodicty)s"
+msgstr "Ce partim est %(partim_periodicity)s alors que l'UE parent est %(parent_periodicty)s"
+
+msgid "The parent is %(parent_periodicty)s and there is at least one partim which is not %(parent_periodicty)s"
+msgstr "L'UE parent est %(parent_periodicty)s et au moins un partim n'est pas %(parent_periodicty)s"
+
+msgid "Admission Conditions for Bachelors"
+msgstr "Conditions d'admissions pour Bacheliers"
+
+msgid "Alert Message"
+msgstr "Message d'alerte"
+
+msgid "Free Text"
+msgstr "Zone libre"
+
+msgid "University Bachelors"
+msgstr "Bacheliers universitaires"
+
+msgid "Diploma"
+msgstr "Diplôme"
+
+msgid "Conditions"
+msgstr "Conditions"
+
+msgid "Access"
+msgstr "Accès"
+
+msgid "Actions"
+msgstr "Actions"
+
+msgid "UCL Bachelors"
+msgstr "Bacheliers UCL"
+
+msgid "Others Bachelors of the French speaking Community of Belgium"
+msgstr "Autres bacheliers de la Communauté française de Belgique"
+
+msgid "Bachelors of the Dutch speaking Community of Beligum"
+msgstr "Bachelier de la Communauté flamande de Belgique"
+
+msgid "Foreign Bachelors"
+msgstr "Bacheliers étrangers"
+
+msgid "Non university Bachelors"
+msgstr "Bacheliers non universitaires"
+
+msgid "Holders of a 2nd cycle University degree"
+msgstr "Diplômés du 2° cycle universitaire"
+
+msgid "Holders of a non-University 2nd cycle degree"
+msgstr "Diplômés de 2° cycle non universitaire"
+
+msgid "Adults taking up their university training"
+msgstr "Adultes en reprise d'études"
+
+msgid "Personalized access"
+msgstr "Accès personnalisé"
+
+msgid "Admission and Enrolment Procedures for general registration"
+msgstr "Procédures d'admission et d'inscription"
+
+msgid "Modify text"
+msgstr "Modifier un texte"
+
+msgid "Add a new line"
+msgstr "Ajouter une nouvelle ligne"
+
+msgid "Modify an existing line"
+msgstr "Modifier une ligne existante"
+
+msgid "Are you sure you want to delete %(education_group_year)s?"
+msgstr "Êtes-vous sûr·e que vous voulez supprimer %(education_group_year)s?"
+
+msgid "You are not summary responsible for this learning unit."
+msgstr "Vous n'êtes pas responsable des informations pédagogiques pour cette unité d'enseignement."
+
+msgid "The learning unit is not summary editable."
+msgstr "La mise-à-jour des informations pédagogiques est bloqué pour cette unité d'enseignement."
+
+msgid "Not in period to edit educational information."
+msgstr "Vous n'êtes pas en période d'édition des informations pédagogiques."
+
+msgid "Modification made"
+msgstr "Modification apportée"

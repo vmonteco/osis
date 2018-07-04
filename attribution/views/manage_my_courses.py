@@ -27,34 +27,46 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 
-from attribution.business.manage_my_courses import find_learning_unit_years_summary_editable
-from attribution.business.perms import can_user_edit_educational_information, \
-    find_educational_information_submission_dates_of_learning_unit_year
-from attribution.views.perms import tutor_can_edit_educational_information, tutor_can_view_educational_information
-from base.models import academic_calendar
+from attribution.views.perms import tutor_can_view_educational_information
+from base.business.learning_units.perms import is_eligible_to_update_learning_unit_pedagogy, \
+    find_educational_information_submission_dates_of_learning_unit_year, can_user_edit_educational_information
+from base.models.learning_unit_year import find_tutor_learning_unit_years
+from attribution.models.attribution import find_all_summary_responsibles_by_learning_unit_years
+
+from base.models import academic_year, entity_calendar
 from base.models.enums import academic_calendar_type
+from base.models.learning_unit_year import LearningUnitYear
 from base.models.tutor import Tutor
 from base.views import layout
-from base.views import learning_unit as view_learning_unit
-from base.views.learning_units.update import update_learning_unit_pedagogy
+from base.views.learning_units.pedagogy.update import update_learning_unit_pedagogy, edit_learning_unit_pedagogy
+from base.views.learning_units.perms import PermissionDecorator
 
 
 @login_required
 def list_my_attributions_summary_editable(request):
-    learning_unit_years_summary_editable = find_learning_unit_years_summary_editable(
-        tutor=get_object_or_404(Tutor, person__user=request.user))
-    submission_dates = academic_calendar.\
-        find_dates_for_current_academic_year(academic_calendar_type.SUMMARY_COURSE_SUBMISSION)
-    # FIXME : locals as context is not allowed
-    return layout.render(request,
-                         'manage_my_courses/list_my_courses_summary_editable.html', locals())
+    tutor = get_object_or_404(Tutor, person__user=request.user)
+    learning_unit_years = find_tutor_learning_unit_years(tutor=tutor)
+
+    score_responsibles = find_all_summary_responsibles_by_learning_unit_years(learning_unit_years)
+
+    entity_calendars = entity_calendar.build_calendar_by_entities(
+        ac_year=academic_year.current_academic_year(),
+        reference=academic_calendar_type.SUMMARY_COURSE_SUBMISSION
+    )
+    errors = (can_user_edit_educational_information(user=tutor.person.user, learning_unit_year_id=luy.id)
+              for luy in learning_unit_years)
+    context = {
+        'learning_unit_years_with_errors': zip(learning_unit_years, errors),
+        'entity_calendars': entity_calendars,
+        'score_responsibles': score_responsibles,
+    }
+    return layout.render(request, 'manage_my_courses/list_my_courses_summary_editable.html', context)
 
 
 @login_required
 @tutor_can_view_educational_information
 def view_educational_information(request, learning_unit_year_id):
     context = {
-        'can_edit_information': can_user_edit_educational_information(request.user, learning_unit_year_id),
         'submission_dates': find_educational_information_submission_dates_of_learning_unit_year(
                 learning_unit_year_id)
     }
@@ -63,7 +75,7 @@ def view_educational_information(request, learning_unit_year_id):
 
 
 @login_required
-@tutor_can_edit_educational_information
+@PermissionDecorator(is_eligible_to_update_learning_unit_pedagogy, "learning_unit_year_id", LearningUnitYear)
 def edit_educational_information(request, learning_unit_year_id):
-    redirect_url = reverse("view_educational_information", kwargs={'learning_unit_year_id': learning_unit_year_id})
-    return view_learning_unit.edit_learning_unit_pedagogy(request, learning_unit_year_id, redirect_url)
+    redirect_url = reverse(view_educational_information, kwargs={'learning_unit_year_id': learning_unit_year_id})
+    return edit_learning_unit_pedagogy(request, learning_unit_year_id, redirect_url)

@@ -25,19 +25,22 @@
 ##############################################################################
 from ckeditor.widgets import CKEditorWidget
 from django import forms
+from django.conf import settings
+from django.db.transaction import atomic
+from django.forms import BaseInlineFormSet, inlineformset_factory
 
-from base.business.learning_unit import find_language_in_settings
+from base.business.learning_unit import find_language_in_settings, CMS_LABEL_PEDAGOGY, CMS_LABEL_PEDAGOGY_FR_ONLY
+from base.business.learning_units.pedagogy import update_bibliography_changed_field_in_cms
 from base.business.learning_units.perms import can_edit_summary_locked_field
 from base.forms.common import set_trans_txt
+from base.models import academic_year, learning_unit_year, teaching_material
 from base.models.learning_unit_year import LearningUnitYear
+from base.models.teaching_material import TeachingMaterial
 from cms.enums import entity_name
 from cms.models import translated_text
 
 
 class LearningUnitPedagogyForm(forms.Form):
-    text_labels_name = ['resume', 'bibliography', 'teaching_methods', 'evaluation_methods',
-                        'other_informations', 'online_resources']
-
     def __init__(self, *args, learning_unit_year=None, language_code=None, **kwargs):
         self.learning_unit_year = learning_unit_year
         self.language = find_language_in_settings(language_code)
@@ -55,7 +58,7 @@ class LearningUnitPedagogyForm(forms.Form):
         return translated_text.search(entity=entity_name.LEARNING_UNIT_YEAR,
                                       reference=self.learning_unit_year.id,
                                       language=language_iso,
-                                      text_labels_name=self.text_labels_name)
+                                      text_labels_name=CMS_LABEL_PEDAGOGY)
 
 
 class LearningUnitPedagogyEditForm(forms.Form):
@@ -69,18 +72,48 @@ class LearningUnitPedagogyEditForm(forms.Form):
         super().__init__(*args, **kwargs)
 
     def load_initial(self):
-        value = translated_text.get_or_create(entity=entity_name.LEARNING_UNIT_YEAR,
-                                              reference=self.learning_unit_year.id,
-                                              language=self.language_iso,
-                                              text_label=self.text_label)
+        value = self._get_or_create_translated_text()
         self.fields['cms_id'].initial = value.id
         self.fields['trans_text'].initial = value.text
 
+    @atomic
     def save(self):
-        cleaned_data = self.cleaned_data
-        trans_text = translated_text.find_by_id(cleaned_data['cms_id'])
-        trans_text.text = cleaned_data.get('trans_text')
-        trans_text.save()
+        trans_text = self._get_or_create_translated_text()
+        start_luy = learning_unit_year.get_by_id(trans_text.reference)
+
+        reference_ids = [start_luy.id]
+        if _is_pedagogy_data_must_be_postponed(start_luy):
+            reference_ids += [luy.id for luy in start_luy.find_gt_learning_units_year()]
+
+        for reference_id in reference_ids:
+            if trans_text.text_label.label in CMS_LABEL_PEDAGOGY_FR_ONLY:
+                # In case of FR only CMS field, also save text to corresponding EN field
+                languages = [language[0] for language in settings.LANGUAGES]
+            else:
+                languages = [trans_text.language]
+
+            self._update_or_create_translated_texts(languages, reference_id, trans_text)
+
+    def _update_or_create_translated_texts(self, languages, reference_id, trans_text):
+        for language in languages:
+            translated_text.update_or_create(
+                entity=trans_text.entity,
+                reference=reference_id,
+                language=language,
+                text_label=trans_text.text_label,
+                defaults={'text': self.cleaned_data['trans_text']}
+            )
+
+    def _get_or_create_translated_text(self):
+        if hasattr(self, 'cleaned_data'):
+            cms_id = self.cleaned_data['cms_id']
+            return translated_text.find_by_id(cms_id)
+        return translated_text.get_or_create(
+            entity=entity_name.LEARNING_UNIT_YEAR,
+            reference=self.learning_unit_year.id,
+            language=self.language_iso,
+            text_label=self.text_label
+        )
 
 
 class SummaryModelForm(forms.ModelForm):
@@ -97,11 +130,57 @@ class SummaryModelForm(forms.ModelForm):
         model = LearningUnitYear
         fields = ["summary_locked", 'mobility_modality']
 
+    @atomic
+    def save(self, commit=True):
+        instance = super().save(commit)
+        if _is_pedagogy_data_must_be_postponed(instance):
+            self._postpone_pedagogy_data(instance)
+        return instance
 
-class BibliographyModelForm(forms.ModelForm):
+    def _postpone_pedagogy_data(self, instance):
+        for luy in instance.find_gt_learning_units_year():
+            luy.mobility_modality = instance.mobility_modality
+            luy.save()
+
+
+def teachingmaterialformset_factory(can_edit=False):
+    return inlineformset_factory(
+        LearningUnitYear,
+        TeachingMaterial,
+        fields=('title', 'mandatory'),
+        formset=TeachingMaterialFormsetPostponement,
+        form=TeachingMaterialModelForm,
+        max_num=10,
+        extra=can_edit,
+        can_delete=can_edit,
+        labels={'title': ''}
+    )
+
+
+class TeachingMaterialFormsetPostponement(BaseInlineFormSet):
+    @atomic
+    def save(self, commit=True):
+        instance_list = super().save(commit)
+        luy = self.instance
+        if _is_pedagogy_data_must_be_postponed(luy):
+            teaching_material.postpone_teaching_materials(luy)
+
+        # For sync purpose, we need to trigger an update of the bibliography when we update teaching materials
+        update_bibliography_changed_field_in_cms(luy)
+
+        return instance_list
+
+
+class TeachingMaterialModelForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         person = kwargs.pop('person')
         super().__init__(*args, **kwargs)
         if not person.user.has_perm('base.can_edit_learningunit_pedagogy'):
             for field in self.fields.values():
                 field.disabled = True
+
+
+def _is_pedagogy_data_must_be_postponed(luy):
+    # We must postpone pedagogy information, if we modify data form N+1
+    current_academic_year = academic_year.current_academic_year()
+    return luy.academic_year.year > current_academic_year.year

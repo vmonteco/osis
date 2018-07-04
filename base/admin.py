@@ -23,10 +23,9 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from base.models import *
 from django.contrib import admin
 
-from base.models.bibliography import Bibliography, BibliographyAdmin
+from base.models import *
 
 admin.site.register(academic_calendar.AcademicCalendar,
                     academic_calendar.AcademicCalendarAdmin)
@@ -34,7 +33,11 @@ admin.site.register(academic_calendar.AcademicCalendar,
 admin.site.register(academic_year.AcademicYear,
                     academic_year.AcademicYearAdmin)
 
-admin.site.register(Bibliography, BibliographyAdmin)
+admin.site.register(admission_condition.AdmissionCondition,
+                    admission_condition.AdmissionConditionAdmin)
+
+admin.site.register(admission_condition.AdmissionConditionLine,
+                    admission_condition.AdmissionConditionLineAdmin)
 
 admin.site.register(campus.Campus,
                     campus.CampusAdmin)
@@ -53,6 +56,9 @@ admin.site.register(education_group_type.EducationGroupType,
 
 admin.site.register(education_group_year.EducationGroupYear,
                     education_group_year.EducationGroupYearAdmin)
+
+admin.site.register(education_group_year_domain.EducationGroupYearDomain,
+                    education_group_year_domain.EducationGroupYearDomainAdmin)
 
 admin.site.register(entity.Entity,
                     entity.EntityAdmin)
@@ -186,5 +192,11 @@ admin.site.register(student.Student,
 admin.site.register(synchronization.Synchronization,
                     synchronization.SynchronizationAdmin)
 
+admin.site.register(teaching_material.TeachingMaterial,
+                    teaching_material.TeachingMaterialAdmin)
+
 admin.site.register(tutor.Tutor,
                     tutor.TutorAdmin)
+
+admin.site.register(unauthorized_relationship.UnauthorizedRelationship,
+                    unauthorized_relationship.UnauthorizedRelationshipAdmin)

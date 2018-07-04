@@ -27,9 +27,8 @@ from django import template
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
-from base.models.proposal_learning_unit import ProposalLearningUnit
-from base.models import learning_unit_year
 from base.models.learning_unit_year import find_lt_learning_unit_year_with_different_acronym
+from base.models.proposal_learning_unit import ProposalLearningUnit
 
 register = template.Library()
 

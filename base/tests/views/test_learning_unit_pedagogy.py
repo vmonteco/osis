@@ -32,6 +32,7 @@ from django.core.urlresolvers import reverse
 from django.test import TestCase, RequestFactory
 
 from attribution.tests.factories.attribution import AttributionFactory
+from base.business.learning_unit import CMS_LABEL_PEDAGOGY_FR_ONLY
 from base.models.academic_year import current_academic_year
 from base.models.enums import academic_calendar_type
 from base.models.enums import entity_container_year_link_type
@@ -51,11 +52,15 @@ from base.tests.factories.tutor import TutorFactory
 from base.tests.factories.user import UserFactory
 from base.views.learning_units.educational_information import learning_units_summary_list, \
     send_email_educational_information_needs_update
+from base.views.learning_units.pedagogy.update import learning_unit_pedagogy_edit
 from base.views.learning_units.search import SUMMARY_LIST
+from cms.enums import entity_name
+from cms.tests.factories.text_label import TextLabelFactory
+from cms.tests.factories.translated_text import TranslatedTextFactory
 from reference.tests.factories.country import CountryFactory
 
 
-class LearningUnitViewPedagogyTestCase(TestCase):
+class LearningUnitPedagogyTestCase(TestCase):
     def setUp(self):
         self.current_academic_year = create_current_academic_year()
         self.organization = OrganizationFactory(type=organization_type.MAIN)
@@ -95,7 +100,7 @@ class LearningUnitViewPedagogyTestCase(TestCase):
         request, template, context = mock_render.call_args[0]
         self.assertEqual(template, 'learning_units.html')
         self.assertEqual(context['search_type'], SUMMARY_LIST)
-        self.assertEqual(len(context['learning_units']), 0)
+        self.assertEqual(len(context['learning_units_with_errors']), 0)
 
     @mock.patch('base.views.layout.render')
     def test_learning_units_summary_list(self, mock_render):
@@ -124,7 +129,7 @@ class LearningUnitViewPedagogyTestCase(TestCase):
         request, template, context = mock_render.call_args[0]
         self.assertEqual(template, 'learning_units.html')
         self.assertEqual(context['search_type'], SUMMARY_LIST)
-        self.assertEqual(len(context['learning_units']), 1)
+        self.assertEqual(len(context['learning_units_with_errors']), 1)
         self.assertTrue(context['is_faculty_manager'])
 
     def _create_entity_calendar(self, an_entity):
@@ -155,3 +160,28 @@ class LearningUnitViewPedagogyTestCase(TestCase):
         self.client.force_login(a_user)
         with self.assertRaises(PermissionDenied):
             send_email_educational_information_needs_update(request)
+
+    def test_learning_unit_pedagogy_edit(self):
+        luy = self._create_learning_unit_year_for_entity(self.an_entity)
+        edit_url = reverse(learning_unit_pedagogy_edit, kwargs={'learning_unit_year_id': luy.id})
+
+        text_label_bibliography = TextLabelFactory(
+            entity=entity_name.LEARNING_UNIT_YEAR,
+            label='bibliography'
+        )
+        TranslatedTextFactory(
+            entity=entity_name.LEARNING_UNIT_YEAR,
+            reference=luy.id,
+            language='fr-be',
+            text_label=text_label_bibliography,
+            text='Some random text'
+        )
+
+        self.client.force_login(self.faculty_user)
+        response = self.client.get(edit_url, data={'label': 'bibliography', 'language': 'fr-be'})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'learning_unit/pedagogy_edit.html')
+        self.assertTemplateUsed(response, 'learning_unit/blocks/modal/modal_pedagogy_edit.html')
+        self.assertEqual(response.context["cms_label_pedagogy_fr_only"], CMS_LABEL_PEDAGOGY_FR_ONLY)
+        self.assertEqual(response.context["label_name"], 'bibliography')

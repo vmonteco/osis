@@ -25,19 +25,20 @@
 ##############################################################################
 from unittest import mock
 
-from django.forms import model_to_dict
+from django.contrib.auth.models import Permission
 from django.http import HttpResponse, HttpResponseNotFound
 from django.test import TestCase
 from django.urls import reverse
 
 from attribution.tests.factories.attribution import AttributionFactory
-from attribution.views.manage_my_courses import list_my_attributions_summary_editable
+from attribution.views.manage_my_courses import list_my_attributions_summary_editable, view_educational_information
 from base.forms.learning_unit_pedagogy import LearningUnitPedagogyForm
 from base.models.enums import academic_calendar_type
 from base.tests.factories.academic_calendar import AcademicCalendarFactory
 from base.tests.factories.academic_year import create_current_academic_year
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.tutor import TutorFactory
+from osis_common.utils.perms import BasePerm
 
 
 class ManageMyCoursesViewTestCase(TestCase):
@@ -69,19 +70,16 @@ class ManageMyCoursesViewTestCase(TestCase):
         response = self.client.get(self.url, follow=True)
         self.assertEquals(response.status_code, HttpResponseNotFound.status_code)
 
-    @mock.patch("attribution.views.manage_my_courses.find_learning_unit_years_summary_editable")
-    def test_list_my_attributions_summary_editable(self, mock_find_luys_summary_editable):
+    def test_list_my_attributions_summary_editable(self):
         expected_luys_summary_editable = [self.attribution.learning_unit_year]
-        mock_find_luys_summary_editable.return_value = expected_luys_summary_editable
 
         response = self.client.get(self.url)
         self.assertTemplateUsed(response, "manage_my_courses/list_my_courses_summary_editable.html")
-        self.assertTrue(mock_find_luys_summary_editable.called)
 
         context = response.context
-        self.assertCountEqual(context['learning_unit_years_summary_editable'], expected_luys_summary_editable)
-        self.assertDictEqual(context['submission_dates'], model_to_dict(self.academic_calendar,
-                                                                        fields=("start_date", "end_date")))
+        self.assertIsInstance(context['entity_calendars'], dict)
+        self.assertIsInstance(context['score_responsibles'], dict)
+        self.assertTrue("learning_unit_years_with_errors" in context)
 
 
 class TestViewEducationalInformation(TestCase):
@@ -89,33 +87,37 @@ class TestViewEducationalInformation(TestCase):
     def setUpTestData(cls):
         cls.tutor = TutorFactory()
         cls.attribution = AttributionFactory(tutor=cls.tutor, summary_responsible=True)
-        cls.url = reverse("view_educational_information", args=[cls.attribution.learning_unit_year.id])
+        cls.url = reverse(view_educational_information, args=[cls.attribution.learning_unit_year.id])
+        cls.tutor.person.user.user_permissions.add(Permission.objects.get(codename='can_edit_learningunit_pedagogy'))
 
     def setUp(self):
         self.client.force_login(self.tutor.person.user)
+
+        self.patcher_perm_can_view_educational_information = mock.patch(
+            'attribution.views.perms.can_tutor_view_educational_information')
+        self.mock_perm_view = self.patcher_perm_can_view_educational_information.start()
+        self.mock_perm_view.return_value = True
+
+    def tearDown(self):
+        self.patcher_perm_can_view_educational_information.stop()
 
     def test_user_not_logged(self):
         self.client.logout()
         response = self.client.get(self.url)
         self.assertRedirects(response, '/login/?next={}'.format(self.url))
 
-    @mock.patch("attribution.business.perms.can_user_view_educational_information",
-                side_effect=lambda usr, luy_id: False)
-    def test_check_if_user_can_view_educational_information(self, mock_perm):
+    def test_check_if_user_can_view_educational_information(self):
+        self.mock_perm_view.return_value = False
+
         response = self.client.get(self.url)
-        self.assertTrue(mock_perm.called)
+
+        self.assertTrue(self.mock_perm_view.called)
         self.assertTemplateUsed(response, "access_denied.html")
 
-    @mock.patch("attribution.views.manage_my_courses.can_user_edit_educational_information",
-                side_effect=lambda usr, luy_id: False)
-    @mock.patch("attribution.views.manage_my_courses.find_educational_information_submission_dates_of_learning_unit_year",
-                side_effect=lambda luy_id: {})
-    def test_template_used(self, mock_find_submission_dates, mock_can_edit):
+    def test_template_used(self):
         response = self.client.get(self.url)
 
         self.assertTemplateUsed(response, "manage_my_courses/educational_information.html")
-        self.assertTrue(mock_can_edit.called)
-        self.assertTrue(mock_find_submission_dates.called)
 
         context = response.context
         self.assertEqual(context["learning_unit_year"], self.attribution.learning_unit_year)
@@ -132,26 +134,32 @@ class TestManageEducationalInformation(TestCase):
         cls.tutor = TutorFactory()
         cls.attribution = AttributionFactory(tutor=cls.tutor, summary_responsible=True)
         cls.url = reverse("tutor_edit_educational_information", args=[cls.attribution.learning_unit_year.id])
+        cls.tutor.person.user.user_permissions.add(Permission.objects.get(codename='can_edit_learningunit_pedagogy'))
 
     def setUp(self):
         self.client.force_login(self.tutor.person.user)
+
+        self.patcher_perm_can_edit_educational_information = mock.patch.object(BasePerm, "is_valid")
+        self.mock_perm_view = self.patcher_perm_can_edit_educational_information.start()
+        self.mock_perm_view.return_value = True
+
+    def tearDown(self):
+        self.patcher_perm_can_edit_educational_information.stop()
 
     def test_user_not_logged(self):
         self.client.logout()
         response = self.client.get(self.url)
         self.assertRedirects(response, '/login/?next={}'.format(self.url))
 
-    @mock.patch("attribution.business.perms.can_user_edit_educational_information",
-                side_effect=lambda req, luy: False)
-    def test_check_if_user_can_view_educational_information(self, mock_perm):
+    def test_check_if_user_can_view_educational_information(self):
+        self.mock_perm_view.return_value = False
+
         response = self.client.get(self.url)
-        self.assertTrue(mock_perm.called)
+
+        self.assertTrue(self.mock_perm_view.called)
         self.assertTemplateUsed(response, "access_denied.html")
 
-    @mock.patch("base.views.learning_unit.edit_learning_unit_pedagogy",
-                side_effect=lambda req, luy_id, url: HttpResponse())
-    @mock.patch("attribution.business.perms.can_user_edit_educational_information",
-                side_effect=lambda req, luy: True)
-    def test_use_edit_learning_unit_pedagogy_method(self, mock_can_edit, mock_edit_learning_unit_pedagogy):
+    @mock.patch("attribution.views.manage_my_courses.edit_learning_unit_pedagogy", return_value=HttpResponse())
+    def test_use_edit_learning_unit_pedagogy_method(self, mock_edit_learning_unit_pedagogy):
         self.client.get(self.url)
         self.assertTrue(mock_edit_learning_unit_pedagogy.called)

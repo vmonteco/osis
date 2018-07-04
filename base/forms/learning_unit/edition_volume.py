@@ -39,7 +39,8 @@ from base.forms.utils.emptyfield import EmptyField
 from base.models.entity_component_year import EntityComponentYear
 from base.models.enums import entity_container_year_link_type as entity_types
 from base.models.enums.component_type import PRACTICAL_EXERCISES, LECTURING
-from base.models.enums.learning_container_year_types import INTERNSHIP, CONTAINER_TYPE_WITH_DEFAULT_COMPONENT
+from base.models.enums.learning_container_year_types import CONTAINER_TYPE_WITH_DEFAULT_COMPONENT, \
+    LEARNING_CONTAINER_YEAR_TYPES_CANT_UPDATE_BY_FACULTY
 from base.models.learning_component_year import LearningComponentYear
 from base.models.learning_unit_component import LearningUnitComponent
 
@@ -60,7 +61,8 @@ class VolumeEditionForm(forms.Form):
     add_field = EmptyField(label='+')
     volume_q2 = VolumeField(label=_('partial_volume_2Q'), help_text=_('partial_volume_2'))
     equal_field_1 = EmptyField(label='=')
-    volume_total = VolumeField(label=_('Vol. annual'), help_text=_('Volume annual'))
+    volume_total = VolumeField(label=_('Vol. annual'),
+                               help_text=_('The annual volume must be equal to the sum of the volumes Q1 and Q2'))
     help_volume_total = "{} = {} + {}".format(_('Volume total annual'), _('partial_volume_1'), _('partial_volume_2'))
     closing_parenthesis_field = EmptyField(label=')')
     mult_field = EmptyField(label='*')
@@ -83,9 +85,6 @@ class VolumeEditionForm(forms.Form):
 
         super().__init__(*args, **kwargs)
         help_volume_global = "{} = {} * {}".format(_('volume_global'), _('Volume total annual'), _('planned_classes'))
-        self.fields['volume_total_requirement_entities'] = VolumeField(
-            label=_('vol_global'), help_text=help_volume_global)
-        self.fields['equal_field_3'] = EmptyField(label='=')
 
         # Append dynamic fields
         entities_to_add = [entity for entity in ENTITY_TYPES_VOLUME if entity in self.entities]
@@ -95,7 +94,10 @@ class VolumeEditionForm(forms.Form):
             if i != len(entities_to_add) - 1:
                 self.fields["add" + key.lower()] = EmptyField(label='+')
 
-        if self.is_faculty_manager and self.learning_unit_year.is_full():
+        if self.is_faculty_manager \
+                and self.learning_unit_year.is_full() \
+                and self.learning_unit_year.learning_container_year.container_type \
+                in LEARNING_CONTAINER_YEAR_TYPES_CANT_UPDATE_BY_FACULTY:
             self._disable_central_manager_fields()
 
     def _disable_central_manager_fields(self):
@@ -247,6 +249,7 @@ class VolumeEditionFormsetContainer:
 class SimplifiedVolumeForm(forms.ModelForm):
     _learning_unit_year = None
     _entity_containers = []
+
     add_field = EmptyField(label="+")
     equal_field = EmptyField(label='=')
 
@@ -279,7 +282,6 @@ class SimplifiedVolumeForm(forms.ModelForm):
 
     def _create_structure_components(self, commit):
         self.instance.learning_container_year = self._learning_unit_year.learning_container_year
-        self._learning_unit_year.save()
         instance = super().save(commit)
         LearningUnitComponent.objects.get_or_create(
             learning_unit_year=self._learning_unit_year,
@@ -289,11 +291,17 @@ class SimplifiedVolumeForm(forms.ModelForm):
         for requirement_entity_container in requirement_entity_containers:
             if not self.instance.hourly_volume_total_annual and self.initial:
                 self._get_initial_volume_data()
+            learning_unit_components = LearningUnitComponent.objects.filter(
+                learning_unit_year__learning_container_year=self._learning_unit_year.learning_container_year)
+            self._create_entity_component_years(learning_unit_components, requirement_entity_container)
+        return instance
+
+    def _create_entity_component_years(self, learning_unit_components, requirement_entity_container):
+        for learning_unit_component in learning_unit_components:
             EntityComponentYear.objects.get_or_create(
                 entity_container_year=requirement_entity_container,
-                learning_component_year=instance
+                learning_component_year=learning_unit_component.learning_component_year
             )
-        return instance
 
     def _get_initial_volume_data(self):
         self.instance.hourly_volume_total_annual = self.initial.get('hourly_volume_total_annual')
@@ -325,9 +333,11 @@ class SimplifiedVolumeFormset(forms.BaseModelFormSet):
     @property
     def instances_data(self):
         data = {}
-        for form_instance in self.forms:
-            columns = form_instance.fields.keys()
-            data.update({col: getattr(form_instance.instance, col, None) for col in columns})
+        zip_form_and_initial_forms = zip(self.forms, self.initial_forms)
+        for form_instance, initial_form in zip_form_and_initial_forms:
+            for col in ['hourly_volume_total_annual', 'hourly_volume_partial_q1', 'hourly_volume_partial_q2']:
+                value = getattr(form_instance.instance, col, None) or getattr(initial_form.instance, col, None)
+                data[_(form_instance.instance.type) + ' (' + self.label_fields[col].lower() + ')'] = value
         return data
 
     @property
