@@ -55,7 +55,7 @@ from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFact
 from base.tests.factories.user import UserFactory, SuperUserFactory
 from base.tests.forms.test_edition_form import get_valid_formset_data
 from base.views.learning_units.update import learning_unit_edition_end_date, learning_unit_volumes_management, \
-    update_learning_unit
+    update_learning_unit, _get_learning_units_for_context
 
 
 class TestLearningUnitEditionView(TestCase, LearningUnitsMixin):
@@ -520,3 +520,14 @@ class TestLearningUnitVolumesManagement(TestCase):
 
         self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
         self.assertTemplateUsed(response, 'access_denied.html')
+
+    def test_get_learning_units_for_context(self):
+        self.assertListEqual(
+            _get_learning_units_for_context(self.learning_unit_year, with_family=True),
+            [self.learning_unit_year, self.learning_unit_year_partim]
+        )
+
+        self.assertListEqual(
+            _get_learning_units_for_context(self.learning_unit_year, with_family=False),
+            [self.learning_unit_year]
+        )
