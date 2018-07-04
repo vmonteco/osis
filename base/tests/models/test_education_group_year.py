@@ -65,7 +65,7 @@ class EducationGroupYearTest(TestCase):
         self.education_group_year_5 = EducationGroupYearFactory(academic_year=academic_year,
                                                                 education_group_type=self.education_group_type_group)
 
-        self.offer_year_domain = EducationGroupYearDomainFactory(education_group_year=self.education_group_year_2)
+        self.educ_group_year_domain = EducationGroupYearDomainFactory(education_group_year=self.education_group_year_2)
 
         self.entity_version_admin = EntityVersionFactory(
             entity=self.education_group_year_2.administration_entity,
@@ -110,7 +110,7 @@ class EducationGroupYearTest(TestCase):
         self.assertEqual(domains, '')
 
         domains = self.education_group_year_2.str_domains
-        offer_year_domain = "{}-{}\n".format(self.offer_year_domain.domain.decree, self.offer_year_domain.domain.name)
+        offer_year_domain = "{}-{}\n".format(self.educ_group_year_domain.domain.decree, self.educ_group_year_domain.domain.name)
         self.assertEqual(domains, offer_year_domain)
 
     def test_administration_entity_version_property(self):

@@ -25,16 +25,16 @@
 ##############################################################################
 from django.db import models
 
-from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
+from osis_common.models.osis_model_admin import OsisModelAdmin
 
 
-class EducationGroupYearDomainAdmin(SerializableModelAdmin):
+class EducationGroupYearDomainAdmin(OsisModelAdmin):
     list_display = ('domain', 'education_group_year', 'changed')
     list_filter = ('education_group_year__academic_year',)
     search_fields = ['domain__name', 'education_group_year__acronym']
 
 
-class EducationGroupYearDomain(SerializableModel):
+class EducationGroupYearDomain(models.Model):
     external_id = models.CharField(max_length=100, blank=True, null=True)
     changed = models.DateTimeField(null=True, auto_now=True)
     domain = models.ForeignKey('reference.Domain')
