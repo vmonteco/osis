@@ -28,7 +28,7 @@
     {% csrf_token %}
     <div class="panel panel-default">
         <div class="panel-heading">
-            {% include 'education_group/blocks/form/update_cancel_buttons.html' %}
+            {% include "education_group/blocks/form/create_cancel_buttons.html" %}
         </div>
         <div class="panel-body">
             <div class="row">
@@ -119,10 +119,7 @@
             </div>
         </div>
         <div class="panel-footer text-right">
-            {% include 'education_group/blocks/form/update_cancel_buttons.html' %}
+            {% include "education_group/blocks/form/create_cancel_buttons.html" %}
         </div>
     </div>
 </form>
-{% block script %}
-    <script type="text/javascript" src="{% static 'js/education_group/edition.js' %}"></script>
-{% endblock script %}

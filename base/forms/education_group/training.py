@@ -104,7 +104,7 @@ class TrainingEducationGroupYearForm(forms.ModelForm):
         if self.parent_education_group_year:
             parent_group_type = self.parent_education_group_year.education_group_type
         return education_group_type.find_authorized_types(
-            category=education_group_categories.GROUP, parent_type=parent_group_type
+            category=education_group_categories.TRAINING, parent_type=parent_group_type
         )
 
 
