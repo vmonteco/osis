@@ -3142,3 +3142,6 @@ msgstr "La mise-à-jour des informations pédagogiques est bloqué pour cette un
 
 msgid "Not in period to edit educational information."
 msgstr "Vous n'êtes pas en période d'édition des informations pédagogiques."
+
+msgid "Modification made"
+msgstr "Modification apportée"
