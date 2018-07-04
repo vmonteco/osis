@@ -23,22 +23,29 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.db import models
+from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.urls import reverse_lazy
+from django.views.generic import DeleteView
 
-from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
-
-
-class OfferYearDomainAdmin(SerializableModelAdmin):
-    list_display = ('domain', 'offer_year', 'changed')
-    list_filter = ('offer_year__academic_year',)
-    search_fields = ['domain__name', 'offer_year__acronym']
+from base.models.education_group_year import EducationGroupYear
+from base.views.common import display_success_messages
 
 
-class OfferYearDomain(SerializableModel):
-    external_id = models.CharField(max_length=100, blank=True, null=True)
-    changed = models.DateTimeField(null=True, auto_now=True)
-    domain = models.ForeignKey('reference.Domain')
-    offer_year = models.ForeignKey('base.OfferYear', blank=True, null=True)
+class DeleteGroupEducationYearView(PermissionRequiredMixin, DeleteView):
+    # DeleteView
+    model = EducationGroupYear
+    success_url = reverse_lazy('education_groups')
+    pk_url_kwarg = "education_group_year_id"
+    template_name = "education_group/delete.html"
+    context_object_name = "education_group_year"
 
-    def __str__(self):
-        return u"%s - %s" % (self.domain, self.offer_year)
+    # PermissionRequiredMixin
+    permission_required = "base.delete_educationgroupyear"
+    raise_exception = True
+
+    success_message = "The education group has been deleted"
+
+    def delete(self, request, *args, **kwargs):
+        result = super().delete(request, *args, **kwargs)
+        display_success_messages(request, self.success_message)
+        return result
