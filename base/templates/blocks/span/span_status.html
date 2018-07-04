@@ -1,3 +1,4 @@
+{% load i18n %}
 {% comment "License" %}
 * OSIS stands for Open Student Information System. It's an application
 * designed to manage the core business of higher education institutions,
@@ -25,7 +26,7 @@
 {% if status %}
     <span class="glyphicon glyphicon-ok-circle" aria-hidden="true"
           style="color:green;"
-          {% if title_status_true %} data-toggle="tooltip" data-html="true" title="{{ title_status_true }}"{% endif %} >
+          data-toggle="tooltip" data-html="true" title="{% trans 'Modification made' %}" >
     </span>
 {% elif title_status_false %}
     <span class="glyphicon glyphicon-remove-circle" aria-hidden="true"
