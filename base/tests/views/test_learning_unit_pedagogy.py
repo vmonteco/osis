@@ -95,7 +95,7 @@ class LearningUnitViewPedagogyTestCase(TestCase):
         request, template, context = mock_render.call_args[0]
         self.assertEqual(template, 'learning_units.html')
         self.assertEqual(context['search_type'], SUMMARY_LIST)
-        self.assertEqual(len(context['learning_units']), 0)
+        self.assertEqual(len(context['learning_units_with_errors']), 0)
 
     @mock.patch('base.views.layout.render')
     def test_learning_units_summary_list(self, mock_render):
@@ -124,7 +124,7 @@ class LearningUnitViewPedagogyTestCase(TestCase):
         request, template, context = mock_render.call_args[0]
         self.assertEqual(template, 'learning_units.html')
         self.assertEqual(context['search_type'], SUMMARY_LIST)
-        self.assertEqual(len(context['learning_units']), 1)
+        self.assertEqual(len(context['learning_units_with_errors']), 1)
         self.assertTrue(context['is_faculty_manager'])
 
     def _create_entity_calendar(self, an_entity):
