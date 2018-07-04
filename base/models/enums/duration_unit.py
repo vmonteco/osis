@@ -25,6 +25,21 @@
 ##############################################################################
 from enum import Enum
 from base.models.utils.utils import ChoiceEnum
+from django.utils.translation import ugettext_lazy as _
+
+QUADRIMESTER = "QUADRIMESTER"
+TRIMESTER = "TRIMESTER"
+MONTH = "MONTH"
+WEEK = "WEEK"
+DAY = "DAY"
+
+DURATION_UNIT = (
+    (QUADRIMESTER, _(QUADRIMESTER)),
+    (TRIMESTER, _(TRIMESTER)),
+    (MONTH, _(MONTH)),
+    (WEEK, _(WEEK)),
+    (DAY, _(DAY))
+)
 
 
 class DurationUnits(ChoiceEnum):

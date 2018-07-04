@@ -1,4 +1,4 @@
-{% extends "education_group/layout.html" %}
+{% extends "education_group/layout_detail.html" %}
 {% load i18n %}
 {% load staticfiles bootstrap3 %}
 {% comment "License" %}
@@ -27,18 +27,10 @@
 
 {% block breadcrumb %}
     {{ block.super }}
-    {% if parent %}
-    <li><a href="{% url 'education_group_read' education_group_year_id=parent.id %}" id="lnk_parent">{{ parent.partial_acronym }}</a></li>
-    {% endif %}
-    <li class="active">{% trans 'New Education Group' %}</li>
+    <li>{% trans "MODIFICATION" %}</li>
 {% endblock %}
 
 {% block content %}
-    <div class="page-header">
-        <h2>{% block h2_title %}{% trans 'New Education Group' %}{% endblock %}</h2>
-    </div>
-
-    {% include "education_group/blocks/form/create_education_group_year.html" %}
-
+    {% include "education_group/blocks/form/group.html" %}
 {% endblock %}
 
