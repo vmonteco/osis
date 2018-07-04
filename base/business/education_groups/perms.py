@@ -23,9 +23,9 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from osis_common.utils.perms import conjunction, disjunction
 from base.models import academic_calendar
 from base.models.enums import academic_calendar_type
+from osis_common.utils.perms import conjunction, disjunction
 
 
 def is_eligible_to_add_education_group(person):
@@ -43,7 +43,7 @@ def is_eligible_to_change_education_group(person):
 
 
 def is_eligible_to_delete_education_group(person):
-    return _conjunction(
+    return conjunction(
         has_person_the_right_to_delete_education_group,
     )(person)
 

@@ -23,30 +23,35 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.contrib.auth.mixins import PermissionRequiredMixin
-from django.urls import reverse_lazy
-from django.views.generic import DeleteView
+from django.contrib.auth.models import Permission
+from django.test import TestCase
+from django.urls import reverse
 
 from base.models.education_group_year import EducationGroupYear
-from base.views.common import display_success_messages
+from base.tests.factories.education_group_year import EducationGroupYearFactory
+from base.tests.factories.person import PersonFactory
 
 
-class DeleteGroupEducationYearView(PermissionRequiredMixin, DeleteView):
-    # DeleteView
-    model = EducationGroupYear
-    success_url = reverse_lazy('education_groups')
-    pk_url_kwarg = "education_group_year_id"
-    template_name = "education_group/delete.html"
-    context_object_name = "education_group_year"
+class TestDeleteGroupEducationYearView(TestCase):
 
-    # PermissionRequiredMixin
-    permission_required = "base.delete_educationgroupyear"
-    raise_exception = True
+    def setUp(self):
+        self.education_group_year = EducationGroupYearFactory()
+        self.person = PersonFactory()
+        self.url = reverse('delete_education_group', args=[self.education_group_year.id])
 
-    success_message = "The education group has been deleted"
+        self.person.user.user_permissions.add(Permission.objects.get(codename="delete_educationgroupyear"))
+        self.client.force_login(user=self.person.user)
 
-    def delete(self, request, *args, **kwargs):
-        result = super().delete(request, *args, **kwargs)
-        display_success_messages(request, self.success_message)
-        return result
+    def test_delete_get_permission_denied(self):
+        self.person.user.user_permissions.remove(Permission.objects.get(codename="delete_educationgroupyear"))
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 403)
 
+    def test_delete_get(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_delete_post(self):
+        response = self.client.post(self.url)
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(EducationGroupYear.objects.filter(pk=self.education_group_year.pk).exists())
