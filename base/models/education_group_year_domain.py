@@ -23,15 +23,22 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.utils.translation import ugettext_lazy as _
+from django.db import models
+
+from osis_common.models.osis_model_admin import OsisModelAdmin
 
 
-YES = "YES"
-NO = "NO"
-OPTIONAL = "OPTIONAL"
+class EducationGroupYearDomainAdmin(OsisModelAdmin):
+    list_display = ('domain', 'education_group_year', 'changed')
+    list_filter = ('education_group_year__academic_year',)
+    search_fields = ['domain__name', 'education_group_year__acronym']
 
-INTERNSHIP_PRESENCE = (
-    (YES, _(YES)),
-    (NO, _(NO)),
-    (OPTIONAL, _(OPTIONAL))
-)
+
+class EducationGroupYearDomain(models.Model):
+    external_id = models.CharField(max_length=100, blank=True, null=True)
+    changed = models.DateTimeField(null=True, auto_now=True)
+    domain = models.ForeignKey('reference.Domain')
+    education_group_year = models.ForeignKey('base.EducationGroupYear')
+
+    def __str__(self):
+        return u"%s - %s" % (self.domain, self.education_group_year)

@@ -15,7 +15,7 @@
 #
 #    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 #    GNU General Public License for more details.
 #
 #    A copy of this license - GNU General Public License - is available
@@ -23,15 +23,15 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.utils.translation import ugettext_lazy as _
+import factory.fuzzy
+
+from base.tests.factories.education_group_year import EducationGroupYearFactory
+from reference.tests.factories.domain import DomainFactory
 
 
-YES = "YES"
-NO = "NO"
-OPTIONAL = "OPTIONAL"
+class EducationGroupYearDomainFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = "base.EducationGroupYearDomain"
 
-INTERNSHIP_PRESENCE = (
-    (YES, _(YES)),
-    (NO, _(NO)),
-    (OPTIONAL, _(OPTIONAL))
-)
+    education_group_year = factory.SubFactory(EducationGroupYearFactory)
+    domain = factory.SubFactory(DomainFactory)

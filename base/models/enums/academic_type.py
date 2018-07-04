@@ -23,12 +23,14 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from django.utils.translation import ugettext_lazy as _
+
 
 NON_ACADEMIC = "NON_ACADEMIC"
 NON_ACADEMIC_CREF = "NON_ACADEMIC_CREF"
 ACADEMIC = "ACADEMIC"
 
 ACADEMIC_TYPES = (
-    (NON_ACADEMIC, NON_ACADEMIC),
-    (NON_ACADEMIC_CREF, NON_ACADEMIC_CREF),
-    (ACADEMIC, ACADEMIC))
+    (NON_ACADEMIC, _(NON_ACADEMIC)),
+    (NON_ACADEMIC_CREF, _(NON_ACADEMIC_CREF)),
+    (ACADEMIC, _(ACADEMIC)))
