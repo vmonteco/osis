@@ -47,13 +47,12 @@ class MainEntitiesVersionChoiceField(EntitiesVersionChoiceField):
         super(MainEntitiesVersionChoiceField, self).__init__(queryset, *args, **kwargs)
 
 
-def _init_education_group_type_field(form_field, parent_education_group_year):
+def _init_education_group_type_field(form_field, parent_education_group_year, category):
     parent_group_type = None
     if parent_education_group_year:
         parent_group_type = parent_education_group_year.education_group_type
 
-    form_field.queryset = education_group_type.find_authorized_types(category=education_group_categories.GROUP,
-                                                                parent_type=parent_group_type)
+    form_field.queryset = education_group_type.find_authorized_types(category=category, parent_type=parent_group_type)
     form_field.required = True
 
 
@@ -89,7 +88,9 @@ class CreateEducationGroupYearForm(forms.ModelForm):
 
         # self.fields["education_group_type"].queryset = self._get_authorized_education_group_types_queryset()
         # self.fields["education_group_type"].required = True
-        _init_education_group_type_field(self.fields["education_group_type"], self.parent_education_group_year)
+        _init_education_group_type_field(self.fields["education_group_type"],
+                                         self.parent_education_group_year,
+                                         education_group_categories.GROUP)
 
         # if self.parent_education_group_year:
         #     self.fields["academic_year"].initial = self.parent_education_group_year.academic_year.id
@@ -128,3 +129,52 @@ class CreateEducationGroupYearForm(forms.ModelForm):
     @staticmethod
     def _create_group_element_year(parent, child):
         return GroupElementYear.objects.create(parent=parent, child_branch=child)
+
+
+class EducationGroupModelForm(forms.ModelForm):
+
+    class Meta:
+        model = EducationGroup
+        fields = ("start_year", "end_year")
+
+
+class MiniTrainingModelForm(forms.ModelForm):
+    class Meta:
+        model = EducationGroupYear
+        fields = ("acronym", "partial_acronym", "education_group_type", "title", "title_english", "credits",
+                  "main_teaching_campus", "academic_year", "remark", "remark_english", "min_credits", "max_credits",
+                  "administration_entity")
+        field_classes = {
+            "administration_entity": MainEntitiesVersionChoiceField,
+            "main_teaching_campus": MainTeachingCampusChoiceField
+        }
+
+    def __init__(self, *args, **kwargs):
+        self.parent_education_group_year = kwargs.pop("parent", None)
+        super().__init__(*args, **kwargs)
+        _init_education_group_type_field(self.fields["education_group_type"],
+                                         self.parent_education_group_year,
+                                         education_group_categories.MINI_TRAINING)
+        _init_academic_year(self.fields["academic_year"], self.parent_education_group_year)
+        _preselect_entity_version_from_entity_value(self) # Due to MainEntitiesVersionChoiceField
+
+
+class MiniFormationForm:
+    forms = None
+
+    def __init__(self, data, instance=None, parent=None):
+        education_group = instance.education_group if instance else None
+        self.forms = {
+            MiniTrainingModelForm: MiniTrainingModelForm(data, instance=instance, parent=parent),
+            EducationGroupModelForm: EducationGroupModelForm(data, instance=education_group)
+        }
+
+    def is_valid(self):
+        return all([form.is_valid() for form in self.forms.values()])
+
+    def save(self):
+        education_group = self.forms[EducationGroup].save()
+        educ_group_year = self.forms[CreateEducationGroupYearForm].save()
+        educ_group_year.education_group = education_group
+        educ_group_year.save()
+        return educ_group_year
