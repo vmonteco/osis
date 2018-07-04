@@ -49,4 +49,3 @@ class DeleteGroupEducationYearView(PermissionRequiredMixin, DeleteView):
         result = super().delete(request, *args, **kwargs)
         display_success_messages(request, self.success_message)
         return result
-
