@@ -29,7 +29,6 @@ from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
 from base.models import entity_version
-from base.models import offer_year_domain as mdl_offer_year_domain, education_group_organization
 from base.models.entity import Entity
 from base.models.enums import academic_type, fee, internship_presence, schedule_type, activity_presence, \
     diploma_printing_orientation, active_status, duration_unit
@@ -117,6 +116,12 @@ class EducationGroupYear(models.Model):
     max_credits = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True,
                                       verbose_name=_("maximum credits"))
 
+    domains = models.ManyToManyField(
+        "reference.domain",
+        through="EducationGroupYearDomain",
+        related_name="education_group_years"
+    )
+
     management_entity = models.ForeignKey(
         Entity,
         verbose_name=_("management_entity"),
@@ -130,17 +135,14 @@ class EducationGroupYear(models.Model):
         related_name='administration_entity'
     )
 
-    _coorganizations = None
-
     def __str__(self):
         return u"%s - %s" % (self.academic_year, self.acronym)
 
     @property
-    def domains(self):
-        domains = mdl_offer_year_domain.find_by_education_group_year(self)
+    def str_domains(self):
         ch = ''
-        for offer_yr_domain in domains:
-            ch = "{}-{} ".format(offer_yr_domain.domain.decree, offer_yr_domain.domain.name)
+        for domain in self.domains.all():
+            ch += "{}-{}\n".format(domain.decree, domain.name)
         return ch
 
     @cached_property
@@ -176,11 +178,9 @@ class EducationGroupYear(models.Model):
         return [group_element_year.child_branch for group_element_year in group_elements_year
                 if group_element_year.child_branch]
 
-    @property
+    @cached_property
     def coorganizations(self):
-        if not self._coorganizations:
-            self._coorganizations = education_group_organization.search(education_group_year=self)
-        return self._coorganizations
+        return self.educationgrouporganization_set.all()
 
     def is_training(self):
         if self.education_group_type:

@@ -31,13 +31,13 @@ from base.models.exceptions import MaximumOneParentAllowedException
 from base.tests.factories.academic_year import AcademicYearFactory, create_current_academic_year
 from base.tests.factories.education_group_type import EducationGroupTypeFactory
 from base.tests.factories.education_group_year import EducationGroupYearFactory
+from base.tests.factories.education_group_year_domain import EducationGroupYearDomainFactory
 from base.tests.factories.entity_version import EntityVersionFactory
 from base.tests.factories.group_element_year import GroupElementYearFactory
 from base.tests.factories.learning_unit_enrollment import LearningUnitEnrollmentFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from base.tests.factories.offer_enrollment import OfferEnrollmentFactory
 from base.tests.factories.offer_year import OfferYearFactory
-from base.tests.factories.offer_year_domain import OfferYearDomainFactory
 
 
 class EducationGroupYearTest(TestCase):
@@ -65,9 +65,7 @@ class EducationGroupYearTest(TestCase):
         self.education_group_year_5 = EducationGroupYearFactory(academic_year=academic_year,
                                                                 education_group_type=self.education_group_type_group)
 
-        self.offer_year_2 = OfferYearFactory(academic_year=academic_year)
-        self.offer_year_domain = OfferYearDomainFactory(offer_year=self.offer_year_2,
-                                                        education_group_year=self.education_group_year_2)
+        self.educ_group_year_domain = EducationGroupYearDomainFactory(education_group_year=self.education_group_year_2)
 
         self.entity_version_admin = EntityVersionFactory(
             entity=self.education_group_year_2.administration_entity,
@@ -108,11 +106,11 @@ class EducationGroupYearTest(TestCase):
         self.assertEqual(len(result), 3)
 
     def test_domains_property(self):
-        domains = self.education_group_year_1.domains
+        domains = self.education_group_year_1.str_domains
         self.assertEqual(domains, '')
 
-        domains = self.education_group_year_2.domains
-        offer_year_domain = "{}-{} ".format(self.offer_year_domain.domain.decree, self.offer_year_domain.domain.name)
+        domains = self.education_group_year_2.str_domains
+        offer_year_domain = "{}-{}\n".format(self.educ_group_year_domain.domain.decree, self.educ_group_year_domain.domain.name)
         self.assertEqual(domains, offer_year_domain)
 
     def test_administration_entity_version_property(self):

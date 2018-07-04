@@ -25,13 +25,13 @@
 ##############################################################################
 import factory.fuzzy
 
-from base.tests.factories.offer_year import OfferYearFactory
+from base.tests.factories.education_group_year import EducationGroupYearFactory
 from reference.tests.factories.domain import DomainFactory
 
 
-class OfferYearDomainFactory(factory.django.DjangoModelFactory):
+class EducationGroupYearDomainFactory(factory.django.DjangoModelFactory):
     class Meta:
-        model = "base.OfferYearDomain"
+        model = "base.EducationGroupYearDomain"
 
-    offer_year = factory.SubFactory(OfferYearFactory)
+    education_group_year = factory.SubFactory(EducationGroupYearFactory)
     domain = factory.SubFactory(DomainFactory)
