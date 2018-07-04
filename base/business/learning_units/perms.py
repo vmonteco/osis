@@ -335,5 +335,4 @@ class can_user_edit_educational_information(BasePerm):
 class can_learning_unit_year_educational_information_be_udpated(BasePerm):
     predicates = (
         _is_learning_unit_year_summary_editable,
-        _is_calendar_opened_to_edit_educational_information
     )

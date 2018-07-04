@@ -89,7 +89,7 @@ def learning_units_summary_list(request):
     context = {
         'form': search_form,
         'formset': _get_formset(request, responsible_and_learning_unit_yr_list),
-        'learning_units_with_errors': zip(learning_units, errors),
+        'learning_units_with_errors': list(zip(learning_units, errors)),
         'experimental_phase': True,
         'search_type': SUMMARY_LIST,
         'is_faculty_manager': a_user_person.is_faculty_manager()
