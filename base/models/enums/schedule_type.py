@@ -23,10 +23,13 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from django.utils.translation import ugettext_lazy as _
+
+
 DAILY = 'DAILY'
 SHIFTED = 'SHIFTED'
 ADAPTED = 'ADAPTED'
 
-SCHEDULE_TYPES = ((DAILY, DAILY),
-                  (SHIFTED, SHIFTED),
-                  (ADAPTED, ADAPTED))
+SCHEDULE_TYPES = ((DAILY, _(DAILY)),
+                  (SHIFTED, _(SHIFTED)),
+                  (ADAPTED, _(ADAPTED)))

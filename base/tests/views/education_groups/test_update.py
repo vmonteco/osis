@@ -40,7 +40,8 @@ from base.views.education_groups.update import update_education_group
 
 class TestUpdate(TestCase):
     def setUp(self):
-        self.education_group_year = EducationGroupYearFactory()
+        an_education_group_type = EducationGroupTypeFactory(category=education_group_categories.GROUP)
+        self.education_group_year = EducationGroupYearFactory(education_group_type=an_education_group_type)
 
         EntityVersionFactory(entity=self.education_group_year.management_entity,
                              start_date=self.education_group_year.academic_year.start_date)
@@ -57,6 +58,19 @@ class TestUpdate(TestCase):
         self.perm_patcher = mock.patch("base.business.education_groups.perms.is_eligible_to_change_education_group",
                                        return_value=True)
         self.mocked_perm = self.perm_patcher.start()
+
+        self.training_url = self._get_training_url()
+
+    def _get_training_url(self):
+        an_training_education_group_type = EducationGroupTypeFactory(category=education_group_categories.TRAINING)
+        self.training_education_group_year = EducationGroupYearFactory(
+            education_group_type=an_training_education_group_type)
+        EntityVersionFactory(entity=self.training_education_group_year.administration_entity,
+                             start_date=self.education_group_year.academic_year.start_date)
+        EntityVersionFactory(entity=self.training_education_group_year.management_entity,
+                             start_date=self.education_group_year.academic_year.start_date)
+        return reverse(update_education_group,
+                       kwargs={'education_group_year_id': self.training_education_group_year.pk})
 
     def tearDown(self):
         self.perm_patcher.stop()
@@ -76,7 +90,7 @@ class TestUpdate(TestCase):
         response = self.client.get(self.url)
 
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "education_group/update.html")
+        self.assertTemplateUsed(response, "education_group/update_groups.html")
 
     def test_response_context(self):
         response = self.client.get(self.url)
@@ -110,3 +124,8 @@ class TestUpdate(TestCase):
         self.assertEqual(self.education_group_year.acronym, 'CRSCHOIXDVLD')
         self.assertEqual(self.education_group_year.partial_acronym, 'LDVLD101R')
         self.assertEqual(self.education_group_year.administration_entity, new_entity_version.entity)
+
+    def test_template_used_for_training(self):
+        response = self.client.get(self.training_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "education_group/update_trainings.html")

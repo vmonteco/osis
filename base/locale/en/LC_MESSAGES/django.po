@@ -3143,3 +3143,6 @@ msgstr ""
 
 msgid "Not in period to edit educational information."
 msgstr ""
+
+msgid "Modification made"
+msgstr ""
