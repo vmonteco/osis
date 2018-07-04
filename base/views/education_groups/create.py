@@ -52,7 +52,7 @@ def create_education_group(request, parent_id=None):
 
         return redirect(url)
 
-    return layout.render(request, "education_group/creation.html", {
+    return layout.render(request, "education_group/create_groups.html", {
         "form_education_group_year": form_education_group_year,
         "parent": parent
     })

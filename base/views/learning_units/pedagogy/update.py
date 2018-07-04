@@ -120,4 +120,6 @@ def edit_learning_unit_pedagogy(request, learning_unit_year_id, redirect_url):
     user_language = mdl.person.get_user_interface_language(request.user)
     context['text_label_translated'] = get_text_label_translated(text_lb, user_language)
     context['language_translated'] = find_language_in_settings(language)
+    context['cms_label_pedagogy_fr_only'] = CMS_LABEL_PEDAGOGY_FR_ONLY
+    context['label_name'] = label_name
     return layout.render(request, "learning_unit/pedagogy_edit.html", context)

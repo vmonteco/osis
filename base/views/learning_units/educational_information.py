@@ -32,6 +32,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from base.business.learning_unit import get_learning_units_and_summary_status
 from base.business.learning_units.educational_information import get_responsible_and_learning_unit_yr_list
+from base.business.learning_units.perms import can_learning_unit_year_educational_information_be_udpated
 from base.forms.common import TooManyResultsException
 from base.forms.learning_unit.educational_information.mail_reminder import MailReminderRow, MailReminderFormset
 from base.forms.learning_unit.search_form import LearningUnitYearForm
@@ -82,11 +83,13 @@ def learning_units_summary_list(request):
         display_error_messages(request, 'too_many_results')
 
     responsible_and_learning_unit_yr_list = get_responsible_and_learning_unit_yr_list(learning_units_found)
-
+    learning_units = sorted(learning_units_found, key=lambda learning_yr: learning_yr.acronym)
+    errors = [can_learning_unit_year_educational_information_be_udpated(learning_unit_year_id=luy.id)
+              for luy in learning_units]
     context = {
         'form': search_form,
         'formset': _get_formset(request, responsible_and_learning_unit_yr_list),
-        'learning_units': sorted(learning_units_found, key=lambda learning_yr: learning_yr.acronym),
+        'learning_units_with_errors': list(zip(learning_units, errors)),
         'experimental_phase': True,
         'search_type': SUMMARY_LIST,
         'is_faculty_manager': a_user_person.is_faculty_manager()
