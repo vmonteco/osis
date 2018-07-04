@@ -410,6 +410,12 @@ class TestLearningUnitVolumesManagement(TestCase):
         for formset in context['formsets'].keys():
             self.assertIn(formset, [self.learning_unit_year, self.learning_unit_year_partim])
 
+        # Check that we display only the current learning_unit_year in the volumes management page (not all the family)
+        self.assertListEqual(
+            context['learning_units'],
+            [self.learning_unit_year]
+        )
+
     @mock.patch('base.models.program_manager.is_program_manager')
     def test_learning_unit_volumes_management_post(self, mock_program_manager):
         mock_program_manager.return_value = True
