@@ -159,7 +159,7 @@ class MiniTrainingModelForm(forms.ModelForm):
         _preselect_entity_version_from_entity_value(self) # Due to MainEntitiesVersionChoiceField
 
 
-class MiniFormationForm:
+class MiniTrainingForm:
     forms = None
 
     def __init__(self, data, instance=None, parent=None):

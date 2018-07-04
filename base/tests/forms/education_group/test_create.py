@@ -26,7 +26,7 @@ from unittest.mock import patch
 from base.tests.factories.entity import EntityFactory
 from django.test import TestCase
 
-from base.forms.education_group.create import CreateEducationGroupYearForm, MiniFormationForm
+from base.forms.education_group.create import CreateEducationGroupYearForm, MiniTrainingForm
 from base.models.enums import education_group_categories, organization_type
 from base.models.group_element_year import GroupElementYear
 from base.tests.factories.academic_year import AcademicYearFactory
@@ -108,16 +108,16 @@ class TestMiniTrainingForm(TestCase):
 
         @patch('base.forms.education_group.create.MiniTrainingModelForm.is_valid', return_value=False)
         def test_when_mini_training_form_is_not_valid(self):
-            self.assertFalse(MiniFormationForm(_get_post_data()).is_valid())
+            self.assertFalse(MiniTrainingForm(_get_post_data()).is_valid())
 
         @patch('base.forms.education_group.create.EducationGroupModelForm.is_valid', return_value=False)
         def test_when_education_group_model_form_is_not_valid(self):
-            self.assertFalse(MiniFormationForm(_get_post_data()).is_valid())
+            self.assertFalse(MiniTrainingForm(_get_post_data()).is_valid())
 
         @patch('base.forms.education_group.create.MiniTrainingModelForm.is_valid', return_value=True)
         @patch('base.forms.education_group.create.EducationGroupModelForm.is_valid', return_value=True)
         def test_when_both_of_two_forms_are_valid(self):
-            self.assertTrue(MiniFormationForm(_get_post_data()).is_valid())
+            self.assertTrue(MiniTrainingForm(_get_post_data()).is_valid())
 
     class TestSave(TestCase):
         def test_assert_education_group_is_linked_to_education_group_year(self):

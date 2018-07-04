@@ -28,7 +28,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import ugettext_lazy as _
 
-from base.forms.education_group.create import CreateEducationGroupYearForm, MiniFormationForm, MiniTrainingModelForm, \
+from base.forms.education_group.create import CreateEducationGroupYearForm, MiniTrainingForm, MiniTrainingModelForm, \
     EducationGroupModelForm
 from base.models.education_group_year import EducationGroupYear
 from base.views import layout
@@ -105,7 +105,7 @@ def _get_view(category):
 
 def _update_mini_training(request, education_group_year):
 
-    form = MiniFormationForm(request.POST or None, instance=education_group_year)
+    form = MiniTrainingForm(request.POST or None, instance=education_group_year)
     print(str(request.POST))
 
     if form.is_valid():
