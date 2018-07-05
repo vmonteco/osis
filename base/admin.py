@@ -33,6 +33,12 @@ admin.site.register(academic_calendar.AcademicCalendar,
 admin.site.register(academic_year.AcademicYear,
                     academic_year.AcademicYearAdmin)
 
+admin.site.register(admission_condition.AdmissionCondition,
+                    admission_condition.AdmissionConditionAdmin)
+
+admin.site.register(admission_condition.AdmissionConditionLine,
+                    admission_condition.AdmissionConditionLineAdmin)
+
 admin.site.register(campus.Campus,
                     campus.CampusAdmin)
 
@@ -50,6 +56,9 @@ admin.site.register(education_group_type.EducationGroupType,
 
 admin.site.register(education_group_year.EducationGroupYear,
                     education_group_year.EducationGroupYearAdmin)
+
+admin.site.register(education_group_year_domain.EducationGroupYearDomain,
+                    education_group_year_domain.EducationGroupYearDomainAdmin)
 
 admin.site.register(entity.Entity,
                     entity.EntityAdmin)
@@ -189,8 +198,5 @@ admin.site.register(teaching_material.TeachingMaterial,
 admin.site.register(tutor.Tutor,
                     tutor.TutorAdmin)
 
-admin.site.register(admission_condition.AdmissionCondition,
-                    admission_condition.AdmissionConditionAdmin)
-
-admin.site.register(admission_condition.AdmissionConditionLine,
-                    admission_condition.AdmissionConditionLineAdmin)
+admin.site.register(authorized_relationship.AuthorizedRelationship,
+                    authorized_relationship.AuthorizedRelationshipAdmin)

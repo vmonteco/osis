@@ -42,6 +42,7 @@ from attribution.views import attribution, tutor_application
 from base.views import learning_achievement, search
 from base.views import learning_unit, offer, common, institution, organization, academic_calendar, \
     my_osis, entity, student, education_group
+from base.views.education_groups.delete import DeleteGroupEducationYearView
 from base.views.education_groups.update import update_education_group
 from base.views.learning_units.external import create as create_external
 from base.views.learning_units.external.search import filter_cities_by_country, filter_campus_by_city
@@ -145,7 +146,7 @@ urlpatterns = [
                 name="learning_unit_specifications_edit"),
             url(r'^component/edit/$', learning_unit.learning_unit_component_edit, name="learning_unit_component_edit"),
             url(r'^class/edit/$', learning_unit.learning_class_year_edit, name="learning_class_year_edit"),
-            url(r'^volumes/', base.views.learning_units.update.learning_unit_volumes_management,
+            url(r'^volumes/(?P<form_type>[a-z]+)$', base.views.learning_units.update.learning_unit_volumes_management,
                 name="learning_unit_volumes_management"),
             url(r'^delete_full/$', base.views.learning_units.delete.delete_all_learning_units_year,
                 name="learning_unit_delete_all"),
@@ -259,6 +260,7 @@ urlpatterns = [
             url(r'^admission_conditions/get_line$',
                 education_group.education_group_year_admission_condition_get_line,
                 name='education_group_year_admission_condition_get_line'),
+            url(r'^delete/$', DeleteGroupEducationYearView.as_view(), name="delete_education_group")
         ])),
     ])),
 

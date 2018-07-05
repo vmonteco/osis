@@ -165,6 +165,12 @@ class EducationGroupYear(models.Model):
         max_digits=5, decimal_places=2, blank=True, null=True, verbose_name=_("maximum credits")
     )
 
+    domains = models.ManyToManyField(
+        "reference.domain",
+        through="EducationGroupYearDomain",
+        related_name="education_group_years"
+    )
+
     management_entity = models.ForeignKey(
         Entity,
         verbose_name=_("management_entity"),
@@ -182,10 +188,10 @@ class EducationGroupYear(models.Model):
         return u"%s - %s" % (self.academic_year, self.acronym)
 
     @property
-    def domains_str(self):
+    def str_domains(self):
         ch = ''
         for domain in self.domains.all():
-            ch = "{}-{} ".format(domain.decree, domain.name)
+            ch += "{}-{}\n".format(domain.decree, domain.name)
         return ch
 
     @cached_property
@@ -223,7 +229,7 @@ class EducationGroupYear(models.Model):
 
     @cached_property
     def coorganizations(self):
-        return education_group_organization.search(education_group_year=self)
+        return self.educationgrouporganization_set.all()
 
     def is_training(self):
         if self.education_group_type:

@@ -1,6 +1,6 @@
 {% load i18n %}
 
-{% if learning_unit_years_summary_editable %}
+{% if learning_unit_years_with_errors %}
     <table id="table_learning_units" class="table table-striped table-hover">
         <thead>
             <tr>
@@ -11,10 +11,11 @@
                 <th>{% trans 'Educational information opening' %}</th>
                 <th>{% trans 'Educational information ending' %}</th>
                 <th>{% trans 'summary_responsible' %}</th>
+                <th>{% trans 'editable' %}</th>
             </tr>
         </thead>
         <tbody>
-            {% for luy in learning_unit_years_summary_editable %}
+            {% for luy, error in learning_unit_years_with_errors %}
                 {% with requirement_entity=luy.requirement_entity %}
                 <tr data-id="{{luy.id}}" data-value="{{luy.acronym}}">
                     <td>{{ luy.academic_year }}</td>
@@ -35,6 +36,8 @@
                         <td>-</td>
                     {% endif %}
                     <td>{{ score_responsibles|get_item:luy.id|join:", " }}</td>
+                    {% trans 'editable' as title_status_true %}
+                    <td>{% include "blocks/span/span_status.html" with status=error.is_valid title_status_false=error.as_ul %}</td>
                 </tr>
                 {% endwith %}
             {% endfor %}

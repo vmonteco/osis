@@ -65,12 +65,12 @@ class TestCreate(TestCase):
     def test_template_used(self):
         response = self.client.get(self.url_without_parent)
 
-        self.assertTemplateUsed(response, "education_group/creation.html")
+        self.assertTemplateUsed(response, "education_group/create_groups.html")
 
     def test_with_parent_set(self):
         response = self.client.get(self.url_without_parent)
 
-        self.assertTemplateUsed(response, "education_group/creation.html")
+        self.assertTemplateUsed(response, "education_group/create_groups.html")
 
     def test_response_context(self):
         response = self.client.get(self.url_without_parent)

@@ -102,8 +102,7 @@ def learning_unit_components(request, learning_unit_year_id):
     context['ADDITIONAL_REQUIREMENT_ENTITY_1'] = data_components.get('ADDITIONAL_REQUIREMENT_ENTITY_1')
     context['ADDITIONAL_REQUIREMENT_ENTITY_2'] = data_components.get('ADDITIONAL_REQUIREMENT_ENTITY_2')
     context['tab_active'] = 'components'
-    context['can_manage_volume'] = business_perms.is_eligible_for_modification(context["learning_unit_year"],
-                                                                               person)
+    context['can_manage_volume'] = business_perms.is_eligible_for_modification(context["learning_unit_year"], person)
     context['experimental_phase'] = True
     return layout.render(request, "learning_unit/components.html", context)
 
@@ -159,7 +158,7 @@ def learning_unit_specifications_edit(request, learning_unit_year_id):
     context = get_common_context_learning_unit_year(learning_unit_year_id,
                                                     get_object_or_404(Person, user=request.user))
     label_name = request.GET.get('label')
-    text_lb = text_label.find_by_name(label_name)
+    text_lb = text_label.get_by_name(label_name)
     language = request.GET.get('language')
     form = LearningUnitSpecificationsEditForm(**{
         'learning_unit_year': context['learning_unit_year'],

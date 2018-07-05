@@ -26,12 +26,14 @@
 
 from base.models import academic_calendar
 from base.models import academic_year
+from base.models import admission_condition
 from base.models import campus
 from base.models import education_group
 from base.models import education_group_language
 from base.models import education_group_organization
 from base.models import education_group_type
 from base.models import education_group_year
+from base.models import education_group_year_domain
 from base.models import entity
 from base.models import entity_calendar
 from base.models import entity_component_year
@@ -78,4 +80,4 @@ from base.models import student
 from base.models import synchronization
 from base.models import teaching_material
 from base.models import tutor
-from base.models import admission_condition
+from base.models import authorized_relationship

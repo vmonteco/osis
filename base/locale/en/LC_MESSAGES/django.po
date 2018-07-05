@@ -390,7 +390,7 @@ msgid "encoding_status_notended"
 msgstr "It remains notes to encode."
 
 msgid "end_date"
-msgstr "Teacher Deadline"
+msgstr "End date"
 
 msgid "end_date_teacher"
 msgstr "Teacher Deadline"
@@ -3066,12 +3066,6 @@ msgstr ""
 msgid "The parent is %(parent_periodicty)s and there is at least one partim which is not %(parent_periodicty)s"
 msgstr ""
 
-msgid "YES"
-msgstr "Yes"
-
-msgid "NO"
-msgstr "No"
-
 msgid "Admission Conditions for Bachelors"
 msgstr "Admission Conditions for Bachelors"
 
@@ -3134,3 +3128,21 @@ msgstr "Add a new line"
 
 msgid "Modify an existing line"
 msgstr "Modify an existing line"
+
+msgid "Are you sure you want to delete %(education_group_year)s?"
+msgstr ""
+
+msgid "You are not summary responsible for this learning unit."
+msgstr ""
+
+msgid "The learning unit is not summary editable."
+msgstr ""
+
+msgid "Submission dates are not set."
+msgstr ""
+
+msgid "Not in period to edit educational information."
+msgstr ""
+
+msgid "Modification made"
+msgstr ""

@@ -83,6 +83,7 @@ def education_group_read(request, education_group_year_id):
 
     can_create_education_group = perms.is_eligible_to_add_education_group(person)
     can_change_education_group = perms.is_eligible_to_change_education_group(person)
+    can_delete_education_group = perms.is_eligible_to_delete_education_group(person)
 
     return layout.render(request, "education_group/tab_identification.html", locals())
 

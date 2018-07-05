@@ -1,4 +1,6 @@
+{% extends "education_group/layout_detail.html" %}
 {% load i18n %}
+{% load staticfiles bootstrap3 %}
 {% comment "License" %}
 * OSIS stands for Open Student Information System. It's an application
 * designed to manage the core business of higher education institutions,
@@ -22,14 +24,13 @@
 * at the root of the source code of this program.  If not,
 * see http://www.gnu.org/licenses/.
 {% endcomment %}
-<div class="row">
-    <div class="col-md-4 col-md-offset-8">
-        <a href="{% url 'education_group_read' education_group_year_id=education_group_year.id %}" class="btn btn-default pull-right"
-           style="margin-left: 10px;" role="button">
-            {% trans 'cancel' %}
-        </a>
-        <button type="submit" name="education_group_year_update" class="btn btn-primary pull-right" title="{% trans 'update' %}">
-            <span class="glyphicon glyphicon-floppy-save" aria-hidden="true"></span> {% trans 'save' %}
-        </button>
-    </div>
-</div>
+
+{% block breadcrumb %}
+    {{ block.super }}
+    <li>{% trans "MODIFICATION" %}</li>
+{% endblock %}
+
+{% block content %}
+    {% include "education_group/blocks/form/training.html" %}
+{% endblock %}
+

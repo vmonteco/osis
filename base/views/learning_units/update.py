@@ -31,7 +31,6 @@ from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from base.business import learning_unit_year_with_context
-from base.business.learning_unit import CMS_LABEL_PEDAGOGY, get_cms_label_data, get_no_summary_responsible_teachers
 from base.business.learning_unit_year_with_context import ENTITY_TYPES_VOLUME
 from base.business.learning_units.edition import ConsistencyError
 from base.forms.learning_unit.edition import LearningUnitEndDateForm
@@ -42,11 +41,10 @@ from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
 from base.views import layout
 from base.views.common import display_error_messages, display_success_messages, display_warning_messages
-from base.views.learning_unit import learning_unit_components
+from base.views.learning_unit import learning_unit_identification, learning_unit_components
 from base.views.learning_units import perms
 from base.views.learning_units.common import get_learning_unit_identification_context, \
     get_common_context_learning_unit_year
-from base.models.tutor import find_all_summary_responsibles_by_learning_unit_year
 
 
 @login_required
@@ -121,28 +119,42 @@ def update_learning_unit(request, learning_unit_year_id):
 @login_required
 @permission_required('base.can_edit_learningunit', raise_exception=True)
 @perms.can_perform_learning_unit_modification
-def learning_unit_volumes_management(request, learning_unit_year_id):
+def learning_unit_volumes_management(request, learning_unit_year_id, form_type):
     person = get_object_or_404(Person, user=request.user)
     context = get_common_context_learning_unit_year(learning_unit_year_id, person)
 
-    context['learning_units'] = learning_unit_year_with_context.get_with_context(
-        learning_container_year_id=context['learning_unit_year'].learning_container_year_id
-    )
+    context['learning_units'] = _get_learning_units_for_context(luy=context['learning_unit_year'],
+                                                                with_family=form_type == "full")
 
     volume_edition_formset_container = VolumeEditionFormsetContainer(request, context['learning_units'], person)
 
     if volume_edition_formset_container.is_valid() and not request.is_ajax():
         _save_form_and_display_messages(request, volume_edition_formset_container)
-        return HttpResponseRedirect(reverse(learning_unit_components, args=[learning_unit_year_id]))
+        if form_type == "full":
+            return HttpResponseRedirect(reverse(learning_unit_components, args=[learning_unit_year_id]))
+        else:
+            return HttpResponseRedirect(reverse(learning_unit_identification, args=[learning_unit_year_id]))
 
     context['formsets'] = volume_edition_formset_container.formsets
     context['tab_active'] = 'components'
     context['entity_types_volume'] = ENTITY_TYPES_VOLUME
+    context['luy_url'] = 'learning_unit_components' if form_type == "full" else 'learning_unit'
     context['experimental_phase'] = True
     if request.is_ajax():
         return JsonResponse({'errors': volume_edition_formset_container.errors})
 
     return layout.render(request, "learning_unit/volumes_management.html", context)
+
+
+def _get_learning_units_for_context(luy, with_family=False):
+    if with_family:
+        return learning_unit_year_with_context.get_with_context(
+            learning_container_year_id=luy.learning_container_year_id
+        )
+    else:
+        return learning_unit_year_with_context.get_with_context(
+            learning_unit_year_id=luy.id
+        )
 
 
 def _save_form_and_display_messages(request, form):

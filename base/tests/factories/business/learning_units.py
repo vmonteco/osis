@@ -29,8 +29,7 @@ from decimal import Decimal
 import factory.fuzzy
 
 from base.models import academic_year as mdl_academic_year
-from base.models.academic_year import AcademicYear, LEARNING_UNIT_CREATION_SPAN_YEARS, \
-    compute_max_academic_year_adjournment
+from base.models.academic_year import LEARNING_UNIT_CREATION_SPAN_YEARS, compute_max_academic_year_adjournment
 from base.models.enums import entity_container_year_link_type, learning_container_year_types, \
     learning_unit_year_periodicity, learning_unit_year_subtypes, component_type
 from base.models.enums import entity_type
@@ -110,10 +109,7 @@ class LearningUnitsMixin:
     def create_list_of_academic_years(start_year, end_year):
         results = None
         if start_year and end_year:
-            results = [AcademicYearFactory.build(year=year) for year in range(start_year, end_year + 1)]
-            [super(AcademicYear, result).save() for result in results
-             if not AcademicYear.objects.filter(year=result.year).exists()]
-
+            results = [AcademicYearFactory(year=year) for year in range(start_year, end_year + 1)]
         return results
 
     @staticmethod
@@ -224,8 +220,6 @@ class LearningUnitsMixin:
 
 
 class GenerateAcademicYear:
-    academic_years = []
-
     def __init__(self, start_year, end_year):
         self.start_year = start_year
         self.end_year = end_year
@@ -233,7 +227,6 @@ class GenerateAcademicYear:
 
 
 class GenerateContainer:
-
     def __init__(self, start_year, end_year):
         self.start_year = start_year
         self.end_year = end_year
@@ -456,7 +449,6 @@ def _setup_classes(learning_component_year, number_classes=5):
 
 def _create_fixed_educational_information_for_luy(luy):
     luy.mobility_modality = factory.fuzzy.FuzzyText(length=150).fuzz()
-    luy.bibliography = factory.fuzzy.FuzzyText(length=150).fuzz()
     luy.save()
     _create_teaching_material_for_luy(luy)
     _create_cms_data_for_luy(luy)

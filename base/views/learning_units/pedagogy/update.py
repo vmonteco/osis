@@ -24,7 +24,6 @@
 #
 ##############################################################################
 from django.conf import settings
-from django.forms import inlineformset_factory
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
@@ -33,13 +32,12 @@ from django.views.decorators.http import require_http_methods
 
 from base import models as mdl
 from base.business.learning_unit import CMS_LABEL_PEDAGOGY, get_cms_label_data, find_language_in_settings, \
-    get_no_summary_responsible_teachers
+    get_no_summary_responsible_teachers, CMS_LABEL_PEDAGOGY_FR_ONLY
 from base.business.learning_units.perms import is_eligible_to_update_learning_unit_pedagogy
 from base.forms.learning_unit_pedagogy import SummaryModelForm, LearningUnitPedagogyForm, \
-    TeachingMaterialModelForm, LearningUnitPedagogyEditForm
+    LearningUnitPedagogyEditForm, teachingmaterialformset_factory
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
-from base.models.teaching_material import TeachingMaterial
 from base.models.tutor import find_all_summary_responsibles_by_learning_unit_year
 from base.views import layout
 from base.views.common import display_error_messages, display_success_messages
@@ -56,12 +54,9 @@ def update_learning_unit_pedagogy(request, learning_unit_year_id, context, templ
 
     post = request.POST or None
     summary_form = SummaryModelForm(post, person, context['is_person_linked_to_entity'], instance=learning_unit_year)
-    TeachingMaterialFormset = inlineformset_factory(LearningUnitYear, TeachingMaterial, fields=('title', 'mandatory'),
-                                                    max_num=10, extra=perm_to_edit, form=TeachingMaterialModelForm,
-                                                    can_delete=perm_to_edit, labels={'title': ''})
+    TeachingMaterialFormset = teachingmaterialformset_factory(can_edit=perm_to_edit)
     teaching_material_formset = TeachingMaterialFormset(post, instance=learning_unit_year,
                                                         form_kwargs={'person': person})
-
     if perm_to_edit and summary_form.is_valid() and teaching_material_formset.is_valid():
         try:
             summary_form.save()
@@ -78,6 +73,7 @@ def update_learning_unit_pedagogy(request, learning_unit_year_id, context, templ
     context['can_edit_information'] = perm_to_edit
     context['summary_responsibles'] = find_all_summary_responsibles_by_learning_unit_year(learning_unit_year)
     context['other_teachers'] = get_no_summary_responsible_teachers(learning_unit_year, context['summary_responsibles'])
+    context['cms_label_pedagogy_fr_only'] = CMS_LABEL_PEDAGOGY_FR_ONLY
     return layout.render(request, template, context)
 
 
@@ -106,11 +102,14 @@ def edit_learning_unit_pedagogy(request, learning_unit_year_id, redirect_url):
         if form.is_valid():
             form.save()
         return redirect(redirect_url)
-    context = get_common_context_learning_unit_year(learning_unit_year_id,
-                                                    get_object_or_404(Person, user=request.user))
+
+    context = get_common_context_learning_unit_year(
+        learning_unit_year_id,
+        get_object_or_404(Person, user=request.user)
+    )
     label_name = request.GET.get('label')
     language = request.GET.get('language')
-    text_lb = text_label.find_by_name(label_name)
+    text_lb = text_label.get_by_name(label_name)
     form = LearningUnitPedagogyEditForm(**{
         'learning_unit_year': context['learning_unit_year'],
         'language': language,
@@ -121,4 +120,6 @@ def edit_learning_unit_pedagogy(request, learning_unit_year_id, redirect_url):
     user_language = mdl.person.get_user_interface_language(request.user)
     context['text_label_translated'] = get_text_label_translated(text_lb, user_language)
     context['language_translated'] = find_language_in_settings(language)
+    context['cms_label_pedagogy_fr_only'] = CMS_LABEL_PEDAGOGY_FR_ONLY
+    context['label_name'] = label_name
     return layout.render(request, "learning_unit/pedagogy_edit.html", context)

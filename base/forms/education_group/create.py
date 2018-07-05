@@ -50,8 +50,8 @@ class CreateEducationGroupYearForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         self.fields["main_teaching_campus"].queryset = campus.find_main_campuses()
-        self.fields["education_group_type"].queryset = \
-            education_group_type.find_by_category(education_group_categories.GROUP)
+
+        self.fields["education_group_type"].queryset = self._get_authorized_education_group_types_queryset()
         self.fields["education_group_type"].required = True
 
         if self.parent_education_group_year:
@@ -64,7 +64,15 @@ class CreateEducationGroupYearForm(forms.ModelForm):
         if getattr(self.instance, 'administration_entity', None):
             self.initial['administration_entity'] = get_last_version(self.instance.administration_entity).pk
 
-    def save(self):
+    def _get_authorized_education_group_types_queryset(self):
+        parent_group_type = None
+        if self.parent_education_group_year:
+            parent_group_type = self.parent_education_group_year.education_group_type
+        return education_group_type.find_authorized_types(
+            category=education_group_categories.GROUP, parent_type=parent_group_type
+        )
+
+    def save(self, *args, **kwargs):
         education_group_year = super().save(commit=False)
         # education_group_year.education_group = self._create_education_group()
         education_group_year.save()
