@@ -26,12 +26,14 @@
 from django.contrib.auth.models import Permission
 from django.test import TestCase
 from django.urls import reverse
+from waffle.testutils import override_flag
 
 from base.models.education_group_year import EducationGroupYear
 from base.tests.factories.education_group_year import EducationGroupYearFactory
 from base.tests.factories.person import PersonFactory
 
 
+@override_flag('education_group_delete', active=True)
 class TestDeleteGroupEducationYearView(TestCase):
 
     def setUp(self):

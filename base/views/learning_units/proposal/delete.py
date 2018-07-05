@@ -35,7 +35,7 @@ from base.views.common import display_messages_by_level
 from base.views.learning_units import perms
 
 
-@waffle_flag('proposal')
+@waffle_flag('learning_unit_proposal_delete')
 @login_required
 @perms.can_perform_cancel_proposal
 @permission_required('base.can_propose_learningunit', raise_exception=True)

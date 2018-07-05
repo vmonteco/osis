@@ -23,7 +23,9 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+import waffle
 from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.http import HttpResponse, Http404
 from django.urls import reverse_lazy
 from django.views.generic import DeleteView
 
@@ -46,6 +48,8 @@ class DeleteGroupEducationYearView(PermissionRequiredMixin, DeleteView):
     success_message = "The education group has been deleted"
 
     def delete(self, request, *args, **kwargs):
+        if not waffle.flag_is_active(request, 'education_group_delete'):
+            raise Http404()
         result = super().delete(request, *args, **kwargs)
         display_success_messages(request, self.success_message)
         return result

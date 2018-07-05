@@ -3,6 +3,7 @@
 {% load i18n %}
 {% load components_classes %}
 {% load bootstrap3 %}
+{% load waffle_tags %}
 
 {% comment "License" %}
 * OSIS stands for Open Student Information System. It's an application
@@ -37,7 +38,7 @@
 {% include "learning_unit/blocks/header.html" %}
 <div class="panel panel-default">
     <div class="panel-heading text-right">
-        {% include "learning_unit/blocks/manage_volumes_button.html" %}
+        {% include "learning_unit/blocks/manage_volumes_button.html" with form_type="full"%}
     </div>
     <div class="panel-body" id="tabs">
         {% include "learning_unit/blocks/tabs.html" %}
@@ -145,7 +146,7 @@
         </div>
     </div>
     <div class="panel-footer text-right">
-        {% include "learning_unit/blocks/manage_volumes_button.html" %}
+        {% include "learning_unit/blocks/manage_volumes_button.html" with form_type="full" %}
     </div>
 </div>
 <div class="modal fade" id="component_edit" role="dialog" data-backdrop="static"></div>

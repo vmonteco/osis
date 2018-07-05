@@ -29,6 +29,7 @@ from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
+from waffle.decorators import waffle_flag
 
 from base.business import learning_unit_year_with_context
 from base.business.learning_unit_year_with_context import ENTITY_TYPES_VOLUME
@@ -41,13 +42,14 @@ from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
 from base.views import layout
 from base.views.common import display_error_messages, display_success_messages, display_warning_messages
-from base.views.learning_unit import learning_unit_components
+from base.views.learning_unit import learning_unit_identification, learning_unit_components
 from base.views.learning_units import perms
 from base.views.learning_units.common import get_learning_unit_identification_context, \
     get_common_context_learning_unit_year
 
 
 @login_required
+@waffle_flag("learning_unit_update")
 @permission_required('base.can_edit_learningunit_date', raise_exception=True)
 @perms.can_perform_end_date_modification
 def learning_unit_edition_end_date(request, learning_unit_year_id):
@@ -83,6 +85,7 @@ def _get_current_learning_unit_year_id(learning_unit_to_edit, learning_unit_year
 
 
 @login_required
+@waffle_flag("learning_unit_update")
 @permission_required('base.can_edit_learningunit', raise_exception=True)
 @perms.can_perform_learning_unit_modification
 def update_learning_unit(request, learning_unit_year_id):
@@ -117,23 +120,29 @@ def update_learning_unit(request, learning_unit_year_id):
 
 
 @login_required
+@waffle_flag("learning_unit_update")
 @permission_required('base.can_edit_learningunit', raise_exception=True)
 @perms.can_perform_learning_unit_modification
-def learning_unit_volumes_management(request, learning_unit_year_id):
+def learning_unit_volumes_management(request, learning_unit_year_id, form_type):
     person = get_object_or_404(Person, user=request.user)
     context = get_common_context_learning_unit_year(learning_unit_year_id, person)
 
-    context['learning_units'] = _get_learning_units_for_context(luy=context['learning_unit_year'], with_family=False)
+    context['learning_units'] = _get_learning_units_for_context(luy=context['learning_unit_year'],
+                                                                with_family=form_type == "full")
 
     volume_edition_formset_container = VolumeEditionFormsetContainer(request, context['learning_units'], person)
 
     if volume_edition_formset_container.is_valid() and not request.is_ajax():
         _save_form_and_display_messages(request, volume_edition_formset_container)
-        return HttpResponseRedirect(reverse(learning_unit_components, args=[learning_unit_year_id]))
+        if form_type == "full":
+            return HttpResponseRedirect(reverse(learning_unit_components, args=[learning_unit_year_id]))
+        else:
+            return HttpResponseRedirect(reverse(learning_unit_identification, args=[learning_unit_year_id]))
 
     context['formsets'] = volume_edition_formset_container.formsets
     context['tab_active'] = 'components'
     context['entity_types_volume'] = ENTITY_TYPES_VOLUME
+    context['luy_url'] = 'learning_unit_components' if form_type == "full" else 'learning_unit'
     context['experimental_phase'] = True
     if request.is_ajax():
         return JsonResponse({'errors': volume_edition_formset_container.errors})
