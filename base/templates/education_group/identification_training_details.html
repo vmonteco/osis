@@ -1,5 +1,7 @@
+{% extends "education_group/tab_identification.html" %}
 {% load i18n %}
 {% load format %}
+{% load staticfiles %}
 {% comment "License" %}
 * OSIS stands for Open Student Information System. It's an application
 * designed to manage the core business of higher education institutions,
@@ -23,7 +25,7 @@
 * at the root of the source code of this program.  If not,
 * see http://www.gnu.org/licenses/.
 {% endcomment %}
-
+{% block details %}
 {% with  parent=education_group_year.parent_by_training %}
 <div class="row">
     <div class="col-md-7" style="margin-top: 10px">
@@ -161,8 +163,7 @@
                         <strong class="text-primary">{% trans parent.other_language_activities %}</strong>
                     {% endif %}
                 </div>
-                <br>
-                <div>
+                <br><div>
                     <label>{% trans 'studies_domain' %}</label><br>
                     {% if education_group_year.domains %}
                         <ul>{{ education_group_year.domains.all | unordered_list }}</ul>
@@ -173,7 +174,6 @@
                     {% endif %}
                 </div>
                 <br>
-
             </div>
         </div>
     </div>
@@ -401,30 +401,4 @@
 </div>
 {% endwith %}
 
-{% block script %}
-<script>
-    $(document).ready(function()
-    {
-        $('#tbl_coorganization').DataTable(
-            {
-                columnDefs: [
-                    { targets: 1, type: 'diacritics-neutralise'},
-                    { orderable: false, targets: [1]}
-                ],
-                "stateSave": true,
-                "paging" : false,
-                "ordering" : true,
-                "info"  : false,
-                "searching" : false,
-                "language": {
-                    "oAria": {
-                        "sSortAscending":  "{% trans 'datatable_sortascending'%}",
-                        "sSortDescending": "{% trans 'datatable_sortdescending'%}",
-                    }
-                }
-            })
-        ;});
-</script>
 {% endblock %}
-
-

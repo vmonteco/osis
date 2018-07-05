@@ -27,6 +27,7 @@ from django.contrib.auth.models import Permission
 from django.contrib.messages import get_messages, SUCCESS
 from django.test import TestCase
 from django.urls import reverse
+from waffle.testutils import override_flag
 
 from base.tests.factories.academic_year import create_current_academic_year
 from base.tests.factories.person import PersonFactory
@@ -36,6 +37,7 @@ from base.views.learning_units.external.create import get_external_learning_unit
 from reference.tests.factories.language import LanguageFactory
 
 
+@override_flag('learning_unit_external_create', active=True)
 class TestCreateExternalLearningUnitView(TestCase):
     def setUp(self):
         self.user = UserFactory()

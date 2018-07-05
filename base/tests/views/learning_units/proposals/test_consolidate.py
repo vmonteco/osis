@@ -40,7 +40,7 @@ from base.tests.factories.person_entity import PersonEntityFactory
 from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
 
 
-@override_flag('proposal', active=True)
+@override_flag('learning_unit_proposal_delete', active=True)
 class TestConsolidate(TestCase):
     @classmethod
     def setUpTestData(cls):

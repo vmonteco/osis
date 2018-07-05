@@ -36,6 +36,7 @@ from base.forms.learning_unit_pedagogy import LearningUnitPedagogyForm
 from base.models.enums import academic_calendar_type
 from base.tests.factories.academic_calendar import AcademicCalendarFactory
 from base.tests.factories.academic_year import create_current_academic_year
+from base.tests.factories.business.learning_units import GenerateAcademicYear
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.tutor import TutorFactory
 from osis_common.utils.perms import BasePerm
@@ -47,12 +48,19 @@ class ManageMyCoursesViewTestCase(TestCase):
         cls.person = PersonFactory()
         cls.user = cls.person.user
         cls.tutor = TutorFactory(person=cls.person)
-
-        cls.attribution = AttributionFactory(tutor=cls.tutor,
-                                             summary_responsible=True,
-                                             learning_unit_year__summary_locked=False)
-        cls.academic_calendar = AcademicCalendarFactory(academic_year=create_current_academic_year(),
+        cls.current_ac_year = create_current_academic_year()
+        ac_year_in_future = GenerateAcademicYear(start_year=cls.current_ac_year.year+1,
+                                                 end_year=cls.current_ac_year.year+5)
+        cls.academic_calendar = AcademicCalendarFactory(academic_year=cls.current_ac_year,
                                                         reference=academic_calendar_type.SUMMARY_COURSE_SUBMISSION)
+        # Create multiple attribution in different academic years
+        for ac_year in [cls.current_ac_year] + ac_year_in_future.academic_years:
+            AttributionFactory(
+                tutor=cls.tutor,
+                summary_responsible=True,
+                learning_unit_year__summary_locked=False,
+                learning_unit_year__academic_year=ac_year,
+            )
         cls.url = reverse(list_my_attributions_summary_editable)
 
     def setUp(self):
@@ -71,8 +79,7 @@ class ManageMyCoursesViewTestCase(TestCase):
         self.assertEquals(response.status_code, HttpResponseNotFound.status_code)
 
     def test_list_my_attributions_summary_editable(self):
-        expected_luys_summary_editable = [self.attribution.learning_unit_year]
-
+        """In this test, we ensure that user see only UE of (CURRENT YEAR + 1) and not erlier/older UE"""
         response = self.client.get(self.url)
         self.assertTemplateUsed(response, "manage_my_courses/list_my_courses_summary_editable.html")
 
@@ -80,6 +87,9 @@ class ManageMyCoursesViewTestCase(TestCase):
         self.assertIsInstance(context['entity_calendars'], dict)
         self.assertIsInstance(context['score_responsibles'], dict)
         self.assertTrue("learning_unit_years_with_errors" in context)
+        # Ensure that we only see UE of current year + 1
+        for luy, error in context["learning_unit_years_with_errors"]:
+            self.assertEqual(luy.academic_year.year, self.current_ac_year.year + 1)
 
 
 class TestViewEducationalInformation(TestCase):

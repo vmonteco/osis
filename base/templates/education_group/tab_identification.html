@@ -40,13 +40,8 @@
                         <div id="panel-data" class="col-md-9">
                             {% include "education_group/tabs.html" %}
                             <br>
-                            {% if education_group_year.education_group_type.category == enums.TRAINING %}
-                                {% include "education_group/identification_training_details.html" %}
-                            {% elif education_group_year.education_group_type.category == enums.MINI_TRAINING %}
-                                {% include "education_group/identification_mini_training_details.html" %}
-                            {% elif education_group_year.education_group_type.category == enums.GROUP %}
-                                {% include "education_group/identification_group_details.html" %}
-                            {% endif %}
+                            {% block details %}
+                            {% endblock %}
                         </div>
                     </div>
                 </div>
@@ -58,5 +53,6 @@
     </div>
 {% endblock %}
 {% block script %}
-    <script src="{% static 'js/education_group/education_group_tree.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/education_group/education_group_tree.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/education_group/tbl_coorganization.js' %}"></script>
 {% endblock %}

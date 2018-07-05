@@ -28,6 +28,7 @@ from unittest import mock
 from django.contrib.auth.models import Permission
 from django.test import TestCase
 from django.urls import reverse
+from waffle.testutils import override_flag
 
 from base.forms.education_group.create import CreateEducationGroupYearForm
 from base.models.enums import education_group_categories
@@ -39,6 +40,7 @@ from base.views.education_groups.update import update_education_group
 from reference.tests.factories.domain import DomainFactory
 
 
+@override_flag('education_group_update', active=True)
 class TestUpdate(TestCase):
     def setUp(self):
         group_type = EducationGroupTypeFactory(category=education_group_categories.GROUP)
