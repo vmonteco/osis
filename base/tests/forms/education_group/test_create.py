@@ -37,15 +37,6 @@ from base.tests.factories.education_group_year import EducationGroupYearFactory
 from base.tests.factories.entity_version import MainEntityVersionFactory, EntityVersionFactory
 
 
-# class CommonFormInitTest(TestCase):
-#
-#     def _test_common_init(self, model_form):
-#         academic_year_field = model_form.fields["academic_year"]
-#         self.assertTrue(academic_year_field.disabled)
-#         self.assertTrue(academic_year_field.disabled)
-#         self.assertTrue(academic_year_field.initial, self.academic_year)
-
-
 class EducationGroupYearMixin(TestCase):
     @classmethod
     def setUp(cls):
@@ -68,8 +59,56 @@ class EducationGroupYearMixin(TestCase):
         cls.parent_education_group_year = EducationGroupYearFactory(academic_year=cls.academic_year)
         cls.entity_version = EntityVersionFactory(entity=cls.parent_education_group_year.administration_entity)
 
+    def _test_init_academic_year_field(self, form_class):
+        form = form_class(parent=self.parent_education_group_year)
+
+        academic_year_field = form.fields["academic_year"]
+        self.assertTrue(academic_year_field.disabled)
+        self.assertTrue(academic_year_field.disabled)
+        self.assertTrue(academic_year_field.initial, self.academic_year)
+
+    @patch('base.models.education_group_type.find_authorized_types')
+    def _test_init_education_group_type_field(self, form_class, expected_category, mock_authorized_types):
+        form_class(parent=self.parent_education_group_year)
+        self.assertTrue(mock_authorized_types.called)
+        expected_kwargs = {
+            'category': expected_category,
+            'parent_type': self.parent_education_group_year.education_group_type
+        }
+        mock_authorized_types.assert_called_with(**expected_kwargs)
+
+    def _test_preselect_entity_version_from_entity_value(self, form_class):
+        form = form_class(instance=self.parent_education_group_year)
+        educ_group_entity = self.parent_education_group_year.administration_entity
+        expected_entity_version = EntityVersion.objects.filter(entity=educ_group_entity).latest('start_date')
+        self.assertEqual(form.initial['administration_entity'], expected_entity_version.id)
+
+    def _test_save(self, form_class):
+        form = form_class(data=self.form_data, parent=None)
+
+        self.assertTrue(form.is_valid(), form.errors)
+
+        education_group_year = form.save()
+
+        self.assertEqual(education_group_year.education_group.start_year, self.academic_year.year)
+        self.assertIsNone(education_group_year.education_group.end_year)
+
+    def _test_save_with_parent(self, form_class):
+        form = form_class(data=self.form_data, parent=self.parent_education_group_year)
+
+        self.assertTrue(form.is_valid(), form.errors)
+
+        education_group_year = form.save()
+
+        self.assertTrue(GroupElementYear.objects.get(child_branch=education_group_year,
+                                                     parent=self.parent_education_group_year))
+
 
 class TestCreateEducationGroupYearForm(EducationGroupYearMixin):
+
+    def setUp(self):
+        super(TestCreateEducationGroupYearForm, self).setUp()
+        self.form_class = CreateEducationGroupYearForm
 
     def test_fields(self):
         fields = ("acronym", "partial_acronym", "education_group_type", "title", "title_english", "credits",
@@ -80,48 +119,19 @@ class TestCreateEducationGroupYearForm(EducationGroupYearMixin):
         self.assertCountEqual(tuple(form.fields.keys()), fields)
 
     def test_init_academic_year_field(self):
-        form = CreateEducationGroupYearForm(parent=self.parent_education_group_year)
+        self._test_init_academic_year_field(self.form_class)
 
-        academic_year_field = form.fields["academic_year"]
-        self.assertTrue(academic_year_field.disabled)
-        self.assertTrue(academic_year_field.disabled)
-        self.assertTrue(academic_year_field.initial, self.academic_year)
-
-    @patch('base.models.education_group_type.find_authorized_types')
-    def test_init_education_group_type_field(self, mock_authorized_types):
-        CreateEducationGroupYearForm(parent=self.parent_education_group_year)
-        self.assertTrue(mock_authorized_types.called)
-        expected_kwargs = {
-            'category': education_group_categories.GROUP,
-            'parent_type': self.parent_education_group_year.education_group_type
-        }
-        mock_authorized_types.assert_called_with(**expected_kwargs)
+    def test_init_education_group_type_field(self):
+        self._test_init_education_group_type_field(self.form_class, education_group_categories.GROUP)
 
     def test_preselect_entity_version_from_entity_value(self):
-        form = CreateEducationGroupYearForm(instance=self.parent_education_group_year)
-        educ_group_entity = self.parent_education_group_year.administration_entity
-        expected_entity_version = EntityVersion.objects.filter(entity=educ_group_entity).latest('start_date')
-        self.assertEqual(form.initial['administration_entity'], expected_entity_version.id)
+        self._test_preselect_entity_version_from_entity_value(self.form_class)
 
     def test_save(self):
-        form = CreateEducationGroupYearForm(data=self.form_data, parent=None)
-
-        self.assertTrue(form.is_valid(), form.errors)
-
-        education_group_year = form.save()
-
-        self.assertEqual(education_group_year.education_group.start_year, self.academic_year.year)
-        self.assertIsNone(education_group_year.education_group.end_year)
+        self._test_save(self.form_class)
 
     def test_save_with_parent(self):
-        form = CreateEducationGroupYearForm(data=self.form_data, parent=self.parent_education_group_year)
-
-        self.assertTrue(form.is_valid(), form.errors)
-
-        education_group_year = form.save()
-
-        self.assertTrue(GroupElementYear.objects.get(child_branch=education_group_year,
-                                                     parent=self.parent_education_group_year))
+        self._test_save_with_parent(self.form_class)
 
 
 class TestMiniTrainingForm(TestCase):
@@ -158,23 +168,32 @@ class TestMiniTrainingForm(TestCase):
 
 class TestMiniTrainingModelForm(EducationGroupYearMixin):
 
-    def test_all_fields_with_correct_post_data(self):
-        pass
+    def setUp(self):
+        super(TestMiniTrainingModelForm, self).setUp()
+        self.form_class = MiniTrainingModelForm
 
-    def test_with_wrong_post_data(self):
-        pass
+    def test_fields(self):
+        fields = ("acronym", "partial_acronym", "education_group_type", "title", "title_english", "credits",
+                  "main_teaching_campus", "academic_year", "remark", "remark_english", "min_credits", "max_credits",
+                  "administration_entity")
 
-    def test_init_academic_year(self):
-        form = MiniTrainingModelForm(parent=self.parent_education_group_year)
-        academic_year_field = form.fields["academic_year"]
-        self.assertTrue(academic_year_field.disabled)
-        self.assertTrue(academic_year_field.disabled)
-        self.assertTrue(academic_year_field.initial, self.academic_year)
+        form = CreateEducationGroupYearForm(parent=None)
+        self.assertCountEqual(tuple(form.fields.keys()), fields)
+
+    def test_init_academic_year_field(self):
+        self._test_init_academic_year_field(self.form_class)
 
     def test_init_education_group_type_field(self):
-        form = MiniTrainingModelForm(parent=self.parent_education_group_year)
-        academic_year_field = form.fields["academic_year"]
+        self._test_init_education_group_type_field(self.form_class, education_group_categories.MINI_TRAINING)
 
+    def test_preselect_entity_version_from_entity_value(self):
+        self._test_preselect_entity_version_from_entity_value(self.form_class)
+
+    def test_save(self):
+        self._test_save(self.form_class)
+
+    def test_save_with_parent(self):
+        self._test_save_with_parent(self.form_class)
 
 
 def _get_post_data(academic_year=None):
