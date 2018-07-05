@@ -23,15 +23,20 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.utils.translation import ugettext_lazy as _
+from django.db import models
+from osis_common.models.osis_model_admin import OsisModelAdmin
+from base.models.education_group_type import EducationGroupType
 
 
-YES = "YES"
-NO = "NO"
-OPTIONAL = "OPTIONAL"
+class AuthorizedRelationshipAdmin(OsisModelAdmin):
+    list_display = ('parent_type', 'child_type', 'changed')
+    search_fields = ['parent_type__name', 'child_type__name']
 
-INTERNSHIP_PRESENCE = (
-    (YES, _(YES)),
-    (NO, _(NO)),
-    (OPTIONAL, _(OPTIONAL))
-)
+
+class AuthorizedRelationship(models.Model):
+    parent_type = models.ForeignKey(EducationGroupType, related_name='authorized_parent_type')
+    child_type = models.ForeignKey(EducationGroupType, related_name='authorized_child_type')
+    changed = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return '{} - {}'.format(self.parent_type, self.child_type)

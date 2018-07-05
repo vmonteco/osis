@@ -23,15 +23,20 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.utils.translation import ugettext_lazy as _
+from django.conf import settings
+
+from cms.enums import entity_name
+from cms.models import text_label, translated_text
 
 
-YES = "YES"
-NO = "NO"
-OPTIONAL = "OPTIONAL"
-
-INTERNSHIP_PRESENCE = (
-    (YES, _(YES)),
-    (NO, _(NO)),
-    (OPTIONAL, _(OPTIONAL))
-)
+def update_bibliography_changed_field_in_cms(learning_unit_year):
+    txt_label = text_label.get_by_label_or_none('bibliography')
+    if txt_label:
+        for language in settings.LANGUAGES:
+            translated_text.update_or_create(
+                entity=entity_name.LEARNING_UNIT_YEAR,
+                reference=learning_unit_year.id,
+                text_label=txt_label,
+                language=language[0],
+                defaults={}
+            )

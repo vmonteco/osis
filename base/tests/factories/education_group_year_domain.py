@@ -15,7 +15,7 @@
 #
 #    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 #    GNU General Public License for more details.
 #
 #    A copy of this license - GNU General Public License - is available
@@ -23,20 +23,15 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.db import models
-from osis_common.models.osis_model_admin import OsisModelAdmin
-from base.models.education_group_type import EducationGroupType
+import factory.fuzzy
+
+from base.tests.factories.education_group_year import EducationGroupYearFactory
+from reference.tests.factories.domain import DomainFactory
 
 
-class UnauthorizedRelationshipAdmin(OsisModelAdmin):
-    list_display = ('parent_type', 'child_type', 'changed')
-    search_fields = ['parent_type__name', 'child_type__name']
+class EducationGroupYearDomainFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = "base.EducationGroupYearDomain"
 
-
-class UnauthorizedRelationship(models.Model):
-    parent_type = models.ForeignKey(EducationGroupType, related_name='unauthorized_parent_type')
-    child_type = models.ForeignKey(EducationGroupType, related_name='unauthorized_child_type')
-    changed = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return '{} - {}'.format(self.parent_type, self.child_type)
+    education_group_year = factory.SubFactory(EducationGroupYearFactory)
+    domain = factory.SubFactory(DomainFactory)

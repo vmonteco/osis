@@ -23,9 +23,8 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import factory
 import factory.fuzzy
-from base.tests.factories.education_group_year import EducationGroupYearFactory
+
 from base.tests.factories.offer_year import OfferYearFactory
 from reference.tests.factories.domain import DomainFactory
 
@@ -35,5 +34,4 @@ class OfferYearDomainFactory(factory.django.DjangoModelFactory):
         model = "base.OfferYearDomain"
 
     offer_year = factory.SubFactory(OfferYearFactory)
-    education_group_year = factory.SubFactory(EducationGroupYearFactory)
     domain = factory.SubFactory(DomainFactory)

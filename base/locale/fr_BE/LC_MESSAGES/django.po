@@ -386,7 +386,7 @@ msgid "encoding_status_notended"
 msgstr "Il reste encore des notes à encoder."
 
 msgid "end_date"
-msgstr "Échéance Prof"
+msgstr "Date de fin"
 
 msgid "end_date_teacher"
 msgstr "Échéance Prof"
@@ -3131,6 +3131,9 @@ msgstr "Ajouter une nouvelle ligne"
 msgid "Modify an existing line"
 msgstr "Modifier une ligne existante"
 
+msgid "Are you sure you want to delete %(education_group_year)s?"
+msgstr "Êtes-vous sûr·e que vous voulez supprimer %(education_group_year)s?"
+
 msgid "You are not summary responsible for this learning unit."
 msgstr "Vous n'êtes pas responsable des informations pédagogiques pour cette unité d'enseignement."
 
@@ -3139,3 +3142,6 @@ msgstr "La mise-à-jour des informations pédagogiques est bloqué pour cette un
 
 msgid "Not in period to edit educational information."
 msgstr "Vous n'êtes pas en période d'édition des informations pédagogiques."
+
+msgid "Modification made"
+msgstr "Modification apportée"

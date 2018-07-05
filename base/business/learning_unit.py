@@ -24,6 +24,7 @@
 #
 ##############################################################################
 from collections import OrderedDict
+from operator import itemgetter
 
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
@@ -55,7 +56,12 @@ LEARNING_UNIT_TITLES = [str(_('academic_year_small')), str(_('code')), str(_('ti
                         str(_('subtype')), str(_('requirement_entity_small')), str(_('allocation_entity_small')),
                         str(_('credits')), str(_('active_title'))]
 CMS_LABEL_SPECIFICATIONS = ['themes_discussed', 'prerequisite']
-CMS_LABEL_PEDAGOGY = ['resume', 'teaching_methods', 'evaluation_methods', 'other_informations', 'online_resources']
+
+CMS_LABEL_PEDAGOGY_FR_AND_EN = ['resume', 'teaching_methods', 'evaluation_methods', 'other_informations',
+                                'online_resources']
+CMS_LABEL_PEDAGOGY_FR_ONLY = ['bibliography']
+CMS_LABEL_PEDAGOGY = CMS_LABEL_PEDAGOGY_FR_AND_EN + CMS_LABEL_PEDAGOGY_FR_ONLY
+
 CMS_LABEL_SUMMARY = ['resume']
 
 
@@ -85,6 +91,7 @@ def get_same_container_year_components(learning_unit_year, with_classes=False):
                            'used_by_learning_unit': used_by_learning_unit
                            })
 
+    components = sorted(components, key=itemgetter('learning_unit_usage'))
     return _compose_components_dict(components, additionnal_entities)
 
 

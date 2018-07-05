@@ -25,7 +25,6 @@
 ##############################################################################
 import re
 
-from ckeditor.fields import RichTextField
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator, RegexValidator
 from django.db import models
@@ -103,7 +102,6 @@ class LearningUnitYear(SerializableModel):
                                              choices=attribution_procedure.ATTRIBUTION_PROCEDURES)
     summary_locked = models.BooleanField(default=False, verbose_name=_("summary_locked"))
 
-    bibliography = RichTextField(blank=True, null=True, verbose_name=_('bibliography'))
     mobility_modality = models.CharField(max_length=250, verbose_name=_('Mobility'),
                                          blank=True, null=True)
     professional_integration = models.BooleanField(default=False, verbose_name=_('professional_integration'))
@@ -351,8 +349,11 @@ def _is_regex(acronym):
 
 def search(academic_year_id=None, acronym=None, learning_container_year_id=None, learning_unit=None,
            title=None, subtype=None, status=None, container_type=None, tutor=None,
-           summary_responsible=None, requirement_entities=None, *args, **kwargs):
+           summary_responsible=None, requirement_entities=None, learning_unit_year_id=None, *args, **kwargs):
     queryset = LearningUnitYear.objects_with_container
+
+    if learning_unit_year_id:
+        queryset = queryset.filter(id=learning_unit_year_id)
 
     if academic_year_id:
         queryset = queryset.filter(academic_year=academic_year_id)

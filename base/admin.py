@@ -57,6 +57,9 @@ admin.site.register(education_group_type.EducationGroupType,
 admin.site.register(education_group_year.EducationGroupYear,
                     education_group_year.EducationGroupYearAdmin)
 
+admin.site.register(education_group_year_domain.EducationGroupYearDomain,
+                    education_group_year_domain.EducationGroupYearDomainAdmin)
+
 admin.site.register(entity.Entity,
                     entity.EntityAdmin)
 
@@ -195,5 +198,5 @@ admin.site.register(teaching_material.TeachingMaterial,
 admin.site.register(tutor.Tutor,
                     tutor.TutorAdmin)
 
-admin.site.register(unauthorized_relationship.UnauthorizedRelationship,
-                    unauthorized_relationship.UnauthorizedRelationshipAdmin)
+admin.site.register(authorized_relationship.AuthorizedRelationship,
+                    authorized_relationship.AuthorizedRelationshipAdmin)

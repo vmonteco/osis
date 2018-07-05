@@ -1,3 +1,6 @@
+{% extends "education_group/layout_detail.html" %}
+{% load i18n %}
+{% load staticfiles bootstrap3 %}
 {% comment "License" %}
 * OSIS stands for Open Student Information System. It's an application
 * designed to manage the core business of higher education institutions,
@@ -22,7 +25,12 @@
 * see http://www.gnu.org/licenses/.
 {% endcomment %}
 
-<span class="glyphicon glyphicon-ok-circle" aria-hidden="true"
-      {% if status %} style="color:green;" {% else %} style="color:gray;" {% endif %}
-      {% if title %} data-toggle="tooltip" data-html="true" title="{{ title }}"{% endif %} >
-</span>
+{% block breadcrumb %}
+    {{ block.super }}
+    <li>{% trans "MODIFICATION" %}</li>
+{% endblock %}
+
+{% block content %}
+    {% include "education_group/blocks/form/training.html" %}
+{% endblock %}
+

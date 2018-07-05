@@ -15,7 +15,7 @@
 #
 #    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #    GNU General Public License for more details.
 #
 #    A copy of this license - GNU General Public License - is available
@@ -23,14 +23,29 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from base.tests.factories.education_group_type import EducationGroupTypeFactory
-import factory
-import factory.fuzzy
+from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.urls import reverse_lazy
+from django.views.generic import DeleteView
+
+from base.models.education_group_year import EducationGroupYear
+from base.views.common import display_success_messages
 
 
-class UnauthorizedRelationshipFactory(factory.DjangoModelFactory):
-    class Meta:
-        model = 'base.UnauthorizedRelationship'
+class DeleteGroupEducationYearView(PermissionRequiredMixin, DeleteView):
+    # DeleteView
+    model = EducationGroupYear
+    success_url = reverse_lazy('education_groups')
+    pk_url_kwarg = "education_group_year_id"
+    template_name = "education_group/delete.html"
+    context_object_name = "education_group_year"
 
-    parent_type = factory.SubFactory(EducationGroupTypeFactory)
-    child_type = factory.SubFactory(EducationGroupTypeFactory)
+    # PermissionRequiredMixin
+    permission_required = "base.delete_educationgroupyear"
+    raise_exception = True
+
+    success_message = "The education group has been deleted"
+
+    def delete(self, request, *args, **kwargs):
+        result = super().delete(request, *args, **kwargs)
+        display_success_messages(request, self.success_message)
+        return result

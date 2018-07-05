@@ -11,7 +11,7 @@
                 <th>{% trans 'Educational information opening' %}</th>
                 <th>{% trans 'Educational information ending' %}</th>
                 <th>{% trans 'summary_responsible' %}</th>
-                <th>Editable</th>
+                <th>{% trans 'editable' %}</th>
             </tr>
         </thead>
         <tbody>
@@ -36,7 +36,8 @@
                         <td>-</td>
                     {% endif %}
                     <td>{{ score_responsibles|get_item:luy.id|join:", " }}</td>
-                    <td>{% include "manage_my_courses/blocks/span_education_information_editable.html" with status=error.is_valid title=error.as_ul %}</td>
+                    {% trans 'editable' as title_status_true %}
+                    <td>{% include "blocks/span/span_status.html" with status=error.is_valid title_status_false=error.as_ul %}</td>
                 </tr>
                 {% endwith %}
             {% endfor %}

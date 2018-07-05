@@ -32,6 +32,7 @@ from factory.django import DjangoModelFactory
 from faker import Faker
 
 from base.models.enums import internship_subtypes
+from base.models.enums import learning_unit_year_periodicity
 from base.models.enums import learning_unit_year_quadrimesters
 from base.models.enums import learning_unit_year_session
 from base.models.enums import learning_unit_year_subtypes
@@ -42,7 +43,6 @@ from base.tests.factories.learning_container_year import LearningContainerYearFa
 from base.tests.factories.learning_unit import LearningUnitFactory, LearningUnitFakerFactory
 from osis_common.utils.datetime import get_tzinfo
 from reference.tests.factories.language import LanguageFactory
-from base.models.enums import learning_unit_year_periodicity
 
 fake = Faker()
 
@@ -78,7 +78,6 @@ class LearningUnitYearFactory(DjangoModelFactory):
     campus = factory.SubFactory(CampusFactory)
     periodicity = factory.Iterator(learning_unit_year_periodicity.PERIODICITY_TYPES, getter=operator.itemgetter(0))
     summary_locked = False
-    bibliography = None
     mobility_modality = factory.fuzzy.FuzzyText(length=250)
 
 

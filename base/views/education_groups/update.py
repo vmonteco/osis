@@ -30,7 +30,9 @@ from django.utils.translation import ugettext_lazy as _
 
 from base.forms.education_group.create import CreateEducationGroupYearForm, MiniTrainingForm, MiniTrainingModelForm, \
     EducationGroupModelForm
+from base.forms.education_group.training import EducationGroupForm, TrainingEducationGroupYearForm
 from base.models.education_group_year import EducationGroupYear
+from base.models.enums import education_group_categories
 from base.views import layout
 from base.views.common import display_success_messages, reverse_url_with_root
 from base.views.education_groups.perms import can_change_education_group
@@ -46,20 +48,26 @@ def update_education_group(request, education_group_year_id):
 
 
 def _update_group(request, education_group_year):
-    form_education_group_year = CreateEducationGroupYearForm(request.POST or None, instance=education_group_year)
+    form_education_group = EducationGroupForm(request.POST or None, instance=education_group_year.education_group)
 
-    if form_education_group_year.is_valid():
-        education_group_year = form_education_group_year.save()
+    if education_group_year.education_group_type.category != education_group_categories.GROUP:
+        form_education_group_year = TrainingEducationGroupYearForm(request.POST or None, instance=education_group_year)
+        html_page = "education_group/update_trainings.html"
+    else:
+        form_education_group_year = CreateEducationGroupYearForm(request.POST or None, instance=education_group_year)
+        html_page = "education_group/update_groups.html"
 
+    if form_education_group.is_valid() and form_education_group_year.is_valid():
         display_success_messages(request, _("Education group successfully updated"))
-
         url = reverse_url_with_root(request, "education_group_read", args=[education_group_year.id])
-
+        form_education_group.save()
+        form_education_group_year.save()
         return redirect(url)
 
-    return layout.render(request, "education_group/update.html", {
-        "form_education_group_year": form_education_group_year,
+    return layout.render(request, html_page, {
         "education_group_year": education_group_year,
+        "form_education_group_year": form_education_group_year,
+        "form_education_group": form_education_group
     })
 
 
@@ -81,7 +89,7 @@ def _common_redirect_url(request, education_group_year):
 def _get_view(category):
     return {
         # TODO :: merge with TrainingForm
-        education_group_categories.TRAINING: None, # to implement
+        education_group_categories.TRAINING: _update_group,
         # TODO :: pass parent in parameter (thanks to urls
         education_group_categories.MINI_TRAINING: _update_mini_training,
         # TODO :: pass parent in parameter

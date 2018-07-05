@@ -15,7 +15,7 @@
 #
 #    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 #    GNU General Public License for more details.
 #
 #    A copy of this license - GNU General Public License - is available
@@ -23,15 +23,14 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.utils.translation import ugettext_lazy as _
+from base.tests.factories.education_group_type import EducationGroupTypeFactory
+import factory
+import factory.fuzzy
 
 
-YES = "YES"
-NO = "NO"
-OPTIONAL = "OPTIONAL"
+class AuthorizedRelationshipFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = 'base.AuthorizedRelationship'
 
-INTERNSHIP_PRESENCE = (
-    (YES, _(YES)),
-    (NO, _(NO)),
-    (OPTIONAL, _(OPTIONAL))
-)
+    parent_type = factory.SubFactory(EducationGroupTypeFactory)
+    child_type = factory.SubFactory(EducationGroupTypeFactory)

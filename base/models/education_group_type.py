@@ -27,7 +27,7 @@ from django.db import models
 
 from base.models.enums import education_group_categories
 from osis_common.models.osis_model_admin import OsisModelAdmin
-
+from django.utils.translation import ugettext_lazy as _
 
 GROUP_TYPE_OPTION = 'Option'
 
@@ -41,8 +41,8 @@ class EducationGroupTypeAdmin(OsisModelAdmin):
 class EducationGroupType(models.Model):
     external_id = models.CharField(max_length=100, blank=True, null=True)
     category = models.CharField(max_length=25, choices=education_group_categories.CATEGORIES,
-                                default=education_group_categories.TRAINING)
-    name = models.CharField(max_length=255)
+                                default=education_group_categories.TRAINING, verbose_name=_('type'))
+    name = models.CharField(max_length=255, verbose_name=_('training_type'))
 
     def __str__(self):
         return u"%s" % self.name
@@ -67,8 +67,7 @@ def find_authorized_types(category=None, parent_type=None):
     else:
         queryset = EducationGroupType.objects.all()
     if parent_type:
-        queryset = queryset.exclude(pk__in=parent_type.unauthorized_parent_type.all().values_list('child_type',
-                                                                                                  flat=True))
+        queryset = queryset.filter(pk__in=parent_type.authorized_parent_type.all().values_list('child_type', flat=True))
     return queryset.order_by('name')
 
 

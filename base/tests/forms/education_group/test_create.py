@@ -25,6 +25,7 @@
 from unittest.mock import patch
 from base.models.entity_version import EntityVersion
 from base.tests.factories.entity import EntityFactory
+from base.tests.factories.authorized_relationship import AuthorizedRelationshipFactory
 from django.test import TestCase
 
 from base.forms.education_group.create import CreateEducationGroupYearForm, MiniTrainingForm, MiniTrainingModelForm
@@ -94,6 +95,8 @@ class EducationGroupYearMixin(TestCase):
         self.assertIsNone(education_group_year.education_group.end_year)
 
     def _test_save_with_parent(self, form_class):
+        AuthorizedRelationshipFactory(parent_type=self.parent_education_group_year.education_group_type,
+                                      child_type=self.education_group_type)
         form = form_class(data=self.form_data, parent=self.parent_education_group_year)
 
         self.assertTrue(form.is_valid(), form.errors)
