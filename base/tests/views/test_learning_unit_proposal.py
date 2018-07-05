@@ -84,7 +84,7 @@ from reference.tests.factories.language import LanguageFactory
 LABEL_VALUE_BEFORE_PROPOSAL = _('value_before_proposal')
 
 
-@override_flag('proposal', active=True)
+@override_flag('learning_unit_proposal_update', active=True)
 class TestLearningUnitModificationProposal(TestCase):
     def setUp(self):
         self.person = PersonFactory()
@@ -389,7 +389,7 @@ class TestLearningUnitModificationProposal(TestCase):
         self.assertTemplateUsed(response, "access_denied.html")
 
 
-@override_flag('proposal', active=True)
+@override_flag('learning_unit_proposal_update', active=True)
 class TestLearningUnitSuppressionProposal(TestCase):
     def setUp(self):
         self.person = PersonFactory()
@@ -509,7 +509,6 @@ class TestLearningUnitSuppressionProposal(TestCase):
         self.assertEqual(self.learning_unit.end_year, self.next_academic_year.year)
 
 
-@override_flag('proposal', active=True)
 class TestLearningUnitProposalSearch(TestCase):
     def setUp(self):
         self.person = PersonFactory()
@@ -553,7 +552,6 @@ class TestLearningUnitProposalSearch(TestCase):
         self.assertIn(_("minimum_one_criteria"), form.errors['__all__'])
 
 
-@override_flag('proposal', active=True)
 class TestGroupActionsOnProposals(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -613,7 +611,7 @@ class TestGroupActionsOnProposals(TestCase):
         self.assertEqual(new_state, proposal_state.ProposalState.ACCEPTED.name)
 
 
-@override_flag('proposal', active=True)
+@override_flag('learning_unit_proposal_delete', active=True)
 class TestLearningUnitProposalCancellation(TestCase):
     def setUp(self):
         create_current_academic_year()
@@ -805,7 +803,7 @@ def _modify_entities_linked_to_learning_container_year(a_learning_container_year
         update(entity=a_new_entity)
 
 
-@override_flag('proposal', active=True)
+@override_flag('learning_unit_proposal_update', active=True)
 class TestEditProposal(TestCase):
 
     def setUp(self):
@@ -1132,7 +1130,7 @@ class TestLearningUnitProposalDisplay(TestCase):
         return entity_version.get_last_version(other_entity)
 
 
-@override_flag('proposal', active=True)
+@override_flag('learning_unit_proposal_delete', active=True)
 class TestCreationProposalCancel(TestCase):
 
     def setUp(self):

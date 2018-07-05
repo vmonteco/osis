@@ -67,8 +67,8 @@
             {% endif %}
         {% endflag %}
 
-        {% flag "proposal" %}
-            {% if "base.can_propose_learningunit" in perms %}
+        {% if "base.can_propose_learningunit" in perms %}
+            {% flag "learning_unit_proposal_create" %}
             <li {% if not can_propose %}class="disabled"{% endif %}>
                 <a {% if can_propose %} href="{% url "learning_unit_modification_proposal" learning_unit_year_id=learning_unit_year.id %}" {% endif %}>
                     {% trans 'Put in proposal' %}
@@ -80,11 +80,18 @@
                 </a>
             </li>
             <li class="divider"></li>
+
+        {% endflag %}
+
+        {% flag "learning_unit_proposal_update" %}
             <li {% if not can_edit_learning_unit_proposal %}class="disabled"{% endif %}>
                 <a {% if can_edit_learning_unit_proposal %} href="{{ url_edit_proposal }}" {% endif %}>
                     {% trans 'Edit the proposal' %}
                 </a>
             </li>
+        {% endflag %}
+
+        {% flag "learning_unit_proposal_delete" %}
             <li {% if not can_cancel_proposal %}class="disabled"{% endif %}>
                 <a {% if can_cancel_proposal %}  href="#" data-toggle="modal" data-target="#modalCancelProposal" {% endif %}>
                     {% trans 'Cancel the proposal' %}
@@ -96,8 +103,8 @@
                 </a>
             </li>
             <li class="divider"></li>
-            {% endif %}
-        {% endflag %}
+            {% endflag %}
+        {% endif %}
 
         {% flag "learning_unit_delete" %}
             {% if "base.can_delete_learningunit" in perms %}
@@ -113,7 +120,7 @@
         </ul>
     </div>
 
-    {% flag "proposal" %}
+    {% flag "learning_unit_proposal_delete" %}
         {% if can_cancel_proposal %}
         <!-- Modal to cancel proposal-->
         <div class="modal fade" id="modalCancelProposal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
@@ -132,11 +139,11 @@
         {% endif %}
 
         {% if can_consolidate_proposal %}
-        <form id="form_consolidate" action="{% url "learning_unit_consolidate_proposal" %}" method="post">
-            {% csrf_token %}
-            <input id="learning_unit_year_id" type="hidden" name="learning_unit_year_id" value="{{ learning_unit_year.id }}">
-        </form>
-    {% endif %}
+            <form id="form_consolidate" action="{% url "learning_unit_consolidate_proposal" %}" method="post">
+                {% csrf_token %}
+                <input id="learning_unit_year_id" type="hidden" name="learning_unit_year_id" value="{{ learning_unit_year.id }}">
+            </form>
+        {% endif %}
     {% endflag %}
 
     {% flag "learning_unit_delete" %}

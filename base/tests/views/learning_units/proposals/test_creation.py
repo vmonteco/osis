@@ -51,7 +51,7 @@ from base.views.learning_units.proposal.create import get_proposal_learning_unit
 from reference.tests.factories.language import LanguageFactory
 
 
-@override_flag('proposal', active=True)
+@override_flag('learning_unit_proposal_create', active=True)
 class LearningUnitViewTestCase(TestCase):
     def setUp(self):
         today = datetime.date.today()
