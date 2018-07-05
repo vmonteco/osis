@@ -34,15 +34,15 @@ from base.models.education_group import EducationGroup
 from base.models.education_group_year import EducationGroupYear
 from base.models.entity_version import find_main_entities_version, get_last_version
 from base.models.enums import education_group_categories
-from reference.models.domain import Domain
 from base.models.group_element_year import GroupElementYear
+from reference.models.domain import Domain
 
 
 class TrainingEducationGroupYearForm(forms.ModelForm):
 
     domains = AutoCompleteSelectMultipleField(
-        'domains', required=False, help_text=None, label=_('domains'),
-        plugin_options={'max-height': '100px', 'overflow-y': 'auto', 'overflow-x': 'hidden'})
+        'domains', required=False, help_text=None, label=_('studies_domain')
+    )
 
     class Meta:
         model = EducationGroupYear
@@ -89,15 +89,15 @@ class TrainingEducationGroupYearForm(forms.ModelForm):
         if getattr(self.instance, 'management_entity', None):
             self.initial['management_entity'] = get_last_version(self.instance.management_entity).pk
 
-    def save(self):
+    def save(self, commit=True):
         education_group_year = super().save(commit=False)
         education_group_year.education_group = self._create_education_group()
         education_group_year.save()
+        self.save_m2m()
 
         if self.parent_education_group_year:
             self._create_group_element_year(self.parent_education_group_year, education_group_year)
 
-        education_group_year.save_m2m()
         return education_group_year
 
     def _create_education_group(self):

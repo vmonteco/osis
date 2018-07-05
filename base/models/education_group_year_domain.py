@@ -42,3 +42,7 @@ class EducationGroupYearDomain(models.Model):
 
     def __str__(self):
         return u"%s - %s" % (self.domain, self.education_group_year)
+
+    class Meta:
+        # Authorize Django to create automatically rows through m2m relations
+        auto_created = True

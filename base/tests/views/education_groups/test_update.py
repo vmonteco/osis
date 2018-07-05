@@ -36,18 +36,31 @@ from base.tests.factories.education_group_year import EducationGroupYearFactory
 from base.tests.factories.entity_version import EntityVersionFactory, MainEntityVersionFactory
 from base.tests.factories.person import PersonFactory
 from base.views.education_groups.update import update_education_group
+from reference.tests.factories.domain import DomainFactory
 
 
 class TestUpdate(TestCase):
     def setUp(self):
-        an_education_group_type = EducationGroupTypeFactory(category=education_group_categories.GROUP)
-        self.education_group_year = EducationGroupYearFactory(education_group_type=an_education_group_type)
-
+        group_type = EducationGroupTypeFactory(category=education_group_categories.GROUP)
+        self.education_group_year = EducationGroupYearFactory(education_group_type=group_type)
         EntityVersionFactory(entity=self.education_group_year.management_entity,
                              start_date=self.education_group_year.academic_year.start_date)
 
         EntityVersionFactory(entity=self.education_group_year.administration_entity,
                              start_date=self.education_group_year.academic_year.start_date)
+
+        self.an_training_education_group_type = EducationGroupTypeFactory(
+            category=education_group_categories.TRAINING
+        )
+        self.training_education_group_year = EducationGroupYearFactory(
+            education_group_type=self.an_training_education_group_type
+        )
+        EntityVersionFactory(entity=self.training_education_group_year.administration_entity,
+                             start_date=self.education_group_year.academic_year.start_date)
+        EntityVersionFactory(entity=self.training_education_group_year.management_entity,
+                             start_date=self.education_group_year.academic_year.start_date)
+
+        self.domains = [DomainFactory() for x in range(10)]
 
         self.url = reverse(update_education_group, kwargs={'education_group_year_id': self.education_group_year.pk})
         self.person = PersonFactory()
@@ -59,18 +72,11 @@ class TestUpdate(TestCase):
                                        return_value=True)
         self.mocked_perm = self.perm_patcher.start()
 
-        self.training_url = self._get_training_url()
-
-    def _get_training_url(self):
-        an_training_education_group_type = EducationGroupTypeFactory(category=education_group_categories.TRAINING)
-        self.training_education_group_year = EducationGroupYearFactory(
-            education_group_type=an_training_education_group_type)
-        EntityVersionFactory(entity=self.training_education_group_year.administration_entity,
-                             start_date=self.education_group_year.academic_year.start_date)
-        EntityVersionFactory(entity=self.training_education_group_year.management_entity,
-                             start_date=self.education_group_year.academic_year.start_date)
-        return reverse(update_education_group,
-                       kwargs={'education_group_year_id': self.training_education_group_year.pk})
+        self.training_url = reverse(
+            update_education_group, kwargs={
+                'education_group_year_id': self.training_education_group_year.pk
+            }
+        )
 
     def tearDown(self):
         self.perm_patcher.stop()
@@ -129,3 +135,29 @@ class TestUpdate(TestCase):
         response = self.client.get(self.training_url)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "education_group/update_trainings.html")
+
+    def test_post_training(self):
+        new_entity_version = MainEntityVersionFactory()
+        list_domains = '|' + ('|'.join([str(domain.pk) for domain in self.domains])) + '|'
+        data = {
+            'title': 'Cours au choix',
+            'title_english': 'deaze',
+            'education_group_type': self.an_training_education_group_type.pk,
+            'credits': 42,
+            'acronym': 'CRSCHOIXDVLD',
+            'partial_acronym': 'LDVLD101R',
+            'administration_entity': new_entity_version.pk,
+            'main_teaching_campus': "",
+            'academic_year': self.education_group_year.academic_year.pk,
+            'domains': [list_domains]
+        }
+        response = self.client.post(self.training_url, data=data)
+        print(response.context["form_education_group_year"].errors)
+        self.assertEqual(response.status_code, 302)
+        self.education_group_year.refresh_from_db()
+        self.assertEqual(self.education_group_year.title, 'Cours au choix')
+        self.assertEqual(self.education_group_year.title_english, 'deaze')
+        self.assertEqual(self.education_group_year.credits, 42)
+        self.assertEqual(self.education_group_year.acronym, 'CRSCHOIXDVLD')
+        self.assertEqual(self.education_group_year.partial_acronym, 'LDVLD101R')
+        self.assertEqual(self.education_group_year.administration_entity, new_entity_version.entity)

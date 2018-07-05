@@ -76,7 +76,7 @@ class CreateEducationGroupYearForm(forms.ModelForm):
         education_group_year = super().save(commit=False)
         # education_group_year.education_group = self._create_education_group()
         education_group_year.save()
-        education_group_year.save_m2m()
+        self.save_m2m()
         print(education_group_year.domains)
         if self.parent_education_group_year:
             self._create_group_element_year(self.parent_education_group_year, education_group_year)

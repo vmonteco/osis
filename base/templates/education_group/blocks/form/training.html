@@ -65,6 +65,12 @@
                                     {% bootstrap_field form_education_group_year.other_language_activities %}
                                 </div>
                             </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    {{ form_education_group_year.media }}
+                                    {% bootstrap_field form_education_group_year.domains %}
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -123,3 +129,19 @@
         </div>
     </div>
 </form>
+
+<style>
+    .ui-autocomplete {
+        max-height: 200px;
+        overflow-y: auto;
+        /* prevent horizontal scrollbar */
+        overflow-x: hidden;
+    }
+
+    /* IE 6 doesn't support max-height
+     * we use height instead, but this forces the menu to always be this tall
+     */
+    * html .ui-autocomplete {
+        height: 200px;
+    }
+</style>
