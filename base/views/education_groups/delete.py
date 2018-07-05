@@ -26,6 +26,7 @@
 import waffle
 from django.http import Http404
 from django.urls import reverse_lazy
+from waffle.decorators import waffle_flag
 
 from base.models.education_group_year import EducationGroupYear
 from base.models.group_element_year import GroupElementYear
@@ -48,9 +49,8 @@ class DeleteGroupEducationYearView(DeleteViewWithDependencies):
     success_message = "The education group has been deleted"
     protected_template = "education_group/protect_delete.html"
 
+    @waffle_flag('education_group_delete')
     def dispatch(self, request, *args, **kwargs):
-        if not waffle.flag_is_active(request, 'education_group_delete'):
-            raise Http404()
         return super().dispatch(request, *args, **kwargs)
 
     # TODO : This method is a quick fix.
