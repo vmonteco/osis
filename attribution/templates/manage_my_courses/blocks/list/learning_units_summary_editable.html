@@ -36,6 +36,7 @@
                         <td>-</td>
                     {% endif %}
                     <td>{{ score_responsibles|get_item:luy.id|join:", " }}</td>
+                    {% trans 'editable' as title_status_true %}
                     <td>{% include "blocks/span/span_status.html" with status=error.is_valid title_status_false=error.as_ul %}</td>
                 </tr>
                 {% endwith %}
