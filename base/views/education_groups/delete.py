@@ -58,5 +58,5 @@ class DeleteGroupEducationYearView(DeleteViewWithDependencies):
             list_objects = [list_objects]
 
         for obj in list_objects:
-            if obj.is_deletable():
+            if not obj.is_deletable():
                 self.collector.protected.add(obj)

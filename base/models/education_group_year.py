@@ -23,9 +23,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from pprint import pprint
 
-from django.contrib.admin.utils import NestedObjects
 from django.db import models
 from django.db.models import Count
 from django.urls import reverse
@@ -204,17 +202,6 @@ class EducationGroupYear(models.Model):
         if self.education_group_type:
             return self.education_group_type.category == education_group_categories.TRAINING
         return False
-
-    def has_enrollments(self):
-        return self.offerenrollment_set.exists()
-
-    def is_deletable(self):
-        collector = NestedObjects(using="default")
-        collector.collect([self])
-
-        for i in collector.model_objs.values():
-            print("yolo")
-            pprint(i)
 
 
 def find_by_id(an_id):
