@@ -23,6 +23,8 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+import waffle
+from django.http import Http404
 from django.urls import reverse_lazy
 
 from base.models.education_group_year import EducationGroupYear
@@ -45,6 +47,11 @@ class DeleteGroupEducationYearView(DeleteViewWithDependencies):
     # DeleteViewWithDependencies
     success_message = "The education group has been deleted"
     protected_template = "education_group/protect_delete.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        if not waffle.flag_is_active(request, 'education_group_delete'):
+            raise Http404()
+        return super().dispatch(request, *args, **kwargs)
 
     # TODO : This method is a quick fix.
     # GroupElementYear should be split in two tables with their own protected FK !

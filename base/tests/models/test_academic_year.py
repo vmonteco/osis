@@ -27,8 +27,9 @@ import datetime
 from django.utils import timezone
 from django.test import TestCase
 from base.models import academic_year
+from base.models.academic_year import AcademicYear
 
-from base.tests.factories.academic_year import AcademicYearFactory
+from base.tests.factories.academic_year import AcademicYearFactory, create_current_academic_year
 
 now = datetime.datetime.now()
 
@@ -105,3 +106,16 @@ class PeriodAcademicYearTest(TestCase):
             academic_year.AcademicYear.objects.create(year=2017,
                                                       start_date=datetime.datetime(2017, 9, 14),
                                                       end_date=datetime.datetime(2017, 9, 30))
+
+
+class AcademicYearNextPropertyTest(TestCase):
+    def setUp(self):
+        self.current_ac = create_current_academic_year()
+        self.next_ac = AcademicYearFactory(year=self.current_ac.year + 1)
+
+    def test_next_property_case_have_next(self):
+        self.assertEqual(self.current_ac.next(), self.next_ac)
+
+    def test_next_property_case_doesnt_have_next(self):
+        with self.assertRaises(AcademicYear.DoesNotExist):
+            self.next_ac.next()

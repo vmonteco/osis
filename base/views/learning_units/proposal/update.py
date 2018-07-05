@@ -42,7 +42,7 @@ from base.views.learning_units import perms
 from base.views.learning_units.common import get_learning_unit_identification_context
 
 
-@waffle_flag('proposal')
+@waffle_flag('learning_unit_proposal_update')
 @login_required
 @perms.can_create_modification_proposal
 @permission_required('base.can_propose_learningunit', raise_exception=True)
@@ -51,7 +51,7 @@ def learning_unit_modification_proposal(request, learning_unit_year_id):
     return _update_or_create_proposal(request, learning_unit_year)
 
 
-@waffle_flag('proposal')
+@waffle_flag('learning_unit_proposal_update')
 @login_required
 @perms.can_create_modification_proposal
 @permission_required('base.can_propose_learningunit', raise_exception=True)
@@ -60,7 +60,7 @@ def learning_unit_suppression_proposal(request, learning_unit_year_id):
     return _update_or_create_suppression_proposal(request, learning_unit_year)
 
 
-@waffle_flag('proposal')
+@waffle_flag('learning_unit_proposal_update')
 @login_required
 @perms.can_edit_learning_unit_proposal
 def update_learning_unit_proposal(request, learning_unit_year_id):
