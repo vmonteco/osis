@@ -3149,3 +3149,6 @@ msgstr ""
 
 msgid "Modification made"
 msgstr ""
+
+msgid "You can not delete this object because some dependencies are protected"
+msgstr ""

@@ -3148,3 +3148,6 @@ msgstr "Vous n'êtes pas en période d'édition des informations pédagogiques."
 
 msgid "Modification made"
 msgstr "Modification apportée"
+
+msgid "You can not delete this object because some dependencies are protected"
+msgstr "Vous ne pouvez pas supprimer cet objet car certaines dépendances sont protégées"
