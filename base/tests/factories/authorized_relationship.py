@@ -28,9 +28,9 @@ import factory
 import factory.fuzzy
 
 
-class UnauthorizedRelationshipFactory(factory.DjangoModelFactory):
+class AuthorizedRelationshipFactory(factory.DjangoModelFactory):
     class Meta:
-        model = 'base.UnauthorizedRelationship'
+        model = 'base.AuthorizedRelationship'
 
     parent_type = factory.SubFactory(EducationGroupTypeFactory)
     child_type = factory.SubFactory(EducationGroupTypeFactory)

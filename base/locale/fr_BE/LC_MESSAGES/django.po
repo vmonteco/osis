@@ -386,7 +386,7 @@ msgid "encoding_status_notended"
 msgstr "Il reste encore des notes à encoder."
 
 msgid "end_date"
-msgstr "Échéance Prof"
+msgstr "Date de fin"
 
 msgid "end_date_teacher"
 msgstr "Échéance Prof"

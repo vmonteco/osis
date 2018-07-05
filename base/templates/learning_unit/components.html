@@ -37,7 +37,7 @@
 {% include "learning_unit/blocks/header.html" %}
 <div class="panel panel-default">
     <div class="panel-heading text-right">
-        {% include "learning_unit/blocks/manage_volumes_button.html" %}
+        {% include "learning_unit/blocks/manage_volumes_button.html" with form_type="full"%}
     </div>
     <div class="panel-body" id="tabs">
         {% include "learning_unit/blocks/tabs.html" %}
@@ -73,7 +73,7 @@
                         </tr>
                     </thead>
                     {% for component in components %}
-                        {% ifchanged component.learning_component_year.type %}
+                        {% ifchanged component.learning_unit_usage %}
                             {% if forloop.counter > 1 %}
                                 <tr style="height: 1px;font-size: 1px;"><td colspan="11">&nbsp;</td></tr>
                             {% endif %}
@@ -145,7 +145,7 @@
         </div>
     </div>
     <div class="panel-footer text-right">
-        {% include "learning_unit/blocks/manage_volumes_button.html" %}
+        {% include "learning_unit/blocks/manage_volumes_button.html" with form_type="full" %}
     </div>
 </div>
 <div class="modal fade" id="component_edit" role="dialog" data-backdrop="static"></div>
