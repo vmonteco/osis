@@ -74,17 +74,16 @@ class CreateEducationGroupYearForm(forms.ModelForm):
 
     def save(self, *args, **kwargs):
         education_group_year = super().save(commit=False)
-        # education_group_year.education_group = self._create_education_group()
+        education_group_year.education_group = self._create_education_group()
         education_group_year.save()
-        self.save_m2m()
-        print(education_group_year.domains)
+
         if self.parent_education_group_year:
             self._create_group_element_year(self.parent_education_group_year, education_group_year)
 
         return education_group_year
 
     def _create_education_group(self):
-        start_year = self.isntance.academic_year.year
+        start_year = self.cleaned_data["academic_year"].year
         return EducationGroup.objects.create(start_year=start_year)
 
     @staticmethod
