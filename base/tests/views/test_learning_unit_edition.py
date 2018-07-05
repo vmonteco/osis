@@ -33,6 +33,7 @@ from django.contrib.messages.storage.fallback import FallbackStorage
 from django.http import HttpResponseForbidden, HttpResponseNotFound, HttpResponse
 from django.test import TestCase, RequestFactory
 from django.urls import reverse
+from waffle.testutils import override_flag
 
 from base.forms.learning_unit.entity_form import EntityContainerBaseForm
 from base.forms.learning_unit.learning_unit_create import LearningUnitModelForm, LearningUnitYearModelForm, \
@@ -59,6 +60,7 @@ from base.views.learning_units.update import learning_unit_edition_end_date, lea
     update_learning_unit, _get_learning_units_for_context
 
 
+@override_flag('learning_unit_update', active=True)
 class TestLearningUnitEditionView(TestCase, LearningUnitsMixin):
 
     def setUp(self):
@@ -135,6 +137,7 @@ class TestLearningUnitEditionView(TestCase, LearningUnitsMixin):
         self.assertTemplateUsed(response, "learning_unit/simple/update_end_date.html")
 
 
+@override_flag('learning_unit_update', active=True)
 class TestEditLearningUnit(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -367,6 +370,7 @@ class TestEditLearningUnit(TestCase):
         return form_data
 
 
+@override_flag('learning_unit_update', active=True)
 class TestLearningUnitVolumesManagement(TestCase):
     def setUp(self):
         self.academic_years = GenerateAcademicYear(start_year=get_current_year(), end_year=get_current_year()+10)

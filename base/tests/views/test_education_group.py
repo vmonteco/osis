@@ -34,6 +34,7 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponseForbidden, HttpResponseNotFound, HttpResponse
 from django.test import TestCase, RequestFactory
 from django.utils.translation import ugettext_lazy as _
+from waffle.testutils import override_flag
 
 from base.forms.education_group_general_informations import EducationGroupGeneralInformationsForm
 from base.models.admission_condition import AdmissionCondition, AdmissionConditionLine
@@ -569,6 +570,7 @@ class EducationGroupGeneralInformations(TestCase):
         self.assertEqual(len(soup.select('a.pedagogy-edit-btn')), 0)
 
 
+@override_flag('education_group_update', active=True)
 class EducationGroupViewTestCase(TestCase):
     def setUp(self):
         today = datetime.date.today()
@@ -756,19 +758,8 @@ class EducationGroupAdministrativedata(TestCase):
 
         self.assertTrue(response.context["can_edit_administrative_data"])
 
-# class EducationGroupYearPedagogy(TestCase):
-#     def setUp(self):
-#         self.person = PersonFactory()
-#
-#         self.permission = Permission.objects.get(codename='can_edit_educationgroup_pedagogy')
-#         self.person.user.user_permissions.add(self.permission)
-#
-#         self.education_group_year = EducationGroupYearFactory()
-#
-#         self.url = reverse('education_group_pedagogy_edit', args=[self.education_group_year.id])
-#         self.client.force_login(self.person.user)
 
-
+@override_flag('education_group_update', active=True)
 class EducationGroupYearEditPedagogy(TestCase):
     def setUp(self):
         self.person = PersonFactory()
@@ -807,6 +798,7 @@ class EducationGroupYearEditPedagogy(TestCase):
         self.assertEqual(soup.div.form['action'], self.url)
 
 
+@override_flag('education_group_update', active=True)
 class EducationGroupEditAdministrativeData(TestCase):
     def setUp(self):
         self.person = PersonFactory()
