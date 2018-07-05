@@ -28,7 +28,7 @@ from osis_common.models.osis_model_admin import OsisModelAdmin
 from base.models.education_group_type import EducationGroupType
 
 
-class UnauthorizedRelationshipAdmin(OsisModelAdmin):
+class AuthorizedRelationshipAdmin(OsisModelAdmin):
     list_display = ('parent_type', 'child_type', 'changed')
     search_fields = ['parent_type__name', 'child_type__name']
 

@@ -199,4 +199,4 @@ admin.site.register(tutor.Tutor,
                     tutor.TutorAdmin)
 
 admin.site.register(authorized_relationship.AuthorizedRelationship,
-                    authorized_relationship.UnauthorizedRelationshipAdmin)
+                    authorized_relationship.AuthorizedRelationshipAdmin)
