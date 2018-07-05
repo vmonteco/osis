@@ -71,6 +71,9 @@ class AcademicYear(SerializableModel):
     def is_past(self):
         return self.year < current_academic_year().year
 
+    def next(self):
+        return AcademicYear.objects.get(year=self.year + 1)
+
 
 def find_academic_year_by_id(academic_year_id):
     return AcademicYear.objects.get(pk=academic_year_id)
