@@ -54,6 +54,7 @@ from base.tests.factories.person_entity import PersonEntityFactory
 from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
 from base.tests.factories.user import UserFactory, SuperUserFactory
 from base.tests.forms.test_edition_form import get_valid_formset_data
+from base.views.learning_unit import learning_unit_identification, learning_unit_components
 from base.views.learning_units.update import learning_unit_edition_end_date, learning_unit_volumes_management, \
     update_learning_unit, _get_learning_units_for_context
 
@@ -381,7 +382,10 @@ class TestLearningUnitVolumesManagement(TestCase):
         edit_learning_unit_permission = Permission.objects.get(codename="can_edit_learningunit")
         self.person.user.user_permissions.add(edit_learning_unit_permission)
 
-        self.url = reverse('learning_unit_volumes_management', args=[self.learning_unit_year.id])
+        self.url = reverse('learning_unit_volumes_management', kwargs={
+                'learning_unit_year_id': self.learning_unit_year.id,
+                'form_type': 'full'
+            })
 
         self.client.force_login(self.person.user)
         self.user = self.person.user
@@ -390,18 +394,49 @@ class TestLearningUnitVolumesManagement(TestCase):
 
     @mock.patch('base.models.program_manager.is_program_manager')
     @mock.patch('base.views.layout.render')
-    def test_learning_unit_volumes_management_get(self, mock_render, mock_program_manager):
+    def test_learning_unit_volumes_management_get_full_form(self, mock_render, mock_program_manager):
         mock_program_manager.return_value = True
 
         request_factory = RequestFactory()
-        request = request_factory.get(reverse(learning_unit_volumes_management,
-                                              args=[self.learning_unit_year.id]))
+        request = request_factory.get(self.url)
 
         request.user = self.user
         request.session = 'session'
         request._messages = FallbackStorage(request)
 
-        learning_unit_volumes_management(request, self.learning_unit_year.id)
+        learning_unit_volumes_management(request, learning_unit_year_id=self.learning_unit_year.id, form_type="full")
+        self.assertTrue(mock_render.called)
+        request, template, context = mock_render.call_args[0]
+
+        self.assertEqual(template, 'learning_unit/volumes_management.html')
+        self.assertEqual(context['learning_unit_year'], self.learning_unit_year)
+        for formset in context['formsets'].keys():
+            self.assertIn(formset, [self.learning_unit_year, self.learning_unit_year_partim])
+
+        # Check that we display only the current learning_unit_year in the volumes management page (not all the family)
+        self.assertListEqual(
+            context['learning_units'],
+            [self.learning_unit_year, self.learning_unit_year_partim]
+        )
+
+    @mock.patch('base.models.program_manager.is_program_manager')
+    @mock.patch('base.views.layout.render')
+    def test_learning_unit_volumes_management_get_simple_form(self, mock_render, mock_program_manager):
+        mock_program_manager.return_value = True
+
+        simple_url = reverse('learning_unit_volumes_management', kwargs={
+            'learning_unit_year_id': self.learning_unit_year.id,
+            'form_type': 'simple'
+        })
+
+        request_factory = RequestFactory()
+        request = request_factory.get(simple_url)
+
+        request.user = self.user
+        request.session = 'session'
+        request._messages = FallbackStorage(request)
+
+        learning_unit_volumes_management(request, learning_unit_year_id=self.learning_unit_year.id, form_type="simple")
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
 
@@ -417,7 +452,7 @@ class TestLearningUnitVolumesManagement(TestCase):
         )
 
     @mock.patch('base.models.program_manager.is_program_manager')
-    def test_learning_unit_volumes_management_post(self, mock_program_manager):
+    def test_learning_unit_volumes_management_post_full_form(self, mock_program_manager):
         mock_program_manager.return_value = True
 
         request_factory = RequestFactory()
@@ -425,19 +460,56 @@ class TestLearningUnitVolumesManagement(TestCase):
         data.update(get_valid_formset_data(self.learning_unit_year_partim.acronym, is_partim=True))
 
         request = request_factory.post(reverse(learning_unit_volumes_management,
-                                               args=[self.learning_unit_year.id]),
+                                               kwargs={
+                                                   'learning_unit_year_id': self.learning_unit_year.id,
+                                                   'form_type': 'full'
+                                               }),
                                        data=data)
 
         request.user = self.user
         setattr(request, 'session', 'session')
         setattr(request, '_messages', FallbackStorage(request))
 
-        learning_unit_volumes_management(request, self.learning_unit_year.id)
+        response = learning_unit_volumes_management(request, learning_unit_year_id=self.learning_unit_year.id,
+                                                    form_type="full")
 
         msg_level = [m.level for m in get_messages(request)]
         msg = [m.message for m in get_messages(request)]
         self.assertEqual(len(msg), 1)
         self.assertIn(messages.SUCCESS, msg_level)
+        self.assertEqual(response.url, reverse(learning_unit_components, args=[self.learning_unit_year.id]))
+
+        for generated_container_year in self.generate_container:
+            learning_component_year = generated_container_year.learning_component_cm_full
+            self.check_postponement(learning_component_year)
+
+    @mock.patch('base.models.program_manager.is_program_manager')
+    def test_learning_unit_volumes_management_post_simple_form(self, mock_program_manager):
+        mock_program_manager.return_value = True
+
+        request_factory = RequestFactory()
+        data = get_valid_formset_data(self.learning_unit_year.acronym)
+        data.update(get_valid_formset_data(self.learning_unit_year_partim.acronym, is_partim=True))
+
+        request = request_factory.post(reverse(learning_unit_volumes_management,
+                                               kwargs={
+                                                   'learning_unit_year_id': self.learning_unit_year.id,
+                                                   'form_type': 'simple'
+                                               }),
+                                       data=data)
+
+        request.user = self.user
+        setattr(request, 'session', 'session')
+        setattr(request, '_messages', FallbackStorage(request))
+
+        response = learning_unit_volumes_management(request, learning_unit_year_id=self.learning_unit_year.id,
+                                                    form_type="simple")
+
+        msg_level = [m.level for m in get_messages(request)]
+        msg = [m.message for m in get_messages(request)]
+        self.assertEqual(len(msg), 1)
+        self.assertIn(messages.SUCCESS, msg_level)
+        self.assertEqual(response.url, reverse(learning_unit_identification, args=[self.learning_unit_year.id]))
 
         for generated_container_year in self.generate_container:
             learning_component_year = generated_container_year.learning_component_cm_full
@@ -466,14 +538,17 @@ class TestLearningUnitVolumesManagement(TestCase):
         data.update({'LDROI1200A-0-volume_total_requirement_entities': 3})
 
         request = request_factory.post(reverse(learning_unit_volumes_management,
-                                               args=[self.learning_unit_year.id]),
+                                               kwargs={
+                                                   'learning_unit_year_id': self.learning_unit_year.id,
+                                                   'form_type': 'full'
+                                               }),
                                        data=data)
 
         request.user = self.user
         setattr(request, 'session', 'session')
         setattr(request, '_messages', FallbackStorage(request))
 
-        learning_unit_volumes_management(request, self.learning_unit_year.id)
+        learning_unit_volumes_management(request, learning_unit_year_id=self.learning_unit_year.id, form_type="full")
         # Volumes of partims can be greater than parent's
         msg_level = [m.level for m in get_messages(request)]
         msg = [m.message for m in get_messages(request)]
@@ -493,13 +568,18 @@ class TestLearningUnitVolumesManagement(TestCase):
         data.update({'LDROI1200A-0-volume_total_requirement_entities': 3})
 
         request = request_factory.post(reverse(learning_unit_volumes_management,
-                                               args=[self.learning_unit_year.id]),
+                                               kwargs={
+                                                   'learning_unit_year_id': self.learning_unit_year.id,
+                                                   'form_type': 'full'
+                                               }),
                                        data=data,
                                        HTTP_X_REQUESTED_WITH='XMLHttpRequest')
 
         request.user = self.user
 
-        response = learning_unit_volumes_management(request, self.learning_unit_year.id)
+        response = learning_unit_volumes_management(request,
+                                                    learning_unit_year_id=self.learning_unit_year.id,
+                                                    form_type="full")
         # Volumes of partims can be greater than parent's
         self.assertEqual(response.status_code, HttpResponse.status_code)
 

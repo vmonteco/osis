@@ -50,7 +50,6 @@ from base.views.learning_units.pedagogy.update import learning_unit_pedagogy_edi
 from base.views.learning_units.proposal import create, update
 from base.views.learning_units.update import update_learning_unit, learning_unit_edition_end_date
 
-
 urlpatterns = [
     url(r'^$', common.home, name='home'),
 
@@ -146,7 +145,7 @@ urlpatterns = [
                 name="learning_unit_specifications_edit"),
             url(r'^component/edit/$', learning_unit.learning_unit_component_edit, name="learning_unit_component_edit"),
             url(r'^class/edit/$', learning_unit.learning_class_year_edit, name="learning_class_year_edit"),
-            url(r'^volumes/', base.views.learning_units.update.learning_unit_volumes_management,
+            url(r'^volumes/(?P<form_type>[a-z]+)$', base.views.learning_units.update.learning_unit_volumes_management,
                 name="learning_unit_volumes_management"),
             url(r'^delete_full/$', base.views.learning_units.delete.delete_all_learning_units_year,
                 name="learning_unit_delete_all"),
