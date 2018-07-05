@@ -28,7 +28,6 @@ from django.test import TestCase
 from django.urls import reverse
 
 from base.models.education_group_year import EducationGroupYear
-from base.models.offer_enrollment import OfferEnrollment
 from base.tests.factories.education_group_year import EducationGroupYearFactory
 from base.tests.factories.group_element_year import GroupElementYearFactory
 from base.tests.factories.offer_enrollment import OfferEnrollmentFactory
@@ -44,10 +43,6 @@ class TestDeleteGroupEducationYearView(TestCase):
 
         self.person.user.user_permissions.add(Permission.objects.get(codename="delete_educationgroupyear"))
         self.client.force_login(user=self.person.user)
-
-    def tearDown(self):
-        OfferEnrollment.objects.all().delete()
-        EducationGroupYear.objects.all().delete()
 
     def test_delete_get_permission_denied(self):
         self.person.user.user_permissions.remove(Permission.objects.get(codename="delete_educationgroupyear"))
