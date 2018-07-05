@@ -39,6 +39,7 @@ from django.http import HttpResponseRedirect
 from django.test import TestCase, RequestFactory, Client
 from django.test.utils import override_settings
 from django.utils.translation import ugettext_lazy as _
+from waffle.testutils import override_flag
 
 import base.business.learning_unit
 import base.business.xls
@@ -102,6 +103,7 @@ from reference.tests.factories.country import CountryFactory
 from reference.tests.factories.language import LanguageFactory
 
 
+@override_flag('learning_unit_create', active=True)
 class LearningUnitViewCreateFullTestCase(TestCase):
     def setUp(self):
         LanguageFactory(code='FR')
@@ -231,6 +233,7 @@ class LearningUnitViewCreateFullTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
 
 
+@override_flag('learning_unit_create', active=True)
 class LearningUnitViewCreatePartimTestCase(TestCase):
     def setUp(self):
         self.current_academic_year = create_current_academic_year()

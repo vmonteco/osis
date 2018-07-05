@@ -34,7 +34,7 @@ from base.views import layout
 from base.views.learning_units.common import show_success_learning_unit_year_creation_message
 
 
-@waffle_flag('proposal')
+@waffle_flag('learning_unit_proposal_create')
 @login_required
 @permission_required('base.can_propose_learningunit', raise_exception=True)
 def get_proposal_learning_unit_creation_form(request, academic_year):

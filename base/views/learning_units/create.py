@@ -26,6 +26,7 @@
 from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_http_methods
+from waffle.decorators import waffle_flag
 
 from base.forms.learning_unit.learning_unit_postponement import LearningUnitPostponementForm
 from base.models.academic_year import AcademicYear
@@ -36,6 +37,7 @@ from base.views.learning_units.common import show_success_learning_unit_year_cre
 
 
 @login_required
+@waffle_flag("learning_unit_create")
 @permission_required('base.can_create_learningunit', raise_exception=True)
 def create_learning_unit(request, academic_year_id):
     person = get_object_or_404(Person, user=request.user)
@@ -55,6 +57,7 @@ def create_learning_unit(request, academic_year_id):
 
 
 @login_required
+@waffle_flag("learning_unit_create")
 @permission_required('base.can_create_learningunit', raise_exception=True)
 @require_http_methods(["POST", "GET"])
 @perms.can_create_partim

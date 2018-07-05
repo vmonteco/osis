@@ -29,6 +29,7 @@ from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
+from waffle.decorators import waffle_flag
 
 from base.business import learning_unit_year_with_context
 from base.business.learning_unit_year_with_context import ENTITY_TYPES_VOLUME
@@ -48,6 +49,7 @@ from base.views.learning_units.common import get_learning_unit_identification_co
 
 
 @login_required
+@waffle_flag("learning_unit_update")
 @permission_required('base.can_edit_learningunit_date', raise_exception=True)
 @perms.can_perform_end_date_modification
 def learning_unit_edition_end_date(request, learning_unit_year_id):
@@ -83,6 +85,7 @@ def _get_current_learning_unit_year_id(learning_unit_to_edit, learning_unit_year
 
 
 @login_required
+@waffle_flag("learning_unit_update")
 @permission_required('base.can_edit_learningunit', raise_exception=True)
 @perms.can_perform_learning_unit_modification
 def update_learning_unit(request, learning_unit_year_id):
@@ -117,6 +120,7 @@ def update_learning_unit(request, learning_unit_year_id):
 
 
 @login_required
+@waffle_flag("learning_unit_update")
 @permission_required('base.can_edit_learningunit', raise_exception=True)
 @perms.can_perform_learning_unit_modification
 def learning_unit_volumes_management(request, learning_unit_year_id, form_type):

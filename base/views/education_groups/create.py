@@ -27,6 +27,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
+from waffle.decorators import waffle_flag
 
 from base.forms.education_group.create import CreateEducationGroupYearForm
 from base.models.education_group_year import EducationGroupYear
@@ -36,6 +37,7 @@ from base.views.education_groups.perms import can_create_education_group
 
 
 @login_required
+@waffle_flag("education_group_create")
 @can_create_education_group
 def create_education_group(request, parent_id=None):
     parent = get_object_or_404(EducationGroupYear, id=parent_id) if parent_id is not None else None
