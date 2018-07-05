@@ -50,7 +50,6 @@ from base.views.learning_units.pedagogy.update import learning_unit_pedagogy_edi
 from base.views.learning_units.proposal import create, update
 from base.views.learning_units.update import update_learning_unit, learning_unit_edition_end_date
 
-
 urlpatterns = [
     url(r'^$', common.home, name='home'),
 
@@ -260,7 +259,7 @@ urlpatterns = [
             url(r'^admission_conditions/get_line$',
                 education_group.education_group_year_admission_condition_get_line,
                 name='education_group_year_admission_condition_get_line'),
-            url(r'^delete/$', DeleteGroupEducationYearView.as_view(), name="delete_education_group")
+            url(r'^delete/$', DeleteGroupEducationYearView.as_view(), name="delete_education_group"),
         ])),
     ])),
 

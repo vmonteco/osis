@@ -43,7 +43,7 @@ class OfferEnrollment(SerializableModel):
     offer_year = models.ForeignKey('OfferYear')
     student = models.ForeignKey('Student')
     enrollment_state = models.CharField(max_length=15, choices=offer_enrollment_state.STATES, blank=True, null=True)
-    education_group_year = models.ForeignKey('EducationGroupYear', null=True)
+    education_group_year = models.ForeignKey('EducationGroupYear', null=True, on_delete=models.PROTECT)
 
     def __str__(self):
         return u"%s - %s" % (self.student, self.offer_year)

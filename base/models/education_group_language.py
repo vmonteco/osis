@@ -24,6 +24,7 @@
 #
 ##############################################################################
 from django.db import models
+
 from base.models.enums import education_group_language
 from osis_common.models.osis_model_admin import OsisModelAdmin
 
@@ -42,7 +43,7 @@ class EducationGroupLanguage(models.Model):
     language = models.ForeignKey('reference.Language')
 
     def __str__(self):
-        return "{}".format(self.id)
+        return "{} - {}".format(self.education_group_year, self.language)
 
 
 def find_by_education_group_year(education_group_year):

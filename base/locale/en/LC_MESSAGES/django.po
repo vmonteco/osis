@@ -2085,6 +2085,9 @@ msgstr "Organization of formations"
 msgid "education_groups"
 msgstr "Education groups"
 
+msgid "education group year"
+msgstr "Organisation de formations annualisée"
+
 msgid "entity_management"
 msgstr "Entity management"
 
