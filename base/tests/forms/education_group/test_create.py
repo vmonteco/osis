@@ -89,7 +89,7 @@ class TestCreateEducationGroupYearForm(TestCase):
         self.assertIsNone(education_group_year.education_group.end_year)
 
     def test_save_with_parent(self):
-        AuthorizedRelationshipFactory(parent_type=self.parent_education_group_year.educaiton_group_type,
+        AuthorizedRelationshipFactory(parent_type=self.parent_education_group_year.education_group_type,
                                       child_type=self.education_group_type)
         form = CreateEducationGroupYearForm(data=self.form_data, parent=self.parent_education_group_year)
 
