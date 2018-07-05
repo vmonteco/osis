@@ -3151,3 +3151,6 @@ msgstr "Modification apportée"
 
 msgid "You can not delete this object because some dependencies are protected"
 msgstr "Vous ne pouvez pas supprimer cet objet car certaines dépendances sont protégées"
+
+msgid "It will delete also this following objects"
+msgstr "Cela supprimera également les objets suivants"

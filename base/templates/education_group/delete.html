@@ -7,7 +7,7 @@
 
 <form method="post">{% csrf_token %}
     <p>{% blocktrans %}Are you sure you want to delete {{ education_group_year }}?{% endblocktrans %}</p>
-    <p>{% blocktrans %}It will delete also this following objects {% endblocktrans %}</p>
+    <p>{% blocktrans %}It will delete also this following objects{% endblocktrans %}</p>
     <ul>{{ deletable_objects|unordered_list }}</ul>
 
     <input type="submit" value="{% trans "i_confirm" %}" class="btn btn-danger"/>
