@@ -67,8 +67,7 @@ def find_authorized_types(category=None, parent_type=None):
     else:
         queryset = EducationGroupType.objects.all()
     if parent_type:
-        queryset = queryset.exclude(pk__in=parent_type.unauthorized_parent_type.all().values_list('child_type',
-                                                                                                  flat=True))
+        queryset = queryset.filter(pk__in=parent_type.authorized_parent_type.all().values_list('child_type', flat=True))
     return queryset.order_by('name')
 
 

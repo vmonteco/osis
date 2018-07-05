@@ -28,14 +28,14 @@ from osis_common.models.osis_model_admin import OsisModelAdmin
 from base.models.education_group_type import EducationGroupType
 
 
-class UnauthorizedRelationshipAdmin(OsisModelAdmin):
+class AuthorizedRelationshipAdmin(OsisModelAdmin):
     list_display = ('parent_type', 'child_type', 'changed')
     search_fields = ['parent_type__name', 'child_type__name']
 
 
-class UnauthorizedRelationship(models.Model):
-    parent_type = models.ForeignKey(EducationGroupType, related_name='unauthorized_parent_type')
-    child_type = models.ForeignKey(EducationGroupType, related_name='unauthorized_child_type')
+class AuthorizedRelationship(models.Model):
+    parent_type = models.ForeignKey(EducationGroupType, related_name='authorized_parent_type')
+    child_type = models.ForeignKey(EducationGroupType, related_name='authorized_child_type')
     changed = models.DateTimeField(auto_now=True)
 
     def __str__(self):
