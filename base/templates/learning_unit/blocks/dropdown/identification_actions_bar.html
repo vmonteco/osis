@@ -1,6 +1,7 @@
 {% load staticfiles %}
 {% load i18n %}
 {% load format %}
+{% load waffle_tags %}
 {% comment "License" %}
 * OSIS stands for Open Student Information System. It's an application
 * designed to manage the core business of higher education institutions,
@@ -34,6 +35,7 @@
         </button>
         <ul class="dropdown-menu dropdown-menu-large row text-right pull-right">
 
+        {% flag "learning_unit_creation" %}
             {% if "base.can_create_learningunit" in perms and can_create_partim %}
                 <li {% if not is_person_linked_to_entity %}class="disabled"{% endif %}>
                     <a {% if is_person_linked_to_entity %} href="{% url 'learning_unit_create_partim' learning_unit_year_id=learning_unit_year.id %}" {% endif %}>
@@ -42,7 +44,9 @@
                 </li>
                 <li class="divider"></li>
             {% endif %}
+        {% endflag %}
 
+        {% flag "learning_unit_update" %}
             {% if "base.can_edit_learningunit" in perms %}
                 <li {% if not can_edit %}class="disabled"{% endif %}>
                     <a {% if can_edit %} href="{% url "edit_learning_unit" learning_unit_year_id=learning_unit_year.id %}" {% endif %}
@@ -61,7 +65,9 @@
                 </li>
                 <li class="divider"></li>
             {% endif %}
+        {% endflag %}
 
+        {% flag "proposal" %}
             {% if "base.can_propose_learningunit" in perms %}
             <li {% if not can_propose %}class="disabled"{% endif %}>
                 <a {% if can_propose %} href="{% url "learning_unit_modification_proposal" learning_unit_year_id=learning_unit_year.id %}" {% endif %}>
@@ -91,7 +97,9 @@
             </li>
             <li class="divider"></li>
             {% endif %}
+        {% endflag %}
 
+        {% flag "learning_unit_delete" %}
             {% if "base.can_delete_learningunit" in perms %}
                 <li {% if not can_delete %}class="disabled"{% endif %}>
                     <a  {% if can_delete %} href="#" data-toggle="modal" data-target="#modalDeleteLuy" {% endif %}>
@@ -101,34 +109,41 @@
                     </a>
                 </li>
             {% endif %}
+        {% endflag %}
         </ul>
     </div>
 
-    {% if can_cancel_proposal %}
-    <!-- Modal to cancel proposal-->
-    <div class="modal fade" id="modalCancelProposal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-body">
-            {% trans "msg_confirm_cancel_proposal" %}
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-dismiss="modal">{% trans "close" %}</button>
-            <a href="{% url "learning_unit_cancel_proposal" learning_unit_year_id=learning_unit_year.id %}" role="button" class="btn btn-danger">{% trans "confirm" %}</a>
+    {% flag "proposal" %}
+        {% if can_cancel_proposal %}
+        <!-- Modal to cancel proposal-->
+        <div class="modal fade" id="modalCancelProposal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-body">
+                {% trans "msg_confirm_cancel_proposal" %}
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">{% trans "close" %}</button>
+                <a href="{% url "learning_unit_cancel_proposal" learning_unit_year_id=learning_unit_year.id %}" role="button" class="btn btn-danger">{% trans "confirm" %}</a>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    </div>
-    {% endif %}
+        {% endif %}
 
-    {% if can_delete %}
-        {% include "learning_unit/blocks/modal/modal_confirm_delete.html" %}
-    {% endif %}
-
-    {% if can_consolidate_proposal %}
+        {% if can_consolidate_proposal %}
         <form id="form_consolidate" action="{% url "learning_unit_consolidate_proposal" %}" method="post">
             {% csrf_token %}
             <input id="learning_unit_year_id" type="hidden" name="learning_unit_year_id" value="{{ learning_unit_year.id }}">
         </form>
     {% endif %}
+    {% endflag %}
+
+    {% flag "learning_unit_delete" %}
+        {% if can_delete %}
+            {% include "learning_unit/blocks/modal/modal_confirm_delete.html" %}
+        {% endif %}
+    {% endflag %}
+
+
 {% endif %}
