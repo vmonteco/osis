@@ -198,5 +198,5 @@ admin.site.register(teaching_material.TeachingMaterial,
 admin.site.register(tutor.Tutor,
                     tutor.TutorAdmin)
 
-admin.site.register(unauthorized_relationship.UnauthorizedRelationship,
-                    unauthorized_relationship.UnauthorizedRelationshipAdmin)
+admin.site.register(authorized_relationship.AuthorizedRelationship,
+                    authorized_relationship.AuthorizedRelationshipAdmin)
