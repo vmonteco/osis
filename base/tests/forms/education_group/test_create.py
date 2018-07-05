@@ -23,6 +23,7 @@
 #
 ##############################################################################
 from unittest.mock import patch
+from base.tests.factories.authorized_relationship import AuthorizedRelationshipFactory
 from django.test import TestCase
 
 from base.forms.education_group.create import CreateEducationGroupYearForm
@@ -88,6 +89,8 @@ class TestCreateEducationGroupYearForm(TestCase):
         self.assertIsNone(education_group_year.education_group.end_year)
 
     def test_save_with_parent(self):
+        AuthorizedRelationshipFactory(parent_type=self.parent_education_group_year.educaiton_group_type,
+                                      child_type=self.education_group_type)
         form = CreateEducationGroupYearForm(data=self.form_data, parent=self.parent_education_group_year)
 
         self.assertTrue(form.is_valid(), form.errors)

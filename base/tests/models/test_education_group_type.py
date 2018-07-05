@@ -26,7 +26,7 @@
 from base.models.education_group_type import EducationGroupType, find_authorized_types
 from base.tests.factories.education_group_type import EducationGroupTypeFactory
 from base.tests.factories.education_group_year import EducationGroupYearFactory
-from base.tests.factories.unauthorized_relationship import UnauthorizedRelationshipFactory
+from base.tests.factories.authorized_relationship import AuthorizedRelationshipFactory
 from django.test import TestCase
 from base.models.enums import education_group_categories
 
@@ -47,20 +47,17 @@ class TestAuthorizedTypes(TestCase):
 
     def test_filter_on_authorized_types(self):
         doctorate = EducationGroupTypeFactory(name='PhD', category=education_group_categories.TRAINING)
-        UnauthorizedRelationshipFactory(parent_type=doctorate, child_type=self.options_list)
+        AuthorizedRelationshipFactory(parent_type=doctorate, child_type=self.options_list)
         educ_group_year = EducationGroupYearFactory(education_group_type=doctorate)
         result = find_authorized_types(parent_type=educ_group_year.education_group_type)
-        self.assertEqual(len(result), 3)
-        self.assertNotIn(self.options_list, result)
+        self.assertEqual(len(result), 1)
+        self.assertIn(self.options_list, result)
+        self.assertNotIn(self.subgroup, result)
+        self.assertNotIn(self.complementary_module, result)
 
-    def test_when_no_unauthorized_type_matches(self):
-        UnauthorizedRelationshipFactory(parent_type=self.complementary_module, child_type=self.options_list)
+    def test_when_no_authorized_type_matches(self):
+        AuthorizedRelationshipFactory(parent_type=self.complementary_module, child_type=self.options_list)
+        AuthorizedRelationshipFactory(parent_type=self.options_list, child_type=self.subgroup)
         educ_group_year = EducationGroupYearFactory(education_group_type=self.subgroup)
         result = find_authorized_types(parent_type=educ_group_year.education_group_type)
-        self.assertEqual(result.count(), EducationGroupType.objects.filter(category=self.subgroup.category).count())
-
-    def test_all_types_returned_when_no_filters_given(self):
-        """If no category and no parent is given, then the function should return all education group types"""
-        result = find_authorized_types()
-        self.assertNotEqual(list(result), [])
-        self.assertEqual(len(result), EducationGroupType.objects.all().count())
+        self.assertEqual(result.count(), 0)
