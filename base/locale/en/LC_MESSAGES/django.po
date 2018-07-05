@@ -3129,6 +3129,9 @@ msgstr "Add a new line"
 msgid "Modify an existing line"
 msgstr "Modify an existing line"
 
+msgid "Are you sure you want to delete %(education_group_year)s?"
+msgstr ""
+
 msgid "You are not summary responsible for this learning unit."
 msgstr ""
 

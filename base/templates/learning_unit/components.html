@@ -73,7 +73,7 @@
                         </tr>
                     </thead>
                     {% for component in components %}
-                        {% ifchanged component.learning_component_year.type %}
+                        {% ifchanged component.learning_unit_usage %}
                             {% if forloop.counter > 1 %}
                                 <tr style="height: 1px;font-size: 1px;"><td colspan="11">&nbsp;</td></tr>
                             {% endif %}

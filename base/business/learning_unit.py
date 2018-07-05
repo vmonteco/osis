@@ -24,6 +24,7 @@
 #
 ##############################################################################
 from collections import OrderedDict
+from operator import itemgetter
 
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
@@ -90,6 +91,7 @@ def get_same_container_year_components(learning_unit_year, with_classes=False):
                            'used_by_learning_unit': used_by_learning_unit
                            })
 
+    components = sorted(components, key=itemgetter('learning_unit_usage'))
     return _compose_components_dict(components, additionnal_entities)
 
 
