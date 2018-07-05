@@ -80,4 +80,4 @@ from base.models import student
 from base.models import synchronization
 from base.models import teaching_material
 from base.models import tutor
-from base.models import unauthorized_relationship
+from base.models import authorized_relationship
