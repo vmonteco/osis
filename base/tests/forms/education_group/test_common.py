@@ -202,6 +202,16 @@ class TestCommonBaseFormSave(TestCase):
         self.assertEqual(initial_count, GroupElementYear.objects.all().count())
         self._assert_all_fields_correctly_saved(updated_education_group_year)
 
+    def test_create_when_no_start_year_is_posted(self):
+        data = dict(self.post_data)
+        data['start_year'] = None
+        form = self.form_class(data=self.post_data, parent=None)
+        self.assertTrue(form.is_valid(), form.errors)
+        created_education_group_year = form.save()
+
+        self.assertEqual(created_education_group_year.education_group.start_year,
+                         created_education_group_year.academic_year.year)
+
 
 def _get_valid_post_data(category):
     entity_version = MainEntityVersionFactory()
