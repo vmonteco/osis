@@ -44,7 +44,7 @@ from base.views.learning_units.perms import PermissionDecorator
 @require_http_methods(['POST', 'GET'])
 @PermissionDecorator(perms.is_eligible_to_update_learning_unit_pedagogy, "learning_unit_year_id", LearningUnitYear)
 def create(request, learning_unit_year_id):
-    success_url = reverse(learning_unit_pedagogy, kwargs={'learning_unit_year_id':learning_unit_year_id})
+    success_url = reverse(learning_unit_pedagogy, kwargs={'learning_unit_year_id': learning_unit_year_id})
     return create_view(request, learning_unit_year_id, success_url)
 
 
