@@ -23,6 +23,8 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from django.core.exceptions import PermissionDenied
+
 from base.models import academic_calendar
 from base.models.enums import academic_calendar_type
 from osis_common.utils.perms import conjunction, disjunction
@@ -54,7 +56,9 @@ def is_central_manager(person):
 
 
 def is_education_group_creation_period_opened(person):
-    return academic_calendar.is_academic_calendar_opened(academic_calendar_type.EDUCATION_GROUP_EDITION)
+    if not academic_calendar.is_academic_calendar_opened(academic_calendar_type.EDUCATION_GROUP_EDITION):
+        raise PermissionDenied("The education group edition period is not open.")
+    return True
 
 
 def has_person_the_right_to_add_education_group(person):
