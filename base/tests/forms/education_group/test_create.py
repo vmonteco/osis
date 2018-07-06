@@ -239,6 +239,34 @@ class TestSave(TestCase):
         self.assertEqual(updated_educ_group_year.education_group, initial_educ_group) # Assert keep the same EducationGroup when update
         self._assert_all_fields_correctly_saved(updated_educ_group_year)
 
+    @patch('base.models.education_group_type.find_authorized_types', return_value=EducationGroupType.objects.all())
+    def test_create_with_parent(self, mock_find_authorized_types):
+        parent = EducationGroupYearFactory()
+
+        form = MiniTrainingForm(data=self.post_data, parent=parent)
+        self.assertTrue(form.is_valid(), form.errors)
+        created_education_group_year = form.save()
+
+        group_element_year = GroupElementYear.objects.filter(parent=parent, child_branch=created_education_group_year)
+        self.assertTrue(group_element_year.exists())
+
+    @patch('base.models.education_group_type.find_authorized_types', return_value=EducationGroupType.objects.all())
+    def test_update_with_parent_when_existing_group_element_year(self, mock_find_authorized_types):
+        parent = EducationGroupYearFactory()
+
+        entity_version = MainEntityVersionFactory()
+        initial_educ_group_year = EducationGroupYearFactory(administration_entity=entity_version.entity)
+
+        GroupElementYearFactory(parent=parent, child_branch=initial_educ_group_year)
+        initial_count = GroupElementYear.objects.all().count()
+
+        form = MiniTrainingForm(data=self.post_data, instance=initial_educ_group_year, parent=parent)
+        self.assertTrue(form.is_valid(), form.errors)
+        form.save()
+
+        # Assert existing GroupElementYear is reused.
+        self.assertEqual(initial_count, GroupElementYear.objects.all().count())
+
 
 class TestMiniTrainingModelForm(EducationGroupYearMixin):
 
@@ -263,36 +291,6 @@ class TestMiniTrainingModelForm(EducationGroupYearMixin):
 
     def test_preselect_entity_version_from_entity_value(self):
         self._test_preselect_entity_version_from_entity_value(self.form_class)
-
-    @patch('base.models.education_group_type.find_authorized_types', return_value=EducationGroupType.objects.all())
-    def test_create_with_parent(self, mock_find_authorized_types):
-        parent = EducationGroupYearFactory()
-        expected_educ_group_year, post_data = _get_valid_post_data(education_group_categories.MINI_TRAINING)
-
-        form = MiniTrainingForm(data=post_data, parent=parent)
-        self.assertTrue(form.is_valid(), form.errors)
-        created_education_group_year = form.save()
-
-        group_element_year = GroupElementYear.objects.filter(parent=parent, child_branch=created_education_group_year)
-        self.assertTrue(group_element_year.exists())
-
-    @patch('base.models.education_group_type.find_authorized_types', return_value=EducationGroupType.objects.all())
-    def test_update_with_parent_when_existing_group_element_year(self, mock_find_authorized_types):
-        parent = EducationGroupYearFactory()
-        expected_educ_group_year, post_data = _get_valid_post_data(education_group_categories.MINI_TRAINING)
-
-        entity_version = MainEntityVersionFactory()
-        initial_educ_group_year = EducationGroupYearFactory(administration_entity=entity_version.entity)
-
-        GroupElementYearFactory(parent=parent, child_branch=initial_educ_group_year)
-        initial_count = GroupElementYear.objects.all().count()
-
-        form = MiniTrainingForm(data=post_data, instance=initial_educ_group_year, parent=parent)
-        self.assertTrue(form.is_valid(), form.errors)
-        form.save()
-
-        # Assert existing GroupElementYear is reused.
-        self.assertEqual(initial_count, GroupElementYear.objects.all().count())
 
 
 def _get_valid_post_data(category):
