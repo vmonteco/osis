@@ -23,16 +23,15 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from base.models.enums import education_group_categories
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import ugettext_lazy as _
 from waffle.decorators import waffle_flag
 
 from base.forms.education_group.create import EducationGroupModelForm
-from base.forms.education_group.group import GroupModelForm, GroupForm
-from base.forms.education_group.mini_training import MiniTrainingModelForm, MiniTrainingForm
-from base.forms.education_group.training import TrainingEducationGroupYearForm, TrainingForm
+from base.forms.education_group.group import GroupForm
+from base.forms.education_group.mini_training import MiniTrainingForm
+from base.forms.education_group.training import TrainingForm
 from base.models.education_group_year import EducationGroupYear
 from base.models.enums import education_group_categories
 from base.views import layout
@@ -52,70 +51,39 @@ def update_education_group(request, education_group_year_id):
     return view_function(request, education_group_year)
 
 
-def _update_group(request, education_group_year):
-    # form_education_group = EducationGroupForm(request.POST or None, instance=education_group_year.education_group)
+def _get_view(category):
+    return {
+        education_group_categories.TRAINING: _update_training,
+        education_group_categories.MINI_TRAINING: _update_mini_training,
+        education_group_categories.GROUP: _update_group
+    }[category]
 
-    # if education_group_year.education_group_type.category != education_group_categories.GROUP:
-    #     form_education_group_year = TrainingEducationGroupYearForm(request.POST or None, instance=education_group_year)
-    #     html_page = "education_group/update_trainings.html"
-    # else:
+
+def _update_group(request, education_group_year):
+    # TODO :: IMPORTANT :: Fix urls patterns to get the GroupElementYear_id and the root_id in the url path !
+    # TODO :: IMPORTANT :: pass the parent in paramter of the form
     form_education_group_year = GroupForm(request.POST or None, instance=education_group_year)
     html_page = "education_group/update_groups.html"
 
     if form_education_group_year.is_valid():
         display_success_messages(request, _("Education group successfully updated"))
         url = reverse_url_with_root(request, "education_group_read", args=[education_group_year.id])
-        # form_education_group.save()
         form_education_group_year.save()
         return redirect(url)
 
     return layout.render(request, html_page, {
         "education_group_year": education_group_year,
         "form_education_group_year": form_education_group_year.forms[forms.ModelForm],
-        # "form_education_group": form_education_group
     })
 
 
-def _common_redirect_url(request, education_group_year):
-    display_success_messages(request, _("Mini training successfully updated"))
-    url = reverse_url_with_root(request, "education_group_read", args=[education_group_year.id])
-    return redirect(url)
-
-# def _get_template(education_group_year):
-#     category = education_group_year.education_group_type.category
-#     return {
-#         education_group_categories.TRAINING: None, # to implement
-#         education_group_categories.MINI_TRAINING: "education_group/minitraining_form.html",
-#         education_group_categories.GROUP: "education_group/update.html"
-#     }[category]
-
-
-# TODO :: IMPORTANT :: Fix urls patterns to get the GroupElementYear_id and the root_id in the url path !
-def _get_view(category):
-    return {
-        # TODO :: merge with TrainingForm
-        education_group_categories.TRAINING: _update_training,
-        # TODO :: pass parent in parameter (thanks to urls
-        education_group_categories.MINI_TRAINING: _update_mini_training,
-        # TODO :: pass parent in parameter
-        education_group_categories.GROUP: _update_group
-    }[category]
-
-
 def _update_training(request, education_group_year):
-    # form_education_group = EducationGroupForm(request.POST or None, instance=education_group_year.education_group)
-
-    # if education_group_year.education_group_type.category != education_group_categories.GROUP:
+    # TODO :: IMPORTANT :: Fix urls patterns to get the GroupElementYear_id and the root_id in the url path !
+    # TODO :: IMPORTANT :: pass the parent in paramter of the form
     form_education_group_year = TrainingForm(request.POST or None, instance=education_group_year)
-        # html_page = "education_group/update_trainings.html"
-    # else:
-    # form_education_group_year = CreateEducationGroupYearForm(request.POST or None, instance=education_group_year)
-    # html_page = "education_group/update_groups.html"
-
     if form_education_group_year.is_valid():
         display_success_messages(request, _("Education group successfully updated"))
         url = reverse_url_with_root(request, "education_group_read", args=[education_group_year.id])
-        # form_education_group.save()
         form_education_group_year.save()
         return redirect(url)
 
@@ -125,24 +93,12 @@ def _update_training(request, education_group_year):
         "form_education_group": form_education_group_year.forms[EducationGroupModelForm]
     })
 
-#
-# # TODO :: IMPORTANT :: Fix urls patterns to get the GroupElementYear_id and the root_id in the url path !
-# def _instanciate_form_from_category(request, education_group_year):
-#     category = education_group_year.education_group_type.category
-#     return {
-#         # TODO :: merge with TrainingForm
-#         education_group_categories.TRAINING: None, # to implement
-#         # TODO :: pass parent in parameter (thanks to urls
-#         education_group_categories.MINI_TRAINING: MiniFormationForm(request.POST or None, instance=education_group_year),
-#         # TODO :: pass parent in parameter
-#         education_group_categories.GROUP: CreateEducationGroupYearForm(request.POST or None, instance=education_group_year)
-#     }[category]
-
 
 def _update_mini_training(request, education_group_year):
 
+    # TODO :: IMPORTANT :: Fix urls patterns to get the GroupElementYear_id and the root_id in the url path !
+    # TODO :: IMPORTANT :: pass the parent in paramter of the form
     form = MiniTrainingForm(request.POST or None, instance=education_group_year)
-    print(str(request.POST))
 
     if form.is_valid():
         education_group_year = form.save()
