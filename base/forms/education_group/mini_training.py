@@ -1,6 +1,6 @@
 from base.forms.education_group.common import MainEntitiesVersionChoiceField, MainTeachingCampusChoiceField, \
     init_education_group_type_field, init_academic_year, preselect_entity_version_from_entity_value, \
-    save_group_element_year, CommonBaseForm, EducationGroupModelForm
+    CommonBaseForm, EducationGroupModelForm
 from base.models.education_group_year import EducationGroupYear
 from base.models.enums import education_group_categories
 from django import forms

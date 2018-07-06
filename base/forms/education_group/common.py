@@ -65,12 +65,6 @@ def preselect_entity_version_from_entity_value(modelform):
         modelform.initial['administration_entity'] = get_last_version(modelform.instance.administration_entity).pk
 
 
-def save_group_element_year(parent, child):
-    # TODO :: what if this relation parent/child already exists? Should we create a new GroupElementYear anymore?
-    if parent:
-        group_element_year.get_or_create_group_element_year(parent, child)
-
-
 class EducationGroupModelForm(forms.ModelForm):
 
     class Meta:
@@ -96,20 +90,28 @@ class CommonBaseForm:
         return all([form.is_valid() for form in self.forms.values()])
 
     def save(self):
+        educ_group_year_form = self.forms[forms.ModelForm]
+        educ_group_form = self.forms[EducationGroupModelForm]
+
         # TODO :: unit test
         start_year = None
-        if self._is_creation():
-            start_year = self.forms[forms.ModelForm].cleaned_data['academic_year'].year
+        if self._is_creation() and not educ_group_form.instance.start_year:
+            start_year = educ_group_year_form.cleaned_data['academic_year'].year
 
-        education_group = self.forms[EducationGroupModelForm].save(start_year=start_year)
-        education_group_year_form = self.forms[forms.ModelForm]
-        education_group_year_form.instance.education_group = education_group
-        education_group_year = education_group_year_form.save()
-        save_group_element_year(education_group_year_form.parent, education_group_year)
+        education_group = educ_group_form.save(start_year=start_year)
+        educ_group_year_form.instance.education_group = education_group
+        education_group_year = educ_group_year_form.save()
+        self._save_group_element_year(educ_group_year_form.parent, education_group_year)
         return education_group_year
 
     def _is_creation(self):
         return not self.forms[EducationGroupModelForm].instance.id
+
+    @staticmethod
+    def _save_group_element_year(parent, child):
+        # TODO :: what if this relation parent/child already exists? Should we create a new GroupElementYear anymore?
+        if parent:
+            group_element_year.get_or_create_group_element_year(parent, child)
 
     @property
     def errors(self):

@@ -131,6 +131,7 @@ class TestCommonBaseFormSave(TestCase):
 
     def setUp(self):
         category = education_group_categories.MINI_TRAINING  # Could take GROUP or TRAINING, the result is the same
+        self.form_class = MiniTrainingForm  # Could also take GROUP or TRAINING, the result is the same
         self.expected_educ_group_year, self.post_data = _get_valid_post_data(category)
 
     def _assert_all_fields_correctly_saved(self, education_group_year_saved):
@@ -141,14 +142,14 @@ class TestCommonBaseFormSave(TestCase):
             else:
                 expected_value = getattr(self.expected_educ_group_year.education_group, field_name, None)
                 value = getattr(education_group_year_saved.education_group, field_name, None)
-            self.assertEqual(expected_value, value)
+            self.assertEqual(expected_value, value, field_name)
 
-    def test_update(self):
+    def test_update_without_parent(self):
         entity_version = MainEntityVersionFactory()
         initial_educ_group_year = EducationGroupYearFactory(administration_entity=entity_version.entity)
         initial_educ_group = initial_educ_group_year.education_group
 
-        form = MiniTrainingForm(data=self.post_data, instance=initial_educ_group_year, parent=None)
+        form = self.form_class(data=self.post_data, instance=initial_educ_group_year, parent=None)
         self.assertTrue(form.is_valid(), form.errors)
         updated_educ_group_year = form.save()
 
@@ -157,8 +158,10 @@ class TestCommonBaseFormSave(TestCase):
         self.assertEqual(updated_educ_group_year.education_group, initial_educ_group)
         self._assert_all_fields_correctly_saved(updated_educ_group_year)
 
-    def test_create(self):
-        form = MiniTrainingForm(data=self.post_data, parent=None)
+    def test_create_without_parent(self):
+        initial_count = GroupElementYear.objects.all().count()
+
+        form = self.form_class(data=self.post_data, parent=None)
         self.assertTrue(form.is_valid(), form.errors)
         created_education_group_year = form.save()
 
@@ -166,34 +169,38 @@ class TestCommonBaseFormSave(TestCase):
         self.assertEqual(EducationGroup.objects.all().count(), 1)
 
         self._assert_all_fields_correctly_saved(created_education_group_year)
+        self.assertEqual(initial_count, GroupElementYear.objects.all().count())
 
     @patch('base.models.education_group_type.find_authorized_types', return_value=EducationGroupType.objects.all())
     def test_create_with_parent(self, mock_find_authorized_types):
-        parent = EducationGroupYearFactory()
+        parent = EducationGroupYearFactory(academic_year=self.expected_educ_group_year.academic_year)
 
-        form = MiniTrainingForm(data=self.post_data, parent=parent)
+        form = self.form_class(data=self.post_data, parent=parent)
         self.assertTrue(form.is_valid(), form.errors)
         created_education_group_year = form.save()
 
         group_element_year = GroupElementYear.objects.filter(parent=parent, child_branch=created_education_group_year)
         self.assertTrue(group_element_year.exists())
+        self._assert_all_fields_correctly_saved(created_education_group_year)
 
     @patch('base.models.education_group_type.find_authorized_types', return_value=EducationGroupType.objects.all())
     def test_update_with_parent_when_existing_group_element_year(self, mock_find_authorized_types):
-        parent = EducationGroupYearFactory()
+        parent = EducationGroupYearFactory(academic_year=self.expected_educ_group_year.academic_year)
 
         entity_version = MainEntityVersionFactory()
-        initial_educ_group_year = EducationGroupYearFactory(administration_entity=entity_version.entity)
+        initial_educ_group_year = EducationGroupYearFactory(administration_entity=entity_version.entity,
+                                                            academic_year=self.expected_educ_group_year.academic_year)
 
         GroupElementYearFactory(parent=parent, child_branch=initial_educ_group_year)
         initial_count = GroupElementYear.objects.all().count()
 
-        form = MiniTrainingForm(data=self.post_data, instance=initial_educ_group_year, parent=parent)
+        form = self.form_class(data=self.post_data, instance=initial_educ_group_year, parent=parent)
         self.assertTrue(form.is_valid(), form.errors)
-        form.save()
+        updated_education_group_year = form.save()
 
         # Assert existing GroupElementYear is reused.
         self.assertEqual(initial_count, GroupElementYear.objects.all().count())
+        self._assert_all_fields_correctly_saved(updated_education_group_year)
 
 
 def _get_valid_post_data(category):
