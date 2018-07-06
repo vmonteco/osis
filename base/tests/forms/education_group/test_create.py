@@ -225,6 +225,15 @@ class TestSave(TestCase):
 
         self._assert_all_fields_correctly_saved(created_education_group_year)
 
+    @patch('base.models.education_group_type.find_authorized_types', return_value=EducationGroupType.objects.all())
+    def test_create_with_parent(self, mock_find_authorized_types):
+        parent = EducationGroupYearFactory()
+        form = MiniTrainingForm(data=self.post_data, parent=parent)
+        self.assertTrue(form.is_valid(), form.errors)
+        created_education_group_year = form.save()
+        group_element_year = GroupElementYear.objects.filter(parent=parent, child_branch=created_education_group_year)
+        self.assertTrue(group_element_year.exists())
+
     def test_update(self):
         entity_version = MainEntityVersionFactory()
         initial_educ_group_year = EducationGroupYearFactory(administration_entity=entity_version.entity)

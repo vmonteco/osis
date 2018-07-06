@@ -27,12 +27,11 @@ import itertools
 from django import forms
 
 from base.forms.learning_unit.entity_form import EntitiesVersionChoiceField
-from base.models import campus, education_group_type
+from base.models import campus, education_group_type, group_element_year
 from base.models.education_group import EducationGroup
 from base.models.education_group_year import EducationGroupYear
 from base.models.entity_version import find_main_entities_version, get_last_version
 from base.models.enums import education_group_categories
-from base.models.group_element_year import GroupElementYear
 
 
 class MainTeachingCampusChoiceField(forms.ModelChoiceField):
@@ -119,17 +118,13 @@ class CreateEducationGroupYearForm(forms.ModelForm):
         education_group_year.save()
 
         if self.parent_education_group_year:
-            self._create_group_element_year(self.parent_education_group_year, education_group_year)
+            group_element_year.create_group_element_year(self.parent_education_group_year, education_group_year)
 
         return education_group_year
 
     def _create_education_group(self):
         start_year = self.cleaned_data["academic_year"].year
         return EducationGroup.objects.create(start_year=start_year)
-
-    @staticmethod
-    def _create_group_element_year(parent, child):
-        return GroupElementYear.objects.create(parent=parent, child_branch=child)
 
 
 class EducationGroupModelForm(forms.ModelForm):
@@ -151,12 +146,12 @@ class MiniTrainingModelForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        self.parent_education_group_year = kwargs.pop("parent", None)
+        self.parent = kwargs.pop("parent", None)
         super().__init__(*args, **kwargs)
         _init_education_group_type_field(self.fields["education_group_type"],
-                                         self.parent_education_group_year,
+                                         self.parent,
                                          education_group_categories.MINI_TRAINING)
-        _init_academic_year(self.fields["academic_year"], self.parent_education_group_year)
+        _init_academic_year(self.fields["academic_year"], self.parent)
         _preselect_entity_version_from_entity_value(self) # Due to MainEntitiesVersionChoiceField
 
 
@@ -175,8 +170,12 @@ class MiniTrainingForm:
 
     def save(self):
         education_group = self.forms[EducationGroupModelForm].save()
-        self.forms[MiniTrainingModelForm].instance.education_group = education_group
-        return self.forms[MiniTrainingModelForm].save()
+        minitraining_form = self.forms[MiniTrainingModelForm]
+        minitraining_form.instance.education_group = education_group
+        educ_group_year = minitraining_form.save()
+        if minitraining_form.parent:
+            group_element_year.create_group_element_year(minitraining_form.parent, educ_group_year)
+        return educ_group_year
 
     @property
     def errors(self):
