@@ -68,6 +68,12 @@ def _preselect_entity_version_from_entity_value(modelform):
         modelform.initial['administration_entity'] = get_last_version(modelform.instance.administration_entity).pk
 
 
+def _save_group_element_year(parent, child):
+    # TODO :: what if this relation parent/child already exists? Should we create a new GroupElementYear anymore?
+    if parent:
+        group_element_year.get_or_create_group_element_year(parent, child)
+
+
 class CreateEducationGroupYearForm(forms.ModelForm):
 
     class Meta:
@@ -81,7 +87,7 @@ class CreateEducationGroupYearForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        self.parent_education_group_year = kwargs.pop("parent", None)
+        self.parent = kwargs.pop("parent", None)
         super().__init__(*args, **kwargs)
 
         # self.fields["main_teaching_campus"].queryset = campus.find_main_campuses()
@@ -89,14 +95,14 @@ class CreateEducationGroupYearForm(forms.ModelForm):
         # self.fields["education_group_type"].queryset = self._get_authorized_education_group_types_queryset()
         # self.fields["education_group_type"].required = True
         _init_education_group_type_field(self.fields["education_group_type"],
-                                         self.parent_education_group_year,
+                                         self.parent,
                                          education_group_categories.GROUP)
 
         # if self.parent_education_group_year:
         #     self.fields["academic_year"].initial = self.parent_education_group_year.academic_year.id
         #     self.fields["academic_year"].disabled = True
         #     self.fields["academic_year"].required = False
-        _init_academic_year(self.fields["academic_year"], self.parent_education_group_year)
+        _init_academic_year(self.fields["academic_year"], self.parent)
 
         # self.fields["administration_entity"].queryset = find_main_entities_version()
 
@@ -117,8 +123,7 @@ class CreateEducationGroupYearForm(forms.ModelForm):
         education_group_year.education_group = self._create_education_group()
         education_group_year.save()
 
-        if self.parent_education_group_year:
-            group_element_year.create_group_element_year(self.parent_education_group_year, education_group_year)
+        _save_group_element_year(self.parent, education_group_year)
 
         return education_group_year
 
@@ -156,8 +161,7 @@ class MiniTrainingModelForm(forms.ModelForm):
 
     def save(self, *args, **kwargs):
         education_group_year = super(MiniTrainingModelForm, self).save(*args, **kwargs)
-        if self.parent:
-            group_element_year.create_group_element_year(self.parent, education_group_year)
+        _save_group_element_year(self.parent, education_group_year)
         return education_group_year
 
 

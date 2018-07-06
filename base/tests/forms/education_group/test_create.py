@@ -30,6 +30,7 @@ from base.models.entity_version import EntityVersion
 from base.tests.factories.education_group import EducationGroupFactory
 from base.tests.factories.entity import EntityFactory
 from base.tests.factories.authorized_relationship import AuthorizedRelationshipFactory
+from base.tests.factories.group_element_year import GroupElementYearFactory
 from django.test import TestCase
 
 from base.forms.education_group.create import CreateEducationGroupYearForm, MiniTrainingForm, MiniTrainingModelForm
@@ -267,11 +268,31 @@ class TestMiniTrainingModelForm(EducationGroupYearMixin):
     def test_create_with_parent(self, mock_find_authorized_types):
         parent = EducationGroupYearFactory()
         expected_educ_group_year, post_data = _get_valid_post_data(education_group_categories.MINI_TRAINING)
+
         form = MiniTrainingForm(data=post_data, parent=parent)
         self.assertTrue(form.is_valid(), form.errors)
         created_education_group_year = form.save()
+
         group_element_year = GroupElementYear.objects.filter(parent=parent, child_branch=created_education_group_year)
         self.assertTrue(group_element_year.exists())
+
+    @patch('base.models.education_group_type.find_authorized_types', return_value=EducationGroupType.objects.all())
+    def test_update_with_parent_when_existing_group_element_year(self, mock_find_authorized_types):
+        parent = EducationGroupYearFactory()
+        expected_educ_group_year, post_data = _get_valid_post_data(education_group_categories.MINI_TRAINING)
+
+        entity_version = MainEntityVersionFactory()
+        initial_educ_group_year = EducationGroupYearFactory(administration_entity=entity_version.entity)
+
+        GroupElementYearFactory(parent=parent, child_branch=initial_educ_group_year)
+        initial_count = GroupElementYear.objects.all().count()
+
+        form = MiniTrainingForm(data=post_data, instance=initial_educ_group_year, parent=parent)
+        self.assertTrue(form.is_valid(), form.errors)
+        form.save()
+
+        # Assert existing GroupElementYear is reused.
+        self.assertEqual(initial_count, GroupElementYear.objects.all().count())
 
 
 def _get_valid_post_data(category):
