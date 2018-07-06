@@ -24,6 +24,7 @@
 #
 ##############################################################################
 from django.test import TestCase
+
 from base.models.education_group_language import find_by_education_group_year
 from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.education_group_language import EducationGroupLanguageFactory
@@ -42,7 +43,12 @@ class EducationGroupLanguageTest(TestCase):
                                                                         language=self.language)
 
     def test_return_str_format(self):
-        self.assertEqual(self.education_group_language_1.__str__(), str(self.education_group_language_1.id))
+        self.assertEqual(
+            self.education_group_language_1.__str__(),
+            "{} - {}".format(
+                self.education_group_language_1.education_group_year, self.education_group_language_1.language
+            )
+        )
 
     def test_find_by_education_group_year(self):
         education_group_year = find_by_education_group_year(self.education_group_year.id)

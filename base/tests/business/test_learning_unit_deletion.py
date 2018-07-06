@@ -35,8 +35,8 @@ from assistant.models.tutoring_learning_unit_year import TutoringLearningUnitYea
 from assistant.tests.factories.assistant_mandate import AssistantMandateFactory
 from attribution.tests.factories.attribution import AttributionNewFactory
 from attribution.tests.factories.attribution_charge_new import AttributionChargeNewFactory
-from base.business.learning_units.simple import deletion
 from base.business.learning_unit import CMS_LABEL_SPECIFICATIONS, CMS_LABEL_PEDAGOGY, CMS_LABEL_SUMMARY
+from base.business.learning_units.simple import deletion
 from base.models.enums import entity_container_year_link_type
 from base.models.enums import entity_type
 from base.models.enums import learning_container_year_types
@@ -88,8 +88,8 @@ class LearningUnitYearDeletion(TestCase):
         LearningUnitEnrollmentFactory(learning_unit_year=l_unit_2)
         LearningUnitEnrollmentFactory(learning_unit_year=l_unit_2)
 
-        group_1 = GroupElementYearFactory(child_leaf=l_unit_2)
-        group_2 = GroupElementYearFactory(child_leaf=l_unit_2)
+        group_1 = GroupElementYearFactory(child_branch=None, child_leaf=l_unit_2)
+        group_2 = GroupElementYearFactory(child_branch=None, child_leaf=l_unit_2)
 
         component = LearningUnitComponentFactory(learning_unit_year=l_unit_2)
 

@@ -23,8 +23,10 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+
 from django.db import models
 from django.db.models import Count
+from django.urls import reverse
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
@@ -111,10 +113,18 @@ class EducationGroupYear(models.Model):
     credits = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True, verbose_name=_("credits"))
     remark = models.TextField(blank=True, null=True, verbose_name=_("remark"))
     remark_english = models.TextField(blank=True, null=True, verbose_name=_("remark_english"))
-    min_credits = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True,
-                                      verbose_name=_("minimum credits"))
-    max_credits = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True,
-                                      verbose_name=_("maximum credits"))
+
+    min_credits = models.DecimalField(
+        max_digits=5, decimal_places=2,
+        blank=True, null=True,
+        verbose_name=_("minimum credits")
+    )
+
+    max_credits = models.DecimalField(
+        max_digits=5, decimal_places=2,
+        blank=True, null=True,
+        verbose_name=_("maximum credits")
+    )
 
     domains = models.ManyToManyField(
         "reference.domain",
@@ -137,6 +147,12 @@ class EducationGroupYear(models.Model):
 
     def __str__(self):
         return u"%s - %s" % (self.academic_year, self.acronym)
+
+    class Meta:
+        verbose_name = _("education group year")
+
+    def get_absolute_url(self):
+        return reverse("education_group_read", args=[self.pk])
 
     @property
     def str_domains(self):
@@ -174,7 +190,7 @@ class EducationGroupYear(models.Model):
 
     @property
     def children_by_group_element_year(self):
-        group_elements_year = self.parent.filter(parent=self).select_related('child_branch')
+        group_elements_year = self.parents.filter(parent=self).select_related('child_branch')
         return [group_element_year.child_branch for group_element_year in group_elements_year
                 if group_element_year.child_branch]
 
