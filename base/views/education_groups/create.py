@@ -23,13 +23,14 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from django import forms
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 from waffle.decorators import waffle_flag
 
-from base.forms.education_group.create import CreateEducationGroupYearForm
+from base.forms.education_group.create import GroupForm
 from base.models.education_group_year import EducationGroupYear
 from base.views import layout
 from base.views.common import display_success_messages, reverse_url_with_root
@@ -42,7 +43,7 @@ from base.views.education_groups.perms import can_create_education_group
 def create_education_group(request, parent_id=None):
     parent = get_object_or_404(EducationGroupYear, id=parent_id) if parent_id is not None else None
 
-    form_education_group_year = CreateEducationGroupYearForm(request.POST or None, parent=parent)
+    form_education_group_year = GroupForm(request.POST or None, parent=parent)
 
     if form_education_group_year.is_valid():
         education_group_year = form_education_group_year.save()
@@ -55,7 +56,7 @@ def create_education_group(request, parent_id=None):
         return redirect(url)
 
     return layout.render(request, "education_group/create_groups.html", {
-        "form_education_group_year": form_education_group_year,
+        "form_education_group_year": form_education_group_year.forms[forms.ModelForm],
         "parent": parent
     })
 

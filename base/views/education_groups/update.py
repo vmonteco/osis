@@ -29,7 +29,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import ugettext_lazy as _
 from waffle.decorators import waffle_flag
 
-from base.forms.education_group.create import CreateEducationGroupYearForm, EducationGroupModelForm, GroupForm
+from base.forms.education_group.create import GroupModelForm, EducationGroupModelForm, GroupForm
 from base.forms.education_group.mini_training import MiniTrainingModelForm, MiniTrainingForm
 from base.forms.education_group.training import TrainingEducationGroupYearForm, TrainingForm
 from base.models.education_group_year import EducationGroupYear
@@ -153,7 +153,7 @@ def _update_mini_training(request, education_group_year):
         return redirect(url)
 
     return layout.render(request, "education_group/minitraining_form.html", {
-        "form_education_group_year": form.forms[MiniTrainingModelForm],
+        "form_education_group_year": form.forms[forms.ModelForm],
         "education_group_year": education_group_year,
         "form_education_group": form.forms[EducationGroupModelForm]
     })

@@ -28,7 +28,7 @@ from base.models.education_group_type import EducationGroupType
 from base.models.entity_version import EntityVersion
 from base.tests.factories.authorized_relationship import AuthorizedRelationshipFactory
 from django.test import TestCase
-from base.forms.education_group.create import CreateEducationGroupYearForm, GroupForm
+from base.forms.education_group.create import GroupModelForm, GroupForm
 from base.models.enums import education_group_categories, organization_type
 from base.models.group_element_year import GroupElementYear
 from base.tests.factories.academic_year import AcademicYearFactory, create_current_academic_year
@@ -117,7 +117,7 @@ class TestCreateEducationGroupYearForm(EducationGroupYearMixin):
 
     def setUp(self):
         self.education_group_type = EducationGroupTypeFactory(category=education_group_categories.GROUP)
-        self.form_class = CreateEducationGroupYearForm
+        self.form_class = GroupModelForm
         super(TestCreateEducationGroupYearForm, self).setUp(education_group_type=self.education_group_type)
 
     def test_fields(self):
@@ -125,7 +125,7 @@ class TestCreateEducationGroupYearForm(EducationGroupYearMixin):
                   "main_teaching_campus", "academic_year", "remark", "remark_english", "min_credits", "max_credits",
                   "administration_entity")
 
-        form = CreateEducationGroupYearForm(parent=None)
+        form = GroupModelForm(parent=None)
         self.assertCountEqual(tuple(form.fields.keys()), fields)
 
     def test_init_academic_year_field(self):

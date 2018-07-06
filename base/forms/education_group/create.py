@@ -73,7 +73,7 @@ def _save_group_element_year(parent, child):
         group_element_year.get_or_create_group_element_year(parent, child)
 
 
-class CreateEducationGroupYearForm(forms.ModelForm):
+class GroupModelForm(forms.ModelForm):
 
     class Meta:
         model = EducationGroupYear
@@ -107,6 +107,11 @@ class EducationGroupModelForm(forms.ModelForm):
         model = EducationGroup
         fields = ("start_year", "end_year")
 
+    def save(self, *args, start_year=None, **kwargs):
+        if start_year:
+            self.instance.start_year = start_year
+        return super().save(*args, **kwargs)
+
 
 class CommonBaseForm:
     forms = None
@@ -121,10 +126,18 @@ class CommonBaseForm:
         return all([form.is_valid() for form in self.forms.values()])
 
     def save(self):
-        education_group = self.forms[EducationGroupModelForm].save()
+        # TODO :: unit test
+        start_year = None
+        if self._is_creation():
+            start_year = self.forms[forms.ModelForm].cleaned_data['academic_year'].year
+
+        education_group = self.forms[EducationGroupModelForm].save(start_year=start_year)
         education_group_year_form = self.forms[forms.ModelForm]
         education_group_year_form.instance.education_group = education_group
         return education_group_year_form.save()
+
+    def _is_creation(self):
+        return not self.forms[EducationGroupModelForm].instance.id
 
     @property
     def errors(self):
@@ -137,16 +150,10 @@ class CommonBaseForm:
 class GroupForm(CommonBaseForm):
 
     def __init__(self, data, instance=None, parent=None):
-        educ_group_year_form = CreateEducationGroupYearForm(data, instance=instance, parent=parent)
+        educ_group_year_form = GroupModelForm(data, instance=instance, parent=parent)
 
         education_group = instance.education_group if instance else None
 
-        education_group_data = None
-        if data:
-            education_group_data = {
-                'start_year': academic_year.find_academic_year_by_id(educ_group_year_form.data["academic_year"]).year
-            }
-
-        educ_group_model_form = EducationGroupModelForm(education_group_data, instance=education_group)
+        educ_group_model_form = EducationGroupModelForm({}, instance=education_group)
 
         super(GroupForm, self).__init__(educ_group_year_form, educ_group_model_form)

@@ -58,7 +58,6 @@ class TrainingEducationGroupYearForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.parent = kwargs.pop("parent", None)
         super().__init__(*args, **kwargs)
-
         _init_education_group_type_field(self.fields["education_group_type"],
                                          self.parent,
                                          education_group_categories.TRAINING)
