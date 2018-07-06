@@ -23,19 +23,13 @@
 #
 ##############################################################################
 from unittest.mock import patch
-from base.models.education_group import EducationGroup
-from base.models.education_group_type import EducationGroupType
-from base.models.education_group_year import EducationGroupYear
-from base.models.entity_version import EntityVersion
-from base.tests.factories.education_group import EducationGroupFactory
-from base.tests.factories.entity import EntityFactory
-from base.tests.factories.authorized_relationship import AuthorizedRelationshipFactory
-from base.tests.factories.group_element_year import GroupElementYearFactory
-from django.test import TestCase
 
-from base.forms.education_group.create import CreateEducationGroupYearForm, MiniTrainingForm, MiniTrainingModelForm, \
-    GroupForm
-from base.models.enums import education_group_categories, organization_type, entity_type
+from base.models.education_group_type import EducationGroupType
+from base.models.entity_version import EntityVersion
+from base.tests.factories.authorized_relationship import AuthorizedRelationshipFactory
+from django.test import TestCase
+from base.forms.education_group.create import CreateEducationGroupYearForm, GroupForm
+from base.models.enums import education_group_categories, organization_type
 from base.models.group_element_year import GroupElementYear
 from base.tests.factories.academic_year import AcademicYearFactory, create_current_academic_year
 from base.tests.factories.campus import CampusFactory
@@ -177,132 +171,6 @@ class TestGroupForm(TestCase):
         education_group_year = form.save()
 
         self.assertTrue(GroupElementYear.objects.get(child_branch=education_group_year, parent=parent))
-
-
-class TestIsValid(TestCase):
-    """Unit tests on TestMiniTrainingForm.is_valid()"""
-
-    def setUp(self):
-        self.category = education_group_categories.MINI_TRAINING
-
-    @patch('base.forms.education_group.create.MiniTrainingModelForm.is_valid', return_value=False)
-    def test_when_mini_training_form_is_not_valid(self, mock_is_valid):
-        expected_educ_group_year, post_data = _get_valid_post_data(self.category)
-        self.assertFalse(MiniTrainingForm(post_data).is_valid())
-
-    @patch('base.forms.education_group.create.EducationGroupModelForm.is_valid', return_value=False)
-    def test_when_education_group_model_form_is_not_valid(self, mock_is_valid):
-        expected_educ_group_year, post_data = _get_valid_post_data(self.category)
-        self.assertFalse(MiniTrainingForm(post_data).is_valid())
-
-    @patch('base.forms.education_group.create.MiniTrainingModelForm.is_valid', return_value=True)
-    @patch('base.forms.education_group.create.EducationGroupModelForm.is_valid', return_value=True)
-    def test_when_both_of_two_forms_are_valid(self, mock_is_valid, mock_mintraining_is_valid):
-        expected_educ_group_year, post_data = _get_valid_post_data(self.category)
-        self.assertTrue(MiniTrainingForm(post_data).is_valid())
-
-    def test_post_with_errors(self):
-        expected_educ_group_year, post_data = _get_valid_post_data(self.category)
-        post_data['administration_entity'] = None
-        post_data['end_year'] = "some text"
-        form = MiniTrainingForm(data=post_data, parent=None)
-        self.assertFalse(form.is_valid(), form.errors)
-        self.assertEqual(len(form.errors), 2)
-
-
-class TestSave(TestCase):
-    """Unit tests on TestMiniTrainingForm.save()"""
-
-    def setUp(self):
-        self.category = education_group_categories.MINI_TRAINING
-        self.expected_educ_group_year, self.post_data = _get_valid_post_data(self.category)
-
-    def _assert_all_fields_correctly_saved(self, education_group_year_saved):
-        for field_name in self.post_data.keys():
-            if hasattr(self.expected_educ_group_year, field_name):
-                expected_value = getattr(self.expected_educ_group_year, field_name, None)
-                value = getattr(education_group_year_saved, field_name, None)
-            else:
-                expected_value = getattr(self.expected_educ_group_year.education_group, field_name, None)
-                value = getattr(education_group_year_saved.education_group, field_name, None)
-            self.assertEqual(expected_value, value)
-
-    def test_create(self):
-        form = MiniTrainingForm(data=self.post_data, parent=None)
-        self.assertTrue(form.is_valid(), form.errors)
-        created_education_group_year = form.save()
-
-        self.assertEqual(EducationGroupYear.objects.all().count(), 1)
-        self.assertEqual(EducationGroup.objects.all().count(), 1)
-
-        self._assert_all_fields_correctly_saved(created_education_group_year)
-
-    def test_update(self):
-        entity_version = MainEntityVersionFactory()
-        initial_educ_group_year = EducationGroupYearFactory(administration_entity=entity_version.entity)
-        initial_educ_group = initial_educ_group_year.education_group
-
-        form = MiniTrainingForm(data=self.post_data, instance=initial_educ_group_year, parent=None)
-        self.assertTrue(form.is_valid(), form.errors)
-        updated_educ_group_year = form.save()
-
-        self.assertEqual(updated_educ_group_year.pk, initial_educ_group_year.pk)
-        # Assert keep the same EducationGroup when update
-        self.assertEqual(updated_educ_group_year.education_group, initial_educ_group)
-        self._assert_all_fields_correctly_saved(updated_educ_group_year)
-
-    @patch('base.models.education_group_type.find_authorized_types', return_value=EducationGroupType.objects.all())
-    def test_create_with_parent(self, mock_find_authorized_types):
-        parent = EducationGroupYearFactory()
-
-        form = MiniTrainingForm(data=self.post_data, parent=parent)
-        self.assertTrue(form.is_valid(), form.errors)
-        created_education_group_year = form.save()
-
-        group_element_year = GroupElementYear.objects.filter(parent=parent, child_branch=created_education_group_year)
-        self.assertTrue(group_element_year.exists())
-
-    @patch('base.models.education_group_type.find_authorized_types', return_value=EducationGroupType.objects.all())
-    def test_update_with_parent_when_existing_group_element_year(self, mock_find_authorized_types):
-        parent = EducationGroupYearFactory()
-
-        entity_version = MainEntityVersionFactory()
-        initial_educ_group_year = EducationGroupYearFactory(administration_entity=entity_version.entity)
-
-        GroupElementYearFactory(parent=parent, child_branch=initial_educ_group_year)
-        initial_count = GroupElementYear.objects.all().count()
-
-        form = MiniTrainingForm(data=self.post_data, instance=initial_educ_group_year, parent=parent)
-        self.assertTrue(form.is_valid(), form.errors)
-        form.save()
-
-        # Assert existing GroupElementYear is reused.
-        self.assertEqual(initial_count, GroupElementYear.objects.all().count())
-
-
-class TestMiniTrainingModelForm(EducationGroupYearMixin):
-
-    def setUp(self):
-        self.education_group_type = EducationGroupTypeFactory(category=education_group_categories.MINI_TRAINING)
-        self.form_class = MiniTrainingModelForm
-        super(TestMiniTrainingModelForm, self).setUp(education_group_type=self.education_group_type)
-
-    def test_fields(self):
-        fields = ("acronym", "partial_acronym", "education_group_type", "title", "title_english", "credits",
-                  "main_teaching_campus", "academic_year", "remark", "remark_english", "min_credits", "max_credits",
-                  "administration_entity")
-
-        form = CreateEducationGroupYearForm(parent=None)
-        self.assertCountEqual(tuple(form.fields.keys()), fields)
-
-    def test_init_academic_year_field(self):
-        self._test_init_academic_year_field(self.form_class)
-
-    def test_init_education_group_type_field(self):
-        self._test_init_education_group_type_field(self.form_class, education_group_categories.MINI_TRAINING)
-
-    def test_preselect_entity_version_from_entity_value(self):
-        self._test_preselect_entity_version_from_entity_value(self.form_class)
 
 
 def _get_valid_post_data(category):

@@ -23,7 +23,6 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import itertools
 from django import forms
 
 from base.forms.learning_unit.entity_form import EntitiesVersionChoiceField
@@ -139,32 +138,6 @@ class EducationGroupModelForm(forms.ModelForm):
         fields = ("start_year", "end_year")
 
 
-class MiniTrainingModelForm(forms.ModelForm):
-    class Meta:
-        model = EducationGroupYear
-        fields = ("acronym", "partial_acronym", "education_group_type", "title", "title_english", "credits",
-                  "main_teaching_campus", "academic_year", "remark", "remark_english", "min_credits", "max_credits",
-                  "administration_entity")
-        field_classes = {
-            "administration_entity": MainEntitiesVersionChoiceField,
-            "main_teaching_campus": MainTeachingCampusChoiceField
-        }
-
-    def __init__(self, *args, **kwargs):
-        self.parent = kwargs.pop("parent", None)
-        super().__init__(*args, **kwargs)
-        _init_education_group_type_field(self.fields["education_group_type"],
-                                         self.parent,
-                                         education_group_categories.MINI_TRAINING)
-        _init_academic_year(self.fields["academic_year"], self.parent)
-        _preselect_entity_version_from_entity_value(self) # Due to MainEntitiesVersionChoiceField
-
-    def save(self, *args, **kwargs):
-        education_group_year = super(MiniTrainingModelForm, self).save(*args, **kwargs)
-        _save_group_element_year(self.parent, education_group_year)
-        return education_group_year
-
-
 class CommonBaseForm:
     forms = None
 
@@ -189,15 +162,6 @@ class CommonBaseForm:
         for form in self.forms.values():
             errors.update(form.errors)
         return errors
-
-
-class MiniTrainingForm(CommonBaseForm):
-
-    def __init__(self, data, instance=None, parent=None):
-        education_group_year_form = MiniTrainingModelForm(data, instance=instance, parent=parent)
-        education_group = instance.education_group if instance else None
-        education_group_form = EducationGroupModelForm(data, instance=education_group)
-        super(MiniTrainingForm, self).__init__(education_group_year_form, education_group_form)
 
 
 class GroupForm(CommonBaseForm):
