@@ -10,7 +10,7 @@ from base.tests.factories.education_group_type import EducationGroupTypeFactory
 from base.tests.factories.education_group_year import EducationGroupYearFactory
 from base.tests.factories.entity_version import MainEntityVersionFactory
 from base.tests.factories.group_element_year import GroupElementYearFactory
-from base.tests.forms.education_group.test_create import _get_valid_post_data, EducationGroupYearMixin
+from base.tests.forms.education_group.test_common import _get_valid_post_data, EducationGroupYearMixin
 from django.test import TestCase
 
 

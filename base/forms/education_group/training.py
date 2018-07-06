@@ -23,7 +23,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from base.forms.education_group.create import CommonBaseForm, EducationGroupModelForm, _save_group_element_year, \
+from base.forms.education_group.common import CommonBaseForm, EducationGroupModelForm, _save_group_element_year, \
     MainEntitiesVersionChoiceField, MainTeachingCampusChoiceField, _init_academic_year, _init_education_group_type_field, \
     _preselect_entity_version_from_entity_value
 from django import forms

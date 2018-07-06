@@ -5,7 +5,7 @@ from base.models.enums import education_group_categories
 from base.models.group_element_year import GroupElementYear
 from base.tests.factories.education_group_type import EducationGroupTypeFactory
 from base.tests.factories.education_group_year import EducationGroupYearFactory
-from base.tests.forms.education_group.test_create import EducationGroupYearMixin, _get_valid_post_data
+from base.tests.forms.education_group.test_common import EducationGroupYearMixin, _get_valid_post_data
 from django.test import TestCase
 
 

@@ -28,7 +28,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import ugettext_lazy as _
 from waffle.decorators import waffle_flag
 
-from base.forms.education_group.create import EducationGroupModelForm
+from base.forms.education_group.common import EducationGroupModelForm
 from base.forms.education_group.group import GroupForm
 from base.forms.education_group.mini_training import MiniTrainingForm
 from base.forms.education_group.training import TrainingForm

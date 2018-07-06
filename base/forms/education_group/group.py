@@ -1,4 +1,4 @@
-from base.forms.education_group.create import MainEntitiesVersionChoiceField, MainTeachingCampusChoiceField, \
+from base.forms.education_group.common import MainEntitiesVersionChoiceField, MainTeachingCampusChoiceField, \
     _init_education_group_type_field, _init_academic_year, _preselect_entity_version_from_entity_value, \
     _save_group_element_year, CommonBaseForm, EducationGroupModelForm
 from base.models.education_group_year import EducationGroupYear
