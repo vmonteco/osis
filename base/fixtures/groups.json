@@ -2933,6 +2933,11 @@
                 "educationgroup"
             ],
             [
+                "delete_educationgroupyear",
+                "base",
+                "educationgroupyear"
+            ],
+            [
                 "change_learningclassyear",
                 "base",
                 "learningclassyear"
