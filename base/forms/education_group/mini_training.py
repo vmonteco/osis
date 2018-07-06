@@ -5,8 +5,6 @@ from base.models.education_group_year import EducationGroupYear
 from base.models.enums import education_group_categories
 from django import forms
 
-__author__ = 'bastien'
-
 
 class MiniTrainingModelForm(forms.ModelForm):
     class Meta:

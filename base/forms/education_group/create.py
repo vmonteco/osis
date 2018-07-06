@@ -88,47 +88,17 @@ class CreateEducationGroupYearForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.parent = kwargs.pop("parent", None)
         super().__init__(*args, **kwargs)
-
-        # self.fields["main_teaching_campus"].queryset = campus.find_main_campuses()
-
-        # self.fields["education_group_type"].queryset = self._get_authorized_education_group_types_queryset()
-        # self.fields["education_group_type"].required = True
         _init_education_group_type_field(self.fields["education_group_type"],
                                          self.parent,
                                          education_group_categories.GROUP)
-
-        # if self.parent_education_group_year:
-        #     self.fields["academic_year"].initial = self.parent_education_group_year.academic_year.id
-        #     self.fields["academic_year"].disabled = True
-        #     self.fields["academic_year"].required = False
         _init_academic_year(self.fields["academic_year"], self.parent)
 
-        # self.fields["administration_entity"].queryset = find_main_entities_version()
-
-        # if getattr(self.instance, 'administration_entity', None):
-        #     self.initial['administration_entity'] = get_last_version(self.instance.administration_entity).pk
         _preselect_entity_version_from_entity_value(self)
-
-    # def _get_authorized_education_group_types_queryset(self):
-    #     parent_group_type = None
-    #     if self.parent_education_group_year:
-    #         parent_group_type = self.parent_education_group_year.education_group_type
-    #     return education_group_type.find_authorized_types(
-    #         category=education_group_categories.GROUP, parent_type=parent_group_type
-    #     )
 
     def save(self, *args, **kwargs):
         education_group_year = super().save(*args, **kwargs)
-        # education_group_year.education_group = self._create_education_group()
-        # education_group_year.save()
-
         _save_group_element_year(self.parent, education_group_year)
-
         return education_group_year
-
-    # def _create_education_group(self):
-    #     start_year = self.cleaned_data["academic_year"].year
-    #     return EducationGroup.objects.create(start_year=start_year)
 
 
 class EducationGroupModelForm(forms.ModelForm):
