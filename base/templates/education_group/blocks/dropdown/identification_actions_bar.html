@@ -1,6 +1,6 @@
 {% load staticfiles %}
 {% load i18n %}
-{% load format waffle_tags %}
+{% load format waffle_tags feature_flag %}
 {% comment "License" %}
 * OSIS stands for Open Student Information System. It's an application
 * designed to manage the core business of higher education institutions,
@@ -25,36 +25,39 @@
 * see http://www.gnu.org/licenses/.
 {% endcomment %}
 {% if "base" in perms %}
-    <div class="dropdown {{ dropdirection }}">
-        <button id="dLabel" class="btn btn-default" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <span class="glyphicon glyphicon-cog" aria-hidden="true"></span> {% trans 'actions' %}
-            <span class="caret"></span>
-        </button>
-        <ul class="dropdown-menu dropdown-menu-large row text-right pull-right">
-            {% flag "education_group_create" %}
-                <li {% if not can_create_education_group %} class="disabled" {% endif %}>
-                    <a {% if can_create_education_group %} href="{% url 'new_education_group' parent_id=education_group_year.id %}?root={{ request.GET.root }}" {% endif %}>
-                        {% trans 'New Education Group' %}
-                    </a>
-                </li>
-            {% endflag %}
+    {% features_or "education_group_create" "education_group_update" "education_group_delete" as show_button%}
+    {% if show_button %}
+        <div class="dropdown {{ dropdirection }}">
+            <button id="dLabel" class="btn btn-default" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <span class="glyphicon glyphicon-cog" aria-hidden="true"></span> {% trans 'actions' %}
+                <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-large row text-right pull-right">
+                {% flag "education_group_create" %}
+                    <li {% if not can_create_education_group %} class="disabled" {% endif %}>
+                        <a {% if can_create_education_group %} href="{% url 'new_education_group' parent_id=education_group_year.id %}?root={{ request.GET.root }}" {% endif %}>
+                            {% trans 'New Education Group' %}
+                        </a>
+                    </li>
+                {% endflag %}
 
-            {% flag "education_group_update" %}
-                <li {% if not can_change_education_group %} class="disabled" {% endif %}>
-                    <a {% if can_change_education_group %} href="{% url 'update_education_group' education_group_year_id=education_group_year.id %}?root={{ request.GET.root }}" {% endif %}>
-                        {% trans 'Update Education Group' %}
-                    </a>
-                </li>
-            {% endflag %}
+                {% flag "education_group_update" %}
+                    <li {% if not can_change_education_group %} class="disabled" {% endif %}>
+                        <a {% if can_change_education_group %} href="{% url 'update_education_group' education_group_year_id=education_group_year.id %}?root={{ request.GET.root }}" {% endif %}>
+                            {% trans 'Update Education Group' %}
+                        </a>
+                    </li>
+                {% endflag %}
 
-            {% flag "education_group_delete" %}
-                <li {% if not can_delete_education_group %} class="disabled" {% endif %}>
-                    <a {% if can_delete_education_group %} href="{% url 'delete_education_group' education_group_year_id=education_group_year.id %}?root={{ request.GET.root }}" {% endif %}>
-                        {% trans 'Delete Education Group' %}
-                    </a>
-                </li>
-            {% endflag %}
-        </ul>
-    </div>
+                {% flag "education_group_delete" %}
+                    <li {% if not can_delete_education_group %} class="disabled" {% endif %}>
+                        <a {% if can_delete_education_group %} href="{% url 'delete_education_group' education_group_year_id=education_group_year.id %}?root={{ request.GET.root }}" {% endif %}>
+                            {% trans 'Delete Education Group' %}
+                        </a>
+                    </li>
+                {% endflag %}
+            </ul>
+        </div>
+    {% endif %}
 
 {% endif %}
