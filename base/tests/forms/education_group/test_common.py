@@ -36,6 +36,7 @@ from base.tests.factories.entity_version import MainEntityVersionFactory, Entity
 
 
 class EducationGroupYearMixin(TestCase):
+    """Common class used to get common tests on ModelForm instances of Training, MiniTraining and Group"""
     education_group_type = None
 
     @classmethod
@@ -83,31 +84,6 @@ class EducationGroupYearMixin(TestCase):
         educ_group_entity = self.parent_education_group_year.administration_entity
         expected_entity_version = EntityVersion.objects.filter(entity=educ_group_entity).latest('start_date')
         self.assertEqual(form.initial['administration_entity'], expected_entity_version.id)
-
-    # def _test_create(self, form_class):
-    #     form = form_class(data=self.form_data, parent=None)
-    #
-    #     self.assertTrue(form.is_valid(), form.errors)
-    #
-    #     education_group_year = form.save()
-    #
-    #     self.assertEqual(education_group_year.education_group.start_year, self.academic_year.year)
-    #     self.assertIsNone(education_group_year.education_group.end_year)
-
-    # def _test_create_with_parent(self, form_class):
-    #     AuthorizedRelationshipFactory(parent_type=self.parent_education_group_year.education_group_type,
-    #                                   child_type=self.education_group_type)
-    #     form = form_class(data=self.form_data, parent=self.parent_education_group_year)
-    #
-    #     self.assertTrue(form.is_valid(), form.errors)
-    #
-    #     education_group_year = form.save()
-    #
-    #     self.assertTrue(GroupElementYear.objects.get(child_branch=education_group_year,
-    #                                                  parent=self.parent_education_group_year))
-
-    def _test_update(self):
-        pass # ne pas créer un 2e educationGroup et réutilsirerr le premier.
 
 
 def _get_valid_post_data(category):
