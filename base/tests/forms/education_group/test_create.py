@@ -24,13 +24,10 @@
 ##############################################################################
 from unittest.mock import patch
 
-from base.models.education_group_type import EducationGroupType
 from base.models.entity_version import EntityVersion
 from base.tests.factories.authorized_relationship import AuthorizedRelationshipFactory
 from django.test import TestCase
-from base.forms.education_group.create import GroupModelForm, GroupForm
-from base.models.enums import education_group_categories, organization_type
-from base.models.group_element_year import GroupElementYear
+from base.models.enums import organization_type
 from base.tests.factories.academic_year import AcademicYearFactory, create_current_academic_year
 from base.tests.factories.campus import CampusFactory
 from base.tests.factories.education_group_type import EducationGroupTypeFactory
@@ -111,66 +108,6 @@ class EducationGroupYearMixin(TestCase):
 
     def _test_update(self):
         pass # ne pas créer un 2e educationGroup et réutilsirerr le premier.
-
-
-class TestCreateEducationGroupYearForm(EducationGroupYearMixin):
-
-    def setUp(self):
-        self.education_group_type = EducationGroupTypeFactory(category=education_group_categories.GROUP)
-        self.form_class = GroupModelForm
-        super(TestCreateEducationGroupYearForm, self).setUp(education_group_type=self.education_group_type)
-
-    def test_fields(self):
-        fields = ("acronym", "partial_acronym", "education_group_type", "title", "title_english", "credits",
-                  "main_teaching_campus", "academic_year", "remark", "remark_english", "min_credits", "max_credits",
-                  "administration_entity")
-
-        form = GroupModelForm(parent=None)
-        self.assertCountEqual(tuple(form.fields.keys()), fields)
-
-    def test_init_academic_year_field(self):
-        self._test_init_academic_year_field(self.form_class)
-
-    def test_init_education_group_type_field(self):
-        self._test_init_education_group_type_field(self.form_class, education_group_categories.GROUP)
-
-    def test_preselect_entity_version_from_entity_value(self):
-        self._test_preselect_entity_version_from_entity_value(self.form_class)
-
-    def test_update(self):
-        pass # should assert reuse EducationGroup
-
-
-class TestGroupForm(TestCase):
-    def setUp(self):
-        self.category = education_group_categories.GROUP
-        self.expected_educ_group_year, self.post_data = _get_valid_post_data(self.category)
-
-        # self.education_group_type = EducationGroupTypeFactory(category=self.category)
-
-    def test_create(self):
-        form = GroupForm(data=self.post_data, parent=None)
-
-        self.assertTrue(form.is_valid(), form.errors)
-
-        education_group_year = form.save()
-
-        self.assertEqual(education_group_year.education_group.start_year,
-                         self.expected_educ_group_year.academic_year.year)
-        self.assertIsNone(education_group_year.education_group.end_year)
-
-    @patch('base.models.education_group_type.find_authorized_types', return_value=EducationGroupType.objects.all())
-    def test_create_with_parent(self, mock_find_authorized_types):
-        # AuthorizedRelationshipFactory(parent_type=self.parent_education_group_year.education_group_type,
-        #                               child_type=self.education_group_type)
-        parent = EducationGroupYearFactory()
-        form = GroupForm(data=self.post_data, parent=parent)
-
-        self.assertTrue(form.is_valid(), form.errors)
-
-        education_group_year = form.save()
-
-        self.assertTrue(GroupElementYear.objects.get(child_branch=education_group_year, parent=parent))
 
 
 def _get_valid_post_data(category):

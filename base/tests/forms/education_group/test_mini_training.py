@@ -1,5 +1,5 @@
 from unittest.mock import patch
-from base.forms.education_group.create import GroupModelForm
+from base.forms.education_group.group import GroupModelForm
 from base.forms.education_group.mini_training import MiniTrainingForm, MiniTrainingModelForm
 from base.models.education_group import EducationGroup
 from base.models.education_group_type import EducationGroupType
