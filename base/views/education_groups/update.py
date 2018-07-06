@@ -31,7 +31,7 @@ from waffle.decorators import waffle_flag
 
 from base.forms.education_group.create import CreateEducationGroupYearForm, MiniTrainingForm, MiniTrainingModelForm, \
     EducationGroupModelForm, GroupForm
-from base.forms.education_group.training import EducationGroupForm, TrainingEducationGroupYearForm
+from base.forms.education_group.training import TrainingEducationGroupYearForm, TrainingForm
 from base.models.education_group_year import EducationGroupYear
 from base.models.enums import education_group_categories
 from base.views import layout
@@ -105,7 +105,7 @@ def _update_training(request, education_group_year):
     # form_education_group = EducationGroupForm(request.POST or None, instance=education_group_year.education_group)
 
     # if education_group_year.education_group_type.category != education_group_categories.GROUP:
-    form_education_group_year = TrainingEducationGroupYearForm(request.POST or None, instance=education_group_year)
+    form_education_group_year = TrainingForm(request.POST or None, instance=education_group_year)
         # html_page = "education_group/update_trainings.html"
     # else:
     # form_education_group_year = CreateEducationGroupYearForm(request.POST or None, instance=education_group_year)
@@ -120,8 +120,8 @@ def _update_training(request, education_group_year):
 
     return layout.render(request, "education_group/update_trainings.html", {
         "education_group_year": education_group_year,
-        "form_education_group_year": form_education_group_year,
-        # "form_education_group": form_education_group
+        "form_education_group_year": form_education_group_year.forms[forms.ModelForm],
+        "form_education_group": form_education_group_year.forms[EducationGroupModelForm]
     })
 
 #
