@@ -29,6 +29,7 @@ import waffle
 
 register = template.Library()
 
+
 @register.simple_tag(takes_context=True)
 def features_or(context, *features_name):
     request = context["request"]
