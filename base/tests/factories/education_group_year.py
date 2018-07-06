@@ -23,6 +23,9 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from base.models.education_group_year import EducationGroupYear
+from base.models.learning_unit_year import MAXIMUM_CREDITS, MINIMUM_CREDITS
+from base.tests.factories.campus import CampusFactory
 import factory.fuzzy
 
 from base.tests.factories.academic_year import AcademicYearFactory
@@ -37,7 +40,7 @@ def generate_title(education_group_year):
 
 class EducationGroupYearFactory(factory.django.DjangoModelFactory):
     class Meta:
-        model = "base.EducationGroupYear"
+        model = EducationGroupYear
 
     education_group = factory.SubFactory(EducationGroupFactory)
     academic_year = factory.SubFactory(AcademicYearFactory)
@@ -48,3 +51,9 @@ class EducationGroupYearFactory(factory.django.DjangoModelFactory):
     education_group_type = factory.SubFactory(EducationGroupTypeFactory)
     management_entity = factory.SubFactory(EntityFactory)
     administration_entity = factory.SubFactory(EntityFactory)
+    main_teaching_campus = factory.SubFactory(CampusFactory)
+    credits = factory.fuzzy.FuzzyDecimal(MINIMUM_CREDITS, MAXIMUM_CREDITS)
+    min_credits = factory.fuzzy.FuzzyDecimal(MAXIMUM_CREDITS)
+    max_credits = factory.fuzzy.FuzzyDecimal(MINIMUM_CREDITS)
+    remark = factory.fuzzy.FuzzyText(length=255)
+    remark_english = factory.fuzzy.FuzzyText(length=255)

@@ -23,15 +23,19 @@
 #
 ##############################################################################
 from unittest.mock import patch
+from base.models.education_group import EducationGroup
+from base.models.education_group_type import EducationGroupType
+from base.models.education_group_year import EducationGroupYear
 from base.models.entity_version import EntityVersion
+from base.tests.factories.education_group import EducationGroupFactory
 from base.tests.factories.entity import EntityFactory
 from base.tests.factories.authorized_relationship import AuthorizedRelationshipFactory
 from django.test import TestCase
 
 from base.forms.education_group.create import CreateEducationGroupYearForm, MiniTrainingForm, MiniTrainingModelForm
-from base.models.enums import education_group_categories, organization_type
+from base.models.enums import education_group_categories, organization_type, entity_type
 from base.models.group_element_year import GroupElementYear
-from base.tests.factories.academic_year import AcademicYearFactory
+from base.tests.factories.academic_year import AcademicYearFactory, create_current_academic_year
 from base.tests.factories.campus import CampusFactory
 from base.tests.factories.education_group_type import EducationGroupTypeFactory
 from base.tests.factories.education_group_year import EducationGroupYearFactory
@@ -39,9 +43,12 @@ from base.tests.factories.entity_version import MainEntityVersionFactory, Entity
 
 
 class EducationGroupYearMixin(TestCase):
+    education_group_type = None
+
     @classmethod
-    def setUp(cls):
-        cls.education_group_type = EducationGroupTypeFactory(category=education_group_categories.GROUP)
+    def setUp(cls, **kwargs):
+        cls.education_group_type = kwargs.pop('education_group_type')
+
         cls.campus = CampusFactory(organization__type=organization_type.MAIN)
         cls.academic_year = AcademicYearFactory()
         new_entity_version = MainEntityVersionFactory()
@@ -84,34 +91,38 @@ class EducationGroupYearMixin(TestCase):
         expected_entity_version = EntityVersion.objects.filter(entity=educ_group_entity).latest('start_date')
         self.assertEqual(form.initial['administration_entity'], expected_entity_version.id)
 
-    def _test_save(self, form_class):
-        form = form_class(data=self.form_data, parent=None)
+    # def _test_create(self, form_class):
+    #     form = form_class(data=self.form_data, parent=None)
+    #
+    #     self.assertTrue(form.is_valid(), form.errors)
+    #
+    #     education_group_year = form.save()
+    #
+    #     self.assertEqual(education_group_year.education_group.start_year, self.academic_year.year)
+    #     self.assertIsNone(education_group_year.education_group.end_year)
 
-        self.assertTrue(form.is_valid(), form.errors)
+    # def _test_create_with_parent(self, form_class):
+    #     AuthorizedRelationshipFactory(parent_type=self.parent_education_group_year.education_group_type,
+    #                                   child_type=self.education_group_type)
+    #     form = form_class(data=self.form_data, parent=self.parent_education_group_year)
+    #
+    #     self.assertTrue(form.is_valid(), form.errors)
+    #
+    #     education_group_year = form.save()
+    #
+    #     self.assertTrue(GroupElementYear.objects.get(child_branch=education_group_year,
+    #                                                  parent=self.parent_education_group_year))
 
-        education_group_year = form.save()
-
-        self.assertEqual(education_group_year.education_group.start_year, self.academic_year.year)
-        self.assertIsNone(education_group_year.education_group.end_year)
-
-    def _test_save_with_parent(self, form_class):
-        AuthorizedRelationshipFactory(parent_type=self.parent_education_group_year.education_group_type,
-                                      child_type=self.education_group_type)
-        form = form_class(data=self.form_data, parent=self.parent_education_group_year)
-
-        self.assertTrue(form.is_valid(), form.errors)
-
-        education_group_year = form.save()
-
-        self.assertTrue(GroupElementYear.objects.get(child_branch=education_group_year,
-                                                     parent=self.parent_education_group_year))
+    def _test_update(self):
+        pass # ne pas créer un 2e educationGroup et réutilsirerr le premier.
 
 
 class TestCreateEducationGroupYearForm(EducationGroupYearMixin):
 
     def setUp(self):
-        super(TestCreateEducationGroupYearForm, self).setUp()
+        self.education_group_type = EducationGroupTypeFactory(category=education_group_categories.GROUP)
         self.form_class = CreateEducationGroupYearForm
+        super(TestCreateEducationGroupYearForm, self).setUp(education_group_type=self.education_group_type)
 
     def test_fields(self):
         fields = ("acronym", "partial_acronym", "education_group_type", "title", "title_english", "credits",
@@ -130,50 +141,110 @@ class TestCreateEducationGroupYearForm(EducationGroupYearMixin):
     def test_preselect_entity_version_from_entity_value(self):
         self._test_preselect_entity_version_from_entity_value(self.form_class)
 
-    def test_save(self):
-        self._test_save(self.form_class)
+    def test_create(self):
+        form = self.form_class(data=self.form_data, parent=None)
 
-    def test_save_with_parent(self):
-        self._test_save_with_parent(self.form_class)
+        self.assertTrue(form.is_valid(), form.errors)
+
+        education_group_year = form.save()
+
+        self.assertEqual(education_group_year.education_group.start_year, self.academic_year.year)
+        self.assertIsNone(education_group_year.education_group.end_year)
+
+    def test_create_with_parent(self):
+        AuthorizedRelationshipFactory(parent_type=self.parent_education_group_year.education_group_type,
+                                      child_type=self.education_group_type)
+        form = self.form_class(data=self.form_data, parent=self.parent_education_group_year)
+
+        self.assertTrue(form.is_valid(), form.errors)
+
+        education_group_year = form.save()
+
+        self.assertTrue(GroupElementYear.objects.get(child_branch=education_group_year,
+                                                     parent=self.parent_education_group_year))
+
+    def test_update(self):
+        pass # should assert reuse EducationGroup
 
 
-class TestMiniTrainingForm(TestCase):
+class TestIsValid(TestCase):
+    """Unit tests on TestMiniTrainingForm.is_valid()"""
 
-    class TestInit(TestCase):
-        pass # Nothing to test
+    def setUp(self):
+        self.category = education_group_categories.MINI_TRAINING
 
-    class TestIsValid(TestCase):
+    @patch('base.forms.education_group.create.MiniTrainingModelForm.is_valid', return_value=False)
+    def test_when_mini_training_form_is_not_valid(self, mock_is_valid):
+        expected_educ_group_year, post_data = _get_valid_post_data(self.category)
+        self.assertFalse(MiniTrainingForm(post_data).is_valid())
 
-        @patch('base.forms.education_group.create.MiniTrainingModelForm.is_valid', return_value=False)
-        def test_when_mini_training_form_is_not_valid(self):
-            self.assertFalse(MiniTrainingForm(_get_post_data()).is_valid())
+    @patch('base.forms.education_group.create.EducationGroupModelForm.is_valid', return_value=False)
+    def test_when_education_group_model_form_is_not_valid(self, mock_is_valid):
+        expected_educ_group_year, post_data = _get_valid_post_data(self.category)
+        self.assertFalse(MiniTrainingForm(post_data).is_valid())
 
-        @patch('base.forms.education_group.create.EducationGroupModelForm.is_valid', return_value=False)
-        def test_when_education_group_model_form_is_not_valid(self):
-            self.assertFalse(MiniTrainingForm(_get_post_data()).is_valid())
+    @patch('base.forms.education_group.create.MiniTrainingModelForm.is_valid', return_value=True)
+    @patch('base.forms.education_group.create.EducationGroupModelForm.is_valid', return_value=True)
+    def test_when_both_of_two_forms_are_valid(self, mock_is_valid, mock_mintraining_is_valid):
+        expected_educ_group_year, post_data = _get_valid_post_data(self.category)
+        self.assertTrue(MiniTrainingForm(post_data).is_valid())
 
-        @patch('base.forms.education_group.create.MiniTrainingModelForm.is_valid', return_value=True)
-        @patch('base.forms.education_group.create.EducationGroupModelForm.is_valid', return_value=True)
-        def test_when_both_of_two_forms_are_valid(self):
-            self.assertTrue(MiniTrainingForm(_get_post_data()).is_valid())
+    def test_post_with_errors(self):
+        expected_educ_group_year, post_data = _get_valid_post_data(self.category)
+        post_data['administration_entity'] = None
+        post_data['end_year'] = "some text"
+        form = MiniTrainingForm(data=post_data, parent=None)
+        self.assertFalse(form.is_valid(), form.errors)
+        self.assertEqual(len(form.errors), 2)
 
-    class TestSave(TestCase):
-        def test_assert_education_group_is_linked_to_education_group_year(self):
-            # test on creation
-            pass
 
-        def test_all_fields_saved_in_education_group_year(self):
-            pass
+class TestSave(TestCase):
+    """Unit tests on TestMiniTrainingForm.save()"""
 
-        def test_all_fields_saved_in_education_group(self):
-            pass
+    def setUp(self):
+        self.category = education_group_categories.MINI_TRAINING
+        self.expected_educ_group_year, self.post_data = _get_valid_post_data(self.category)
+
+    def _assert_all_fields_correctly_saved(self, education_group_year_saved):
+        for field_name in self.post_data.keys():
+            if hasattr(self.expected_educ_group_year, field_name):
+                expected_value = getattr(self.expected_educ_group_year, field_name, None)
+                value = getattr(education_group_year_saved, field_name, None)
+            else:
+                expected_value = getattr(self.expected_educ_group_year.education_group, field_name, None)
+                value = getattr(education_group_year_saved.education_group, field_name, None)
+            self.assertEqual(expected_value, value)
+
+    def test_create(self):
+        form = MiniTrainingForm(data=self.post_data, parent=None)
+        self.assertTrue(form.is_valid(), form.errors)
+        created_education_group_year = form.save()
+
+        self.assertEqual(EducationGroupYear.objects.all().count(), 1)
+        self.assertEqual(EducationGroup.objects.all().count(), 1)
+
+        self._assert_all_fields_correctly_saved(created_education_group_year)
+
+    def test_update(self):
+        entity_version = MainEntityVersionFactory()
+        initial_educ_group_year = EducationGroupYearFactory(administration_entity=entity_version.entity)
+        initial_educ_group = initial_educ_group_year.education_group
+
+        form = MiniTrainingForm(data=self.post_data, instance=initial_educ_group_year, parent=None)
+        self.assertTrue(form.is_valid(), form.errors)
+        updated_educ_group_year = form.save()
+
+        self.assertEqual(updated_educ_group_year.pk, initial_educ_group_year.pk)
+        self.assertEqual(updated_educ_group_year.education_group, initial_educ_group) # Assert keep the same EducationGroup when update
+        self._assert_all_fields_correctly_saved(updated_educ_group_year)
 
 
 class TestMiniTrainingModelForm(EducationGroupYearMixin):
 
     def setUp(self):
-        super(TestMiniTrainingModelForm, self).setUp()
+        self.education_group_type = EducationGroupTypeFactory(category=education_group_categories.MINI_TRAINING)
         self.form_class = MiniTrainingModelForm
+        super(TestMiniTrainingModelForm, self).setUp(education_group_type=self.education_group_type)
 
     def test_fields(self):
         fields = ("acronym", "partial_acronym", "education_group_type", "title", "title_english", "credits",
@@ -192,30 +263,33 @@ class TestMiniTrainingModelForm(EducationGroupYearMixin):
     def test_preselect_entity_version_from_entity_value(self):
         self._test_preselect_entity_version_from_entity_value(self.form_class)
 
-    def test_save(self):
-        self._test_save(self.form_class)
 
-    def test_save_with_parent(self):
-        self._test_save_with_parent(self.form_class)
-
-
-def _get_post_data(academic_year=None):
-    if not academic_year:
-        academic_year = AcademicYearFactory()
-    return {
-        'main_teaching_campus': str(CampusFactory().id),
-        'administration_entity': str(EntityFactory().id),
-        'remark_english': 'Test remark English',
-        'title_english': "Law's minor",
-        'education_group_type': str(EducationGroupTypeFactory().id),
-        'partial_acronym': 'LODRT100I',
-        'end_year': '',
-        'start_year': '2015',
-        'title': 'Mineure en droit (ouverture)',
-        'credits': '30.00',
-        'academic_year': str(academic_year.id),
-        'max_credits': '5',
-        'min_credits': '15',
-        'remark': 'test remark',
-        'acronym': 'MINODROI'
+def _get_valid_post_data(category):
+    entity_version = MainEntityVersionFactory()
+    education_group_type = EducationGroupTypeFactory(category=category)
+    campus = CampusFactory(organization__type=organization_type.MAIN)
+    fake_education_group_year = EducationGroupYearFactory.build(
+        academic_year=create_current_academic_year(),
+        administration_entity=entity_version.entity,
+        main_teaching_campus=campus,
+        education_group_type=education_group_type
+    )
+    AuthorizedRelationshipFactory(child_type=fake_education_group_year.education_group_type)
+    post_data = {
+        'main_teaching_campus': str(fake_education_group_year.main_teaching_campus.id),
+        'administration_entity': str(entity_version.id),
+        'remark_english': str(fake_education_group_year.remark_english),
+        'title_english': str(fake_education_group_year.title_english),
+        'education_group_type': str(fake_education_group_year.education_group_type.id),
+        'partial_acronym': str(fake_education_group_year.partial_acronym),
+        'end_year': str(fake_education_group_year.education_group.end_year),
+        'start_year': str(fake_education_group_year.education_group.start_year),
+        'title': str(fake_education_group_year.title),
+        'credits': str(fake_education_group_year.credits),
+        'academic_year': str(fake_education_group_year.academic_year.id),
+        'max_credits': str(fake_education_group_year.max_credits),
+        'min_credits': str(fake_education_group_year.min_credits),
+        'remark': str(fake_education_group_year.remark),
+        'acronym': str(fake_education_group_year.acronym),
     }
+    return fake_education_group_year, post_data

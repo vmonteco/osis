@@ -23,6 +23,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+import itertools
 from django import forms
 
 from base.forms.learning_unit.entity_form import EntitiesVersionChoiceField
@@ -173,8 +174,13 @@ class MiniTrainingForm:
         return all([form.is_valid() for form in self.forms.values()])
 
     def save(self):
-        education_group = self.forms[EducationGroup].save()
-        educ_group_year = self.forms[CreateEducationGroupYearForm].save()
-        educ_group_year.education_group = education_group
-        educ_group_year.save()
-        return educ_group_year
+        education_group = self.forms[EducationGroupModelForm].save()
+        self.forms[MiniTrainingModelForm].instance.education_group = education_group
+        return self.forms[MiniTrainingModelForm].save()
+
+    @property
+    def errors(self):
+        errors = {}
+        for form in self.forms.values():
+            errors.update(form.errors)
+        return errors
