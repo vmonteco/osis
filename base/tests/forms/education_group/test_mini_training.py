@@ -25,13 +25,13 @@ class TestIsValid(TestCase):
         expected_educ_group_year, post_data = _get_valid_post_data(self.category)
         self.assertFalse(MiniTrainingForm(post_data).is_valid())
 
-    @patch('base.forms.education_group.create.EducationGroupModelForm.is_valid', return_value=False)
+    @patch('base.forms.education_group.common.EducationGroupModelForm.is_valid', return_value=False)
     def test_when_education_group_model_form_is_not_valid(self, mock_is_valid):
         expected_educ_group_year, post_data = _get_valid_post_data(self.category)
         self.assertFalse(MiniTrainingForm(post_data).is_valid())
 
     @patch('base.forms.education_group.mini_training.MiniTrainingModelForm.is_valid', return_value=True)
-    @patch('base.forms.education_group.create.EducationGroupModelForm.is_valid', return_value=True)
+    @patch('base.forms.education_group.common.EducationGroupModelForm.is_valid', return_value=True)
     def test_when_both_of_two_forms_are_valid(self, mock_is_valid, mock_mintraining_is_valid):
         expected_educ_group_year, post_data = _get_valid_post_data(self.category)
         self.assertTrue(MiniTrainingForm(post_data).is_valid())

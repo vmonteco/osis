@@ -90,11 +90,13 @@ def _get_valid_post_data(category):
     entity_version = MainEntityVersionFactory()
     education_group_type = EducationGroupTypeFactory(category=category)
     campus = CampusFactory(organization__type=organization_type.MAIN)
+    current_academic_year = create_current_academic_year()
     fake_education_group_year = EducationGroupYearFactory.build(
-        academic_year=create_current_academic_year(),
+        academic_year=current_academic_year,
         administration_entity=entity_version.entity,
         main_teaching_campus=campus,
-        education_group_type=education_group_type
+        education_group_type=education_group_type,
+        education_group__start_year=current_academic_year.year
     )
     AuthorizedRelationshipFactory(child_type=fake_education_group_year.education_group_type)
     post_data = {

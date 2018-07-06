@@ -33,16 +33,11 @@ class TestGroupModelForm(EducationGroupYearMixin):
     def test_preselect_entity_version_from_entity_value(self):
         self._test_preselect_entity_version_from_entity_value(self.form_class)
 
-    def test_update(self):
-        pass # should assert reuse EducationGroup
-
 
 class TestGroupForm(TestCase):
     def setUp(self):
         self.category = education_group_categories.GROUP
         self.expected_educ_group_year, self.post_data = _get_valid_post_data(self.category)
-
-        # self.education_group_type = EducationGroupTypeFactory(category=self.category)
 
     def test_create(self):
         form = GroupForm(data=self.post_data, parent=None)
@@ -57,8 +52,6 @@ class TestGroupForm(TestCase):
 
     @patch('base.models.education_group_type.find_authorized_types', return_value=EducationGroupType.objects.all())
     def test_create_with_parent(self, mock_find_authorized_types):
-        # AuthorizedRelationshipFactory(parent_type=self.parent_education_group_year.education_group_type,
-        #                               child_type=self.education_group_type)
         parent = EducationGroupYearFactory()
         form = GroupForm(data=self.post_data, parent=parent)
 
