@@ -93,7 +93,6 @@ class CommonBaseForm:
         educ_group_year_form = self.forms[forms.ModelForm]
         educ_group_form = self.forms[EducationGroupModelForm]
 
-        # TODO :: unit test
         start_year = None
         if self._is_creation() and not educ_group_form.instance.start_year:
             start_year = educ_group_year_form.cleaned_data['academic_year'].year
