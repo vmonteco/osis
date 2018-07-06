@@ -2,6 +2,7 @@
 {% load staticfiles %}
 {% load i18n %}
 {% load bootstrap3 %}
+{% load waffle_tags %}
 
 {% comment "License" %}
 * OSIS stands for Open Student Information System. It's an application
@@ -55,20 +56,26 @@
                         <span class="caret"></span>
                         </button>
                 <ul class="dropdown-menu dropdown-menu-large row text-right pull-right">
-                    {% if perms.base.can_edit_learningunit %}
+                    {% flag "learning_unit_create" %}
+                        {% if perms.base.can_edit_learningunit %}
+                            <li>
+                                <a href="{{ create_learning_unit_url }}" id="lnk_learning_unit_create">{% trans 'new_learning_unit' %}</a>
+                            </li>
+                        {% endif %}
+                    {% endflag %}
+                    {% flag "learning_unit_external_create" %}
                         <li>
-                            <a href="{{ create_learning_unit_url }}" id="lnk_learning_unit_create">{% trans 'new_learning_unit' %}</a>
+                            <a href="{{ create_external_url }}" id="lnk_create_external_url">{% trans 'new_external_learning_unit' %}</a>
                         </li>
-                    {% endif %}
-                    <li>
-                        <a href="{{ create_external_url }}" id="lnk_create_external_url">{% trans 'new_external_learning_unit' %}</a>
-                    </li>
-                    {% if perms.base.can_edit_learning_unit_proposal %}
-                        <li role="separator" class="divider"></li>
-                        <li>
-                            <a href="{{ create_proposal_url }}" id="lnk_create_proposal_url">{% trans 'proposal_creation' %}</a>
-                        </li>
-                    {% endif %}
+                    {% endflag %}
+                    {% flag "proposal" %}
+                        {% if perms.base.can_edit_learning_unit_proposal %}
+                            <li role="separator" class="divider"></li>
+                            <li>
+                                <a href="{{ create_proposal_url }}" id="lnk_create_proposal_url">{% trans 'proposal_creation' %}</a>
+                            </li>
+                        {% endif %}
+                    {% endflag %}
                 </ul>
             </div>
         </div>

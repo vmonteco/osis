@@ -1,4 +1,6 @@
+{% extends "education_group/tab_identification.html" %}
 {% load i18n %}
+{% load staticfiles %}
 {% load format %}
 {% comment "License" %}
 * OSIS stands for Open Student Information System. It's an application
@@ -23,94 +25,67 @@
 * at the root of the source code of this program.  If not,
 * see http://www.gnu.org/licenses/.
 {% endcomment %}
-
-{% with  parent=education_group_year.parent_by_training %}
-<div class="row">
-    <div class="col-md-7" style="margin-top: 10px">
-        {% include 'education_group/blocks/informations.html' %}
-    </div>
-    <div class="col-md-5" style="margin-top: 10px">
-        <div class="panel panel-default">
-            <div class="panel-body">
-                <div>
-                    <label>{% trans 'administration_entity' %}</label><br>
-                    {% if education_group_year.administration_entity %}
-                        {{ education_group_year.administration_entity_version.acronym}}
-                    {% elif parent.administration_entity %}
-                        <strong class="text-primary">{{ parent.administration_entity_version.acronym }}</strong>
-                    {% else %}
-                        <br>
-                    {% endif %}
+{% block details %}
+    {% with  parent=education_group_year.parent_by_training %}
+    <div class="row">
+        <div class="col-md-7" style="margin-top: 10px">
+            {% include 'education_group/blocks/informations.html' %}
+        </div>
+        <div class="col-md-5" style="margin-top: 10px">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div>
+                        <label>{% trans 'administration_entity' %}</label><br>
+                        {% if education_group_year.administration_entity %}
+                            {{ education_group_year.administration_entity_version.acronym}}
+                        {% elif parent.administration_entity %}
+                            <strong class="text-primary">{{ parent.administration_entity_version.acronym }}</strong>
+                        {% else %}
+                            <br>
+                        {% endif %}
+                    </div>
+                    <br>
+                    <div>
+                        <label>{% trans 'start' %}</label><br>
+                        {% if education_group_year.education_group.start_year %}
+                            {{ education_group_year.education_group.start_year }}
+                        {% elif parent.education_group.start_year %}
+                            <strong class="text-primary">{{ parent.education_group.start_year }}</strong>
+                        {% else %}
+                            {% trans 'unspecified' %}
+                        {% endif %}
+                    </div>
+                    <br>
+                    <div>
+                        <label>{% trans 'end'%}</label><br>
+                        {% if education_group_year.education_group.end_year and education_group_year.education_group.end_year %}
+                            {{ education_group_year.education_group.end_year }}
+                        {% elif parent.education_group.end_year and parent.education_group.end_year %}
+                            <strong class="text-primary">
+                                {{ parent.education_group.end_year }}
+                            </strong>
+                        {% else%}
+                            {% trans 'unspecified' %}
+                        {% endif%}
+                    </div>
+                    <br>
+                    <div>
+                        <label>{% trans 'learning_location'%}</label><br>
+                        {% if education_group_year.main_teaching_campus %}
+                            {{ education_group_year.main_teaching_campus }}
+                        {% elif parent.main_teaching_campus %}
+                            <strong class="text-primary">
+                                {{ parent.main_teaching_campus }}
+                            </strong>
+                        {% else %}
+                            <br>
+                        {% endif %}
+                    </div>
+                    <br>
                 </div>
-                <br>
-                <div>
-                    <label>{% trans 'start' %}</label><br>
-                    {% if education_group_year.education_group.start_year %}
-                        {{ education_group_year.education_group.start_year }}
-                    {% elif parent.education_group.start_year %}
-                        <strong class="text-primary">{{ parent.education_group.start_year }}</strong>
-                    {% else %}
-                        {% trans 'unspecified' %}
-                    {% endif %}
-                </div>
-                <br>
-                <div>
-                    <label>{% trans 'end'%}</label><br>
-                    {% if education_group_year.education_group.end_year and education_group_year.education_group.end_year %}
-                        {{ education_group_year.education_group.end_year }}
-                    {% elif parent.education_group.end_year and parent.education_group.end_year %}
-                        <strong class="text-primary">
-                            {{ parent.education_group.end_year }}
-                        </strong>
-                    {% else%}
-                        {% trans 'unspecified' %}
-                    {% endif%}
-                </div>
-                <br>
-                <div>
-                    <label>{% trans 'learning_location'%}</label><br>
-                    {% if education_group_year.main_teaching_campus %}
-                        {{ education_group_year.main_teaching_campus }}
-                    {% elif parent.main_teaching_campus %}
-                        <strong class="text-primary">
-                            {{ parent.main_teaching_campus }}
-                        </strong>
-                    {% else %}
-                        <br>
-                    {% endif %}
-                </div>
-                <br>
             </div>
         </div>
     </div>
-</div>
-{% include 'education_group/blocks/remarks.html' %}
-{% endwith %}
-
-{% block script %}
-<script>
-    $(document).ready(function()
-    {
-        $('#tbl_coorganization').DataTable(
-            {
-                columnDefs: [
-                    { targets: 1, type: 'diacritics-neutralise'},
-                    { orderable: false, targets: [1]}
-                ],
-                "stateSave": true,
-                "paging" : false,
-                "ordering" : true,
-                "info"  : false,
-                "searching" : false,
-                "language": {
-                    "oAria": {
-                        "sSortAscending":  "{% trans 'datatable_sortascending'%}",
-                        "sSortDescending": "{% trans 'datatable_sortdescending'%}",
-                    }
-                }
-            })
-        ;});
-</script>
+    {% include 'education_group/blocks/remarks.html' %}
+    {% endwith %}
 {% endblock %}
-
-

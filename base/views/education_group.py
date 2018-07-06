@@ -38,6 +38,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_http_methods
+from waffle.decorators import waffle_flag
 
 from base import models as mdl
 from base.business import education_group as education_group_business
@@ -85,7 +86,13 @@ def education_group_read(request, education_group_year_id):
     can_change_education_group = perms.is_eligible_to_change_education_group(person)
     can_delete_education_group = perms.is_eligible_to_delete_education_group(person)
 
-    return layout.render(request, "education_group/tab_identification.html", locals())
+    templates = {
+        education_group_categories.TRAINING: "education_group/identification_training_details.html",
+        education_group_categories.MINI_TRAINING: "education_group/identification_mini_training_details.html",
+        education_group_categories.GROUP: "education_group/identification_group_details.html"
+    }
+
+    return layout.render(request, templates.get(education_group_year.education_group_type.category), locals())
 
 
 @login_required
@@ -170,6 +177,7 @@ def education_group_administrative_data(request, education_group_year_id):
 
 
 @login_required
+@waffle_flag("education_group_update")
 @permission_required('base.can_edit_education_group_administrative_data', raise_exception=True)
 def education_group_edit_administrative_data(request, education_group_year_id):
     education_group_year = get_object_or_404(EducationGroupYear, pk=education_group_year_id)

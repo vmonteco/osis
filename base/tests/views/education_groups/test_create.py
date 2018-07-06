@@ -27,12 +27,14 @@ from unittest import mock
 
 from django.test import TestCase
 from django.urls import reverse
+from waffle.testutils import override_flag
 
 from base.forms.education_group.create import CreateEducationGroupYearForm
 from base.tests.factories.education_group_year import EducationGroupYearFactory
 from base.tests.factories.person import PersonFactory
 
 
+@override_flag('education_group_create', active=True)
 class TestCreate(TestCase):
     @classmethod
     def setUpTestData(cls):

@@ -27,6 +27,7 @@ from base.models.enums import education_group_categories
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import ugettext_lazy as _
+from waffle.decorators import waffle_flag
 
 from base.forms.education_group.create import CreateEducationGroupYearForm, MiniTrainingForm, MiniTrainingModelForm, \
     EducationGroupModelForm, GroupForm
@@ -41,6 +42,7 @@ from django import forms
 
 
 @login_required
+@waffle_flag("education_group_update")
 @user_passes_test(can_change_education_group)
 def update_education_group(request, education_group_year_id):
     education_group_year = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
