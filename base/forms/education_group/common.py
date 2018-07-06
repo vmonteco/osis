@@ -44,7 +44,7 @@ class MainEntitiesVersionChoiceField(EntitiesVersionChoiceField):
         super(MainEntitiesVersionChoiceField, self).__init__(queryset, *args, **kwargs)
 
 
-def _init_education_group_type_field(form_field, parent_education_group_year, category):
+def init_education_group_type_field(form_field, parent_education_group_year, category):
     parent_group_type = None
     if parent_education_group_year:
         parent_group_type = parent_education_group_year.education_group_type
@@ -53,19 +53,19 @@ def _init_education_group_type_field(form_field, parent_education_group_year, ca
     form_field.required = True
 
 
-def _init_academic_year(form_field, parent_education_group_year):
+def init_academic_year(form_field, parent_education_group_year):
     if parent_education_group_year:
         form_field.initial = parent_education_group_year.academic_year.id
         form_field.disabled = True
         form_field.required = False
 
 
-def _preselect_entity_version_from_entity_value(modelform):
+def preselect_entity_version_from_entity_value(modelform):
     if getattr(modelform.instance, 'administration_entity', None):
         modelform.initial['administration_entity'] = get_last_version(modelform.instance.administration_entity).pk
 
 
-def _save_group_element_year(parent, child):
+def save_group_element_year(parent, child):
     # TODO :: what if this relation parent/child already exists? Should we create a new GroupElementYear anymore?
     if parent:
         group_element_year.get_or_create_group_element_year(parent, child)

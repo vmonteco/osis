@@ -23,9 +23,9 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from base.forms.education_group.common import CommonBaseForm, EducationGroupModelForm, _save_group_element_year, \
-    MainEntitiesVersionChoiceField, MainTeachingCampusChoiceField, _init_academic_year, _init_education_group_type_field, \
-    _preselect_entity_version_from_entity_value
+from base.forms.education_group.common import CommonBaseForm, EducationGroupModelForm, save_group_element_year, \
+    MainEntitiesVersionChoiceField, MainTeachingCampusChoiceField, init_academic_year, init_education_group_type_field, \
+    preselect_entity_version_from_entity_value
 from django import forms
 
 from base.models.education_group_year import EducationGroupYear
@@ -58,12 +58,12 @@ class TrainingEducationGroupYearForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.parent = kwargs.pop("parent", None)
         super().__init__(*args, **kwargs)
-        _init_education_group_type_field(self.fields["education_group_type"],
+        init_education_group_type_field(self.fields["education_group_type"],
                                          self.parent,
                                          education_group_categories.TRAINING)
-        _init_academic_year(self.fields["academic_year"], self.parent)
+        init_academic_year(self.fields["academic_year"], self.parent)
 
-        _preselect_entity_version_from_entity_value(self)
+        preselect_entity_version_from_entity_value(self)
 
         self.fields["education_group"].required = False
 
@@ -72,7 +72,7 @@ class TrainingEducationGroupYearForm(forms.ModelForm):
 
     def save(self, *args, **kwargs):
         education_group_year = super().save(*args, **kwargs)
-        _save_group_element_year(self.parent, education_group_year)
+        save_group_element_year(self.parent, education_group_year)
         return education_group_year
 
 
