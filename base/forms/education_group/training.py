@@ -70,11 +70,6 @@ class TrainingEducationGroupYearForm(forms.ModelForm):
         if getattr(self.instance, 'management_entity', None):
             self.initial['management_entity'] = get_last_version(self.instance.management_entity).pk
 
-    def save(self, *args, **kwargs):
-        education_group_year = super().save(*args, **kwargs)
-        save_group_element_year(self.parent, education_group_year)
-        return education_group_year
-
 
 class TrainingForm(CommonBaseForm):
 

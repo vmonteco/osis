@@ -28,11 +28,6 @@ class GroupModelForm(forms.ModelForm):
 
         preselect_entity_version_from_entity_value(self)
 
-    def save(self, *args, **kwargs):
-        education_group_year = super().save(*args, **kwargs)
-        save_group_element_year(self.parent, education_group_year)
-        return education_group_year
-
 
 class GroupForm(CommonBaseForm):
 

@@ -104,7 +104,9 @@ class CommonBaseForm:
         education_group = self.forms[EducationGroupModelForm].save(start_year=start_year)
         education_group_year_form = self.forms[forms.ModelForm]
         education_group_year_form.instance.education_group = education_group
-        return education_group_year_form.save()
+        education_group_year = education_group_year_form.save()
+        save_group_element_year(education_group_year_form.parent, education_group_year)
+        return education_group_year
 
     def _is_creation(self):
         return not self.forms[EducationGroupModelForm].instance.id

@@ -26,11 +26,6 @@ class MiniTrainingModelForm(forms.ModelForm):
         init_academic_year(self.fields["academic_year"], self.parent)
         preselect_entity_version_from_entity_value(self) # Due to MainEntitiesVersionChoiceField
 
-    def save(self, *args, **kwargs):
-        education_group_year = super(MiniTrainingModelForm, self).save(*args, **kwargs)
-        save_group_element_year(self.parent, education_group_year)
-        return education_group_year
-
 
 class MiniTrainingForm(CommonBaseForm):
 
