@@ -55,12 +55,10 @@ def update_education_group(request, education_group_year_id):
     if form_education_group.is_valid() and form_education_group_year.is_valid():
         education_group = form_education_group.save()
         form_education_group_year.instance.education_group = education_group
+        education_group_year = form_education_group_year.save()
 
-        form_education_group_year.save()
         display_success_messages(request, _("Education group successfully updated"))
         url = reverse_url_with_root(request, "education_group_read", args=[education_group_year.id])
-        form_education_group.save()
-        form_education_group_year.save()
         return redirect(url)
 
     return layout.render(request, html_page, {

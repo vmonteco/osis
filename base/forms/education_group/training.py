@@ -32,6 +32,7 @@ from base.forms.learning_unit.entity_form import EntitiesVersionChoiceField
 from base.models import education_group_type, campus
 from base.models.education_group import EducationGroup
 from base.models.education_group_year import EducationGroupYear
+from base.models.education_group_year_domain import EducationGroupYearDomain
 from base.models.entity_version import find_main_entities_version, get_last_version
 from base.models.enums import education_group_categories
 from base.models.group_element_year import GroupElementYear
@@ -93,12 +94,20 @@ class TrainingEducationGroupYearForm(forms.ModelForm):
         education_group_year = super().save(commit=False)
         education_group_year.education_group = self._create_education_group()
         education_group_year.save()
-        self.save_m2m()
+
+        self.save_domains()
 
         if self.parent_education_group_year:
             self._create_group_element_year(self.parent_education_group_year, education_group_year)
 
         return education_group_year
+
+    def save_domains(self):
+        # Save_m2m can not be used because the many_to_many use a through parameter
+        for domain_id in self.cleaned_data["domains"]:
+            EducationGroupYearDomain.objects.get_or_create(
+                education_group_year=self.instance,
+                domain_id=domain_id)
 
     def _create_education_group(self):
         start_year = self.cleaned_data["academic_year"].year
