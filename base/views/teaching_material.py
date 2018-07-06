@@ -87,7 +87,7 @@ def delete_view(request, learning_unit_year_id, teaching_material_id, success_ur
     if request.method == 'POST':
         delete_teaching_material(teach_material)
         display_success_messages(request, "The teaching material has been deleted")
-        return success_url
+        return redirect(success_url)
     return layout.render(request, "learning_unit/teaching_material/modal_delete.html", {})
 
 

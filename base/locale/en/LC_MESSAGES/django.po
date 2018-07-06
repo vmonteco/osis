@@ -3147,8 +3147,17 @@ msgstr ""
 msgid "Modification made"
 msgstr ""
 
+msgid "You can not delete this object because some dependencies are protected"
+msgstr ""
+
+msgid "It will delete also this following objects"
+msgstr ""
+
 msgid "The teaching material has been deleted"
 msgstr ""
 
 msgid "Teaching materials has been updated"
+msgstr ""
+
+msgid "Are you sure you want to delete the teaching material?"
 msgstr ""
