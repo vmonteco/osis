@@ -23,28 +23,16 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.db import models
+from django import template
 
-from base.models.enums import education_group_language
-from osis_common.models.osis_model_admin import OsisModelAdmin
+import waffle
 
-
-class EducationGroupLanguageAdmin(OsisModelAdmin):
-    list_display = ('type', 'order', 'education_group_year', 'language')
-    raw_id_fields = ('education_group_year', 'language')
+register = template.Library()
 
 
-class EducationGroupLanguage(models.Model):
-    external_id = models.CharField(max_length=100, blank=True, null=True)
-    changed = models.DateTimeField(null=True, auto_now=True)
-    type = models.CharField(max_length=255, choices=education_group_language.EducationGroupLanguages.choices())
-    order = models.IntegerField()
-    education_group_year = models.ForeignKey('base.EducationGroupYear')
-    language = models.ForeignKey('reference.Language')
-
-    def __str__(self):
-        return "{} - {}".format(self.education_group_year, self.language)
-
-
-def find_by_education_group_year(education_group_year):
-    return EducationGroupLanguage.objects.filter(education_group_year=education_group_year).order_by('order')
+@register.simple_tag(takes_context=True)
+def features_or(context, *features_name):
+    request = context["request"]
+    return any(
+        (waffle.flag_is_active(request, name) for name in features_name)
+    )

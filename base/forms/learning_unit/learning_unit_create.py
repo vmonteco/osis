@@ -41,9 +41,9 @@ from base.models.learning_unit_year import LearningUnitYear, MAXIMUM_CREDITS
 from reference.models.language import find_all_languages
 
 DEFAULT_ACRONYM_COMPONENT = {
-    LECTURING: "PM1",
-    PRACTICAL_EXERCISES: "PP1",
-    None: "NT1"
+    LECTURING: "PM",
+    PRACTICAL_EXERCISES: "PP",
+    None: "NT"
 }
 
 

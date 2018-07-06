@@ -509,9 +509,9 @@ class TestFullFormSave(LearningUnitFullFormContextMixin):
 
     def test_default_acronym_component(self):
         default_acronym_component={
-            LECTURING: "PM1",
-            PRACTICAL_EXERCISES: "PP1",
-            None: "NT1"
+            LECTURING: "PM",
+            PRACTICAL_EXERCISES: "PP",
+            None: "NT"
         }
         self.assertEqual(default_acronym_component, DEFAULT_ACRONYM_COMPONENT)
 
@@ -543,10 +543,10 @@ class TestFullFormSave(LearningUnitFullFormContextMixin):
         ).count(), 2)
         self.assertEqual(
             LearningComponentYear.objects.get(
-                learning_container_year=saved_luy.learning_container_year, type=LECTURING).acronym, "PM1")
+                learning_container_year=saved_luy.learning_container_year, type=LECTURING).acronym, "PM")
         self.assertEqual(
             LearningComponentYear.objects.get(
-                learning_container_year=saved_luy.learning_container_year, type=PRACTICAL_EXERCISES).acronym, "PP1")
+                learning_container_year=saved_luy.learning_container_year, type=PRACTICAL_EXERCISES).acronym, "PP")
 
     def test_when_type_is_internship(self):
         EntityContainerYear.objects.filter(type__in=[ADDITIONAL_REQUIREMENT_ENTITY_1, ADDITIONAL_REQUIREMENT_ENTITY_2],
@@ -577,10 +577,10 @@ class TestFullFormSave(LearningUnitFullFormContextMixin):
                 learning_component_year__in=learning_component_year_list).count(), 2)
         self.assertEqual(
             LearningComponentYear.objects.get(
-                learning_container_year=saved_luy.learning_container_year, type=LECTURING).acronym, "PM1")
+                learning_container_year=saved_luy.learning_container_year, type=LECTURING).acronym, "PM")
         self.assertEqual(
             LearningComponentYear.objects.get(
-                learning_container_year=saved_luy.learning_container_year, type=PRACTICAL_EXERCISES).acronym, "PP1")
+                learning_container_year=saved_luy.learning_container_year, type=PRACTICAL_EXERCISES).acronym, "PP")
 
     def test_when_type_is_dissertation(self):
         EntityContainerYear.objects.filter(type__in=[ADDITIONAL_REQUIREMENT_ENTITY_1, ADDITIONAL_REQUIREMENT_ENTITY_2],
