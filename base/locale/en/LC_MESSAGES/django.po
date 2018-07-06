@@ -2085,6 +2085,9 @@ msgstr "Organization of formations"
 msgid "education_groups"
 msgstr "Education groups"
 
+msgid "education group year"
+msgstr "Organisation de formations annualisée"
+
 msgid "entity_management"
 msgstr "Entity management"
 
@@ -3145,4 +3148,10 @@ msgid "Not in period to edit educational information."
 msgstr ""
 
 msgid "Modification made"
+msgstr ""
+
+msgid "You can not delete this object because some dependencies are protected"
+msgstr ""
+
+msgid "It will delete also this following objects"
 msgstr ""

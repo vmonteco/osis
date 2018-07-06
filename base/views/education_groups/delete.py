@@ -24,16 +24,16 @@
 #
 ##############################################################################
 import waffle
-from django.contrib.auth.mixins import PermissionRequiredMixin
-from django.http import HttpResponse, Http404
+from django.http import Http404
 from django.urls import reverse_lazy
-from django.views.generic import DeleteView
+from waffle.decorators import waffle_flag
 
 from base.models.education_group_year import EducationGroupYear
-from base.views.common import display_success_messages
+from base.models.group_element_year import GroupElementYear
+from base.views.common_classes import DeleteViewWithDependencies
 
 
-class DeleteGroupEducationYearView(PermissionRequiredMixin, DeleteView):
+class DeleteGroupEducationYearView(DeleteViewWithDependencies):
     # DeleteView
     model = EducationGroupYear
     success_url = reverse_lazy('education_groups')
@@ -45,11 +45,25 @@ class DeleteGroupEducationYearView(PermissionRequiredMixin, DeleteView):
     permission_required = "base.delete_educationgroupyear"
     raise_exception = True
 
+    # DeleteViewWithDependencies
     success_message = "The education group has been deleted"
+    protected_template = "education_group/protect_delete.html"
 
-    def delete(self, request, *args, **kwargs):
-        if not waffle.flag_is_active(request, 'education_group_delete'):
-            raise Http404()
-        result = super().delete(request, *args, **kwargs)
-        display_success_messages(request, self.success_message)
-        return result
+    @waffle_flag('education_group_delete')
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+    # TODO : This method is a quick fix.
+    # GroupElementYear should be split in two tables with their own protected FK !
+    def post_collect(self):
+        for instance, obj in self.collector.model_objs.items():
+            if instance is GroupElementYear:
+                self._append_protected_object(obj)
+
+    def _append_protected_object(self, list_objects):
+        if not isinstance(list_objects, (list, set)):
+            list_objects = [list_objects]
+
+        for obj in list_objects:
+            if not obj.is_deletable():
+                self.collector.protected.add(obj)
