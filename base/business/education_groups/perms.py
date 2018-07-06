@@ -45,6 +45,7 @@ def is_eligible_to_change_education_group(person):
 def is_eligible_to_delete_education_group(person):
     return conjunction(
         has_person_the_right_to_delete_education_group,
+        disjunction(is_central_manager, is_education_group_creation_period_opened),
     )(person)
 
 

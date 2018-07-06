@@ -44,3 +44,10 @@ def can_change_education_group(user):
     if not business_perms.is_eligible_to_change_education_group(pers):
         raise PermissionDenied
     return True
+
+
+def can_delete_education_group(user, *args):
+    pers = get_object_or_404(person.Person, user=user)
+    if not business_perms.is_eligible_to_delete_education_group(pers):
+        raise PermissionDenied
+    return True

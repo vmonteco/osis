@@ -26,9 +26,12 @@
 from django.contrib.auth.models import Permission
 from django.test import TestCase
 from django.urls import reverse
+from django.utils import timezone
 from waffle.testutils import override_flag
 
 from base.models.education_group_year import EducationGroupYear
+from base.models.enums.academic_calendar_type import EDUCATION_GROUP_EDITION
+from base.tests.factories.academic_calendar import AcademicCalendarFactory
 from base.tests.factories.education_group_year import EducationGroupYearFactory
 from base.tests.factories.group_element_year import GroupElementYearFactory
 from base.tests.factories.offer_enrollment import OfferEnrollmentFactory
@@ -45,6 +48,12 @@ class TestDeleteGroupEducationYearView(TestCase):
 
         self.person.user.user_permissions.add(Permission.objects.get(codename="delete_educationgroupyear"))
         self.client.force_login(user=self.person.user)
+
+        self.academic_calendar = AcademicCalendarFactory(
+            reference=EDUCATION_GROUP_EDITION,
+            start_date=timezone.now(),
+            end_date=timezone.now()
+        )
 
     def test_delete_get_permission_denied(self):
         self.person.user.user_permissions.remove(Permission.objects.get(codename="delete_educationgroupyear"))
