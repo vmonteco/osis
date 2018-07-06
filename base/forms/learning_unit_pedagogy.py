@@ -27,13 +27,12 @@ from ckeditor.widgets import CKEditorWidget
 from django import forms
 from django.conf import settings
 from django.db.transaction import atomic
-from django.forms import BaseInlineFormSet, inlineformset_factory
 
 from base.business.learning_unit import find_language_in_settings, CMS_LABEL_PEDAGOGY, CMS_LABEL_PEDAGOGY_FR_ONLY
-from base.business.learning_units.pedagogy import update_bibliography_changed_field_in_cms
+from base.business.learning_units.pedagogy import is_pedagogy_data_must_be_postponed, save_teaching_material
 from base.business.learning_units.perms import can_edit_summary_locked_field
 from base.forms.common import set_trans_txt
-from base.models import academic_year, learning_unit_year, teaching_material
+from base.models import learning_unit_year
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.teaching_material import TeachingMaterial
 from cms.enums import entity_name
@@ -82,7 +81,7 @@ class LearningUnitPedagogyEditForm(forms.Form):
         start_luy = learning_unit_year.get_by_id(trans_text.reference)
 
         reference_ids = [start_luy.id]
-        if _is_pedagogy_data_must_be_postponed(start_luy):
+        if is_pedagogy_data_must_be_postponed(start_luy):
             reference_ids += [luy.id for luy in start_luy.find_gt_learning_units_year()]
 
         for reference_id in reference_ids:
@@ -133,7 +132,7 @@ class SummaryModelForm(forms.ModelForm):
     @atomic
     def save(self, commit=True):
         instance = super().save(commit)
-        if _is_pedagogy_data_must_be_postponed(instance):
+        if is_pedagogy_data_must_be_postponed(instance):
             self._postpone_pedagogy_data(instance)
         return instance
 
@@ -143,44 +142,12 @@ class SummaryModelForm(forms.ModelForm):
             luy.save()
 
 
-def teachingmaterialformset_factory(can_edit=False):
-    return inlineformset_factory(
-        LearningUnitYear,
-        TeachingMaterial,
-        fields=('title', 'mandatory'),
-        formset=TeachingMaterialFormsetPostponement,
-        form=TeachingMaterialModelForm,
-        max_num=10,
-        extra=can_edit,
-        can_delete=can_edit,
-        labels={'title': ''}
-    )
-
-
-class TeachingMaterialFormsetPostponement(BaseInlineFormSet):
-    @atomic
-    def save(self, commit=True):
-        instance_list = super().save(commit)
-        luy = self.instance
-        if _is_pedagogy_data_must_be_postponed(luy):
-            teaching_material.postpone_teaching_materials(luy)
-
-        # For sync purpose, we need to trigger an update of the bibliography when we update teaching materials
-        update_bibliography_changed_field_in_cms(luy)
-
-        return instance_list
-
-
 class TeachingMaterialModelForm(forms.ModelForm):
-    def __init__(self, *args, **kwargs):
-        person = kwargs.pop('person')
-        super().__init__(*args, **kwargs)
-        if not person.user.has_perm('base.can_edit_learningunit_pedagogy'):
-            for field in self.fields.values():
-                field.disabled = True
+    class Meta:
+        model = TeachingMaterial
+        fields = ['title', 'mandatory']
 
-
-def _is_pedagogy_data_must_be_postponed(luy):
-    # We must postpone pedagogy information, if we modify data form N+1
-    current_academic_year = academic_year.current_academic_year()
-    return luy.academic_year.year > current_academic_year.year
+    def save(self, learning_unit_year, commit=True):
+        instance = super().save(commit=False)
+        instance.learning_unit_year = learning_unit_year
+        return save_teaching_material(instance)

@@ -26,6 +26,7 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
+from django.views.decorators.http import require_http_methods
 
 from attribution.views.perms import tutor_can_view_educational_information
 from base.business.learning_units.perms import is_eligible_to_update_learning_unit_pedagogy, \
@@ -38,6 +39,7 @@ from base.models.enums import academic_calendar_type
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.tutor import Tutor
 from base.views import layout
+from base.views import teaching_material
 from base.views.learning_units.pedagogy.update import update_learning_unit_pedagogy, edit_learning_unit_pedagogy
 from base.views.learning_units.perms import PermissionDecorator
 
@@ -82,3 +84,27 @@ def view_educational_information(request, learning_unit_year_id):
 def edit_educational_information(request, learning_unit_year_id):
     redirect_url = reverse(view_educational_information, kwargs={'learning_unit_year_id': learning_unit_year_id})
     return edit_learning_unit_pedagogy(request, learning_unit_year_id, redirect_url)
+
+
+@login_required
+@require_http_methods(['POST', 'GET'])
+@PermissionDecorator(is_eligible_to_update_learning_unit_pedagogy, "learning_unit_year_id", LearningUnitYear)
+def create_teaching_material(request, learning_unit_year_id):
+    success_url = reverse(view_educational_information, kwargs={'learning_unit_year_id': learning_unit_year_id})
+    return teaching_material.create_view(request, learning_unit_year_id, success_url)
+
+
+@login_required
+@require_http_methods(['POST', 'GET'])
+@PermissionDecorator(is_eligible_to_update_learning_unit_pedagogy, "learning_unit_year_id", LearningUnitYear)
+def update_teaching_material(request, learning_unit_year_id, teaching_material_id):
+    success_url = reverse(view_educational_information, kwargs={'learning_unit_year_id': learning_unit_year_id})
+    return teaching_material.update_view(request, learning_unit_year_id, teaching_material_id, success_url)
+
+
+@login_required
+@require_http_methods(['POST', 'GET'])
+@PermissionDecorator(is_eligible_to_update_learning_unit_pedagogy, "learning_unit_year_id", LearningUnitYear)
+def delete_teaching_material(request, learning_unit_year_id, teaching_material_id):
+    success_url = reverse(view_educational_information, kwargs={'learning_unit_year_id': learning_unit_year_id})
+    return teaching_material.delete_view(request, learning_unit_year_id, teaching_material_id, success_url)

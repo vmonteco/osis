@@ -3146,3 +3146,9 @@ msgstr ""
 
 msgid "Modification made"
 msgstr ""
+
+msgid "The teaching material has been deleted"
+msgstr ""
+
+msgid "Teaching materials has been updated"
+msgstr ""

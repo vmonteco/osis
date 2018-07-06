@@ -3,24 +3,35 @@
 <div class="panel">
     <div class="panel-heading"><label>{% trans 'Teaching material' %}</label></div>
 
-    <div class="panel-body">
-        {{ formset.management_form }}
-        <table class="table">
-            {% for form in formset %}
-                <tr class="link-formset">
-                    {% for field in form.visible_fields %}
-                        <td style="border: 0">
-                            {# Include the hidden fields in the form #}
-                            {% if forloop.first %}
-                                {% for hidden in form.hidden_fields %}
-                                    {{ hidden }}
-                                {% endfor %}
-                            {% endif %}
-                            {% bootstrap_field field %}
-                        </td>
-                    {% endfor %}
-                </tr>
+    <div class="panel-body" style="padding-top:0px;">
+        <ul class="list-group list-group-flush">
+            {% for teaching_material in teaching_materials %}
+            <li class="list-group-item">
+                <span class="glyphicon glyphicon-ok-circle" aria-hidden="true"
+                      style="color:green;margin-right:10px;
+                      {% if not teaching_material.mandatory %}visibility: hidden; {% endif %}"></span>
+                {{teaching_material.title}}
+
+                {% if can_edit_information %}
+                    <a class="teaching-material-delete-btn pull-right" style="margin-left:10px;" href="#"
+                       data-form="{% url delete_teaching_material_urlname learning_unit_year_id=learning_unit_year.pk teaching_material_id=teaching_material.pk %}">
+                      <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                    </a>
+                    <a class="teaching-material-edit-btn pull-right" href="#"
+                       data-form="{% url update_teaching_material_urlname learning_unit_year_id=learning_unit_year.pk teaching_material_id=teaching_material.pk %}">
+                      <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+                    </a>
+                {% endif %}
+            </li>
             {% endfor %}
-        </table>
+        </ul>
+        {% if can_edit_information %}
+            <div class="pull-right">
+                <a class="btn btn-primary teaching-material-create-btn" href="#"
+                   data-form="{% url create_teaching_material_urlname learning_unit_year_id=learning_unit_year.pk %}">
+                    {% trans 'add' %}
+                </a>
+            </div>
+        {% endif %}
     </div>
 </div>

@@ -3145,3 +3145,9 @@ msgstr "Vous n'êtes pas en période d'édition des informations pédagogiques."
 
 msgid "Modification made"
 msgstr "Modification apportée"
+
+msgid "The teaching material has been deleted"
+msgstr "Le support de cours a été supprimé"
+
+msgid "Teaching materials has been updated"
+msgstr "Les supports de cours ont été mis à jour"
