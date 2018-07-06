@@ -27,7 +27,7 @@ import itertools
 from django import forms
 
 from base.forms.learning_unit.entity_form import EntitiesVersionChoiceField
-from base.models import campus, education_group_type, group_element_year
+from base.models import campus, education_group_type, group_element_year, academic_year
 from base.models.education_group import EducationGroup
 from base.models.education_group_year import EducationGroupYear
 from base.models.entity_version import find_main_entities_version, get_last_version
@@ -119,17 +119,17 @@ class CreateEducationGroupYearForm(forms.ModelForm):
     #     )
 
     def save(self, *args, **kwargs):
-        education_group_year = super().save(commit=False)
-        education_group_year.education_group = self._create_education_group()
-        education_group_year.save()
+        education_group_year = super().save(*args, **kwargs)
+        # education_group_year.education_group = self._create_education_group()
+        # education_group_year.save()
 
         _save_group_element_year(self.parent, education_group_year)
 
         return education_group_year
 
-    def _create_education_group(self):
-        start_year = self.cleaned_data["academic_year"].year
-        return EducationGroup.objects.create(start_year=start_year)
+    # def _create_education_group(self):
+    #     start_year = self.cleaned_data["academic_year"].year
+    #     return EducationGroup.objects.create(start_year=start_year)
 
 
 class EducationGroupModelForm(forms.ModelForm):
@@ -165,14 +165,13 @@ class MiniTrainingModelForm(forms.ModelForm):
         return education_group_year
 
 
-class MiniTrainingForm:
+class CommonBaseForm:
     forms = None
 
-    def __init__(self, data, instance=None, parent=None):
-        education_group = instance.education_group if instance else None
+    def __init__(self, education_group_year_form, education_group_form):
         self.forms = {
-            MiniTrainingModelForm: MiniTrainingModelForm(data, instance=instance, parent=parent),
-            EducationGroupModelForm: EducationGroupModelForm(data, instance=education_group)
+            forms.ModelForm: education_group_year_form,
+            EducationGroupModelForm: education_group_form
         }
 
     def is_valid(self):
@@ -180,9 +179,9 @@ class MiniTrainingForm:
 
     def save(self):
         education_group = self.forms[EducationGroupModelForm].save()
-        mini_training_form = self.forms[MiniTrainingModelForm]
-        mini_training_form.instance.education_group = education_group
-        return mini_training_form.save()
+        education_group_year_form = self.forms[forms.ModelForm]
+        education_group_year_form.instance.education_group = education_group
+        return education_group_year_form.save()
 
     @property
     def errors(self):
@@ -190,3 +189,30 @@ class MiniTrainingForm:
         for form in self.forms.values():
             errors.update(form.errors)
         return errors
+
+
+class MiniTrainingForm(CommonBaseForm):
+
+    def __init__(self, data, instance=None, parent=None):
+        education_group_year_form = MiniTrainingModelForm(data, instance=instance, parent=parent)
+        education_group = instance.education_group if instance else None
+        education_group_form = EducationGroupModelForm(data, instance=education_group)
+        super(MiniTrainingForm, self).__init__(education_group_year_form, education_group_form)
+
+
+class GroupForm(CommonBaseForm):
+
+    def __init__(self, data, instance=None, parent=None):
+        educ_group_year_form = CreateEducationGroupYearForm(data, instance=instance, parent=parent)
+
+        education_group = instance.education_group if instance else None
+
+        education_group_data = None
+        if data:
+            education_group_data = {
+                'start_year': academic_year.find_academic_year_by_id(educ_group_year_form.data["academic_year"]).year
+            }
+
+        educ_group_model_form = EducationGroupModelForm(education_group_data, instance=education_group)
+
+        super(GroupForm, self).__init__(educ_group_year_form, educ_group_model_form)

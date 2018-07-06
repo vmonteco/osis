@@ -33,7 +33,8 @@ from base.tests.factories.authorized_relationship import AuthorizedRelationshipF
 from base.tests.factories.group_element_year import GroupElementYearFactory
 from django.test import TestCase
 
-from base.forms.education_group.create import CreateEducationGroupYearForm, MiniTrainingForm, MiniTrainingModelForm
+from base.forms.education_group.create import CreateEducationGroupYearForm, MiniTrainingForm, MiniTrainingModelForm, \
+    GroupForm
 from base.models.enums import education_group_categories, organization_type, entity_type
 from base.models.group_element_year import GroupElementYear
 from base.tests.factories.academic_year import AcademicYearFactory, create_current_academic_year
@@ -142,30 +143,40 @@ class TestCreateEducationGroupYearForm(EducationGroupYearMixin):
     def test_preselect_entity_version_from_entity_value(self):
         self._test_preselect_entity_version_from_entity_value(self.form_class)
 
-    def test_create(self):
-        form = self.form_class(data=self.form_data, parent=None)
-
-        self.assertTrue(form.is_valid(), form.errors)
-
-        education_group_year = form.save()
-
-        self.assertEqual(education_group_year.education_group.start_year, self.academic_year.year)
-        self.assertIsNone(education_group_year.education_group.end_year)
-
-    def test_create_with_parent(self):
-        AuthorizedRelationshipFactory(parent_type=self.parent_education_group_year.education_group_type,
-                                      child_type=self.education_group_type)
-        form = self.form_class(data=self.form_data, parent=self.parent_education_group_year)
-
-        self.assertTrue(form.is_valid(), form.errors)
-
-        education_group_year = form.save()
-
-        self.assertTrue(GroupElementYear.objects.get(child_branch=education_group_year,
-                                                     parent=self.parent_education_group_year))
-
     def test_update(self):
         pass # should assert reuse EducationGroup
+
+
+class TestGroupForm(TestCase):
+    def setUp(self):
+        self.category = education_group_categories.GROUP
+        self.expected_educ_group_year, self.post_data = _get_valid_post_data(self.category)
+
+        # self.education_group_type = EducationGroupTypeFactory(category=self.category)
+
+    def test_create(self):
+        form = GroupForm(data=self.post_data, parent=None)
+
+        self.assertTrue(form.is_valid(), form.errors)
+
+        education_group_year = form.save()
+
+        self.assertEqual(education_group_year.education_group.start_year,
+                         self.expected_educ_group_year.academic_year.year)
+        self.assertIsNone(education_group_year.education_group.end_year)
+
+    @patch('base.models.education_group_type.find_authorized_types', return_value=EducationGroupType.objects.all())
+    def test_create_with_parent(self, mock_find_authorized_types):
+        # AuthorizedRelationshipFactory(parent_type=self.parent_education_group_year.education_group_type,
+        #                               child_type=self.education_group_type)
+        parent = EducationGroupYearFactory()
+        form = GroupForm(data=self.post_data, parent=parent)
+
+        self.assertTrue(form.is_valid(), form.errors)
+
+        education_group_year = form.save()
+
+        self.assertTrue(GroupElementYear.objects.get(child_branch=education_group_year, parent=parent))
 
 
 class TestIsValid(TestCase):
@@ -236,7 +247,8 @@ class TestSave(TestCase):
         updated_educ_group_year = form.save()
 
         self.assertEqual(updated_educ_group_year.pk, initial_educ_group_year.pk)
-        self.assertEqual(updated_educ_group_year.education_group, initial_educ_group) # Assert keep the same EducationGroup when update
+        # Assert keep the same EducationGroup when update
+        self.assertEqual(updated_educ_group_year.education_group, initial_educ_group)
         self._assert_all_fields_correctly_saved(updated_educ_group_year)
 
     @patch('base.models.education_group_type.find_authorized_types', return_value=EducationGroupType.objects.all())
