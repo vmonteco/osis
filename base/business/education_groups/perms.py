@@ -24,6 +24,7 @@
 #
 ##############################################################################
 from django.core.exceptions import PermissionDenied
+from django.utils.translation import ugettext_lazy as _
 
 from base.models import academic_calendar
 from base.models.enums import academic_calendar_type
@@ -59,7 +60,7 @@ def is_education_group_creation_period_opened(person, raise_exception=False):
     result = academic_calendar.is_academic_calendar_opened(academic_calendar_type.EDUCATION_GROUP_EDITION)
 
     if raise_exception and not result:
-        raise PermissionDenied("The education group edition period is not open.")
+        raise PermissionDenied(_("The education group edition period is not open."))
 
     return result
 
@@ -76,6 +77,6 @@ def has_person_the_right_to_delete_education_group(person, raise_exception=False
     result = person.user.has_perm('base.delete_educationgroup')
 
     if raise_exception and not result:
-        raise PermissionDenied("User has not permission to delete education groups.")
+        raise PermissionDenied(_("The user has not permission to delete education groups."))
 
     return result
