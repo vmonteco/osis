@@ -3155,3 +3155,6 @@ msgstr ""
 
 msgid "It will delete also this following objects"
 msgstr ""
+
+msgid "{} successfully updated"
+msgstr ""

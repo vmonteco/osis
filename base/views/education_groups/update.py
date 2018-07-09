@@ -59,6 +59,13 @@ def _get_view(category):
     }[category]
 
 
+def _common_success_redirect(request, education_group_year):
+    success_msg = _("{} successfully updated").format(_(education_group_year.education_group_type.category))
+    display_success_messages(request, success_msg)
+    url = reverse_url_with_root(request, "education_group_read", args=[education_group_year.id])
+    return redirect(url)
+
+
 def _update_group(request, education_group_year):
     # TODO :: IMPORTANT :: Fix urls patterns to get the GroupElementYear_id and the root_id in the url path !
     # TODO :: IMPORTANT :: pass the parent in paramter of the form
@@ -66,10 +73,7 @@ def _update_group(request, education_group_year):
     html_page = "education_group/update_groups.html"
 
     if form_education_group_year.is_valid():
-        display_success_messages(request, _("Education group successfully updated"))
-        url = reverse_url_with_root(request, "education_group_read", args=[education_group_year.id])
-        form_education_group_year.save()
-        return redirect(url)
+        return _common_success_redirect(request, form_education_group_year.save())
 
     return layout.render(request, html_page, {
         "education_group_year": education_group_year,
@@ -82,10 +86,7 @@ def _update_training(request, education_group_year):
     # TODO :: IMPORTANT :: pass the parent in paramter of the form
     form_education_group_year = TrainingForm(request.POST or None, instance=education_group_year)
     if form_education_group_year.is_valid():
-        display_success_messages(request, _("Education group successfully updated"))
-        url = reverse_url_with_root(request, "education_group_read", args=[education_group_year.id])
-        form_education_group_year.save()
-        return redirect(url)
+        return _common_success_redirect(request, form_education_group_year.save())
 
     return layout.render(request, "education_group/update_trainings.html", {
         "education_group_year": education_group_year,
@@ -101,13 +102,7 @@ def _update_mini_training(request, education_group_year):
     form = MiniTrainingForm(request.POST or None, instance=education_group_year)
 
     if form.is_valid():
-        education_group_year = form.save()
-
-        display_success_messages(request, _("Mini training successfully updated"))
-
-        url = reverse_url_with_root(request, "education_group_read", args=[education_group_year.id])
-
-        return redirect(url)
+        return _common_success_redirect(request, form.save())
 
     return layout.render(request, "education_group/minitraining_form.html", {
         "form_education_group_year": form.forms[forms.ModelForm],
