@@ -106,7 +106,10 @@
             {% endfor %}
             </tbody>
         </table>
-        {% include "learning_unit/blocks/panel/teaching_material.html" with formset=teaching_material_formset %}
+
+        {% include "learning_unit/blocks/panel/teaching_material.html" %}
+
+
         {% bootstrap_field summary_editable_form.mobility_modality %}
         {% buttons %}
             {% if perms.base.can_edit_learningunit_pedagogy %}

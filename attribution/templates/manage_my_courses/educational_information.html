@@ -47,7 +47,11 @@
                 {% include "manage_my_courses/blocks/submission_dates.html" %}
                 <br>
                 {% url 'tutor_edit_educational_information' learning_unit_year_id=learning_unit_year.id as post_url%}
-                {% include "learning_unit/blocks/panel/educational_informations.html" %}
+
+                <!-- URL for teaching material panels  -->
+                {% with create_teaching_material_urlname='tutor_teaching_material_create' update_teaching_material_urlname='tutor_teaching_material_edit' delete_teaching_material_urlname='tutor_teaching_material_delete' %}
+                    {% include "learning_unit/blocks/panel/educational_informations.html" %}
+                {% endwith %}
             </div>
         </div>
     </div>

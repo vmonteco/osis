@@ -1337,13 +1337,11 @@ class LearningUnitViewTestCase(TestCase):
             text_label=text_label_bibliography,
             text='Some random text'
         )
-        bibliography_changed_initial_value = cms_translated_text_fr.changed
 
         url = reverse(learning_unit_pedagogy, args=[learning_unit_year.id])
         request_factory = RequestFactory()
 
-        data = self.data_teachingmaterial_formset(learning_unit_year)
-        data['summary_locked'] = True
+        data = {'summary_locked': True}
         request = request_factory.post(url, data=data)
 
         request.user = fac_manager_user
@@ -1360,9 +1358,6 @@ class LearningUnitViewTestCase(TestCase):
         learning_unit_year.refresh_from_db()
         self.assertTrue(learning_unit_year.summary_locked)
 
-        cms_translated_text_fr.refresh_from_db()
-        self.assertNotEqual(bibliography_changed_initial_value, cms_translated_text_fr.changed)
-
     @mock.patch('base.models.person.Person.is_faculty_manager')
     def test_learning_unit_pedagogy_summary_editable_cannot_update_entity_not_linked(self, mock_faculty_manager):
         mock_faculty_manager.return_value = True
@@ -1373,8 +1368,7 @@ class LearningUnitViewTestCase(TestCase):
                                                      subtype=learning_unit_year_subtypes.FULL,
                                                      summary_locked=False)
 
-        data = self.data_teachingmaterial_formset(learning_unit_year)
-        data['summary_locked'] = True
+        data = {'summary_locked': True}
 
         url = reverse(learning_unit_pedagogy, args=[learning_unit_year.id])
         request_factory = RequestFactory()
@@ -1388,7 +1382,6 @@ class LearningUnitViewTestCase(TestCase):
 
         learning_unit_year.refresh_from_db()
         self.assertFalse(learning_unit_year.summary_locked)
-        self.assertEqual(TeachingMaterial.objects.filter(learning_unit_year=learning_unit_year).count(), 0)
 
     @mock.patch('base.models.person.Person.is_faculty_manager')
     def test_learning_unit_pedagogy_summary_editable_as_tutor(self, mock_faculty_manager):
@@ -1415,8 +1408,7 @@ class LearningUnitViewTestCase(TestCase):
                                                      subtype=learning_unit_year_subtypes.FULL,
                                                      summary_locked=False)
 
-        data = self.data_teachingmaterial_formset(learning_unit_year)
-        data['summary_locked'] = True
+        data = {'summary_locked': True}
 
         url = reverse(learning_unit_pedagogy, args=[learning_unit_year.id])
         request_factory = RequestFactory()
@@ -1444,8 +1436,7 @@ class LearningUnitViewTestCase(TestCase):
                                                      summary_locked=False)
         url = reverse(learning_unit_pedagogy, args=[learning_unit_year.id])
         request_factory = RequestFactory()
-        data = self.data_teachingmaterial_formset(learning_unit_year)
-        data['summary_locked'] = True
+        data = {'summary_locked': True}
         request = request_factory.post(url, data=data)
 
         request.user = self.a_superuser
@@ -1532,23 +1523,6 @@ class LearningUnitViewTestCase(TestCase):
         request = request_factory.get(reverse('learning_unit', args=[learning_unit_year.pk]))
         request.user = self.a_superuser
         return request
-
-    @staticmethod
-    def data_teachingmaterial_formset(learning_unit_year):
-        return {'teachingmaterial_set-TOTAL_FORMS': ['3'],
-                'teachingmaterial_set-INITIAL_FORMS': ['0'],
-                'teachingmaterial_set-MIN_NUM_FORMS': ['0'],
-                'teachingmaterial_set-MAX_NUM_FORMS': ['10'],
-                'teachingmaterial_set-0-id': [''],
-                'teachingmaterial_set-0-learning_unit_year': [learning_unit_year.pk],
-                'teachingmaterial_set-0-title': ['Maître'],
-                'teachingmaterial_set-0-DELETE': [''],
-                'teachingmaterial_set-1-id': [''],
-                'teachingmaterial_set-1-learning_unit_year': [''],
-                'teachingmaterial_set-1-title': ['Chevalier'],
-                'teachingmaterial_set-2-id': [''],
-                'teachingmaterial_set-2-learning_unit_year': [''],
-                'teachingmaterial_set-2-title': ['Padawan']}
 
 
 class TestCreateXls(TestCase):
