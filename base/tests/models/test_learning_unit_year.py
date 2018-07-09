@@ -267,7 +267,9 @@ class LearningUnitYearWarningsTest(TestCase):
         self.entity_component_year_full_lecturing_requirement.repartition_volume = 30.0
         self.entity_component_year_full_lecturing_requirement.save()
 
-        excepted_error = "{} ({})".format(_('Volumes are inconsistent'), _('Vol_tot is not equal to vol_q1 + vol_q2'))
+        complete_acronym = self.learning_component_year_full_lecturing.complete_acronym
+        excepted_error = "{} ({})".format(_('Volumes of {} are inconsistent').format(complete_acronym),
+                                          _('Vol_tot is not equal to vol_q1 + vol_q2'))
         self.assertIn(excepted_error, self.learning_component_year_full_lecturing.warnings)
         self.assertIn(excepted_error, self.luy_full.warnings)
 
@@ -281,8 +283,10 @@ class LearningUnitYearWarningsTest(TestCase):
         self.entity_component_year_full_lecturing_requirement.repartition_volume = 40.0
         self.entity_component_year_full_lecturing_requirement.save()
 
+        complete_acronym = self.learning_component_year_full_lecturing.complete_acronym
         excepted_error = "{} ({})".format(
-            _('Volumes are inconsistent'), _('Vol_global is not equal to Vol_tot * planned_classes'))
+            _('Volumes of {} are inconsistent').format(complete_acronym),
+            _('Vol_global is not equal to Vol_tot * planned_classes'))
         self.assertIn(excepted_error, self.learning_component_year_full_lecturing.warnings)
         self.assertIn(excepted_error, self.luy_full.warnings)
 
@@ -296,12 +300,16 @@ class LearningUnitYearWarningsTest(TestCase):
         self.learning_component_year_full_lecturing.planned_classes = 2
         self.learning_component_year_full_lecturing.save()
 
+        complete_acronym = self.learning_component_year_full_lecturing.complete_acronym
         excepted_error_1 = "{} ({})".format(
-            _('Volumes are inconsistent'), _('Vol_global is not equal to Vol_tot * planned_classes'))
+            _('Volumes of {} are inconsistent').format(complete_acronym),
+            _('Vol_global is not equal to Vol_tot * planned_classes'))
         self.assertIn(excepted_error_1, self.learning_component_year_full_lecturing.warnings)
         self.assertIn(excepted_error_1, self.luy_full.warnings)
 
-        excepted_error_2 = "{} ({})".format(_('Volumes are inconsistent'), _('Vol_tot is not equal to vol_q1 + vol_q2'))
+        complete_component_acronym = self.learning_component_year_full_lecturing.complete_acronym
+        excepted_error_2 = "{} ({})".format(_('Volumes of {} are inconsistent').format(complete_component_acronym),
+                                            _('Vol_tot is not equal to vol_q1 + vol_q2'))
         self.assertIn(excepted_error_2, self.learning_component_year_full_lecturing.warnings)
         self.assertIn(excepted_error_2, self.luy_full.warnings)
 
@@ -396,7 +404,7 @@ class LearningUnitYearWarningsTest(TestCase):
         self.assertIn(excepted_error, self.luy_full.warnings)
         self.assertIn(excepted_error, luy_partim.warnings)
 
-    def test_no_warning_when_volumes_ok_but_other_component_of_partim_has_higher_values(self):
+    def test_warning_when_volumes_ok_but_other_component_of_partim_has_higher_values(self):
         self.luy_full.credits = self.luy_full.credits + 1
         self.luy_full.save()
 
@@ -462,7 +470,7 @@ class LearningUnitYearWarningsTest(TestCase):
         entity_component_year_partim_lecturing_practical.save()
 
         self.assertFalse(self.luy_full.learning_container_year.warnings)
-        self.assertFalse(self.luy_full.warnings)
+        self.assertTrue(self.luy_full.warnings)
 
     def test_warning_when_partim_parent_periodicity_different_from_parent(self):
         # Set Parent UE to biannual odd
