@@ -47,7 +47,7 @@ from attribution.tests.factories.attribution import AttributionFactory
 from base.business import learning_unit as learning_unit_business
 from base.forms.learning_unit.learning_unit_create import LearningUnitModelForm
 from base.forms.learning_unit.search_form import LearningUnitYearForm, LearningUnitSearchForm
-from base.forms.learning_unit_pedagogy import LearningUnitPedagogyForm, SummaryModelForm
+from base.forms.learning_unit_pedagogy import LearningUnitPedagogyForm
 from base.forms.learning_unit_specifications import LearningUnitSpecificationsForm, LearningUnitSpecificationsEditForm
 from base.models import learning_unit_component
 from base.models import learning_unit_component_class
@@ -1295,20 +1295,11 @@ class LearningUnitViewTestCase(TestCase):
         self.assertEqual(template, 'learning_unit/pedagogy.html')
         self.assertIsInstance(context['form_french'], LearningUnitPedagogyForm)
         self.assertIsInstance(context['form_english'], LearningUnitPedagogyForm)
-
-    @mock.patch('base.views.layout.render')
-    def test_learning_unit_pedagogy_summary_editable_form_present(self, mock_render):
-        learning_unit_year = LearningUnitYearFactory(academic_year=self.current_academic_year,
-                                                     learning_container_year=self.learning_container_yr,
-                                                     subtype=learning_unit_year_subtypes.FULL,
-                                                     summary_locked=False)
-
-        request = self.create_learning_unit_request(learning_unit_year)
-        learning_unit_pedagogy(request, learning_unit_year.id)
-
-        self.assertTrue(mock_render.called)
-        request, template, context = mock_render.call_args[0]
-        self.assertIsInstance(context['summary_editable_form'], SummaryModelForm)
+        # Verify URL [Specific redirection]
+        self.assertEqual(context['create_teaching_material_urlname'], 'teaching_material_create')
+        self.assertEqual(context['update_teaching_material_urlname'], 'teaching_material_edit')
+        self.assertEqual(context['delete_teaching_material_urlname'], 'teaching_material_delete')
+        self.assertEqual(context['update_mobility_modality_urlname'], 'mobility_modality_update')
 
     @mock.patch('base.models.person.Person.is_faculty_manager')
     def test_learning_unit_pedagogy_summary_editable_update_ok(self, mock_faculty_manager):

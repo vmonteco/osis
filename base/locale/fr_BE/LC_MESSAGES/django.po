@@ -3172,3 +3172,24 @@ msgstr "Êtes-vous sûr·e de vouloir supprimer le support de cours?"
 
 msgid "{} successfully updated"
 msgstr "{} modifié(e) avec succès."
+
+msgid "Mobility has been updated"
+msgstr "Mobilité a été mis-à-jour"
+
+msgid "lock"
+msgstr "Bloquer"
+
+msgid "unlock"
+msgstr "Débloquer"
+
+msgid "Update for teacher unlocked"
+msgstr "Mise-à-jour débloquée pour l'enseignant"
+
+msgid "Update for teacher locked"
+msgstr "Mise-à-jour bloquée pour l'enseignant"
+
+msgid "lock update for teacher"
+msgstr "bloquer la mise à jour pour l'enseignant"
+
+msgid "unlock update for teacher"
+msgstr "débloquer la mise à jour pour l'enseignant"
