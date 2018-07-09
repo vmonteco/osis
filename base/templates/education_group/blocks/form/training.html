@@ -24,6 +24,8 @@
     * at the root of the source code of this program.  If not,
     * see http://www.gnu.org/licenses/.
 {% endcomment %}
+
+
 <form method="post" id="EducationGroupYearUpdateForm">
     {% csrf_token %}
     <div class="panel panel-default">
@@ -67,6 +69,7 @@
                             </div>
                             <div class="row">
                                 <div class="col-md-12">
+                                    <script src="{% static 'js/jquery-ui.js' %}"></script>
                                     {{ form_education_group_year.media }}
                                     {% bootstrap_field form_education_group_year.domains %}
                                 </div>
