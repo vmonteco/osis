@@ -42,19 +42,7 @@
         </div>
         <div class="col-md-2" style="margin-top:20px;">
             <div class="btn-group pull-right">
-                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <span class="glyphicon glyphicon-cog" aria-hidden="true"></span> {% trans 'actions' %}
-                    <span class="caret"></span>
-                </button>
-                <ul class="dropdown-menu dropdown-menu-large row text-right pull-right">
-                    {% flag "education_group_create" %}
-                        <li {% if not can_create_education_group %} class="disabled" {% endif %}>
-                            <a {% if can_create_education_group %} href="{% url "new_education_group" %}" {% endif %} id="lnk_create_education_group">
-                                {% trans 'New Education Group' %}
-                             </a>
-                        </li>
-                    {% endflag %}
-                </ul>
+                {% include "blocks/button/education_groups_action_button.html" %}
             </div>
         </div>
     </div>

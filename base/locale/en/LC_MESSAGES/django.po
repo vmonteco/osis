@@ -2085,9 +2085,6 @@ msgstr "Organization of formations"
 msgid "education_groups"
 msgstr "Education groups"
 
-msgid "education group year"
-msgstr "Organisation de formations annualisée"
-
 msgid "entity_management"
 msgstr "Entity management"
 
@@ -3156,5 +3153,14 @@ msgstr ""
 msgid "It will delete also this following objects"
 msgstr ""
 
-msgid "{} successfully updated"
+msgid "The teaching material has been deleted"
 msgstr ""
+
+msgid "Teaching materials has been updated"
+msgstr ""
+
+msgid "Are you sure you want to delete the teaching material?"
+msgstr ""
+
+msgstr "{} successfully updated"
+msgid
