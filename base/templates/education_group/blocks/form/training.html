@@ -80,12 +80,6 @@
                             {% bootstrap_field form_education_group_year.enrollment_campus %}
                             {% bootstrap_field form_education_group_year.main_teaching_campus %}
                             {% bootstrap_field form_education_group_year.other_campus_activities %}
-                            <div class="row">
-                                <div class="col-md-12">
-                                    {{ form_education_group_year.media }}
-                                    {% bootstrap_field form_education_group_year.domains %}
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -95,10 +89,8 @@
                     <div class="panel panel-default">
                         <div class="panel-body">
                             {% bootstrap_field form_education_group_year.academic_type %}
-                            <div>
-                                <label>{% trans 'studies_domain' %}</label><br>
-                                <input value="{% trans education_group_year.str_domains %}" disabled class="form-control">
-                            </div>
+                                {{ form_education_group_year.media }}
+                                {% bootstrap_field form_education_group_year.domains %}
                             <br>
                             <div class="row">
                                 {% bootstrap_field form_education_group_year.duration form_group_class="col-md-2" %}
