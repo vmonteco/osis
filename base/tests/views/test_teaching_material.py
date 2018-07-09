@@ -26,6 +26,7 @@
 from unittest import mock
 
 from django.contrib.auth.models import Permission, Group
+from django.http import HttpResponseNotAllowed
 from django.http import HttpResponseRedirect
 from django.test import RequestFactory
 from django.test import TestCase
@@ -36,7 +37,7 @@ from base.models.enums.learning_unit_year_subtypes import FULL
 from base.models.person import CENTRAL_MANAGER_GROUP
 from base.tests.factories.academic_year import create_current_academic_year
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
-from base.tests.factories.person import PersonFactory
+from base.tests.factories.person import PersonFactory, CentralManagerFactory, PersonWithPermissionsFactory
 from base.tests.factories.teaching_material import TeachingMaterialFactory
 
 
@@ -49,21 +50,20 @@ class TeachingMaterialCreateTestCase(TestCase):
             learning_container_year__academic_year=self.current_academic_year
         )
         self.url = reverse('teaching_material_create', kwargs={'learning_unit_year_id': self.learning_unit_year.id})
-        self.person = _get_central_manager_person()
+        self.person = _get_central_manager_person_with_permission()
         self.client.force_login(self.person.user)
 
     def test_teaching_material_create_when_user_not_logged(self):
         self.client.logout()
         response = self.client.get(self.url)
-        from django.utils.encoding import uri_to_iri
-        self.assertEqual(uri_to_iri(uri_to_iri(response.url)), '/login/?next={}'.format(self.url))
+        self.assertRedirects(response, '/login/?next={}'.format(self.url))
         self.assertEqual(response.status_code, HttpResponseRedirect.status_code)
 
     @mock.patch('base.models.person.Person.is_linked_to_entity_in_charge_of_learning_unit_year')
     def test_teaching_material_create_when_method_not_allowed(self, mock_is_linked_to_entity_charge):
         mock_is_linked_to_entity_charge.return_value = True
         response = self.client.delete(self.url)
-        self.assertEqual(response.status_code, 405) # Method not allowed
+        self.assertEqual(response.status_code, HttpResponseNotAllowed.status_code)
 
     @mock.patch('base.models.person.Person.is_linked_to_entity_in_charge_of_learning_unit_year')
     @mock.patch('base.views.layout.render')
@@ -94,7 +94,7 @@ class TeachingMaterialUpdateTestCase(TestCase):
                                'learning_unit_year_id': self.learning_unit_year.id,
                                'teaching_material_id': self.teaching_material.id
                            })
-        self.person = _get_central_manager_person()
+        self.person = _get_central_manager_person_with_permission()
         self.client.force_login(self.person.user)
 
     def test_teaching_material_update_when_user_not_logged(self):
@@ -108,7 +108,7 @@ class TeachingMaterialUpdateTestCase(TestCase):
     def test_teaching_material_update_when_method_not_allowed(self, mock_is_linked_to_entity_charge):
         mock_is_linked_to_entity_charge.return_value = True
         response = self.client.delete(self.url)
-        self.assertEqual(response.status_code, 405) # Method not allowed
+        self.assertEqual(response.status_code, HttpResponseNotAllowed.status_code)
 
     @mock.patch('base.models.person.Person.is_linked_to_entity_in_charge_of_learning_unit_year')
     @mock.patch('base.views.layout.render')
@@ -141,14 +141,13 @@ class TeachingMaterialDeleteTestCase(TestCase):
             'learning_unit_year_id': self.learning_unit_year.id,
             'teaching_material_id': self.teaching_material.id
         })
-        self.person = _get_central_manager_person()
+        self.person = _get_central_manager_person_with_permission()
         self.client.force_login(self.person.user)
 
     def test_teaching_material_delete_when_user_not_logged(self):
         self.client.logout()
         response = self.client.get(self.url)
-        from django.utils.encoding import uri_to_iri
-        self.assertEqual(uri_to_iri(uri_to_iri(response.url)), '/login/?next={}'.format(self.url))
+        self.assertRedirects(response, '/login/?next={}'.format(self.url))
         self.assertEqual(response.status_code, HttpResponseRedirect.status_code)
 
     @mock.patch('base.models.person.Person.is_linked_to_entity_in_charge_of_learning_unit_year')
@@ -174,8 +173,8 @@ class TeachingMaterialDeleteTestCase(TestCase):
         self.assertEqual(template, 'learning_unit/teaching_material/modal_delete.html')
 
 
-def _get_central_manager_person():
-    person = PersonFactory()
-    person.user.user_permissions.add(Permission.objects.get(codename="can_edit_learningunit_pedagogy"))
-    person.user.groups.add(Group.objects.get(name=CENTRAL_MANAGER_GROUP))
+def _get_central_manager_person_with_permission():
+    perm_codename = "can_edit_learningunit_pedagogy"
+    person = CentralManagerFactory()
+    person.user.user_permissions.add(Permission.objects.get(codename=perm_codename))
     return person
