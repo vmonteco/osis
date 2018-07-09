@@ -315,7 +315,8 @@ class LearningUnitYear(SerializableModel):
 
     def _check_learning_component_year_warnings(self):
         _warnings = []
-        all_components = self.learning_container_year.learningcomponentyear_set.all().order_by('learningunitcomponent__learning_unit_year__acronym')
+        components_queryset = self.learning_container_year.learningcomponentyear_set
+        all_components = components_queryset.all().order_by('learningunitcomponent__learning_unit_year__acronym')
         for learning_component_year in all_components:
             _warnings.extend(learning_component_year.warnings)
 

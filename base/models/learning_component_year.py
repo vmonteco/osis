@@ -104,17 +104,19 @@ class LearningComponentYear(SerializableModel):
         vol_q2 = self.hourly_volume_partial_q2 or 0
         planned_classes = self.planned_classes or 0
 
+        inconsitent_msg = _('Volumes of {} are inconsistent').format(self.complete_acronym)
         if vol_q1 + vol_q2 != vol_total_annual:
             _warnings.append("{} ({})".format(
-                _('Volumes of {} are inconsistent').format(self.complete_acronym),
+                inconsitent_msg,
                 _('Vol_tot is not equal to vol_q1 + vol_q2')))
         if vol_total_annual * planned_classes != vol_global:
             _warnings.append("{} ({})".format(
-                _('Volumes of {} are inconsistent').format(self.complete_acronym),
+                inconsitent_msg,
                 _('Vol_global is not equal to Vol_tot * planned_classes')))
         if self.planned_classes == 0:
-            _warnings.append("{} ({})".format(_('Volumes of {} are inconsistent').format(self.complete_acronym),
-                                              _('planned classes cannot be 0')))
+            _warnings.append("{} ({})".format(
+                inconsitent_msg,
+                _('planned classes cannot be 0')))
         return _warnings
 
 
