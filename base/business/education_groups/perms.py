@@ -46,8 +46,8 @@ def is_eligible_to_change_education_group(person):
 
 def is_eligible_to_delete_education_group(person, raise_exception=False):
     return has_person_the_right_to_delete_education_group(person, raise_exception) and (
-            person.is_central_manager()
-            or is_education_group_creation_period_opened(person, raise_exception)
+            person.is_central_manager() or
+            is_education_group_creation_period_opened(person, raise_exception)
     )
 
 
