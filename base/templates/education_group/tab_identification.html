@@ -32,9 +32,7 @@
         <div class="panel-heading">
             <div class="row">
                 <div class="pull-left" style="margin-left: 15px;">
-                    <a class="button" onclick="showDiv()">
-                        <span class="glyphicon glyphicon-menu-hamburger" aria-hidden="true"></span>
-                    </a>
+                    {% include "education_group/blocks/hamburger_button.html" %}
                 </div>
                 <div class="pull-right" style="margin-right: 15px;">
                     {% include "education_group/blocks/dropdown/identification_actions_bar.html" with dropdirection="dropdown"%}
