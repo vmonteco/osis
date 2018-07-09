@@ -44,7 +44,7 @@
                                 <div class="col-md-6">
                                     <label>{% trans 'type' %}</label><br>
                                     <input value="{% trans education_group_year.education_group_type.category %}"
-                                           readonly class="form-control" >
+                                           disabled class="form-control" >
                                 </div>
                                 {% bootstrap_field form_education_group_year.education_group_type form_group_class="col-md-6" %}
                             </div>
@@ -91,7 +91,7 @@
                             {% bootstrap_field form_education_group_year.academic_type %}
                             <div>
                                 <label>{% trans 'studies_domain' %}</label><br>
-                                <input value="{% trans education_group_year.str_domains %}" readonly class="form-control">
+                                <input value="{% trans education_group_year.str_domains %}" disabled class="form-control">
                             </div>
                             <br>
                             <div class="row">
