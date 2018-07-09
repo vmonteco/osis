@@ -80,7 +80,8 @@ class TrainingEducationGroupYearForm(forms.ModelForm):
             self.initial['management_entity'] = get_last_version(self.instance.management_entity).pk
 
     def save(self, commit=True):
-        education_group_year = super().save(commit)
+        education_group_year = super().save(commit=False)
+        education_group_year.save()
 
         self.save_domains()
 

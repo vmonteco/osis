@@ -39,6 +39,7 @@ from base.tests.factories.education_group_year import GroupFactory, TrainingFact
 from base.tests.factories.entity_version import EntityVersionFactory, MainEntityVersionFactory
 from base.tests.factories.person import PersonFactory
 from base.views.education_groups.update import update_education_group
+from reference.tests.factories.domain import DomainFactory
 
 
 @override_flag('education_group_update', active=True)
@@ -64,10 +65,12 @@ class TestUpdate(TestCase):
 
         self.training_url = self._get_training_url()
 
+        self.domains = [DomainFactory() for x in range(10)]
+
     def _get_training_url(self):
-        an_training_education_group_type = EducationGroupTypeFactory(category=education_group_categories.TRAINING)
+        self.an_training_education_group_type = EducationGroupTypeFactory(category=education_group_categories.TRAINING)
         self.training_education_group_year = TrainingFactory(
-            education_group_type=an_training_education_group_type)
+            education_group_type=self.an_training_education_group_type)
         EntityVersionFactory(entity=self.training_education_group_year.administration_entity,
                              start_date=self.education_group_year.academic_year.start_date)
         EntityVersionFactory(entity=self.training_education_group_year.management_entity,
