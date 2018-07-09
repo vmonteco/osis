@@ -114,4 +114,3 @@ def _update_mini_training(request, education_group_year):
         "education_group_year": education_group_year,
         "form_education_group": form.forms[EducationGroupModelForm]
     })
-

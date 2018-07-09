@@ -47,8 +47,8 @@ class GroupModelForm(forms.ModelForm):
         self.parent = kwargs.pop("parent", None)
         super().__init__(*args, **kwargs)
         init_education_group_type_field(self.fields["education_group_type"],
-                                         self.parent,
-                                         education_group_categories.GROUP)
+                                        self.parent,
+                                        education_group_categories.GROUP)
         init_academic_year(self.fields["academic_year"], self.parent)
 
         preselect_entity_version_from_entity_value(self)
