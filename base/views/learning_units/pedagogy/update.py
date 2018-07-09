@@ -35,7 +35,8 @@ from base.business.learning_unit import CMS_LABEL_PEDAGOGY, get_cms_label_data, 
     get_no_summary_responsible_teachers, CMS_LABEL_PEDAGOGY_FR_ONLY
 from base.business.learning_units.perms import is_eligible_to_update_learning_unit_pedagogy
 from base.forms.learning_unit_pedagogy import SummaryModelForm, LearningUnitPedagogyForm, \
-    LearningUnitPedagogyEditForm, teachingmaterialformset_factory
+    LearningUnitPedagogyEditForm
+from base.models import teaching_material
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
 from base.models.tutor import find_all_summary_responsibles_by_learning_unit_year
@@ -54,13 +55,9 @@ def update_learning_unit_pedagogy(request, learning_unit_year_id, context, templ
 
     post = request.POST or None
     summary_form = SummaryModelForm(post, person, context['is_person_linked_to_entity'], instance=learning_unit_year)
-    TeachingMaterialFormset = teachingmaterialformset_factory(can_edit=perm_to_edit)
-    teaching_material_formset = TeachingMaterialFormset(post, instance=learning_unit_year,
-                                                        form_kwargs={'person': person})
-    if perm_to_edit and summary_form.is_valid() and teaching_material_formset.is_valid():
+    if perm_to_edit and summary_form.is_valid():
         try:
             summary_form.save()
-            teaching_material_formset.save()
             display_success_messages(request, _("success_modification_learning_unit"))
             # Redirection on the same page
             return HttpResponseRedirect(request.path_info)
@@ -68,8 +65,8 @@ def update_learning_unit_pedagogy(request, learning_unit_year_id, context, templ
             display_error_messages(request, e.args[0])
 
     context.update(get_cms_pedagogy_form(request, learning_unit_year))
+    context['teaching_materials'] = teaching_material.find_by_learning_unit_year(learning_unit_year)
     context['summary_editable_form'] = summary_form
-    context['teaching_material_formset'] = teaching_material_formset
     context['can_edit_information'] = perm_to_edit
     context['summary_responsibles'] = find_all_summary_responsibles_by_learning_unit_year(learning_unit_year)
     context['other_teachers'] = get_no_summary_responsible_teachers(learning_unit_year, context['summary_responsibles'])
@@ -86,7 +83,7 @@ def get_cms_pedagogy_form(request, learning_unit_year):
                                                 language_code=settings.LANGUAGE_CODE_FR),
         'form_english': LearningUnitPedagogyForm(learning_unit_year=learning_unit_year,
                                                  language_code=settings.LANGUAGE_CODE_EN)
-        }
+    }
 
 
 @PermissionDecorator(is_eligible_to_update_learning_unit_pedagogy, "learning_unit_year_id", LearningUnitYear)

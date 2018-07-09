@@ -1,0 +1,12 @@
+{% extends "education_group/layout_detail.html" %}
+{% load bootstrap3 i18n %}
+
+
+{% block content %}
+    <p>{% blocktrans %}You can not delete this object because some dependencies are protected{% endblocktrans %}</p>
+    <ul>
+        {% for protected_object in protected_objects %}
+            <li>{{ protected_object }}</li>
+        {% endfor %}
+    </ul>
+{% endblock %}

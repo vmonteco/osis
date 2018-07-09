@@ -2087,6 +2087,9 @@ msgstr "Organisation des formations"
 msgid "education_groups"
 msgstr "Organisations de formations"
 
+msgid "education group year"
+msgstr "Organisation de formations annualisée"
+
 msgid "entity_management"
 msgstr "Fac. gestion"
 
@@ -3145,3 +3148,18 @@ msgstr "Vous n'êtes pas en période d'édition des informations pédagogiques."
 
 msgid "Modification made"
 msgstr "Modification apportée"
+
+msgid "You can not delete this object because some dependencies are protected"
+msgstr "Vous ne pouvez pas supprimer cet objet car certaines dépendances sont protégées"
+
+msgid "It will delete also this following objects"
+msgstr "Cela supprimera également les objets suivants"
+
+msgid "The teaching material has been deleted"
+msgstr "Le support de cours a été supprimé"
+
+msgid "Teaching materials has been updated"
+msgstr "Les supports de cours ont été mis à jour"
+
+msgid "Are you sure you want to delete the teaching material?"
+msgstr "Êtes-vous sûr·e de vouloir supprimer le support de cours?"

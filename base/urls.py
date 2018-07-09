@@ -42,6 +42,7 @@ from attribution.views import attribution, tutor_application
 from base.views import learning_achievement, search
 from base.views import learning_unit, offer, common, institution, organization, academic_calendar, \
     my_osis, entity, student, education_group
+from base.views import teaching_material
 from base.views.education_groups.delete import DeleteGroupEducationYearView
 from base.views.education_groups.update import update_education_group
 from base.views.learning_units.external import create as create_external
@@ -50,6 +51,7 @@ from base.views.learning_units.pedagogy.read import learning_unit_pedagogy
 from base.views.learning_units.pedagogy.update import learning_unit_pedagogy_edit
 from base.views.learning_units.proposal import create, update
 from base.views.learning_units.update import update_learning_unit, learning_unit_edition_end_date
+
 
 urlpatterns = [
     url(r'^$', common.home, name='home'),
@@ -164,6 +166,13 @@ urlpatterns = [
                     name="achievement_create"),
 
             ])),
+            url(r'^teaching_materials/', include([
+                url(r'^create', teaching_material.create, name="teaching_material_create"),
+                url(r'^(?P<teaching_material_id>[0-9]+)/edit/', teaching_material.update,
+                    name="teaching_material_edit"),
+                url(r'^(?P<teaching_material_id>[0-9]+)/delete/', teaching_material.delete,
+                    name="teaching_material_delete")
+            ]))
         ])),
         url(r'^check/(?P<subtype>[A-Z]+)$', base.views.learning_units.common.check_acronym, name="check_acronym"),
         url(r'^outside_period/$', learning_unit.outside_period, name='outside_summary_submission_period'),
@@ -260,7 +269,7 @@ urlpatterns = [
             url(r'^admission_conditions/get_line$',
                 education_group.education_group_year_admission_condition_get_line,
                 name='education_group_year_admission_condition_get_line'),
-            url(r'^delete/$', DeleteGroupEducationYearView.as_view(), name="delete_education_group")
+            url(r'^delete/$', DeleteGroupEducationYearView.as_view(), name="delete_education_group"),
         ])),
     ])),
 

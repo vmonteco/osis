@@ -25,6 +25,8 @@
 ##############################################################################
 from django.conf import settings
 
+from base.models import academic_year
+from base.models import teaching_material
 from cms.enums import entity_name
 from cms.models import text_label, translated_text
 
@@ -40,3 +42,30 @@ def update_bibliography_changed_field_in_cms(learning_unit_year):
                 language=language[0],
                 defaults={}
             )
+
+
+def is_pedagogy_data_must_be_postponed(learning_unit_year):
+    # We must postpone pedagogy information, if we modify data form N+1
+    current_academic_year = academic_year.current_academic_year()
+    return learning_unit_year.academic_year.year > current_academic_year.year
+
+
+def save_teaching_material(teach_material):
+    teach_material.save()
+    luy = teach_material.learning_unit_year
+    check_teaching_materials_postponement(luy)
+    return teach_material
+
+
+def delete_teaching_material(teach_material):
+    luy = teach_material.learning_unit_year
+    result = teach_material.delete()
+    check_teaching_materials_postponement(luy)
+    return result
+
+
+def check_teaching_materials_postponement(luy):
+    if is_pedagogy_data_must_be_postponed(luy):
+        teaching_material.postpone_teaching_materials(luy)
+    # For sync purpose, we need to trigger an update of the bibliography when we update teaching materials
+    update_bibliography_changed_field_in_cms(luy)

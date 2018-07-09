@@ -24,20 +24,31 @@
 #
 ##############################################################################
 from unittest import mock
+from unittest.mock import patch
 
+import datetime
 from django.contrib.auth.models import Permission
 from django.http import HttpResponse, HttpResponseNotFound
+from django.test import RequestFactory
 from django.test import TestCase
 from django.urls import reverse
+from django.utils import timezone
 
 from attribution.tests.factories.attribution import AttributionFactory
 from attribution.views.manage_my_courses import list_my_attributions_summary_editable, view_educational_information
 from base.forms.learning_unit_pedagogy import LearningUnitPedagogyForm
 from base.models.enums import academic_calendar_type
+from base.models.enums import entity_container_year_link_type
+from base.models.enums.entity_type import FACULTY
+from base.models.enums.learning_unit_year_subtypes import FULL
 from base.tests.factories.academic_calendar import AcademicCalendarFactory
-from base.tests.factories.academic_year import create_current_academic_year
+from base.tests.factories.academic_year import create_current_academic_year, AcademicYearFactory
 from base.tests.factories.business.learning_units import GenerateAcademicYear
+from base.tests.factories.entity_container_year import EntityContainerYearFactory
+from base.tests.factories.entity_version import EntityVersionFactory
+from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from base.tests.factories.person import PersonFactory
+from base.tests.factories.teaching_material import TeachingMaterialFactory
 from base.tests.factories.tutor import TutorFactory
 from osis_common.utils.perms import BasePerm
 
@@ -131,6 +142,7 @@ class TestViewEducationalInformation(TestCase):
 
         context = response.context
         self.assertEqual(context["learning_unit_year"], self.attribution.learning_unit_year)
+        self.assertTrue("teaching_materials" in context)
         self.assertTrue(context["cms_labels_translated"])
         self.assertIsInstance(context["form_french"], LearningUnitPedagogyForm)
         self.assertIsInstance(context["form_english"], LearningUnitPedagogyForm)
@@ -173,3 +185,96 @@ class TestManageEducationalInformation(TestCase):
     def test_use_edit_learning_unit_pedagogy_method(self, mock_edit_learning_unit_pedagogy):
         self.client.get(self.url)
         self.assertTrue(mock_edit_learning_unit_pedagogy.called)
+
+
+class TestManageMyCoursesTeachingMaterialsRedirection(TestCase):
+    def setUp(self):
+        self.current_academic_year = create_current_academic_year()
+        self.academic_calendar = AcademicCalendarFactory(academic_year=self.current_academic_year,
+                                                         reference=academic_calendar_type.SUMMARY_COURSE_SUBMISSION,
+                                                         start_date=datetime.date(timezone.now().year - 1, 9, 30),
+                                                         end_date=datetime.date(timezone.now().year + 1, 9, 30))
+        self.academic_year_in_future = AcademicYearFactory(year=self.current_academic_year.year + 1)
+        self.learning_unit_year = LearningUnitYearFactory(
+            subtype=FULL,
+            academic_year=self.academic_year_in_future,
+            learning_container_year__academic_year=self.academic_year_in_future,
+            summary_locked=False
+        )
+        a_valid_entity_version = EntityVersionFactory(entity_type=FACULTY)
+        EntityContainerYearFactory(
+            learning_container_year=self.learning_unit_year.learning_container_year,
+            entity=a_valid_entity_version.entity,
+            type=entity_container_year_link_type.REQUIREMENT_ENTITY
+        )
+        self.teaching_material = TeachingMaterialFactory(learning_unit_year=self.learning_unit_year)
+        self.tutor = _get_tutor()
+        # Add attribution to course [set summary responsible]
+        AttributionFactory(
+            tutor=self.tutor,
+            summary_responsible=True,
+            learning_unit_year= self.learning_unit_year,
+        )
+        self.client.force_login(self.tutor.person.user)
+
+    @patch('base.views.teaching_material.create_view')
+    def test_redirection_create_teaching_material(self, mock_create_view):
+        url = reverse('tutor_teaching_material_create', kwargs={'learning_unit_year_id': self.learning_unit_year.id})
+        request = self._prepare_request(url)
+
+        from attribution.views.manage_my_courses import create_teaching_material
+        create_teaching_material(request, learning_unit_year_id=self.learning_unit_year.pk)
+        self.assertTrue(mock_create_view.called)
+
+        expected_redirection = reverse(view_educational_information,
+                                       kwargs={'learning_unit_year_id': self.learning_unit_year.pk})
+        mock_create_view.assert_called_once_with(request, self.learning_unit_year.pk, expected_redirection)
+
+    @patch('base.views.teaching_material.update_view')
+    def test_redirection_update_teaching_material(self, mock_update_view):
+        url = reverse('tutor_teaching_material_edit', kwargs={'learning_unit_year_id': self.learning_unit_year.id,
+                                                              'teaching_material_id': self.teaching_material.id})
+        request = self._prepare_request(url)
+
+        from attribution.views.manage_my_courses import update_teaching_material
+        update_teaching_material(
+            request,
+            learning_unit_year_id=self.learning_unit_year.pk,
+            teaching_material_id=self.teaching_material.id
+        )
+        self.assertTrue(mock_update_view.called)
+        expected_redirection = reverse(view_educational_information,
+                                       kwargs={'learning_unit_year_id': self.learning_unit_year.pk})
+        mock_update_view.assert_called_once_with(request, self.learning_unit_year.pk, self.teaching_material.id,
+                                                 expected_redirection)
+
+    @patch('base.views.teaching_material.delete_view')
+    def test_redirection_delete_teaching_material(self, mock_delete_view):
+        url = reverse('tutor_teaching_material_delete', kwargs={'learning_unit_year_id': self.learning_unit_year.id,
+                                                                'teaching_material_id': self.teaching_material.id})
+        request = self._prepare_request(url)
+
+        from attribution.views.manage_my_courses import delete_teaching_material
+        delete_teaching_material(
+            request,
+            learning_unit_year_id=self.learning_unit_year.pk,
+            teaching_material_id=self.teaching_material.id
+        )
+        self.assertTrue(mock_delete_view.called)
+
+        expected_redirection = reverse(view_educational_information,
+                                       kwargs={'learning_unit_year_id': self.learning_unit_year.pk})
+        mock_delete_view.assert_called_once_with(request, self.learning_unit_year.pk, self.teaching_material.id,
+                                                 expected_redirection)
+
+    def _prepare_request(self, url):
+        request_factory = RequestFactory()
+        request = request_factory.get(url)
+        request.user = self.tutor.person.user
+        return request
+
+
+def _get_tutor():
+    tutor = TutorFactory()
+    tutor.person.user.user_permissions.add(Permission.objects.get(codename="can_edit_learningunit_pedagogy"))
+    return tutor

@@ -47,6 +47,9 @@ class AdmissionCondition(models.Model):
     text_personalized_access_en = models.TextField(default='')
     text_admission_enrollment_procedures_en = models.TextField(default='')
 
+    def __str__(self):
+        return "Admission condition - {}".format(self.education_group_year)
+
 
 class AdmissionConditionAdmin(osis_model_admin.OsisModelAdmin):
     list_display = ('name',)
