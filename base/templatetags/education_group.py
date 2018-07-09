@@ -23,31 +23,36 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from django import template
 from django.core.exceptions import PermissionDenied
-from django.shortcuts import get_object_or_404
+from django.utils.safestring import mark_safe
 
-from base.business.education_groups import perms as business_perms
-from base.models import person
+from base.business.education_groups.perms import is_eligible_to_delete_education_group
 
+register = template.Library()
 
-def can_create_education_group(view_func):
-    def f_can_create_education_group(request, *args, **kwargs):
-        pers = get_object_or_404(person.Person, user=request.user)
-        if not business_perms.is_eligible_to_add_education_group(pers):
-            raise PermissionDenied
-        return view_func(request, *args, **kwargs)
-    return f_can_create_education_group
-
-
-def can_change_education_group(user):
-    pers = get_object_or_404(person.Person, user=user)
-    if not business_perms.is_eligible_to_change_education_group(pers):
-        raise PermissionDenied
-    return True
+# TODO use inclusion tag
+li_template = """
+<li class="{}">
+    <a href="{}" data-toggle="tooltip" title="{}">{}</a>
+</li>
+"""
 
 
-def can_delete_education_group(user, _):
-    pers = get_object_or_404(person.Person, user=user)
-    if not business_perms.is_eligible_to_delete_education_group(pers, raise_exception=True):
-        raise PermissionDenied
-    return True
+@register.simple_tag
+def li_with_deletion_perm(url, message, person, root=""):
+    permission_denied_message = ""
+    try:
+        result = is_eligible_to_delete_education_group(person, raise_exception=True)
+    except PermissionDenied as e:
+        result = False
+        permission_denied_message = str(e)
+
+    if result:
+        li_class = ""
+        href = url + "?root=" + root
+    else:
+        li_class = "disabled"
+        href = "#"
+
+    return mark_safe(li_template.format(li_class, href, permission_denied_message, message))
