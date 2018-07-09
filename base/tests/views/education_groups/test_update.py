@@ -30,41 +30,27 @@ from django.test import TestCase
 from django.urls import reverse
 from waffle.testutils import override_flag
 
-from base.forms.education_group.create import CreateEducationGroupYearForm
+from base.forms.education_group.group import GroupModelForm
 from base.models.enums import education_group_categories
 from base.models.enums.active_status import ACTIVE
 from base.models.enums.schedule_type import DAILY
 from base.tests.factories.education_group_type import EducationGroupTypeFactory
-from base.tests.factories.education_group_year import EducationGroupYearFactory
+from base.tests.factories.education_group_year import GroupFactory, TrainingFactory
 from base.tests.factories.entity_version import EntityVersionFactory, MainEntityVersionFactory
 from base.tests.factories.person import PersonFactory
 from base.views.education_groups.update import update_education_group
-from reference.tests.factories.domain import DomainFactory
 
 
 @override_flag('education_group_update', active=True)
 class TestUpdate(TestCase):
     def setUp(self):
-        group_type = EducationGroupTypeFactory(category=education_group_categories.GROUP)
-        self.education_group_year = EducationGroupYearFactory(education_group_type=group_type)
+        self.education_group_year = GroupFactory()
+
         EntityVersionFactory(entity=self.education_group_year.management_entity,
                              start_date=self.education_group_year.academic_year.start_date)
 
         EntityVersionFactory(entity=self.education_group_year.administration_entity,
                              start_date=self.education_group_year.academic_year.start_date)
-
-        self.an_training_education_group_type = EducationGroupTypeFactory(
-            category=education_group_categories.TRAINING
-        )
-        self.training_education_group_year = EducationGroupYearFactory(
-            education_group_type=self.an_training_education_group_type
-        )
-        EntityVersionFactory(entity=self.training_education_group_year.administration_entity,
-                             start_date=self.education_group_year.academic_year.start_date)
-        EntityVersionFactory(entity=self.training_education_group_year.management_entity,
-                             start_date=self.education_group_year.academic_year.start_date)
-
-        self.domains = [DomainFactory() for x in range(10)]
 
         self.url = reverse(update_education_group, kwargs={'education_group_year_id': self.education_group_year.pk})
         self.person = PersonFactory()
@@ -76,11 +62,18 @@ class TestUpdate(TestCase):
                                        return_value=True)
         self.mocked_perm = self.perm_patcher.start()
 
-        self.training_url = reverse(
-            update_education_group, kwargs={
-                'education_group_year_id': self.training_education_group_year.pk
-            }
-        )
+        self.training_url = self._get_training_url()
+
+    def _get_training_url(self):
+        an_training_education_group_type = EducationGroupTypeFactory(category=education_group_categories.TRAINING)
+        self.training_education_group_year = TrainingFactory(
+            education_group_type=an_training_education_group_type)
+        EntityVersionFactory(entity=self.training_education_group_year.administration_entity,
+                             start_date=self.education_group_year.academic_year.start_date)
+        EntityVersionFactory(entity=self.training_education_group_year.management_entity,
+                             start_date=self.education_group_year.academic_year.start_date)
+        return reverse(update_education_group,
+                       kwargs={'education_group_year_id': self.training_education_group_year.pk})
 
     def tearDown(self):
         self.perm_patcher.stop()
@@ -107,7 +100,7 @@ class TestUpdate(TestCase):
 
         form_education_group_year = response.context["form_education_group_year"]
 
-        self.assertIsInstance(form_education_group_year, CreateEducationGroupYearForm)
+        self.assertIsInstance(form_education_group_year, GroupModelForm)
 
     def test_post(self):
         new_entity_version = MainEntityVersionFactory()
