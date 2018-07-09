@@ -29,7 +29,7 @@ from base.models.education_group_type import EducationGroupType
 from base.models.enums import education_group_categories
 from base.models.group_element_year import GroupElementYear
 from base.tests.factories.education_group_type import EducationGroupTypeFactory
-from base.tests.factories.education_group_year import EducationGroupYearFactory
+from base.tests.factories.education_group_year import GroupFactory
 from base.tests.forms.education_group.test_common import EducationGroupYearMixin, _get_valid_post_data
 from django.test import TestCase
 
@@ -77,7 +77,7 @@ class TestGroupForm(TestCase):
 
     @patch('base.models.education_group_type.find_authorized_types', return_value=EducationGroupType.objects.all())
     def test_create_with_parent(self, mock_find_authorized_types):
-        parent = EducationGroupYearFactory()
+        parent = GroupFactory()
         form = GroupForm(data=self.post_data, parent=parent)
 
         self.assertTrue(form.is_valid(), form.errors)

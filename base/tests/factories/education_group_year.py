@@ -32,6 +32,7 @@ from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.education_group import EducationGroupFactory
 from base.tests.factories.education_group_type import EducationGroupTypeFactory
 from base.tests.factories.entity import EntityFactory
+from base.models.enums import education_group_categories
 
 
 def generate_title(education_group_year):
@@ -57,3 +58,21 @@ class EducationGroupYearFactory(factory.django.DjangoModelFactory):
     max_credits = factory.fuzzy.FuzzyDecimal(MINIMUM_CREDITS)
     remark = factory.fuzzy.FuzzyText(length=255)
     remark_english = factory.fuzzy.FuzzyText(length=255)
+
+
+class MiniTrainingFactory(EducationGroupYearFactory):
+
+    education_group_type = factory.SubFactory('base.tests.factories.education_group_type.EducationGroupTypeFactory',
+                                              category=education_group_categories.MINI_TRAINING)
+
+
+class TrainingFactory(EducationGroupYearFactory):
+
+    education_group_type = factory.SubFactory('base.tests.factories.education_group_type.EducationGroupTypeFactory',
+                                              category=education_group_categories.TRAINING)
+
+
+class GroupFactory(EducationGroupYearFactory):
+
+    education_group_type = factory.SubFactory('base.tests.factories.education_group_type.EducationGroupTypeFactory',
+                                              category=education_group_categories.GROUP)
