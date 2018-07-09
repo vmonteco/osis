@@ -24,8 +24,8 @@
 #
 ##############################################################################
 from base.forms.education_group.common import CommonBaseForm, EducationGroupModelForm, \
-    MainEntitiesVersionChoiceField, MainTeachingCampusChoiceField, init_academic_year, init_education_group_type_field, \
-    preselect_entity_version_from_entity_value
+    MainEntitiesVersionChoiceField, MainTeachingCampusChoiceField, init_academic_year, \
+    init_education_group_type_field, preselect_entity_version_from_entity_value
 from django import forms
 
 from base.models.education_group_year import EducationGroupYear
