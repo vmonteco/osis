@@ -2933,9 +2933,9 @@
                 "educationgroup"
             ],
             [
-                "delete_educationgroupyear",
+              "delete_educationgroup",
                 "base",
-                "educationgroupyear"
+              "educationgroup"
             ],
             [
                 "change_learningclassyear",
