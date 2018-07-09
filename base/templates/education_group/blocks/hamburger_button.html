@@ -1,5 +1,3 @@
-{% load i18n %}
-{% load format %}
 {% comment "License" %}
 * OSIS stands for Open Student Information System. It's an application
 * designed to manage the core business of higher education institutions,
@@ -23,25 +21,8 @@
 * at the root of the source code of this program.  If not,
 * see http://www.gnu.org/licenses/.
 {% endcomment %}
-<div id="panel-collapse" class="col-md-0">
-    <div id="collapse" class="panel panel-default" style="display:none;overflow: auto;">
-        <div class="panel-body">
-
-{#            Button to expand and close all nodes of the trees#}
-            <div class="row">
-                <a class="button pull-right col-md-1" id="tree_close_all">
-                    <span class="glyphicon glyphicon-minus" aria-hidden="true"></span>
-                </a>
-
-                <a class="button pull-right col-md-1" id="tree_open_all">
-                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
-                </a>
-            </div>
-
-{#            Tree figure#}
-            <div class="row" id="panel_file_tree">
-                {% include "education_group/branch.html" with parent=parent children=parent.children_by_group_element_year root=parent current_education_group_year=education_group_year viewname=request.resolver_match.url_name only%}
-            </div>
-        </div>
-    </div>
+<div class="pull-left" style="margin-left: 15px;">
+    <a class="button" onclick="showDiv()">
+        <span class="glyphicon glyphicon-menu-hamburger" aria-hidden="true"></span>
+    </a>
 </div>

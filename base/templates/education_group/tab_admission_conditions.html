@@ -29,12 +29,17 @@
 
 {% block content %}
     <div class="panel panel-default">
+        <div class="panel-heading">
+            <div class="row">
+                {% include "education_group/blocks/hamburger_button.html" %}
+            </div>
+        </div>
         <div class="panel-body" id="tabs">
             <div class="tab-content" id="tab_content">
                 <div role="tabpanel" class="tab-pane active" id="admission_conditions">
                     <div class="row">
                         {% include "education_group/training_tree.html" %}
-                        <div id="panel-data" class="col-md-9">
+                        <div id="panel-data" class="col-md-12">
                             {% include "education_group/tabs.html" %}
                             <br/>
 
