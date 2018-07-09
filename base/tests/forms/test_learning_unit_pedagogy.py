@@ -31,8 +31,7 @@ from django.conf import settings
 from django.contrib.auth.models import Permission
 from django.test import TestCase
 
-from base.forms.learning_unit_pedagogy import LearningUnitPedagogyEditForm, teachingmaterialformset_factory, \
-    SummaryModelForm
+from base.forms.learning_unit_pedagogy import LearningUnitPedagogyEditForm, SummaryModelForm, TeachingMaterialModelForm
 from base.models.enums.learning_unit_year_subtypes import FULL
 from base.tests.factories.academic_year import create_current_academic_year
 from base.tests.factories.business.learning_units import GenerateAcademicYear
@@ -122,32 +121,22 @@ class TestTeachingMaterialFormSet(LearningUnitPedagogyContextMixin):
     def test_save_without_postponement(self, mock_postpone_teaching_materials):
         """In this test, we ensure that if we modify UE of N or N-... => The postponement is not done for teaching
            materials"""
-        TeachingMaterialFormset = teachingmaterialformset_factory(can_edit=True)
-        teaching_materials = [
-            TeachingMaterialFactory.build(learning_unit_year=self.current_luy),
-            TeachingMaterialFactory.build(learning_unit_year=self.current_luy),
-            TeachingMaterialFactory.build(learning_unit_year=self.current_luy)
-        ]
-        post_data = _get_valid_teaching_materials_formset_data(teaching_materials)
-        teaching_material_formset = TeachingMaterialFormset(post_data, instance=self.current_luy,
-                                                            form_kwargs={'person': self.person})
-        self.assertTrue(teaching_material_formset.is_valid(), teaching_material_formset.errors)
-        teaching_material_formset.save()
+        teaching_material = TeachingMaterialFactory.build(learning_unit_year=self.current_luy)
+        post_data = _get_valid_teaching_material_form_data(teaching_material)
+        teaching_material_form = TeachingMaterialModelForm(post_data)
+        self.assertTrue(teaching_material_form.is_valid(), teaching_material_form.errors)
+        teaching_material_form.save(learning_unit_year=self.current_luy)
         self.assertFalse(mock_postpone_teaching_materials.called)
 
     @patch('base.models.teaching_material.postpone_teaching_materials', side_effect=lambda *args: None)
     def test_save_with_postponement(self, mock_postpone_teaching_materials):
         """In this test, we ensure that if we modify UE of N+1 or N+X => The postponement until the lastest UE"""
         luy_in_future = self.luys[self.current_ac.year + 1]
-        TeachingMaterialFormset = teachingmaterialformset_factory(can_edit=True)
-        teaching_materials = [
-            TeachingMaterialFactory.build(learning_unit_year=luy_in_future)
-        ]
-        post_data = _get_valid_teaching_materials_formset_data(teaching_materials)
-        teaching_material_formset = TeachingMaterialFormset(post_data, instance=luy_in_future,
-                                                            form_kwargs={'person': self.person})
-        self.assertTrue(teaching_material_formset.is_valid(), teaching_material_formset.errors)
-        teaching_material_formset.save()
+        teaching_material = TeachingMaterialFactory.build(learning_unit_year=luy_in_future)
+        post_data = _get_valid_teaching_material_form_data(teaching_material)
+        teaching_material_form = TeachingMaterialModelForm(post_data)
+        self.assertTrue(teaching_material_form.is_valid(), teaching_material_form.errors)
+        teaching_material_form.save(learning_unit_year=luy_in_future)
         self.assertTrue(mock_postpone_teaching_materials.called)
 
 
@@ -221,28 +210,14 @@ def _get_valid_cms_form_data(cms_translated_text):
     }
 
 
-def _get_valid_teaching_materials_formset_data(teaching_materials):
-    """Valid formset data for teaching materials formset"""
-    management_form = {
-        'teachingmaterial_set-INITIAL_FORMS': 0,
-        'teachingmaterial_set-MAX_NUM_FORMS': 10,
-        'teachingmaterial_set-MIN_NUM_FORMS': 0,
-        'teachingmaterial_set-TOTAL_FORMS': len(teaching_materials),
+def _get_valid_teaching_material_form_data(teaching_material):
+    """Valid data for teaching material form"""
+    data = {
+        'title': teaching_material.title,
     }
-    formset_data = {}
-    for index, teaching_material in enumerate(teaching_materials):
-        row_prefix = 'teachingmaterial_set-{}'.format(index)
-        row_data = {
-            '{}-id'.format(row_prefix): getattr(teaching_material, 'id') or '',
-            '{}-learning_unit_year'.format(row_prefix): getattr(teaching_material, 'learning_unit_year_id') or '',
-            '{}-title'.format(row_prefix): getattr(teaching_material, 'title') or '',
-            '{}-DELETE'.format(row_prefix): ''
-        }
-        if getattr(teaching_material, 'mandatory', False):
-            row_data['{}-mandatory'.format(row_prefix)] = 'on'
-        formset_data.update(row_data)
-    return dict(management_form, **formset_data)
-
+    if getattr(teaching_material, 'mandatory', False):
+        data['mandatory'] = 'on'
+    return data
 
 def _get_valid_summary_form_data(luy):
     return {

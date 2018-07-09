@@ -23,34 +23,21 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from base.forms.education_group.common import CommonBaseForm, EducationGroupModelForm, \
-    MainEntitiesVersionChoiceField, MainTeachingCampusChoiceField, init_academic_year, \
-    init_education_group_type_field, preselect_entity_version_from_entity_value
+from base.forms.education_group.common import MainEntitiesVersionChoiceField, MainTeachingCampusChoiceField, \
+    init_education_group_type_field, init_academic_year, preselect_entity_version_from_entity_value, \
+    CommonBaseForm, EducationGroupModelForm
+from base.models.education_group_year import EducationGroupYear
+from base.models.enums import education_group_categories
 from django import forms
 
-from base.models.education_group_year import EducationGroupYear
-from base.models.entity_version import get_last_version
-from base.models.enums import education_group_categories
 
-
-class TrainingEducationGroupYearForm(forms.ModelForm):
-
+class MiniTrainingModelForm(forms.ModelForm):
     class Meta:
         model = EducationGroupYear
-        fields = ["acronym", "partial_acronym", "education_group_type", "title", "title_english",
-                  "academic_year", "main_teaching_campus", "remark", "remark_english", "credits", "enrollment_enabled",
-                  "partial_deliberation", "academic_type", "admission_exam",
-                  "university_certificate", "duration", "duration_unit", "dissertation",
-                  "internship", "primary_language", "other_language_activities",
-                  "keywords", "active", "schedule_type",
-                  "education_group", "enrollment_campus",
-                  "other_campus_activities", "funding", "funding_direction", "funding_cud",
-                  "funding_direction_cud",
-                  "diploma_printing_title", "diploma_printing_orientation", "professional_title", "min_credits",
-                  "max_credits", "administration_entity", "management_entity"]
-
+        fields = ("acronym", "partial_acronym", "education_group_type", "title", "title_english", "credits",
+                  "main_teaching_campus", "academic_year", "remark", "remark_english", "min_credits", "max_credits",
+                  "administration_entity")
         field_classes = {
-            "management_entity": MainEntitiesVersionChoiceField,
             "administration_entity": MainEntitiesVersionChoiceField,
             "main_teaching_campus": MainTeachingCampusChoiceField
         }
@@ -60,21 +47,15 @@ class TrainingEducationGroupYearForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         init_education_group_type_field(self.fields["education_group_type"],
                                         self.parent,
-                                        education_group_categories.TRAINING)
+                                        education_group_categories.MINI_TRAINING)
         init_academic_year(self.fields["academic_year"], self.parent)
-
-        preselect_entity_version_from_entity_value(self)
-
-        self.fields["education_group"].required = False
-
-        if getattr(self.instance, 'management_entity', None):
-            self.initial['management_entity'] = get_last_version(self.instance.management_entity).pk
+        preselect_entity_version_from_entity_value(self)  # Due to MainEntitiesVersionChoiceField
 
 
-class TrainingForm(CommonBaseForm):
+class MiniTrainingForm(CommonBaseForm):
 
     def __init__(self, data, instance=None, parent=None):
-        education_group_year_form = TrainingEducationGroupYearForm(data, instance=instance, parent=parent)
+        education_group_year_form = MiniTrainingModelForm(data, instance=instance, parent=parent)
         education_group = instance.education_group if instance else None
         education_group_form = EducationGroupModelForm(data, instance=education_group)
-        super(TrainingForm, self).__init__(education_group_year_form, education_group_form)
+        super(MiniTrainingForm, self).__init__(education_group_year_form, education_group_form)

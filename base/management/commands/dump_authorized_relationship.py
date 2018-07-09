@@ -7,9 +7,9 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         call_command(
             'dumpdata',
-            "base.unauthorizedrelationship",
+            "base.authorizedrelationship",
             indent=4,
             use_natural_foreign_keys=True,
             use_natural_primary_keys=True,
-            output='base/fixtures/unauthorized_relationship.json'
+            output='base/fixtures/authorized_relationship.json'
         )

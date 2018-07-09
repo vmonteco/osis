@@ -29,7 +29,7 @@ from django.test import TestCase
 from django.urls import reverse
 from waffle.testutils import override_flag
 
-from base.forms.education_group.create import CreateEducationGroupYearForm
+from base.forms.education_group.group import GroupModelForm
 from base.tests.factories.education_group_year import EducationGroupYearFactory
 from base.tests.factories.person import PersonFactory
 
@@ -79,4 +79,4 @@ class TestCreate(TestCase):
 
         form_education_group_year = response.context["form_education_group_year"]
 
-        self.assertIsInstance(form_education_group_year, CreateEducationGroupYearForm)
+        self.assertIsInstance(form_education_group_year, GroupModelForm)
