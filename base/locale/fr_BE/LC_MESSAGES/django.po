@@ -3166,3 +3166,6 @@ msgstr "Êtes-vous sûr·e de vouloir supprimer le support de cours?"
 
 msgid "{} successfully updated"
 msgstr "{} modifié(e) avec succès."
+
+msgid "unit"
+msgstr "unité"

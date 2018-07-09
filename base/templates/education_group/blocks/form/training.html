@@ -32,29 +32,73 @@
         </div>
         <div class="panel-body">
             <div class="row">
-                <div class="col-md-6">
+                <div class="col-md-7">
                     <div class="panel panel-default">
                         <div class="panel-body">
+                            <div class="row">
+                                {% bootstrap_field form_education_group_year.acronym form_group_class="col-md-6" %}
+                                {% bootstrap_field form_education_group_year.partial_acronym form_group_class="col-md-6" %}
+                            </div>
+                            <br>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label>{% trans 'type' %}</label><br>
+                                    <input value="{% trans education_group_year.education_group_type.category %}"
+                                           readonly class="form-control" >
+                                </div>
+                                {% bootstrap_field form_education_group_year.education_group_type form_group_class="col-md-6" %}
+                            </div>
+                            <br>
+                            <div class="row">
+                                {% bootstrap_field form_education_group_year.active form_group_class="col-md-6" %}
+                                {% bootstrap_field form_education_group_year.schedule_type form_group_class="col-md-6" %}
+                            </div>
+                            <br>
+                            <div class="row">
+                                {% bootstrap_field form_education_group_year.credits form_group_class="col-md-6" %}
+                            </div>
+                            <br>
                             {% bootstrap_field form_education_group_year.title %}
                             {% bootstrap_field form_education_group_year.title_english %}
                             {% bootstrap_field form_education_group_year.keywords %}
                         </div>
                     </div>
+                </div>
+                <div class="col-md-5">
                     <div class="panel panel-default">
                         <div class="panel-body">
+                            {% bootstrap_field form_education_group_year.administration_entity %}
+                            {% bootstrap_field form_education_group_year.management_entity %}
+                            {% bootstrap_field form_education_group_year.academic_year %}
                             <div class="row">
-                                <div class="col-md-6">
-                                    {% bootstrap_field form_education_group_year.education_group_type %}
-                                    {% bootstrap_field form_education_group_year.academic_type %}
-                                    <div class="row">
-                                        {% bootstrap_field form_education_group_year.duration form_group_class="col-md-4" %}
-                                        {% bootstrap_field form_education_group_year.duration_unit form_group_class="col-md-8" %}
-                                    </div>
-                                    {% bootstrap_field form_education_group_year.credits %}
-                                    {% bootstrap_field form_education_group_year.min_credits   %}
-                                    {% bootstrap_field form_education_group_year.max_credits   %}
-                                    {% bootstrap_field form_education_group_year.primary_language %}
-                                </div>
+                                {% bootstrap_field form_education_group.start_year form_group_class="col-md-6" %}
+                                {% bootstrap_field form_education_group.end_year form_group_class="col-md-6" %}
+                            </div>
+                            <br>
+                            {% bootstrap_field form_education_group_year.enrollment_campus %}
+                            {% bootstrap_field form_education_group_year.main_teaching_campus %}
+                            {% bootstrap_field form_education_group_year.other_campus_activities %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            {% bootstrap_field form_education_group_year.academic_type %}
+                            <div>
+                                <label>{% trans 'studies_domain' %}</label><br>
+                                <input value="{% trans education_group_year.str_domains %}" readonly class="form-control">
+                            </div>
+                            <br>
+                            <div class="row">
+                                {% bootstrap_field form_education_group_year.duration form_group_class="col-md-2" %}
+                                {% bootstrap_field form_education_group_year.duration_unit form_group_class="col-md-4" %}
+                            </div>
+                            {% bootstrap_field form_education_group_year.min_credits   %}
+                            {% bootstrap_field form_education_group_year.max_credits   %}
+                            {% bootstrap_field form_education_group_year.primary_language %}
                                 <div class="col-md-6">
                                     {% bootstrap_field form_education_group_year.enrollment_enabled %}
                                     {% bootstrap_field form_education_group_year.partial_deliberation %}
@@ -69,38 +113,6 @@
                     </div>
                 </div>
                 <div class="col-md-6">
-                    <div class="panel panel-default">
-                        <div class="panel-body">
-                            {% bootstrap_field form_education_group_year.acronym %}
-                            {% bootstrap_field form_education_group_year.partial_acronym %}
-                        </div>
-                    </div>
-                    <div class="panel panel-default">
-                        <div class="panel-body">
-                            <div class="row">
-                                    {% bootstrap_field form_education_group_year.active form_group_class="col-md-6" %}
-                                    {% bootstrap_field form_education_group_year.schedule_type form_group_class="col-md-6" %}
-                            </div>
-                            <br>
-                            <div class="row">
-                                {% bootstrap_field form_education_group_year.administration_entity form_group_class="col-md-6" %}
-                                {% bootstrap_field form_education_group_year.management_entity form_group_class="col-md-6" %}
-                            </div>
-                            <br>
-                            {% bootstrap_field form_education_group_year.academic_year %}
-                            <div class="row">
-                                {% bootstrap_field form_education_group.start_year  form_group_class="col-md-6"%}
-                                {% bootstrap_field form_education_group.end_year form_group_class="col-md-6" %}
-                            </div>
-                            <br>
-                            <div class="row">
-                                {% bootstrap_field form_education_group_year.enrollment_campus form_group_class="col-md-6" %}
-                                {% bootstrap_field form_education_group_year.main_teaching_campus form_group_class="col-md-6" %}
-                            </div>
-                            <br>
-                            {% bootstrap_field form_education_group_year.other_campus_activities %}
-                        </div>
-                    </div>
                     <div class="panel panel-default">
                         <div class="panel-body">
                             {% bootstrap_field form_education_group_year.funding %}

@@ -106,7 +106,7 @@ class EducationGroupYear(models.Model):
     duration_unit = models.CharField(max_length=40,
                                      choices=duration_unit.DURATION_UNIT,
                                      default=duration_unit.DurationUnits.QUADRIMESTER.value,
-                                     blank=True, null=True)
+                                     blank=True, null=True, verbose_name=_('unit'))
     enrollment_enabled = models.BooleanField(default=False, verbose_name=_('enrollment_enabled'))
     partial_acronym = models.CharField(max_length=15, db_index=True, null=True, verbose_name=_("code"))
     # TODO :: rename credits into expected_credits
