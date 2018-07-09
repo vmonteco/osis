@@ -478,8 +478,9 @@ def find_lt_learning_unit_year_with_different_acronym(a_learning_unit_yr):
         .exclude(acronym__iexact=a_learning_unit_yr.acronym).first()
 
 
-def find_tutor_learning_unit_years(tutor):
+def find_learning_unit_years_by_academic_year_tutor_attributions(academic_year, tutor):
     qs = LearningUnitYear.objects.filter(
+            academic_year=academic_year,
             attribution__tutor=tutor)\
         .order_by('academic_year__year', 'acronym')
     return qs

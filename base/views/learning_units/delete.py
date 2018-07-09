@@ -29,6 +29,7 @@ from django.db.models.deletion import ProtectedError
 from django.shortcuts import redirect, get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_POST
+from waffle.decorators import waffle_flag
 
 from base.business.learning_units.simple import deletion
 from base.models.learning_unit_year import LearningUnitYear
@@ -38,6 +39,7 @@ from base.views.learning_units.perms import can_delete_learning_unit_year
 
 
 @login_required
+@waffle_flag("learning_unit_delete")
 @permission_required('base.can_delete_learningunit', raise_exception=True)
 @require_POST
 @can_delete_learning_unit_year

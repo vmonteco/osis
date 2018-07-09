@@ -259,7 +259,7 @@ urlpatterns = [
             url(r'^admission_conditions/get_line$',
                 education_group.education_group_year_admission_condition_get_line,
                 name='education_group_year_admission_condition_get_line'),
-            url(r'^delete/$', DeleteGroupEducationYearView.as_view(), name="delete_education_group")
+            url(r'^delete/$', DeleteGroupEducationYearView.as_view(), name="delete_education_group"),
         ])),
     ])),
 

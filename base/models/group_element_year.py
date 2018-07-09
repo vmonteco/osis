@@ -24,30 +24,57 @@
 #
 ##############################################################################
 import itertools
+
+from django.db import models, IntegrityError
+from django.db.models import Q
+from django.utils.functional import cached_property
+
+from base.models import education_group_type, education_group_year
 from base.models.education_group_type import GROUP_TYPE_OPTION
 from base.models.education_group_year import EducationGroupYear
-from base.models.learning_unit_year import LearningUnitYear
-from django.db import models
-from base.models.enums import sessions_derogation
 from base.models.enums import education_group_categories
-from base.models import education_group_type, education_group_year
-from django.db.models import Q
+from base.models.enums import sessions_derogation
+from base.models.learning_unit_year import LearningUnitYear
+from osis_common.decorators.deprecated import deprecated
 from osis_common.models import osis_model_admin
 
 
 class GroupElementYearAdmin(osis_model_admin.OsisModelAdmin):
     list_display = ('parent', 'child_branch', 'child_leaf',)
-    search_fields = ['child_branch__acronym', 'child_branch__partial_acronym', 'child_leaf__acronym', 'parent__acronym',
-                     'parent__partial_acronym']
+    search_fields = [
+        'child_branch__acronym',
+        'child_branch__partial_acronym',
+        'child_leaf__acronym',
+        'parent__acronym',
+        'parent__partial_acronym'
+    ]
     list_filter = ('is_mandatory', 'minor_access', 'sessions_derogation')
 
 
 class GroupElementYear(models.Model):
     external_id = models.CharField(max_length=100, blank=True, null=True)
     changed = models.DateTimeField(null=True, auto_now=True)
-    parent = models.ForeignKey('EducationGroupYear', related_name='parent', blank=True, null=True)
-    child_branch = models.ForeignKey('EducationGroupYear', related_name='child_branch', blank=True, null=True)
-    child_leaf = models.ForeignKey('LearningUnitYear', related_name='child_leaf', blank=True, null=True)
+
+    parent = models.ForeignKey(
+        EducationGroupYear,
+        related_name='parents',
+        null=True,  # TODO: can not be null, dirty data
+    )
+
+    child_branch = models.ForeignKey(
+        EducationGroupYear,
+        related_name='child_branch',
+        blank=True, null=True,
+        on_delete=models.CASCADE
+    )
+
+    child_leaf = models.ForeignKey(
+        LearningUnitYear,
+        related_name='child_leaf',
+        blank=True, null=True,
+        on_delete=models.CASCADE
+    )
+
     relative_credits = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
     min_credits = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
     max_credits = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
@@ -58,9 +85,30 @@ class GroupElementYear(models.Model):
     comment = models.CharField(max_length=500, blank=True, null=True)
     comment_english = models.CharField(max_length=500, blank=True, null=True)
     own_comment = models.CharField(max_length=500, blank=True, null=True)
-    sessions_derogation = models.CharField(max_length=65,
-                                           choices=sessions_derogation.SessionsDerogationTypes.choices(),
-                                           default=sessions_derogation.SessionsDerogationTypes.SESSION_UNDEFINED.value)
+
+    sessions_derogation = models.CharField(
+        max_length=65,
+        choices=sessions_derogation.SessionsDerogationTypes.choices(),
+        default=sessions_derogation.SessionsDerogationTypes.SESSION_UNDEFINED.value
+    )
+
+    def __str__(self):
+        return "{} - {}".format(self.parent, self.child)
+
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        if self.child_branch and self.child_leaf:
+            raise IntegrityError("Can not save GroupElementYear with a child branch and a child leaf.")
+
+        return super().save(force_insert, force_update, using, update_fields)
+
+    @cached_property
+    def child(self):
+        return self.child_branch or self.child_leaf
+
+    def is_deletable(self):
+        if self.child:
+            return False
+        return True
 
 
 def search(**kwargs):
@@ -78,6 +126,8 @@ def search(**kwargs):
     return queryset
 
 
+# TODO : education_group_yr.parent.all() instead
+@deprecated
 def find_by_parent(an_education_group_year):
     return GroupElementYear.objects.filter(parent=an_education_group_year)
 

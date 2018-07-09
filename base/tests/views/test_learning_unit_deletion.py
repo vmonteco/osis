@@ -33,6 +33,7 @@ from django.contrib.messages.storage.fallback import FallbackStorage
 from django.core.urlresolvers import reverse
 from django.test import TestCase, RequestFactory
 from django.utils.translation import ugettext_lazy as _
+from waffle.testutils import override_flag
 
 from attribution.tests.factories.attribution import AttributionFactory, AttributionNewFactory
 from attribution.tests.factories.attribution_charge_new import AttributionChargeNewFactory
@@ -57,6 +58,7 @@ from base.tests.factories.user import UserFactory
 from base.views.learning_units.delete import delete_all_learning_units_year
 
 
+@override_flag('learning_unit_delete', active=True)
 class LearningUnitDelete(TestCase):
     def setUp(self):
         self.user = UserFactory(username="jeandp")

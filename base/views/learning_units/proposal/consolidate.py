@@ -39,7 +39,7 @@ from base.models.proposal_learning_unit import ProposalLearningUnit
 from base.views.common import display_error_messages, display_messages_by_level
 
 
-@waffle_flag('proposal')
+@waffle_flag('learning_unit_proposal_delete')
 @login_required
 @require_POST
 def consolidate_proposal(request):

@@ -30,7 +30,7 @@ from django.urls import reverse
 from attribution.views.perms import tutor_can_view_educational_information
 from base.business.learning_units.perms import is_eligible_to_update_learning_unit_pedagogy, \
     find_educational_information_submission_dates_of_learning_unit_year, can_user_edit_educational_information
-from base.models.learning_unit_year import find_tutor_learning_unit_years
+from base.models.learning_unit_year import find_learning_unit_years_by_academic_year_tutor_attributions
 from attribution.models.attribution import find_all_summary_responsibles_by_learning_unit_years
 
 from base.models import academic_year, entity_calendar
@@ -45,12 +45,15 @@ from base.views.learning_units.perms import PermissionDecorator
 @login_required
 def list_my_attributions_summary_editable(request):
     tutor = get_object_or_404(Tutor, person__user=request.user)
-    learning_unit_years = find_tutor_learning_unit_years(tutor=tutor)
-
+    current_ac = academic_year.current_academic_year()
+    learning_unit_years = find_learning_unit_years_by_academic_year_tutor_attributions(
+        academic_year=current_ac.next(),
+        tutor=tutor
+    )
     score_responsibles = find_all_summary_responsibles_by_learning_unit_years(learning_unit_years)
 
     entity_calendars = entity_calendar.build_calendar_by_entities(
-        ac_year=academic_year.current_academic_year(),
+        ac_year=current_ac,
         reference=academic_calendar_type.SUMMARY_COURSE_SUBMISSION
     )
     errors = (can_user_edit_educational_information(user=tutor.person.user, learning_unit_year_id=luy.id)

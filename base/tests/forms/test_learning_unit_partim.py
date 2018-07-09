@@ -314,9 +314,9 @@ class TestPartimFormSave(LearningUnitPartimFormContextMixin):
             EntityComponentYear.objects.filter(
                 learning_component_year__in=learning_component_year_list).count(), 18)
         self.assertTrue(
-            learning_component_year_list.filter(type=LECTURING, acronym="PM1").exists())
+            learning_component_year_list.filter(type=LECTURING, acronym="PM").exists())
         self.assertTrue(
-            learning_component_year_list.filter(type=PRACTICAL_EXERCISES, acronym="PP1").exists())
+            learning_component_year_list.filter(type=PRACTICAL_EXERCISES, acronym="PP").exists())
 
     def test_save_method_create_new_instance(self):
         partim_acronym = FULL_ACRONYM + 'C'

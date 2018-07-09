@@ -26,12 +26,16 @@
 from django.contrib.auth.models import Permission
 from django.test import TestCase
 from django.urls import reverse
+from waffle.testutils import override_flag
 
 from base.models.education_group_year import EducationGroupYear
 from base.tests.factories.education_group_year import EducationGroupYearFactory
+from base.tests.factories.group_element_year import GroupElementYearFactory
+from base.tests.factories.offer_enrollment import OfferEnrollmentFactory
 from base.tests.factories.person import PersonFactory
 
 
+@override_flag('education_group_delete', active=True)
 class TestDeleteGroupEducationYearView(TestCase):
 
     def setUp(self):
@@ -48,10 +52,26 @@ class TestDeleteGroupEducationYearView(TestCase):
         self.assertEqual(response.status_code, 403)
 
     def test_delete_get(self):
+        GroupElementYearFactory(parent=self.education_group_year, child_leaf=None, child_branch=None)
+
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["protected_objects"], set())
+        self.assertTemplateUsed(response, "education_group/delete.html")
 
     def test_delete_post(self):
         response = self.client.post(self.url)
         self.assertEqual(response.status_code, 302)
         self.assertFalse(EducationGroupYear.objects.filter(pk=self.education_group_year.pk).exists())
+
+    def test_delete_get_with_protected_objects(self):
+        protected_objects = {
+            OfferEnrollmentFactory(education_group_year=self.education_group_year),
+            GroupElementYearFactory(parent=self.education_group_year),
+            GroupElementYearFactory(parent=self.education_group_year),
+        }
+
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["protected_objects"], protected_objects)
+        self.assertTemplateUsed(response, "education_group/protect_delete.html")
