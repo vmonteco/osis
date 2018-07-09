@@ -23,7 +23,6 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-
 from django.db import models
 from django.db.models import Count
 from django.urls import reverse
@@ -55,52 +54,89 @@ class EducationGroupYear(models.Model):
     title = models.CharField(max_length=255, verbose_name=_("title_in_french"))
     title_english = models.CharField(max_length=240, blank=True, null=True, verbose_name=_("title_in_english"))
     academic_year = models.ForeignKey('AcademicYear', verbose_name=_("validity"))
+
     education_group = models.ForeignKey('EducationGroup')
-    education_group_type = models.ForeignKey('EducationGroupType', blank=True, null=True,
-                                             verbose_name=_("training_type"))
-    active = models.CharField(max_length=20, choices=active_status.ACTIVE_STATUS_LIST, default=active_status.ACTIVE,
-                              verbose_name=_('status'))
+    education_group_type = models.ForeignKey(
+        'EducationGroupType', blank=True, null=True, verbose_name=_("training_type")
+    )
+    active = models.CharField(
+        max_length=20, choices=active_status.ACTIVE_STATUS_LIST, default=active_status.ACTIVE, verbose_name=_('status')
+    )
+
     partial_deliberation = models.BooleanField(default=False, verbose_name=_('partial_deliberation'))
     admission_exam = models.BooleanField(default=False, verbose_name=_('admission_exam'))
     funding = models.BooleanField(default=False, verbose_name=_('funding'))
     funding_direction = models.CharField(max_length=1, blank=True, null=True, verbose_name=_('funding_direction'))
-    funding_cud = models.BooleanField(default=False,
-                                      verbose_name=_('funding_cud'))  # cud = commission universitaire au développement
-    funding_direction_cud = models.CharField(max_length=1, blank=True, null=True,
-                                             verbose_name=_('cud_funding_direction'))
-    academic_type = models.CharField(max_length=20, choices=academic_type.ACADEMIC_TYPES, blank=True, null=True,
-                                     verbose_name=_('academic_type'))
+
+    funding_cud = models.BooleanField(
+        default=False, verbose_name=_('funding_cud')  # cud = commission universitaire au développement
+    )
+
+    funding_direction_cud = models.CharField(
+        max_length=1, blank=True, null=True, verbose_name=_('cud_funding_direction')
+    )
+
+    academic_type = models.CharField(
+        max_length=20, choices=academic_type.ACADEMIC_TYPES, blank=True, null=True, verbose_name=_('academic_type')
+    )
+
     university_certificate = models.BooleanField(default=False, verbose_name=_('university_certificate'))
     fee_type = models.CharField(max_length=20, choices=fee.FEES, blank=True, null=True)
-    enrollment_campus = models.ForeignKey('Campus', related_name='enrollment', blank=True, null=True,
-                                          verbose_name=_("enrollment_campus"))
-    main_teaching_campus = models.ForeignKey('Campus', blank=True, null=True, related_name='teaching',
-                                             verbose_name=_("learning_location"))
+
+    enrollment_campus = models.ForeignKey(
+        'Campus', related_name='enrollment', blank=True, null=True, verbose_name=_("enrollment_campus")
+    )
+
+    main_teaching_campus = models.ForeignKey(
+        'Campus', blank=True, null=True, related_name='teaching', verbose_name=_("learning_location")
+    )
+
     dissertation = models.BooleanField(default=False, verbose_name=_('dissertation'))
-    internship = models.CharField(max_length=20, choices=internship_presence.INTERNSHIP_PRESENCE, blank=True, null=True,
-                                  verbose_name=_('internship'))
-    schedule_type = models.CharField(max_length=20, choices=schedule_type.SCHEDULE_TYPES, default=schedule_type.DAILY,
-                                     verbose_name=_('schedule_type'))
-    english_activities = models.CharField(max_length=20, choices=activity_presence.ACTIVITY_PRESENCES, blank=True,
-                                          null=True)
-    other_language_activities = models.CharField(max_length=20, choices=activity_presence.ACTIVITY_PRESENCES,
-                                                 blank=True, null=True, verbose_name=_('other_language_activities'))
-    other_campus_activities = models.CharField(max_length=20, choices=activity_presence.ACTIVITY_PRESENCES, blank=True,
-                                               null=True, verbose_name=_('other_campus_activities'))
+    internship = models.CharField(
+        max_length=20, choices=internship_presence.INTERNSHIP_PRESENCE, blank=True, null=True,
+        verbose_name=_('internship')
+    )
+
+    schedule_type = models.CharField(
+        max_length=20, choices=schedule_type.SCHEDULE_TYPES, default=schedule_type.DAILY,
+        verbose_name=_('schedule_type')
+    )
+
+    english_activities = models.CharField(
+        max_length=20, choices=activity_presence.ACTIVITY_PRESENCES, blank=True, null=True
+    )
+
+    other_language_activities = models.CharField(
+        max_length=20, choices=activity_presence.ACTIVITY_PRESENCES,
+        blank=True, null=True, verbose_name=_('other_language_activities')
+    )
+
+    other_campus_activities = models.CharField(
+        max_length=20, choices=activity_presence.ACTIVITY_PRESENCES, blank=True,
+        null=True, verbose_name=_('other_campus_activities')
+    )
+
     professional_title = models.CharField(max_length=320, blank=True, null=True)
     joint_diploma = models.BooleanField(default=False)
-    diploma_printing_orientation = models.CharField(max_length=30, choices=diploma_printing_orientation.DIPLOMA_FOCUS,
-                                                    blank=True, null=True)
+
+    diploma_printing_orientation = models.CharField(
+        max_length=30, choices=diploma_printing_orientation.DIPLOMA_FOCUS, blank=True, null=True
+    )
+
     diploma_printing_title = models.CharField(max_length=140, blank=True, null=True)
     inter_organization_information = models.CharField(max_length=320, blank=True, null=True)
     inter_university_french_community = models.BooleanField(default=False)
     inter_university_belgium = models.BooleanField(default=False)
     inter_university_abroad = models.BooleanField(default=False)
-    primary_language = models.ForeignKey('reference.Language', blank=True, null=True,
-                                         verbose_name=_('primary_language'))
-    language_association = models.CharField(max_length=5,
-                                            choices=education_group_association.EducationGroupAssociations.choices(),
-                                            blank=True, null=True)
+
+    primary_language = models.ForeignKey(
+        'reference.Language', blank=True, null=True, verbose_name=_('primary_language')
+    )
+
+    language_association = models.CharField(
+        max_length=5, choices=education_group_association.EducationGroupAssociations.choices(), blank=True, null=True
+    )
+
     keywords = models.CharField(max_length=320, blank=True, null=True, verbose_name=_('keywords'))
     duration = models.IntegerField(blank=True, null=True, verbose_name=_('duration'))
     duration_unit = models.CharField(max_length=40,
@@ -109,6 +145,7 @@ class EducationGroupYear(models.Model):
                                      blank=True, null=True, verbose_name=_('unit'))
     enrollment_enabled = models.BooleanField(default=False, verbose_name=_('enrollment_enabled'))
     partial_acronym = models.CharField(max_length=15, db_index=True, null=True, verbose_name=_("code"))
+
     # TODO :: rename credits into expected_credits
     credits = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True, verbose_name=_("credits"))
     remark = models.TextField(blank=True, null=True, verbose_name=_("remark"))

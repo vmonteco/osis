@@ -80,6 +80,12 @@
                             {% bootstrap_field form_education_group_year.enrollment_campus %}
                             {% bootstrap_field form_education_group_year.main_teaching_campus %}
                             {% bootstrap_field form_education_group_year.other_campus_activities %}
+                            <div class="row">
+                                <div class="col-md-12">
+                                    {{ form_education_group_year.media }}
+                                    {% bootstrap_field form_education_group_year.domains %}
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -3155,6 +3155,12 @@ msgstr "Vous ne pouvez pas supprimer cet objet car certaines dépendances sont p
 msgid "It will delete also this following objects"
 msgstr "Cela supprimera également les objets suivants"
 
+msgid "The education group edition period is not open."
+msgstr "La période de modification d'organisation de formation n'est pas ouverte."
+
+msgid "The user has not permission to delete education groups."
+msgstr "L'utilisateur n'a pas la permission de supprimer les organisations de formation."
+
 msgid "The teaching material has been deleted"
 msgstr "Le support de cours a été supprimé"
 

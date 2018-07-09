@@ -27,20 +27,31 @@ from django.contrib.auth.models import Permission
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
-from waffle.testutils import override_flag
+from django.utils.translation import ugettext_lazy as _
 
-from base.models.education_group_year import EducationGroupYear
 from base.models.enums.academic_calendar_type import EDUCATION_GROUP_EDITION
+from base.templatetags.education_group import li_with_deletion_perm
 from base.tests.factories.academic_calendar import AcademicCalendarFactory
 from base.tests.factories.education_group_year import EducationGroupYearFactory
-from base.tests.factories.group_element_year import GroupElementYearFactory
-from base.tests.factories.offer_enrollment import OfferEnrollmentFactory
 from base.tests.factories.person import PersonFactory
 
+DELETE_MSG = _("delete education group")
+PERMISSION_DENIED_MSG = _("The education group edition period is not open.")
 
-@override_flag('education_group_delete', active=True)
-class TestDeleteGroupEducationYearView(TestCase):
+DISABLED_LI = """
+<li class="disabled">
+    <a href="#" data-toggle="tooltip" title="{}">{}</a>
+</li>
+"""
 
+ENABLED_LI = """
+<li class="">
+    <a href="{}" data-toggle="tooltip" title="">{}</a>
+</li>
+"""
+
+
+class TestEducationGroupTag(TestCase):
     def setUp(self):
         self.education_group_year = EducationGroupYearFactory()
         self.person = PersonFactory()
@@ -55,32 +66,12 @@ class TestDeleteGroupEducationYearView(TestCase):
             end_date=timezone.now()
         )
 
-    def test_delete_get_permission_denied(self):
-        self.person.user.user_permissions.remove(Permission.objects.get(codename="delete_educationgroup"))
-        response = self.client.get(self.url)
-        self.assertEqual(response.status_code, 403)
+    def test_li_with_deletion_perm(self):
+        result = li_with_deletion_perm(self.url, DELETE_MSG, self.person)
+        self.assertEqual(result, ENABLED_LI.format(self.url + "?root=", DELETE_MSG))
 
-    def test_delete_get(self):
-        GroupElementYearFactory(parent=self.education_group_year, child_leaf=None, child_branch=None)
+    def test_li_without_deletion_perm(self):
+        self.academic_calendar.delete()
 
-        response = self.client.get(self.url)
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context["protected_objects"], set())
-        self.assertTemplateUsed(response, "education_group/delete.html")
-
-    def test_delete_post(self):
-        response = self.client.post(self.url)
-        self.assertEqual(response.status_code, 302)
-        self.assertFalse(EducationGroupYear.objects.filter(pk=self.education_group_year.pk).exists())
-
-    def test_delete_get_with_protected_objects(self):
-        protected_objects = {
-            OfferEnrollmentFactory(education_group_year=self.education_group_year),
-            GroupElementYearFactory(parent=self.education_group_year),
-            GroupElementYearFactory(parent=self.education_group_year),
-        }
-
-        response = self.client.get(self.url)
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context["protected_objects"], protected_objects)
-        self.assertTemplateUsed(response, "education_group/protect_delete.html")
+        result = li_with_deletion_perm(self.url, DELETE_MSG, self.person)
+        self.assertEqual(result, DISABLED_LI.format(PERMISSION_DENIED_MSG, DELETE_MSG))

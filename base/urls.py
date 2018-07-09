@@ -23,6 +23,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from ajax_select import urls as ajax_select_urls
 from django.conf import settings
 from django.conf.urls import url, include
 from django.conf.urls.static import static
@@ -315,6 +316,8 @@ urlpatterns = [
             url(r'^picture$', student.student_picture, name='student_picture'),
         ]))
     ])),
+    url(r'^ajax_select/', include(ajax_select_urls)),
+
 ]
 
 if settings.DEBUG:
