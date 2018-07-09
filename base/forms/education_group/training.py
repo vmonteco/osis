@@ -94,13 +94,13 @@ class TrainingEducationGroupYearForm(forms.ModelForm):
                 domain_id=domain_id)
 
 
-    class TrainingForm(CommonBaseForm):
+class TrainingForm(CommonBaseForm):
 
-        def __init__(self, data, instance=None, parent=None):
-            education_group_year_form = TrainingEducationGroupYearForm(data, instance=instance, parent=parent)
-            education_group = instance.education_group if instance else None
-            education_group_form = EducationGroupModelForm(data, instance=education_group)
-            super().__init__(education_group_year_form, education_group_form)
+    def __init__(self, data, instance=None, parent=None):
+        education_group_year_form = TrainingEducationGroupYearForm(data, instance=instance, parent=parent)
+        education_group = instance.education_group if instance else None
+        education_group_form = EducationGroupModelForm(data, instance=education_group)
+        super().__init__(education_group_year_form, education_group_form)
 
 
 @register('domains')

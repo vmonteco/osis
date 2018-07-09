@@ -23,6 +23,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from django import forms
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import ugettext_lazy as _
@@ -37,8 +38,6 @@ from base.models.enums import education_group_categories
 from base.views import layout
 from base.views.common import display_success_messages, reverse_url_with_root
 from base.views.education_groups.perms import can_change_education_group
-
-from django import forms
 
 
 @login_required
@@ -96,7 +95,6 @@ def _update_training(request, education_group_year):
 
 
 def _update_mini_training(request, education_group_year):
-
     # TODO :: IMPORTANT :: Fix urls patterns to get the GroupElementYear_id and the root_id in the url path !
     # TODO :: IMPORTANT :: pass the parent in paramter of the form
     form = MiniTrainingForm(request.POST or None, instance=education_group_year)

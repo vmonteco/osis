@@ -23,7 +23,6 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-
 from django.db import models
 from django.db.models import Count
 from django.urls import reverse
@@ -132,10 +131,6 @@ class EducationGroupYear(models.Model):
 
     primary_language = models.ForeignKey(
         'reference.Language', blank=True, null=True, verbose_name=_('primary_language')
-    )
-
-    domains = models.ManyToManyField(
-        "reference.Domain", through="OfferYearDomain", related_name="education_group_years"
     )
 
     language_association = models.CharField(
