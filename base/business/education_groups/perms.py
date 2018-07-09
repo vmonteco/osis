@@ -44,21 +44,24 @@ def is_eligible_to_change_education_group(person):
     )(person)
 
 
-def is_eligible_to_delete_education_group(person):
-    return conjunction(
-        has_person_the_right_to_delete_education_group,
-        disjunction(is_central_manager, is_education_group_creation_period_opened),
-    )(person)
+def is_eligible_to_delete_education_group(person, raise_exception=False):
+    return has_person_the_right_to_delete_education_group(person, raise_exception) and (
+            person.is_central_manager()
+            or is_education_group_creation_period_opened(person, raise_exception)
+    )
 
 
 def is_central_manager(person):
     return person.is_central_manager()
 
 
-def is_education_group_creation_period_opened(person):
-    if not academic_calendar.is_academic_calendar_opened(academic_calendar_type.EDUCATION_GROUP_EDITION):
+def is_education_group_creation_period_opened(person, raise_exception=False):
+    result = academic_calendar.is_academic_calendar_opened(academic_calendar_type.EDUCATION_GROUP_EDITION)
+
+    if raise_exception and not result:
         raise PermissionDenied("The education group edition period is not open.")
-    return True
+
+    return result
 
 
 def has_person_the_right_to_add_education_group(person):
@@ -69,5 +72,10 @@ def has_person_the_right_to_change_education_group(person):
     return person.user.has_perm('base.change_educationgroup')
 
 
-def has_person_the_right_to_delete_education_group(person):
-    return person.user.has_perm('base.delete_educationgroupyear')
+def has_person_the_right_to_delete_education_group(person, raise_exception=False):
+    result = person.user.has_perm('base.delete_educationgroup')
+
+    if raise_exception and not result:
+        raise PermissionDenied("User has not permission to delete education groups.")
+
+    return result

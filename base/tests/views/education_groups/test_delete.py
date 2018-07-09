@@ -46,7 +46,7 @@ class TestDeleteGroupEducationYearView(TestCase):
         self.person = PersonFactory()
         self.url = reverse('delete_education_group', args=[self.education_group_year.id])
 
-        self.person.user.user_permissions.add(Permission.objects.get(codename="delete_educationgroupyear"))
+        self.person.user.user_permissions.add(Permission.objects.get(codename="delete_educationgroup"))
         self.client.force_login(user=self.person.user)
 
         self.academic_calendar = AcademicCalendarFactory(
@@ -56,7 +56,7 @@ class TestDeleteGroupEducationYearView(TestCase):
         )
 
     def test_delete_get_permission_denied(self):
-        self.person.user.user_permissions.remove(Permission.objects.get(codename="delete_educationgroupyear"))
+        self.person.user.user_permissions.remove(Permission.objects.get(codename="delete_educationgroup"))
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 403)
 
