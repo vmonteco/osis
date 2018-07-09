@@ -100,8 +100,7 @@ class TeachingMaterialUpdateTestCase(TestCase):
     def test_teaching_material_update_when_user_not_logged(self):
         self.client.logout()
         response = self.client.get(self.url)
-        from django.utils.encoding import uri_to_iri
-        self.assertEqual(uri_to_iri(uri_to_iri(response.url)), '/login/?next={}'.format(self.url))
+        self.assertRedirects(response, '/login/?next={}'.format(self.url))
         self.assertEqual(response.status_code, HttpResponseRedirect.status_code)
 
     @mock.patch('base.models.person.Person.is_linked_to_entity_in_charge_of_learning_unit_year')
