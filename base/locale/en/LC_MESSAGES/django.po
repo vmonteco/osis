@@ -3153,6 +3153,12 @@ msgstr ""
 msgid "It will delete also this following objects"
 msgstr ""
 
+msgid "The education group edition period is not open."
+msgstr ""
+
+msgid "The user has not permission to delete education groups."
+msgstr ""
+
 msgid "The teaching material has been deleted"
 msgstr ""
 

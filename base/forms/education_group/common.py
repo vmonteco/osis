@@ -66,7 +66,6 @@ def preselect_entity_version_from_entity_value(modelform):
 
 
 class EducationGroupModelForm(forms.ModelForm):
-
     class Meta:
         model = EducationGroup
         fields = ("start_year", "end_year")

@@ -23,16 +23,16 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from django import forms
+
 from base.forms.education_group.common import MainEntitiesVersionChoiceField, MainTeachingCampusChoiceField, \
     init_education_group_type_field, init_academic_year, preselect_entity_version_from_entity_value, \
     CommonBaseForm, EducationGroupModelForm
 from base.models.education_group_year import EducationGroupYear
 from base.models.enums import education_group_categories
-from django import forms
 
 
 class GroupModelForm(forms.ModelForm):
-
     class Meta:
         model = EducationGroupYear
         fields = ("acronym", "partial_acronym", "education_group_type", "title", "title_english", "credits",

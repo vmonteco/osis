@@ -70,6 +70,7 @@ INSTALLED_APPS = (
     'bootstrap3',
     'ordered_model',
     'waffle',
+    'ajax_select',
 )
 
 MIDDLEWARE = (

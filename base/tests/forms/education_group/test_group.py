@@ -24,6 +24,9 @@
 #
 ##############################################################################
 from unittest.mock import patch
+
+from django.test import TestCase
+
 from base.forms.education_group.group import GroupModelForm, GroupForm
 from base.models.education_group_type import EducationGroupType
 from base.models.enums import education_group_categories
@@ -31,7 +34,6 @@ from base.models.group_element_year import GroupElementYear
 from base.tests.factories.education_group_type import EducationGroupTypeFactory
 from base.tests.factories.education_group_year import GroupFactory
 from base.tests.forms.education_group.test_common import EducationGroupYearMixin, _get_valid_post_data
-from django.test import TestCase
 
 
 class TestGroupModelForm(EducationGroupYearMixin):

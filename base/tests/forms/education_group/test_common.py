@@ -24,23 +24,24 @@
 #
 ##############################################################################
 from unittest.mock import patch
+
+from django.test import TestCase
+
 from base.forms.education_group.common import EducationGroupModelForm, CommonBaseForm
 from base.forms.education_group.mini_training import MiniTrainingModelForm, MiniTrainingForm
 from base.models.education_group import EducationGroup
 from base.models.education_group_type import EducationGroupType
 from base.models.education_group_year import EducationGroupYear
-
 from base.models.entity_version import EntityVersion
-from base.models.group_element_year import GroupElementYear
-from base.tests.factories.authorized_relationship import AuthorizedRelationshipFactory
-from base.tests.factories.group_element_year import GroupElementYearFactory
-from django.test import TestCase
 from base.models.enums import organization_type, education_group_categories
+from base.models.group_element_year import GroupElementYear
 from base.tests.factories.academic_year import AcademicYearFactory, create_current_academic_year
+from base.tests.factories.authorized_relationship import AuthorizedRelationshipFactory
 from base.tests.factories.campus import CampusFactory
 from base.tests.factories.education_group_type import EducationGroupTypeFactory
 from base.tests.factories.education_group_year import EducationGroupYearFactory
 from base.tests.factories.entity_version import MainEntityVersionFactory, EntityVersionFactory
+from base.tests.factories.group_element_year import GroupElementYearFactory
 
 
 class EducationGroupYearMixin(TestCase):

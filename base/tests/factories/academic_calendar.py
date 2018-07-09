@@ -24,9 +24,9 @@
 #
 ##############################################################################
 import datetime
-import factory
-import factory.fuzzy
 import string
+
+import factory.fuzzy
 from django.utils import timezone
 
 from base.models.enums.academic_calendar_type import SUMMARY_COURSE_SUBMISSION
@@ -67,6 +67,7 @@ class AcademicCalendarFactory(factory.DjangoModelFactory):
 
 class AcademicCalendarExamSubmissionFactory(AcademicCalendarFactory):
     reference = 'SCORES_EXAM_SUBMISSION'
+
 
 class AcademicCalendarSummaryCourseSubmissionFactory(AcademicCalendarFactory):
     reference = SUMMARY_COURSE_SUBMISSION

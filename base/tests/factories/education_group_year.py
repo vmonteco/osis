@@ -23,16 +23,16 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from base.models.education_group_year import EducationGroupYear
-from base.models.learning_unit_year import MAXIMUM_CREDITS, MINIMUM_CREDITS
-from base.tests.factories.campus import CampusFactory
 import factory.fuzzy
 
+from base.models.education_group_year import EducationGroupYear
+from base.models.enums import education_group_categories
+from base.models.learning_unit_year import MAXIMUM_CREDITS, MINIMUM_CREDITS
 from base.tests.factories.academic_year import AcademicYearFactory
+from base.tests.factories.campus import CampusFactory
 from base.tests.factories.education_group import EducationGroupFactory
 from base.tests.factories.education_group_type import EducationGroupTypeFactory
 from base.tests.factories.entity import EntityFactory
-from base.models.enums import education_group_categories
 
 
 def generate_title(education_group_year):
@@ -61,18 +61,15 @@ class EducationGroupYearFactory(factory.django.DjangoModelFactory):
 
 
 class MiniTrainingFactory(EducationGroupYearFactory):
-
     education_group_type = factory.SubFactory('base.tests.factories.education_group_type.EducationGroupTypeFactory',
                                               category=education_group_categories.MINI_TRAINING)
 
 
 class TrainingFactory(EducationGroupYearFactory):
-
     education_group_type = factory.SubFactory('base.tests.factories.education_group_type.EducationGroupTypeFactory',
                                               category=education_group_categories.TRAINING)
 
 
 class GroupFactory(EducationGroupYearFactory):
-
     education_group_type = factory.SubFactory('base.tests.factories.education_group_type.EducationGroupTypeFactory',
                                               category=education_group_categories.GROUP)
