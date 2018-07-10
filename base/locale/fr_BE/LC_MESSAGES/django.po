@@ -3178,3 +3178,6 @@ msgstr "{} modifié(e) avec succès."
 
 msgid "unit"
 msgstr "unité"
+
+msgid "Enter text to search"
+msgstr "Entrez le texte à rechercher"

@@ -41,16 +41,6 @@
                     {% endif %}
                 </div>
                 <br>
-                <div>
-                    <label>{% trans 'studies_domain' %}</label><br>
-                    {% if education_group_year.domains %}
-                        <ul>{{ education_group_year.domains.all | unordered_list }}</ul>
-                    {% else %}
-                        <strong class="text-primary">
-                            <ul>{{ parent.domains.all | unordered_list }}</ul>
-                        </strong><br>
-                    {% endif %}
-                </div>
                 <div class="row">
                     <div class="col-md-6">
                         <label>{% trans 'duration' %}</label><br>
@@ -171,6 +161,17 @@
                         {% trans education_group_year.other_language_activities %}
                     {% elif parent.other_language_activities %}
                         <strong class="text-primary">{% trans parent.other_language_activities %}</strong>
+                    {% endif %}
+                </div>
+                <br>
+                <div>
+                    <label>{% trans 'studies_domain' %}</label><br>
+                    {% if education_group_year.domains %}
+                        <ul>{{ education_group_year.domains.all | unordered_list }}</ul>
+                    {% else %}
+                        <strong class="text-primary">
+                            <ul>{{ parent.domains.all | unordered_list }}</ul>
+                        </strong><br>
                     {% endif %}
                 </div>
                 <br>
