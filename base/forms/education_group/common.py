@@ -27,6 +27,7 @@ from django import forms
 
 from base.forms.learning_unit.entity_form import EntitiesVersionChoiceField
 from base.models import campus, education_group_type, group_element_year
+from base.models.academic_year import current_academic_year
 from base.models.education_group import EducationGroup
 from base.models.entity_version import find_main_entities_version, get_last_version
 
@@ -53,9 +54,10 @@ def init_education_group_type_field(form_field, parent_education_group_year, cat
     form_field.required = True
 
 
-def init_academic_year(form_field, parent_education_group_year):
-    if parent_education_group_year:
-        form_field.initial = parent_education_group_year.academic_year.id
+def init_academic_year(form_field, parent_educ_group_year, instance=None):
+    if parent_educ_group_year or instance.academic_year_id:
+        academic_year = parent_educ_group_year.academic_year if parent_educ_group_year else instance.academic_year
+        form_field.initial = academic_year.id
         form_field.disabled = True
         form_field.required = False
 

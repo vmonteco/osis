@@ -49,7 +49,7 @@ class GroupModelForm(forms.ModelForm):
         init_education_group_type_field(self.fields["education_group_type"],
                                         self.parent,
                                         education_group_categories.GROUP)
-        init_academic_year(self.fields["academic_year"], self.parent)
+        init_academic_year(self.fields["academic_year"], self.parent, self.instance)
 
         preselect_entity_version_from_entity_value(self)
 

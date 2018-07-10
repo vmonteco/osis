@@ -51,8 +51,7 @@ class TrainingEducationGroupYearForm(forms.ModelForm):
                   "partial_deliberation", "academic_type", "admission_exam",
                   "university_certificate", "duration", "duration_unit", "dissertation",
                   "internship", "primary_language", "other_language_activities",
-                  "keywords", "active", "schedule_type",
-                  "education_group", "enrollment_campus",
+                  "keywords", "active", "schedule_type", "enrollment_campus",
                   "other_campus_activities", "funding", "funding_direction", "funding_cud",
                   "funding_direction_cud",
                   "diploma_printing_title", "diploma_printing_orientation", "professional_title", "min_credits",
@@ -70,11 +69,10 @@ class TrainingEducationGroupYearForm(forms.ModelForm):
         init_education_group_type_field(self.fields["education_group_type"],
                                         self.parent,
                                         education_group_categories.TRAINING)
-        init_academic_year(self.fields["academic_year"], self.parent)
+        init_academic_year(self.fields["academic_year"], self.parent, self.instance)
 
         preselect_entity_version_from_entity_value(self)
 
-        self.fields["education_group"].required = False
         self.fields["domains"].widget.attrs['placeholder'] = _('Enter text to search')
 
         if getattr(self.instance, 'management_entity', None):
