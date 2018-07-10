@@ -46,18 +46,10 @@ from cms.models import text_label
 @login_required
 @require_http_methods(["POST"])
 @perms.can_edit_summary_locked_field
-def unlock_learning_unit_pedagogy_edition(request, learning_unit_year_id):
-    learning_unit_year.set_summary_locked(learning_unit_year_id, False)
-    display_success_messages(request, "Update for teacher unlocked")
-    return redirect(reverse("learning_unit_pedagogy", kwargs={'learning_unit_year_id': learning_unit_year_id}))
-
-
-@login_required
-@require_http_methods(["POST"])
-@perms.can_edit_summary_locked_field
-def lock_learning_unit_pedagogy_edition(request, learning_unit_year_id):
-    learning_unit_year.set_summary_locked(learning_unit_year_id, True)
-    display_success_messages(request, "Update for teacher locked")
+def toggle_summary_locked(request, learning_unit_year_id):
+    luy = learning_unit_year.toggle_summary_locked(learning_unit_year_id)
+    success_msg = "Update for teacher locked" if luy.summary_locked else "Update for teacher unlocked"
+    display_success_messages(request, success_msg)
     return redirect(reverse("learning_unit_pedagogy", kwargs={'learning_unit_year_id': learning_unit_year_id}))
 
 

@@ -3,11 +3,8 @@
 
 <div class="col-md-6">
     {% if can_edit_summary_locked_field %}
-        {% url 'learning_unit_pedagogy_lock_modification' learning_unit_year_id=learning_unit_year.pk as lock_modification_url %}
-        {% url 'learning_unit_pedagogy_unlock_modification' learning_unit_year_id=learning_unit_year.pk as unlock_modification_url %}
         <form method="POST"
-              action="{% if learning_unit_year.summary_locked %} {{unlock_modification_url}}
-                      {% else %} {{lock_modification_url}} {% endif %}">
+              action="{% url 'learning_unit_pedagogy_toggle_summary_locked' learning_unit_year_id=learning_unit_year.pk %}">
             {% csrf_token %}
             <button class="btn btn-primary pull-right" type="submit" data-toggle="tooltip" data-placement="left"
                 {% if learning_unit_year.summary_locked %}

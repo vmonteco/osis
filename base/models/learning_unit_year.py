@@ -488,7 +488,8 @@ def find_learning_unit_years_by_academic_year_tutor_attributions(academic_year, 
     return qs
 
 
-def set_summary_locked(learning_unit_year_id, summary_locked):
+def toggle_summary_locked(learning_unit_year_id):
     luy = LearningUnitYear.objects.get(pk=learning_unit_year_id)
-    luy.summary_locked = summary_locked
-    return luy.save()
+    luy.summary_locked = not luy.summary_locked
+    luy.save()
+    return luy

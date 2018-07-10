@@ -201,36 +201,34 @@ class LearningUnitPedagogySummaryLockedTestCase(TestCase):
             learning_container_year__academic_year=cls.current_academic_year,
             subtype=FULL
         )
-        cls.url_locked = reverse('learning_unit_pedagogy_lock_modification',
-                                 kwargs={'learning_unit_year_id': cls.learning_unit_year.pk})
-        cls.url_unlocked = reverse('learning_unit_pedagogy_unlock_modification',
-                                   kwargs={'learning_unit_year_id': cls.learning_unit_year.pk})
+        cls.url = reverse('learning_unit_pedagogy_toggle_summary_locked',
+                          kwargs={'learning_unit_year_id': cls.learning_unit_year.pk})
 
     def setUp(self):
         self.client.force_login(self.faculty_person.user)
 
-    def test_unlock_learning_unit_pedagogy_edition_case_user_not_logged(self):
+    def test_toggle_summary_locked_case_user_not_logged(self):
         self.client.logout()
-        response = self.client.get(self.url_unlocked)
-        self.assertRedirects(response, '/login/?next={}'.format(self.url_unlocked))
+        response = self.client.get(self.url)
+        self.assertRedirects(response, '/login/?next={}'.format(self.url))
 
-    def test_unlock_learning_unit_pedagogy_edition_case_method_not_allowed(self):
-        response = self.client.get(self.url_unlocked)
+    def test_toggle_summary_locked_case_method_not_allowed(self):
+        response = self.client.get(self.url)
         self.assertEqual(response.status_code, HttpResponseNotAllowed.status_code)
 
     @patch('base.business.learning_units.perms.can_edit_summary_locked_field')
-    def test_unlock_learning_unit_pedagogy_edition_case_cannot_edit_summary_locked(self, mock_can_edit_summary_locked):
+    def test_toggle_summary_locked_case_cannot_edit_summary_locked(self, mock_can_edit_summary_locked):
         mock_can_edit_summary_locked.return_value = False
-        response = self.client.post(self.url_unlocked)
+        response = self.client.post(self.url)
         self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
 
     @patch('base.views.learning_units.pedagogy.update.display_success_messages')
     @patch('base.business.learning_units.perms.can_edit_summary_locked_field')
-    def test_unlock_learning_unit_pedagogy_edition(self, mock_can_edit_summary_locked, mock_diplay_success_message):
+    def test_toggle_summary_locked_case_success(self, mock_can_edit_summary_locked, mock_diplay_success_message):
         mock_can_edit_summary_locked.return_value = True
         self.learning_unit_year.summary_locked = True
 
-        response = self.client.post(self.url_unlocked, follow=False)
+        response = self.client.post(self.url, follow=False)
         self.assertEqual(response.status_code, HttpResponseRedirect.status_code)
         self.assertTrue(mock_diplay_success_message.called)
         expected_redirection = reverse("learning_unit_pedagogy",
@@ -238,33 +236,3 @@ class LearningUnitPedagogySummaryLockedTestCase(TestCase):
         self.assertRedirects(response, expected_redirection)
         self.learning_unit_year.refresh_from_db()
         self.assertFalse(self.learning_unit_year.summary_locked)
-
-    def test_lock_learning_unit_pedagogy_edition_case_user_not_logged(self):
-        self.client.logout()
-        response = self.client.get(self.url_locked)
-        self.assertRedirects(response, '/login/?next={}'.format(self.url_locked))
-
-    def test_lock_learning_unit_pedagogy_edition_case_method_not_allowed(self):
-        response = self.client.get(self.url_locked)
-        self.assertEqual(response.status_code, HttpResponseNotAllowed.status_code)
-
-    @patch('base.business.learning_units.perms.can_edit_summary_locked_field')
-    def test_lock_learning_unit_pedagogy_edition_case_cannot_edit_summary_locked(self, mock_can_edit_summary_locked):
-        mock_can_edit_summary_locked.return_value = False
-        response = self.client.post(self.url_locked)
-        self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
-
-    @patch('base.views.learning_units.pedagogy.update.display_success_messages')
-    @patch('base.business.learning_units.perms.can_edit_summary_locked_field')
-    def test_lock_learning_unit_pedagogy_edition(self, mock_can_edit_summary_locked, mock_diplay_success_message):
-        mock_can_edit_summary_locked.return_value = True
-        self.learning_unit_year.summary_locked = False
-
-        response = self.client.post(self.url_locked, follow=False)
-        self.assertEqual(response.status_code, HttpResponseRedirect.status_code)
-        self.assertTrue(mock_diplay_success_message.called)
-        expected_redirection = reverse("learning_unit_pedagogy",
-                                       kwargs={'learning_unit_year_id': self.learning_unit_year.pk})
-        self.assertRedirects(response, expected_redirection)
-        self.learning_unit_year.refresh_from_db()
-        self.assertTrue(self.learning_unit_year.summary_locked)
