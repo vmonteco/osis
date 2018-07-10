@@ -366,6 +366,10 @@ BOOTSTRAP3 = {
     'required_css_class': "required_field",
 }
 
+# Ajax select is not allowed to load external js libs
+AJAX_SELECT_BOOTSTRAP = False
+
+
 CACHE_ENABLED = os.environ.get("CACHE_ENABLED", "False").lower() == 'true'
 if CACHE_ENABLED:
     CACHES = {
