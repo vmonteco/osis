@@ -163,7 +163,8 @@
                         <strong class="text-primary">{% trans parent.other_language_activities %}</strong>
                     {% endif %}
                 </div>
-                <br><div>
+                <br>
+                <div>
                     <label>{% trans 'studies_domain' %}</label><br>
                     {% if education_group_year.domains %}
                         <ul>{{ education_group_year.domains.all | unordered_list }}</ul>
