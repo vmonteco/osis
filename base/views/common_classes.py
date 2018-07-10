@@ -63,14 +63,15 @@ class RulesRequiredMixin(UserPassesTestMixin):
 
 
 class DeleteViewWithDependencies(FlagMixin, RulesRequiredMixin, DeleteView):
-    collector = NestedObjects(using="default")
-
     success_message = "The objects are been deleted successfully"
     protected_template = None
 
+    collector = None
+
     def get(self, request, *args, **kwargs):
-        # Collect objects how will be deleted
-        self.collector.collect([self.get_object()])
+        self.collector = NestedObjects(using="default")
+
+        self.get_collect()
         self.post_collect()
 
         # If there is some protected objects, change the template
@@ -78,6 +79,10 @@ class DeleteViewWithDependencies(FlagMixin, RulesRequiredMixin, DeleteView):
             self.template_name = self.protected_template
 
         return super().get(request, *args, **kwargs)
+
+    def get_collect(self):
+        # Collect objects how will be deleted
+        self.collector.collect([self.get_object()])
 
     def post_collect(self):
         pass
