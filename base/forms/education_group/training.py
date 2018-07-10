@@ -41,7 +41,7 @@ from reference.models.domain import Domain
 class TrainingEducationGroupYearForm(forms.ModelForm):
 
     domains = AutoCompleteSelectMultipleField(
-        'domains', required=False, help_text=None, label=_('studies_domain')
+        'domains', required=False, help_text="", label=_('studies_domain')
     )
 
     class Meta:
@@ -75,6 +75,7 @@ class TrainingEducationGroupYearForm(forms.ModelForm):
         preselect_entity_version_from_entity_value(self)
 
         self.fields["education_group"].required = False
+        self.fields["domains"].widget.attrs['placeholder'] = _('Enter text to search')
 
         if getattr(self.instance, 'management_entity', None):
             self.initial['management_entity'] = get_last_version(self.instance.management_entity).pk
