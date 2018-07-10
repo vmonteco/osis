@@ -227,6 +227,7 @@ class LearningUnitPedagogySummaryLockedTestCase(TestCase):
     def test_toggle_summary_locked_case_success(self, mock_can_edit_summary_locked, mock_diplay_success_message):
         mock_can_edit_summary_locked.return_value = True
         self.learning_unit_year.summary_locked = True
+        self.learning_unit_year.save()
 
         response = self.client.post(self.url, follow=False)
         self.assertEqual(response.status_code, HttpResponseRedirect.status_code)
