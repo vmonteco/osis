@@ -46,7 +46,6 @@ class TestDeleteGroupEducationYearView(TestCase):
     def setUp(self):
         self.education_group = EducationGroupFactory()
         self.education_group_year = EducationGroupYearFactory(education_group=self.education_group)
-        self.education_group_year_2 = EducationGroupYearFactory(education_group=self.education_group)
         self.person = PersonFactory()
         self.url = reverse('delete_education_group', args=[self.education_group_year.id])
 
@@ -75,9 +74,8 @@ class TestDeleteGroupEducationYearView(TestCase):
     def test_delete_post(self):
         response = self.client.post(self.url)
         self.assertEqual(response.status_code, 302)
-        self.assertFalse(EducationGroup.objects.filter(pk=self.education_group.pk).exists())
         self.assertFalse(EducationGroupYear.objects.filter(pk=self.education_group_year.pk).exists())
-        self.assertFalse(EducationGroupYear.objects.filter(pk=self.education_group_year_2.pk).exists())
+        self.assertFalse(EducationGroup.objects.filter(pk=self.education_group.pk).exists())
 
     def test_delete_get_with_protected_objects(self):
         protected_objects = {

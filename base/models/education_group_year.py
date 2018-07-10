@@ -249,6 +249,14 @@ class EducationGroupYear(models.Model):
             return self.education_group_type.category == education_group_categories.TRAINING
         return False
 
+    def delete(self, using=None, keep_parents=False):
+        result = super().delete(using, keep_parents)
+
+        # If the education_group has no more children, we can delete it
+        if not self.education_group.educationgroupyear_set.all().exists():
+            result = self.education_group.delete()
+        return result
+
 
 def find_by_id(an_id):
     try:

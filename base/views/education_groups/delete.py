@@ -50,10 +50,6 @@ class DeleteGroupEducationYearView(DeleteViewWithDependencies):
     # FlagMixin
     flag = 'education_group_delete'
 
-    def get_collect(self):
-        # We want to delete all the education_group
-        self.collector.collect([self.get_object().education_group])
-
     # TODO : This method is a quick fix.
     # GroupElementYear should be split in two tables with their own protected FK !
     def post_collect(self):
