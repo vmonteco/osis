@@ -14,7 +14,7 @@
     <div class="panel-body" style="padding-top:0px;">
         <div class="row">
             <div class="col-md-12">
-                {{ learning_unit_year.mobility_modality }}
+                {{ learning_unit_year.mobility_modality|default_if_none:'' }}
             </div>
         </div>
     </div>
