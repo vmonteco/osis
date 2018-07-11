@@ -8,10 +8,10 @@ checks:
       threshold: 8
   similar-code:
     config:
-      threshold: 3
+      threshold: 40
   identical-code:
     config:
-      threshold: 3
+      threshold: 40
 
 plugins:
   pep8:
