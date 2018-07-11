@@ -191,6 +191,12 @@ class EducationGroupYear(models.Model):
         related_name='administration_entity'
     )
 
+    languages = models.ManyToManyField(
+        "reference.Language",
+        through="EducationGroupLanguage",
+        related_name="education_group_years"
+    )
+
     def __str__(self):
         return u"%s - %s" % (self.academic_year, self.acronym)
 

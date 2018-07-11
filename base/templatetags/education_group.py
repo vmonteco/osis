@@ -27,7 +27,8 @@ from django import template
 from django.core.exceptions import PermissionDenied
 from django.utils.safestring import mark_safe
 
-from base.business.education_groups.perms import is_eligible_to_delete_education_group
+from base.business.education_groups.perms import is_eligible_to_delete_education_group, \
+    is_eligible_to_change_education_group, is_eligible_to_add_education_group
 
 register = template.Library()
 
@@ -41,9 +42,26 @@ li_template = """
 
 @register.simple_tag
 def li_with_deletion_perm(url, message, person, root=""):
+    permission = is_eligible_to_delete_education_group
+    return li_with_permission(permission, url, message, person, root)
+
+
+@register.simple_tag
+def li_with_update_perm(url, message, person, root=""):
+    permission = is_eligible_to_change_education_group
+    return li_with_permission(permission, url, message, person, root)
+
+
+@register.simple_tag
+def li_with_create_perm(url, message, person, root=""):
+    permission = is_eligible_to_add_education_group
+    return li_with_permission(permission, url, message, person, root)
+
+
+def li_with_permission(permission, url, message, person, root=""):
     permission_denied_message = ""
     try:
-        result = is_eligible_to_delete_education_group(person, raise_exception=True)
+        result = permission(person, raise_exception=True)
     except PermissionDenied as e:
         result = False
         permission_denied_message = str(e)

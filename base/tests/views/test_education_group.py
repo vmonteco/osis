@@ -25,6 +25,7 @@
 ##############################################################################
 import datetime
 import json
+from http import HTTPStatus
 from unittest import mock
 
 import bs4
@@ -37,8 +38,8 @@ from django.utils.translation import ugettext_lazy as _
 from waffle.testutils import override_flag
 
 from base.forms.education_group_general_informations import EducationGroupGeneralInformationsForm
-from base.models.admission_condition import AdmissionCondition, AdmissionConditionLine
 from base.forms.education_groups import EducationGroupFilter
+from base.models.admission_condition import AdmissionCondition, AdmissionConditionLine
 from base.models.enums import education_group_categories, academic_calendar_type
 from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.education_group_language import EducationGroupLanguageFactory
@@ -389,6 +390,7 @@ class EducationGroupDiplomas(TestCase):
                                                               education_group_type=type_training)
         GroupElementYearFactory(parent=cls.education_group_parent, child_branch=cls.education_group_child)
         cls.user = UserFactory()
+        cls.person = PersonFactory(user=cls.user)
         cls.user.user_permissions.add(Permission.objects.get(codename="can_access_education_group"))
         cls.url = reverse("education_group_diplomas", args=[cls.education_group_child.id])
 
@@ -458,6 +460,7 @@ class EducationGroupDiplomas(TestCase):
     def test_with_root_set(self):
         response = self.client.get(self.url, data={"root": self.education_group_parent.id})
 
+        self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertTemplateUsed(response, "education_group/tab_diplomas.html")
 
         context = response.context
@@ -664,12 +667,13 @@ class EducationGroupViewTestCase(TestCase):
         self.initialize_session()
         url = reverse("education_group_diplomas", args=[an_education_group.id])
         response = self.client.get(url)
+        self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertTemplateUsed(response, "education_group/tab_diplomas.html")
 
     def initialize_session(self):
-        user = UserFactory()
-        user.user_permissions.add(Permission.objects.get(codename="can_access_education_group"))
-        self.client.force_login(user)
+        person = PersonFactory()
+        person.user.user_permissions.add(Permission.objects.get(codename="can_access_education_group"))
+        self.client.force_login(person.user)
 
 
 class EducationGroupAdministrativedata(TestCase):

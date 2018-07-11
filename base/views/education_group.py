@@ -31,19 +31,21 @@ from django import forms
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.db.models import Prefetch
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
+from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_http_methods
+from django.views.generic import DetailView
 from waffle.decorators import waffle_flag
 
 from base import models as mdl
 from base.business import education_group as education_group_business
 from base.business.education_group import assert_category_of_education_group_year
-from base.business.education_groups import perms
 from base.business.learning_unit import find_language_in_settings
 from base.forms.education_group_general_informations import EducationGroupGeneralInformationsForm
 from base.forms.education_group_pedagogy_edit import EducationGroupPedagogyEditForm
@@ -71,37 +73,65 @@ SESSIONS_DEROGATION = "sessions_derogation"
 NUMBER_SESSIONS = 3
 
 
-@login_required
-@permission_required('base.can_access_education_group', raise_exception=True)
-def education_group_read(request, education_group_year_id):
-    person = get_object_or_404(Person, user=request.user)
-    root = request.GET.get('root')
-    education_group_year = get_object_or_404(EducationGroupYear, id=education_group_year_id)
-    education_group_languages = [education_group_language.language.name for education_group_language in
-                                 mdl.education_group_language.find_by_education_group_year(education_group_year)]
-    enums = mdl.enums.education_group_categories
-    parent = _get_education_group_root(root, education_group_year)
+@method_decorator(login_required, name='dispatch')
+class EducationGroupGenericDetailView(PermissionRequiredMixin, DetailView):
+    # DetailView
+    model = EducationGroupYear
+    context_object_name = "education_group_year"
+    pk_url_kwarg = 'education_group_year_id'
 
-    can_create_education_group = perms.is_eligible_to_add_education_group(person)
-    can_change_education_group = perms.is_eligible_to_change_education_group(person)
+    # PermissionRequiredMixin
+    permission_required = 'base.can_access_education_group'
+    raise_exception = True
 
+    limited_by_category = None
+
+    def get_person(self):
+        return get_object_or_404(Person, user=self.request.user)
+
+    def get_root(self):
+        return self.request.GET.get("root")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # This objects are mandatory for all education group views
+        context['person'] = self.get_person()
+        context['root'] = self.get_root()
+        context['parent'] = _get_education_group_root(self.get_root(), self.object)
+        return context
+
+    def get(self, request, *args, **kwargs):
+        if self.limited_by_category:
+            assert_category_of_education_group_year(self.get_object(), self.limited_by_category)
+        return super().get(request, *args, **kwargs)
+
+
+class EducationGroupRead(EducationGroupGenericDetailView):
     templates = {
         education_group_categories.TRAINING: "education_group/identification_training_details.html",
         education_group_categories.MINI_TRAINING: "education_group/identification_mini_training_details.html",
         education_group_categories.GROUP: "education_group/identification_group_details.html"
     }
 
-    return layout.render(request, templates.get(education_group_year.education_group_type.category), locals())
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # TODO Use value_list
+        context["education_group_languages"] = [
+            education_group_language.language.name for education_group_language in
+            mdl.education_group_language.find_by_education_group_year(self.object)
+        ]
+        context['enums'] = mdl.enums.education_group_categories
+
+        return context
+
+    def get_template_names(self):
+        return self.templates.get(self.object.education_group_type.category)
 
 
-@login_required
-@permission_required('base.can_access_education_group', raise_exception=True)
-def education_group_diplomas(request, education_group_year_id):
-    education_group_year = get_object_or_404(EducationGroupYear, id=education_group_year_id)
-    assert_category_of_education_group_year(education_group_year, (education_group_categories.TRAINING,))
-    education_group_year_root_id = request.GET.get('root')
-    parent = _get_education_group_root(education_group_year_root_id, education_group_year)
-    return layout.render(request, "education_group/tab_diplomas.html", locals())
+class EducationGroupDiplomas(EducationGroupGenericDetailView):
+    template_name = "education_group/tab_diplomas.html"
+    limited_by_category = (education_group_categories.TRAINING,)
 
 
 @login_required
