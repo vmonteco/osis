@@ -42,6 +42,7 @@ from osis_common.models import osis_model_admin
 
 class GroupElementYearAdmin(osis_model_admin.OsisModelAdmin):
     list_display = ('parent', 'child_branch', 'child_leaf',)
+    readonly_fields = ('order',)
     search_fields = [
         'child_branch__acronym',
         'child_branch__partial_acronym',
