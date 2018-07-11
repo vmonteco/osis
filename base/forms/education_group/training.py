@@ -25,13 +25,10 @@
 ##############################################################################
 from ajax_select import register, LookupChannel
 from ajax_select.fields import AutoCompleteSelectMultipleField
-from django import forms
 from django.utils.translation import ugettext_lazy as _
 
 from base.forms.education_group.common import CommonBaseForm, EducationGroupModelForm, \
-    MainEntitiesVersionChoiceField, MainTeachingCampusChoiceField, \
-    EducationGroupYearModelForm
-from base.models.education_group_year import EducationGroupYear
+    MainEntitiesVersionChoiceField, EducationGroupYearModelForm
 from base.models.education_group_year_domain import EducationGroupYearDomain
 from base.models.entity_version import get_last_version
 from base.models.enums import education_group_categories
@@ -61,16 +58,7 @@ class TrainingEducationGroupYearForm(EducationGroupYearModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        # self.parent = kwargs.pop("parent", None)
-
         super().__init__(education_group_categories.TRAINING, *args, **kwargs)
-
-        # init_education_group_type_field(self.fields["education_group_type"],
-        #                                 self.parent,
-        #                                 education_group_categories.TRAINING)
-        # init_academic_year(self.fields["academic_year"], self.parent, self.instance)
-
-        # preselect_entity_version_from_entity_value(self)
 
         self.fields["domains"].widget.attrs['placeholder'] = _('Enter text to search')
 

@@ -23,14 +23,11 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from abc import ABCMeta
 from base.models.education_group_year import EducationGroupYear
-from base.models.enums import education_group_categories
 from django import forms
 
 from base.forms.learning_unit.entity_form import EntitiesVersionChoiceField
 from base.models import campus, education_group_type, group_element_year
-from base.models.academic_year import current_academic_year
 from base.models.education_group import EducationGroup
 from base.models.entity_version import find_main_entities_version, get_last_version
 
@@ -46,28 +43,6 @@ class MainEntitiesVersionChoiceField(EntitiesVersionChoiceField):
     def __init__(self, queryset, *args, **kwargs):
         queryset = find_main_entities_version()
         super(MainEntitiesVersionChoiceField, self).__init__(queryset, *args, **kwargs)
-
-#
-# def init_education_group_type_field(form_field, parent_education_group_year, category):
-#     parent_group_type = None
-#     if parent_education_group_year:
-#         parent_group_type = parent_education_group_year.education_group_type
-#
-#     form_field.queryset = education_group_type.find_authorized_types(category=category, parent_type=parent_group_type)
-#     form_field.required = True
-#
-#
-# def init_academic_year(form_field, parent_educ_group_year, instance=None):
-#     if parent_educ_group_year or instance.academic_year_id:
-#         academic_year = parent_educ_group_year.academic_year if parent_educ_group_year else instance.academic_year
-#         form_field.initial = academic_year.id
-#         form_field.disabled = True
-#         form_field.required = False
-
-
-# def preselect_entity_version_from_entity_value(modelform):
-#     if getattr(modelform.instance, 'administration_entity', None):
-#         modelform.initial['administration_entity'] = get_last_version(modelform.instance.administration_entity).pk
 
 
 class EducationGroupYearModelForm(forms.ModelForm):
