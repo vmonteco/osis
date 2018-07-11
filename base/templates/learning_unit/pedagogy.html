@@ -37,6 +37,7 @@
         {% include "learning_unit/blocks/tabs.html" %}
         <div class="tab-content" id="tab_content">
             {% url 'learning_unit_pedagogy_edit' learning_unit_year_id=learning_unit_year.id as post_url %}
+
             {% include "learning_unit/blocks/panel/educational_informations.html" %}
         </div>
     </div>

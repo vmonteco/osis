@@ -70,6 +70,7 @@ INSTALLED_APPS = (
     'bootstrap3',
     'ordered_model',
     'waffle',
+    'ajax_select',
 )
 
 MIDDLEWARE = (
@@ -365,6 +366,10 @@ BOOTSTRAP3 = {
     'required_css_class': "required_field",
 }
 
+# Ajax select is not allowed to load external js libs
+AJAX_SELECT_BOOTSTRAP = False
+
+
 CACHE_ENABLED = os.environ.get("CACHE_ENABLED", "False").lower() == 'true'
 if CACHE_ENABLED:
     CACHES = {
@@ -384,3 +389,5 @@ if CACHE_ENABLED:
             "KEY_PREFIX": os.environ.get("REDIS_PREFIX", 'osis')
         }
     }
+
+WAFFLE_FLAG_DEFAULT = os.environ.get("WAFFLE_FLAG_DEFAULT", "False").lower() == 'true'

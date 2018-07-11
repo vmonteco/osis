@@ -2085,9 +2085,6 @@ msgstr "Organization of formations"
 msgid "education_groups"
 msgstr "Education groups"
 
-msgid "education group year"
-msgstr "Organisation de formations annualisée"
-
 msgid "entity_management"
 msgstr "Entity management"
 
@@ -2928,6 +2925,9 @@ msgstr "We detected inconsistencies in the following data :"
 msgid "Volumes are inconsistent"
 msgstr ""
 
+msgid "Volumes of {} are inconsistent"
+msgstr ""
+
 msgid "planned classes cannot be 0"
 msgstr ""
 
@@ -3154,4 +3154,52 @@ msgid "You can not delete this object because some dependencies are protected"
 msgstr ""
 
 msgid "It will delete also this following objects"
+msgstr ""
+
+msgid "The education group edition period is not open."
+msgstr ""
+
+msgid "The user has not permission to delete education groups."
+msgstr ""
+
+msgid "The teaching material has been deleted"
+msgstr ""
+
+msgid "Teaching materials has been updated"
+msgstr ""
+
+msgid "Are you sure you want to delete the teaching material?"
+msgstr ""
+
+msgid "{} successfully updated"
+msgstr ""
+
+msgid "unit"
+msgstr ""
+
+msgid "Enter text to search"
+msgstr ""
+
+msgid "Mobility has been updated"
+msgstr ""
+
+msgid "lock"
+msgstr ""
+
+msgid "unlock"
+msgstr ""
+
+msgid "Update for teacher unlocked"
+msgstr ""
+
+msgid "Update for teacher locked"
+msgstr ""
+
+msgid "lock update for teacher"
+msgstr ""
+
+msgid "unlock update for teacher"
+msgstr ""
+
+msgid "The education group has been deleted."
 msgstr ""

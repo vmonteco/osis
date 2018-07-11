@@ -315,8 +315,10 @@ class LearningUnitYear(SerializableModel):
 
     def _check_learning_component_year_warnings(self):
         _warnings = []
-        for learning_unit_component in self.learningunitcomponent_set.all().select_related('learning_component_year'):
-            _warnings.extend(learning_unit_component.learning_component_year.warnings)
+        components_queryset = self.learning_container_year.learningcomponentyear_set
+        all_components = components_queryset.all().order_by('learningunitcomponent__learning_unit_year__acronym')
+        for learning_component_year in all_components:
+            _warnings.extend(learning_component_year.warnings)
 
         return _warnings
 
@@ -484,3 +486,10 @@ def find_learning_unit_years_by_academic_year_tutor_attributions(academic_year, 
             attribution__tutor=tutor)\
         .order_by('academic_year__year', 'acronym')
     return qs
+
+
+def toggle_summary_locked(learning_unit_year_id):
+    luy = LearningUnitYear.objects.get(pk=learning_unit_year_id)
+    luy.summary_locked = not luy.summary_locked
+    luy.save()
+    return luy

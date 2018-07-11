@@ -30,20 +30,23 @@ from django.test import TestCase
 from django.urls import reverse
 from waffle.testutils import override_flag
 
-from base.forms.education_group.create import CreateEducationGroupYearForm
+from base.forms.education_group.group import GroupModelForm
 from base.models.enums import education_group_categories
+from base.models.enums.active_status import ACTIVE
+from base.models.enums.schedule_type import DAILY
 from base.tests.factories.education_group_type import EducationGroupTypeFactory
-from base.tests.factories.education_group_year import EducationGroupYearFactory
+from base.tests.factories.education_group_year import GroupFactory, TrainingFactory
+from base.tests.factories.education_group_year_domain import EducationGroupYearDomainFactory
 from base.tests.factories.entity_version import EntityVersionFactory, MainEntityVersionFactory
 from base.tests.factories.person import PersonFactory
 from base.views.education_groups.update import update_education_group
+from reference.tests.factories.domain import DomainFactory
 
 
 @override_flag('education_group_update', active=True)
 class TestUpdate(TestCase):
     def setUp(self):
-        an_education_group_type = EducationGroupTypeFactory(category=education_group_categories.GROUP)
-        self.education_group_year = EducationGroupYearFactory(education_group_type=an_education_group_type)
+        self.education_group_year = GroupFactory()
 
         EntityVersionFactory(entity=self.education_group_year.management_entity,
                              start_date=self.education_group_year.academic_year.start_date)
@@ -63,10 +66,12 @@ class TestUpdate(TestCase):
 
         self.training_url = self._get_training_url()
 
+        self.domains = [DomainFactory() for x in range(10)]
+
     def _get_training_url(self):
-        an_training_education_group_type = EducationGroupTypeFactory(category=education_group_categories.TRAINING)
-        self.training_education_group_year = EducationGroupYearFactory(
-            education_group_type=an_training_education_group_type)
+        self.an_training_education_group_type = EducationGroupTypeFactory(category=education_group_categories.TRAINING)
+        self.training_education_group_year = TrainingFactory(
+            education_group_type=self.an_training_education_group_type)
         EntityVersionFactory(entity=self.training_education_group_year.administration_entity,
                              start_date=self.education_group_year.academic_year.start_date)
         EntityVersionFactory(entity=self.training_education_group_year.management_entity,
@@ -99,7 +104,7 @@ class TestUpdate(TestCase):
 
         form_education_group_year = response.context["form_education_group_year"]
 
-        self.assertIsInstance(form_education_group_year, CreateEducationGroupYearForm)
+        self.assertIsInstance(form_education_group_year, GroupModelForm)
 
     def test_post(self):
         new_entity_version = MainEntityVersionFactory()
@@ -131,3 +136,42 @@ class TestUpdate(TestCase):
         response = self.client.get(self.training_url)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "education_group/update_trainings.html")
+
+    def test_post_training(self):
+        old_domain = DomainFactory()
+        EducationGroupYearDomainFactory(
+            education_group_year=self.training_education_group_year,
+            domain=old_domain
+        )
+
+        new_entity_version = MainEntityVersionFactory()
+        list_domains = [domain.pk for domain in self.domains]
+        data = {
+            'title': 'Cours au choix',
+            'title_english': 'deaze',
+            'education_group_type': self.an_training_education_group_type.pk,
+            'credits': 42,
+            'acronym': 'CRSCHOIXDVLD',
+            'partial_acronym': 'LDVLD101R',
+            'administration_entity': new_entity_version.pk,
+            'main_teaching_campus': "",
+            'academic_year': self.training_education_group_year.academic_year.pk,
+            'domains': ['|' + ('|'.join([str(domain.pk) for domain in self.domains])) + '|'],
+            'active': ACTIVE,
+            'schedule_type': DAILY,
+        }
+        response = self.client.post(self.training_url, data=data)
+        self.assertEqual(response.status_code, 302)
+
+        self.training_education_group_year.refresh_from_db()
+        self.assertEqual(self.training_education_group_year.title, 'Cours au choix')
+        self.assertEqual(self.training_education_group_year.title_english, 'deaze')
+        self.assertEqual(self.training_education_group_year.credits, 42)
+        self.assertEqual(self.training_education_group_year.acronym, 'CRSCHOIXDVLD')
+        self.assertEqual(self.training_education_group_year.partial_acronym, 'LDVLD101R')
+        self.assertEqual(self.training_education_group_year.administration_entity, new_entity_version.entity)
+        self.assertListEqual(
+            list(self.training_education_group_year.domains.values_list('id', flat=True)),
+            list_domains
+        )
+        self.assertNotIn(old_domain, self.education_group_year.domains.all())

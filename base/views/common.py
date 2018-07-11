@@ -59,8 +59,8 @@ def method_not_allowed(request):
     return response
 
 
-def access_denied(request):
-    response = layout.render(request, 'access_denied.html', {})
+def access_denied(request, exception):
+    response = layout.render(request, 'access_denied.html', {'exception': exception})
     response.status_code = 403
     return response
 

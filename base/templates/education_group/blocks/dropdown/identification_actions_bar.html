@@ -1,6 +1,6 @@
 {% load staticfiles %}
 {% load i18n %}
-{% load format waffle_tags feature_flag %}
+{% load format waffle_tags feature_flag education_group %}
 {% comment "License" %}
 * OSIS stands for Open Student Information System. It's an application
 * designed to manage the core business of higher education institutions,
@@ -44,20 +44,16 @@
                 {% flag "education_group_update" %}
                     <li {% if not can_change_education_group %} class="disabled" {% endif %}>
                         <a {% if can_change_education_group %} href="{% url 'update_education_group' education_group_year_id=education_group_year.id %}?root={{ request.GET.root }}" {% endif %}>
-                            {% trans 'Update Education Group' %}
+                            {% trans 'Modify' %}
                         </a>
                     </li>
                 {% endflag %}
 
                 {% flag "education_group_delete" %}
-                    <li {% if not can_delete_education_group %} class="disabled" {% endif %}>
-                        <a {% if can_delete_education_group %} href="{% url 'delete_education_group' education_group_year_id=education_group_year.id %}?root={{ request.GET.root }}" {% endif %}>
-                            {% trans 'Delete Education Group' %}
-                        </a>
-                    </li>
+                    {% url 'delete_education_group' education_group_year_id=education_group_year.id as delete_url %}
+                    {% li_with_deletion_perm delete_url _('Delete') person root=request.GET.root %}
                 {% endflag %}
             </ul>
         </div>
     {% endif %}
-
 {% endif %}

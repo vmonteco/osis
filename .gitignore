@@ -25,3 +25,5 @@ dev.py
 ghostdriver.log
 .DS_Store
 /geckodriver.log
+/venv_3.6/
+/.gitignore

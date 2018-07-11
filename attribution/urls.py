@@ -26,9 +26,9 @@
 from django.conf.urls import url, include
 
 from attribution.views import summary_responsible, manage_my_courses
+from attribution.views.manage_my_courses import update_mobility_modality
 
 urlpatterns = [
-
     url(r'^summary_responsible_manager/', include([
         url(r'^$', summary_responsible.search,
             name='summary_responsible'),
@@ -37,17 +37,23 @@ urlpatterns = [
         url(r'^update/(?P<pk>[0-9]+)/$', summary_responsible.update,
             name='summary_responsible_update')
     ])),
-
     url(r'^manage_my_courses/', include([
         url(r'^$', manage_my_courses.list_my_attributions_summary_editable,
             name='list_my_attributions_summary_editable'),
-        url(r'^(?P<learning_unit_year_id>[0-9]+)/educational_information$',
-            manage_my_courses.view_educational_information,
-            name='view_educational_information'),
-        url(r'^(?P<learning_unit_year_id>[0-9]+)/edit_educational_information$',
-            manage_my_courses.edit_educational_information,
-            name='tutor_edit_educational_information'),
+        url(r'^(?P<learning_unit_year_id>[0-9]+)/', include([
+            url(r'^educational_information/$', manage_my_courses.view_educational_information,
+                name='view_educational_information'),
+            url(r'^edit_educational_information/$',
+                manage_my_courses.edit_educational_information,
+                name='tutor_edit_educational_information'),
+            url(r'^teaching_materials/', include([
+                url(r'^create', manage_my_courses.create_teaching_material, name="tutor_teaching_material_create"),
+                url(r'^(?P<teaching_material_id>[0-9]+)/edit/', manage_my_courses.update_teaching_material,
+                    name="tutor_teaching_material_edit"),
+                url(r'^(?P<teaching_material_id>[0-9]+)/delete/', manage_my_courses.delete_teaching_material,
+                    name="tutor_teaching_material_delete")
+            ])),
+            url(r'^update_mobility_modality/$', update_mobility_modality, name='tutor_mobility_modality_update')
+        ]))
     ])),
-
-
 ]

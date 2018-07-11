@@ -23,14 +23,12 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import waffle
-from django.http import Http404
 from django.urls import reverse_lazy
-from waffle.decorators import waffle_flag
 
 from base.models.education_group_year import EducationGroupYear
 from base.models.group_element_year import GroupElementYear
 from base.views.common_classes import DeleteViewWithDependencies
+from base.views.education_groups.perms import can_delete_education_group
 
 
 class DeleteGroupEducationYearView(DeleteViewWithDependencies):
@@ -41,17 +39,16 @@ class DeleteGroupEducationYearView(DeleteViewWithDependencies):
     template_name = "education_group/delete.html"
     context_object_name = "education_group_year"
 
-    # PermissionRequiredMixin
-    permission_required = "base.delete_educationgroupyear"
+    # RulesRequiredMixin
     raise_exception = True
+    rules = [can_delete_education_group]
 
     # DeleteViewWithDependencies
-    success_message = "The education group has been deleted"
+    success_message = "The education group has been deleted."
     protected_template = "education_group/protect_delete.html"
 
-    @waffle_flag('education_group_delete')
-    def dispatch(self, request, *args, **kwargs):
-        return super().dispatch(request, *args, **kwargs)
+    # FlagMixin
+    flag = 'education_group_delete'
 
     # TODO : This method is a quick fix.
     # GroupElementYear should be split in two tables with their own protected FK !

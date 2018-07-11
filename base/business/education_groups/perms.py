@@ -23,6 +23,9 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from django.core.exceptions import PermissionDenied
+from django.utils.translation import ugettext_lazy as _
+
 from base.models import academic_calendar
 from base.models.enums import academic_calendar_type
 from osis_common.utils.perms import conjunction, disjunction
@@ -42,18 +45,24 @@ def is_eligible_to_change_education_group(person):
     )(person)
 
 
-def is_eligible_to_delete_education_group(person):
-    return conjunction(
-        has_person_the_right_to_delete_education_group,
-    )(person)
+def is_eligible_to_delete_education_group(person, raise_exception=False):
+    return has_person_the_right_to_delete_education_group(person, raise_exception) and (
+            person.is_central_manager() or
+            is_education_group_creation_period_opened(person, raise_exception)
+    )
 
 
 def is_central_manager(person):
     return person.is_central_manager()
 
 
-def is_education_group_creation_period_opened(person):
-    return academic_calendar.is_academic_calendar_opened(academic_calendar_type.EDUCATION_GROUP_EDITION)
+def is_education_group_creation_period_opened(person, raise_exception=False):
+    result = academic_calendar.is_academic_calendar_opened(academic_calendar_type.EDUCATION_GROUP_EDITION)
+
+    if raise_exception and not result:
+        raise PermissionDenied(_("The education group edition period is not open."))
+
+    return result
 
 
 def has_person_the_right_to_add_education_group(person):
@@ -64,5 +73,10 @@ def has_person_the_right_to_change_education_group(person):
     return person.user.has_perm('base.change_educationgroup')
 
 
-def has_person_the_right_to_delete_education_group(person):
-    return person.user.has_perm('base.delete_educationgroupyear')
+def has_person_the_right_to_delete_education_group(person, raise_exception=False):
+    result = person.user.has_perm('base.delete_educationgroup')
+
+    if raise_exception and not result:
+        raise PermissionDenied(_("The user has not permission to delete education groups."))
+
+    return result

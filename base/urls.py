@@ -23,6 +23,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from ajax_select import urls as ajax_select_urls
 from django.conf import settings
 from django.conf.urls import url, include
 from django.conf.urls.static import static
@@ -41,14 +42,17 @@ from attribution.views import attribution, tutor_application
 from base.views import learning_achievement, search
 from base.views import learning_unit, offer, common, institution, organization, academic_calendar, \
     my_osis, entity, student, education_group
+from base.views import teaching_material
 from base.views.education_groups.delete import DeleteGroupEducationYearView
 from base.views.education_groups.update import update_education_group
 from base.views.learning_units.external import create as create_external
 from base.views.learning_units.external.search import filter_cities_by_country, filter_campus_by_city
 from base.views.learning_units.pedagogy.read import learning_unit_pedagogy
-from base.views.learning_units.pedagogy.update import learning_unit_pedagogy_edit
+from base.views.learning_units.pedagogy.update import learning_unit_pedagogy_edit, update_mobility_modality,\
+    toggle_summary_locked
 from base.views.learning_units.proposal import create, update
 from base.views.learning_units.update import update_learning_unit, learning_unit_edition_end_date
+
 
 urlpatterns = [
     url(r'^$', common.home, name='home'),
@@ -126,8 +130,13 @@ urlpatterns = [
             url(r'^$', learning_unit.learning_unit_identification, name='learning_unit'),
             url(r'^formations/$', learning_unit.learning_unit_formations, name="learning_unit_formations"),
             url(r'^components/$', learning_unit.learning_unit_components, name="learning_unit_components"),
-            url(r'^pedagogy/$', learning_unit_pedagogy, name="learning_unit_pedagogy"),
-            url(r'^pedagogy/edit/$', learning_unit_pedagogy_edit, name="learning_unit_pedagogy_edit"),
+            url(r'^pedagogy/', include([
+                url(r'^$', learning_unit_pedagogy, name="learning_unit_pedagogy"),
+                url(r'^edit/$', learning_unit_pedagogy_edit, name="learning_unit_pedagogy_edit"),
+                url(r'^mobility_modality/$', update_mobility_modality, name="mobility_modality_update"),
+                url(r'^toggle_summary_locked/$', toggle_summary_locked,
+                    name="learning_unit_pedagogy_toggle_summary_locked")
+            ])),
             url(r'^attributions/$', learning_unit.learning_unit_attributions, name="learning_unit_attributions"),
             url(r'^proposal/', include([
                 url(r'^modification/$', update.learning_unit_modification_proposal,
@@ -163,6 +172,13 @@ urlpatterns = [
                     name="achievement_create"),
 
             ])),
+            url(r'^teaching_materials/', include([
+                url(r'^create', teaching_material.create, name="teaching_material_create"),
+                url(r'^(?P<teaching_material_id>[0-9]+)/edit/', teaching_material.update,
+                    name="teaching_material_edit"),
+                url(r'^(?P<teaching_material_id>[0-9]+)/delete/', teaching_material.delete,
+                    name="teaching_material_delete")
+            ]))
         ])),
         url(r'^check/(?P<subtype>[A-Z]+)$', base.views.learning_units.common.check_acronym, name="check_acronym"),
         url(r'^outside_period/$', learning_unit.outside_period, name='outside_summary_submission_period'),
@@ -306,6 +322,8 @@ urlpatterns = [
             url(r'^picture$', student.student_picture, name='student_picture'),
         ]))
     ])),
+    url(r'^ajax_select/', include(ajax_select_urls)),
+
 ]
 
 if settings.DEBUG:
