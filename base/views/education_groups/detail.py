@@ -227,25 +227,6 @@ def _group_elements(education_group_yr):
     return None
 
 
-def _get_group_elements_data(group_elements):
-    group_elements_data = []
-    for group_element in group_elements:
-        group_element_values = {'group_element': group_element}
-        if group_element.child_leaf:
-            _get_learning_unit_detail(group_element_values, group_element)
-        elif group_element.child_branch:
-            _get_education_group_detail(group_element_values, group_element)
-        group_elements_data.append(group_element_values)
-    return _sorting(group_elements_data)
-
-
-def _sorting(group_elements_data):
-    return sorted(group_elements_data,
-                  key=lambda k: (k.get('group_element').current_order is None,
-                                 k.get('group_element').current_order == -1,
-                                 k.get('group_element').current_order))
-
-
 def _get_education_group_detail(dict_param, group_element):
     dict_param.update({CODE_SCS: group_element.child_branch.partial_acronym,
                        TITLE: group_element.child_branch.title,
@@ -263,3 +244,20 @@ def _get_learning_unit_detail(dict_param, group_element):
                        BLOCK: group_element.block,
                        SESSIONS_DEROGATION: group_element.sessions_derogation})
     return dict_param
+
+
+# @TODO: Enhance research via queryset annotate
+def _get_group_elements_data(group_elements):
+    group_elements_data = []
+    for group_element in group_elements:
+        group_element_values = {'group_element': group_element}
+        if group_element.child_leaf:
+            _get_learning_unit_detail(group_element_values, group_element)
+        elif group_element.child_branch:
+            _get_education_group_detail(group_element_values, group_element)
+        group_elements_data.append(group_element_values)
+    return _sorting(group_elements_data)
+
+
+def _sorting(group_elements_data):
+    return sorted(group_elements_data, key=lambda k: k.get('group_element').order)
