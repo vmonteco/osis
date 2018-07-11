@@ -15,10 +15,8 @@ plugins:
     config:
       languages:
         python:
-          mass_threshold: 50
+          mass_threshold: 40
         javascript:
-  fixme:
-    enabled: true
 
 exclude_patterns:
 - "**/tests/"
