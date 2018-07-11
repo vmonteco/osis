@@ -484,6 +484,7 @@ class EducationGroupGeneralInformations(TestCase):
                                                         reference=cls.education_group_child.id)
 
         cls.user = UserFactory()
+        cls.person = PersonFactory(user=cls.user)
         cls.user.user_permissions.add(Permission.objects.get(codename="can_access_education_group"))
         cls.url = reverse("education_group_general_informations", args=[cls.education_group_child.id])
 
@@ -604,7 +605,7 @@ class EducationGroupViewTestCase(TestCase):
         self.assertEqual(response.context['parent'], a_group_element_year.parent)
 
     def test_get_sessions_dates(self):
-        from base.views.education_group import get_sessions_dates
+        from base.views.education_groups.detail import get_sessions_dates
         from base.tests.factories.session_exam_calendar import SessionExamCalendarFactory
         from base.tests.factories.academic_calendar import AcademicCalendarFactory
         from base.tests.factories.education_group_year import EducationGroupYearFactory
