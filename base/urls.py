@@ -181,7 +181,6 @@ urlpatterns = [
             ]))
         ])),
         url(r'^check/(?P<subtype>[A-Z]+)$', base.views.learning_units.common.check_acronym, name="check_acronym"),
-        url(r'^outside_period/$', learning_unit.outside_period, name='outside_summary_submission_period'),
         url(r'^email_educational_information_update/$',
             base.views.learning_units.educational_information.send_email_educational_information_needs_update,
             name='email_educational_information_update'),
