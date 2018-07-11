@@ -33,15 +33,15 @@ from base.models.enums import education_group_categories
 from base.models.group_element_year import GroupElementYear
 from base.tests.factories.education_group_type import EducationGroupTypeFactory
 from base.tests.factories.education_group_year import GroupFactory
-from base.tests.forms.education_group.test_common import EducationGroupYearMixin, _get_valid_post_data
+from base.tests.forms.education_group.test_common import EducationGroupYearModelFormMixin, _get_valid_post_data
 
 
-class TestGroupModelForm(EducationGroupYearMixin):
+class TestGroupModelFormModelForm(EducationGroupYearModelFormMixin):
 
     def setUp(self):
         self.education_group_type = EducationGroupTypeFactory(category=education_group_categories.GROUP)
         self.form_class = GroupModelForm
-        super(TestGroupModelForm, self).setUp(education_group_type=self.education_group_type)
+        super(TestGroupModelFormModelForm, self).setUp(education_group_type=self.education_group_type)
 
     def test_fields(self):
         fields = ("acronym", "partial_acronym", "education_group_type", "title", "title_english", "credits",
@@ -52,7 +52,7 @@ class TestGroupModelForm(EducationGroupYearMixin):
         self.assertCountEqual(tuple(form.fields.keys()), fields)
 
     def test_init_academic_year_field(self):
-        self._test_init_academic_year_field(self.form_class)
+        self._test_init_and_disable_academic_year_field(self.form_class)
 
     def test_init_education_group_type_field(self):
         self._test_init_education_group_type_field(self.form_class, education_group_categories.GROUP)

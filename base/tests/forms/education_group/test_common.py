@@ -46,7 +46,7 @@ from base.tests.factories.entity_version import MainEntityVersionFactory, Entity
 from base.tests.factories.group_element_year import GroupElementYearFactory
 
 
-class EducationGroupYearMixin(TestCase):
+class EducationGroupYearModelFormMixin(TestCase):
     """Common class used to get common tests on ModelForm instances of Training, MiniTraining and Group"""
     education_group_type = None
 
@@ -72,7 +72,7 @@ class EducationGroupYearMixin(TestCase):
         cls.parent_education_group_year = EducationGroupYearFactory(academic_year=cls.academic_year)
         cls.entity_version = EntityVersionFactory(entity=cls.parent_education_group_year.administration_entity)
 
-    def _test_init_academic_year_field(self, form_class):
+    def _test_init_and_disable_academic_year_field(self, form_class):
         form = form_class(parent=self.parent_education_group_year)
 
         academic_year_field = form.fields["academic_year"]
