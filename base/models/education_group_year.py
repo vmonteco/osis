@@ -57,7 +57,7 @@ class EducationGroupYear(models.Model):
 
     education_group = models.ForeignKey('EducationGroup')
     education_group_type = models.ForeignKey(
-        'EducationGroupType', blank=True, null=True, verbose_name=_("training_type")
+        'EducationGroupType', blank=False, null=True, verbose_name=_("training_type")
     )
     active = models.CharField(
         max_length=20, choices=active_status.ACTIVE_STATUS_LIST, default=active_status.ACTIVE, verbose_name=_('status')
