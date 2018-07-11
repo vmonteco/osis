@@ -16,6 +16,7 @@ plugins:
       languages:
         python:
           mass_threshold: 50
+        javascript:
   fixme:
     enabled: true
 
