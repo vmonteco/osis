@@ -1,4 +1,4 @@
-function showDiv() {
+function switchTreeVisibility() {
     if (document.getElementById('collapse').style.display === "block") {
         modifyPanelAttribute("none", "col-md-0", "col-md-12");
     } else {
@@ -36,6 +36,6 @@ $(document).ready(function () {
     });
 
     if ("0" === "0") {
-        showDiv();
+        switchTreeVisibility();
     }
 });
