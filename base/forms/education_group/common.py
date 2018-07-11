@@ -46,6 +46,8 @@ class MainEntitiesVersionChoiceField(EntitiesVersionChoiceField):
 
 
 class EducationGroupYearModelForm(forms.ModelForm):
+    category = None
+
     class Meta:
         model = EducationGroupYear
         field_classes = {
@@ -54,8 +56,7 @@ class EducationGroupYearModelForm(forms.ModelForm):
         }
         fields = []
 
-    def __init__(self, category, *args, **kwargs):
-        self.category = category
+    def __init__(self, *args, **kwargs):
         self.parent = kwargs.pop("parent", None)
 
         super().__init__(*args, **kwargs)

@@ -30,14 +30,13 @@ from base.models.enums import education_group_categories
 
 
 class MiniTrainingModelForm(EducationGroupYearModelForm):
+    category = education_group_categories.MINI_TRAINING
+
     class Meta(EducationGroupYearModelForm.Meta):
         model = EducationGroupYear
         fields = ("acronym", "partial_acronym", "education_group_type", "title", "title_english", "credits", "active",
                   "main_teaching_campus", "academic_year", "remark", "remark_english", "min_credits", "max_credits",
                   "schedule_type", "administration_entity", "keywords")
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(education_group_categories.MINI_TRAINING, *args, **kwargs)
 
 
 class MiniTrainingForm(CommonBaseForm):

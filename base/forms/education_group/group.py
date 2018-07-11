@@ -28,13 +28,12 @@ from base.models.enums import education_group_categories
 
 
 class GroupModelForm(EducationGroupYearModelForm):
+    category = education_group_categories.GROUP
+
     class Meta(EducationGroupYearModelForm.Meta):
         fields = ("acronym", "partial_acronym", "education_group_type", "title", "title_english", "credits",
                   "main_teaching_campus", "academic_year", "remark", "remark_english", "min_credits", "max_credits",
                   "administration_entity")
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(education_group_categories.GROUP, *args, **kwargs)
 
 
 class GroupForm(CommonBaseForm):

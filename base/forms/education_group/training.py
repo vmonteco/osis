@@ -36,6 +36,7 @@ from reference.models.domain import Domain
 
 
 class TrainingEducationGroupYearForm(EducationGroupYearModelForm):
+    category = education_group_categories.TRAINING
 
     domains = AutoCompleteSelectMultipleField(
         'domains', required=False, help_text="", label=_('studies_domain')
@@ -58,7 +59,7 @@ class TrainingEducationGroupYearForm(EducationGroupYearModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        super().__init__(education_group_categories.TRAINING, *args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         self.fields["domains"].widget.attrs['placeholder'] = _('Enter text to search')
 
