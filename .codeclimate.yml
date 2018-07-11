@@ -8,10 +8,14 @@ checks:
       threshold: 8
   similar-code:
     config:
-      threshold: 40
+      languages:
+        python:
+          mass_threshold: 50
   identical-code:
     config:
-      threshold: 40
+      languages:
+        python:
+          mass_threshold: 50
 
 plugins:
   pep8:
