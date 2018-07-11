@@ -1,5 +1,11 @@
 function switchTreeVisibility() {
-    if (document.getElementById('collapse').style.display === "block") {
+    var newTreeVisibility = (sessionStorage.getItem('treeVisibility') === '0') ? '1' : '0';
+    sessionStorage.setItem('treeVisibility', newTreeVisibility);
+    showOrHideTree()
+}
+
+function showOrHideTree() {
+    if (sessionStorage.getItem('treeVisibility') === "0") {
         modifyPanelAttribute("none", "col-md-0", "col-md-12");
     } else {
         modifyPanelAttribute("block", "col-md-3", "col-md-9");
@@ -35,7 +41,6 @@ $(document).ready(function () {
 
     });
 
-    if ("0" === "0") {
-        switchTreeVisibility();
-    }
+    showOrHideTree();
+
 });
