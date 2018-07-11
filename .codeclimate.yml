@@ -16,6 +16,8 @@ plugins:
       languages:
         python:
           mass_threshold: 50
+  fixme:
+    enabled: true
 
 exclude_patterns:
 - "**/tests/"
