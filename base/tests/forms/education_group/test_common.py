@@ -72,6 +72,10 @@ class EducationGroupYearModelFormMixin(TestCase):
         cls.parent_education_group_year = EducationGroupYearFactory(academic_year=cls.academic_year)
         cls.entity_version = EntityVersionFactory(entity=cls.parent_education_group_year.administration_entity)
 
+    def _test_fields(self, form_class, fields):
+        form = form_class(parent=None)
+        self.assertCountEqual(tuple(form.fields.keys()), fields)
+
     def _test_init_and_disable_academic_year_field(self, form_class):
         form = form_class(parent=self.parent_education_group_year)
 

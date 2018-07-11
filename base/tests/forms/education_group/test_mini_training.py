@@ -41,9 +41,7 @@ class TestMiniTrainingModelForm(EducationGroupYearModelFormMixin):
         fields = ("acronym", "partial_acronym", "education_group_type", "title", "title_english", "credits",
                   "main_teaching_campus", "academic_year", "remark", "remark_english", "min_credits", "max_credits",
                   "administration_entity")
-
-        form = GroupModelForm(parent=None)
-        self.assertCountEqual(tuple(form.fields.keys()), fields)
+        self._test_fields(self.form_class, fields)
 
     def test_init_academic_year_field(self):
         self._test_init_and_disable_academic_year_field(self.form_class)
