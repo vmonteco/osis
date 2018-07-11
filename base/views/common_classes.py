@@ -30,6 +30,7 @@ from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.utils.encoding import force_text
 from django.utils.text import capfirst
+from django.utils.translation import ugettext_lazy as _
 from django.views.generic import DeleteView
 
 from base.views.common import display_success_messages
@@ -95,7 +96,7 @@ class DeleteViewWithDependencies(FlagMixin, RulesRequiredMixin, DeleteView):
 
     def delete(self, request, *args, **kwargs):
         result = super().delete(request, *args, **kwargs)
-        display_success_messages(request, self.success_message)
+        display_success_messages(request, _(self.success_message))
         return result
 
 
