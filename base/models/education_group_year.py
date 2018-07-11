@@ -62,7 +62,7 @@ class EducationGroupYear(models.Model):
 
     education_group_type = models.ForeignKey(
         'EducationGroupType',
-        blank=True, null=True,
+        blank=False, null=True,
         verbose_name=_("training_type")
     )
     active = models.CharField(
