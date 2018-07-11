@@ -72,7 +72,6 @@ class EducationGroupYearModelForm(forms.ModelForm):
 
         queryset = education_group_type.find_authorized_types(category=self.category, parent_type=parent_group_type)
         self.fields["education_group_type"].queryset = queryset
-        self.fields["education_group_type"].required = True
 
     def _init_and_disable_academic_year(self):
         if self.parent or self.instance.academic_year_id:
