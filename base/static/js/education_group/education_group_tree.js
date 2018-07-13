@@ -29,7 +29,32 @@ $(document).ready(function () {
         document.location.href = data.node.a_attr.href;
     });
 
-    $documentTree.jstree();
+    $documentTree.jstree({
+        "core" : {
+           "check_callback" : true
+        },
+        "plugins" : [ "contextmenu" ],
+        "contextmenu" : {
+            "select_node": false,
+            "items" : {
+              "select" : {
+                  "label" : gettext("Select"),
+                  "action" : function (obj) { alert('clic select') },
+                  "icon": "fa fa-check-square"
+              },
+              "attach" : {
+                 "label" : gettext("Attach"),
+                 "action" : function (obj) { alert('clic attach') },
+                  "icon": "fa fa-paperclip"
+              },
+              "detach" : {
+                 "label" : gettext("Detach"),
+                 "action" : function (obj) { alert('clic detach') },
+                  "icon": "fa fa-cut"
+              }
+            }
+        }
+    });
 
     $("#tree_open_all").click(function(){
         $documentTree.jstree("open_all");
