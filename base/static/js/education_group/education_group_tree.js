@@ -39,17 +39,29 @@ $(document).ready(function () {
             "items" : {
               "select" : {
                   "label" : gettext("Select"),
-                  "action" : function (obj) { alert('clic select') },
+                  "action" : function (data) {
+                    var inst = $.jstree.reference(data.reference),
+                        obj = inst.get_node(data.reference);
+                    alert('Select : ' + obj.li_attr.id)
+                  },
                   "icon": "fa fa-check-square"
               },
               "attach" : {
                  "label" : gettext("Attach"),
-                 "action" : function (obj) { alert('clic attach') },
+                 "action" : function (data) {
+                    var inst = $.jstree.reference(data.reference),
+                        obj = inst.get_node(data.reference);
+                    alert('Attach : ' + obj.li_attr.id)
+                  },
                   "icon": "fa fa-paperclip"
               },
               "detach" : {
                  "label" : gettext("Detach"),
-                 "action" : function (obj) { alert('clic detach') },
+                 "action" : function (data) {
+                    var inst = $.jstree.reference(data.reference),
+                        obj = inst.get_node(data.reference);
+                    alert('Detach : ' + obj.li_attr.id)
+                  },
                   "icon": "fa fa-cut"
               }
             }
