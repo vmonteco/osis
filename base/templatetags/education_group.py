@@ -34,13 +34,13 @@ register = template.Library()
 # TODO use inclusion tag
 li_template = """
 <li class="{}">
-    <a href="{}" data-toggle="tooltip" title="{}">{}</a>
+    <a href="{}" data-toggle="tooltip" id="{}" title="{}">{}</a>
 </li>
 """
 
 
 @register.simple_tag
-def li_with_deletion_perm(url, message, person, root=""):
+def li_with_deletion_perm(url, message, person, url_id="link_delete", root=""):
     permission_denied_message = ""
     try:
         result = is_eligible_to_delete_education_group(person, raise_exception=True)
@@ -54,5 +54,4 @@ def li_with_deletion_perm(url, message, person, root=""):
     else:
         li_class = "disabled"
         href = "#"
-
-    return mark_safe(li_template.format(li_class, href, permission_denied_message, message))
+    return mark_safe(li_template.format(li_class, href, url_id, permission_denied_message, message))
