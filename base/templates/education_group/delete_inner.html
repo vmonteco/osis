@@ -1,4 +1,3 @@
-{% extends "education_group/layout_detail.html" %}
 {% load bootstrap3 i18n %}
 {% comment "License" %}
 * OSIS stands for Open Student Information System. It's an application
@@ -23,9 +22,12 @@
 * at the root of the source code of this program.  If not,
 * see http://www.gnu.org/licenses/.
 {% endcomment %}
-
-{% block content %}
-
-    {% include "education_group/delete_inner.html" %}
-
-{% endblock %}
+<form method="post" id="form_delete_education_group" action="{{ request.path }}">
+    {% csrf_token %}
+    <p>{% blocktrans %}Are you sure you want to delete {{ education_group_year }}?{% endblocktrans %}</p>
+    <p>{% blocktrans %}It will delete also this following objects{% endblocktrans %}</p>
+    <ul>{{ deletable_objects|unordered_list }}</ul>
+    {% if not request.is_ajax %}
+        <input type="submit" value="{% trans "i_confirm" %}" class="btn btn-danger"/>
+    {% endif %}
+</form>
