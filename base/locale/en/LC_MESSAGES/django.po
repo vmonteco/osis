@@ -3203,3 +3203,7 @@ msgstr ""
 
 msgid "The education group has been deleted."
 msgstr ""
+
+msgid "education group session"
+msgstr "Session"
+
