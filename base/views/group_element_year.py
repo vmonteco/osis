@@ -23,7 +23,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.contrib.auth.decorators import login_required, permission_required, user_passes_test
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views.decorators.http import require_http_methods
@@ -43,8 +43,8 @@ def management(request, root_id, education_group_year_id, group_element_year_id)
     action_method = _get_action_method(request)
     action_method(request, group_element_year)
     # @Todo: Correct with new URL
-    success_url = reverse('education_group_content', kwargs={'education_group_year_id':education_group_year_id}) +\
-                  '?root={}'.format(root_id)
+    success_url = reverse('education_group_content',
+                          kwargs={'education_group_year_id':education_group_year_id}) + '?root={}'.format(root_id)
     return redirect(success_url)
 
 
