@@ -197,7 +197,7 @@ class EducationGroupYear(models.Model):
     )
     default_learning_unit_enrollment = models.BooleanField(
         default=False,
-       verbose_name=_('Default learning unit enrollment')
+        verbose_name=_('Default learning unit enrollment')
     )
 
     def __str__(self):
