@@ -26,7 +26,6 @@
 from unittest import mock
 
 from django.contrib.auth.models import Permission
-from django.core.exceptions import ViewDoesNotExist
 from django.http import HttpResponse
 from django.http import HttpResponseForbidden
 from django.http import HttpResponseNotFound
@@ -67,20 +66,20 @@ class TestDetatch(TestCase):
         self.assertRedirects(response, '/login/?next={}'.format(self.url))
 
     @override_flag('education_group_update', active=False)
-    def test_edit_case_flag_disabled(self):
+    def test_detatch_case_flag_disabled(self):
         response = self.client.post(self.url, self.post_valid_data)
         self.assertEqual(response.status_code, HttpResponseNotFound.status_code)
         self.assertTemplateUsed(response, "page_not_found.html")
 
     @mock.patch("base.views.education_groups.perms.can_change_education_group", side_effect=lambda user: False)
-    def test_down_case_user_not_have_access(self, mock_permission):
+    def test_detatch_case_user_not_have_access(self, mock_permission):
         response = self.client.post(self.url, self.post_valid_data)
         self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
         self.assertTemplateUsed(response, "access_denied.html")
 
     @mock.patch("base.models.group_element_year.GroupElementYear.delete")
     @mock.patch("base.business.education_groups.perms.is_eligible_to_change_education_group")
-    def test_up_case_success(self, mock_permission, mock_delete):
+    def test_detatch_case_success(self, mock_permission, mock_delete):
         mock_permission.return_value = True
         response = self.client.post(self.url, data=self.post_valid_data, follow=True)
         self.assertEqual(response.status_code, HttpResponse.status_code)
