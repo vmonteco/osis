@@ -17,10 +17,12 @@ class Migration(migrations.Migration):
             model_name='educationgroupyear',
             name='default_learning_unit_enrollment',
             field=models.BooleanField(default=False),
+            verbose_name='Weighting'
         ),
         migrations.AddField(
             model_name='educationgroupyear',
             name='weighting',
             field=models.BooleanField(default=False),
+            verbose_name='Default learning unit enrollment'
         )
     ]
