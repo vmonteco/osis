@@ -2,6 +2,7 @@
 {% load i18n %}
 {% load learning_unit %}
 {% load bootstrap3 %}
+{% load waffle_tags %}
 {% comment "License" %}
 * OSIS stands for Open Student Information System. It's an application
 * designed to manage the core business of higher education institutions,
@@ -33,19 +34,19 @@
 
         <div style="margin-top:10px;">
             {% if learning_units_with_errors %}
-                <div class="row">
-                    <div class="col-md-3">
-                        <button type="button" class="btn btn-default" style="margin-left:10px;"
-                                id="btn_modal_mail_educational_information_update_reminder"
-                                data-toggle="modal" data-target="#modal_mail_summary_reminder"
-                                {% if not formset %}disabled title='{% trans 'need_no_reminder' %}'{% endif %}>
-                            {% trans 'educational_information_update_reminder' %}
-                        </button>
+                {% flag "educational_information_mailing" %}
+                    <div class="row">
+                        <div class="col-md-3">
+                            <button type="button" class="btn btn-default" style="margin-left:10px;"
+                                    id="btn_modal_mail_educational_information_update_reminder"
+                                    data-toggle="modal" data-target="#modal_mail_summary_reminder"
+                                    {% if not formset %}disabled title='{% trans 'need_no_reminder' %}'{% endif %}>
+                                {% trans 'educational_information_update_reminder' %}
+                            </button>
+                        </div>
+                        <div class="col-md-8"></div>
                     </div>
-                    <div class="col-md-8">
-
-                    </div>
-                </div>
+                {% endflag %}
                 <br>
                 <strong style="margin-left:10px;color:grey;">
                     {{learning_units_with_errors|length}}
