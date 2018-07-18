@@ -76,3 +76,13 @@ msgstr ""
 
 msgid "We can't save this line because it (the offer or the line) does not exist on the server"
 msgstr ""
+
+msgid "Attach"
+msgstr ""
+
+msgid "Detach"
+msgstr ""
+
+msgid "Select"
+msgstr ""
+

@@ -29,6 +29,7 @@ from django.http import JsonResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
+from waffle.decorators import waffle_flag
 
 from base.business.learning_unit import get_learning_units_and_summary_status
 from base.business.learning_units.educational_information import get_responsible_and_learning_unit_yr_list
@@ -47,6 +48,7 @@ SUCCESS_MESSAGE = _('success_mail_reminder')
 
 
 @login_required
+@waffle_flag('educational_information_mailing')
 @permission_required('base.can_access_learningunit', raise_exception=True)
 def send_email_educational_information_needs_update(request):
     if request.is_ajax():
