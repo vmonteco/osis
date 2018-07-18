@@ -23,6 +23,8 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from unittest import mock
+
 from django.test import TestCase
 
 from attribution.business import summary_responsible
@@ -33,7 +35,9 @@ from base.tests.factories.academic_year import create_current_academic_year, Aca
 from base.tests.factories.entity_container_year import EntityContainerYearFactory
 from base.tests.factories.entity_manager import EntityManagerFactory
 from base.tests.factories.entity_version import EntityVersionFactory
+from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from base.tests.factories.person import PersonFactory
+from base.tests.factories.user import UserFactory
 
 
 class TestSearchAttributions(TestCase):
@@ -77,3 +81,24 @@ class TestSearchAttributions(TestCase):
         )
         self.assertIsInstance(result, list)
         self.assertEqual(len(result), 1)
+
+
+class TestGetAttributionsData(TestCase):
+    @mock.patch('attribution.business.summary_responsible.get_learning_unit_year_managed_by_user_from_id')
+    @mock.patch('attribution.models.attribution.find_all_responsible_by_learning_unit_year')
+    def test_get_attributions_data(self, mock_find_all_responsible, mock_get_learning_unit):
+        learning_unit_year = LearningUnitYearFactory()
+        mock_get_learning_unit.return_value = learning_unit_year
+        mock_find_all_responsible.return_value = []
+
+        expected_result = {
+            'learning_unit_year': learning_unit_year,
+            'attributions' : [],
+            'academic_year': learning_unit_year.academic_year
+        }
+        result = summary_responsible.get_attributions_data(
+            user=UserFactory(),
+            learning_unit_year_id=learning_unit_year.id
+        )
+        self.assertIsInstance(result, dict)
+        self.assertDictEqual(result, expected_result)
