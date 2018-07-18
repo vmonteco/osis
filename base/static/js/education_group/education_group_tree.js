@@ -1,15 +1,15 @@
-function showDiv() {
-    if (document.getElementById('collapse').style.display === "block") {
+function switchTreeVisibility() {
+    var newTreeVisibility = (sessionStorage.getItem('treeVisibility') === '0') ? '1' : '0';
+    sessionStorage.setItem('treeVisibility', newTreeVisibility);
+    showOrHideTree()
+}
+
+function showOrHideTree() {
+    if (sessionStorage.getItem('treeVisibility') === "0") {
         modifyPanelAttribute("none", "col-md-0", "col-md-12");
     } else {
         modifyPanelAttribute("block", "col-md-3", "col-md-9");
     }
-
-    document.getElementById('link_identification').href = switchUrlParameterTreeValue(document.getElementById('link_identification').href);
-    document.getElementById('link_diploma').href = switchUrlParameterTreeValue(document.getElementById('link_diploma').href);
-    document.getElementById('link_general_information').href = switchUrlParameterTreeValue(document.getElementById('link_general_information').href);
-    document.getElementById('link_administrative').href = switchUrlParameterTreeValue(document.getElementById('link_administrative').href);
-    document.getElementById('link_content').href = switchUrlParameterTreeValue(document.getElementById('link_content').href);
 }
 
 
@@ -17,26 +17,6 @@ function modifyPanelAttribute(collapse_style_display, panel_collapse_class, pane
     document.getElementById('collapse').style.display = collapse_style_display;
     document.getElementById('panel-collapse').className = panel_collapse_class;
     document.getElementById('panel-data').className = panel_data_class;
-}
-
-
-function switchUrlParameterTreeValue(currentUrlString){
-    var urlObject = new URL(currentUrlString);
-    var currentTreeValue = urlObject.searchParams.get("tree");
-    var newTreeValue = (currentTreeValue === '0') ? '1' : '0';
-    urlObject.searchParams.set("tree", newTreeValue);
-    return urlObject.toString();
-}
-
-
-function getUrlParameterValue(name, url) {
-    if (!url) url = window.location.href;
-    name = name.replace(/[\[\]]/g, "\\$&");
-    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
-        results = regex.exec(url);
-    if (!results) return null;
-    if (!results[2]) return '';
-    return decodeURIComponent(results[2].replace(/\+/g, " "));
 }
 
 
@@ -49,7 +29,44 @@ $(document).ready(function () {
         document.location.href = data.node.a_attr.href;
     });
 
-    $documentTree.jstree();
+    $documentTree.jstree({
+        "core" : {
+           "check_callback" : true
+        },
+        "plugins" : [ "contextmenu" ],
+        "contextmenu" : {
+            "select_node": false,
+            "items" : {
+              "select" : {
+                  "label" : gettext("Select"),
+                  "action" : function (data) {
+                    var inst = $.jstree.reference(data.reference),
+                        obj = inst.get_node(data.reference);
+                    alert('Select : ' + obj.li_attr.id)
+                  },
+                  "icon": "fa fa-check-square"
+              },
+              "attach" : {
+                 "label" : gettext("Attach"),
+                 "action" : function (data) {
+                    var inst = $.jstree.reference(data.reference),
+                        obj = inst.get_node(data.reference);
+                    alert('Attach : ' + obj.li_attr.id)
+                  },
+                  "icon": "fa fa-paperclip"
+              },
+              "detach" : {
+                 "label" : gettext("Detach"),
+                 "action" : function (data) {
+                    var inst = $.jstree.reference(data.reference),
+                        obj = inst.get_node(data.reference);
+                    alert('Detach : ' + obj.li_attr.id)
+                  },
+                  "icon": "fa fa-cut"
+              }
+            }
+        }
+    });
 
     $("#tree_open_all").click(function(){
         $documentTree.jstree("open_all");
@@ -61,7 +78,6 @@ $(document).ready(function () {
 
     });
 
-    if (getUrlParameterValue('tree') === "0") {
-        showDiv();
-    }
+    showOrHideTree();
+
 });

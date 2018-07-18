@@ -53,7 +53,6 @@
                                     <th>{% trans 'max_credits' %}</th>
                                     <th>{% trans 'mandatory' %}</th>
                                     <th>{% trans 'block' %}</th>
-                                    <th>{% trans 'current_order' %}</th>
                                     <th>{% trans 'sessions_derogation' %}</th>
                                 </tr>
                             </thead>
@@ -68,8 +67,10 @@
                                         <td>{{ element.credits_max | default_if_none:'-' }}</td>
                                         <td>{% if element.group_element.is_mandatory %}{% trans 'yes'%} {% else %}{% trans 'no' %}{% endif %}</td>
                                         <td>{{ element.block | default_if_none:'-' }}</td>
-                                        <td>{{ element.group_element.current_order | default_if_none:'-' }}</td>
                                         <td>{% if element.sessions_derogation %}{% trans element.sessions_derogation %}{% else %}-{% endif %}</td>
+                                        <td width="15%">
+                                             {% include "education_group/blocks/content_actions.html" %}
+                                        </td>
                                     </tr>
                                     <tr>
                                         <td colspan="10" style="border-top: none;">

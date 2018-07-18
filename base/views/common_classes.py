@@ -30,6 +30,7 @@ from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.utils.encoding import force_text
 from django.utils.text import capfirst
+from django.utils.translation import ugettext_lazy as _
 from django.views.generic import DeleteView
 
 from base.views.common import display_success_messages
@@ -62,15 +63,29 @@ class RulesRequiredMixin(UserPassesTestMixin):
             return False
 
 
-class DeleteViewWithDependencies(FlagMixin, RulesRequiredMixin, DeleteView):
-    collector = NestedObjects(using="default")
+class AjaxTemplateMixin(object):
 
+    def dispatch(self, request, *args, **kwargs):
+        if not hasattr(self, 'ajax_template_name'):
+            split = self.template_name.split('.html')
+            split[-1] = '_inner'
+            split.append('.html')
+            self.ajax_template_name = ''.join(split)
+        if request.is_ajax():
+            self.template_name = self.ajax_template_name
+        return super().dispatch(request, *args, **kwargs)
+
+
+class DeleteViewWithDependencies(FlagMixin, RulesRequiredMixin, AjaxTemplateMixin, DeleteView):
     success_message = "The objects are been deleted successfully"
     protected_template = None
 
+    collector = None
+
     def get(self, request, *args, **kwargs):
-        # Collect objects how will be deleted
-        self.collector.collect([self.get_object()])
+        self.collector = NestedObjects(using="default")
+
+        self.get_collect()
         self.post_collect()
 
         # If there is some protected objects, change the template
@@ -78,6 +93,10 @@ class DeleteViewWithDependencies(FlagMixin, RulesRequiredMixin, DeleteView):
             self.template_name = self.protected_template
 
         return super().get(request, *args, **kwargs)
+
+    def get_collect(self):
+        # Collect objects how will be deleted
+        self.collector.collect([self.get_object()])
 
     def post_collect(self):
         pass
@@ -90,7 +109,7 @@ class DeleteViewWithDependencies(FlagMixin, RulesRequiredMixin, DeleteView):
 
     def delete(self, request, *args, **kwargs):
         result = super().delete(request, *args, **kwargs)
-        display_success_messages(request, self.success_message)
+        display_success_messages(request, _(self.success_message))
         return result
 
 

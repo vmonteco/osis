@@ -3200,3 +3200,12 @@ msgstr ""
 
 msgid "unlock update for teacher"
 msgstr ""
+
+msgid "The education group has been deleted."
+msgstr ""
+
+msgid "The %(acronym)s has been moved"
+msgstr ""
+
+msgid "The %(acronym)s has been detatched"
+msgstr ""

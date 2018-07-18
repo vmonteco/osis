@@ -2070,7 +2070,7 @@ msgid "administration_entity"
 msgstr "Entité d'administration"
 
 msgid "management_entity"
-msgstr "Entité académique"
+msgstr "Entité de gestion"
 
 msgid "enrollment_enabled"
 msgstr "Inscriptible"
@@ -3202,3 +3202,12 @@ msgstr "bloquer la mise à jour pour l'enseignant"
 
 msgid "unlock update for teacher"
 msgstr "débloquer la mise à jour pour l'enseignant"
+
+msgid "The education group has been deleted."
+msgstr "L'organisation de formation a été supprimée."
+
+msgid "The %(acronym)s has been moved"
+msgstr "%(acronym)s a été déplacé"
+
+msgid "The %(acronym)s has been detatched"
+msgstr "%(acronym)s a été détaché"
