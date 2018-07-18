@@ -3212,5 +3212,14 @@ msgstr "%(acronym)s a été déplacé"
 msgid "The %(acronym)s has been detatched"
 msgstr "%(acronym)s a été détaché"
 
+msgid "Additional info"
+msgstr "Infos complémentaires"
+
+msgid "Weighting"
+msgstr "Pondération par crédit"
+
+msgid "Default learning unit enrollment"
+msgstr "Inscription par défaut aux cours"
+
 msgid "Session"
 msgstr "Session"
