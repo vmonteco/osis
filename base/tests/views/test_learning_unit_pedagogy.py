@@ -33,6 +33,7 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponseNotAllowed
 from django.http.response import HttpResponseBase, HttpResponseForbidden, HttpResponseRedirect
 from django.test import TestCase, RequestFactory
+from waffle.testutils import override_flag
 
 from attribution.tests.factories.attribution import AttributionFactory
 from base.business.learning_unit import CMS_LABEL_PEDAGOGY_FR_ONLY
@@ -156,6 +157,7 @@ class LearningUnitPedagogyTestCase(TestCase):
                                        learning_container_year=l_container_yr,
                                        academic_year=self.current_academic_year)
 
+    @override_flag('educational_information_mailing', active=True)
     def test_send_email_educational_information_needs_update_no_access(self):
         request_factory = RequestFactory()
         a_user = UserFactory()
