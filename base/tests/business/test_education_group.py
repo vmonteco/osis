@@ -137,7 +137,7 @@ class EducationGroupXlsTestCase(TestCase):
         self.academic_year = create_current_academic_year()
         self.education_group_type_group = EducationGroupTypeFactory(category=education_group_categories.GROUP)
         self.education_group_year_1 = EducationGroupYearFactory(academic_year=self.academic_year, acronym="PREMIER")
-        self.education_group_year_1.entity_management = EntityVersionFactory()
+        self.education_group_year_1.management_entity_version = EntityVersionFactory()
         self.education_group_year_2 = EducationGroupYearFactory(academic_year=self.academic_year, acronym="DEUXIEME")
         self.education_group_year_2.entity_management = EntityVersionFactory()
         self.user = UserFactory()
