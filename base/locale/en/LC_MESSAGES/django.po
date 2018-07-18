@@ -3210,5 +3210,5 @@ msgstr ""
 msgid "The %(acronym)s has been detatched"
 msgstr ""
 
-msgid "education group session"
+msgid "Session"
 msgstr "Session"
