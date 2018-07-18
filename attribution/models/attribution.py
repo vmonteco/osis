@@ -157,8 +157,10 @@ def filter_attributions(attributions_queryset, entities, tutor, responsible):
     return queryset.select_related('learning_unit_year').distinct("learning_unit_year")
 
 
-def search_by_learning_unit_this_year(code, specific_title):
-    queryset = Attribution.objects.filter(learning_unit_year__academic_year=current_academic_year())
+def search_by_learning_unit_this_year(code, specific_title, academic_year=None):
+    if academic_year is None:
+        academic_year = current_academic_year()
+    queryset = Attribution.objects.filter(learning_unit_year__academic_year=academic_year)
     if specific_title:
         queryset = queryset.filter(learning_unit_year__specific_title__icontains=specific_title)
     if code:
