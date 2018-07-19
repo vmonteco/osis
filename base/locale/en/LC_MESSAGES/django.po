@@ -3219,3 +3219,5 @@ msgstr ""
 msgid "Default learning unit enrollment"
 msgstr ""
 
+msgid "Session"
+msgstr "Session"
