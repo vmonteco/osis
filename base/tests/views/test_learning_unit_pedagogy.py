@@ -31,7 +31,7 @@ from django.contrib.auth.models import Group
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseNotAllowed
-from django.http.response import HttpResponseBase, HttpResponseForbidden, HttpResponseRedirect
+from django.http.response import HttpResponseForbidden, HttpResponseRedirect
 from django.test import TestCase, RequestFactory
 from waffle.testutils import override_flag
 
@@ -43,7 +43,7 @@ from base.models.enums import entity_container_year_link_type
 from base.models.enums import learning_container_year_types, organization_type
 from base.models.enums.learning_unit_year_subtypes import FULL
 from base.tests.factories.academic_calendar import AcademicCalendarFactory
-from base.tests.factories.academic_year import create_current_academic_year
+from base.tests.factories.academic_year import create_current_academic_year, AcademicYearFactory
 from base.tests.factories.business.learning_units import GenerateAcademicYear
 from base.tests.factories.entity import EntityFactory
 from base.tests.factories.entity_calendar import EntityCalendarFactory
@@ -71,6 +71,7 @@ class LearningUnitPedagogyTestCase(TestCase):
         self.current_academic_year = create_current_academic_year()
         self.previous_academic_year = \
             GenerateAcademicYear(self.current_academic_year.year-1, self.current_academic_year.year-1).academic_years[0]
+        self.next_academic_year = AcademicYearFactory(year=self.current_academic_year.year + 1)
         self.organization = OrganizationFactory(type=organization_type.MAIN)
         self.country = CountryFactory()
         self.url = reverse(learning_units_summary_list)
