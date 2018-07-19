@@ -34,7 +34,7 @@ from attribution.tests.models import test_attribution
 from base.models.entity_manager import EntityManager
 
 from base.tests.factories import structure
-from base.tests.factories.academic_year import AcademicYearFactory
+from base.tests.factories.academic_year import AcademicYearFactory, create_current_academic_year
 from base.tests.factories.business.entities import create_entities_hierarchy
 from base.tests.factories.business.learning_units import create_learning_unit_with_context
 from base.tests.factories.entity_manager import EntityManagerFactory
@@ -50,8 +50,11 @@ class SummaryResponsibleViewTestCase(TestCase):
         self.person = PersonFactory()
         self.user = self.person.user
         self.tutor = TutorFactory(person=self.person)
-        self.academic_year = AcademicYearFactory(year=datetime.date.today().year,
-                                                 start_date=datetime.date.today())
+        self.current_academic_year = create_current_academic_year()
+        self.next_academic_year = AcademicYearFactory(
+            year = self.current_academic_year.year + 1
+        )
+
         # Old structure model [To remove]
         self.structure = structure.StructureFactory()
         self.structure_children = structure.StructureFactory(part_of=self.structure)
@@ -69,15 +72,17 @@ class SummaryResponsibleViewTestCase(TestCase):
 
         # Create two learning_unit_year with context (Container + EntityContainerYear)
         self.learning_unit_year = create_learning_unit_with_context(
-            academic_year=self.academic_year,
+            academic_year=self.next_academic_year,
             structure=self.structure,
             entity=self.child_one_entity,
-            acronym="LBIR1210")
+            acronym="LBIR1210"
+        )
         self.learning_unit_year_children = create_learning_unit_with_context(
-            academic_year=self.academic_year,
+            academic_year=self.next_academic_year,
             structure=self.structure_children,
             entity=self.child_two_entity,
-            acronym="LBIR1211")
+            acronym="LBIR1211"
+        )
 
         self.attribution = test_attribution.create_attribution(
             tutor=self.tutor,

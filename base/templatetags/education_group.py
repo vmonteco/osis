@@ -35,30 +35,30 @@ register = template.Library()
 # TODO use inclusion tag
 li_template = """
 <li class="{}">
-    <a href="{}" data-toggle="tooltip" title="{}">{}</a>
+    <a href="{}" data-toggle="tooltip" id="{}" title="{}">{}</a>
 </li>
 """
 
 
 @register.simple_tag
-def li_with_deletion_perm(url, message, person, root=""):
+def li_with_deletion_perm(url, message, person, url_id="link_delete", root=""):
     permission = is_eligible_to_delete_education_group
-    return li_with_permission(permission, url, message, person, root)
+    return li_with_permission(permission, url, message, person, url_id, root)
 
 
 @register.simple_tag
-def li_with_update_perm(url, message, person, root=""):
+def li_with_update_perm(url, message, person, url_id="link_update", root=""):
     permission = is_eligible_to_change_education_group
-    return li_with_permission(permission, url, message, person, root)
+    return li_with_permission(permission, url, message, person, url_id, root)
 
 
 @register.simple_tag
-def li_with_create_perm(url, message, person, root=""):
+def li_with_create_perm(url, message, person, url_id="link_create", root=""):
     permission = is_eligible_to_add_education_group
-    return li_with_permission(permission, url, message, person, root)
+    return li_with_permission(permission, url, message, person, url_id, root)
 
 
-def li_with_permission(permission, url, message, person, root=""):
+def li_with_permission(permission, url, message, person, url_id, root=""):
     permission_denied_message = ""
     try:
         result = permission(person, raise_exception=True)
@@ -72,5 +72,4 @@ def li_with_permission(permission, url, message, person, root=""):
     else:
         li_class = "disabled"
         href = "#"
-
-    return mark_safe(li_template.format(li_class, href, permission_denied_message, message))
+    return mark_safe(li_template.format(li_class, href, url_id, permission_denied_message, message))

@@ -45,9 +45,17 @@
 
                 {% flag "education_group_delete" %}
                     {% url 'delete_education_group' education_group_year_id=education_group_year.id as delete_url %}
-                    {% li_with_deletion_perm delete_url _('Delete') person root=request.GET.root %}
+                    {% li_with_deletion_perm "#" _('Delete') person root=request.GET.root %}
                 {% endflag %}
             </ul>
         </div>
     {% endif %}
 {% endif %}
+
+
+{% with id="link_delete" %}
+    {% if dropdirection == "dropup" %}
+        {#  Should be loaded once #}
+        {% include "blocks/modal/modal_ajax.html" with modal_url=delete_url click_id="link_delete" form_id="form_delete_education_group" %}
+    {% endif %}
+{% endwith %}

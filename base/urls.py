@@ -40,6 +40,7 @@ import base.views.learning_units.proposal.delete
 import base.views.learning_units.search
 import base.views.learning_units.update
 from attribution.views import attribution, tutor_application
+from base.views import group_element_year
 from base.views import learning_achievement, search
 from base.views import learning_unit, offer, common, institution, organization, academic_calendar, \
     my_osis, entity, student, education_group
@@ -279,6 +280,15 @@ urlpatterns = [
                 name='education_group_year_admission_condition_get_line'),
             url(r'^delete/$', DeleteGroupEducationYearView.as_view(), name="delete_education_group"),
         ])),
+        url(r'^(?P<root_id>[0-9]+)/', include([
+            url(r'^(?P<education_group_year_id>[0-9]+)/', include([
+                url(r'^contents/', include([
+                    url(r'^(?P<group_element_year_id>[0-9]+)/', include([
+                        url(r'^management/', group_element_year.management, name="group_element_year_management"),
+                    ]))
+                ]))
+            ]))
+        ]))
     ])),
 
     url(r'^offer_year_calendars/([0-9]+)/$', offer.offer_year_calendar_read, name='offer_year_calendar_read'),
