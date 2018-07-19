@@ -37,15 +37,15 @@
             name="action" value="down" {% if forloop.last %}disabled{% endif %}>
         <i class="fa fa-arrow-down"></i>
     </button>
-    <button type="submit" title="{% trans 'detatch' %}"  class="btn btn-default btn-sm"
-            id="btn_operation_detatch_{{ element.group_element.id }}"
-            name="action" value="detatch">
+    <button type="submit" title="{% trans 'detach' %}" class="btn btn-default btn-sm"
+            id="btn_operation_detach_{{ element.group_element.id }}"
+            name="action" value="detach">
         <i class="fa fa-close"></i>
     </button>
     <!-- Should be enable when feature implemented -->
-    <button type="submit" title="{% trans 'edit' %}"  class="btn btn-default btn-sm"
-        id="btn_operation_edit_{{ element.group_element.id }}"
-        name="action" value="edit" disabled>
+    <button type="submit" title="{% trans 'edit' %}" class="btn btn-default btn-sm"
+            id="btn_operation_edit_{{ element.group_element.id }}"
+            name="action" value="edit">
         <i class="fa fa-edit"></i>
     </button>
 </form>

@@ -27,8 +27,8 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.exceptions import ViewDoesNotExist
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
-from django.views.decorators.http import require_http_methods
 from django.utils.translation import ugettext_lazy as _
+from django.views.decorators.http import require_http_methods
 from waffle.decorators import waffle_flag
 
 from base.models.group_element_year import GroupElementYear
@@ -66,8 +66,8 @@ def _down(request, group_element_year):
 
 
 @require_http_methods(['POST'])
-def _detatch(request, group_element_year):
-    success_msg = _("The %(acronym)s has been detatched") % {'acronym': group_element_year.child}
+def _detach(request, group_element_year):
+    success_msg = _("The %(acronym)s has been detached") % {'acronym': group_element_year.child}
     group_element_year.delete()
     display_success_messages(request, success_msg)
 
@@ -81,7 +81,7 @@ def _get_action_method(request):
     AVAILABLE_ACTIONS = {
         'up': _up,
         'down': _down,
-        'detatch': _detatch,
+        'detach': _detach,
         'edit': _edit
     }
     data = getattr(request, request.method, {})

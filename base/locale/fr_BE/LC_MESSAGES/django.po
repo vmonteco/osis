@@ -3209,7 +3209,7 @@ msgstr "L'organisation de formation a été supprimée."
 msgid "The %(acronym)s has been moved"
 msgstr "%(acronym)s a été déplacé"
 
-msgid "The %(acronym)s has been detatched"
+msgid "The %(acronym)s has been detached"
 msgstr "%(acronym)s a été détaché"
 
 msgid "Additional info"

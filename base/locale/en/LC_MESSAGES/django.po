@@ -3207,7 +3207,7 @@ msgstr ""
 msgid "The %(acronym)s has been moved"
 msgstr ""
 
-msgid "The %(acronym)s has been detatched"
+msgid "The %(acronym)s has been detached"
 msgstr ""
 
 msgid "Additional info"
