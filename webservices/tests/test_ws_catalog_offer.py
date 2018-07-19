@@ -200,7 +200,7 @@ class WsCatalogOfferPostTestCase(TestCase, Helper):
 
                 title_to_test = education_group_year.title if language == 'fr' else education_group_year.title_english
                 self.assertDictEqual(response_json, {
-                    'acronym': education_group_year.acronym,
+                    'acronym': education_group_year.acronym.upper(),
                     'language': language,
                     'title': title_to_test,
                     'sections': [],
@@ -246,7 +246,7 @@ class WsCatalogOfferPostTestCase(TestCase, Helper):
                 title_to_test = education_group_year.title if language == 'fr' else education_group_year.title_english
 
                 self.assertDictEqual(response_json, {
-                    'acronym': education_group_year.acronym,
+                    'acronym': education_group_year.acronym.upper(),
                     'language': language,
                     'title': title_to_test,
                     'year': education_group_year.academic_year.year,
@@ -310,7 +310,7 @@ class WsCatalogOfferPostTestCase(TestCase, Helper):
                 response_sections = convert_sections_list_of_dict_to_dict(sections)
 
                 self.assertDictEqual(response_json, {
-                    'acronym': education_group_year.acronym,
+                    'acronym': education_group_year.acronym.upper(),
                     'language': language,
                     'title': title_to_test,
                     'year': education_group_year.academic_year.year,
