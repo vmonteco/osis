@@ -44,6 +44,7 @@ from base.models.enums import learning_container_year_types, organization_type
 from base.models.enums.learning_unit_year_subtypes import FULL
 from base.tests.factories.academic_calendar import AcademicCalendarFactory
 from base.tests.factories.academic_year import create_current_academic_year
+from base.tests.factories.business.learning_units import GenerateAcademicYear
 from base.tests.factories.entity import EntityFactory
 from base.tests.factories.entity_calendar import EntityCalendarFactory
 from base.tests.factories.entity_container_year import EntityContainerYearFactory
@@ -68,6 +69,8 @@ from reference.tests.factories.country import CountryFactory
 class LearningUnitPedagogyTestCase(TestCase):
     def setUp(self):
         self.current_academic_year = create_current_academic_year()
+        self.previous_academic_year = \
+            GenerateAcademicYear(self.current_academic_year.year-1, self.current_academic_year.year-1).academic_years[0]
         self.organization = OrganizationFactory(type=organization_type.MAIN)
         self.country = CountryFactory()
         self.url = reverse(learning_units_summary_list)
@@ -138,9 +141,9 @@ class LearningUnitPedagogyTestCase(TestCase):
         self.assertTrue(context['is_faculty_manager'])
 
     def _create_entity_calendar(self, an_entity):
-        an_academic_calendar = AcademicCalendarFactory(academic_year=self.current_academic_year,
-                                                       start_date=self.current_academic_year.start_date,
-                                                       end_date=self.current_academic_year.end_date,
+        an_academic_calendar = AcademicCalendarFactory(academic_year=self.previous_academic_year,
+                                                       start_date=self.previous_academic_year.start_date,
+                                                       end_date=self.previous_academic_year.end_date,
                                                        reference=academic_calendar_type.SUMMARY_COURSE_SUBMISSION)
         EntityCalendarFactory(entity=an_entity, academic_calendar=an_academic_calendar,
                               start_date=an_academic_calendar.start_date,
