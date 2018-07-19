@@ -75,10 +75,7 @@ class AcademicYear(SerializableModel):
         return AcademicYear.objects.get(year=self.year + 1)
 
     def past(self):
-        try:
-            return AcademicYear.objects.get(year=self.year - 1)
-        except AcademicYear.DoesNotExist:
-            return None
+        return AcademicYear.objects.get(year=self.year - 1)
 
 
 def find_academic_year_by_id(academic_year_id):
