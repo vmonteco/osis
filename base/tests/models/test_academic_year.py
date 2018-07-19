@@ -119,3 +119,16 @@ class AcademicYearNextPropertyTest(TestCase):
     def test_next_property_case_doesnt_have_next(self):
         with self.assertRaises(AcademicYear.DoesNotExist):
             self.next_ac.next()
+
+
+class AcademicYearPastPropertyTest(TestCase):
+    def setUp(self):
+        self.current_ac = create_current_academic_year()
+        self.prev_ac = AcademicYearFactory(year=self.current_ac.year - 1)
+
+    def test_next_property_case_have_next(self):
+        self.assertEqual(self.current_ac.past(), self.prev_ac)
+
+    def test_next_property_case_doesnt_have_next(self):
+        with self.assertRaises(AcademicYear.DoesNotExist):
+            self.prev_ac.past()
