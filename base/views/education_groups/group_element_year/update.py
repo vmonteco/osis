@@ -28,6 +28,7 @@ from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
+from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_http_methods
 from django.views.generic import UpdateView
@@ -88,6 +89,7 @@ def _get_action_method(request):
     return AVAILABLE_ACTIONS[action]
 
 
+@method_decorator(login_required, name='dispatch')
 class UpdateCommentGroupElementYearView(FlagMixin, UserPassesTestMixin,
                                         SuccessMessageMixin, AjaxTemplateMixin, UpdateView):
     # FlagMixin
