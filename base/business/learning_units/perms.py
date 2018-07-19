@@ -122,9 +122,9 @@ def is_eligible_to_consolidate_proposal(proposal, person):
 
 def can_edit_summary_locked_field(learning_unit_year, person):
     flag = Flag.get('educational_information_block_action')
-    return flag.is_active_for_user(person.user) and  \
-           person.is_faculty_manager() and \
-           person.is_linked_to_entity_in_charge_of_learning_unit_year(learning_unit_year)
+    return flag.is_active_for_user(person.user) and \
+        person.is_faculty_manager() and \
+        person.is_linked_to_entity_in_charge_of_learning_unit_year(learning_unit_year)
 
 
 def can_update_learning_achievement(learning_unit_year, person):
