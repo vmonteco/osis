@@ -31,8 +31,9 @@ from django.contrib.auth.models import Group
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseNotAllowed
-from django.http.response import HttpResponseBase, HttpResponseForbidden, HttpResponseRedirect
+from django.http.response import HttpResponseForbidden, HttpResponseRedirect
 from django.test import TestCase, RequestFactory
+from waffle.testutils import override_flag
 
 from attribution.tests.factories.attribution import AttributionFactory
 from base.business.learning_unit import CMS_LABEL_PEDAGOGY_FR_ONLY
@@ -42,7 +43,7 @@ from base.models.enums import entity_container_year_link_type
 from base.models.enums import learning_container_year_types, organization_type
 from base.models.enums.learning_unit_year_subtypes import FULL
 from base.tests.factories.academic_calendar import AcademicCalendarFactory
-from base.tests.factories.academic_year import create_current_academic_year
+from base.tests.factories.academic_year import create_current_academic_year, AcademicYearFactory
 from base.tests.factories.entity import EntityFactory
 from base.tests.factories.entity_calendar import EntityCalendarFactory
 from base.tests.factories.entity_container_year import EntityContainerYearFactory
@@ -67,6 +68,7 @@ from reference.tests.factories.country import CountryFactory
 class LearningUnitPedagogyTestCase(TestCase):
     def setUp(self):
         self.current_academic_year = create_current_academic_year()
+        self.next_academic_year = AcademicYearFactory(year=self.current_academic_year.year + 1)
         self.organization = OrganizationFactory(type=organization_type.MAIN)
         self.country = CountryFactory()
         self.url = reverse(learning_units_summary_list)
@@ -156,6 +158,7 @@ class LearningUnitPedagogyTestCase(TestCase):
                                        learning_container_year=l_container_yr,
                                        academic_year=self.current_academic_year)
 
+    @override_flag('educational_information_mailing', active=True)
     def test_send_email_educational_information_needs_update_no_access(self):
         request_factory = RequestFactory()
         a_user = UserFactory()

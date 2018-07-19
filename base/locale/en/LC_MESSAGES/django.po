@@ -3209,3 +3209,15 @@ msgstr ""
 
 msgid "The %(acronym)s has been detatched"
 msgstr ""
+
+msgid "Additional info"
+msgstr ""
+
+msgid "Weighting"
+msgstr ""
+
+msgid "Default learning unit enrollment"
+msgstr ""
+
+msgid "Session"
+msgstr "Session"
