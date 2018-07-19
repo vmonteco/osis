@@ -28,6 +28,7 @@ import itertools
 from django.db import models, IntegrityError
 from django.db.models import Q
 from django.utils.functional import cached_property
+from django.utils.translation import ugettext_lazy as _
 from ordered_model.models import OrderedModel
 
 from base.models import education_group_type, education_group_year
@@ -83,8 +84,18 @@ class GroupElementYear(OrderedModel):
     is_mandatory = models.BooleanField(default=False)
     block = models.CharField(max_length=7, blank=True, null=True)
     minor_access = models.BooleanField(default=False)
-    comment = models.CharField(max_length=500, blank=True, null=True)
-    comment_english = models.CharField(max_length=500, blank=True, null=True)
+
+    comment = models.TextField(
+        max_length=500,
+        blank=True,
+        verbose_name=_("comment"),
+    )
+    comment_english = models.TextField(
+        max_length=500,
+        blank=True,
+        verbose_name=_("english comment"),
+    )
+
     own_comment = models.CharField(max_length=500, blank=True, null=True)
 
     sessions_derogation = models.CharField(

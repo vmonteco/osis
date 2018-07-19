@@ -42,13 +42,13 @@
             name="action" value="detach">
         <i class="fa fa-close"></i>
     </button>
-
-    {% with "btn_operation_edit_"|addstr:element.group_element.id as id_edit %}
-        <a title="{% trans 'edit' %}" class="btn btn-default btn-sm" id="{{ id_edit }}" name="action" value="edit">
-            <i class="fa fa-edit"></i>
-        </a>
-        {% url 'group_element_year_management_comment' root_id=parent.id education_group_year_id=education_group_year.id group_element_year_id=element.group_element.id as update_comment_url %}
-        {% include "blocks/modal/modal_ajax.html" with modal_url=update_comment_url click_id=id_edit form_id="form_delete_education_group" %}
-    {% endwith %}
 </form>
+
+{% with "btn_operation_edit_"|addstr:element.group_element.id as id_edit %}
+    <a title="{% trans 'edit' %}" class="btn btn-default btn-sm" id="{{ id_edit }}" name="action" value="edit">
+        <i class="fa fa-edit"></i>
+    </a>
+    {% url 'group_element_year_management_comment' root_id=parent.id education_group_year_id=education_group_year.id group_element_year_id=element.group_element.id as update_comment_url %}
+    {% include "blocks/modal/modal_ajax.html" with modal_url=update_comment_url click_id=id_edit form_id="form_comment_update" %}
+{% endwith %}
 

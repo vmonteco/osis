@@ -34,6 +34,7 @@ from waffle.decorators import waffle_flag
 
 from base.models.group_element_year import GroupElementYear
 from base.views.common import display_success_messages
+from base.views.common_classes import AjaxTemplateMixin
 from base.views.education_groups import perms
 
 
@@ -92,5 +93,16 @@ def _get_action_method(request):
     return AVAILABLE_ACTIONS[action]
 
 
-class UpdateCommentGroupElementYearView(UpdateView):
-    object = GroupElementYear
+class UpdateCommentGroupElementYearView(AjaxTemplateMixin, UpdateView):
+    model = GroupElementYear
+    context_object_name = "group_element_year"
+    pk_url_kwarg = "group_element_year_id"
+
+    fields = ["comment", "comment_english"]
+    template_name = "education_group/group_element_year_comment.html"
+
+    def get_context_data(self, **kwargs):
+
+    def get_success_url(self):
+        print(self)
+        return reverse("education_group_content")
