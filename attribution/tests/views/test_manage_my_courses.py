@@ -33,6 +33,7 @@ from django.test import RequestFactory
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
+from waffle.testutils import override_flag
 
 from attribution.tests.factories.attribution import AttributionFactory
 from attribution.views.manage_my_courses import list_my_attributions_summary_editable, view_educational_information
@@ -103,6 +104,7 @@ class ManageMyCoursesViewTestCase(TestCase):
             self.assertEqual(luy.academic_year.year, self.current_ac_year.year + 1)
 
 
+@override_flag('educational_information_block_action', active=True)
 class TestViewEducationalInformation(TestCase):
     @classmethod
     def setUpTestData(cls):
