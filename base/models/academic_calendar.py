@@ -167,3 +167,14 @@ def find_dates_for_current_academic_year(reference):
             values("start_date", "end_date").get()
     except AcademicCalendar.DoesNotExist:
         return {}
+
+
+def is_academic_calendar_has_started(academic_year, reference, date=None):
+    if date is None:
+        date = timezone.now()
+
+    return AcademicCalendar.objects.filter(
+            academic_year=academic_year,
+            reference=reference,
+            start_date__lte=date,
+    ).exists()
