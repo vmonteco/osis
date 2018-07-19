@@ -39,21 +39,20 @@ import base.views.learning_units.proposal.delete
 import base.views.learning_units.search
 import base.views.learning_units.update
 from attribution.views import attribution, tutor_application
-from base.views import group_element_year
-from base.views import learning_achievement, search
+from base.views import learning_achievement, search, education_groups
 from base.views import learning_unit, offer, common, institution, organization, academic_calendar, \
     my_osis, entity, student, education_group
 from base.views import teaching_material
 from base.views.education_groups.delete import DeleteGroupEducationYearView
+from base.views.education_groups.group_element_year import update
 from base.views.education_groups.update import update_education_group
 from base.views.learning_units.external import create as create_external
 from base.views.learning_units.external.search import filter_cities_by_country, filter_campus_by_city
 from base.views.learning_units.pedagogy.read import learning_unit_pedagogy
-from base.views.learning_units.pedagogy.update import learning_unit_pedagogy_edit, update_mobility_modality,\
+from base.views.learning_units.pedagogy.update import learning_unit_pedagogy_edit, update_mobility_modality, \
     toggle_summary_locked
 from base.views.learning_units.proposal import create, update
 from base.views.learning_units.update import update_learning_unit, learning_unit_edition_end_date
-
 
 urlpatterns = [
     url(r'^$', common.home, name='home'),
@@ -282,7 +281,16 @@ urlpatterns = [
             url(r'^(?P<education_group_year_id>[0-9]+)/', include([
                 url(r'^contents/', include([
                     url(r'^(?P<group_element_year_id>[0-9]+)/', include([
-                        url(r'^management/', group_element_year.management, name="group_element_year_management"),
+                        url(
+                            r'^management/',
+                            education_groups.group_element_year.update.management,
+                            name="group_element_year_management"
+                        ),
+                        url(
+                            r'^comment/$',
+                            education_groups.group_element_year.update.UpdateCommentGroupElementYearView.as_view(),
+                            name="group_element_year_management_comment"
+                        )
                     ]))
                 ]))
             ]))
