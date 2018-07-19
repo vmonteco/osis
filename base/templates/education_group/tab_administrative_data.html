@@ -52,9 +52,9 @@
                                     <thead>
                                         <tr>
                                             <td></td>
-                                            <td><label>{% trans 'session_title' %} 1</label></td>
-                                            <td><label>{% trans 'session_title' %} 2</label></td>
-                                            <td><label>{% trans 'session_title' %} 3</label></td>
+                                            <td><label>{% trans 'Session' %} 1</label></td>
+                                            <td><label>{% trans 'Session' %} 2</label></td>
+                                            <td><label>{% trans 'Session' %} 3</label></td>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -125,6 +125,30 @@
                                     </tbody>
                                 </table>
                                 <a class="btn btn-primary pull-right {% if not can_edit_administrative_data %} disabled {% endif %}" href="{% url 'education_group_edit_administrative' education_group_year.id %}" >{% trans "edit" %}</a>
+                            </div>
+                        </div>
+                        <br>
+                        <div class="panel panel-default">
+                            <div class="panel-heading"> <label>{% trans 'Additional info'%}</label></div>
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label>{% trans 'Weighting' %}</label><br>
+                                        {% if education_group_year.weighting %}
+                                            {% trans 'yes' %}
+                                        {% else %}
+                                            {% trans 'no' %}
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label>{% trans 'Default learning unit enrollment' %}</label><br>
+                                        {% if education_group_year.default_learning_unit_enrollment %}
+                                            {% trans 'yes' %}
+                                        {% else %}
+                                            {% trans 'no' %}
+                                        {% endif %}
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <br>

@@ -3210,11 +3210,23 @@ msgstr ""
 msgid "The %(acronym)s has been detatched"
 msgstr ""
 
-msgid "attach"
+msgid "Additional info"
+msgstr ""
+
+msgid "Weighting"
+msgstr ""
+
+msgid "Default learning unit enrollment"
+msgstr ""
+
+msgid "Session"
+msgstr "Session"
+
+msgid "Attach"
 msgstr "Attach"
 
-msgid "detach"
+msgid "Detach"
 msgstr "Detach"
 
-msgid "move"
+msgid "Move"
 msgstr "Move"

@@ -191,6 +191,15 @@ class EducationGroupYear(models.Model):
         related_name='administration_entity'
     )
 
+    weighting = models.BooleanField(
+        default=False,
+        verbose_name=_('Weighting')
+    )
+    default_learning_unit_enrollment = models.BooleanField(
+        default=False,
+        verbose_name=_('Default learning unit enrollment')
+    )
+
     def __str__(self):
         return u"%s - %s" % (self.academic_year, self.acronym)
 
