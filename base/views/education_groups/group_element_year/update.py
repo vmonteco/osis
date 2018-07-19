@@ -110,7 +110,7 @@ class UpdateCommentGroupElementYearView(FlagMixin, UserPassesTestMixin,
 
     # SuccessMessageMixin
     def get_success_message(self, cleaned_data):
-        return _("The comment of %(acronym)s has been updated") % {'acronym': self.object.child}
+        return _("The comments of %(acronym)s has been updated") % {'acronym': self.object.child}
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

@@ -87,12 +87,12 @@ class GroupElementYear(OrderedModel):
 
     comment = models.TextField(
         max_length=500,
-        blank=True,
+        blank=True, null=True,
         verbose_name=_("comment"),
     )
     comment_english = models.TextField(
         max_length=500,
-        blank=True,
+        blank=True, null=True,
         verbose_name=_("english comment"),
     )
 

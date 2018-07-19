@@ -2915,6 +2915,15 @@ msgstr "Externe"
 msgid "comment_title"
 msgstr "Commentaire"
 
+msgid "comment"
+msgstr "commentaire"
+
+msgid "english comment"
+msgstr "commentaire anglais"
+
+msgid "The comments of %(acronym)s has been updated"
+msgstr "Les commentaires de %(acronym)s ont été mis à jour"
+
 msgid "requesting_entity"
 msgstr "Entité demandeuse"
 
