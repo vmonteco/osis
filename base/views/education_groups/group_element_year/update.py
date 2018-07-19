@@ -24,7 +24,8 @@
 #
 ##############################################################################
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.core.exceptions import ViewDoesNotExist
+from django.contrib.auth.mixins import UserPassesTestMixin
+from django.contrib.messages.views import SuccessMessageMixin
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
@@ -34,7 +35,7 @@ from waffle.decorators import waffle_flag
 
 from base.models.group_element_year import GroupElementYear
 from base.views.common import display_success_messages
-from base.views.common_classes import AjaxTemplateMixin
+from base.views.common_classes import AjaxTemplateMixin, FlagMixin
 from base.views.education_groups import perms
 
 
@@ -74,17 +75,11 @@ def _detach(request, group_element_year):
     display_success_messages(request, success_msg)
 
 
-@require_http_methods(['GET', 'POST'])
-def _edit(request, group_element_year):
-    raise ViewDoesNotExist
-
-
 def _get_action_method(request):
     AVAILABLE_ACTIONS = {
         'up': _up,
         'down': _down,
         'detach': _detach,
-        'edit': _edit
     }
     data = getattr(request, request.method, {})
     action = data.get('action')
@@ -93,16 +88,32 @@ def _get_action_method(request):
     return AVAILABLE_ACTIONS[action]
 
 
-class UpdateCommentGroupElementYearView(AjaxTemplateMixin, UpdateView):
+class UpdateCommentGroupElementYearView(FlagMixin, UserPassesTestMixin,
+                                        SuccessMessageMixin, AjaxTemplateMixin, UpdateView):
+    # FlagMixin
+    flag = "education_group_update"
+
+    # UpdateView
     model = GroupElementYear
     context_object_name = "group_element_year"
     pk_url_kwarg = "group_element_year_id"
-
     fields = ["comment", "comment_english"]
     template_name = "education_group/group_element_year_comment.html"
 
+    # UserPassesTestMixin
+    raise_exception = True
+
+    def test_func(self):
+        return perms.can_change_education_group(self.request.user)
+
+    # SuccessMessageMixin
+    def get_success_message(self, cleaned_data):
+        return _("The comment of %(acronym)s has been updated") % {'acronym': self.object.child}
+
     def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['root'] = self.kwargs["root_id"]
+        return context
 
     def get_success_url(self):
-        print(self)
-        return reverse("education_group_content")
+        return reverse("education_group_content", args=[self.kwargs["education_group_year_id"]])
