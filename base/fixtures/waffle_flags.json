@@ -178,5 +178,44 @@
         "groups": [],
         "users": []
     }
-}
-]
+},
+{
+    "model": "waffle.flag",
+    "pk": 11,
+    "fields": {
+        "name": "educational_information_block_action",
+        "everyone": null,
+        "percent": null,
+        "testing": false,
+        "superusers": true,
+        "staff": true,
+        "authenticated": true,
+        "languages": "",
+        "rollout": false,
+        "note": "",
+        "created": "2018-07-10T13:58:08Z",
+        "modified": "2018-07-10T13:58:13.883Z",
+        "groups": [],
+        "users": []
+    }
+},
+{
+    "model": "waffle.flag",
+    "pk": 12,
+    "fields": {
+        "name": "educational_information_mailing",
+        "everyone": null,
+        "percent": null,
+        "testing": false,
+        "superusers": true,
+        "staff": true,
+        "authenticated": true,
+        "languages": "",
+        "rollout": false,
+        "note": "",
+        "created": "2018-07-10T13:58:08Z",
+        "modified": "2018-07-10T13:58:13.883Z",
+        "groups": [],
+        "users": []
+    }
+}]
