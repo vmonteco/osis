@@ -30,7 +30,7 @@ from django.forms import model_to_dict
 from django.test import TestCase
 from django.utils import timezone
 from base.models import academic_calendar
-from base.models.academic_calendar import find_dates_for_current_academic_year
+from base.models.academic_calendar import find_dates_for_current_academic_year, is_academic_calendar_has_started
 from base.models.enums import academic_calendar_type
 from base.models.exceptions import StartDateHigherThanEndDateException
 from base.signals.publisher import compute_all_scores_encodings_deadlines
@@ -121,3 +121,35 @@ class TestFindDatesForCurrentAcademicYear(TestCase):
         self.assertEqual(dates,
                          model_to_dict(self.current_academic_calendar,
                                        fields=("start_date", "end_date")))
+
+
+class TestIsAcademicCalendarHasStarted(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.current_academic_year = create_current_academic_year()
+        cls.current_academic_calendar = AcademicCalendarFactory(
+            academic_year=cls.current_academic_year,
+            reference=academic_calendar_type.SUMMARY_COURSE_SUBMISSION
+        )
+
+    def test_is_academic_calendar_has_started_case_no_date_args(self):
+        self.assertTrue(is_academic_calendar_has_started(
+            academic_year=self.current_academic_year,
+            reference=academic_calendar_type.SUMMARY_COURSE_SUBMISSION
+        ))
+
+    def test_is_academic_calendar_has_started_case_date_args_lower_than_ac_calendar_start(self):
+        lower_date = self.current_academic_calendar.start_date - datetime.timedelta(days=5)
+        self.assertFalse(is_academic_calendar_has_started(
+            academic_year=self.current_academic_year,
+            reference=academic_calendar_type.SUMMARY_COURSE_SUBMISSION,
+            date=lower_date
+        ))
+
+    def test_is_academic_calendar_has_started_case_date_args_higher_than_ac_calendar_start(self):
+        higher_date = self.current_academic_calendar.start_date + datetime.timedelta(days=10)
+        self.assertTrue(is_academic_calendar_has_started(
+            academic_year=self.current_academic_year,
+            reference=academic_calendar_type.SUMMARY_COURSE_SUBMISSION,
+            date=higher_date
+        ))
