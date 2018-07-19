@@ -49,11 +49,10 @@ from base.views.education_groups.update import update_education_group
 from base.views.learning_units.external import create as create_external
 from base.views.learning_units.external.search import filter_cities_by_country, filter_campus_by_city
 from base.views.learning_units.pedagogy.read import learning_unit_pedagogy
-from base.views.learning_units.pedagogy.update import learning_unit_pedagogy_edit, update_mobility_modality,\
+from base.views.learning_units.pedagogy.update import learning_unit_pedagogy_edit, update_mobility_modality, \
     toggle_summary_locked
 from base.views.learning_units.proposal import create, update
 from base.views.learning_units.update import update_learning_unit, learning_unit_edition_end_date
-
 
 urlpatterns = [
     url(r'^$', common.home, name='home'),
@@ -225,9 +224,10 @@ urlpatterns = [
     ])),
     url(r'^educationgroups/', include([
         url(r'^$', base.views.education_groups.search.education_groups, name='education_groups'),
-        url(r'^new/$', base.views.education_groups.create.create_education_group, name='new_education_group'),
-        url(r'^new/(?P<parent_id>[0-9]+)/$', base.views.education_groups.create.create_education_group,
-            name='new_education_group'),
+        url(r'^new/(?P<category>[A-Z_]+)/$',
+            base.views.education_groups.create.create_education_group, name='new_education_group'),
+        url(r'^new/(?P<category>[A-Z_]+)/(?P<parent_id>[0-9]+)/$',
+            base.views.education_groups.create.create_education_group, name='new_education_group'),
         url(r'^(?P<education_group_year_id>[0-9]+)/', include([
             url(r'^$', education_group.education_group_read, name='education_group_read'),
             url(r'^update/$', update_education_group, name="update_education_group"),

@@ -3024,6 +3024,12 @@ msgstr ""
 msgid "New Education Group"
 msgstr ""
 
+msgid "New Training"
+msgstr ""
+
+msgid "New Mini-Training"
+msgstr ""
+
 msgid "untyped"
 msgstr ""
 

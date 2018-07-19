@@ -30,6 +30,7 @@ from django.urls import reverse
 from waffle.testutils import override_flag
 
 from base.forms.education_group.group import GroupModelForm
+from base.models.enums import education_group_categories
 from base.tests.factories.education_group_year import EducationGroupYearFactory
 from base.tests.factories.person import PersonFactory
 
@@ -39,8 +40,19 @@ class TestCreate(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.parent_education_group_year = EducationGroupYearFactory()
-        cls.url_without_parent = reverse("new_education_group")
-        cls.url_with_parent = reverse("new_education_group", kwargs={"parent_id":cls.parent_education_group_year.id})
+        cls.url_without_parent = reverse(
+            "new_education_group",
+            kwargs={
+                "category": education_group_categories.GROUP,
+            }
+        )
+        cls.url_with_parent = reverse(
+            "new_education_group",
+            kwargs={
+                "category": education_group_categories.GROUP,
+                "parent_id":cls.parent_education_group_year.id,
+            }
+        )
         cls.person = PersonFactory()
 
     def setUp(self):

@@ -35,8 +35,18 @@
             <ul class="dropdown-menu dropdown-menu-large row text-right pull-right">
                 {% flag "education_group_create" %}
                     <li {% if not can_create_education_group %} class="disabled" {% endif %}>
-                        <a {% if can_create_education_group %} href="{% url 'new_education_group' parent_id=education_group_year.id %}?root={{ request.GET.root }}" {% endif %}>
+                        <a {% if can_create_education_group %} href="{% url 'new_education_group' category=enums.GROUP parent_id=education_group_year.id %}?root={{ request.GET.root }}" {% endif %}>
                             {% trans 'New Education Group' %}
+                        </a>
+                    </li>
+                    <li {% if not can_create_education_group %} class="disabled" {% endif %}>
+                        <a {% if can_create_education_group %} href="{% url 'new_education_group' category=enums.TRAINING parent_id=education_group_year.id %}?root={{ request.GET.root }}" {% endif %}>
+                            {% trans 'New Training' %}
+                        </a>
+                    </li>
+                    <li {% if not can_create_education_group %} class="disabled" {% endif %}>
+                        <a {% if can_create_education_group %} href="{% url 'new_education_group' category=enums.MINI_TRAINING parent_id=education_group_year.id %}?root={{ request.GET.root }}" {% endif %}>
+                            {% trans 'New Mini-Training' %}
                         </a>
                     </li>
                 {% endflag %}
