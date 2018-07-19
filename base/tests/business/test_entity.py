@@ -23,11 +23,15 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+import datetime
+
 from django.test import TestCase
+
+from base.tests.factories.business.learning_units import generate_academic_years, GenerateContainer
 from base.tests.factories.entity import EntityFactory
 from base.tests.factories.entity_version import EntityVersionFactory
 
-from base.business.entity import get_entity_calendar
+from base.business.entity import get_entity_calendar, get_entity_summary_course_submission_calendar
 
 from base.tests.factories.entity_calendar import EntityCalendarFactory
 from base.tests.factories.academic_calendar import AcademicCalendarFactory
