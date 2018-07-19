@@ -30,40 +30,40 @@ $(document).ready(function () {
     });
 
     $documentTree.jstree({
-        "core": {
-            "check_callback": true
+        "core" : {
+           "check_callback" : true
         },
-        "plugins": ["contextmenu"],
-        "contextmenu": {
+        "plugins" : [ "contextmenu" ],
+        "contextmenu" : {
             "select_node": false,
-            "items": {
-                "select": {
-                    "label": gettext("Select"),
-                    "action": function (data) {
-                        var inst = $.jstree.reference(data.reference),
-                            obj = inst.get_node(data.reference);
-                        alert('Select : ' + obj.li_attr.id)
-                    },
-                    "icon": "fa fa-check-square"
-                },
-                "attach": {
-                    "label": gettext("Attach"),
-                    "action": function (data) {
-                        var inst = $.jstree.reference(data.reference),
-                            obj = inst.get_node(data.reference);
-                        alert('Attach : ' + obj.li_attr.id)
-                    },
-                    "icon": "fa fa-paperclip"
-                },
-                "detach": {
-                    "label": gettext("Detach"),
-                    "action": function (data) {
-                        var inst = $.jstree.reference(data.reference),
-                            obj = inst.get_node(data.reference);
-                        alert('Detach : ' + obj.li_attr.id)
-                    },
-                    "icon": "fa fa-cut"
-                }
+            "items" : {
+              "select" : {
+                  "label" : gettext("Select"),
+                  "action" : function (data) {
+                    var inst = $.jstree.reference(data.reference),
+                        obj = inst.get_node(data.reference);
+                    alert('Select : ' + obj.li_attr.id)
+                  },
+                  "icon": "fa fa-check-square"
+              },
+              "attach" : {
+                 "label" : gettext("Attach"),
+                 "action" : function (data) {
+                    var inst = $.jstree.reference(data.reference),
+                        obj = inst.get_node(data.reference);
+                    alert('Attach : ' + obj.li_attr.id)
+                  },
+                  "icon": "fa fa-paperclip"
+              },
+              "detach" : {
+                 "label" : gettext("Detach"),
+                 "action" : function (data) {
+                    var inst = $.jstree.reference(data.reference),
+                        obj = inst.get_node(data.reference);
+                    alert('Detach : ' + obj.li_attr.id)
+                  },
+                  "icon": "fa fa-cut"
+              }
             }
         }
     });
