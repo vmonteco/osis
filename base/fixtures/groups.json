@@ -2933,9 +2933,14 @@
                 "educationgroup"
             ],
             [
-              "delete_educationgroup",
+                "delete_educationgroup",
                 "base",
-              "educationgroup"
+                "educationgroup"
+            ],
+            [
+                "can_edit_educationgroup_pedagogy",
+                "base",
+                "educationgroup"
             ],
             [
                 "change_learningclassyear",

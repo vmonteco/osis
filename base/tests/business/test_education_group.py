@@ -137,9 +137,9 @@ class EducationGroupXlsTestCase(TestCase):
         self.academic_year = create_current_academic_year()
         self.education_group_type_group = EducationGroupTypeFactory(category=education_group_categories.GROUP)
         self.education_group_year_1 = EducationGroupYearFactory(academic_year=self.academic_year, acronym="PREMIER")
-        self.education_group_year_1.entity_management = EntityVersionFactory()
+        self.education_group_year_1.management_entity_version = EntityVersionFactory()
         self.education_group_year_2 = EducationGroupYearFactory(academic_year=self.academic_year, acronym="DEUXIEME")
-        self.education_group_year_2.entity_management = EntityVersionFactory()
+        self.education_group_year_2.management_entity_version = EntityVersionFactory()
         self.user = UserFactory()
 
     def test_prepare_xls_content_no_data(self):
@@ -187,7 +187,7 @@ def get_xls_data(an_education_group_year):
             an_education_group_year.acronym,
             an_education_group_year.title,
             an_education_group_year.education_group_type,
-            an_education_group_year.entity_management.acronym,
+            an_education_group_year.management_entity_version.acronym,
             an_education_group_year.partial_acronym]
 
 

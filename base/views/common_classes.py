@@ -69,7 +69,7 @@ class AjaxTemplateMixin(object):
     def get_template_names(self):
         template_names = super().get_template_names()
         if self.request.is_ajax():
-            template_names =  [
+            template_names = [
                 self._convert_template_name_to_ajax_template_name(template_name) for template_name in template_names
             ]
         return template_names
