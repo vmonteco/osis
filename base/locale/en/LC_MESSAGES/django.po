@@ -3209,3 +3209,12 @@ msgstr ""
 
 msgid "The %(acronym)s has been detatched"
 msgstr ""
+
+msgid "attach"
+msgstr "Attach"
+
+msgid "detach"
+msgstr "Detach"
+
+msgid "move"
+msgstr "Move"

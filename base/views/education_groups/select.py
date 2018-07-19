@@ -24,37 +24,28 @@
 #
 ##############################################################################
 
-from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
+from rest_framework.status import HTTP_200_OK
 
+from base.models.education_group_year import EducationGroupYear
 from base.utils.cache import cache_filter
-from osis_common.decorators.ajax import ajax_required
+from base.views.education_groups.perms import can_change_education_group
+
+from waffle.decorators import waffle_flag
+
+from base.views.education_groups.update import _get_view
 
 
 @login_required
-@ajax_required
-@permission_required('base.can_change_education_group', raise_exception=True)
+@waffle_flag("education_group_select")
+@user_passes_test(can_change_education_group)
 @cache_filter()
-def select_education_group(request):
-    return request
-
-
-@login_required
-@ajax_required
-@permission_required('base.can_change_education_group', raise_exception=True)
-def copy_education_group(request):
-    pass
-
-
-@login_required
-@ajax_required
-@permission_required('base.can_change_education_group', raise_exception=True)
-def detach_education_group(request):
-    pass
-
-
-@login_required
-@ajax_required
-@permission_required('base.can_change_education_group', raise_exception=True)
-def move_education_group(request):
-    pass
+def education_group_select(request, education_group_year_id=None):
+    if request.is_ajax():
+        return JsonResponse({'status': HTTP_200_OK})
+    else:
+        education_group_year = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
+        view_function = _get_view(education_group_year.education_group_type.category)
+        return view_function(request, education_group_year)

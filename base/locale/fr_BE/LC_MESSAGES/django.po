@@ -3211,3 +3211,12 @@ msgstr "%(acronym)s a été déplacé"
 
 msgid "The %(acronym)s has been detatched"
 msgstr "%(acronym)s a été détaché"
+
+msgid "attach"
+msgstr "Attacher"
+
+msgid "detach"
+msgstr "Détacher"
+
+msgid "move"
+msgstr "Déplacer"

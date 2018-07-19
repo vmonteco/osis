@@ -44,9 +44,9 @@ $(document).ready(function () {
                         obj = inst.get_node(data.reference);
 
                     $.ajax({
-                        url: '../select_education_group/',
+                        url: 'select/',
                         data: {'education_group_id' : obj.li_attr.id},
-                        type: 'get',
+                        type: 'GET',
                         dataType: 'json',
                     });
 

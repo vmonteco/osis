@@ -44,7 +44,9 @@ from base.views import learning_achievement, search
 from base.views import learning_unit, offer, common, institution, organization, academic_calendar, \
     my_osis, entity, student, education_group
 from base.views import teaching_material
-from base.views.education_groups.cache import select_education_group
+from base.views.education_groups.attach import education_group_attach
+from base.views.education_groups.detach import education_group_detach
+from base.views.education_groups.select import education_group_select
 from base.views.education_groups.delete import DeleteGroupEducationYearView
 from base.views.education_groups.update import update_education_group
 from base.views.learning_units.external import create as create_external
@@ -232,6 +234,9 @@ urlpatterns = [
         url(r'^(?P<education_group_year_id>[0-9]+)/', include([
             url(r'^$', education_group.education_group_read, name='education_group_read'),
             url(r'^update/$', update_education_group, name="update_education_group"),
+            url(r'^select/$', education_group_select, name='education_group_select'),
+            url(r'^attach/$', education_group_attach, name='education_group_attach'),
+            url(r'^detach/$', education_group_detach, name='education_group_detach'),
             url(r'^diplomas/$', education_group.education_group_diplomas, name='education_group_diplomas'),
             url(r'^informations/$', education_group.education_group_general_informations,
                 name='education_group_general_informations'),
@@ -287,8 +292,7 @@ urlpatterns = [
                     ]))
                 ]))
             ]))
-        ])),
-        url(r'^select_education_group/$', select_education_group, name='select_education_group')
+        ]))
     ])),
 
     url(r'^offer_year_calendars/([0-9]+)/$', offer.offer_year_calendar_read, name='offer_year_calendar_read'),
