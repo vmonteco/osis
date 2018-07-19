@@ -41,9 +41,10 @@
  </div>
 
 <script type="application/javascript">
-    $('#{{ click_id }}').click(function() {
-         $('#form-modal-body').load('{{ modal_url }}', function () {
-             $('#form-modal').modal('toggle');
-         });
+    $('#{{ click_id }}').click(
+        function () {
+            $('#form-modal-body').load('{{ modal_url }}', function () {
+                $('#form-modal').modal('toggle');
+            });
     });
 </script>

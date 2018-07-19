@@ -29,6 +29,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_http_methods
+from django.views.generic import UpdateView
 from waffle.decorators import waffle_flag
 
 from base.models.group_element_year import GroupElementYear
@@ -89,3 +90,7 @@ def _get_action_method(request):
     if action not in AVAILABLE_ACTIONS.keys():
         raise AttributeError('Action should be {}'.format(','.join(AVAILABLE_ACTIONS.keys())))
     return AVAILABLE_ACTIONS[action]
+
+
+class UpdateCommentGroupElementYearView(UpdateView):
+    object = GroupElementYear
