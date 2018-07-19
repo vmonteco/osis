@@ -66,6 +66,7 @@ class RulesRequiredMixin(UserPassesTestMixin):
 class AjaxTemplateMixin(object):
     ajax_template_name = ""
     ajax_protected_template_name = ""
+
     def dispatch(self, request, *args, **kwargs):
         if not self.ajax_template_name:
             split = self.template_name.split('.html')
@@ -76,10 +77,10 @@ class AjaxTemplateMixin(object):
             split = self.protected_template.split('.html')
             split[-1] = '_inner'
             split.append('.html')
-            self.ajax_protected_template_name= ''.join(split)
+            self.ajax_protected_template_name = ''.join(split)
         if request.is_ajax():
             self.template_name = self.ajax_template_name
-            self.protected_template  = self.ajax_protected_template_name
+            self.protected_template = self.ajax_protected_template_name
         return super().dispatch(request, *args, **kwargs)
 
 
