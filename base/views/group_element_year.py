@@ -27,8 +27,8 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.exceptions import ViewDoesNotExist
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
-from django.views.decorators.http import require_http_methods
 from django.utils.translation import ugettext_lazy as _
+from django.views.decorators.http import require_http_methods
 from waffle.decorators import waffle_flag
 
 from base.models.group_element_year import GroupElementYear

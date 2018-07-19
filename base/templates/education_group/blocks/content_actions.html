@@ -1,35 +1,35 @@
 {% load staticfiles %}
 {% load i18n %}
 {% comment "License" %}
-* OSIS stands for Open Student Information System. It's an application
-* designed to manage the core business of higher education institutions,
-* such as universities, faculties, institutes and professional schools.
-* The core business involves the administration of students, teachers,
-* courses, programs and so on.
-*
-* Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
-*
-* This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* A copy of this license - GNU General Public License - is available
-* at the root of the source code of this program.  If not,
-* see http://www.gnu.org/licenses/.
+    * OSIS stands for Open Student Information System. It's an application
+    * designed to manage the core business of higher education institutions,
+    * such as universities, faculties, institutes and professional schools.
+    * The core business involves the administration of students, teachers,
+    * courses, programs and so on.
+    *
+    * Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
+    *
+    * This program is free software: you can redistribute it and/or modify
+    * it under the terms of the GNU General Public License as published by
+    * the Free Software Foundation, either version 3 of the License, or
+    * (at your option) any later version.
+    *
+    * This program is distributed in the hope that it will be useful,
+    * but WITHOUT ANY WARRANTY; without even the implied warranty of
+    * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    * GNU General Public License for more details.
+    *
+    * A copy of this license - GNU General Public License - is available
+    * at the root of the source code of this program.  If not,
+    * see http://www.gnu.org/licenses/.
 {% endcomment %}
 
 <form id="form_group_element_year_actions" method="POST"
       action="{% url 'group_element_year_management' root_id=parent.id education_group_year_id=education_group_year.id group_element_year_id=element.group_element.id %}">
     {% csrf_token %}
-    <button type="submit" title="{% trans 'up' %}"  class="btn btn-default btn-sm"
+    <button type="submit" title="{% trans 'up' %}" class="btn btn-default btn-sm"
             id="btn_operation_up_{{ element.group_element.id }}"
-            name="action" value="up" {% if forloop.counter0 == 0 %}disabled{% endif %} >
+            name="action" value="up" {% if forloop.counter0 == 0 %}disabled{% endif %}>
         <i class="fa fa-arrow-up"></i>
     </button>
     <button type="submit" title="{% trans 'down' %}" class="btn btn-default btn-sm"
@@ -37,15 +37,15 @@
             name="action" value="down" {% if forloop.last %}disabled{% endif %}>
         <i class="fa fa-arrow-down"></i>
     </button>
-    <button type="submit" title="{% trans 'detatch' %}"  class="btn btn-default btn-sm"
+    <button type="submit" title="{% trans 'detatch' %}" class="btn btn-default btn-sm"
             id="btn_operation_detatch_{{ element.group_element.id }}"
             name="action" value="detatch">
         <i class="fa fa-close"></i>
     </button>
     <!-- Should be enable when feature implemented -->
-    <button type="submit" title="{% trans 'edit' %}"  class="btn btn-default btn-sm"
-        id="btn_operation_edit_{{ element.group_element.id }}"
-        name="action" value="edit" disabled>
+    <button type="submit" title="{% trans 'edit' %}" class="btn btn-default btn-sm"
+            id="btn_operation_edit_{{ element.group_element.id }}"
+            name="action" value="edit" disabled>
         <i class="fa fa-edit"></i>
     </button>
 </form>

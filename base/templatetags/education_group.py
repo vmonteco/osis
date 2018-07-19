@@ -42,20 +42,17 @@ li_template = """
 
 @register.simple_tag
 def li_with_deletion_perm(url, message, person, url_id="link_delete", root=""):
-    permission = is_eligible_to_delete_education_group
-    return li_with_permission(permission, url, message, person, url_id, root)
+    return li_with_permission(is_eligible_to_delete_education_group, url, message, person, url_id, root)
 
 
 @register.simple_tag
 def li_with_update_perm(url, message, person, url_id="link_update", root=""):
-    permission = is_eligible_to_change_education_group
-    return li_with_permission(permission, url, message, person, url_id, root)
+    return li_with_permission(is_eligible_to_change_education_group, url, message, person, url_id, root)
 
 
 @register.simple_tag
 def li_with_create_perm(url, message, person, url_id="link_create", root=""):
-    permission = is_eligible_to_add_education_group
-    return li_with_permission(permission, url, message, person, url_id, root)
+    return li_with_permission(is_eligible_to_add_education_group, url, message, person, url_id, root)
 
 
 def li_with_permission(permission, url, message, person, url_id, root=""):
