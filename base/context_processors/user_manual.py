@@ -25,34 +25,28 @@
 ##############################################################################
 import collections
 
-Documentation = collections.namedtuple("Documentation", "name, url, contextual_paths")
+UserManual = collections.namedtuple("UserManual", "name, url, contextual_paths")
 
-GLOBAL = Documentation(
+GLOBAL = UserManual(
     name="global",
     url="http://uclouvain.github.io/osis/assets/user_manual_fr.pdf",
     contextual_paths=[]
 )
 
-EDUCATIONAL_INFORMATION = Documentation(
+EDUCATIONAL_INFORMATION = UserManual(
     name="educational_information",
     url="https://uclouvain-sips.atlassian.net/secure/attachment/11031/2_OSIS_Gestionnaire_Info%20Pedag_15%20juillet%202018.pdf",
     contextual_paths=[]
 )
 
-DOCUMENTATIONS = [
+MANUALS = [
     GLOBAL,
     EDUCATIONAL_INFORMATION,
 ]
 
-def documentation_url(request):
-    """
-    Context processors that returns list of documentation url.
-    The 'global' key corresponds to the url of the general document.
-    The 'contextual' key corresponds to the url of the document mapped to the url.
-    All other keys corresponds to the topic of the documentation they point to.
-    """
+def user_manual_url(request):
     return {
-        "documentation_url": {
-            doc.name:doc.url for doc in DOCUMENTATIONS
+        "user_manual": {
+            manual.name: manual.url for manual in MANUALS
         }
     }
