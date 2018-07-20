@@ -33,6 +33,7 @@
 
 <script type="application/javascript">
     $('#{{ click_id }}').click(function(e) {
+        // Added preventDefaut so as to not add anchor "href" to address bar
         e.preventDefault();
          $('#form-modal-content').load('{{ modal_url }}', function () {
              $('#form-modal').modal('toggle');
