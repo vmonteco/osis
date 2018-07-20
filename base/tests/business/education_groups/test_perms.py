@@ -50,12 +50,12 @@ class TestPerms(TestCase):
                                                 end_date=today + datetime.timedelta(days=3),
                                                 reference=academic_calendar_type.EDUCATION_GROUP_EDITION)
 
-        self.assertFalse(is_education_group_creation_period_opened(person))
+        self.assertFalse(is_education_group_creation_period_opened())
 
         opened_period = closed_period
         opened_period.start_date = today
         opened_period.save()
-        self.assertTrue(is_education_group_creation_period_opened(person))
+        self.assertTrue(is_education_group_creation_period_opened())
 
     def is_person_central_manager(self):
         person = PersonFactory()

@@ -74,16 +74,16 @@ def find_entities_by_person(person):
     return list(entities)
 
 
-def is_attached_entities(person, entity_queryset):
-    if isinstance(entity_queryset, QuerySet):
-        admissible_entities = list(entity_queryset.values_list('pk', flat=True))
+def is_attached_entities(person, entities):
+    if isinstance(entities, QuerySet):
+        admissible_entities = list(entities.values_list('pk', flat=True))
     else:
-        admissible_entities = list(entity_queryset)
+        admissible_entities = entities
 
     qs = PersonEntity.objects.filter(person=person)
     if qs.filter(entity__in=admissible_entities).exists():
         return True
-    elif qs.filter(entity__in=_entity_ancestors(entity_queryset), with_child=True).exists():
+    elif qs.filter(entity__in=_entity_ancestors(entities), with_child=True).exists():
         return True
     else:
         return False

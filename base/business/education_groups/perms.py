@@ -54,7 +54,7 @@ def is_education_group_creation_period_opened(raise_exception=False):
 
 def _education_group_generic_permission(person, education_group, raise_exception):
     if education_group and education_group.management_entity:
-        result = person.is_attached_entities(education_group.management_entity)
+        result = person.is_attached_entities([education_group.management_entity])
     else:
         result = True
 

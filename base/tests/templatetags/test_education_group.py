@@ -24,7 +24,7 @@
 #
 ##############################################################################
 from django.contrib.auth.models import Permission
-from django.test import TestCase
+from django.test import TestCase, RequestFactory
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
@@ -34,6 +34,7 @@ from base.templatetags.education_group import li_with_deletion_perm
 from base.tests.factories.academic_calendar import AcademicCalendarFactory
 from base.tests.factories.education_group_year import EducationGroupYearFactory
 from base.tests.factories.person import PersonFactory
+from base.tests.factories.person_entity import PersonEntityFactory
 
 DELETE_MSG = _("delete education group")
 PERMISSION_DENIED_MSG = _("The education group edition period is not open.")
@@ -55,6 +56,7 @@ class TestEducationGroupTag(TestCase):
     def setUp(self):
         self.education_group_year = EducationGroupYearFactory()
         self.person = PersonFactory()
+        PersonEntityFactory(person=self.person, entity=self.education_group_year.management_entity)
         self.url = reverse('delete_education_group', args=[self.education_group_year.id])
 
         self.person.user.user_permissions.add(Permission.objects.get(codename="delete_educationgroup"))
@@ -66,12 +68,18 @@ class TestEducationGroupTag(TestCase):
             end_date=timezone.now()
         )
 
+        self.context = {
+            "person": self.person,
+            "education_group_year": self.education_group_year,
+            "request": RequestFactory().get("")
+        }
+
     def test_li_with_deletion_perm(self):
-        result = li_with_deletion_perm(self.url, DELETE_MSG, self.person)
+        result = li_with_deletion_perm(self.context, self.url, DELETE_MSG)
         self.assertEqual(result, ENABLED_LI.format(self.url + "?root=", DELETE_MSG))
 
     def test_li_without_deletion_perm(self):
         self.academic_calendar.delete()
 
-        result = li_with_deletion_perm(self.url, DELETE_MSG, self.person)
+        result = li_with_deletion_perm(self.context, self.url, DELETE_MSG)
         self.assertEqual(result, DISABLED_LI.format(PERMISSION_DENIED_MSG, DELETE_MSG))
