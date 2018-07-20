@@ -29,7 +29,7 @@ from django.urls import reverse
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
-from base.models import entity_version
+from base.models import entity_version, learning_unit_component
 from base.models.entity import Entity
 from base.models.enums import academic_type, fee, internship_presence, schedule_type, activity_presence, \
     diploma_printing_orientation, active_status, duration_unit
@@ -246,13 +246,17 @@ class EducationGroupYear(models.Model):
     @property
     def children_by_group_element_year(self):
         group_elements_year = self.parents.filter(parent=self).select_related('child_branch')
-        return [group_element_year.child_branch for group_element_year in group_elements_year
+        return [{'child': group_element_year.child_branch, 'relative_credits': group_element_year.relative_credits}
+                for group_element_year in group_elements_year
                 if group_element_year.child_branch]
 
     @property
     def learning_unit_by_group_element_year(self):
-        group_elements_year = self.parents.filter(parent=self).select_related('child_leaf')
-        return [group_element_year.child_leaf for group_element_year in group_elements_year
+        group_elements_years = self.parents.filter(parent=self).select_related('child_leaf')
+        return [{'child': group_element_year.child_leaf,
+                 'relative_credits': group_element_year.relative_credits,
+                 'volumes': learning_unit_component.find_by_learning_unit_year(group_element_year.child_leaf)}
+                for group_element_year in group_elements_years
                 if group_element_year.child_leaf]
 
     @cached_property
@@ -325,6 +329,6 @@ def _count_education_group_enrollments_by_id(education_groups_years):
 
 
 def _find_with_learning_unit_enrollment_count(learning_unit_year):
-    return EducationGroupYear.objects\
-        .filter(offerenrollment__learningunitenrollment__learning_unit_year_id=learning_unit_year)\
+    return EducationGroupYear.objects \
+        .filter(offerenrollment__learningunitenrollment__learning_unit_year_id=learning_unit_year) \
         .annotate(count_learning_unit_enrollments=Count('offerenrollment__learningunitenrollment')).order_by('acronym')

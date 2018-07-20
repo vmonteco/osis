@@ -1,14 +1,29 @@
 {% load i18n %}
 <ul>
-{% for elem in parent.children_by_group_element_year %}
-    <li>{{ elem.title }} ({{ elem.credits }} {% trans 'credits'|lower %})</li>
-    {% if elem.children_by_group_element_year %}
-        {% include "education_group/blocks/pdf_branch.html" with parent=elem %}
-    {% endif %}
-{% endfor %}
+    {% for elem in parent.children_by_group_element_year %}
+        <li>{{ elem.child.title }} ({% if elem.relative_credits %}{{ elem.relative_credits }}{% else %}{{ elem.child.credits|default_if_none:'0' }}{% endif %} {% trans 'credits'|lower %})</li>
+        {% if elem.child.children_by_group_element_year %}
+            {% include "education_group/blocks/pdf_branch.html" with parent=elem.child %}
+        {% endif %}
+    {% endfor %}
 </ul>
 <ul>
-{% for elem in parent.learning_unit_by_group_element_year %}
-    <li>{{ elem.acronym }} {{ elem.specific_title }} [] ({{ elem.credits }} {% trans 'credits'|lower %})</li>
-{% endfor %}
+    {% for elem in parent.learning_unit_by_group_element_year %}
+        <li>{{ elem.child.acronym }} {{ elem.child.specific_title }}
+            [
+            {% if elem.volumes.learning_component_year.hourly_volume_partial_q1 %}
+                {{ elem.volumes.learning_component_year.hourly_volume_partial_q1 }}h
+            {% else %}
+                -h
+            {% endif %}
+            +
+            {% if elem.volumes.learning_component_year.hourly_volume_partial_q2 %}
+                {{ elem.volumes.learning_component_year.hourly_volume_partial_q2 }}h
+            {% else %}
+                -h
+            {% endif %}
+            ]
+            ({% if elem.relative_credits %}{{ elem.relative_credits }}{% else %}{{ elem.child.credits|default_if_none:'0' }}{% endif %} {% trans 'credits'|lower %})
+        </li>
+    {% endfor %}
 </ul>

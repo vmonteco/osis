@@ -103,4 +103,4 @@ def pdf_content(request, education_group_year_id):
 
     parent = education_group_year
 
-    return Render.render('education_group/pdf.html', {'parent': parent})
+    return Render.render('education_group/pdf_content.html', {'parent': parent})
