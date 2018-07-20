@@ -39,7 +39,7 @@ EDUCATIONAL_INFORMATION = UserManual(
     name="educational_information",
     url="http://uclouvain.github.io/osis/assets/educational_information_manual_fr.pdf",
     contextual_paths=["learning_units_summary", "list_my_attributions_summary_editable",
-                      "view_educational_information"]
+                      "view_educational_information", "learning_unit_pedagogy"]
 )
 
 MANUALS = [
