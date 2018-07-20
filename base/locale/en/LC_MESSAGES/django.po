@@ -3237,6 +3237,9 @@ msgstr ""
 msgid "Session"
 msgstr "Session"
 
+msgid "Help"
+msgstr ""
+
 msgid "Are you sure you want to detach this content?"
 msgstr ""
 
