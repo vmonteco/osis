@@ -3230,3 +3230,9 @@ msgstr ""
 
 msgid "Session"
 msgstr "Session"
+
+msgid "Are you sure you want to detach this content?"
+msgstr ""
+
+msgid "detach"
+msgstr ""
