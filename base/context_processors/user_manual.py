@@ -45,17 +45,14 @@ MANUALS = [
     EDUCATIONAL_INFORMATION,
 ]
 
+
 def user_manual_url(request):
     contextual_manual = find_contextual_user_manual(request.resolver_match.url_name, MANUALS, GLOBAL)
 
-    manual_urls = {
-            manual.name: manual.url for manual in MANUALS
-        }
+    manual_urls = {manual.name: manual.url for manual in MANUALS}
     manual_urls.update(contextual=contextual_manual.url)
 
-    return {
-        "user_manual": manual_urls
-    }
+    return {"user_manual": manual_urls}
 
 
 def find_contextual_user_manual(view_name, manuals, default_manual):
