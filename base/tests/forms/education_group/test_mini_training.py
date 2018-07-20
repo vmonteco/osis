@@ -23,7 +23,6 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from base.forms.education_group.group import GroupModelForm
 from base.forms.education_group.mini_training import MiniTrainingModelForm
 from base.models.enums import education_group_categories
 from base.tests.factories.education_group_type import EducationGroupTypeFactory

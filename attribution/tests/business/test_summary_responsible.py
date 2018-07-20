@@ -50,7 +50,7 @@ class TestSearchAttributions(TestCase):
 
         cls.current_academic_year = create_current_academic_year()
         # Create multiple attribution
-        for nb in range(0,10):
+        for nb in range(0, 10):
             attribution = AttributionFactory(
                 learning_unit_year__acronym='LBIR120{}'.format(nb),
                 learning_unit_year__academic_year=cls.current_academic_year,
@@ -93,7 +93,7 @@ class TestGetAttributionsData(TestCase):
 
         expected_result = {
             'learning_unit_year': learning_unit_year,
-            'attributions' : [],
+            'attributions': [],
             'academic_year': learning_unit_year.academic_year
         }
         result = summary_responsible.get_attributions_data(
