@@ -29,6 +29,7 @@ from django.conf.urls import url, include
 from django.conf.urls.static import static
 
 import base.views.education_groups.create
+import base.views.education_groups.detail
 import base.views.education_groups.search
 import base.views.learning_units.common
 import base.views.learning_units.create
@@ -181,7 +182,6 @@ urlpatterns = [
             ]))
         ])),
         url(r'^check/(?P<subtype>[A-Z]+)$', base.views.learning_units.common.check_acronym, name="check_acronym"),
-        url(r'^outside_period/$', learning_unit.outside_period, name='outside_summary_submission_period'),
         url(r'^email_educational_information_update/$',
             base.views.learning_units.educational_information.send_email_educational_information_needs_update,
             name='email_educational_information_update'),
@@ -229,10 +229,11 @@ urlpatterns = [
         url(r'^new/(?P<category>[A-Z_]+)/(?P<parent_id>[0-9]+)/$',
             base.views.education_groups.create.create_education_group, name='new_education_group'),
         url(r'^(?P<education_group_year_id>[0-9]+)/', include([
-            url(r'^$', education_group.education_group_read, name='education_group_read'),
+            url(r'^$', base.views.education_groups.detail.EducationGroupRead.as_view(), name='education_group_read'),
             url(r'^update/$', update_education_group, name="update_education_group"),
-            url(r'^diplomas/$', education_group.education_group_diplomas, name='education_group_diplomas'),
-            url(r'^informations/$', education_group.education_group_general_informations,
+            url(r'^diplomas/$', base.views.education_groups.detail.EducationGroupDiplomas.as_view(),
+                name='education_group_diplomas'),
+            url(r'^informations/$', base.views.education_groups.detail.EducationGroupGeneralInformation.as_view(),
                 name='education_group_general_informations'),
             url(r'^informations/edit/$', education_group.education_group_year_pedagogy_edit,
                 name="education_group_pedagogy_edit"),
@@ -246,10 +247,12 @@ urlpatterns = [
                 name="education_group_pedagogy_get_terms"),
 
             url(r'^administrative/', include([
-                url(u'^$', education_group.education_group_administrative_data, name='education_group_administrative'),
+                url(u'^$', base.views.education_groups.detail.EducationGroupAdministrativeData.as_view(),
+                    name='education_group_administrative'),
                 url(u'^edit/$', education_group.education_group_edit_administrative_data,
                     name='education_group_edit_administrative')])),
-            url(r'^content/$', education_group.education_group_content, name='education_group_content'),
+            url(r'^content/$', base.views.education_groups.detail.EducationGroupContent.as_view(),
+                name='education_group_content'),
             url(r'^admission_conditions/$',
                 education_group.education_group_year_admission_condition_edit,
                 name='education_group_year_admission_condition_edit'),
