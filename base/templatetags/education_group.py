@@ -52,6 +52,13 @@ BUTTON_TEMPLATE = """
 </button>
 """
 
+ICONS = {
+    "up": "fa-arrow-up",
+    "down": "fa-arrow-down",
+    "detach": "fa-close",
+    "edit": "fa-edit",
+}
+
 
 @register.simple_tag(takes_context=True)
 def li_with_deletion_perm(context, url, message, url_id="link_delete"):
@@ -96,14 +103,6 @@ def _get_permission(context, permission):
     return permission_denied_message, "" if result else "disabled", root
 
 
-icons ={
-    "up": "fa-arrow-up",
-    "down": "fa-arrow-down",
-    "detach": "fa-close",
-    "edit": "fa-edit",
-}
-
-
 @register.simple_tag(takes_context=True)
 def button_order_with_permission(context, title, id_button, value):
     permission_denied_message, disabled, root = _get_permission(context, is_eligible_to_change_education_group)
@@ -117,10 +116,9 @@ def button_order_with_permission(context, title, id_button, value):
     if value == "down" and context["forloop"]["last"]:
         disabled = "disabled"
 
-    return mark_safe(BUTTON_TEMPLATE.format(title, id_button, value, disabled, icons[value]))\
-
-
-
+    return mark_safe(BUTTON_TEMPLATE.format(title, id_button, value, disabled, ICONS[value])) \
+ \
+ \
 @register.simple_tag(takes_context=True)
 def a_with_permission(context, title, id_a, value):
     permission_denied_message, disabled, root = _get_permission(context, is_eligible_to_change_education_group)
@@ -128,4 +126,4 @@ def a_with_permission(context, title, id_a, value):
     if disabled:
         title = permission_denied_message
 
-    return mark_safe(A_TEMPLATE.format(title, id_a, disabled, icons[value]))
+    return mark_safe(A_TEMPLATE.format(title, id_a, disabled, ICONS[value]))

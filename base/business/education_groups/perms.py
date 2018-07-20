@@ -29,19 +29,25 @@ from django.utils.translation import ugettext_lazy as _
 from base.models import academic_calendar
 from base.models.enums import academic_calendar_type
 
+ERRORS_MSG = {
+    "base.add_educationgroup": "The user has not permission to create education groups.",
+    "base.change_educationgroup": "The user has not permission to change education groups.",
+    "base.delete_educationgroup": "The user has not permission to delete education groups.",
+}
+
 
 def is_eligible_to_add_education_group(person, education_group, raise_exception=False):
-    return has_person_the_right_to_add_education_group(person, raise_exception) and \
+    return check_permission(person, "base.add_educationgroup", raise_exception) and \
            _education_group_generic_permission(person, education_group, raise_exception)
 
 
 def is_eligible_to_change_education_group(person, education_group, raise_exception=False):
-    return has_person_the_right_to_change_education_group(person, raise_exception) and \
-        _education_group_generic_permission(person, education_group, raise_exception)
+    return check_permission(person, "base.change_educationgroup", raise_exception) and \
+           _education_group_generic_permission(person, education_group, raise_exception)
 
 
 def is_eligible_to_delete_education_group(person, education_group, raise_exception=False):
-    return has_person_the_right_to_delete_education_group(person, raise_exception) and \
+    return check_permission(person, "base.delete_educationgroup", raise_exception) and \
            _education_group_generic_permission(person, education_group, raise_exception)
 
 
@@ -63,23 +69,9 @@ def _education_group_generic_permission(person, education_group, raise_exception
     return result and (person.is_central_manager() or is_education_group_creation_period_opened(raise_exception))
 
 
-def has_person_the_right_to_add_education_group(person, raise_exception=False):
-    result = person.user.has_perm('base.add_educationgroup')
-    can_raise_exception(raise_exception, result, "The user has not permission to create education groups.")
-
-    return result
-
-
-def has_person_the_right_to_change_education_group(person, raise_exception=False):
-    result = person.user.has_perm('base.change_educationgroup')
-    can_raise_exception(raise_exception, result, "The user has not permission to change education groups.")
-
-    return result
-
-
-def has_person_the_right_to_delete_education_group(person, raise_exception=False):
-    result = person.user.has_perm('base.delete_educationgroup')
-    can_raise_exception(raise_exception, result, "The user has not permission to delete education groups.")
+def check_permission(person, permission, raise_exception=False):
+    result = person.user.has_perm(permission)
+    can_raise_exception(raise_exception, result, ERRORS_MSG.get(permission, ""))
 
     return result
 
