@@ -36,7 +36,8 @@ GLOBAL = UserManual(
 EDUCATIONAL_INFORMATION = UserManual(
     name="educational_information",
     url="https://uclouvain-sips.atlassian.net/secure/attachment/11031/2_OSIS_Gestionnaire_Info%20Pedag_15%20juillet%202018.pdf",
-    contextual_paths=[]
+    contextual_paths=["learning_units_summary", "list_my_attributions_summary_editable",
+                      "view_educational_information"]
 )
 
 MANUALS = [
@@ -45,8 +46,21 @@ MANUALS = [
 ]
 
 def user_manual_url(request):
-    return {
-        "user_manual": {
+    contextual_manual = find_contextual_user_manual(request.resolver_match.url_name, MANUALS, GLOBAL)
+
+    manual_urls = {
             manual.name: manual.url for manual in MANUALS
         }
+    manual_urls.update(contextual=contextual_manual.url)
+
+    return {
+        "user_manual": manual_urls
     }
+
+
+def find_contextual_user_manual(view_name, manuals, default_manual):
+    contextual_manual = next(
+        (manual for manual in manuals if view_name in manual.contextual_paths),
+        default_manual
+    )
+    return contextual_manual
