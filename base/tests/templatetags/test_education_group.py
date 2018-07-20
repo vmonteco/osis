@@ -30,7 +30,8 @@ from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
 from base.models.enums.academic_calendar_type import EDUCATION_GROUP_EDITION
-from base.templatetags.education_group import li_with_deletion_perm
+from base.templatetags.education_group import li_with_deletion_perm, a_with_permission, A_TEMPLATE, \
+    button_order_with_permission, BUTTON_TEMPLATE
 from base.tests.factories.academic_calendar import AcademicCalendarFactory
 from base.tests.factories.education_group_year import EducationGroupYearFactory
 from base.tests.factories.person import PersonFactory
@@ -60,6 +61,7 @@ class TestEducationGroupTag(TestCase):
         self.url = reverse('delete_education_group', args=[self.education_group_year.id])
 
         self.person.user.user_permissions.add(Permission.objects.get(codename="delete_educationgroup"))
+        self.person.user.user_permissions.add(Permission.objects.get(codename="change_educationgroup"))
         self.client.force_login(user=self.person.user)
 
         self.academic_calendar = AcademicCalendarFactory(
@@ -83,3 +85,23 @@ class TestEducationGroupTag(TestCase):
 
         result = li_with_deletion_perm(self.context, self.url, DELETE_MSG)
         self.assertEqual(result, DISABLED_LI.format(PERMISSION_DENIED_MSG, DELETE_MSG))
+
+    def test_a_with_permission(self):
+        result = a_with_permission(self.context, "title", "id", "edit")
+        self.assertEqual(result, A_TEMPLATE.format("title", "id", "", "fa-edit"))
+
+    def test_a_without_permission(self):
+        self.academic_calendar.delete()
+
+        result = a_with_permission(self.context, "title", "id", "edit")
+        self.assertEqual(result, A_TEMPLATE.format(PERMISSION_DENIED_MSG, "id", "disabled", "fa-edit"))
+
+    def test_button_with_permission(self):
+        result = button_order_with_permission(self.context, "title", "id", "edit")
+        self.assertEqual(result, BUTTON_TEMPLATE.format("title", "id", "edit", "", "fa-edit"))
+
+    def test__without_permission(self):
+        self.academic_calendar.delete()
+
+        result = button_order_with_permission(self.context, "title", "id", "edit")
+        self.assertEqual(result, BUTTON_TEMPLATE.format(PERMISSION_DENIED_MSG, "id", "edit", "disabled",  "fa-edit"))
