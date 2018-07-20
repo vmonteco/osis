@@ -23,6 +23,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from django.utils.translation import ugettext_lazy as _
 
 from base import models as mdl_base
 
@@ -31,7 +32,21 @@ FILENAME = "filename"
 TITLES = "titles"
 WS_TITLE = "ws_title"
 
+NO_DATA = '-'
+
 
 def get_name_or_username(a_user):
     person = mdl_base.person.find_by_user(a_user)
     return "{}, {}".format(person.last_name, person.first_name) if person else a_user.username
+
+
+def convert_boolean(a_boolean_value):
+    return _('yes') if a_boolean_value else _('no')
+
+
+def get_date(a_date):
+    return a_date.strftime('%d-%m-%Y') if a_date else NO_DATA
+
+
+def get_date_time(a_date):
+    return a_date.strftime('%d-%m-%Y %H:%M') if a_date else NO_DATA
