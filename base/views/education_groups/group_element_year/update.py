@@ -100,17 +100,13 @@ def _get_action_method(request):
 
 
 @method_decorator(login_required, name='dispatch')
-class UpdateCommentGroupElementYearView(FlagMixin, RulesRequiredMixin,
-                                        SuccessMessageMixin, AjaxTemplateMixin, UpdateView):
-    # FlagMixin
-    flag = "education_group_update"
-
-    # UpdateView
+class GenericUpdateGroupElementYearMixin(FlagMixin, RulesRequiredMixin, SuccessMessageMixin, AjaxTemplateMixin):
     model = GroupElementYear
     context_object_name = "group_element_year"
     pk_url_kwarg = "group_element_year_id"
-    fields = ["comment", "comment_english"]
-    template_name = "education_group/group_element_year_comment.html"
+
+    # FlagMixin
+    flag = "education_group_update"
 
     # RulesRequiredMixin
     raise_exception = True
@@ -120,51 +116,33 @@ class UpdateCommentGroupElementYearView(FlagMixin, RulesRequiredMixin,
         """ The permission is computed from the education_group_year """
         return rule(self.request.user, self.get_education_group_year())
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['root'] = self.kwargs["root_id"]
+        return context
+
     def get_education_group_year(self):
         return get_object_or_404(EducationGroupYear, pk=self.kwargs["education_group_year_id"])
+
+    def get_success_url(self):
+        return reverse("education_group_content", args=[self.kwargs["education_group_year_id"]])
+
+
+class UpdateCommentGroupElementYearView(GenericUpdateGroupElementYearMixin, UpdateView):
+    # UpdateView
+    fields = ["comment", "comment_english"]
+    template_name = "education_group/group_element_year_comment.html"
 
     # SuccessMessageMixin
     def get_success_message(self, cleaned_data):
         return _("The comments of %(acronym)s has been updated") % {'acronym': self.object.child}
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['root'] = self.kwargs["root_id"]
-        return context
 
-    def get_success_url(self):
-        return reverse("education_group_content", args=[self.kwargs["education_group_year_id"]])
-
-
-@method_decorator(login_required, name='dispatch')
-class DetachGroupElementYearView(FlagMixin, RulesRequiredMixin, AjaxTemplateMixin, DeleteView):
-    # FlagMixin
-    flag = "education_group_update"
-
+class DetachGroupElementYearView(GenericUpdateGroupElementYearMixin, DeleteView):
     # DeleteView
-    model = GroupElementYear
-    context_object_name = "group_element_year"
-    pk_url_kwarg = "group_element_year_id"
     template_name = "education_group/group_element_year/confirm_detach.html"
 
-    # RulesRequiredMixin
-    raise_exception = True
-    rules = [perms.can_change_education_group]
-
-    def _call_rule(self, rule):
-        """ The permission is computed from the education_group_year """
-        return rule(self.request.user, self.get_education_group_year())
-
     def delete(self, request, *args, **kwargs):
-        group_element_year = self.get_object()
-        success_msg = _("The %(acronym)s has been detached") % {'acronym': group_element_year.child}
+        success_msg = _("The %(acronym)s has been detached") % {'acronym': self.object.child}
         display_success_messages(request, success_msg)
         return super().delete(request, *args, **kwargs)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['root'] = self.kwargs["root_id"]
-        return context
-
-    def get_success_url(self):
-        return reverse("education_group_content", args=[self.kwargs["education_group_year_id"]])

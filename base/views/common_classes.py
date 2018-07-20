@@ -67,7 +67,6 @@ class RulesRequiredMixin(UserPassesTestMixin):
         return rule(self.request.user, self.get_object())
 
 
-
 class AjaxTemplateMixin(object):
     ajax_template_suffix = "_inner"
 
