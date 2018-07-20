@@ -3035,6 +3035,12 @@ msgstr "Q1 ou Q2"
 msgid "New Education Group"
 msgstr "Nouveau Groupement"
 
+msgid "New Training"
+msgstr "Nouvelle Formation"
+
+msgid "New Mini-Training"
+msgstr "Nouvelle Mini-Formation"
+
 msgid "The repartition volume of %(col_name)s has been already modified. ({%(new_value)s} instead of {%(current_value)s})"
 msgstr "La répartition de volume de %(col_name)s a déjà été modifiée. ({%(new_value)s} a la place de {%(current_value)s})"
 
@@ -3232,3 +3238,9 @@ msgstr "Inscription par défaut aux cours"
 
 msgid "Session"
 msgstr "Session"
+
+msgid "Are you sure you want to detach this content?"
+msgstr "Êtes-vous sûr·e de vouloir détacher ce contenu?"
+
+msgid "detach"
+msgstr "détacher"
