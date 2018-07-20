@@ -182,20 +182,20 @@
         <div class="panel panel-default">
             <div class="panel-body">
                 <div>
-                    <label>{% trans 'administration_entity' %}</label><br>
-                    {% if education_group_year.administration_entity %}
-                        {{ education_group_year.administration_entity_version.acronym}}
-                    {% elif parent.administration_entity %}
-                        <strong class="text-primary">{{ parent.administration_entity_version.acronym }}</strong>
-                    {% endif %}
-                </div>
-                <br>
-                <div>
                     <label>{% trans 'management_entity' %}</label><br>
                     {% if education_group_year.management_entity %}
                         {{ education_group_year.management_entity_version.acronym }}
                     {% elif parent.management_entity %}
                         <strong class="text-primary">{{ parent.management_entity_version.acronym }}</strong>
+                    {% endif %}
+                </div>
+                <br>
+                <div>
+                    <label>{% trans 'administration_entity' %}</label><br>
+                    {% if education_group_year.administration_entity %}
+                        {{ education_group_year.administration_entity_version.acronym }}
+                    {% elif parent.administration_entity %}
+                        <strong class="text-primary">{{ parent.administration_entity_version.acronym }}</strong>
                     {% endif %}
                 </div>
                 <br>

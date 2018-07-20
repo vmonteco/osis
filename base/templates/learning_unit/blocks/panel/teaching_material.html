@@ -9,7 +9,8 @@
             <li class="list-group-item">
                 <span class="glyphicon glyphicon-ok-circle" aria-hidden="true"
                       style="color:green;margin-right:10px;
-                      {% if not teaching_material.mandatory %}visibility: hidden; {% endif %}"></span>
+                      {% if not teaching_material.mandatory %}visibility: hidden; {% endif %}"
+                      data-toggle="tooltip" title="{% trans 'required' %}"></span>
                 {{teaching_material.title}}
 
                 {% if can_edit_information %}

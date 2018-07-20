@@ -35,7 +35,7 @@ from base import models as mdl_base
 from base.business.entity import get_entity_calendar
 from base.business.learning_unit_year_with_context import volume_learning_component_year
 from base.business.xls import get_name_or_username
-from base.models import entity_container_year
+from base.models import entity_container_year, academic_calendar
 from base.models import learning_achievement
 from base.models.academic_year import find_academic_year_by_year
 from base.models.entity_component_year import EntityComponentYear
@@ -231,7 +231,7 @@ def _get_entities(entity_components_yr):
 def _get_summary_status(a_calendar, cms_list, lu):
     for educational_information in cms_list:
         if educational_information.reference == lu.id \
-                and _changed_in_period(a_calendar.start_date, a_calendar.end_date, educational_information.changed):
+                and _changed_in_period(a_calendar.start_date, educational_information.changed):
             return True
     return False
 
@@ -239,9 +239,10 @@ def _get_summary_status(a_calendar, cms_list, lu):
 def _get_calendar(academic_yr, an_entity_version):
     a_calendar = get_entity_calendar(an_entity_version, academic_yr)
     if a_calendar is None:
-        an_academic_calendar = find_academic_year_by_year(academic_yr.year)
-        if an_academic_calendar:
-            return an_academic_calendar
+        a_calendar = academic_calendar.get_by_reference_and_academic_year(
+            academic_calendar_type.SUMMARY_COURSE_SUBMISSION,
+            academic_yr
+        )
     return a_calendar
 
 
@@ -254,8 +255,8 @@ def _get_summary_detail(a_calendar, cms_list, entity_learning_unit_yr_list_param
     return entity_learning_unit_yr_list
 
 
-def _changed_in_period(start_date, end_date, changed_date):
-    return convert_date_to_datetime(start_date) <= changed_date <= convert_date_to_datetime(end_date)
+def _changed_in_period(start_date, changed_date):
+    return convert_date_to_datetime(start_date) <= changed_date
 
 
 def get_learning_units_and_summary_status(learning_unit_years):
@@ -269,7 +270,7 @@ def get_learning_units_and_summary_status(learning_unit_years):
 def _get_learning_unit_by_luy_entity(cms_list, learning_unit_yr):
     requirement_entity = learning_unit_yr.entities.get('REQUIREMENT_ENTITY', None)
     if requirement_entity:
-        a_calendar = _get_calendar(learning_unit_yr.academic_year, requirement_entity)
+        a_calendar = _get_calendar(learning_unit_yr.academic_year.past(), requirement_entity)
         if a_calendar:
             return _get_summary_detail(a_calendar, cms_list, [learning_unit_yr])
     return []

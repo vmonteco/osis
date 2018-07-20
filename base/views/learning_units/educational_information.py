@@ -29,6 +29,7 @@ from django.http import JsonResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
+from waffle.decorators import waffle_flag
 
 from base.business.learning_unit import get_learning_units_and_summary_status
 from base.business.learning_units.educational_information import get_responsible_and_learning_unit_yr_list
@@ -36,6 +37,9 @@ from base.business.learning_units.perms import can_learning_unit_year_educationa
 from base.forms.common import TooManyResultsException
 from base.forms.learning_unit.educational_information.mail_reminder import MailReminderRow, MailReminderFormset
 from base.forms.learning_unit.search_form import LearningUnitYearForm
+from base.models import academic_calendar
+from base.models.academic_year import current_academic_year
+from base.models.enums.academic_calendar_type import SUMMARY_COURSE_SUBMISSION
 from base.models.person import Person, find_by_user
 from base.utils.send_mail import send_mail_for_educational_information_update
 from base.views import layout
@@ -47,6 +51,7 @@ SUCCESS_MESSAGE = _('success_mail_reminder')
 
 
 @login_required
+@waffle_flag('educational_information_mailing')
 @permission_required('base.can_access_learningunit', raise_exception=True)
 def send_email_educational_information_needs_update(request):
     if request.is_ajax():
@@ -69,8 +74,11 @@ def learning_units_summary_list(request):
     a_user_person = find_by_user(request.user)
     learning_units_found = []
 
-    search_form = LearningUnitYearForm(request.GET or None)
+    initial_academic_year = current_academic_year()
+    if academic_calendar.is_academic_calendar_has_started(initial_academic_year, SUMMARY_COURSE_SUBMISSION):
+        initial_academic_year = initial_academic_year.next()
 
+    search_form = LearningUnitYearForm(request.GET or None, initial={'academic_year_id': initial_academic_year})
     try:
         if search_form.is_valid():
             learning_units_found_search = search_form.get_learning_units(

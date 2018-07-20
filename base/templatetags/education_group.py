@@ -27,23 +27,38 @@ from django import template
 from django.core.exceptions import PermissionDenied
 from django.utils.safestring import mark_safe
 
-from base.business.education_groups.perms import is_eligible_to_delete_education_group
+from base.business.education_groups.perms import is_eligible_to_delete_education_group, \
+    is_eligible_to_change_education_group, is_eligible_to_add_education_group
 
 register = template.Library()
 
 # TODO use inclusion tag
 li_template = """
 <li class="{}">
-    <a href="{}" data-toggle="tooltip" title="{}">{}</a>
+    <a href="{}" data-toggle="tooltip" id="{}" title="{}">{}</a>
 </li>
 """
 
 
 @register.simple_tag
-def li_with_deletion_perm(url, message, person, root=""):
+def li_with_deletion_perm(url, message, person, url_id="link_delete", root=""):
+    return li_with_permission(is_eligible_to_delete_education_group, url, message, person, url_id, root)
+
+
+@register.simple_tag
+def li_with_update_perm(url, message, person, url_id="link_update", root=""):
+    return li_with_permission(is_eligible_to_change_education_group, url, message, person, url_id, root)
+
+
+@register.simple_tag
+def li_with_create_perm(url, message, person, url_id="link_create", root=""):
+    return li_with_permission(is_eligible_to_add_education_group, url, message, person, url_id, root)
+
+
+def li_with_permission(permission, url, message, person, url_id, root=""):
     permission_denied_message = ""
     try:
-        result = is_eligible_to_delete_education_group(person, raise_exception=True)
+        result = permission(person, raise_exception=True)
     except PermissionDenied as e:
         result = False
         permission_denied_message = str(e)
@@ -54,5 +69,4 @@ def li_with_deletion_perm(url, message, person, root=""):
     else:
         li_class = "disabled"
         href = "#"
-
-    return mark_safe(li_template.format(li_class, href, permission_denied_message, message))
+    return mark_safe(li_template.format(li_class, href, url_id, permission_denied_message, message))

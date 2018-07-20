@@ -28,21 +28,20 @@ from django.utils.translation import ugettext_lazy as _
 
 from base.models import academic_calendar
 from base.models.enums import academic_calendar_type
-from osis_common.utils.perms import conjunction, disjunction
 
 
-def is_eligible_to_add_education_group(person):
-    return conjunction(
-            has_person_the_right_to_add_education_group,
-            disjunction(is_central_manager, is_education_group_creation_period_opened),
-    )(person)
+def is_eligible_to_add_education_group(person, raise_exception=False):
+    return has_person_the_right_to_add_education_group(person) and (
+            person.is_central_manager() or
+            is_education_group_creation_period_opened(person, raise_exception)
+    )
 
 
-def is_eligible_to_change_education_group(person):
-    return conjunction(
-        has_person_the_right_to_change_education_group,
-        disjunction(is_central_manager, is_education_group_creation_period_opened),
-    )(person)
+def is_eligible_to_change_education_group(person, raise_exception=False):
+    return has_person_the_right_to_change_education_group(person) and (
+            person.is_central_manager() or
+            is_education_group_creation_period_opened(person, raise_exception)
+    )
 
 
 def is_eligible_to_delete_education_group(person, raise_exception=False):

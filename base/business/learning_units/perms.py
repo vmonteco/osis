@@ -27,6 +27,7 @@ import datetime
 
 from django.core.exceptions import PermissionDenied
 from django.utils.translation import ugettext_lazy as _
+from waffle.models import Flag
 
 from base.business.institution import find_summary_course_submission_dates_for_entity_version
 from base.models import proposal_learning_unit, tutor
@@ -120,8 +121,10 @@ def is_eligible_to_consolidate_proposal(proposal, person):
 
 
 def can_edit_summary_locked_field(learning_unit_year, person):
-    return person.is_faculty_manager() and \
-           person.is_linked_to_entity_in_charge_of_learning_unit_year(learning_unit_year)
+    flag = Flag.get('educational_information_block_action')
+    return flag.is_active_for_user(person.user) and \
+        person.is_faculty_manager() and \
+        person.is_linked_to_entity_in_charge_of_learning_unit_year(learning_unit_year)
 
 
 def can_update_learning_achievement(learning_unit_year, person):

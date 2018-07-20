@@ -2886,6 +2886,15 @@ msgstr "External"
 msgid "comment_title"
 msgstr "Comment"
 
+msgid "comment"
+msgstr ""
+
+msgid "english comment"
+msgstr ""
+
+msgid "The comments of %(acronym)s has been updated"
+msgstr ""
+
 msgid "requesting_entity"
 msgstr "Requesting entity"
 
@@ -3022,6 +3031,12 @@ msgid "Q1 or Q2"
 msgstr ""
 
 msgid "New Education Group"
+msgstr ""
+
+msgid "New Training"
+msgstr ""
+
+msgid "New Mini-Training"
 msgstr ""
 
 msgid "untyped"
@@ -3202,4 +3217,31 @@ msgid "unlock update for teacher"
 msgstr ""
 
 msgid "The education group has been deleted."
+msgstr ""
+
+msgid "The %(acronym)s has been moved"
+msgstr ""
+
+msgid "The %(acronym)s has been detached"
+msgstr ""
+
+msgid "Additional info"
+msgstr ""
+
+msgid "Weighting"
+msgstr ""
+
+msgid "Default learning unit enrollment"
+msgstr ""
+
+msgid "Session"
+msgstr "Session"
+
+msgid "Help"
+msgstr ""
+
+msgid "Are you sure you want to detach this content?"
+msgstr ""
+
+msgid "detach"
 msgstr ""

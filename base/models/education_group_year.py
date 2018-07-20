@@ -62,7 +62,7 @@ class EducationGroupYear(models.Model):
 
     education_group_type = models.ForeignKey(
         'EducationGroupType',
-        blank=True, null=True,
+        blank=False, null=True,
         verbose_name=_("training_type")
     )
     active = models.CharField(
@@ -189,6 +189,21 @@ class EducationGroupYear(models.Model):
         Entity, null=True,
         verbose_name=_("administration_entity"),
         related_name='administration_entity'
+    )
+
+    weighting = models.BooleanField(
+        default=False,
+        verbose_name=_('Weighting')
+    )
+    default_learning_unit_enrollment = models.BooleanField(
+        default=False,
+        verbose_name=_('Default learning unit enrollment')
+    )
+
+    languages = models.ManyToManyField(
+        "reference.Language",
+        through="EducationGroupLanguage",
+        related_name="education_group_years"
     )
 
     def __str__(self):
