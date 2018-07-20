@@ -39,6 +39,18 @@ li_template = """
 </li>
 """
 
+a_template = """
+<a title="{}" class="btn btn-default btn-sm" id="{}" data-toggle="tooltip-wrapper" name="action" {}>
+    <i class="fa {}"></i>
+</a>
+"""
+
+button_template = """
+<button type="submit" title="{}" class="btn btn-default btn-sm" id="{}" data-toggle="tooltip-wrapper" name="action" value="{}" {}>
+    <i class="fa {}"></i>
+</button>
+"""
+
 
 @register.simple_tag(takes_context=True)
 def li_with_deletion_perm(context, url, message, url_id="link_delete"):
@@ -56,6 +68,17 @@ def li_with_create_perm(context, url, message, url_id="link_create"):
 
 
 def li_with_permission(context, permission, url, message, url_id):
+    permission_denied_message, disabled, root = _get_permission(context, permission)
+
+    if not disabled:
+        href = url + "?root=" + root
+    else:
+        href = "#"
+
+    return mark_safe(li_template.format(disabled, href, url_id, permission_denied_message, message))
+
+
+def _get_permission(context, permission):
     permission_denied_message = ""
 
     education_group_year = context.get('education_group_year')
@@ -69,11 +92,40 @@ def li_with_permission(context, permission, url, message, url_id):
         result = False
         permission_denied_message = str(e)
 
-    if result:
-        li_class = ""
-        href = url + "?root=" + root
-    else:
-        li_class = "disabled"
-        href = "#"
+    return permission_denied_message, "" if result else "disabled", root
 
-    return mark_safe(li_template.format(li_class, href, url_id, permission_denied_message, message))
+
+icons ={
+    "up": "fa-arrow-up",
+    "down": "fa-arrow-down",
+    "detach": "fa-close",
+    "edit": "fa-edit",
+}
+
+
+@register.simple_tag(takes_context=True)
+def button_order_with_permission(context, title, id, value):
+    permission_denied_message, disabled, root = _get_permission(context, is_eligible_to_change_education_group)
+
+    if disabled:
+        title = permission_denied_message
+        print(title)
+
+    if value == "up" and context["forloop"]["first"]:
+        disabled = "disabled"
+
+    if value == "down" and context["forloop"]["last"]:
+        disabled = "disabled"
+
+    return mark_safe(button_template.format(title, id, value, disabled, icons[value]))\
+
+
+
+@register.simple_tag(takes_context=True)
+def a_with_permission(context, title, id, value):
+    permission_denied_message, disabled, root = _get_permission(context, is_eligible_to_change_education_group)
+
+    if disabled:
+        title = permission_denied_message
+
+    return mark_safe(a_template.format(title, id, disabled, icons[value]))
