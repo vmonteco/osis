@@ -35,7 +35,7 @@ GLOBAL = UserManual(
 
 EDUCATIONAL_INFORMATION = UserManual(
     name="educational_information",
-    url="https://uclouvain-sips.atlassian.net/secure/attachment/11031/2_OSIS_Gestionnaire_Info%20Pedag_15%20juillet%202018.pdf",
+    url="http://uclouvain.github.io/osis/assets/educational_information_manual_fr.pdf",
     contextual_paths=["learning_units_summary", "list_my_attributions_summary_editable",
                       "view_educational_information"]
 )
