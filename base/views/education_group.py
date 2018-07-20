@@ -241,13 +241,20 @@ def education_group_content(request, education_group_year_id):
 
 
 def _education_group_content_tab(request, education_group_year_id):
+    person = get_object_or_404(Person, user=request.user)
     education_group_year = mdl.education_group_year.find_by_id(education_group_year_id)
     education_group_year_root_id = request.GET.get('root')
     parent = _get_education_group_root(education_group_year_root_id, education_group_year)
 
+    can_create_education_group = perms.is_eligible_to_add_education_group(person)
+    can_change_education_group = perms.is_eligible_to_change_education_group(person)
+
     context = {'parent': parent,
                'education_group_year': education_group_year,
                'group_elements': _group_elements(education_group_year),
+               'person': person,
+               'can_create_education_group': can_create_education_group,
+               'can_change_education_group': can_change_education_group
                }
     return layout.render(request, "education_group/tab_content.html", context)
 

@@ -249,6 +249,12 @@ class EducationGroupYear(models.Model):
         return [group_element_year.child_branch for group_element_year in group_elements_year
                 if group_element_year.child_branch]
 
+    @property
+    def learning_unit_by_group_element_year(self):
+        group_elements_year = self.parents.filter(parent=self).select_related('child_leaf')
+        return [group_element_year.child_leaf for group_element_year in group_elements_year
+                if group_element_year.child_leaf]
+
     @cached_property
     def coorganizations(self):
         return self.educationgrouporganization_set.all()

@@ -53,6 +53,13 @@
                     {% url 'delete_education_group' education_group_year_id=education_group_year.id as delete_url %}
                     {% li_with_deletion_perm "#" _('Delete') person root=request.GET.root %}
                 {% endflag %}
+                {% flag "pdf_branch.html" %}
+                    <li>
+                        <a href="{% url 'pdf_branch.html' education_group_year_id=education_group_year.id %}?root={{ request.GET.root }}" target="_blank">
+                            {% trans 'pdf_branch.html' %}
+                        </a>
+                    </li>
+                {% endflag %}
             </ul>
         </div>
     {% endif %}

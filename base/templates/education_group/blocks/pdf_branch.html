@@ -1,0 +1,14 @@
+<ul>
+    {% for elem in parent.children_by_group_element_year %}
+        <li>{{ elem }}</li>
+        {% if elem.children_by_group_element_year %}
+            {% include "education_group/blocks/pdf_branch.html" with parent=elem %}
+        {% endif %}
+    {% endfor %}
+    {% for elem in parent.learning_unit_by_group_element_year %}
+        <li>{{ elem }}</li>
+        {% if elem.learning_unit_by_group_element_year %}
+            {% include "education_group/blocks/pdf_branch.html" with parent=elem %}
+        {% endif %}
+    {% endfor %}
+</ul>

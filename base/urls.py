@@ -277,6 +277,7 @@ urlpatterns = [
                 education_group.education_group_year_admission_condition_get_line,
                 name='education_group_year_admission_condition_get_line'),
             url(r'^delete/$', DeleteGroupEducationYearView.as_view(), name="delete_education_group"),
+            url(r'^pdf_branch.html/$', group_element_year.pdf_content, name="pdf_branch.html"),
         ])),
         url(r'^(?P<root_id>[0-9]+)/', include([
             url(r'^(?P<education_group_year_id>[0-9]+)/', include([

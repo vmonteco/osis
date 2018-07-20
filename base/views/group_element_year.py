@@ -25,22 +25,24 @@
 ##############################################################################
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.exceptions import ViewDoesNotExist
+from django.db.models import Sum
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views.decorators.http import require_http_methods
 from django.utils.translation import ugettext_lazy as _
 from waffle.decorators import waffle_flag
 
-from base.models.group_element_year import GroupElementYear
+from base import models as mdl
 from base.views.common import display_success_messages
 from base.views.education_groups import perms
+from osis_common.document.pdf_build import Render
 
 
 @login_required
 @waffle_flag("education_group_update")
 @user_passes_test(perms.can_change_education_group)
 def management(request, root_id, education_group_year_id, group_element_year_id):
-    group_element_year = get_object_or_404(GroupElementYear, pk=group_element_year_id)
+    group_element_year = get_object_or_404(mdl.group_element_year.GroupElementYear, pk=group_element_year_id)
     action_method = _get_action_method(request)
     response = action_method(request, group_element_year)
     if response:
@@ -89,3 +91,17 @@ def _get_action_method(request):
     if action not in AVAILABLE_ACTIONS.keys():
         raise AttributeError('Action should be {}'.format(','.join(AVAILABLE_ACTIONS.keys())))
     return AVAILABLE_ACTIONS[action]
+
+
+@login_required
+def pdf_content(request, education_group_year_id):
+    education_group_year = mdl.education_group_year.find_by_id(education_group_year_id)
+
+    #group_element_years = education_group_year.parents.all()
+    #children = [group_element_year for group_element_year in group_element_years]
+    #context = {education_group_year: children}
+
+    parent = education_group_year
+
+
+    return Render.render('education_group/pdf.html', {'parent': parent})
