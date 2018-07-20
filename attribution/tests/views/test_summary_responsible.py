@@ -23,16 +23,14 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import datetime
 
 from django.core.urlresolvers import reverse
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponseRedirect
 from django.test import TestCase
 
 from attribution.models import attribution
 from attribution.tests.models import test_attribution
 from base.models.entity_manager import EntityManager
-
 from base.tests.factories import structure
 from base.tests.factories.academic_year import AcademicYearFactory, create_current_academic_year
 from base.tests.factories.business.entities import create_entities_hierarchy
@@ -40,7 +38,6 @@ from base.tests.factories.business.learning_units import create_learning_unit_wi
 from base.tests.factories.entity_manager import EntityManagerFactory
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.tutor import TutorFactory
-
 
 HTTP_RESPONSE_OK = 200
 
@@ -52,7 +49,7 @@ class SummaryResponsibleViewTestCase(TestCase):
         self.tutor = TutorFactory(person=self.person)
         self.current_academic_year = create_current_academic_year()
         self.next_academic_year = AcademicYearFactory(
-            year = self.current_academic_year.year + 1
+            year=self.current_academic_year.year + 1
         )
 
         # Old structure model [To remove]
