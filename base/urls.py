@@ -224,9 +224,10 @@ urlpatterns = [
     ])),
     url(r'^educationgroups/', include([
         url(r'^$', base.views.education_groups.search.education_groups, name='education_groups'),
-        url(r'^new/$', base.views.education_groups.create.create_education_group, name='new_education_group'),
-        url(r'^new/(?P<parent_id>[0-9]+)/$', base.views.education_groups.create.create_education_group,
-            name='new_education_group'),
+        url(r'^new/(?P<category>[A-Z_]+)/$',
+            base.views.education_groups.create.create_education_group, name='new_education_group'),
+        url(r'^new/(?P<category>[A-Z_]+)/(?P<parent_id>[0-9]+)/$',
+            base.views.education_groups.create.create_education_group, name='new_education_group'),
         url(r'^(?P<education_group_year_id>[0-9]+)/', include([
             url(r'^$', base.views.education_groups.detail.EducationGroupRead.as_view(), name='education_group_read'),
             url(r'^update/$', update_education_group, name="update_education_group"),
