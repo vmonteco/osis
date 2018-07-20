@@ -143,6 +143,6 @@ class DetachGroupElementYearView(GenericUpdateGroupElementYearMixin, DeleteView)
     template_name = "education_group/group_element_year/confirm_detach.html"
 
     def delete(self, request, *args, **kwargs):
-        success_msg = _("The %(acronym)s has been detached") % {'acronym': self.object.child}
+        success_msg = _("The %(acronym)s has been detached") % {'acronym': self.get_object().child}
         display_success_messages(request, success_msg)
         return super().delete(request, *args, **kwargs)
