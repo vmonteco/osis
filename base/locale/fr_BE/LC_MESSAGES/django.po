@@ -3239,6 +3239,9 @@ msgstr "Inscription par défaut aux cours"
 msgid "Session"
 msgstr "Session"
 
+msgid "Help"
+msgstr "Aide"
+
 msgid "Are you sure you want to detach this content?"
 msgstr "Êtes-vous sûr·e de vouloir détacher ce contenu?"
 
