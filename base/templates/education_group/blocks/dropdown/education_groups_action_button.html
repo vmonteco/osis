@@ -35,8 +35,18 @@
     <ul class="dropdown-menu dropdown-menu-large row text-right pull-right">
         {% flag "education_group_create" %}
             <li {% if not can_create_education_group %} class="disabled" {% endif %}>
-                <a {% if can_create_education_group %} href="{% url "new_education_group" %}" {% endif %} id="lnk_create_education_group">
+                <a {% if can_create_education_group %} href="{% url "new_education_group" category=education_group_cats.GROUP %}" {% endif %} id="lnk_create_education_group">
                     {% trans 'New Education Group' %}
+                 </a>
+            </li>
+            <li {% if not can_create_education_group %} class="disabled" {% endif %}>
+                <a {% if can_create_education_group %} href="{% url "new_education_group" category=education_group_cats.TRAINING %}" {% endif %} id="lnk_create_education_group">
+                    {% trans 'New Training' %}
+                 </a>
+            </li>
+            <li {% if not can_create_education_group %} class="disabled" {% endif %}>
+                <a {% if can_create_education_group %} href="{% url "new_education_group" category=education_group_cats.MINI_TRAINING %}" {% endif %} id="lnk_create_education_group">
+                    {% trans 'New Mini-Training' %}
                  </a>
             </li>
         {% endflag %}

@@ -69,16 +69,21 @@ class RulesRequiredMixin(UserPassesTestMixin):
 
 
 class AjaxTemplateMixin(object):
+    ajax_template_suffix = "_inner"
 
-    def dispatch(self, request, *args, **kwargs):
-        if not hasattr(self, 'ajax_template_name'):
-            split = self.template_name.split('.html')
-            split[-1] = '_inner'
-            split.append('.html')
-            self.ajax_template_name = ''.join(split)
-        if request.is_ajax():
-            self.template_name = self.ajax_template_name
-        return super().dispatch(request, *args, **kwargs)
+    def get_template_names(self):
+        template_names = super().get_template_names()
+        if self.request.is_ajax():
+            template_names = [
+                self._convert_template_name_to_ajax_template_name(template_name) for template_name in template_names
+            ]
+        return template_names
+
+    def _convert_template_name_to_ajax_template_name(self, template_name):
+        split = template_name.split('.html')
+        split[-1] = '_inner'
+        split.append('.html')
+        return "".join(split)
 
 
 class DeleteViewWithDependencies(FlagMixin, RulesRequiredMixin, AjaxTemplateMixin, DeleteView):

@@ -30,6 +30,7 @@ from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_http_methods
+from django.views.generic import DeleteView
 from django.views.generic import UpdateView
 from waffle.decorators import waffle_flag
 
@@ -44,11 +45,15 @@ from base.views.learning_units.perms import PermissionDecoratorWithUser
 @login_required
 @waffle_flag("education_group_update")
 @PermissionDecoratorWithUser(perms.can_change_education_group, "education_group_year_id", EducationGroupYear)
-@require_http_methods(['POST'])
 def management(request, root_id, education_group_year_id, group_element_year_id):
     group_element_year = get_object_or_404(GroupElementYear, pk=group_element_year_id)
     action_method = _get_action_method(request)
-    response = action_method(request, group_element_year)
+    response = action_method(
+        request,
+        group_element_year,
+        root_id=root_id,
+        education_group_year_id=education_group_year_id,
+    )
     if response:
         return response
 
@@ -57,22 +62,28 @@ def management(request, root_id, education_group_year_id, group_element_year_id)
     return redirect(success_url)
 
 
-def _up(request, group_element_year):
+@require_http_methods(['POST'])
+def _up(request, group_element_year, *args, **kwargs):
     success_msg = _("The %(acronym)s has been moved") % {'acronym': group_element_year.child}
     group_element_year.up()
     display_success_messages(request, success_msg)
 
 
-def _down(request, group_element_year):
+@require_http_methods(['POST'])
+def _down(request, group_element_year, *args, **kwargs):
     success_msg = _("The %(acronym)s has been moved") % {'acronym': group_element_year.child}
     group_element_year.down()
     display_success_messages(request, success_msg)
 
 
-def _detach(request, group_element_year):
-    success_msg = _("The %(acronym)s has been detached") % {'acronym': group_element_year.child}
-    group_element_year.delete()
-    display_success_messages(request, success_msg)
+@require_http_methods(['GET', 'POST'])
+def _detach(request, group_element_year, *args, **kwargs):
+    return DetachGroupElementYearView.as_view()(
+        request,
+        group_element_year_id=group_element_year.pk,
+        *args,
+        **kwargs
+    )
 
 
 def _get_action_method(request):
@@ -115,6 +126,40 @@ class UpdateCommentGroupElementYearView(FlagMixin, RulesRequiredMixin,
     # SuccessMessageMixin
     def get_success_message(self, cleaned_data):
         return _("The comments of %(acronym)s has been updated") % {'acronym': self.object.child}
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['root'] = self.kwargs["root_id"]
+        return context
+
+    def get_success_url(self):
+        return reverse("education_group_content", args=[self.kwargs["education_group_year_id"]])
+
+
+@method_decorator(login_required, name='dispatch')
+class DetachGroupElementYearView(FlagMixin, RulesRequiredMixin, AjaxTemplateMixin, DeleteView):
+    # FlagMixin
+    flag = "education_group_update"
+
+    # DeleteView
+    model = GroupElementYear
+    context_object_name = "group_element_year"
+    pk_url_kwarg = "group_element_year_id"
+    template_name = "education_group/group_element_year/confirm_detach.html"
+
+    # RulesRequiredMixin
+    raise_exception = True
+    rules = [perms.can_change_education_group]
+
+    def _call_rule(self, rule):
+        """ The permission is computed from the education_group_year """
+        return rule(self.request.user, self.get_education_group_year())
+
+    def delete(self, request, *args, **kwargs):
+        group_element_year = self.get_object()
+        success_msg = _("The %(acronym)s has been detached") % {'acronym': group_element_year.child}
+        display_success_messages(request, success_msg)
+        return super().delete(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

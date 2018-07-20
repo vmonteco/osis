@@ -1,4 +1,6 @@
+{% extends "education_group/layout.html" %}
 {% load i18n %}
+{% load staticfiles bootstrap3 %}
 {% comment "License" %}
 * OSIS stands for Open Student Information System. It's an application
 * designed to manage the core business of higher education institutions,
@@ -23,24 +25,20 @@
 * see http://www.gnu.org/licenses/.
 {% endcomment %}
 
-<div class="modal fade" id="form-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content" id="form-modal-content">
+{% block breadcrumb %}
+    {{ block.super }}
+    {% if parent %}
+    <li><a href="{% url 'education_group_read' education_group_year_id=parent.id %}" id="lnk_parent">{{ parent.partial_acronym }}</a></li>
+    {% endif %}
+    <li class="active">{% trans 'New Mini-Training' %}</li>
+{% endblock %}
 
-     </div>
-   </div>
- </div>
+{% block content %}
+    <div class="page-header">
+        <h2>{% block h2_title %}{% trans 'New Mini-Training' %}{% endblock %}</h2>
+    </div>
 
-<script type="application/javascript">
-    $('#{{ click_id }}').click(function(e) {
-        // Added preventDefaut so as to not add anchor "href" to address bar
-        e.preventDefault();
-         $('#form-modal-content').load('{{ modal_url }}', function (responseText, textStatus, XMLHttpRequest) {
-             if(textStatus == 'error') {
-                   window.location.replace('{{ modal_url }}');
-                } else {
-                    $('#form-modal').modal('toggle');
-                }
-            });
-    });
-</script>
+    {% include "education_group/blocks/form/minitraining.html" %}
+
+{% endblock %}
+

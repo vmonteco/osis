@@ -30,8 +30,12 @@ from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 from waffle.decorators import waffle_flag
 
+from base.forms.education_group.common import EducationGroupModelForm
 from base.forms.education_group.group import GroupForm
+from base.forms.education_group.mini_training import MiniTrainingForm
+from base.forms.education_group.training import TrainingForm
 from base.models.education_group_year import EducationGroupYear
+from base.models.enums import education_group_categories
 from base.views import layout
 from base.views.common import display_success_messages, reverse_url_with_root
 from base.views.education_groups.perms import can_create_education_group
@@ -40,10 +44,16 @@ from base.views.education_groups.perms import can_create_education_group
 @login_required
 @waffle_flag("education_group_create")
 @can_create_education_group
-def create_education_group(request, parent_id=None):
+def create_education_group(request, category=None, parent_id=None):
     parent = get_object_or_404(EducationGroupYear, id=parent_id) if parent_id is not None else None
 
-    form_education_group_year = GroupForm(request.POST or None, parent=parent)
+    forms_by_category = {
+        education_group_categories.GROUP: GroupForm(request.POST or None, parent=parent),
+        education_group_categories.TRAINING: TrainingForm(request.POST or None, parent=parent),
+        education_group_categories.MINI_TRAINING: MiniTrainingForm(request.POST or None, parent=parent),
+    }
+
+    form_education_group_year = forms_by_category.get(category)
 
     if form_education_group_year.is_valid():
         education_group_year = form_education_group_year.save()
@@ -55,8 +65,15 @@ def create_education_group(request, parent_id=None):
 
         return redirect(url)
 
-    return layout.render(request, "education_group/create_groups.html", {
+    templates_by_category = {
+        education_group_categories.GROUP: "education_group/create_groups.html",
+        education_group_categories.TRAINING: "education_group/create_trainings.html",
+        education_group_categories.MINI_TRAINING: "education_group/create_mini_trainings.html",
+    }
+
+    return layout.render(request, templates_by_category.get(category), {
         "form_education_group_year": form_education_group_year.forms[forms.ModelForm],
+        "form_education_group": form_education_group_year.forms[EducationGroupModelForm],
         "parent": parent
     })
 
