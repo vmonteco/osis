@@ -43,8 +43,12 @@
 <script type="application/javascript">
     $('#{{ click_id }}').click(
         function () {
-            $('#form-modal-body').load('{{ modal_url }}', function () {
-                $('#form-modal').modal('toggle');
+            $('#form-modal-body').load('{{ modal_url }}', function (responseText, textStatus, XMLHttpRequest) {
+                if(textStatus == 'error') {
+                   window.location.replace('{{ modal_url }}');
+                } else {
+                    $('#form-modal').modal('toggle');
+                }
             });
     });
 </script>
