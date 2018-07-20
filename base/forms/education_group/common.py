@@ -23,12 +23,12 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from base.models.education_group_year import EducationGroupYear
 from django import forms
 
 from base.forms.learning_unit.entity_form import EntitiesVersionChoiceField
 from base.models import campus, education_group_type, group_element_year
 from base.models.education_group import EducationGroup
+from base.models.education_group_year import EducationGroupYear
 from base.models.entity_version import find_main_entities_version, get_last_version
 
 

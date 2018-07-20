@@ -24,14 +24,11 @@
 #
 ##############################################################################
 from django.conf import settings
-from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
-from django.shortcuts import render
-from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_http_methods
 
 from attribution.business import attribution_charge_new
@@ -230,10 +227,3 @@ def learning_class_year_edit(request, learning_unit_year_id):
     form.load_initial()  # Load data from database
     context['form'] = form
     return layout.render(request, "learning_unit/class_edit.html", context)
-
-
-@login_required
-def outside_period(request):
-    text = _('summary_responsible_denied')
-    messages.add_message(request, messages.WARNING, "%s" % text)
-    return render(request, "access_denied.html")
