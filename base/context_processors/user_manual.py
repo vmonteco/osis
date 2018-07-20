@@ -27,6 +27,8 @@ import collections
 
 UserManual = collections.namedtuple("UserManual", "name, url, contextual_paths")
 
+UNDEFINED_VIEW_NAME = "UNDEFINED"
+
 GLOBAL = UserManual(
     name="global",
     url="http://uclouvain.github.io/osis/assets/user_manual_fr.pdf",
@@ -47,7 +49,8 @@ MANUALS = [
 
 
 def user_manual_url(request):
-    contextual_manual = find_contextual_user_manual(request.resolver_match.url_name, MANUALS, GLOBAL)
+    view_name = request.resolver_match.url_name if request.resolver_match else UNDEFINED_VIEW_NAME
+    contextual_manual = find_contextual_user_manual(view_name, MANUALS, GLOBAL)
 
     manual_urls = {manual.name: manual.url for manual in MANUALS}
     manual_urls.update(contextual=contextual_manual.url)
