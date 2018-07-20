@@ -30,52 +30,60 @@ from base.models import academic_calendar
 from base.models.enums import academic_calendar_type
 
 
-def is_eligible_to_add_education_group(person, raise_exception=False):
-    return has_person_the_right_to_add_education_group(person) and (
-            person.is_central_manager() or
-            is_education_group_creation_period_opened(person, raise_exception)
-    )
+def is_eligible_to_add_education_group(person, education_group, raise_exception=False):
+    return has_person_the_right_to_add_education_group(person, raise_exception) and \
+           _education_group_generic_permission(person, education_group, raise_exception)
 
 
-def is_eligible_to_change_education_group(person, raise_exception=False):
-    return has_person_the_right_to_change_education_group(person) and (
-            person.is_central_manager() or
-            is_education_group_creation_period_opened(person, raise_exception)
-    )
+def is_eligible_to_change_education_group(person, education_group, raise_exception=False):
+    return has_person_the_right_to_change_education_group(person, raise_exception) and \
+        _education_group_generic_permission(person, education_group, raise_exception)
 
 
-def is_eligible_to_delete_education_group(person, raise_exception=False):
-    return has_person_the_right_to_delete_education_group(person, raise_exception) and (
-            person.is_central_manager() or
-            is_education_group_creation_period_opened(person, raise_exception)
-    )
+def is_eligible_to_delete_education_group(person, education_group, raise_exception=False):
+    return has_person_the_right_to_delete_education_group(person, raise_exception) and \
+           _education_group_generic_permission(person, education_group, raise_exception)
 
 
-def is_central_manager(person):
-    return person.is_central_manager()
-
-
-def is_education_group_creation_period_opened(person, raise_exception=False):
+def is_education_group_creation_period_opened(raise_exception=False):
     result = academic_calendar.is_academic_calendar_opened(academic_calendar_type.EDUCATION_GROUP_EDITION)
-
-    if raise_exception and not result:
-        raise PermissionDenied(_("The education group edition period is not open."))
+    can_raise_exception(raise_exception, result, "The education group edition period is not open.")
 
     return result
 
 
-def has_person_the_right_to_add_education_group(person):
-    return person.user.has_perm('base.add_educationgroup')
+def _education_group_generic_permission(person, education_group, raise_exception):
+    if education_group and education_group.management_entity:
+        result = person.is_attached_entities(education_group.management_entity)
+    else:
+        result = True
+
+    can_raise_exception(raise_exception, result, "The user is not attached to the management entity")
+
+    return result and (person.is_central_manager() or is_education_group_creation_period_opened(raise_exception))
 
 
-def has_person_the_right_to_change_education_group(person):
-    return person.user.has_perm('base.change_educationgroup')
+def has_person_the_right_to_add_education_group(person, raise_exception=False):
+    result = person.user.has_perm('base.add_educationgroup')
+    can_raise_exception(raise_exception, result, "The user has not permission to create education groups.")
+
+    return result
+
+
+def has_person_the_right_to_change_education_group(person, raise_exception=False):
+    result = person.user.has_perm('base.change_educationgroup')
+    can_raise_exception(raise_exception, result, "The user has not permission to change education groups.")
+
+    return result
 
 
 def has_person_the_right_to_delete_education_group(person, raise_exception=False):
     result = person.user.has_perm('base.delete_educationgroup')
-
-    if raise_exception and not result:
-        raise PermissionDenied(_("The user has not permission to delete education groups."))
+    can_raise_exception(raise_exception, result, "The user has not permission to delete education groups.")
 
     return result
+
+
+def can_raise_exception(raise_exception, result, msg):
+    if raise_exception and not result:
+        raise PermissionDenied(_(msg))

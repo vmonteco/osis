@@ -40,25 +40,31 @@ li_template = """
 """
 
 
-@register.simple_tag
-def li_with_deletion_perm(url, message, person, url_id="link_delete", root=""):
-    return li_with_permission(is_eligible_to_delete_education_group, url, message, person, url_id, root)
+@register.simple_tag(takes_context=True)
+def li_with_deletion_perm(context, url, message, url_id="link_delete"):
+    return li_with_permission(context, is_eligible_to_delete_education_group, url, message, url_id)
 
 
-@register.simple_tag
-def li_with_update_perm(url, message, person, url_id="link_update", root=""):
-    return li_with_permission(is_eligible_to_change_education_group, url, message, person, url_id, root)
+@register.simple_tag(takes_context=True)
+def li_with_update_perm(context, url, message, url_id="link_update"):
+    return li_with_permission(context, is_eligible_to_change_education_group, url, message, url_id)
 
 
-@register.simple_tag
-def li_with_create_perm(url, message, person, url_id="link_create", root=""):
-    return li_with_permission(is_eligible_to_add_education_group, url, message, person, url_id, root)
+@register.simple_tag(takes_context=True)
+def li_with_create_perm(context, url, message, url_id="link_create"):
+    return li_with_permission(context, is_eligible_to_add_education_group, url, message, url_id)
 
 
-def li_with_permission(permission, url, message, person, url_id, root=""):
+def li_with_permission(context, permission, url, message, url_id):
     permission_denied_message = ""
+
+    education_group_year = context.get('education_group_year')
+    person = context.get('person')
+    root = context["request"].GET.get("root", "")
+
     try:
-        result = permission(person, raise_exception=True)
+        result = permission(person, education_group_year, raise_exception=True)
+
     except PermissionDenied as e:
         result = False
         permission_denied_message = str(e)
@@ -69,4 +75,5 @@ def li_with_permission(permission, url, message, person, url_id, root=""):
     else:
         li_class = "disabled"
         href = "#"
+
     return mark_safe(li_template.format(li_class, href, url_id, permission_denied_message, message))

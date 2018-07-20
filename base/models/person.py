@@ -127,6 +127,9 @@ class Person(SerializableModel):
     def is_linked_to_entity_in_charge_of_learning_unit_year(self, learning_unit_year):
         return is_person_linked_to_entity_in_charge_of_learning_unit(learning_unit_year, self)
 
+    def is_attached_entities(self, entities):
+        return is_attached_entities(self, entities)
+
     @cached_property
     def find_main_entities_version(self):
         return filter_by_attached_entities(self, find_main_entities_version())
@@ -218,8 +221,8 @@ def find_by_firstname_or_lastname(name):
 
 
 def is_person_linked_to_entity_in_charge_of_learning_unit(learning_unit_year, person):
-    entity = Entity.objects.filter(
+    entities = Entity.objects.filter(
         entitycontaineryear__learning_container_year=learning_unit_year.learning_container_year,
         entitycontaineryear__type=REQUIREMENT_ENTITY)
 
-    return is_attached_entities(person, entity)
+    return is_attached_entities(person, entities)

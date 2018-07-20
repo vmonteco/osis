@@ -24,6 +24,7 @@
 #
 ##############################################################################
 from django.db import models
+from django.db.models import QuerySet
 
 from base.models import entity_version
 from base.models.entity import Entity
@@ -74,7 +75,10 @@ def find_entities_by_person(person):
 
 
 def is_attached_entities(person, entity_queryset):
-    admissible_entities = list(entity_queryset.values_list('pk', flat=True))
+    if isinstance(entity_queryset, QuerySet):
+        admissible_entities = list(entity_queryset.values_list('pk', flat=True))
+    else:
+        admissible_entities = list(entity_queryset)
 
     qs = PersonEntity.objects.filter(person=person)
     if qs.filter(entity__in=admissible_entities).exists():

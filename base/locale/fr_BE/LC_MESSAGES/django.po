@@ -3232,3 +3232,6 @@ msgstr "Inscription par défaut aux cours"
 
 msgid "Session"
 msgstr "Session"
+
+msgid "The user is not attached to the management entity"
+msgstr "L'utilisateur n'est pas rattaché à l'entité de gestion"
