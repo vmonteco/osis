@@ -70,7 +70,7 @@ class TestCreate(TestCase):
                 )
             for category in cls.test_categories
         }
-        cls.templates_by_category = {
+        cls.expected_templates_by_category = {
             education_group_categories.GROUP: "education_group/create_groups.html",
             education_group_categories.TRAINING: "education_group/create_trainings.html",
             education_group_categories.MINI_TRAINING: "education_group/create_mini_trainings.html",
@@ -104,13 +104,13 @@ class TestCreate(TestCase):
         for category in self.test_categories:
             with self.subTest(category=category):
                 response = self.client.get(self.urls_without_parent_by_category.get(category))
-                self.assertTemplateUsed(response, self.templates_by_category.get(category))
+                self.assertTemplateUsed(response, self.expected_templates_by_category.get(category))
 
     def test_with_parent_set(self):
         for category in self.test_categories:
             with self.subTest(category=category):
                 response = self.client.get(self.urls_with_parent_by_category.get(category))
-                self.assertTemplateUsed(response, self.templates_by_category.get(category))
+                self.assertTemplateUsed(response, self.expected_templates_by_category.get(category))
 
     def test_response_context(self):
         expected_forms_by_category = {
