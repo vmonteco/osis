@@ -24,6 +24,7 @@
 #
 ##############################################################################
 import datetime
+import itertools
 from decimal import Decimal
 
 import factory.fuzzy
@@ -36,7 +37,7 @@ from base.models.enums import entity_type
 from base.models.enums import learning_unit_year_quadrimesters
 from base.models.enums import learning_unit_year_session
 from base.models.enums import organization_type
-from base.tests.factories.academic_year import AcademicYearFactory
+from base.tests.factories.academic_year import AcademicYearFactory, create_current_academic_year
 from base.tests.factories.campus import CampusFactory
 from base.tests.factories.entity_component_year import EntityComponentYearFactory
 from base.tests.factories.entity_container_year import EntityContainerYearFactory
@@ -224,6 +225,13 @@ class GenerateAcademicYear:
         self.start_year = start_year
         self.end_year = end_year
         self.academic_years = LearningUnitsMixin.create_list_of_academic_years(start_year, end_year)
+
+
+def generate_academic_years(range=2):
+    current_academic_year = create_current_academic_year()
+    previous_years = GenerateAcademicYear(current_academic_year.year-range, current_academic_year.year-1).academic_years
+    next_years = GenerateAcademicYear(current_academic_year.year+1, current_academic_year.year+range).academic_years
+    return list(itertools.chain(previous_years, [current_academic_year], next_years))
 
 
 class GenerateContainer:

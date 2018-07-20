@@ -65,8 +65,10 @@ def learning_units_search(request, search_type):
     service_course_search = search_type == SERVICE_COURSES_SEARCH
     borrowed_course_search = search_type == BORROWED_COURSE
 
-    form = LearningUnitYearForm(request.GET or None, service_course_search=service_course_search,
-                                borrowed_course_search=borrowed_course_search)
+    form = LearningUnitYearForm(request.GET or None,
+                                service_course_search=service_course_search,
+                                borrowed_course_search=borrowed_course_search,
+                                initial={'academic_year_id': current_academic_year()})
     found_learning_units = []
     try:
         if form.is_valid():
@@ -114,7 +116,7 @@ def learning_units_borrowed_course(request):
 @permission_required('base.can_access_learningunit', raise_exception=True)
 @cache_filter()
 def learning_units_proposal_search(request):
-    search_form = LearningUnitProposalForm(request.GET or None)
+    search_form = LearningUnitProposalForm(request.GET or None, initial={'academic_year_id': current_academic_year()})
     user_person = get_object_or_404(Person, user=request.user)
     proposals = []
     research_criteria = []
@@ -185,7 +187,8 @@ def _get_search_type_label(search_type):
 @permission_required('base.can_access_externallearningunityear', raise_exception=True)
 @cache_filter()
 def learning_units_external_search(request):
-    search_form = ExternalLearningUnitYearForm(request.GET or None)
+    search_form = ExternalLearningUnitYearForm(request.GET or None,
+                                               initial={'academic_year_id': current_academic_year()})
     user_person = get_object_or_404(Person, user=request.user)
     external_learning_units = []
     try:

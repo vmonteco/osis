@@ -193,7 +193,7 @@
                 <div>
                     <label>{% trans 'administration_entity' %}</label><br>
                     {% if education_group_year.administration_entity %}
-                        {{ education_group_year.administration_entity_version.acronym}}
+                        {{ education_group_year.administration_entity_version.acronym }}
                     {% elif parent.administration_entity %}
                         <strong class="text-primary">{{ parent.administration_entity_version.acronym }}</strong>
                     {% endif %}

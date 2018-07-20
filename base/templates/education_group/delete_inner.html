@@ -22,6 +22,7 @@
 * at the root of the source code of this program.  If not,
 * see http://www.gnu.org/licenses/.
 {% endcomment %}
+
 <form method="post" id="form_delete_education_group" action="{{ request.path }}">
     {% csrf_token %}
     <p>{% blocktrans %}Are you sure you want to delete {{ education_group_year }}?{% endblocktrans %}</p>

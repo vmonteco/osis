@@ -72,7 +72,8 @@ def education_groups(request):
         'object_list': paginate_queryset(object_list, request.GET),
         'object_list_count': len(object_list),
         'experimental_phase': True,
-        'can_create_education_group': perms.is_eligible_to_add_education_group(person)
+        'can_create_education_group': perms.is_eligible_to_add_education_group(person),
+        'education_group_cats': education_group_categories,
     }
     return layout.render(request, "education_groups.html", context)
 
