@@ -23,14 +23,14 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from http import HTTPStatus
 
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.http import JsonResponse
+from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.urls import reverse
-from rest_framework.status import HTTP_200_OK
 
-from base.utils.cache import cache_filter
+from base.utils.cache import cache_filter, cache
 from base.views.education_groups.perms import can_change_education_group
 
 from waffle.decorators import waffle_flag
@@ -41,7 +41,8 @@ from waffle.decorators import waffle_flag
 @user_passes_test(can_change_education_group)
 @cache_filter()
 def education_group_select(request, education_group_year_id=None):
+    cache.set('education_group_year_id', education_group_year_id, timeout=None)
     if request.is_ajax():
-        return JsonResponse({'status': HTTP_200_OK})
+        return HttpResponse(HTTPStatus.OK)
     else:
         return redirect(reverse('education_group_read', kwargs={'education_group_year_id': education_group_year_id}))

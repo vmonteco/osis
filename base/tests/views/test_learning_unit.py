@@ -111,7 +111,6 @@ class LearningUnitViewCreateFullTestCase(TestCase):
         self.url = reverse('learning_unit_create', kwargs={'academic_year_id': self.current_academic_year.id})
         self.user = UserFactory()
         self.user.user_permissions.add(Permission.objects.get(codename="can_access_learningunit"))
-        self.user.user_permissions.add(Permission.objects.get(codename="can_create_learningunit"))
         PersonFactory(user=self.user)
         self.client.force_login(self.user)
 

@@ -63,7 +63,6 @@ class TestCreate(TestCase):
 
         self.mocked_perm.assert_called_once_with(self.person)
 
-
     def test_template_used(self):
         response = self.client.get(self.url_without_parent)
 

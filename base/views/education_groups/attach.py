@@ -25,8 +25,11 @@
 ##############################################################################
 
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.shortcuts import redirect
+from django.urls import reverse
+
 from base.models.group_element_year import GroupElementYear
-from base.utils.cache import cache_filter
+from base.utils.cache import cache_filter, cache
 from base.views.education_groups.perms import can_change_education_group
 
 from waffle.decorators import waffle_flag
@@ -36,9 +39,11 @@ from waffle.decorators import waffle_flag
 @waffle_flag("education_group_attach")
 @user_passes_test(can_change_education_group)
 @cache_filter()
-def education_group_attach(request, parent_id):
-    group_to_attach = GroupElementYear.objects.get_or_create(
-        parent=parent_id,
-        child_branch=request.GET.get("education_group_year_id")
+def education_group_attach(request, education_group_year_id):
+    child_id = cache.get('education_group_year_id')
+    GroupElementYear.objects.get_or_create(
+        parent=int(education_group_year_id),
+        child_branch=int(child_id)
     )
-    return group_to_attach
+    cache.set('education_group_year_id', None, timeout=None)
+    return redirect(reverse('education_group_read', kwargs={'education_group_year_id': education_group_year_id}))
