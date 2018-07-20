@@ -23,29 +23,30 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import datetime
-import operator
-import string
+from django.utils import timezone
 
-import factory
-import factory.fuzzy
-from factory.django import DjangoModelFactory
-from faker import Faker
-
-from osis_common.utils.datetime import get_tzinfo
-from base.tests.factories.education_group import EducationGroupFactory
-from base.models.enums import mandate_type as mandate_types
-fake = Faker()
+from django.test import TestCase
+from django.utils.translation import ugettext_lazy as _
+from base.business.xls import get_date, get_date_time, convert_boolean, NO_DATA
 
 
-class MandateFactory(DjangoModelFactory):
-    class Meta:
-        model = "base.Mandate"
+class TestXls(TestCase):
+    def setUp(self):
+        self.now = timezone.now()
 
-    external_id = factory.fuzzy.FuzzyText(length=10, chars=string.digits)
-    changed = factory.fuzzy.FuzzyDateTime(datetime.datetime(2016, 1, 1, tzinfo=get_tzinfo()),
-                                          datetime.datetime(2017, 3, 1, tzinfo=get_tzinfo()))
-    education_group = factory.SubFactory(EducationGroupFactory)
-    function = factory.Iterator(mandate_types.MANDATE_TYPES,
-                            getter=operator.itemgetter(0))
-    qualification = factory.Sequence(lambda n: 'qualification - %d' % n)
+    def test_convert_boolean(self):
+        self.assertEqual(convert_boolean(None), _('no'))
+        self.assertEqual(convert_boolean(True), _('yes'))
+        self.assertEqual(convert_boolean(False), _('no'))
+
+    def test_get_date(self):
+        self.assertEqual(get_date(None), NO_DATA)
+        self.assertEqual(get_date(self.now), "{:02}-{:02}-{}".format(self.now.day, self.now.month, self.now.year))
+
+    def test_get_date_time(self):
+        self.assertEqual(
+            get_date_time(None)
+                         , NO_DATA)
+        self.assertEqual(get_date_time(self.now),
+                         "{:02}-{:02}-{} {:02}:{:02}".format(self.now.day, self.now.month, self.now.year, self.now.hour,
+                                                 self.now.minute))

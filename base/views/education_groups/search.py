@@ -41,7 +41,7 @@ from base.models.enums import education_group_categories, academic_calendar_type
 from base.models.person import Person
 from base.views import layout
 from base.views.common import paginate_queryset
-from base.views.education_group import get_dates, get_sessions_dates
+from base.views.education_groups.detail import get_dates, get_sessions_dates
 from base.models.enums import mandate_type as mandate_types
 
 
@@ -101,7 +101,6 @@ def _get_administrative_data(object_list_param):
     object_list = [education_group_yr for education_group_yr in object_list_param if
                    education_group_yr.education_group_type.category == 'TRAINING']
     for education_group_yr in object_list:
-        print(education_group_yr.education_group_type.category)
         education_group_yr.administrative_data = dict()
         education_group_yr.administrative_data['course_enrollment'] = \
             get_dates(academic_calendar_type.COURSE_ENROLLMENT, education_group_yr)
@@ -125,4 +124,5 @@ def _get_administrative_data(object_list_param):
             mdl.mandatary.find_by_education_group_year_function(education_group_yr, mandate_types.SECRETARY)
         education_group_yr.administrative_data[SIGNATORIES] = \
             mdl.mandatary.find_by_education_group_year_function(education_group_yr, mandate_types.SIGNATORY)
+        print(education_group_yr.administrative_data['scores_exam_submission'])
     return object_list
