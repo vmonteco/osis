@@ -25,18 +25,20 @@
 ##############################################################################
 
 from django.contrib.auth.decorators import login_required, user_passes_test
-
+from base.models.group_element_year import GroupElementYear
 from base.utils.cache import cache_filter
-from osis_common.decorators.ajax import ajax_required
 from base.views.education_groups.perms import can_change_education_group
 
 from waffle.decorators import waffle_flag
 
 
 @login_required
-@ajax_required
 @waffle_flag("education_group_attach")
 @user_passes_test(can_change_education_group)
 @cache_filter()
-def education_group_attach(request):
-    return request
+def education_group_attach(request, parent_id):
+    group_to_attach = GroupElementYear.objects.get_or_create(
+        parent=parent_id,
+        child_branch=request.GET.get("education_group_year_id")
+    )
+    return group_to_attach

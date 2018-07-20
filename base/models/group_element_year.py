@@ -103,6 +103,8 @@ class GroupElementYear(OrderedModel):
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         if self.child_branch and self.child_leaf:
             raise IntegrityError("Can not save GroupElementYear with a child branch and a child leaf.")
+        if self.child_branch == self.parent:
+            raise IntegrityError("Can not save GroupElementYear with a child branch and a parent are the same.")
 
         return super().save(force_insert, force_update, using, update_fields)
 

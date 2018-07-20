@@ -26,16 +26,14 @@
 
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import redirect
+from django.urls import reverse
 from rest_framework.status import HTTP_200_OK
 
-from base.models.education_group_year import EducationGroupYear
 from base.utils.cache import cache_filter
 from base.views.education_groups.perms import can_change_education_group
 
 from waffle.decorators import waffle_flag
-
-from base.views.education_groups.update import _get_view
 
 
 @login_required
@@ -46,6 +44,4 @@ def education_group_select(request, education_group_year_id=None):
     if request.is_ajax():
         return JsonResponse({'status': HTTP_200_OK})
     else:
-        education_group_year = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
-        view_function = _get_view(education_group_year.education_group_type.category)
-        return view_function(request, education_group_year)
+        return redirect(reverse('education_group_read', kwargs={'education_group_year_id': education_group_year_id}))

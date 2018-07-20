@@ -59,6 +59,14 @@ $(document).ready(function () {
                  "action" : function (data) {
                     var inst = $.jstree.reference(data.reference),
                         obj = inst.get_node(data.reference);
+
+                    $.ajax({
+                        url: 'attach/',
+                        data: {'education_group_id' : obj.li_attr.id},
+                        type: 'GET',
+                        dataType: 'json',
+                    });
+
                     alert('Attach : ' + obj.li_attr.id)
                   },
                   "icon": "fa fa-paperclip"
@@ -68,6 +76,14 @@ $(document).ready(function () {
                  "action" : function (data) {
                     var inst = $.jstree.reference(data.reference),
                         obj = inst.get_node(data.reference);
+
+                    $.ajax({
+                        url: 'detach/',
+                        data: {'education_group_id' : obj.li_attr.id},
+                        type: 'GET',
+                        dataType: 'json',
+                    });
+
                     alert('Detach : ' + obj.li_attr.id)
                   },
                   "icon": "fa fa-cut"
