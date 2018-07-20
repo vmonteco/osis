@@ -24,7 +24,7 @@
 * see http://www.gnu.org/licenses/.
 {% endcomment %}
 
-<form id="form_group_element_year_actions" method="POST"
+<form id="form_group_element_year_actions" method="POST" style="display:inline;"
       action="{% url 'group_element_year_management' root_id=parent.id education_group_year_id=education_group_year.id group_element_year_id=element.group_element.id %}">
     {% csrf_token %}
     <button type="submit" title="{% trans 'up' %}"  class="btn btn-default btn-sm"
@@ -37,12 +37,16 @@
             name="action" value="down" {% if forloop.last %}disabled{% endif %}>
         <i class="fa fa-arrow-down"></i>
     </button>
-    <button type="submit" title="{% trans 'detach' %}" class="btn btn-default btn-sm"
-            id="btn_operation_detach_{{ element.group_element.id }}"
-            name="action" value="detach">
-        <i class="fa fa-close"></i>
-    </button>
 </form>
+
+{% with "btn_operation_detach_"|addstr:element.group_element.id as id_detach %}
+    <a title="{% trans 'detach'|capfirst %}" class="btn btn-default btn-sm" id="{{ id_detach }}" name="action" value="detach">
+        <i class="fa fa-close"></i>
+    </a>
+    {% url 'group_element_year_management' root_id=parent.id education_group_year_id=education_group_year.id group_element_year_id=element.group_element.id as detach_url %}
+    {% include "blocks/modal/modal_ajax.html" with modal_url=detach_url|add:"?action=detach" click_id=id_detach form_id="form_detach_confirm" %}
+{% endwith %}
+
 
 {% with "btn_operation_edit_"|addstr:element.group_element.id as id_edit %}
     <a title="{% trans 'edit' %}" class="btn btn-default btn-sm" id="{{ id_edit }}" name="action" value="edit">
