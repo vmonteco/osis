@@ -34,8 +34,14 @@
             </button>
             <ul class="dropdown-menu dropdown-menu-large row text-right pull-right">
                 {% flag "education_group_create" %}
-                    {% url 'new_education_group' education_group_year_id=education_group_year.id as create_url %}
-                    {% li_with_create_perm create_url _('New Education Group') person root=request.GET.root %}
+                    {% url 'new_education_group' category=enums.GROUP parent_id=education_group_year.id as create_group_url %}
+                    {% li_with_create_perm create_group_url _('New Education Group') person root=request.GET.root %}
+
+                    {% url 'new_education_group' category=enums.TRAINING parent_id=education_group_year.id as create_training_url %}
+                    {% li_with_create_perm create_training_url _('New Training') person root=request.GET.root %}
+
+                    {% url 'new_education_group' category=enums.MINI_TRAINING parent_id=education_group_year.id as create_mini_training_url %}
+                    {% li_with_create_perm create_mini_training_url _('New Mini-Training') person root=request.GET.root %}
                 {% endflag %}
 
                 {% flag "education_group_update" %}

@@ -3033,6 +3033,12 @@ msgstr ""
 msgid "New Education Group"
 msgstr ""
 
+msgid "New Training"
+msgstr ""
+
+msgid "New Mini-Training"
+msgstr ""
+
 msgid "untyped"
 msgstr ""
 
@@ -3232,4 +3238,10 @@ msgid "Session"
 msgstr "Session"
 
 msgid "Help"
+msgstr ""
+
+msgid "Are you sure you want to detach this content?"
+msgstr ""
+
+msgid "detach"
 msgstr ""
