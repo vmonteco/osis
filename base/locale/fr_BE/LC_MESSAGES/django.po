@@ -3232,3 +3232,6 @@ msgstr "Inscription par défaut aux cours"
 
 msgid "Session"
 msgstr "Session"
+
+msgid "Help"
+msgstr "Aide"
