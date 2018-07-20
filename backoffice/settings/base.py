@@ -115,6 +115,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'base.views.common.common_context_processor',
+                'base.context_processors.documentation.documentation_url'
             ],
         },
     },
