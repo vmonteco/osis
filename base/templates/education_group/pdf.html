@@ -15,9 +15,8 @@
     <div class="container">
         <div class="list-group">
             <ul>
-                <li>{{ parent.title }} ({{ parent.relative_credits }}{% trans 'credits'|lower %})</li>
+                <li>{{ parent.title }} ({{ parent.credits }} {% trans 'credits'|lower %})</li>
                 {% include "education_group/blocks/pdf_branch.html" with parent=parent %}
-            </ul>
             </ul>
         </div>
     </div>
