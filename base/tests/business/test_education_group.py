@@ -203,53 +203,69 @@ class EducationGroupXlsAdministrativeDataTestCase(TestCase):
         self.academic_year = create_current_academic_year()
         self.education_group_type_group = EducationGroupTypeFactory(category=education_group_categories.GROUP)
         self.education_group = EducationGroupFactory(start_year=self.academic_year.year,
-                                                     end_year=self.academic_year.year +1)
+                                                     end_year=self.academic_year.year + 1)
         self.education_group_year_1 = EducationGroupYearFactory(academic_year=self.academic_year, acronym="PREMIER",
                                                                 education_group=self.education_group,
                                                                 weighting=True)
         self.education_group_year_1.management_entity_version = EntityVersionFactory()
-        self.mandate_president = MandateFactory(education_group=self.education_group,function=mandate_types.PRESIDENT, qualification=None)
+        self.mandate_president = MandateFactory(education_group=self.education_group, function=mandate_types.PRESIDENT,
+                                                qualification=None)
         self.president = MandataryFactory(mandate=self.mandate_president,
                                           start_date=self.academic_year.start_date,
                                           end_date=self.academic_year.end_date)
-        self.secretary_1 = MandataryFactory(mandate=MandateFactory(education_group=self.education_group,function=mandate_types.SECRETARY, qualification=None),
-                                            start_date=self.academic_year.start_date,
-                                            end_date=self.academic_year.end_date)
-        self.secretary_2 = MandataryFactory(mandate=MandateFactory(education_group=self.education_group,function=mandate_types.SECRETARY, qualification=None),
-                                            start_date=self.academic_year.start_date,
-                                            end_date=self.academic_year.end_date)
-        self.signatory = MandataryFactory(mandate=MandateFactory(education_group=self.education_group,function=mandate_types.SIGNATORY, qualification='Responsable'),
-                                          start_date=self.academic_year.start_date,
-                                          end_date=self.academic_year.end_date)
+        self.secretary_1 = MandataryFactory(
+            mandate=MandateFactory(education_group=self.education_group, function=mandate_types.SECRETARY,
+                                   qualification=None),
+            start_date=self.academic_year.start_date,
+            end_date=self.academic_year.end_date)
+        self.secretary_2 = MandataryFactory(
+            mandate=MandateFactory(education_group=self.education_group, function=mandate_types.SECRETARY,
+                                   qualification=None),
+            start_date=self.academic_year.start_date,
+            end_date=self.academic_year.end_date)
+        self.signatory = MandataryFactory(
+            mandate=MandateFactory(education_group=self.education_group, function=mandate_types.SIGNATORY,
+                                   qualification='Responsable'),
+            start_date=self.academic_year.start_date,
+            end_date=self.academic_year.end_date)
 
-        self.academic_cal_course_enrollment = AcademicCalendarFactory(academic_year=self.academic_year,
-                                                    reference=academic_calendar_type.COURSE_ENROLLMENT)
+        self.academic_cal_course_enrollment = AcademicCalendarFactory(
+            academic_year=self.academic_year,
+            reference=academic_calendar_type.COURSE_ENROLLMENT
+        )
         OfferYearCalendarFactory(education_group_year=self.education_group_year_1,
-                                                     academic_calendar=self.academic_cal_course_enrollment)
-        self.academic_cal_scores_exam_submission_1 = AcademicCalendarFactory(academic_year=self.academic_year,
-                                                                      reference=academic_calendar_type.SCORES_EXAM_SUBMISSION)
+                                 academic_calendar=self.academic_cal_course_enrollment)
+        self.academic_cal_scores_exam_submission_1 = AcademicCalendarFactory(
+            academic_year=self.academic_year,
+            reference=academic_calendar_type.SCORES_EXAM_SUBMISSION
+        )
         self.scores_exam_submission_2 = AcademicCalendarFactory(academic_year=self.academic_year,
-                                                                 reference=academic_calendar_type.SCORES_EXAM_SUBMISSION)
-        self.offer_yr_cal_score_exam_submission_1 = OfferYearCalendarFactory(education_group_year=self.education_group_year_1,
-                                 academic_calendar=self.academic_cal_scores_exam_submission_1)
+                                                                reference=academic_calendar_type.SCORES_EXAM_SUBMISSION)
+        self.offer_yr_cal_score_exam_submission_1 = OfferYearCalendarFactory(
+            education_group_year=self.education_group_year_1,
+            academic_calendar=self.academic_cal_scores_exam_submission_1)
 
-        self.offer_yr_cal_score_exam_submission_2 = OfferYearCalendarFactory(education_group_year=self.education_group_year_1,
-                                 academic_calendar=self.scores_exam_submission_2)
-        self.session_exam_cal_deliberation_1 = SessionExamCalendarFactory(academic_calendar=self.academic_cal_scores_exam_submission_1,
-                                   number_session=1)
-        self.session_exam_cal_deliberation_2 = SessionExamCalendarFactory(academic_calendar=self.scores_exam_submission_2,
-                                                                          number_session=2)
-        self.offer_yr_cal_score_exam_submission_1.start_date = datetime.date(2017,9,1)
+        self.offer_yr_cal_score_exam_submission_2 = OfferYearCalendarFactory(
+            education_group_year=self.education_group_year_1,
+            academic_calendar=self.scores_exam_submission_2)
+        self.session_exam_cal_deliberation_1 = SessionExamCalendarFactory(
+            academic_calendar=self.academic_cal_scores_exam_submission_1,
+            number_session=1)
+        self.session_exam_cal_deliberation_2 = SessionExamCalendarFactory(
+            academic_calendar=self.scores_exam_submission_2,
+            number_session=2)
+        self.offer_yr_cal_score_exam_submission_1.start_date = datetime.date(2017, 9, 1)
         self.offer_yr_cal_score_exam_submission_1.save()
-        self.education_group_year_1.administrative_data = {'course_enrollment': {'dates': self.academic_cal_course_enrollment},
-                                                           'exam_enrollments': NO_SESSION_DATA,
-                                                           'scores_exam_submission': {'session1': self.offer_yr_cal_score_exam_submission_1},
-                                                           'dissertation_submission': NO_SESSION_DATA,
-                                                           'deliberation' : NO_SESSION_DATA,
-                                                           'scores_exam_diffusion': NO_SESSION_DATA,
-                                                           PRESIDENTS: [self.president],
-                                                           SECRETARIES: [self.secretary_1, self.secretary_2],
-                                                           SIGNATORIES: [self.signatory]}
+        self.education_group_year_1.administrative_data = {
+            'course_enrollment': {'dates': self.academic_cal_course_enrollment},
+            'exam_enrollments': NO_SESSION_DATA,
+            'scores_exam_submission': {'session1': self.offer_yr_cal_score_exam_submission_1},
+            'dissertation_submission': NO_SESSION_DATA,
+            'deliberation': NO_SESSION_DATA,
+            'scores_exam_diffusion': NO_SESSION_DATA,
+            PRESIDENTS: [self.president],
+            SECRETARIES: [self.secretary_1, self.secretary_2],
+            SIGNATORIES: [self.signatory]}
         self.user = UserFactory()
 
     def test_prepare_xls_content_no_data(self):
