@@ -2915,6 +2915,15 @@ msgstr "Externe"
 msgid "comment_title"
 msgstr "Commentaire"
 
+msgid "comment"
+msgstr "commentaire"
+
+msgid "english comment"
+msgstr "commentaire anglais"
+
+msgid "The comments of %(acronym)s has been updated"
+msgstr "Les commentaires de %(acronym)s ont été mis à jour"
+
 msgid "requesting_entity"
 msgstr "Entité demandeuse"
 
@@ -3215,7 +3224,7 @@ msgstr "L'organisation de formation a été supprimée."
 msgid "The %(acronym)s has been moved"
 msgstr "%(acronym)s a été déplacé"
 
-msgid "The %(acronym)s has been detatched"
+msgid "The %(acronym)s has been detached"
 msgstr "%(acronym)s a été détaché"
 
 msgid "Additional info"
