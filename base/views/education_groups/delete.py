@@ -25,6 +25,7 @@
 ##############################################################################
 from django.urls import reverse_lazy
 from django.utils.translation import ngettext_lazy
+from django.utils.translation import ugettext_lazy as _
 
 from base.models.education_group_year import EducationGroupYear
 from base.models.group_element_year import GroupElementYear
@@ -92,6 +93,6 @@ class DeleteGroupEducationYearView(DeleteViewWithDependencies):
             )
 
         if [isinstance(group, GroupElementYear) for group in self.collector.protected]:
-            protected_message.append("The content of the education group is not empty.")
+            protected_message.append(_("The content of the education group is not empty."))
 
         return protected_message
