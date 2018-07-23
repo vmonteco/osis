@@ -82,7 +82,7 @@
                                     </tr>
                                     {% if element.group_element.comment %}
                                         <tr style="border-spacing: 100px">
-                                            <td colspan="10">
+                                            <td colspan="10" style="border-top: none;border-bottom: none;">
                                                 {% if element.group_element.comment %}
                                                     <label>{% trans 'comment_title' %} FR</label> :&nbsp;
                                                     {{ element.group_element.comment }}
@@ -92,7 +92,7 @@
                                     {% endif %}
                                     {% if element.group_element.comment_english %}
                                         <tr>
-                                            <td colspan="10" style="border-top: none;">
+                                            <td colspan="10" style="border-top: none;border-bottom: none;">
                                                 {% if element.group_element.comment_english %}
                                                     <label>{% trans 'comment_title' %} ENG</label> :&nbsp;
                                                     {{ element.group_element.comment_english }}
