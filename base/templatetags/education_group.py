@@ -33,40 +33,97 @@ from base.business.education_groups.perms import is_eligible_to_delete_education
 register = template.Library()
 
 # TODO use inclusion tag
-li_template = """
+LI_TEMPLATE = """
 <li class="{}">
     <a href="{}" data-toggle="tooltip" id="{}" title="{}">{}</a>
 </li>
 """
 
+A_TEMPLATE = """
+<a title="{}" class="btn btn-default btn-sm" id="{}" data-toggle="tooltip-wrapper" name="action" {}>
+    <i class="fa {}"></i>
+</a>
+"""
 
-@register.simple_tag
-def li_with_deletion_perm(url, message, person, url_id="link_delete", root=""):
-    return li_with_permission(is_eligible_to_delete_education_group, url, message, person, url_id, root)
+BUTTON_TEMPLATE = """
+<button type="submit" title="{}" class="btn btn-default btn-sm" 
+    id="{}" data-toggle="tooltip-wrapper" name="action" value="{}" {}>
+    <i class="fa {}"></i>
+</button>
+"""
+
+ICONS = {
+    "up": "fa-arrow-up",
+    "down": "fa-arrow-down",
+    "detach": "fa-close",
+    "edit": "fa-edit",
+}
 
 
-@register.simple_tag
-def li_with_update_perm(url, message, person, url_id="link_update", root=""):
-    return li_with_permission(is_eligible_to_change_education_group, url, message, person, url_id, root)
+@register.simple_tag(takes_context=True)
+def li_with_deletion_perm(context, url, message, url_id="link_delete"):
+    return li_with_permission(context, is_eligible_to_delete_education_group, url, message, url_id)
 
 
-@register.simple_tag
-def li_with_create_perm(url, message, person, url_id="link_create", root=""):
-    return li_with_permission(is_eligible_to_add_education_group, url, message, person, url_id, root)
+@register.simple_tag(takes_context=True)
+def li_with_update_perm(context, url, message, url_id="link_update"):
+    return li_with_permission(context, is_eligible_to_change_education_group, url, message, url_id)
 
 
-def li_with_permission(permission, url, message, person, url_id, root=""):
+@register.simple_tag(takes_context=True)
+def li_with_create_perm(context, url, message, url_id="link_create"):
+    return li_with_permission(context, is_eligible_to_add_education_group, url, message, url_id)
+
+
+def li_with_permission(context, permission, url, message, url_id):
+    permission_denied_message, disabled, root = _get_permission(context, permission)
+
+    if not disabled:
+        href = url + "?root=" + root
+    else:
+        href = "#"
+
+    return mark_safe(LI_TEMPLATE.format(disabled, href, url_id, permission_denied_message, message))
+
+
+def _get_permission(context, permission):
     permission_denied_message = ""
+
+    education_group_year = context.get('education_group_year')
+    person = context.get('person')
+    root = context["request"].GET.get("root", "")
+
     try:
-        result = permission(person, raise_exception=True)
+        result = permission(person, education_group_year, raise_exception=True)
+
     except PermissionDenied as e:
         result = False
         permission_denied_message = str(e)
 
-    if result:
-        li_class = ""
-        href = url + "?root=" + root
-    else:
-        li_class = "disabled"
-        href = "#"
-    return mark_safe(li_template.format(li_class, href, url_id, permission_denied_message, message))
+    return permission_denied_message, "" if result else "disabled", root
+
+
+@register.simple_tag(takes_context=True)
+def button_order_with_permission(context, title, id_button, value):
+    permission_denied_message, disabled, root = _get_permission(context, is_eligible_to_change_education_group)
+
+    if disabled:
+        title = permission_denied_message
+
+    if value == "up" and context["forloop"]["first"]:
+        disabled = "disabled"
+
+    if value == "down" and context["forloop"]["last"]:
+        disabled = "disabled"
+
+    return mark_safe(BUTTON_TEMPLATE.format(title, id_button, value, disabled, ICONS[value]))
+
+
+@register.simple_tag(takes_context=True)
+def a_with_permission(context, title, id_a, value):
+    permission_denied_message, disabled, root = _get_permission(context, is_eligible_to_change_education_group)
+
+    if disabled:
+        title = permission_denied_message
+
+    return mark_safe(A_TEMPLATE.format(title, id_a, disabled, ICONS[value]))

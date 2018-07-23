@@ -55,12 +55,16 @@ class RulesRequiredMixin(UserPassesTestMixin):
 
         try:
             # Requires SingleObjectMixin or equivalent ``get_object`` method
-            return all(rule(self.request.user, self.get_object()) for rule in self.rules)
+            return all(self._call_rule(rule) for rule in self.rules)
 
         except PermissionDenied as e:
             # The rules can override the default message
             self.permission_denied_message = str(e)
             return False
+
+    def _call_rule(self, rule):
+        """ The signature can be override with another object """
+        return rule(self.request.user, self.get_object())
 
 
 class AjaxTemplateMixin(object):

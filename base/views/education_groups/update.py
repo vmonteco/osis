@@ -24,7 +24,7 @@
 #
 ##############################################################################
 from django import forms
-from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import ugettext_lazy as _
 from waffle.decorators import waffle_flag
@@ -38,11 +38,12 @@ from base.models.enums import education_group_categories
 from base.views import layout
 from base.views.common import display_success_messages, reverse_url_with_root
 from base.views.education_groups.perms import can_change_education_group
+from base.views.learning_units.perms import PermissionDecoratorWithUser
 
 
 @login_required
 @waffle_flag("education_group_update")
-@user_passes_test(can_change_education_group)
+@PermissionDecoratorWithUser(can_change_education_group, "education_group_year_id", EducationGroupYear)
 def update_education_group(request, education_group_year_id):
     education_group_year = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
 

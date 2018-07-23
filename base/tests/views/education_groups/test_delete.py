@@ -38,6 +38,7 @@ from base.tests.factories.education_group_year import EducationGroupYearFactory
 from base.tests.factories.group_element_year import GroupElementYearFactory
 from base.tests.factories.offer_enrollment import OfferEnrollmentFactory
 from base.tests.factories.person import PersonFactory
+from base.tests.factories.person_entity import PersonEntityFactory
 
 
 @override_flag('education_group_delete', active=True)
@@ -47,6 +48,7 @@ class TestDeleteGroupEducationYearView(TestCase):
         self.education_group = EducationGroupFactory()
         self.education_group_year = EducationGroupYearFactory(education_group=self.education_group)
         self.person = PersonFactory()
+        PersonEntityFactory(person=self.person, entity=self.education_group_year.management_entity)
         self.url = reverse('delete_education_group', args=[self.education_group_year.id])
 
         self.person.user.user_permissions.add(Permission.objects.get(codename="delete_educationgroup"))

@@ -91,7 +91,7 @@ class TestUpdate(TestCase):
     def test_permission_required(self):
         response = self.client.get(self.url)
 
-        self.mocked_perm.assert_called_once_with(self.person)
+        self.mocked_perm.assert_called_once_with(self.person, self.education_group_year, raise_exception=True)
 
     def test_template_used(self):
         response = self.client.get(self.url)
