@@ -38,17 +38,17 @@ ERRORS_MSG = {
 
 def is_eligible_to_add_education_group(person, education_group, raise_exception=False):
     return check_permission(person, "base.add_educationgroup", raise_exception) and \
-           _education_group_generic_permission(person, education_group, raise_exception)
+           _is_eligible_education_group(person, education_group, raise_exception)
 
 
 def is_eligible_to_change_education_group(person, education_group, raise_exception=False):
     return check_permission(person, "base.change_educationgroup", raise_exception) and \
-           _education_group_generic_permission(person, education_group, raise_exception)
+           _is_eligible_education_group(person, education_group, raise_exception)
 
 
 def is_eligible_to_delete_education_group(person, education_group, raise_exception=False):
     return check_permission(person, "base.delete_educationgroup", raise_exception) and \
-           _education_group_generic_permission(person, education_group, raise_exception)
+           _is_eligible_education_group(person, education_group, raise_exception)
 
 
 def is_education_group_creation_period_opened(raise_exception=False):
@@ -58,7 +58,16 @@ def is_education_group_creation_period_opened(raise_exception=False):
     return result
 
 
-def _education_group_generic_permission(person, education_group, raise_exception):
+def _is_eligible_education_group(person, education_group, raise_exception):
+    return (
+            check_link_to_management_entity(education_group, person, raise_exception) and
+            (
+                    person.is_central_manager() or is_education_group_creation_period_opened(raise_exception)
+            )
+    )
+
+
+def check_link_to_management_entity(education_group, person, raise_exception):
     if education_group and education_group.management_entity:
         result = person.is_attached_entities([education_group.management_entity])
     else:
@@ -66,7 +75,7 @@ def _education_group_generic_permission(person, education_group, raise_exception
 
     can_raise_exception(raise_exception, result, "The user is not attached to the management entity")
 
-    return result and (person.is_central_manager() or is_education_group_creation_period_opened(raise_exception))
+    return result
 
 
 def check_permission(person, permission, raise_exception=False):
