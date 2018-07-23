@@ -3248,3 +3248,9 @@ msgstr ""
 
 msgid "detach"
 msgstr ""
+
+msgid "Abs. cred."
+msgstr ""
+
+msgid "Sess. derog."
+msgstr ""

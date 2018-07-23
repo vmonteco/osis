@@ -3250,3 +3250,9 @@ msgstr "Êtes-vous sûr·e de vouloir détacher ce contenu?"
 
 msgid "detach"
 msgstr "détacher"
+
+msgid "Abs. cred."
+msgstr "Abs. créd."
+
+msgid "Sess. derog."
+msgstr "Sess. dérog."
