@@ -31,7 +31,7 @@ from django.views.decorators.http import require_http_methods
 from base import models as mdl
 from base.business.learning_unit import find_language_in_settings, CMS_LABEL_PEDAGOGY_FR_ONLY
 from base.business.learning_units.perms import is_eligible_to_update_learning_unit_pedagogy
-from base.forms.learning_unit_pedagogy import LearningUnitPedagogyEditForm, MobilityModalityModelForm
+from base.forms.learning_unit_pedagogy import LearningUnitPedagogyEditForm
 from base.models import learning_unit_year
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
@@ -61,14 +61,6 @@ def learning_unit_pedagogy_edit(request, learning_unit_year_id):
     return edit_learning_unit_pedagogy(request, learning_unit_year_id, redirect_url)
 
 
-@login_required
-@require_http_methods(["GET", "POST"])
-@PermissionDecorator(is_eligible_to_update_learning_unit_pedagogy, "learning_unit_year_id", LearningUnitYear)
-def update_mobility_modality(request, learning_unit_year_id):
-    redirect_url = reverse("learning_unit_pedagogy", kwargs={'learning_unit_year_id': learning_unit_year_id})
-    return update_mobility_modality_view(request, learning_unit_year_id, redirect_url)
-
-
 def edit_learning_unit_pedagogy(request, learning_unit_year_id, redirect_url):
     if request.method == 'POST':
         form = LearningUnitPedagogyEditForm(request.POST)
@@ -96,13 +88,3 @@ def edit_learning_unit_pedagogy(request, learning_unit_year_id, redirect_url):
     context['cms_label_pedagogy_fr_only'] = CMS_LABEL_PEDAGOGY_FR_ONLY
     context['label_name'] = label_name
     return layout.render(request, "learning_unit/pedagogy_edit.html", context)
-
-
-def update_mobility_modality_view(request, learning_unit_year_id, success_url):
-    learning_unit_yr = get_object_or_404(LearningUnitYear, pk=learning_unit_year_id)
-    form = MobilityModalityModelForm(request.POST or None, instance=learning_unit_yr)
-    if form.is_valid():
-        form.save()
-        display_success_messages(request, "Mobility has been updated")
-        return redirect(success_url)
-    return layout.render(request, "learning_unit/modality_update.html", {'form': form})
