@@ -114,24 +114,6 @@ class LearningUnitPedagogyEditForm(forms.Form):
         )
 
 
-class MobilityModalityModelForm(forms.ModelForm):
-    class Meta:
-        model = LearningUnitYear
-        fields = ['mobility_modality']
-
-    @atomic
-    def save(self, commit=True):
-        instance = super().save(commit)
-        if is_pedagogy_data_must_be_postponed(instance):
-            self._postpone_pedagogy_data(instance)
-        return instance
-
-    def _postpone_pedagogy_data(self, instance):
-        for luy in instance.find_gt_learning_units_year():
-            luy.mobility_modality = instance.mobility_modality
-            luy.save()
-
-
 class TeachingMaterialModelForm(forms.ModelForm):
     class Meta:
         model = TeachingMaterial

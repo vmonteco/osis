@@ -59,7 +59,7 @@ CMS_LABEL_SPECIFICATIONS = ['themes_discussed', 'prerequisite']
 
 CMS_LABEL_PEDAGOGY_FR_AND_EN = ['resume', 'teaching_methods', 'evaluation_methods', 'other_informations',
                                 'online_resources']
-CMS_LABEL_PEDAGOGY_FR_ONLY = ['bibliography']
+CMS_LABEL_PEDAGOGY_FR_ONLY = ['bibliography', 'mobility']
 CMS_LABEL_PEDAGOGY = CMS_LABEL_PEDAGOGY_FR_AND_EN + CMS_LABEL_PEDAGOGY_FR_ONLY
 
 CMS_LABEL_SUMMARY = ['resume']

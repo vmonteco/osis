@@ -2,21 +2,22 @@
 
 
 {% if request.is_ajax %}
-<div class="modal-content" id="form-modal-content">
-
+    <div class="modal-content" id="form-modal-content">
         <div id="form-modal-body" class="modal-body">
 {% endif %}
+
             <p>{% blocktrans %}You can not delete this object because some dependencies are protected{% endblocktrans %}</p>
             <ul>
-                {% for protected_object in protected_objects %}
+                {% for protected_object in protected_messages %}
                     <li>{{ protected_object }}</li>
                 {% endfor %}
             </ul>
-        </div>
 
 {% if request.is_ajax %}
-       <div class="modal-footer">
-           <button type="button" class="btn btn-default" data-dismiss="modal">{% trans 'cancel' %}</button>
-       </div>
-</div>
+    </div>
+
+    <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">{% trans 'cancel' %}</button>
+    </div>
+    </div>
 {% endif %}
