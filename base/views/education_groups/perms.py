@@ -28,26 +28,31 @@ from django.shortcuts import get_object_or_404
 
 from base.business.education_groups import perms as business_perms
 from base.models import person
+from base.models.education_group_year import EducationGroupYear
 
 
 def can_create_education_group(view_func):
     def f_can_create_education_group(request, *args, **kwargs):
         pers = get_object_or_404(person.Person, user=request.user)
-        if not business_perms.is_eligible_to_add_education_group(pers):
+
+        parent_id = kwargs.get("parent_id")
+        parent = get_object_or_404(EducationGroupYear, pk=parent_id) if parent_id else None
+
+        if not business_perms.is_eligible_to_add_education_group(pers, parent, raise_exception=True):
             raise PermissionDenied
         return view_func(request, *args, **kwargs)
     return f_can_create_education_group
 
 
-def can_change_education_group(user):
+def can_change_education_group(user, education_group):
     pers = get_object_or_404(person.Person, user=user)
-    if not business_perms.is_eligible_to_change_education_group(pers):
+    if not business_perms.is_eligible_to_change_education_group(pers, education_group, raise_exception=True):
         raise PermissionDenied
     return True
 
 
-def can_delete_education_group(user, _):
+def can_delete_education_group(user, education_group):
     pers = get_object_or_404(person.Person, user=user)
-    if not business_perms.is_eligible_to_delete_education_group(pers, raise_exception=True):
+    if not business_perms.is_eligible_to_delete_education_group(pers, education_group, raise_exception=True):
         raise PermissionDenied
     return True
