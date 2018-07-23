@@ -32,10 +32,12 @@ from base.models.person import Person
 from base.models.program_manager import is_program_manager
 from base.models import person_entity
 from osis_common.document import xls_build
-from base.business.xls import get_name_or_username, convert_boolean, get_date_time
+from base.business.xls import get_name_or_username, convert_boolean
 
 
 # List of key that a user can modify
+DATE_FORMAT = '%d-%m-%Y'
+DATE_TIME_FORMAT = '%d-%m-%Y %H:%M'
 DESC = "desc"
 WORKSHEET_TITLE = 'education_groups'
 XLS_FILENAME = 'education_groups_filename'
@@ -189,8 +191,8 @@ def extract_xls_administrative_data_from_education_group(an_education_group):
         an_education_group.acronym,
         an_education_group.education_group_type,
         an_education_group.academic_year.name,
-        get_date(an_education_group.administrative_data, 'course_enrollment', 'dates', 'start_date'),
-        get_date(an_education_group.administrative_data, 'course_enrollment', 'dates', 'end_date')]
+        _get_date(an_education_group.administrative_data, 'course_enrollment', 'dates', 'start_date', DATE_FORMAT),
+        _get_date(an_education_group.administrative_data, 'course_enrollment', 'dates', 'end_date', DATE_FORMAT)]
     for session_number in range(NUMBER_SESSIONS):
         data.extend(_get_dates_by_session(an_education_group.administrative_data, session_number+1))
     data.extend([
@@ -212,24 +214,21 @@ def qualification(signatories):
     return ', '.join([signatory.mandate.qualification for signatory in signatories if signatory.mandate.qualification])
 
 
-def get_date(administrative_data, key1, key2, attribute):
+def _get_date(administrative_data, key1, key2, attribute, date_form):
     if administrative_data[key1].get(key2):
         attr = getattr(administrative_data[key1].get(key2), attribute) or None
         if attr:
-            return attr.strftime('%d-%m-%Y')
+            return attr.strftime(date_form)
     return '-'
 
 
 def _get_dates_by_session(administrative_data, session_number):
     session_key = "session{}".format(session_number)
     return (
-        get_date(administrative_data, 'exam_enrollments', session_key, 'start_date'),
-        get_date(administrative_data, 'exam_enrollments', session_key, 'end_date'),
-        get_date_time(administrative_data['scores_exam_submission'].get(session_key).start_date if
-                      administrative_data['scores_exam_submission'].get(session_key) else None),
-        get_date(administrative_data, 'dissertation_submission', session_key, 'start_date'),
-        get_date_time(administrative_data['deliberation'].get(session_key).start_date if
-                      administrative_data['deliberation'].get(session_key) else None),
-        get_date_time(administrative_data['scores_exam_diffusion'].get(session_key).start_date if
-                      administrative_data['scores_exam_diffusion'].get(session_key) else None))
-
+        _get_date(administrative_data, 'exam_enrollments', session_key, 'start_date', DATE_FORMAT),
+        _get_date(administrative_data, 'exam_enrollments', session_key, 'end_date', DATE_FORMAT),
+        _get_date(administrative_data, 'scores_exam_submission', session_key, 'start_date', DATE_TIME_FORMAT),
+        _get_date(administrative_data, 'dissertation_submission', session_key, 'start_date', DATE_FORMAT),
+        _get_date(administrative_data, 'deliberation', session_key, 'start_date', DATE_TIME_FORMAT),
+        _get_date(administrative_data, 'scores_exam_diffusion', session_key, 'start_date', DATE_TIME_FORMAT)
+    )

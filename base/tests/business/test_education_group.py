@@ -35,7 +35,7 @@ from base.business.education_group import can_user_edit_administrative_data, pre
     XLS_DESCRIPTION, XLS_FILENAME, WORKSHEET_TITLE, EDUCATION_GROUP_TITLES, ORDER_COL, ORDER_DIRECTION, \
     XLS_DESCRIPTION_ADMINISTRATIVE, XLS_FILENAME_ADMINISTRATIVE, WORKSHEET_TITLE_ADMINISTRATIVE, \
     EDUCATION_GROUP_TITLES_ADMINISTRATIVE, prepare_xls_content_administrative, create_xls_administrative_data, \
-    PRESIDENTS, SECRETARIES, SIGNATORIES
+    PRESIDENTS, SECRETARIES, SIGNATORIES, DATE_TIME_FORMAT, DATE_FORMAT
 
 from base.models.enums import offer_year_entity_type
 from base.models.person import Person, CENTRAL_MANAGER_GROUP
@@ -59,7 +59,6 @@ from base.models.enums import mandate_type as mandate_types
 from base.tests.factories.academic_calendar import AcademicCalendarFactory
 from base.tests.factories.offer_year_calendar import OfferYearCalendarFactory
 from base.models.enums import academic_calendar_type
-from base.business.xls import get_date_time
 from base.tests.factories.session_exam_calendar import SessionExamCalendarFactory
 from django.test.utils import override_settings
 NO_SESSION_DATA = {'session1': None, 'session2': None, 'session3': None}
@@ -288,11 +287,11 @@ class EducationGroupXlsAdministrativeDataTestCase(TestCase):
                 an_education_group_year.acronym,
                 an_education_group_year.education_group_type,
                 an_education_group_year.academic_year.name,
-                self.academic_cal_course_enrollment.start_date.strftime('%d-%m-%Y'),
-                self.academic_cal_course_enrollment.end_date.strftime('%d-%m-%Y'),
+                self.academic_cal_course_enrollment.start_date.strftime(DATE_FORMAT),
+                self.academic_cal_course_enrollment.end_date.strftime(DATE_FORMAT),
                 '-',
                 '-',
-                get_date_time(self.offer_yr_cal_score_exam_submission_1.start_date),
+                self.offer_yr_cal_score_exam_submission_1.start_date.strftime(DATE_TIME_FORMAT),
                 '-',
                 '-',
                 '-',

@@ -44,9 +44,5 @@ def convert_boolean(a_boolean_value):
     return _('yes') if a_boolean_value else _('no')
 
 
-def get_date(a_date):
-    return a_date.strftime('%d-%m-%Y') if a_date else NO_DATA
-
-
 def get_date_time(a_date):
     return a_date.strftime('%d-%m-%Y %H:%M') if a_date else NO_DATA
