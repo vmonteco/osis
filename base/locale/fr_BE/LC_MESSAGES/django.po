@@ -3256,3 +3256,6 @@ msgstr "Abs. créd."
 
 msgid "Sess. derog."
 msgstr "Sess. dérog."
+
+msgid "Cred. abs./rel."
+msgstr "Créd. abs./rel."
