@@ -42,4 +42,3 @@ def get_name_or_username(a_user):
 
 def convert_boolean(a_boolean_value):
     return _('yes') if a_boolean_value else _('no')
-
