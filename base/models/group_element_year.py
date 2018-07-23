@@ -60,20 +60,20 @@ class GroupElementYear(OrderedModel):
 
     parent = models.ForeignKey(
         EducationGroupYear,
-        related_name='parents',# TODO: can not be parents
+        related_name='parents',  # TODO: can not be parents
         null=True,  # TODO: can not be null, dirty data
     )
 
     child_branch = models.ForeignKey(
         EducationGroupYear,
-        related_name='child_branch',# TODO: can not be child_branch
+        related_name='child_branch',  # TODO: can not be child_branch
         blank=True, null=True,
         on_delete=models.CASCADE
     )
 
     child_leaf = models.ForeignKey(
         LearningUnitYear,
-        related_name='child_leaf',# TODO: can not be child_leaf
+        related_name='child_leaf',  # TODO: can not be child_leaf
         blank=True, null=True,
         on_delete=models.CASCADE
     )
