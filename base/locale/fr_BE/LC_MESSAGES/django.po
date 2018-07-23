@@ -3271,3 +3271,9 @@ msgstr "Signataire du jury"
 
 msgid "List of trainings, with administrative data"
 msgstr "Liste des formations avec leurs données administratives"
+
+msgid "List of trainings"
+msgstr "Liste des organisation de formation"
+
+msgid "List of trainings with administrative data"
+msgstr "Liste des formations avec données administratives"

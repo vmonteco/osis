@@ -124,5 +124,4 @@ def _get_administrative_data(object_list_param):
             mdl.mandatary.find_by_education_group_year_function(education_group_yr, mandate_types.SECRETARY)
         education_group_yr.administrative_data[SIGNATORIES] = \
             mdl.mandatary.find_by_education_group_year_function(education_group_yr, mandate_types.SIGNATORY)
-        print(education_group_yr.administrative_data['scores_exam_submission'])
     return object_list
