@@ -24,9 +24,12 @@
 #
 ##############################################################################
 from django.urls import reverse_lazy
+from django.utils.translation import ngettext_lazy
+from django.utils.translation import ugettext_lazy as _
 
 from base.models.education_group_year import EducationGroupYear
 from base.models.group_element_year import GroupElementYear
+from base.models.offer_enrollment import OfferEnrollment
 from base.views.common_classes import DeleteViewWithDependencies
 from base.views.education_groups.perms import can_delete_education_group
 
@@ -64,3 +67,32 @@ class DeleteGroupEducationYearView(DeleteViewWithDependencies):
         for obj in list_objects:
             if not obj.is_deletable():
                 self.collector.protected.add(obj)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        if self.collector.protected:
+            context["protected_messages"] = self.get_protected_messages()
+
+        return context
+
+    def get_protected_messages(self):
+        protected_message = []
+
+        count_enrollment = len([
+            enrollment for enrollment in self.collector.protected if isinstance(enrollment, OfferEnrollment)
+        ])
+
+        if count_enrollment:
+            protected_message.append(
+                ngettext_lazy(
+                    "%(count_enrollment)d student is  enrolled in the offer.",
+                    "%(count_enrollment)d students are  enrolled in the offer.",
+                    count_enrollment
+                ) % {"count_enrollment": count_enrollment}
+            )
+
+        if [isinstance(group, GroupElementYear) for group in self.collector.protected]:
+            protected_message.append(_("The content of the education group is not empty."))
+
+        return protected_message
