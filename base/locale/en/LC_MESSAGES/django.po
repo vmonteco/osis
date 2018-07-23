@@ -3262,3 +3262,6 @@ msgstr[1] ""
 
 msgid "The content of the education group is not empty."
 msgstr ""
+
+msgid "Cred. abs./rel."
+msgstr ""
