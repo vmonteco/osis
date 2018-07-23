@@ -1,4 +1,3 @@
-##############################################################################
 #
 #    OSIS stands for Open Student Information System. It's an application
 #    designed to manage the core business of higher education institutions,
@@ -22,45 +21,3 @@
 #    at the root of the source code of this program.  If not,
 #    see http://www.gnu.org/licenses/.
 #
-##############################################################################
-from django import template
-from django.template.defaultfilters import date
-from django.utils.translation import ugettext_lazy as _
-
-
-register = template.Library()
-
-
-@register.filter
-def format(value, arg):
-    return value % arg
-
-
-@register.filter
-def str_format(value, args):
-    if args is None:
-        return value
-    args_list = args.split('|')
-    return value.format(*args_list)
-
-
-@register.filter
-def date_in_form_format(value):
-    pattern = _('date_format_string')
-
-    if type(value).__name__ == 'str':
-        return value
-    else:
-        return date(value, pattern)
-
-
-@register.filter
-def join_with_spaces(array, arg):
-    arg = "-" if arg is None else arg
-    return " {} ".format(_(arg).lower()).join(array)
-
-
-@register.filter
-def addstr(arg1, arg2):
-    """concatenate arg1 & arg2"""
-    return str(arg1) + str(arg2)

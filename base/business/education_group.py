@@ -98,7 +98,7 @@ def extract_xls_data_from_education_group(an_education_group):
         an_education_group.acronym,
         an_education_group.title,
         an_education_group.education_group_type,
-        an_education_group.entity_management.acronym,
+        an_education_group.management_entity_version.acronym,
         an_education_group.partial_acronym
     ]
 

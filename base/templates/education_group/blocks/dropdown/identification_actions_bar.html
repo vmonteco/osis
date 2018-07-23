@@ -36,19 +36,19 @@
 
             <ul class="dropdown-menu dropdown-menu-large row text-right pull-right">
                 {% flag "education_group_create" %}
-                    <li {% if not can_create_education_group %} class="disabled" {% endif %}>
-                        <a {% if can_create_education_group %} href="{% url 'new_education_group' parent_id=education_group_year.id %}?root={{ request.GET.root }}" {% endif %}>
-                            {% trans 'New Education Group' %}
-                        </a>
-                    </li>
+                    {% url 'new_education_group' category=enums.GROUP parent_id=education_group_year.id as create_group_url %}
+                    {% li_with_create_perm create_group_url _('New Education Group') person root=request.GET.root %}
+
+                    {% url 'new_education_group' category=enums.TRAINING parent_id=education_group_year.id as create_training_url %}
+                    {% li_with_create_perm create_training_url _('New Training') person root=request.GET.root %}
+
+                    {% url 'new_education_group' category=enums.MINI_TRAINING parent_id=education_group_year.id as create_mini_training_url %}
+                    {% li_with_create_perm create_mini_training_url _('New Mini-Training') person root=request.GET.root %}
                 {% endflag %}
 
                 {% flag "education_group_update" %}
-                    <li {% if not can_change_education_group %} class="disabled" {% endif %}>
-                        <a {% if can_change_education_group %} href="{% url 'update_education_group' education_group_year_id=education_group_year.id %}?root={{ request.GET.root }}" {% endif %}>
-                            {% trans 'Modify' %}
-                        </a>
-                    </li>
+                    {% url 'update_education_group' education_group_year_id=education_group_year.id as update_url %}
+                    {% li_with_update_perm update_url _('Modify') person root=request.GET.root %}
                 {% endflag %}
 
                 {% flag "education_group_delete" %}

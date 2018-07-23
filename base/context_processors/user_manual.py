@@ -23,44 +23,44 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django import template
-from django.template.defaultfilters import date
-from django.utils.translation import ugettext_lazy as _
+import collections
+
+UserManual = collections.namedtuple("UserManual", "name, url, contextual_paths")
+
+UNDEFINED_VIEW_NAME = "UNDEFINED"
+
+GLOBAL = UserManual(
+    name="global",
+    url="http://uclouvain.github.io/osis/assets/user_manual_fr.pdf",
+    contextual_paths=[]
+)
+
+EDUCATIONAL_INFORMATION = UserManual(
+    name="educational_information",
+    url="http://uclouvain.github.io/osis/assets/educational_information_manual_fr.pdf",
+    contextual_paths=["learning_units_summary", "list_my_attributions_summary_editable",
+                      "view_educational_information", "learning_unit_pedagogy"]
+)
+
+MANUALS = [
+    GLOBAL,
+    EDUCATIONAL_INFORMATION,
+]
 
 
-register = template.Library()
+def user_manual_url(request):
+    view_name = request.resolver_match.url_name if request.resolver_match else UNDEFINED_VIEW_NAME
+    contextual_manual = find_contextual_user_manual(view_name, MANUALS, GLOBAL)
+
+    manual_urls = {manual.name: manual.url for manual in MANUALS}
+    manual_urls.update(contextual=contextual_manual.url)
+
+    return {"user_manual": manual_urls}
 
 
-@register.filter
-def format(value, arg):
-    return value % arg
-
-
-@register.filter
-def str_format(value, args):
-    if args is None:
-        return value
-    args_list = args.split('|')
-    return value.format(*args_list)
-
-
-@register.filter
-def date_in_form_format(value):
-    pattern = _('date_format_string')
-
-    if type(value).__name__ == 'str':
-        return value
-    else:
-        return date(value, pattern)
-
-
-@register.filter
-def join_with_spaces(array, arg):
-    arg = "-" if arg is None else arg
-    return " {} ".format(_(arg).lower()).join(array)
-
-
-@register.filter
-def addstr(arg1, arg2):
-    """concatenate arg1 & arg2"""
-    return str(arg1) + str(arg2)
+def find_contextual_user_manual(view_name, manuals, default_manual):
+    contextual_manual = next(
+        (manual for manual in manuals if view_name in manual.contextual_paths),
+        default_manual
+    )
+    return contextual_manual
