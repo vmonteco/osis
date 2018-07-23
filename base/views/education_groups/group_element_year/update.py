@@ -128,7 +128,7 @@ class GenericUpdateGroupElementYearMixin(FlagMixin, RulesRequiredMixin, SuccessM
         return reverse("education_group_content", args=[self.kwargs["education_group_year_id"]])
 
 
-class UpdateCommentGroupElementYearView(GenericUpdateGroupElementYearMixin, UpdateView):
+class UpdateGroupElementYearView(GenericUpdateGroupElementYearMixin, UpdateView):
     # UpdateView
     fields = [
         "relative_credits",
