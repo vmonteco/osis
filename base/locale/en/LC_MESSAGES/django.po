@@ -3237,6 +3237,9 @@ msgstr ""
 msgid "Session"
 msgstr "Session"
 
+msgid "The user is not attached to the management entity"
+msgstr ""
+
 msgid "Help"
 msgstr ""
 

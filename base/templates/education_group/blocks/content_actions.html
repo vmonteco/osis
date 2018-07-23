@@ -1,5 +1,5 @@
 {% load staticfiles %}
-{% load i18n format %}
+{% load i18n format education_group %}
 {% comment "License" %}
 * OSIS stands for Open Student Information System. It's an application
 * designed to manage the core business of higher education institutions,
@@ -27,32 +27,22 @@
 <form id="form_group_element_year_actions" method="POST" style="display:inline;"
       action="{% url 'group_element_year_management' root_id=parent.id education_group_year_id=education_group_year.id group_element_year_id=element.group_element.id %}">
     {% csrf_token %}
-    <button type="submit" title="{% trans 'up' %}"  class="btn btn-default btn-sm"
-            id="btn_operation_up_{{ element.group_element.id }}"
-            name="action" value="up" {% if forloop.counter0 == 0 %}disabled{% endif %} >
-        <i class="fa fa-arrow-up"></i>
-    </button>
-    <button type="submit" title="{% trans 'down' %}" class="btn btn-default btn-sm"
-            id="btn_operation_down_{{ element.group_element.id }}"
-            name="action" value="down" {% if forloop.last %}disabled{% endif %}>
-        <i class="fa fa-arrow-down"></i>
-    </button>
+    {% button_order_with_permission _("up") "btn_operation_up_"|addstr:element.group_element.id  "up" %}
+    {% button_order_with_permission _("down") "btn_operation_down_"|addstr:element.group_element.id  "down" %}
 </form>
 
+
 {% with "btn_operation_detach_"|addstr:element.group_element.id as id_detach %}
-    <a title="{% trans 'detach'|capfirst %}" class="btn btn-default btn-sm" id="{{ id_detach }}" name="action" value="detach">
-        <i class="fa fa-close"></i>
-    </a>
+    {% a_with_permission _("Detach") id_detach  "detach" %}
+
     {% url 'group_element_year_management' root_id=parent.id education_group_year_id=education_group_year.id group_element_year_id=element.group_element.id as detach_url %}
     {% include "blocks/modal/modal_ajax.html" with modal_url=detach_url|add:"?action=detach" click_id=id_detach form_id="form_detach_confirm" %}
 {% endwith %}
 
 
 {% with "btn_operation_edit_"|addstr:element.group_element.id as id_edit %}
-    <a title="{% trans 'edit' %}" class="btn btn-default btn-sm" id="{{ id_edit }}" name="action" value="edit">
-        <i class="fa fa-edit"></i>
-    </a>
+    {% a_with_permission _("edit") id_edit  "edit" %}
+
     {% url 'group_element_year_management_comment' root_id=parent.id education_group_year_id=education_group_year.id group_element_year_id=element.group_element.id as update_comment_url %}
     {% include "blocks/modal/modal_ajax.html" with modal_url=update_comment_url click_id=id_edit form_id="form_comment_update" %}
 {% endwith %}
-

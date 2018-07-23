@@ -80,7 +80,7 @@ class TestCreate(TestCase):
     def setUp(self):
         self.client.force_login(self.person.user)
         self.perm_patcher = mock.patch("base.business.education_groups.perms.is_eligible_to_add_education_group",
-                                       side_effect=lambda person: True)
+                                       return_value=True)
         self.mocked_perm = self.perm_patcher.start()
 
     def tearDown(self):
@@ -97,7 +97,7 @@ class TestCreate(TestCase):
         for url in self.urls_without_parent_by_category.values():
             with self.subTest(url=url):
                 self.client.get(url)
-                self.mocked_perm.assert_called_with(self.person)
+                self.mocked_perm.assert_called_with(self.person, None, raise_exception=True)
 
 
     def test_template_used(self):

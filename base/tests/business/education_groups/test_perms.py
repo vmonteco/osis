@@ -27,21 +27,19 @@ import datetime
 
 from django.test import TestCase
 
-from base.business.education_groups.perms import has_person_the_right_to_add_education_group, \
-    is_education_group_creation_period_opened, is_central_manager
+from base.business.education_groups.perms import is_education_group_creation_period_opened, check_permission
 from base.models.enums import academic_calendar_type
 from base.tests.factories.academic_calendar import AcademicCalendarFactory
-from base.tests.factories.person import PersonFactory, PersonWithPermissionsFactory, PersonWithGroupsFactory, \
-    CentralManagerFactory
+from base.tests.factories.person import PersonFactory, PersonWithPermissionsFactory, CentralManagerFactory
 
 
 class TestPerms(TestCase):
     def test_has_person_the_right_to_add_education_group(self):
         person_without_right = PersonFactory()
-        self.assertFalse(has_person_the_right_to_add_education_group(person_without_right))
+        self.assertFalse(check_permission(person_without_right, "base.add_educationgroup"))
 
         person_with_right = PersonWithPermissionsFactory("add_educationgroup")
-        self.assertTrue(has_person_the_right_to_add_education_group(person_with_right))
+        self.assertTrue(check_permission(person_with_right, "base.add_educationgroup"))
 
     def test_is_education_group_creation_period_opened(self):
         person = PersonFactory()
@@ -51,16 +49,16 @@ class TestPerms(TestCase):
                                                 end_date=today + datetime.timedelta(days=3),
                                                 reference=academic_calendar_type.EDUCATION_GROUP_EDITION)
 
-        self.assertFalse(is_education_group_creation_period_opened(person))
+        self.assertFalse(is_education_group_creation_period_opened())
 
         opened_period = closed_period
         opened_period.start_date = today
         opened_period.save()
-        self.assertTrue(is_education_group_creation_period_opened(person))
+        self.assertTrue(is_education_group_creation_period_opened())
 
     def is_person_central_manager(self):
         person = PersonFactory()
-        self.assertFalse(is_central_manager(person))
+        self.assertFalse(person.is_central_manager())
 
         central_manager = CentralManagerFactory()
-        self.assertTrue(is_central_manager(central_manager))
+        self.assertTrue(central_manager.is_central_manager())
