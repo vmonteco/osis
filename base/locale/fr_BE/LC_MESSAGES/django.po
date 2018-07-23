@@ -3251,6 +3251,20 @@ msgstr "Êtes-vous sûr·e de vouloir détacher ce contenu?"
 msgid "detach"
 msgstr "détacher"
 
+msgid "Abs. cred."
+msgstr "Abs. créd."
+
+msgid "Sess. derog."
+msgstr "Sess. dérog."
+
+msgid "%(count_enrollment)d student is  enrolled in the offer."
+msgid_plural "%(count_enrollment)d students are  enrolled in the offer."
+msgstr[0] "%(count_enrollment)d étudiant est inscrit à l'offre."
+msgstr[1] "%(count_enrollment)d étudiants sont inscrits à l'offre."
+
+msgid "The content of the education group is not empty."
+msgstr "Le contenu du programme type n'est pas vide."
+
 msgid "Produce xls with a list of education groups"
 msgstr "Produire un fichier Excel avec la liste des organisations de formations"
 
