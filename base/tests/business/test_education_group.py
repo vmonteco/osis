@@ -59,7 +59,7 @@ from base.models.enums import mandate_type as mandate_types
 from base.tests.factories.academic_calendar import AcademicCalendarFactory
 from base.tests.factories.offer_year_calendar import OfferYearCalendarFactory
 from base.models.enums import academic_calendar_type
-from base.business.xls import get_date, get_date_time
+from base.business.xls import get_date_time
 from base.tests.factories.session_exam_calendar import SessionExamCalendarFactory
 from django.test.utils import override_settings
 NO_SESSION_DATA = {'session1': None, 'session2': None, 'session3': None}
@@ -288,8 +288,8 @@ class EducationGroupXlsAdministrativeDataTestCase(TestCase):
                 an_education_group_year.acronym,
                 an_education_group_year.education_group_type,
                 an_education_group_year.academic_year.name,
-                get_date(self.academic_cal_course_enrollment.start_date),
-                get_date(self.academic_cal_course_enrollment.end_date),
+                self.academic_cal_course_enrollment.start_date.strftime('%d-%m-%Y'),
+                self.academic_cal_course_enrollment.end_date.strftime('%d-%m-%Y'),
                 '-',
                 '-',
                 get_date_time(self.offer_yr_cal_score_exam_submission_1.start_date),

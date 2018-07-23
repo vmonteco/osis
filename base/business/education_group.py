@@ -32,7 +32,7 @@ from base.models.person import Person
 from base.models.program_manager import is_program_manager
 from base.models import person_entity
 from osis_common.document import xls_build
-from base.business.xls import get_name_or_username, convert_boolean, get_date, get_date_time
+from base.business.xls import get_name_or_username, convert_boolean, get_date_time
 
 
 # List of key that a user can modify
@@ -90,6 +90,7 @@ EDUCATION_GROUP_TITLES_ADMINISTRATIVE = [
 SIGNATORIES = 'signatories'
 SECRETARIES = 'secretaries'
 PRESIDENTS = 'presidents'
+NUMBER_SESSIONS = 3
 
 
 def can_user_edit_administrative_data(a_user, an_education_group_year):
@@ -183,58 +184,24 @@ def prepare_xls_content_administrative(found_education_groups):
 
 
 def extract_xls_administrative_data_from_education_group(an_education_group):
-    return [
+    data = [
         an_education_group.management_entity_version.acronym,
         an_education_group.acronym,
         an_education_group.education_group_type,
         an_education_group.academic_year.name,
-        get_date(an_education_group.administrative_data['course_enrollment'].get('dates').start_date if
-                 an_education_group.administrative_data['course_enrollment'].get('dates') else None),
-        get_date(an_education_group.administrative_data['course_enrollment'].get('dates').end_date if
-                 an_education_group.administrative_data['course_enrollment'].get('dates') else None),
-        get_date(an_education_group.administrative_data['exam_enrollments'].get('session1').start_date if
-                 an_education_group.administrative_data['exam_enrollments'].get('session1') else None),
-        get_date(an_education_group.administrative_data['exam_enrollments'].get('session1').end_date if
-                 an_education_group.administrative_data['exam_enrollments'].get('session1') else None),
-        get_date_time(an_education_group.administrative_data['scores_exam_submission'].get('session1').start_date if
-                      an_education_group.administrative_data['scores_exam_submission'].get('session1') else None),
-        get_date(an_education_group.administrative_data['dissertation_submission'].get('session1').start_date if
-                 an_education_group.administrative_data['dissertation_submission'].get('session1') else None),
-        get_date_time(an_education_group.administrative_data['deliberation'].get('session1').start_date if
-                      an_education_group.administrative_data['deliberation'].get('session1') else None),
-        get_date_time(an_education_group.administrative_data['scores_exam_diffusion'].get('session1').start_date if
-                      an_education_group.administrative_data['scores_exam_diffusion'].get('session1') else None),
-        get_date(an_education_group.administrative_data['exam_enrollments'].get('session2').start_date if
-                 an_education_group.administrative_data['exam_enrollments'].get('session2') else None),
-        get_date(an_education_group.administrative_data['exam_enrollments'].get('session2').end_date if
-                 an_education_group.administrative_data['exam_enrollments'].get('session2') else None),
-        get_date_time(an_education_group.administrative_data['scores_exam_submission'].get('session2').start_date if
-                      an_education_group.administrative_data['scores_exam_submission'].get('session2') else None),
-        get_date(an_education_group.administrative_data['dissertation_submission'].get('session2').start_date if
-                 an_education_group.administrative_data['dissertation_submission'].get('session2') else None),
-        get_date_time(an_education_group.administrative_data['deliberation'].get('session2').start_date if
-                      an_education_group.administrative_data['deliberation'].get('session2') else None),
-        get_date_time(an_education_group.administrative_data['scores_exam_diffusion'].get('session2').start_date if
-                      an_education_group.administrative_data['scores_exam_diffusion'].get('session2') else None),
-        get_date(an_education_group.administrative_data['exam_enrollments'].get('session3').start_date if
-                 an_education_group.administrative_data['exam_enrollments'].get('session3') else None),
-        get_date(an_education_group.administrative_data['exam_enrollments'].get('session3').end_date if
-                 an_education_group.administrative_data['exam_enrollments'].get('session3') else None),
-        get_date_time(an_education_group.administrative_data['scores_exam_submission'].get('session3').start_date if
-                      an_education_group.administrative_data['scores_exam_submission'].get('session3') else None),
-        get_date(an_education_group.administrative_data['dissertation_submission'].get('session3').start_date if
-                 an_education_group.administrative_data['dissertation_submission'].get('session3') else None),
-        get_date_time(an_education_group.administrative_data['deliberation'].get('session3').start_date if
-                      an_education_group.administrative_data['deliberation'].get('session3') else None),
-        get_date_time(an_education_group.administrative_data['scores_exam_diffusion'].get('session3').start_date if
-                      an_education_group.administrative_data['scores_exam_diffusion'].get('session3') else None),
+        get_date(an_education_group.administrative_data, 'course_enrollment', 'dates', 'start_date'),
+        get_date(an_education_group.administrative_data, 'course_enrollment', 'dates', 'end_date')]
+    for session_number in range(NUMBER_SESSIONS):
+        data.extend(_get_dates_by_session(an_education_group.administrative_data, session_number+1))
+    data.extend([
         convert_boolean(an_education_group.weighting),
         convert_boolean(an_education_group.default_learning_unit_enrollment),
         names(an_education_group.administrative_data[PRESIDENTS]),
         names(an_education_group.administrative_data[SECRETARIES]),
         names(an_education_group.administrative_data[SIGNATORIES]),
-        qualification(an_education_group.administrative_data[SIGNATORIES])
-    ]
+        qualification(an_education_group.administrative_data[SIGNATORIES])]
+    )
+    return data
 
 
 def names(representatives):
@@ -243,3 +210,26 @@ def names(representatives):
 
 def qualification(signatories):
     return ', '.join([signatory.mandate.qualification for signatory in signatories if signatory.mandate.qualification])
+
+
+def get_date(administrative_data, key1, key2, attribute):
+    if administrative_data[key1].get(key2):
+        attr = getattr(administrative_data[key1].get(key2), attribute) or None
+        if attr:
+            return attr.strftime('%d-%m-%Y')
+    return '-'
+
+
+def _get_dates_by_session(administrative_data, session_number):
+    session_key = "session{}".format(session_number)
+    return (
+        get_date(administrative_data, 'exam_enrollments', session_key, 'start_date'),
+        get_date(administrative_data, 'exam_enrollments', session_key, 'end_date'),
+        get_date_time(administrative_data['scores_exam_submission'].get(session_key).start_date if
+                      administrative_data['scores_exam_submission'].get(session_key) else None),
+        get_date(administrative_data, 'dissertation_submission', session_key, 'start_date'),
+        get_date_time(administrative_data['deliberation'].get(session_key).start_date if
+                      administrative_data['deliberation'].get(session_key) else None),
+        get_date_time(administrative_data['scores_exam_diffusion'].get(session_key).start_date if
+                      administrative_data['scores_exam_diffusion'].get(session_key) else None))
+

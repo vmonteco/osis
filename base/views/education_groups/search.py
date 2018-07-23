@@ -118,10 +118,16 @@ def _get_administrative_data(object_list_param):
         education_group_yr.administrative_data['scores_exam_diffusion'] = \
             get_sessions_dates(academic_calendar_type.SCORES_EXAM_DIFFUSION,
                                education_group_yr)
-        education_group_yr.administrative_data[PRESIDENTS] = \
-            mdl.mandatary.find_by_education_group_year_function(education_group_yr, mandate_types.PRESIDENT)
-        education_group_yr.administrative_data[SECRETARIES] = \
-            mdl.mandatary.find_by_education_group_year_function(education_group_yr, mandate_types.SECRETARY)
-        education_group_yr.administrative_data[SIGNATORIES] = \
-            mdl.mandatary.find_by_education_group_year_function(education_group_yr, mandate_types.SIGNATORY)
+        _get_mandate_data(education_group_yr)
     return object_list
+
+
+def _get_mandate_data(education_group_yr_param):
+    education_group_yr = education_group_yr_param
+    education_group_yr.administrative_data[PRESIDENTS] = \
+        mdl.mandatary.find_by_education_group_year_function(education_group_yr, mandate_types.PRESIDENT)
+    education_group_yr.administrative_data[SECRETARIES] = \
+        mdl.mandatary.find_by_education_group_year_function(education_group_yr, mandate_types.SECRETARY)
+    education_group_yr.administrative_data[SIGNATORIES] = \
+        mdl.mandatary.find_by_education_group_year_function(education_group_yr, mandate_types.SIGNATORY)
+    return education_group_yr

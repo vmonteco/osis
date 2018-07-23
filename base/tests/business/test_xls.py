@@ -27,7 +27,7 @@ from django.utils import timezone
 
 from django.test import TestCase
 from django.utils.translation import ugettext_lazy as _
-from base.business.xls import get_date, get_date_time, convert_boolean, NO_DATA
+from base.business.xls import get_date_time, convert_boolean, NO_DATA
 
 
 class TestXls(TestCase):
@@ -39,14 +39,10 @@ class TestXls(TestCase):
         self.assertEqual(convert_boolean(True), _('yes'))
         self.assertEqual(convert_boolean(False), _('no'))
 
-    def test_get_date(self):
-        self.assertEqual(get_date(None), NO_DATA)
-        self.assertEqual(get_date(self.now), "{:02}-{:02}-{}".format(self.now.day, self.now.month, self.now.year))
-
     def test_get_date_time(self):
         self.assertEqual(
             get_date_time(None)
-                         , NO_DATA)
+            , NO_DATA)
         self.assertEqual(get_date_time(self.now),
                          "{:02}-{:02}-{} {:02}:{:02}".format(self.now.day, self.now.month, self.now.year, self.now.hour,
-                                                 self.now.minute))
+                                                             self.now.minute))
