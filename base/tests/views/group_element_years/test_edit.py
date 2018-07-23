@@ -31,6 +31,7 @@ from django.test import TestCase
 from django.urls import reverse
 from waffle.testutils import override_flag
 
+from base.models.enums.sessions_derogation import SessionsDerogationTypes
 from base.tests.factories.education_group_year import EducationGroupYearFactory
 from base.tests.factories.group_element_year import GroupElementYearFactory
 from base.tests.factories.person import CentralManagerFactory
@@ -90,8 +91,11 @@ class TestEdit(TestCase):
             "comment_english": """It's a dangerous business, Frodo, 
             going out your door. You step onto the road, and if you don't keep your feet,
              there's no knowing where you might be swept off to.""",
+
+            "sessions_derogation": SessionsDerogationTypes.SESSION_UNDEFINED.value,
         }
         response = self.client.post(self.url, data=data)
+
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
 
         self.group_element_year.refresh_from_db()
