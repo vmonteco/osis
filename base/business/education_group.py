@@ -191,9 +191,9 @@ def extract_xls_administrative_data_from_education_group(an_education_group):
         an_education_group.acronym,
         an_education_group.education_group_type,
         an_education_group.academic_year.name,
-        _get_date(an_education_group.administrative_data, "{}.{}.{}".format('course_enrollment', 'dates', 'start_date'),
+        _get_date(an_education_group.administrative_data, 'course_enrollment.dates.start_date',
                   DATE_FORMAT),
-        _get_date(an_education_group.administrative_data, "{}.{}.{}".format('course_enrollment', 'dates', 'end_date'),
+        _get_date(an_education_group.administrative_data, 'course_enrollment.dates.end_date',
                   DATE_FORMAT)]
     for session_number in range(NUMBER_SESSIONS):
         data.extend(_get_dates_by_session(an_education_group.administrative_data, session_number+1))
