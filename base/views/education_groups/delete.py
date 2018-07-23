@@ -83,13 +83,13 @@ class DeleteGroupEducationYearView(DeleteViewWithDependencies):
         ])
 
         if count_enrollment:
-            protected_message.append(ngettext_lazy(
-                "%(count_enrollment)d s student is  enrolled in the offer.",
-                "%(count_enrollment)d s students are  enrolled in the offer.",
-                count_enrollment
-            ) % {
-                                         "count_enrollment": count_enrollment
-                                     })
+            protected_message.append(
+                ngettext_lazy(
+                    "%(count_enrollment)d student is  enrolled in the offer.",
+                    "%(count_enrollment)d students are  enrolled in the offer.",
+                    count_enrollment
+                ) % {"count_enrollment": count_enrollment}
+            )
 
         if [isinstance(group, GroupElementYear) for group in self.collector.protected]:
             protected_message.append("The content of the education group is not empty.")

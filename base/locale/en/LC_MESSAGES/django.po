@@ -3248,3 +3248,11 @@ msgstr ""
 
 msgid "detach"
 msgstr ""
+
+msgid "%(count_enrollment)d student is  enrolled in the offer."
+msgid_plural "%(count_enrollment)d students are  enrolled in the offer."
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "The content of the education group is not empty."
+msgstr ""
