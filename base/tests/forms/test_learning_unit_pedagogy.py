@@ -31,8 +31,7 @@ from django.conf import settings
 from django.contrib.auth.models import Permission
 from django.test import TestCase
 
-from base.forms.learning_unit_pedagogy import LearningUnitPedagogyEditForm, TeachingMaterialModelForm, \
-    MobilityModalityModelForm
+from base.forms.learning_unit_pedagogy import LearningUnitPedagogyEditForm, TeachingMaterialModelForm
 from base.models.enums.learning_unit_year_subtypes import FULL
 from base.tests.factories.academic_year import create_current_academic_year
 from base.tests.factories.business.learning_units import GenerateAcademicYear
@@ -141,31 +140,6 @@ class TestTeachingMaterialForm(LearningUnitPedagogyContextMixin):
         self.assertTrue(mock_postpone_teaching_materials.called)
 
 
-class TestMobilityModalityModelForm(LearningUnitPedagogyContextMixin):
-    @patch('base.forms.learning_unit_pedagogy.MobilityModalityModelForm._postpone_pedagogy_data',
-           side_effect=lambda *args: None)
-    def test_save_without_postponement(self, mock_postpone_pedagogy_data):
-        """In this test, we ensure that if we modify UE of N or N-... => The postponement is not done for
-           mobility modality data"""
-        post_data = _get_valid_mobility_modality_form_data(self.current_luy)
-        mobility_modality_form = MobilityModalityModelForm(post_data, instance=self.current_luy)
-        self.assertTrue(mobility_modality_form.is_valid(), mobility_modality_form.errors)
-        mobility_modality_form.save()
-        self.assertFalse(mock_postpone_pedagogy_data.called)
-
-    @patch('base.forms.learning_unit_pedagogy.MobilityModalityModelForm._postpone_pedagogy_data',
-           side_effect=lambda *args: None)
-    def test_save_with_postponement(self, mock_postpone_pedagogy_data):
-        """In this test, we ensure that if we modify UE of N or N-... => The postponement is not done for
-           mobility modality data"""
-        luy_in_future = self.luys[self.current_ac.year + 1]
-        post_data = _get_valid_mobility_modality_form_data(luy_in_future)
-        mobility_modality_form = MobilityModalityModelForm(post_data, instance=luy_in_future)
-        self.assertTrue(mobility_modality_form.is_valid(), mobility_modality_form.errors)
-        mobility_modality_form.save()
-        self.assertTrue(mock_postpone_pedagogy_data.called)
-
-
 class TestLearningUnitPedagogyEditForm(LearningUnitPedagogyContextMixin):
     @patch("cms.models.translated_text.update_or_create")
     def test_save_fr_bibliography_also_updates_en_bibliography(self, mock_update_or_create):
@@ -227,18 +201,3 @@ def _get_valid_teaching_material_form_data(teaching_material):
     if getattr(teaching_material, 'mandatory', False):
         data['mandatory'] = 'on'
     return data
-
-
-def _get_valid_mobility_modality_form_data(luy):
-    """Valid data for mobility modality form"""
-    return {
-        'mobility_modality': luy.mobility_modality
-    }
-
-
-def _get_valid_summary_form_data(luy):
-    return {
-        'summary_locked': luy.summary_locked,
-        'mobility_modality' : luy.mobility_modality
-    }
-
