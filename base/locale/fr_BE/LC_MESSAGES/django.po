@@ -3265,6 +3265,9 @@ msgstr[1] "%(count_enrollment)d étudiants sont inscrits à l'offre."
 msgid "The content of the education group is not empty."
 msgstr "Le contenu du programme type n'est pas vide."
 
+msgid "Cred. abs./rel."
+msgstr "Créd. abs./rel."
+
 msgid "Produce xls with a list of education groups"
 msgstr "Produire un fichier Excel avec la liste des organisations de formations"
 
