@@ -50,8 +50,7 @@ from base.views.education_groups.update import update_education_group
 from base.views.learning_units.external import create as create_external
 from base.views.learning_units.external.search import filter_cities_by_country, filter_campus_by_city
 from base.views.learning_units.pedagogy.read import learning_unit_pedagogy
-from base.views.learning_units.pedagogy.update import learning_unit_pedagogy_edit, update_mobility_modality, \
-    toggle_summary_locked
+from base.views.learning_units.pedagogy.update import learning_unit_pedagogy_edit, toggle_summary_locked
 from base.views.learning_units.proposal import create, update
 from base.views.learning_units.update import update_learning_unit, learning_unit_edition_end_date
 
@@ -134,7 +133,6 @@ urlpatterns = [
             url(r'^pedagogy/', include([
                 url(r'^$', learning_unit_pedagogy, name="learning_unit_pedagogy"),
                 url(r'^edit/$', learning_unit_pedagogy_edit, name="learning_unit_pedagogy_edit"),
-                url(r'^mobility_modality/$', update_mobility_modality, name="mobility_modality_update"),
                 url(r'^toggle_summary_locked/$', toggle_summary_locked,
                     name="learning_unit_pedagogy_toggle_summary_locked")
             ])),

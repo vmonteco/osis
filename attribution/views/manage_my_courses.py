@@ -40,8 +40,7 @@ from base.models.learning_unit_year import LearningUnitYear
 from base.models.tutor import Tutor
 from base.views import layout
 from base.views import teaching_material
-from base.views.learning_units.pedagogy.update import edit_learning_unit_pedagogy, \
-    update_mobility_modality_view
+from base.views.learning_units.pedagogy.update import edit_learning_unit_pedagogy
 from base.views.learning_units.pedagogy.read import read_learning_unit_pedagogy
 from base.views.learning_units.perms import PermissionDecorator
 
@@ -114,11 +113,3 @@ def update_teaching_material(request, learning_unit_year_id, teaching_material_i
 def delete_teaching_material(request, learning_unit_year_id, teaching_material_id):
     success_url = reverse(view_educational_information, kwargs={'learning_unit_year_id': learning_unit_year_id})
     return teaching_material.delete_view(request, learning_unit_year_id, teaching_material_id, success_url)
-
-
-@login_required
-@require_http_methods(['POST', 'GET'])
-@PermissionDecorator(is_eligible_to_update_learning_unit_pedagogy, "learning_unit_year_id", LearningUnitYear)
-def update_mobility_modality(request, learning_unit_year_id):
-    success_url = reverse(view_educational_information, kwargs={'learning_unit_year_id': learning_unit_year_id})
-    return update_mobility_modality_view(request, learning_unit_year_id, success_url)
