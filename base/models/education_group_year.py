@@ -29,7 +29,7 @@ from django.urls import reverse
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
-from base.models import entity_version, learning_unit_component
+from base.models import entity_version, learning_component_year
 from base.models.entity import Entity
 from base.models.enums import academic_type, fee, internship_presence, schedule_type, activity_presence, \
     diploma_printing_orientation, active_status, duration_unit
@@ -255,7 +255,7 @@ class EducationGroupYear(models.Model):
         group_elements_years = self.parents.filter(parent=self).select_related('child_leaf')
         return [{'child': group_element_year.child_leaf,
                  'relative_credits': group_element_year.relative_credits,
-                 'volumes': learning_unit_component.find_by_learning_unit_year(group_element_year.child_leaf)}
+                 'volumes': learning_component_year.find_by_learning_unit_year(group_element_year.child_leaf)}
                 for group_element_year in group_elements_years
                 if group_element_year.child_leaf]
 

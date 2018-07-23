@@ -11,14 +11,14 @@
     {% for elem in parent.learning_unit_by_group_element_year %}
         <li>{{ elem.child.acronym }} {{ elem.child.specific_title }}
             [
-            {% if elem.volumes.learning_component_year.hourly_volume_partial_q1 %}
-                {{ elem.volumes.learning_component_year.hourly_volume_partial_q1 }}h
+            {% if elem.volumes.0 %}
+                {{ elem.volumes.0 }}h
             {% else %}
                 -h
             {% endif %}
             +
-            {% if elem.volumes.learning_component_year.hourly_volume_partial_q2 %}
-                {{ elem.volumes.learning_component_year.hourly_volume_partial_q2 }}h
+            {% if elem.volumes.1 %}
+                {{ elem.volumes.1 }}h
             {% else %}
                 -h
             {% endif %}
