@@ -24,20 +24,21 @@
 #
 ##############################################################################
 
-from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
 from django.urls import reverse
+from waffle.decorators import waffle_flag
 
+from base.models.education_group_year import EducationGroupYear
 from base.models.group_element_year import GroupElementYear
 from base.utils.cache import cache_filter, cache
 from base.views.education_groups.perms import can_change_education_group
-
-from waffle.decorators import waffle_flag
+from base.views.learning_units.perms import PermissionDecoratorWithUser
 
 
 @login_required
 @waffle_flag("education_group_attach")
-@user_passes_test(can_change_education_group)
+@PermissionDecoratorWithUser(can_change_education_group, "education_group_year_id", EducationGroupYear)
 @cache_filter()
 def education_group_attach(request, education_group_year_id):
     child_id = cache.get('education_group_year_id')

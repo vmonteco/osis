@@ -24,19 +24,20 @@
 #
 ##############################################################################
 
-from django.contrib.auth.decorators import login_required, user_passes_test
-
-from base.utils.cache import cache_filter
-from osis_common.decorators.ajax import ajax_required
-from base.views.education_groups.perms import can_change_education_group
-
+from django.contrib.auth.decorators import login_required
 from waffle.decorators import waffle_flag
+
+from base.models.education_group_year import EducationGroupYear
+from base.utils.cache import cache_filter
+from base.views.education_groups.perms import can_change_education_group
+from base.views.learning_units.perms import PermissionDecoratorWithUser
+from osis_common.decorators.ajax import ajax_required
 
 
 @login_required
 @ajax_required
 @waffle_flag("education_group_detach")
-@user_passes_test(can_change_education_group)
+@PermissionDecoratorWithUser(can_change_education_group, "education_group_year_id", EducationGroupYear)
 @cache_filter()
 def education_group_detach(request):
     return request
