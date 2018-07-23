@@ -23,10 +23,18 @@
     * see http://www.gnu.org/licenses/.
 {% endcomment %}
 
+{% if request.is_ajax %}
+    <div class="modal-content" id="form-modal-content">
+    <div id="form-modal-body" class="modal-body">
+{% endif %}
+
 <form method="post" id="form_comment_update" action="{{ request.path }}">
     {% csrf_token %}
     {% bootstrap_form form %}
-    {% if not request.is_ajax %}
-        <input type="submit" value="{% trans "i_confirm" %}" class="btn btn-danger"/>
-    {% endif %}
+    <input type="submit" value="{% trans "i_confirm" %}" class="btn btn-primary"/>
 </form>
+
+{% if request.is_ajax %}
+    </div>
+    </div>
+{% endif %}
