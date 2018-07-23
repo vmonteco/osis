@@ -191,8 +191,14 @@ def extract_xls_administrative_data_from_education_group(an_education_group):
         an_education_group.acronym,
         an_education_group.education_group_type,
         an_education_group.academic_year.name,
-        _get_date(an_education_group.administrative_data, 'course_enrollment', 'dates', 'start_date', DATE_FORMAT),
-        _get_date(an_education_group.administrative_data, 'course_enrollment', 'dates', 'end_date', DATE_FORMAT)]
+        _get_date(an_education_group.administrative_data,
+                  {'key1': 'course_enrollment', 'key2': 'dates'},
+                  'start_date',
+                  DATE_FORMAT),
+        _get_date(an_education_group.administrative_data,
+                  {'key1': 'course_enrollment', 'key2': 'dates'},
+                  'end_date',
+                  DATE_FORMAT)]
     for session_number in range(NUMBER_SESSIONS):
         data.extend(_get_dates_by_session(an_education_group.administrative_data, session_number+1))
     data.extend([
@@ -214,7 +220,9 @@ def qualification(signatories):
     return ', '.join([signatory.mandate.qualification for signatory in signatories if signatory.mandate.qualification])
 
 
-def _get_date(administrative_data, key1, key2, attribute, date_form):
+def _get_date(administrative_data, keys, attribute, date_form):
+    key1 = keys.get('key1')
+    key2 = keys.get('key2')
     if administrative_data[key1].get(key2):
         attr = getattr(administrative_data[key1].get(key2), attribute) or None
         if attr:
@@ -223,12 +231,30 @@ def _get_date(administrative_data, key1, key2, attribute, date_form):
 
 
 def _get_dates_by_session(administrative_data, session_number):
-    session_key = "session{}".format(session_number)
+    session_name = "session{}".format(session_number)
     return (
-        _get_date(administrative_data, 'exam_enrollments', session_key, 'start_date', DATE_FORMAT),
-        _get_date(administrative_data, 'exam_enrollments', session_key, 'end_date', DATE_FORMAT),
-        _get_date(administrative_data, 'scores_exam_submission', session_key, 'start_date', DATE_TIME_FORMAT),
-        _get_date(administrative_data, 'dissertation_submission', session_key, 'start_date', DATE_FORMAT),
-        _get_date(administrative_data, 'deliberation', session_key, 'start_date', DATE_TIME_FORMAT),
-        _get_date(administrative_data, 'scores_exam_diffusion', session_key, 'start_date', DATE_TIME_FORMAT)
+        _get_date(administrative_data,
+                  {'key1': 'exam_enrollments', 'key2': session_name},
+                  'start_date',
+                  DATE_FORMAT),
+        _get_date(administrative_data,
+                  {'key1': 'exam_enrollments', 'key2': session_name},
+                  'end_date',
+                  DATE_FORMAT),
+        _get_date(administrative_data,
+                  {'key1': 'scores_exam_submission', 'key2': session_name},
+                  'start_date',
+                  DATE_TIME_FORMAT),
+        _get_date(administrative_data,
+                  {'key1': 'dissertation_submission', 'key2': session_name},
+                  'start_date',
+                  DATE_FORMAT),
+        _get_date(administrative_data,
+                  {'key1': 'deliberation', 'key2': session_name},
+                  'start_date',
+                  DATE_TIME_FORMAT),
+        _get_date(administrative_data,
+                  {'key1': 'scores_exam_diffusion', 'key2': session_name},
+                  'start_date',
+                  DATE_TIME_FORMAT)
     )
