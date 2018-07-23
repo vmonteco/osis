@@ -62,8 +62,11 @@ def get_entity_container_list(entity_ids, entity_container_yr_link_type):
 
 
 def get_entity_calendar(an_entity_version, academic_yr):
-    entity_cal = entity_calendar.find_by_entity_and_reference_for_current_academic_year(
-        an_entity_version.entity.id, academic_calendar_type.SUMMARY_COURSE_SUBMISSION)
+    entity_cal = entity_calendar.find_by_entity_and_reference_and_academic_year(
+        an_entity_version.entity.id,
+        academic_calendar_type.SUMMARY_COURSE_SUBMISSION,
+        academic_yr
+    )
 
     if entity_cal:
         return entity_cal

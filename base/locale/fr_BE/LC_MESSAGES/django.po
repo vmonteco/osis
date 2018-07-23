@@ -2915,6 +2915,15 @@ msgstr "Externe"
 msgid "comment_title"
 msgstr "Commentaire"
 
+msgid "comment"
+msgstr "commentaire"
+
+msgid "english comment"
+msgstr "commentaire anglais"
+
+msgid "The comments of %(acronym)s has been updated"
+msgstr "Les commentaires de %(acronym)s ont été mis à jour"
+
 msgid "requesting_entity"
 msgstr "Entité demandeuse"
 
@@ -3025,6 +3034,12 @@ msgstr "Q1 ou Q2"
 
 msgid "New Education Group"
 msgstr "Nouveau Groupement"
+
+msgid "New Training"
+msgstr "Nouvelle Formation"
+
+msgid "New Mini-Training"
+msgstr "Nouvelle Mini-Formation"
 
 msgid "The repartition volume of %(col_name)s has been already modified. ({%(new_value)s} instead of {%(current_value)s})"
 msgstr "La répartition de volume de %(col_name)s a déjà été modifiée. ({%(new_value)s} a la place de {%(current_value)s})"
@@ -3209,7 +3224,7 @@ msgstr "L'organisation de formation a été supprimée."
 msgid "The %(acronym)s has been moved"
 msgstr "%(acronym)s a été déplacé"
 
-msgid "The %(acronym)s has been detatched"
+msgid "The %(acronym)s has been detached"
 msgstr "%(acronym)s a été détaché"
 
 msgid "Additional info"
@@ -3220,3 +3235,18 @@ msgstr "Pondération par crédit"
 
 msgid "Default learning unit enrollment"
 msgstr "Inscription par défaut aux cours"
+
+msgid "Session"
+msgstr "Session"
+
+msgid "The user is not attached to the management entity"
+msgstr "L'utilisateur n'est pas rattaché à l'entité de gestion"
+
+msgid "Help"
+msgstr "Aide"
+
+msgid "Are you sure you want to detach this content?"
+msgstr "Êtes-vous sûr·e de vouloir détacher ce contenu?"
+
+msgid "detach"
+msgstr "détacher"

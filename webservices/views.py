@@ -60,10 +60,10 @@ class AcronymError(Exception):
     pass
 
 
-def new_description(education_group_year, language, title):
+def new_description(education_group_year, language, title, acronym):
     return {
         'language': language,
-        'acronym': education_group_year.acronym,
+        'acronym': acronym,
         'title': title,
         'year': int(education_group_year.academic_year.year),
         'sections': [],
@@ -148,14 +148,15 @@ def process_section(context, education_group_year, item):
 
 def new_context(education_group_year, iso_language, language, original_acronym):
     title = get_title_of_education_group_year(education_group_year, iso_language)
-    description = new_description(education_group_year, language, title)
     partial_acronym = education_group_year.partial_acronym.upper()
     acronym = education_group_year.acronym.upper()
 
     is_partial = original_acronym.upper() == partial_acronym
 
+    final_acronym = partial_acronym if is_partial else acronym
+    description = new_description(education_group_year, language, title, final_acronym)
     context = Context(
-        acronym=partial_acronym if is_partial else acronym,
+        acronym=final_acronym,
         year=int(education_group_year.academic_year.year),
         title=title,
         description=description,

@@ -39,7 +39,7 @@ from base.tests.factories.person import CentralManagerFactory
 
 
 @override_flag('education_group_update', active=True)
-class TestDetatch(TestCase):
+class TestDetach(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.education_group_year = EducationGroupYearFactory()
@@ -54,7 +54,7 @@ class TestDetatch(TestCase):
                 "group_element_year_id": cls.group_element_year.id
             }
         )
-        cls.post_valid_data = {'action': 'detatch'}
+        cls.post_valid_data = {'action': 'detach'}
 
     def setUp(self):
         self.client.force_login(self.person.user)
@@ -66,20 +66,32 @@ class TestDetatch(TestCase):
         self.assertRedirects(response, '/login/?next={}'.format(self.url))
 
     @override_flag('education_group_update', active=False)
-    def test_detatch_case_flag_disabled(self):
+    def test_detach_case_flag_disabled(self):
         response = self.client.post(self.url, self.post_valid_data)
         self.assertEqual(response.status_code, HttpResponseNotFound.status_code)
         self.assertTemplateUsed(response, "page_not_found.html")
 
-    @mock.patch("base.views.education_groups.perms.can_change_education_group", side_effect=lambda user: False)
-    def test_detatch_case_user_not_have_access(self, mock_permission):
+    @mock.patch("base.business.education_groups.perms.is_eligible_to_change_education_group", return_value=False)
+    def test_detach_case_user_not_have_access(self, mock_permission):
         response = self.client.post(self.url, self.post_valid_data)
         self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
         self.assertTemplateUsed(response, "access_denied.html")
 
+    @mock.patch("base.business.education_groups.perms.is_eligible_to_change_education_group", return_value=True)
+    def test_detach_case_get_without_ajax_success(self, mock_permission):
+        response = self.client.get(self.url, data=self.post_valid_data, follow=True)
+        self.assertEqual(response.status_code, HttpResponse.status_code)
+        self.assertTemplateUsed(response, "education_group/group_element_year/confirm_detach.html")
+
+    @mock.patch("base.business.education_groups.perms.is_eligible_to_change_education_group", return_value=True)
+    def test_detach_case_get_with_ajax_success(self, mock_permission):
+        response = self.client.get(self.url, data=self.post_valid_data, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual(response.status_code, HttpResponse.status_code)
+        self.assertTemplateUsed(response, "education_group/group_element_year/confirm_detach_inner.html")
+
     @mock.patch("base.models.group_element_year.GroupElementYear.delete")
     @mock.patch("base.business.education_groups.perms.is_eligible_to_change_education_group")
-    def test_detatch_case_success(self, mock_permission, mock_delete):
+    def test_detach_case_post_success(self, mock_permission, mock_delete):
         mock_permission.return_value = True
         response = self.client.post(self.url, data=self.post_valid_data, follow=True)
         self.assertEqual(response.status_code, HttpResponse.status_code)

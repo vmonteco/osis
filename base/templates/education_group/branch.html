@@ -25,7 +25,7 @@
 {% endcomment %}
 
 <ul>
-    <li {% if not children %} data-jstree='{"icon":"jstree-icon jstree-file"}' id={{ parent.id }}  {% endif %}>
+    <li {% if not children %} data-jstree='{"icon":"jstree-icon jstree-file"}'{% endif %} id={{ parent.id }}>
         <a href="{% url viewname education_group_year_id=parent.id %}?root={{ root.id }}" {% if parent.id == current_education_group_year.id %}class="jstree-wholerow-clicked"{% endif %} >
             {{ parent.partial_acronym| default_if_none:'' }} - {{ parent.acronym }}
         </a>

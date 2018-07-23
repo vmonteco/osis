@@ -200,6 +200,12 @@ class EducationGroupYear(models.Model):
         verbose_name=_('Default learning unit enrollment')
     )
 
+    languages = models.ManyToManyField(
+        "reference.Language",
+        through="EducationGroupLanguage",
+        related_name="education_group_years"
+    )
+
     def __str__(self):
         return u"%s - %s" % (self.academic_year, self.acronym)
 

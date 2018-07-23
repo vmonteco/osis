@@ -23,7 +23,6 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
@@ -55,17 +54,26 @@ class PermissionDecorator:
         @login_required
         def wrapped_f(*args, **kwargs):
             # Retrieve objects
-            person = get_object_or_404(Person, user=args[0].user)
             obj = get_object_or_404(self.argument_instance, pk=kwargs.get(self.argument_name))
 
             # Check permission
-            if not self.permission_method(obj, person):
+            if not self._call_permission_method(args[0], obj):
                 raise PermissionDenied(self.permission_denied_message)
 
             # Call the view
             return view_func(*args, **kwargs)
 
         return wrapped_f
+
+    def _call_permission_method(self, request, obj):
+        person = get_object_or_404(Person, user=request.user)
+        return self.permission_method(obj, person)
+
+
+class PermissionDecoratorWithUser(PermissionDecorator):
+    def _call_permission_method(self, request, obj):
+        """ Sometime the signature method needs user instead of person """
+        return self.permission_method(request.user, obj)
 
 
 def can_delete_learning_unit_year(view_func):
