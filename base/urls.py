@@ -290,7 +290,7 @@ urlpatterns = [
                         ),
                         url(
                             r'^comment/$',
-                            education_groups.group_element_year.update.UpdateCommentGroupElementYearView.as_view(),
+                            education_groups.group_element_year.update.UpdateGroupElementYearView.as_view(),
                             name="group_element_year_management_comment"
                         )
                     ]))

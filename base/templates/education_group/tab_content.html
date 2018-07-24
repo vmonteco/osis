@@ -81,7 +81,7 @@
                                     </tr>
                                     {% if element.group_element.comment %}
                                         <tr style="border-spacing: 100px">
-                                            <td colspan="{{ nb_col_spanned }}">
+                                            <td colspan="{{ nb_col_spanned }}" style="border-top: none; border-bottom: none;">
                                                 {% if element.group_element.comment %}
                                                     <label>{% trans 'comment_title' %} FR</label> :&nbsp;
                                                     {{ element.group_element.comment }}
@@ -91,7 +91,7 @@
                                     {% endif %}
                                     {% if element.group_element.comment_english %}
                                         <tr>
-                                            <td colspan="{{ nb_col_spanned }}" style="border-top: none;">
+                                            <td colspan="{{ nb_col_spanned }}" style="border-top: none; border-bottom: none;">
                                                 {% if element.group_element.comment_english %}
                                                     <label>{% trans 'comment_title' %} ENG</label> :&nbsp;
                                                     {{ element.group_element.comment_english }}

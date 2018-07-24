@@ -128,9 +128,19 @@ class GenericUpdateGroupElementYearMixin(FlagMixin, RulesRequiredMixin, SuccessM
         return reverse("education_group_content", args=[self.kwargs["education_group_year_id"]])
 
 
-class UpdateCommentGroupElementYearView(GenericUpdateGroupElementYearMixin, UpdateView):
+class UpdateGroupElementYearView(GenericUpdateGroupElementYearMixin, UpdateView):
     # UpdateView
-    fields = ["comment", "comment_english"]
+    fields = [
+        "relative_credits",
+        "min_credits",
+        "max_credits",
+        "is_mandatory",
+        "block",
+        "sessions_derogation",
+        "comment",
+        "comment_english",
+    ]
+
     template_name = "education_group/group_element_year_comment.html"
 
     # SuccessMessageMixin

@@ -2361,6 +2361,9 @@ msgstr "Crédits abs."
 msgid "relative_target_credits"
 msgstr "Créd. cible rel."
 
+msgid "relative credits"
+msgstr "crédits relatifs"
+
 msgid "min_credits"
 msgstr "Créd. min."
 
