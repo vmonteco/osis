@@ -3264,3 +3264,6 @@ msgstr[1] "%(count_enrollment)d étudiants sont inscrits à l'offre."
 
 msgid "The content of the education group is not empty."
 msgstr "Le contenu du programme type n'est pas vide."
+
+msgid "english_comment_title"
+msgstr "Commentaire en anglais"
