@@ -2361,6 +2361,9 @@ msgstr "Crédits abs."
 msgid "relative_target_credits"
 msgstr "Créd. cible rel."
 
+msgid "relative credits"
+msgstr "crédits relatifs"
+
 msgid "min_credits"
 msgstr "Créd. min."
 
@@ -3250,3 +3253,50 @@ msgstr "Êtes-vous sûr·e de vouloir détacher ce contenu?"
 
 msgid "detach"
 msgstr "détacher"
+
+msgid "Abs. cred."
+msgstr "Abs. créd."
+
+msgid "Sess. derog."
+msgstr "Sess. dérog."
+
+msgid "%(count_enrollment)d student is  enrolled in the offer."
+msgid_plural "%(count_enrollment)d students are  enrolled in the offer."
+msgstr[0] "%(count_enrollment)d étudiant est inscrit à l'offre."
+msgstr[1] "%(count_enrollment)d étudiants sont inscrits à l'offre."
+
+msgid "The content of the education group is not empty."
+msgstr "Le contenu du programme type n'est pas vide."
+
+msgid "Cred. abs./rel."
+msgstr "Créd. abs./rel."
+
+msgid "Decree category"
+msgstr "Catégorie décret"
+
+msgid "Rate code"
+msgstr "Code tarif"
+
+msgid "NO_ADDITIONAL_FEES"
+msgstr "Sans frais complémentaire"
+
+msgid "AESS_CAPAES"
+msgstr "AESS et CAPAES"
+
+msgid "MINERVAL_COMPLETE"
+msgstr "Minerval complet"
+
+msgid "UNIVERSITY_CERTIFICATE"
+msgstr "Certificat universitaire"
+
+msgid "ADVANCED_MASTER_IN_MEDICAL_SPECIALIZATION"
+msgstr "Master complémentaire spécialisation médicale"
+
+msgid "ACCESS_CONTEST"
+msgstr "Concours d’accès"
+
+msgid "UNIVERSITY_CERTIFICATE_30_CREDITS"
+msgstr "Certificat universitaire 30 crédits "
+
+msgid "CERTIFICATE_MEDECINE_COMPETENCE"
+msgstr "Certificat compétence médecine "

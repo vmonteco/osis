@@ -285,22 +285,6 @@ class TestManageMyCoursesTeachingMaterialsRedirection(ManageMyCoursesMixin):
                                                  expected_redirection)
 
 
-class TestManageMyCoursesMobilityModalityRedirection(ManageMyCoursesMixin):
-    @mock.patch("attribution.views.manage_my_courses.update_mobility_modality_view", return_value=HttpResponse())
-    def test_redirection_update_mobility_modality(self, mock_update_view):
-        url = reverse('tutor_mobility_modality_update', kwargs={'learning_unit_year_id': self.learning_unit_year.id})
-        request = _prepare_request(url, self.tutor.person.user)
-        from attribution.views.manage_my_courses import update_mobility_modality
-        update_mobility_modality(
-            request,
-            learning_unit_year_id=self.learning_unit_year.pk
-        )
-        self.assertTrue(mock_update_view.called)
-        expected_redirection = reverse(view_educational_information,
-                                       kwargs={'learning_unit_year_id': self.learning_unit_year.pk})
-        mock_update_view.assert_called_once_with(request, self.learning_unit_year.pk, expected_redirection)
-
-
 def _prepare_request(url, user):
     request_factory = RequestFactory()
     request = request_factory.get(url)

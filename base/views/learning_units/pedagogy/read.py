@@ -48,7 +48,6 @@ def learning_unit_pedagogy(request, learning_unit_year_id):
         'create_teaching_material_urlname': 'teaching_material_create',
         'update_teaching_material_urlname': 'teaching_material_edit',
         'delete_teaching_material_urlname': 'teaching_material_delete',
-        'update_mobility_modality_urlname': 'mobility_modality_update'
     }
     template = "learning_unit/pedagogy.html"
     return read_learning_unit_pedagogy(request, learning_unit_year_id, context, template)
