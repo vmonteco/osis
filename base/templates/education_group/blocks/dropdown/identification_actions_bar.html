@@ -54,8 +54,8 @@
                 {% endflag %}
                 {% flag "pdf_branch.html" %}
                     <li>
-                        <a href="{% url 'pdf_branch.html' education_group_year_id=education_group_year.id %}?root={{ request.GET.root }}" target="_blank">
-                            {% trans 'pdf_branch.html' %}
+                        <a href="{% url 'pdf_content' education_group_year_id=education_group_year.id %}?root={{ request.GET.root }}" target="_blank">
+                            {% trans 'pdf_content' %}
                         </a>
                     </li>
                 {% endflag %}

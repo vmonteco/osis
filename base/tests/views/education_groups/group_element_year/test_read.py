@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -23,16 +23,21 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.contrib.auth.decorators import login_required
 
-from base import models as mdl
-from base.views import layout
-from osis_common.document.pdf_build import Render
+from django.test import TestCase, RequestFactory
+from django.urls import reverse
+
+from base.tests.factories.education_group_year import EducationGroupYearFactory
+from base.tests.factories.group_element_year import GroupElementYearFactory
+from base.tests.factories.person import PersonFactory
+from base.views.education_groups.group_element_year.read import pdf_content
 
 
-@login_required
-def pdf_content(request, education_group_year_id):
-    education_group_year = mdl.education_group_year.find_by_id(education_group_year_id)
-    parent = education_group_year
-    # return Render.render('education_group/pdf_content.html', {'parent': parent})
-    return layout.render(request, 'education_group/pdf_content.html', {'parent': education_group_year})
+class TestRead(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.person = PersonFactory()
+        cls.education_group_year = EducationGroupYearFactory()
+        cls.group_element_year_1 = GroupElementYearFactory(parent=cls.education_group_year)
+        cls.group_element_year_2 = GroupElementYearFactory(parent=cls.education_group_year)
+        cls.group_element_year_3 = GroupElementYearFactory(parent=cls.education_group_year)

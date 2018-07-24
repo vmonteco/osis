@@ -44,7 +44,6 @@ from base.views.common import paginate_queryset
 @login_required
 @permission_required('base.can_access_education_group', raise_exception=True)
 def education_groups(request):
-    person = get_object_or_404(Person, user=request.user)
     if request.GET:
         form = EducationGroupFilter(request.GET)
     else:
