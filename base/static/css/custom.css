@@ -137,3 +137,6 @@ table.volumes thead{
 .no_label{
     font-weight: normal;
 }
+.label_title::first-letter {
+    text-transform: uppercase;
+}

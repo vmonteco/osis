@@ -3298,6 +3298,3 @@ msgstr "University certificate 30 credits"
 
 msgid "CERTIFICATE_MEDECINE_COMPETENCE"
 msgstr "Certificate medecine competence"
-
-msgid "english_comment_title"
-msgstr "English comment"

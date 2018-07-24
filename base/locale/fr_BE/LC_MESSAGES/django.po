@@ -3300,6 +3300,3 @@ msgstr "Certificat universitaire 30 crédits "
 
 msgid "CERTIFICATE_MEDECINE_COMPETENCE"
 msgstr "Certificat compétence médecine "
-
-msgid "english_comment_title"
-msgstr "Commentaire en anglais"
