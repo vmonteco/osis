@@ -2895,8 +2895,6 @@ msgstr ""
 msgid "english comment"
 msgstr ""
 
-
-
 msgid "The comments of %(acronym)s has been updated"
 msgstr ""
 
