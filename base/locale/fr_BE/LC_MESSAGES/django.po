@@ -3255,7 +3255,7 @@ msgid "Move"
 msgstr "Déplacer"
 
 msgid "Select"
-msgstr "Séléctionner"
+msgstr "Sélectionner"
 
 msgid "Help"
 msgstr "Aide"

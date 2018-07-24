@@ -81,6 +81,8 @@ class TestAttach(TestCase):
         self.assertEqual(response.status_code, HTTPStatus.OK)
 
     def test_attach(self):
+        cache.set('child_to_cache_id', None, timeout=None)
+
         expected_absent_group_element_year = GroupElementYear.objects.filter(
             parent=self.new_parent_education_group_year,
             child_branch=self.child_education_group_year
@@ -89,8 +91,8 @@ class TestAttach(TestCase):
 
         self._assert_link_with_inital_parent_present()
 
-        self.client.get(self.url_select, data={'education_group_year_id' : self.child_education_group_year.id})
-        self.client.get(self.url_attach, data={'education_group_year_id' : self.new_parent_education_group_year.id})
+        self.client.get(self.url_select, data={'child_to_cache_id' : self.child_education_group_year.id})
+        self.client.get(self.url_attach, data={'new_parent_id' : self.new_parent_education_group_year.id})
 
         expected_group_element_year_count = GroupElementYear.objects.filter(
             parent=self.new_parent_education_group_year,
