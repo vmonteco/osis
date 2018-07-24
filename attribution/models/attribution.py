@@ -210,17 +210,14 @@ def clear_summary_responsible_by_learning_unit_year(learning_unit_year_pk):
 
 
 def _clear_attributions_field_of_learning__unit_year(learning_unit_year_pk, field_to_clear):
-    attributions = search_by_learning_unit_year_pk_this_academic_year(learning_unit_year_pk)
+    attributions = search_by_learning_unit_year_pk(learning_unit_year_pk)
     for attribution in attributions:
         setattr(attribution, field_to_clear, False)
         attribution.save()
 
 
-def search_by_learning_unit_year_pk_this_academic_year(learning_unit_year_pk):
-    a_learning_unit_year = learning_unit_year.get_by_id(learning_unit_year_pk)
-    attributions = Attribution.objects.filter(learning_unit_year=a_learning_unit_year,
-                                              learning_unit_year__academic_year=current_academic_year())
-    return attributions
+def search_by_learning_unit_year_pk(learning_unit_year_pk):
+    return Attribution.objects.filter(learning_unit_year__id=learning_unit_year_pk)
 
 
 def find_by_id(attribution_id):
