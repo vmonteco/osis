@@ -72,39 +72,41 @@
         </thead>
         <tbody>
         {% for label_key, label_translated in cms_labels_translated.items %}
-            <tr>
-                <td style="padding: 20px;">
-                    <label> {{ label_translated }} </label>
-                </td>
-                <td style="padding: 20px;" {% if label_key in cms_label_pedagogy_fr_only %}colspan="2"{% endif %}>
-                    {% if can_edit_information %}
-                        <a class="pedagogy-edit-btn pull-right" href="#"
-                           data-form="{{post_url}}?language={{ form_french.language.0 }}&label={{ label_key }}"
-                           title="{% trans 'edit' %}">
-                            <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
-                        </a>
-                    {% endif %}
-                    {{ form_french|getattr:label_key }}
-                </td>
-                {% if label_key not in cms_label_pedagogy_fr_only %}
+            {% if label_key != "mobility" %}
+                <tr>
                     <td style="padding: 20px;">
-                            {% if can_edit_information %}
-                                <a class="pedagogy-edit-btn pull-right" href="#"
-                                   data-form="{{ post_url }}?language={{ form_english.language.0 }}&label={{ label_key }}"
-                                   title="{% trans 'edit' %}">
-                                    <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
-                                </a>
-                            {% endif %}
-                            {{ form_english|getattr:label_key }}
+                        <label> {{ label_translated }} </label>
                     </td>
-                {% endif %}
-            </tr>
+                    <td style="padding: 20px;" {% if label_key in cms_label_pedagogy_fr_only %}colspan="2"{% endif %}>
+                        {% if can_edit_information %}
+                            <a class="pedagogy-edit-btn pull-right" href="#"
+                               data-form="{{post_url}}?language={{ form_french.language.0 }}&label={{ label_key }}"
+                               title="{% trans 'edit' %}">
+                                <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+                            </a>
+                        {% endif %}
+                        {{ form_french|getattr:label_key }}
+                    </td>
+                    {% if label_key not in cms_label_pedagogy_fr_only %}
+                        <td style="padding: 20px;">
+                                {% if can_edit_information %}
+                                    <a class="pedagogy-edit-btn pull-right" href="#"
+                                       data-form="{{ post_url }}?language={{ form_english.language.0 }}&label={{ label_key }}"
+                                       title="{% trans 'edit' %}">
+                                        <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+                                    </a>
+                                {% endif %}
+                                {{ form_english|getattr:label_key }}
+                        </td>
+                    {% endif %}
+                </tr>
+            {% endif %}
         {% endfor %}
         </tbody>
     </table>
 
     {% include "learning_unit/blocks/panel/teaching_material.html" %}
-    {% include "learning_unit/blocks/panel/mobility_modality.html" %}
+    {% include "learning_unit/blocks/panel/mobility.html" with form_value=form_french|getattr:"mobility" %}
 
 </div>
 

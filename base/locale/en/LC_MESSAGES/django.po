@@ -2356,6 +2356,9 @@ msgstr "Abs. credits"
 msgid "relative_target_credits"
 msgstr "Relative target's credits"
 
+msgid "relative credits"
+msgstr ""
+
 msgid "min_credits"
 msgstr "Min. credits"
 
@@ -2892,6 +2895,8 @@ msgstr ""
 msgid "english comment"
 msgstr ""
 
+
+
 msgid "The comments of %(acronym)s has been updated"
 msgstr ""
 
@@ -3256,4 +3261,21 @@ msgid "Are you sure you want to detach this content?"
 msgstr ""
 
 msgid "detach"
+msgstr ""
+
+msgid "Abs. cred."
+msgstr ""
+
+msgid "Sess. derog."
+msgstr ""
+
+msgid "%(count_enrollment)d student is  enrolled in the offer."
+msgid_plural "%(count_enrollment)d students are  enrolled in the offer."
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "The content of the education group is not empty."
+msgstr ""
+
+msgid "Cred. abs./rel."
 msgstr ""

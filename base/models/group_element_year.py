@@ -68,21 +68,52 @@ class GroupElementYear(OrderedModel):
         EducationGroupYear,
         related_name='child_branch',
         blank=True, null=True,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
     )
 
     child_leaf = models.ForeignKey(
         LearningUnitYear,
         related_name='child_leaf',
         blank=True, null=True,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
     )
 
-    relative_credits = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
-    min_credits = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
-    max_credits = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
-    is_mandatory = models.BooleanField(default=False)
-    block = models.CharField(max_length=7, blank=True, null=True)
+    relative_credits = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        blank=True,
+        null=True,
+        verbose_name=_("relative credits"),
+    )
+
+    min_credits = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        blank=True,
+        null=True,
+        verbose_name=_("min_credits"),
+    )
+
+    max_credits = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        blank=True,
+        null=True,
+        verbose_name=_("max_credits"),
+    )
+
+    is_mandatory = models.BooleanField(
+        default=False,
+        verbose_name=_("mandatory"),
+    )
+
+    block = models.CharField(
+        max_length=7,
+        blank=True,
+        null=True,
+        verbose_name=_("block")
+    )
+
     minor_access = models.BooleanField(default=False)
 
     comment = models.TextField(
@@ -100,9 +131,11 @@ class GroupElementYear(OrderedModel):
 
     sessions_derogation = models.CharField(
         max_length=65,
-        choices=sessions_derogation.SessionsDerogationTypes.choices(),
-        default=sessions_derogation.SessionsDerogationTypes.SESSION_UNDEFINED.value
+        choices=sessions_derogation.SessionsDerogationTypes.translation_choices(),
+        default=sessions_derogation.SessionsDerogationTypes.SESSION_UNDEFINED.value,
+        verbose_name=_("sessions_derogation"),
     )
+
     order_with_respect_to = 'parent'
 
     def __str__(self):

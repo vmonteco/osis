@@ -1293,7 +1293,6 @@ class LearningUnitViewTestCase(TestCase):
         self.assertEqual(context['create_teaching_material_urlname'], 'teaching_material_create')
         self.assertEqual(context['update_teaching_material_urlname'], 'teaching_material_edit')
         self.assertEqual(context['delete_teaching_material_urlname'], 'teaching_material_delete')
-        self.assertEqual(context['update_mobility_modality_urlname'], 'mobility_modality_update')
 
     @mock.patch('base.views.layout.render')
     def test_learning_unit_specification(self, mock_render):
