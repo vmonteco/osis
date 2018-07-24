@@ -211,8 +211,9 @@ class EducationGroupYear(models.Model):
                                        blank=True, null=True, verbose_name=_('Decree category'))
 
     rate_code = models.CharField(max_length=50,
-                                       choices=rate_code.RATE_CODE,
-                                       blank=True, null=True, verbose_name=_('Rate code'))
+                                 choices=rate_code.RATE_CODE,
+                                 blank=True, null=True, verbose_name=_('Rate code'))
+
     def __str__(self):
         return u"%s - %s" % (self.academic_year, self.acronym)
 
