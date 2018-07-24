@@ -25,7 +25,7 @@
 ##############################################################################
 import itertools
 
-from django.db import models, IntegrityError
+from django.db import models, IntegrityError, connection
 from django.db.models import Q
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
@@ -39,6 +39,23 @@ from base.models.enums import sessions_derogation
 from base.models.learning_unit_year import LearningUnitYear
 from osis_common.decorators.deprecated import deprecated
 from osis_common.models import osis_model_admin
+
+SQL_RECURSIVE_QUERY = """
+WITH RECURSIVE under_group_element_year(id, parent_id, child_branch_id, level) AS (
+
+    SELECT id, parent_id, child_branch_id, 0 FROM base_groupelementyear where parent_id={}
+
+    UNION ALL
+
+    SELECT b.id,
+        b.parent_id,
+        b.child_branch_id,
+        u.level + 1
+
+    FROM under_group_element_year AS u, base_groupelementyear AS b WHERE u.child_branch_id=b.parent_id
+  )
+SELECT * FROM under_group_element_year;
+"""
 
 
 class GroupElementYearAdmin(osis_model_admin.OsisModelAdmin):
@@ -54,13 +71,40 @@ class GroupElementYearAdmin(osis_model_admin.OsisModelAdmin):
     list_filter = ('is_mandatory', 'minor_access', 'sessions_derogation')
 
 
+class Tree:
+    _branch = None
+    _node = None
+
+
+class GroupElementYearManager(models.Manager):
+
+    def get_tree(self, parent):
+
+        with connection.cursor() as cursor:
+            cursor.execute(SQL_RECURSIVE_QUERY.format(parent))
+
+            return self._construct_dict(iter(cursor.fetchall()), 0, parent)
+
+    def _construct_dict(self, rows, level, parent):
+        dict = {}
+
+        try:
+            for edge, parent, child, lvl in rows:
+                if child:
+                    dict[child] = self._construct_dict(rows, lvl, child)
+
+        except StopIteration:
+            pass
+
+        return dict
+
+
 class GroupElementYear(OrderedModel):
     external_id = models.CharField(max_length=100, blank=True, null=True)
     changed = models.DateTimeField(null=True, auto_now=True)
 
     parent = models.ForeignKey(
         EducationGroupYear,
-        related_name='parents',  # TODO: can not be parents
         null=True,  # TODO: can not be null, dirty data
     )
 
@@ -137,6 +181,8 @@ class GroupElementYear(OrderedModel):
     )
 
     order_with_respect_to = 'parent'
+
+    objects = GroupElementYearManager()
 
     def __str__(self):
         return "{} - {}".format(self.parent, self.child)

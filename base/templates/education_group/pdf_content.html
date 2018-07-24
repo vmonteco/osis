@@ -14,10 +14,7 @@
 <body>
     <div class="container">
         <div class="list-group">
-            <ul>
-                <li>{{ parent.title }} ({{ parent.credits }} {% trans 'credits'|lower %})</li>
-                {% include "education_group/blocks/pdf_branch.html" with parent=parent %}
-            </ul>
+            <ul>{% root| unsorted_list %}</ul>
         </div>
     </div>
 </body>
