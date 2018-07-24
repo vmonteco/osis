@@ -32,7 +32,7 @@ from django.utils.translation import ugettext_lazy as _
 from base.models import entity_version
 from base.models.entity import Entity
 from base.models.enums import academic_type, fee, internship_presence, schedule_type, activity_presence, \
-    diploma_printing_orientation, active_status, duration_unit
+    diploma_printing_orientation, active_status, duration_unit, decree_category, rate_code
 from base.models.enums import education_group_association
 from base.models.enums import education_group_categories
 from base.models.exceptions import MaximumOneParentAllowedException
@@ -205,6 +205,14 @@ class EducationGroupYear(models.Model):
         through="EducationGroupLanguage",
         related_name="education_group_years"
     )
+
+    decree_category = models.CharField(max_length=40,
+                                       choices=decree_category.DECREE_CATEGORY,
+                                       blank=True, null=True, verbose_name=_('Decree category'))
+
+    rate_code = models.CharField(max_length=50,
+                                 choices=rate_code.RATE_CODE,
+                                 blank=True, null=True, verbose_name=_('Rate code'))
 
     def __str__(self):
         return u"%s - %s" % (self.academic_year, self.acronym)
