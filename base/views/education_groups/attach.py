@@ -42,7 +42,7 @@ from base.views.learning_units.perms import PermissionDecoratorWithUser
 @cache_filter()
 def education_group_attach(request, education_group_year_id):
     parent_id = int(request.GET.get('new_parent_id'))
-    child_id = int(cache.get('education_group_year_id'))
+    child_id = int(cache.get('child_to_cache_id'))
     group_element_year.get_or_create_group_element_year(
         parent=EducationGroupYear.objects.get(id=parent_id),
         child=EducationGroupYear.objects.get(id=child_id)

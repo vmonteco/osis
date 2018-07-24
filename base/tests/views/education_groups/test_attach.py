@@ -71,18 +71,26 @@ class TestAttach(TestCase):
         self.url_select = reverse("education_group_select", args=[self.child_education_group_year.id])
         self.url_attach = reverse("education_group_attach",  args=[self.new_parent_education_group_year.id])
 
+        cache.set('child_to_cache_id', None, timeout=None)
+
     def tearDown(self):
+        cache.set('child_to_cache_id', None, timeout=None)
         self.patch.stop()
         self.client.logout()
         self.perm_patcher.stop()
 
     def test_select(self):
-        response = self.client.get(self.url_select,  HTTP_X_REQUESTED_WITH='XMLHttpRequest')
-        self.assertEqual(response.status_code, HTTPStatus.OK)
+        response = self.client.get(
+            self.url_select,
+            data={'child_to_cache_id': self.child_education_group_year.id},
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+        )
+        child_id = int(cache.get('child_to_cache_id'))
+
+        self.assertEquals(response.status_code, HTTPStatus.OK)
+        self.assertEquals(child_id, self.child_education_group_year.id)
 
     def test_attach(self):
-        cache.set('child_to_cache_id', None, timeout=None)
-
         expected_absent_group_element_year = GroupElementYear.objects.filter(
             parent=self.new_parent_education_group_year,
             child_branch=self.child_education_group_year

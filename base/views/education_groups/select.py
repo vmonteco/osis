@@ -43,7 +43,7 @@ from base.views.learning_units.perms import PermissionDecoratorWithUser
 @cache_filter()
 def education_group_select(request, education_group_year_id=None):
     child_to_cache_id = request.GET.get('child_to_cache_id')
-    cache.set('education_group_year_id', child_to_cache_id, timeout=None)
+    cache.set('child_to_cache_id', child_to_cache_id, timeout=None)
     if request.is_ajax():
         return HttpResponse(HTTPStatus.OK)
     else:
