@@ -47,7 +47,7 @@
                                 <tr>
                                     <th>{% trans 'code_scs'%}</th>
                                     <th>{% trans 'title_code_formation' %}</th>
-                                    <th>{% trans 'Cred. abs./rel.' %}</th>
+                                    <th>{% trans 'Cred. rel./abs.' %}</th>
                                     <th>{% trans 'min_credits' %}</th>
                                     <th>{% trans 'max_credits' %}</th>
                                     <th>{% trans 'mandatory' %}</th>
@@ -60,7 +60,7 @@
                                     <tr>
                                         <td width="10%">{{ element.code_scs | default_if_none:''  }}</td>
                                         <td width="29%">{{ element.title | default_if_none:'' }}</td>
-                                        <td width="12%">{% if element.group_element.child_leaf %}{{ element.group_element.child_leaf.credits | default_if_none:'-' }}{% else %}-{% endif %} / {{ element.group_element.relative_credits | default_if_none:'-' }}</td>
+                                        <td width="12%">{{ element.group_element.relative_credits | default_if_none:'-' }} / {% if element.group_element.child %}{{ element.group_element.child.credits | default_if_none:'-' }}{% else %}-{% endif %}</td>
                                         <td width="6%">{{ element.credits_min | default_if_none:'-' }}</td>
                                         <td width="6%">{{ element.credits_max | default_if_none:'-' }}</td>
                                         <td width="6%">{% if element.group_element.is_mandatory %}{% trans 'yes'%} {% else %}{% trans 'no' %}{% endif %}</td>
