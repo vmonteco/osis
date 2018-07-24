@@ -58,7 +58,7 @@
 
                 {% flag "education_group_select" %}
                     <li {% if not can_change_education_group %} class="disabled" {% endif %}>
-                        <a {% if can_change_education_group %} href="{% url 'education_group_select' education_group_year_id=education_group_year.id %}?root={{ request.GET.root }}" {% endif %}>
+                        <a {% if can_change_education_group %} href="#" onclick="javascript:select()" {% endif %}>
                             {% trans 'Select' %}
                         </a>
                     </li>
@@ -67,7 +67,7 @@
 
                 {% flag "education_group_attach" %}
                     <li {% if not can_change_education_group %} class="disabled" {% endif %}>
-                        <a {% if can_change_education_group %} href="{% url 'education_group_attach' education_group_year_id=education_group_year.id %}?root={{ request.GET.root }}" {% endif %}>
+                        <a {% if can_change_education_group %} href="#" onclick="javascript:attach()" {% endif %}>
                             {% trans 'Attach' %}
                         </a>
                     </li>
@@ -93,3 +93,25 @@
         {% include "blocks/modal/modal_ajax.html" with modal_url=delete_url click_id="link_delete" form_id="form_delete_education_group" %}
     {% endif %}
 {% endwith %}
+
+{% block script %}
+    <script>
+        function select() {
+            $.ajax({
+                url: 'select/',
+                data: {'child_to_cache_id' : {{ education_group_year.id }} },
+                type: 'GET',
+                dataType: 'json',
+            });
+        }
+
+        function attach() {
+            $.ajax({
+                url: 'attach/',
+                data: {'new_parent_id' : {{ education_group_year.id }} },
+                type: 'GET',
+                dataType: 'json',
+            });
+        }
+    </script>
+{% endblock %}

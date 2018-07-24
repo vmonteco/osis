@@ -49,11 +49,10 @@ $(document).ready(function () {
                         type: 'GET',
                         dataType: 'json',
                     });
-
-                    alert('Select : ' + obj.li_attr.id)
                   },
                   "icon": "fa fa-check-square"
               },
+
               "attach" : {
                  "label" : gettext("Attach"),
                  "action" : function (data) {
@@ -66,11 +65,10 @@ $(document).ready(function () {
                         type: 'GET',
                         dataType: 'json',
                     });
-
-                    alert('Attach : ' + obj.li_attr.id)
                   },
                   "icon": "fa fa-paperclip"
               },
+
               "detach" : {
                  "label" : gettext("Detach"),
                  "action" : function (data) {
@@ -83,8 +81,6 @@ $(document).ready(function () {
                         type: 'GET',
                         dataType: 'json',
                     });
-
-                    alert('Detach : ' + obj.li_attr.id)
                   },
                   "icon": "fa fa-cut"
               }
