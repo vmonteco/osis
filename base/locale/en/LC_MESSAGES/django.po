@@ -2356,6 +2356,9 @@ msgstr "Abs. credits"
 msgid "relative_target_credits"
 msgstr "Relative target's credits"
 
+msgid "relative credits"
+msgstr ""
+
 msgid "min_credits"
 msgstr "Min. credits"
 
@@ -2892,6 +2895,8 @@ msgstr ""
 msgid "english comment"
 msgstr ""
 
+
+
 msgid "The comments of %(acronym)s has been updated"
 msgstr ""
 
@@ -3261,4 +3266,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 msgid "The content of the education group is not empty."
+msgstr ""
+
+msgid "Cred. abs./rel."
 msgstr ""
