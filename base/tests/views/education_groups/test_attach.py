@@ -59,16 +59,17 @@ class TestAttach(TestCase):
         self.mocked_perm = self.perm_patcher.start()
 
         self.academic_year = AcademicYearFactory(year=today().year)
-        self.education_group_year = EducationGroupYearFactory(academic_year=self.academic_year)
-        self.parent_education_group_year = EducationGroupYearFactory(academic_year=self.academic_year)
-        self.final_group_element_year = GroupElementYearFactory(
-            parent=self.parent_education_group_year,
-            child_branch=self.education_group_year
+        self.child_education_group_year = EducationGroupYearFactory(academic_year=self.academic_year)
+        self.initial_parent_education_group_year = EducationGroupYearFactory(academic_year=self.academic_year)
+        self.new_parent_education_group_year = EducationGroupYearFactory(academic_year=self.academic_year)
+
+        self.initial_group_element_year = GroupElementYearFactory(
+            parent=self.initial_parent_education_group_year,
+            child_branch=self.child_education_group_year
         )
-        self.url_select = reverse("education_group_select",
-                                  args=[self.education_group_year.id])
-        self.url_attach = reverse("education_group_attach",
-                                  args=[self.parent_education_group_year.id])
+
+        self.url_select = reverse("education_group_select", args=[self.child_education_group_year.id])
+        self.url_attach = reverse("education_group_attach",  args=[self.new_parent_education_group_year.id])
 
     def tearDown(self):
         self.patch.stop()
@@ -80,12 +81,28 @@ class TestAttach(TestCase):
         self.assertEqual(response.status_code, HTTPStatus.OK)
 
     def test_attach(self):
-        self.client.get(self.url_select)
-        self.client.get(self.url_attach)
+        expected_absent_group_element_year = GroupElementYear.objects.filter(
+            parent=self.new_parent_education_group_year,
+            child_branch=self.child_education_group_year
+        ).exists()
+        self.assertFalse(expected_absent_group_element_year)
 
-        group_to_attach = GroupElementYear.objects.get(
-            parent=self.parent_education_group_year,
-            child_branch=self.education_group_year
+        self._assert_link_with_inital_parent_present()
+
+        self.client.get(self.url_select, data={'education_group_year_id' : self.child_education_group_year.id})
+        self.client.get(self.url_attach, data={'education_group_year_id' : self.new_parent_education_group_year.id})
+
+        expected_group_element_year_count = GroupElementYear.objects.filter(
+            parent=self.new_parent_education_group_year,
+            child_branch=self.child_education_group_year
+        ).count()
+        self.assertEquals(expected_group_element_year_count, 1)
+
+        self._assert_link_with_inital_parent_present()
+
+    def _assert_link_with_inital_parent_present(self):
+        expected_initial_group_element_year = GroupElementYear.objects.get(
+            parent=self.initial_parent_education_group_year,
+            child_branch=self.child_education_group_year
         )
-
-        self.assertEqual(group_to_attach, self.final_group_element_year)
+        self.assertEquals(expected_initial_group_element_year, self.initial_group_element_year)

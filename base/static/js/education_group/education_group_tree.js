@@ -45,7 +45,7 @@ $(document).ready(function () {
 
                     $.ajax({
                         url: 'select/',
-                        data: {'education_group_id' : obj.li_attr.id},
+                        data: {'education_group_year_id' : obj.li_attr.id},
                         type: 'GET',
                         dataType: 'json',
                     });
@@ -62,7 +62,7 @@ $(document).ready(function () {
 
                     $.ajax({
                         url: 'attach/',
-                        data: {'education_group_id' : obj.li_attr.id},
+                        data: {'education_group_year_id' : obj.li_attr.id},
                         type: 'GET',
                         dataType: 'json',
                     });
@@ -79,7 +79,7 @@ $(document).ready(function () {
 
                     $.ajax({
                         url: 'detach/',
-                        data: {'education_group_id' : obj.li_attr.id},
+                        data: {'education_group_year_id' : obj.li_attr.id},
                         type: 'GET',
                         dataType: 'json',
                     });

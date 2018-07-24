@@ -51,7 +51,7 @@ class GroupElementYearAdmin(osis_model_admin.OsisModelAdmin):
         'parent__acronym',
         'parent__partial_acronym'
     ]
-    list_filter = ('is_mandatory', 'minor_access', 'sessions_derogation')
+    list_filter = ('is_mandatory', 'minor_access', 'sessions_derogation', 'parent__academic_year')
 
 
 class GroupElementYear(OrderedModel):
