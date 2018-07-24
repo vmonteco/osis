@@ -3251,6 +3251,9 @@ msgstr ""
 msgid "Move"
 msgstr ""
 
+msgid "Select"
+msgstr ""
+
 msgid "The user is not attached to the management entity"
 msgstr ""
 

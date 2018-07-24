@@ -24,7 +24,6 @@
 #
 ##############################################################################
 from collections.__init__ import OrderedDict
-
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import PermissionRequiredMixin
@@ -34,6 +33,7 @@ from django.views.generic import DetailView
 
 from base import models as mdl
 from base.business.education_group import assert_category_of_education_group_year, can_user_edit_administrative_data
+from base.business.education_groups import perms
 from base.forms.education_group_general_informations import EducationGroupGeneralInformationsForm
 from base.models.education_group_year import EducationGroupYear
 from base.models.enums import education_group_categories, academic_calendar_type
@@ -75,6 +75,10 @@ class EducationGroupGenericDetailView(PermissionRequiredMixin, DetailView):
         context['person'] = self.get_person()
         context['root'] = self.get_root()
         context['parent'] = get_education_group_root(self.get_root(), self.object)
+        context['can_change_education_group'] = perms.is_eligible_to_change_education_group(
+            person=self.get_person(),
+            education_group=context['object'],
+        )
         return context
 
     def get(self, request, *args, **kwargs):
