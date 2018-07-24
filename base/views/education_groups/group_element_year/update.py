@@ -125,7 +125,8 @@ class GenericUpdateGroupElementYearMixin(FlagMixin, RulesRequiredMixin, SuccessM
         return get_object_or_404(EducationGroupYear, pk=self.kwargs["education_group_year_id"])
 
     def get_success_url(self):
-        return reverse("education_group_content", args=[self.kwargs["education_group_year_id"]])
+        return reverse("education_group_content", args=[self.kwargs["education_group_year_id"]]) + \
+               "?root={root_id}".format(root_id=self.kwargs["root_id"])
 
 
 class UpdateGroupElementYearView(GenericUpdateGroupElementYearMixin, UpdateView):
