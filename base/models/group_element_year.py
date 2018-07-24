@@ -36,6 +36,7 @@ from base.models.education_group_type import GROUP_TYPE_OPTION
 from base.models.education_group_year import EducationGroupYear
 from base.models.enums import education_group_categories
 from base.models.enums import sessions_derogation
+from base.models.learning_component_year import LearningComponentYear
 from base.models.learning_unit_year import LearningUnitYear
 from osis_common.decorators.deprecated import deprecated
 from osis_common.models import osis_model_admin
@@ -71,11 +72,6 @@ class GroupElementYearAdmin(osis_model_admin.OsisModelAdmin):
     list_filter = ('is_mandatory', 'minor_access', 'sessions_derogation')
 
 
-class Tree:
-    _branch = None
-    _node = None
-
-
 class GroupElementYearManager(models.Manager):
 
     def get_tree(self, parent):
@@ -83,20 +79,8 @@ class GroupElementYearManager(models.Manager):
         with connection.cursor() as cursor:
             cursor.execute(SQL_RECURSIVE_QUERY.format(parent))
 
-            return self._construct_dict(iter(cursor.fetchall()), 0, parent)
-
-    def _construct_dict(self, rows, level, parent):
-        dict = {}
-
-        try:
-            for edge, parent, child, lvl in rows:
-                if child:
-                    dict[child] = self._construct_dict(rows, lvl, child)
-
-        except StopIteration:
-            pass
-
-        return dict
+            # Load all group_element_year
+            return self.filter(pk__in=[row[0] for row in cursor.fetchall()]).select_related('parent', 'child_branch')
 
 
 class GroupElementYear(OrderedModel):
@@ -186,6 +170,25 @@ class GroupElementYear(OrderedModel):
 
     def __str__(self):
         return "{} - {}".format(self.parent, self.child)
+
+    @property
+    def verbose(self):
+        if self.child_branch:
+            return _("%(title)s (%(credits)d credits)") % {
+                "title": self.child.title,
+                "credits": self.relative_credits or self.child_branch.credits or 0
+            }
+        else:
+            component = LearningComponentYear.objects.filter(
+                learningunitcomponent__learning_unit_year=self.child_leaf
+            ).first()
+
+            return _("%(acronym)s %(title)s [%(volumes)s] (%(credits)d credits)") % {
+                "acronym": self.child_leaf.acronym,
+                "title": self.child_leaf.specific_title,
+                "volumes": component.volumes_verbose,
+                "credits": self.relative_credits or self.child_leaf.credits or 0
+            }
 
     class Meta:
         ordering = ('order',)
