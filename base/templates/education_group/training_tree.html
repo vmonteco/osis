@@ -1,33 +1,12 @@
 {% load i18n %}
-{% load format %}
-{% comment "License" %}
-* OSIS stands for Open Student Information System. It's an application
-* designed to manage the core business of higher education institutions,
-* such as universities, faculties, institutes and professional schools.
-* The core business involves the administration of students, teachers,
-* courses, programs and so on.
-*
-* Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
-*
-* This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* A copy of this license - GNU General Public License - is available
-* at the root of the source code of this program.  If not,
-* see http://www.gnu.org/licenses/.
-{% endcomment %}
+{% load format education_group %}
+
+
 <div id="panel-collapse" class="col-md-0">
     <div id="collapse" class="panel panel-default" style="display:none;overflow: auto;">
         <div class="panel-body">
 
-{#            Button to expand and close all nodes of the trees#}
+            {# Button to expand and close all nodes of the trees #}
             <div class="row">
                 <a class="button pull-right col-md-1" id="tree_close_all">
                     <span class="glyphicon glyphicon-minus" aria-hidden="true"></span>
@@ -38,10 +17,14 @@
                 </a>
             </div>
 
-{#            Tree figure#}
             <div class="row" id="panel_file_tree">
-                {% include "education_group/branch.html" with parent=parent children=parent.children_by_group_element_year root=parent current_education_group_year=education_group_year viewname=request.resolver_match.url_name only%}
+                {#                {% build_tree education_group_year.parents.all|first parent.parents.all|first %}#}
             </div>
+
+            {# Tree figure #}
+            {#                {% include "education_group/branch.html" with parent=parent children=parent.group_element_year_branches root=parent current_education_group_year=education_group_year viewname=request.resolver_match.url_name only %}#}
         </div>
     </div>
 </div>
+
+{{ parent }}

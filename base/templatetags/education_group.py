@@ -25,6 +25,7 @@
 ##############################################################################
 from django import template
 from django.core.exceptions import PermissionDenied
+from django.urls import reverse
 from django.utils.safestring import mark_safe
 
 from base.business.education_groups.perms import is_eligible_to_delete_education_group, \
@@ -127,3 +128,52 @@ def a_with_permission(context, title, id_a, value):
         title = permission_denied_message
 
     return mark_safe(A_TEMPLATE.format(title, id_a, disabled, ICONS[value]))
+
+
+BRANCH_TEMPLATE = """
+<ul>
+    <li {data_jstree} id={id}>
+        <a href="{url}" class="{a_class}">
+            {text}
+        </a>
+        {children}
+    </li>
+</ul>
+"""
+
+
+@register.simple_tag(takes_context=True)
+def build_tree(context, current_group_element_year, clicked_group_element_year):
+    education_group_year = current_group_element_year.child_branch
+
+    if education_group_year.children_branches:
+        data_jstree = "data-jstree='{\"icon\":\"jstree-icon jstree-file\"}'"
+    else:
+        data_jstree = ""
+
+    if current_group_element_year.pk == clicked_group_element_year.pk:
+        a_class = "jstree-wholerow-clicked"
+    else:
+        a_class = ""
+    root = context["request"].GET.get("root", "")
+
+    url = reverse(
+        context["request"].resolver_match.url_name,
+        args=[education_group_year.pk]
+    ) + "?root=" + root
+
+    text = education_group_year.verbose
+
+    chidren_template = ""
+
+    for child in education_group_year.group_element_year_branches:
+        chidren_template += build_tree(context, child, clicked_group_element_year)
+
+    return mark_safe(BRANCH_TEMPLATE.format(
+        data_jstree=data_jstree,
+        id=current_group_element_year.pk,
+        url=url,
+        text=text,
+        a_class=a_class,
+        children=chidren_template
+    ))

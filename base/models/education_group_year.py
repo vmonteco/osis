@@ -217,6 +217,10 @@ class EducationGroupYear(models.Model):
     def __str__(self):
         return u"%s - %s" % (self.academic_year, self.acronym)
 
+    @property
+    def verbose(self):
+        return "{} - {}".format(self.partial_acronym or "", self.acronym)
+
     class Meta:
         verbose_name = _("education group year")
 
@@ -262,6 +266,10 @@ class EducationGroupYear(models.Model):
         group_elements_year = self.parents.filter(parent=self).select_related('child_branch')
         return [group_element_year.child_branch for group_element_year in group_elements_year
                 if group_element_year.child_branch]
+
+    @cached_property
+    def group_element_year_branches(self):
+        return self.parents.filter(child_branch__isnull=False)
 
     @cached_property
     def coorganizations(self):
@@ -333,6 +341,6 @@ def _count_education_group_enrollments_by_id(education_groups_years):
 
 
 def _find_with_learning_unit_enrollment_count(learning_unit_year):
-    return EducationGroupYear.objects\
-        .filter(offerenrollment__learningunitenrollment__learning_unit_year_id=learning_unit_year)\
+    return EducationGroupYear.objects \
+        .filter(offerenrollment__learningunitenrollment__learning_unit_year_id=learning_unit_year) \
         .annotate(count_learning_unit_enrollments=Count('offerenrollment__learningunitenrollment')).order_by('acronym')
