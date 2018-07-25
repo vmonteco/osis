@@ -29,7 +29,7 @@ from django.urls import reverse
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
-from base.models import entity_version, learning_component_year
+from base.models import entity_version
 from base.models.entity import Entity
 from base.models.enums import academic_type, fee, internship_presence, schedule_type, activity_presence, \
     diploma_printing_orientation, active_status, duration_unit, decree_category, rate_code
@@ -286,7 +286,7 @@ class EducationGroupYear(models.Model):
 
     @cached_property
     def group_element_year_branches(self):
-        return self.parents.filter(child_branch__isnull=False)
+        return self.groupelementyear_set.filter(child_branch__isnull=False)
 
     @cached_property
     def coorganizations(self):

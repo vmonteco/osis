@@ -178,10 +178,6 @@ class GroupElementYear(OrderedModel):
             return False
         return True
 
-    @cached_property
-    def children_branches(self):
-        return self.child_branch.parents.filter(child_branch__isnull=False)
-
 
 def search(**kwargs):
     queryset = GroupElementYear.objects

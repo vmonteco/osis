@@ -18,13 +18,9 @@
             </div>
 
             <div class="row" id="panel_file_tree">
-                {#                {% build_tree education_group_year.parents.all|first parent.parents.all|first %}#}
+                {% build_tree 0 education_group_year %}
             </div>
 
-            {# Tree figure #}
-            {#                {% include "education_group/branch.html" with parent=parent children=parent.group_element_year_branches root=parent current_education_group_year=education_group_year viewname=request.resolver_match.url_name only %}#}
         </div>
     </div>
 </div>
-
-{{ parent }}
