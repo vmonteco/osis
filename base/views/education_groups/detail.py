@@ -69,11 +69,15 @@ class EducationGroupGenericDetailView(PermissionRequiredMixin, DetailView):
     def get_root(self):
         return self.request.GET.get("root")
 
+    def get_group_to_parent(self):
+        return self.request.GET.get("group_to_parent")
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         # This objects are mandatory for all education group views
         context['person'] = self.get_person()
         context['root'] = self.get_root()
+        context['group_to_parent'] = self.get_group_to_parent()
         context['parent'] = get_education_group_root(self.get_root(), self.object)
         context['can_change_education_group'] = perms.is_eligible_to_change_education_group(
             person=self.get_person(),

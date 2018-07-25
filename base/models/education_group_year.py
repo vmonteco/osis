@@ -259,8 +259,7 @@ class EducationGroupYear(models.Model):
 
     @property
     def children_group_element_years(self):
-        group_element_years = self.parents.filter(parent=self).select_related('child_branch')
-        return [group for group in group_element_years if group.child_branch]
+        return self.parents.filter(child_branch__isnull=False).select_related('child_branch')
 
     @cached_property
     def coorganizations(self):
