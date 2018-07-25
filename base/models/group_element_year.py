@@ -36,7 +36,7 @@ from base.models.education_group_type import GROUP_TYPE_OPTION
 from base.models.education_group_year import EducationGroupYear
 from base.models.enums import education_group_categories
 from base.models.enums import sessions_derogation
-from base.models.learning_component_year import LearningComponentYear
+from base.models.learning_component_year import LearningComponentYear, volume_total_verbose
 from base.models.learning_unit_year import LearningUnitYear
 from osis_common.decorators.deprecated import deprecated
 from osis_common.models import osis_model_admin
@@ -149,14 +149,14 @@ class GroupElementYear(OrderedModel):
                 "credits": self.relative_credits or self.child_branch.credits or 0
             }
         else:
-            component = LearningComponentYear.objects.filter(
+            components = LearningComponentYear.objects.filter(
                 learningunitcomponent__learning_unit_year=self.child_leaf
-            ).first()
+            )
 
             return _("%(acronym)s %(title)s [%(volumes)s] (%(credits)d credits)") % {
                 "acronym": self.child_leaf.acronym,
                 "title": self.child_leaf.specific_title,
-                "volumes": component.volumes_verbose,
+                "volumes": volume_total_verbose(components),
                 "credits": self.relative_credits or self.child_leaf.credits or 0
             }
 

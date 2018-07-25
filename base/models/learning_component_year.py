@@ -67,10 +67,6 @@ class LearningComponentYear(SerializableModel):
         )
 
     @property
-    def volumes_verbose(self):
-        return "{}h + {}h".format(self.hourly_volume_partial_q1 or "-", self.hourly_volume_partial_q2 or "-")
-
-    @property
     def type_letter_acronym(self):
         if self.learning_container_year.container_type == learning_container_year_types.COURSE:
             if self.type in (learning_component_year_type.LECTURING, learning_component_year_type.PRACTICAL_EXERCISES):
@@ -123,6 +119,16 @@ class LearningComponentYear(SerializableModel):
         return _warnings
 
 
+def volume_total_verbose(learning_component_years):
+    q1 = [learning_component_year.hourly_volume_partial_q1
+          for learning_component_year in learning_component_years
+          if learning_component_year.hourly_volume_partial_q1]
+    q2 = [learning_component_year.hourly_volume_partial_q2
+          for learning_component_year in learning_component_years
+          if learning_component_year.hourly_volume_partial_q2]
+    return "{}h + {}h".format(sum(q1) or "-", sum(q2) or "-")
+
+
 def find_by_id(learning_component_year_id):
     return LearningComponentYear.objects.get(pk=learning_component_year_id)
 
@@ -132,7 +138,7 @@ def find_by_learning_container_year(learning_container_year, with_classes=False)
         .order_by('type', 'acronym')
     if with_classes:
         queryset = queryset.prefetch_related(
-             models.Prefetch('learningclassyear_set', to_attr="classes")
+            models.Prefetch('learningclassyear_set', to_attr="classes")
         )
 
     return queryset
