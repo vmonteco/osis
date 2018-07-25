@@ -41,14 +41,14 @@ DELETE_MSG = _("delete education group")
 PERMISSION_DENIED_MSG = _("The education group edition period is not open.")
 
 DISABLED_LI = """
-<li class="disabled">
-    <a href="#" data-toggle="tooltip" id="link_delete" title="{}">{}</a>
+<li class="disabled" id="link_delete">
+    <a href="#" data-toggle="tooltip" title="{}">{}</a>
 </li>
 """
 
 ENABLED_LI = """
-<li class="">
-    <a href="{}" data-toggle="tooltip" id="link_delete" title="">{}</a>
+<li class="" id="link_delete">
+    <a href="{}" data-toggle="tooltip" title="">{}</a>
 </li>
 """
 
