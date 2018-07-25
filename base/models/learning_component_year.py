@@ -142,16 +142,3 @@ def find_by_learning_container_year(learning_container_year, with_classes=False)
         )
 
     return queryset
-
-
-def find_by_learning_unit_year(learning_unit_year):
-    learning_component_years = LearningComponentYear.objects.filter(
-        learningunitcomponent__learning_unit_year=learning_unit_year
-    )
-    q1 = [learning_component_year.hourly_volume_partial_q1
-          for learning_component_year in learning_component_years
-          if learning_component_year.hourly_volume_partial_q1]
-    q2 = [learning_component_year.hourly_volume_partial_q2
-          for learning_component_year in learning_component_years
-          if learning_component_year.hourly_volume_partial_q2]
-    return [sum(q1), sum(q2)]
