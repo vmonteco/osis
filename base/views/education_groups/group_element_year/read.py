@@ -25,6 +25,7 @@
 ##############################################################################
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
+from django.utils.translation import ugettext_lazy as _
 
 from base.models.education_group_year import EducationGroupYear
 from base.views import layout
@@ -33,8 +34,9 @@ from base.views import layout
 @login_required
 def pdf_content(request, education_group_year_id):
     parent = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
-
-    return layout.render(request, 'education_group/pdf_content.html', {'tree': get_verbose_children(parent)})
+    tree = [_("%(title)s (%(credits)d credits)") % {"title": parent.title, "credits": parent.credits or 0},
+            get_verbose_children(parent)]
+    return layout.render(request, 'education_group/pdf_content.html', {'tree': tree})
 
 
 def get_verbose_children(parent):
@@ -42,8 +44,6 @@ def get_verbose_children(parent):
 
     for group_element_year in parent.children:
         result.append(group_element_year.verbose)
-        print(group_element_year.verbose)
-
         if group_element_year.child_branch:
             result.append(get_verbose_children(group_element_year.child_branch))
 
