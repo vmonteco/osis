@@ -257,21 +257,27 @@ class EducationGroupYear(models.Model):
         return [group_element_year.parent for group_element_year in group_elements_year
                 if group_element_year.parent]
 
-    @property
+    @cached_property
+    def children(self):
+        return self.groupelementyear_set.select_related('child_branch', 'child_leaf')
+
+    @cached_property
     def children_by_group_element_year(self):
-        group_elements_year = self.parents.filter(parent=self).select_related('child_branch')
+        group_elements_year = self.groupelementyear_set.select_related('child_branch')
         return [{'child': group_element_year.child_branch, 'relative_credits': group_element_year.relative_credits}
                 for group_element_year in group_elements_year
                 if group_element_year.child_branch]
 
     @property
     def learning_unit_by_group_element_year(self):
-        group_elements_years = self.parents.filter(parent=self).select_related('child_leaf')
-        return [{'child': group_element_year.child_leaf,
-                 'relative_credits': group_element_year.relative_credits,
-                 'volumes': learning_component_year.find_by_learning_unit_year(group_element_year.child_leaf)}
-                for group_element_year in group_elements_years
-                if group_element_year.child_leaf]
+        group_elements_years = self.groupelementyear_set.select_related('child_leaf')
+        return [
+            {
+                'child': group_element_year.child_leaf,
+                'relative_credits': group_element_year.relative_credits,
+                'volumes': learning_component_year.find_by_learning_unit_year(group_element_year.child_leaf)
+            } for group_element_year in group_elements_years if group_element_year.child_leaf
+        ]
 
     @cached_property
     def coorganizations(self):

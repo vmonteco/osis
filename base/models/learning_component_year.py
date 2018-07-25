@@ -25,7 +25,6 @@
 ##############################################################################
 from django.db import models
 from django.db.models import Sum
-from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
 from base.models import learning_class_year
@@ -66,6 +65,10 @@ class LearningComponentYear(SerializableModel):
         permissions = (
             ("can_access_learningunitcomponentyear", "Can access learning unit component year"),
         )
+
+    @property
+    def volumes_verbose(self):
+        return "{}h + {}h".format(self.hourly_volume_partial_q1 or "-", self.hourly_volume_partial_q2 or "-")
 
     @property
     def type_letter_acronym(self):

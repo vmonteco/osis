@@ -34,36 +34,17 @@ from base.views import layout
 def pdf_content(request, education_group_year_id):
     parent = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
 
-    """
-        {% for elem in parent.children_by_group_element_year %}
-        <li>{{ elem.child.title }} ({% if elem.relative_credits %}{{ elem.relative_credits }}{% else %}{{ elem.child.credits|default_if_none:'0' }}{% endif %} {% trans 'credits'|lower %})</li>
-        {% if elem.child.children_by_group_element_year %}
-            {% include "education_group/blocks/pdf_branch.html" with parent=elem.child %}
-        {% endif %}
-    {% endfor %}
-    
-    
-    
-    """
-
-    root = []
-
-    root.append(get_children(parent))
+    return layout.render(request, 'education_group/pdf_content.html', {'tree': get_verbose_children(parent)})
 
 
+def get_verbose_children(parent):
+    result = []
 
+    for group_element_year in parent.children:
+        result.append(group_element_year.verbose)
+        print(group_element_year.verbose)
 
+        if group_element_year.child_branch:
+            result.append(get_verbose_children(group_element_year.child_branch))
 
-    # return Render.render('education_group/pdf_content.html', {'parent': parent})
-    return layout.render(request, 'education_group/pdf_content.html', {'parent': parent})
-
-
-def get_children(parent):
-    root = []
-    child_with_egy = parent.groupelementyear_set.filter(child_branch__isnull=False)
-    child_with_luy = parent.groupelementyear_set.filter(child_leaf__isnull=False)
-
-    for group_element_year in child_with_egy:
-        root.append(get_children(group_element_year.child_branch))
-
-    return root
+    return result
