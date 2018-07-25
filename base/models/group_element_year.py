@@ -25,7 +25,7 @@
 ##############################################################################
 import itertools
 
-from django.db import models, IntegrityError, connection
+from django.db import models, IntegrityError
 from django.db.models import Q
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
@@ -41,23 +41,6 @@ from base.models.learning_unit_year import LearningUnitYear
 from osis_common.decorators.deprecated import deprecated
 from osis_common.models import osis_model_admin
 
-SQL_RECURSIVE_QUERY = """
-WITH RECURSIVE under_group_element_year(id, parent_id, child_branch_id, level) AS (
-
-    SELECT id, parent_id, child_branch_id, 0 FROM base_groupelementyear where parent_id={}
-
-    UNION ALL
-
-    SELECT b.id,
-        b.parent_id,
-        b.child_branch_id,
-        u.level + 1
-
-    FROM under_group_element_year AS u, base_groupelementyear AS b WHERE u.child_branch_id=b.parent_id
-  )
-SELECT * FROM under_group_element_year;
-"""
-
 
 class GroupElementYearAdmin(osis_model_admin.OsisModelAdmin):
     list_display = ('parent', 'child_branch', 'child_leaf',)
@@ -70,17 +53,6 @@ class GroupElementYearAdmin(osis_model_admin.OsisModelAdmin):
         'parent__partial_acronym'
     ]
     list_filter = ('is_mandatory', 'minor_access', 'sessions_derogation')
-
-
-class GroupElementYearManager(models.Manager):
-
-    def get_tree(self, parent):
-
-        with connection.cursor() as cursor:
-            cursor.execute(SQL_RECURSIVE_QUERY.format(parent))
-
-            # Load all group_element_year
-            return self.filter(pk__in=[row[0] for row in cursor.fetchall()]).select_related('parent', 'child_branch')
 
 
 class GroupElementYear(OrderedModel):
@@ -165,8 +137,6 @@ class GroupElementYear(OrderedModel):
     )
 
     order_with_respect_to = 'parent'
-
-    objects = GroupElementYearManager()
 
     def __str__(self):
         return "{} - {}".format(self.parent, self.child)
