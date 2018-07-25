@@ -32,7 +32,7 @@
  </div>
 
 <script type="application/javascript">
-    $('#{{ click_id }}:enabled').click(function(e) {
+    $("#{{ click_id }}:enabled, #{{ click_id }}:not('.disabled')").click(function (e) {
         // Added preventDefaut so as to not add anchor "href" to address bar
         e.preventDefault();
          $('#form-modal-content').load('{{ modal_url }}', function (responseText, textStatus, XMLHttpRequest) {

@@ -34,8 +34,8 @@ register = template.Library()
 
 # TODO use inclusion tag
 LI_TEMPLATE = """
-<li class="{}">
-    <a href="{}" data-toggle="tooltip" id="{}" title="{}">{}</a>
+<li class="{}" id="{}">
+    <a href="{}" data-toggle="tooltip" title="{}">{}</a>
 </li>
 """
 
@@ -83,7 +83,7 @@ def li_with_permission(context, permission, url, message, url_id):
     else:
         href = "#"
 
-    return mark_safe(LI_TEMPLATE.format(disabled, href, url_id, permission_denied_message, message))
+    return mark_safe(LI_TEMPLATE.format(disabled, url_id, href, permission_denied_message, message))
 
 
 def _get_permission(context, permission):
