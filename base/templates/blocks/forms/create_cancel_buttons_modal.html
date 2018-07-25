@@ -1,4 +1,4 @@
-{% load bootstrap3 i18n %}
+{% load i18n %}
 {% comment "License" %}
     * OSIS stands for Open Student Information System. It's an application
     * designed to manage the core business of higher education institutions,
@@ -23,19 +23,11 @@
     * see http://www.gnu.org/licenses/.
 {% endcomment %}
 
-{% if request.is_ajax %}
-    <div class="modal-content" id="form-modal-content">
-    <div id="form-modal-body" class="modal-body">
-{% endif %}
-
-<form method="post" id="form_comment_update" action="{{ request.path }}">
-    {% csrf_token %}
-    {% bootstrap_form form %}
-
-    {% include "blocks/forms/create_cancel_buttons_modal.html" %}
-</form>
-
-{% if request.is_ajax %}
-    </div>
-    </div>
-{% endif %}
+<div class="modal-footer">
+    <button type="button" class="btn btn-default" data-dismiss="modal">{% trans "cancel" %}</button>
+    <button type="submit" {% if btn_submit_name %} name="{{ btn_submit_name }}" {% endif %}
+            class="btn btn-primary pull-right" title="{% trans 'add' %}">
+        <span class="glyphicon glyphicon-floppy-save" aria-hidden="true"></span>
+        {% trans 'save' %}
+    </button>
+</div>

@@ -34,6 +34,7 @@ from django.views.generic import DeleteView
 from django.views.generic import UpdateView
 from waffle.decorators import waffle_flag
 
+from base.forms.education_group.group_element_year import UpdateGroupElementYearForm
 from base.models.education_group_year import EducationGroupYear
 from base.models.group_element_year import GroupElementYear
 from base.views.common import display_success_messages
@@ -131,17 +132,7 @@ class GenericUpdateGroupElementYearMixin(FlagMixin, RulesRequiredMixin, SuccessM
 
 class UpdateGroupElementYearView(GenericUpdateGroupElementYearMixin, UpdateView):
     # UpdateView
-    fields = [
-        "relative_credits",
-        "min_credits",
-        "max_credits",
-        "is_mandatory",
-        "block",
-        "sessions_derogation",
-        "comment",
-        "comment_english",
-    ]
-
+    form_class = UpdateGroupElementYearForm
     template_name = "education_group/group_element_year_comment.html"
 
     # SuccessMessageMixin
