@@ -278,8 +278,7 @@ class EducationGroupYear(models.Model):
     @cached_property
     def children_by_group_element_year(self):
         group_elements_year = self.children_without_leaf
-        return [group_element_year.child_branch for group_element_year in group_elements_year
-                if group_element_year.child_branch]
+        return [group_element_year.child_branch for group_element_year in group_elements_year]
 
     @cached_property
     def coorganizations(self):
