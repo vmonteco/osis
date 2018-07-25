@@ -2013,6 +2013,12 @@ msgstr "University certificate"
 msgid "studies_domain"
 msgstr "Studies domain"
 
+msgid "main domain"
+msgstr ""
+
+msgid "secondary domains"
+msgstr ""
+
 msgid "primary_language"
 msgstr "Primary language"
 
