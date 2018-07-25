@@ -107,6 +107,10 @@ class DomainsLookup(LookupChannel):
 
     model = Domain
 
+    def check_auth(self, request):
+        # override the default behaviour
+        pass
+
     def get_query(self, q, request):
         return self.model.objects.filter(name__icontains=q)
 
