@@ -172,10 +172,19 @@ class EducationGroupYear(models.Model):
         verbose_name=_("maximum credits")
     )
 
-    domains = models.ManyToManyField(
+    main_domain = models.ForeignKey(
+        "reference.domain",
+        on_delete=models.CASCADE,
+        null=True, blank=True,
+        verbose_name=_("main domain")
+    )
+
+    secondary_domains = models.ManyToManyField(
         "reference.domain",
         through="EducationGroupYearDomain",
-        related_name="education_group_years"
+        related_name="education_group_years",
+        verbose_name=_("secondary domains")
+
     )
 
     management_entity = models.ForeignKey(
@@ -225,8 +234,9 @@ class EducationGroupYear(models.Model):
 
     @property
     def str_domains(self):
-        ch = ''
-        for domain in self.domains.all():
+        ch = "{}-{}\n".format(self.main_domain.decree, self.main_domain.name) if self.main_domain else ""
+
+        for domain in self.secondary_domains.all():
             ch += "{}-{}\n".format(domain.decree, domain.name)
         return ch
 

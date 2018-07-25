@@ -2015,6 +2015,12 @@ msgstr "Certificat universitaire"
 msgid "studies_domain"
 msgstr "Domaine d'études"
 
+msgid "main domain"
+msgstr "domaine principal"
+
+msgid "secondary domains"
+msgstr "domaines secondaires"
+
 msgid "primary_language"
 msgstr "Langue principale"
 
