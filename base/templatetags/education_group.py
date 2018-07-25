@@ -35,18 +35,18 @@ register = template.Library()
 
 # TODO use inclusion tag
 LI_TEMPLATE = """
-<li class="{}">
-    <a href="{}" data-toggle="tooltip" id="{}" title="{}">{}</a>
+<li class="{}" id="{}">
+    <a href="{}" data-toggle="tooltip" title="{}">{}</a>
 </li>
 """
 
-A_TEMPLATE = """
-<a title="{}" class="btn btn-default btn-sm" id="{}" data-toggle="tooltip-wrapper" name="action" {}>
+BUTTON_TEMPLATE = """
+<button title="{}" class="btn btn-default btn-sm" id="{}" data-toggle="tooltip-wrapper" name="action" {}>
     <i class="fa {}"></i>
-</a>
+</button>
 """
 
-BUTTON_TEMPLATE = """
+BUTTON_ORDER_TEMPLATE = """
 <button type="submit" title="{}" class="btn btn-default btn-sm" 
     id="{}" data-toggle="tooltip-wrapper" name="action" value="{}" {}>
     <i class="fa {}"></i>
@@ -84,7 +84,7 @@ def li_with_permission(context, permission, url, message, url_id):
     else:
         href = "#"
 
-    return mark_safe(LI_TEMPLATE.format(disabled, href, url_id, permission_denied_message, message))
+    return mark_safe(LI_TEMPLATE.format(disabled, url_id, href, permission_denied_message, message))
 
 
 def _get_permission(context, permission):
@@ -117,17 +117,17 @@ def button_order_with_permission(context, title, id_button, value):
     if value == "down" and context["forloop"]["last"]:
         disabled = "disabled"
 
-    return mark_safe(BUTTON_TEMPLATE.format(title, id_button, value, disabled, ICONS[value]))
+    return mark_safe(BUTTON_ORDER_TEMPLATE.format(title, id_button, value, disabled, ICONS[value]))
 
 
 @register.simple_tag(takes_context=True)
-def a_with_permission(context, title, id_a, value):
+def button_with_permission(context, title, id_a, value):
     permission_denied_message, disabled, root = _get_permission(context, is_eligible_to_change_education_group)
 
     if disabled:
         title = permission_denied_message
 
-    return mark_safe(A_TEMPLATE.format(title, id_a, disabled, ICONS[value]))
+    return mark_safe(BUTTON_TEMPLATE.format(title, id_a, disabled, ICONS[value]))
 
 
 BRANCH_TEMPLATE = """

@@ -29,7 +29,7 @@ from django.urls import reverse
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
-from base.models import entity_version
+from base.models import entity_version, learning_component_year
 from base.models.entity import Entity
 from base.models.enums import academic_type, fee, internship_presence, schedule_type, activity_presence, \
     diploma_printing_orientation, active_status, duration_unit, decree_category, rate_code
@@ -172,10 +172,19 @@ class EducationGroupYear(models.Model):
         verbose_name=_("maximum credits")
     )
 
-    domains = models.ManyToManyField(
+    main_domain = models.ForeignKey(
+        "reference.domain",
+        on_delete=models.CASCADE,
+        null=True, blank=True,
+        verbose_name=_("main domain")
+    )
+
+    secondary_domains = models.ManyToManyField(
         "reference.domain",
         through="EducationGroupYearDomain",
-        related_name="education_group_years"
+        related_name="education_group_years",
+        verbose_name=_("secondary domains")
+
     )
 
     management_entity = models.ForeignKey(
@@ -229,8 +238,9 @@ class EducationGroupYear(models.Model):
 
     @property
     def str_domains(self):
-        ch = ''
-        for domain in self.domains.all():
+        ch = "{}-{}\n".format(self.main_domain.decree, self.main_domain.name) if self.main_domain else ""
+
+        for domain in self.secondary_domains.all():
             ch += "{}-{}\n".format(domain.decree, domain.name)
         return ch
 
@@ -261,11 +271,18 @@ class EducationGroupYear(models.Model):
         return [group_element_year.parent for group_element_year in group_elements_year
                 if group_element_year.parent]
 
-    @property
+    @cached_property
+    def children_without_leaf(self):
+        return self.children.exclude(child_leaf__isnull=False)
+
+    @cached_property
+    def children(self):
+        return self.groupelementyear_set.select_related('child_branch', 'child_leaf')
+
+    @cached_property
     def children_by_group_element_year(self):
-        group_elements_year = self.parents.filter(parent=self).select_related('child_branch')
-        return [group_element_year.child_branch for group_element_year in group_elements_year
-                if group_element_year.child_branch]
+        group_elements_year = self.children_without_leaf
+        return [group_element_year.child_branch for group_element_year in group_elements_year]
 
     @cached_property
     def group_element_year_branches(self):

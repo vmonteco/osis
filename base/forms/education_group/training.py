@@ -38,21 +38,30 @@ from reference.models.domain import Domain
 class TrainingEducationGroupYearForm(EducationGroupYearModelForm):
     category = education_group_categories.TRAINING
 
-    domains = AutoCompleteSelectMultipleField(
-        'domains', required=False, help_text="", label=_('studies_domain')
+    secondary_domains = AutoCompleteSelectMultipleField(
+        'domains', required=False, help_text="", label=_('secondary domains').title()
     )
 
     class Meta(EducationGroupYearModelForm.Meta):
-        fields = ["acronym", "partial_acronym", "education_group_type", "title", "title_english",
-                  "academic_year", "main_teaching_campus", "remark", "remark_english", "credits", "enrollment_enabled",
-                  "partial_deliberation", "academic_type", "admission_exam",
-                  "university_certificate", "duration", "duration_unit", "dissertation",
-                  "internship", "primary_language", "other_language_activities",
-                  "keywords", "active", "schedule_type", "enrollment_campus",
-                  "other_campus_activities", "funding", "funding_direction", "funding_cud",
-                  "funding_direction_cud",
-                  "diploma_printing_title", "diploma_printing_orientation", "professional_title", "min_credits",
-                  "max_credits", "administration_entity", "management_entity", "domains"]
+        fields = [
+            "acronym", "partial_acronym", "education_group_type",
+            "title", "title_english",
+            "academic_year", "main_teaching_campus",
+            "remark", "remark_english",
+            "credits", "enrollment_enabled",
+            "partial_deliberation", "academic_type",
+            "admission_exam", "university_certificate",
+            "duration", "duration_unit", "dissertation",
+            "internship", "primary_language",
+            "other_language_activities", "keywords",
+            "active", "schedule_type", "enrollment_campus",
+            "other_campus_activities", "funding", "funding_direction",
+            "funding_cud", "funding_direction_cud",
+            "diploma_printing_title", "diploma_printing_orientation",
+            "professional_title", "min_credits", "max_credits",
+            "administration_entity", "management_entity",
+            "main_domain", "secondary_domains"
+        ]
 
         field_classes = {
             **EducationGroupYearModelForm.Meta.field_classes, **{"management_entity": MainEntitiesVersionChoiceField}
@@ -61,7 +70,8 @@ class TrainingEducationGroupYearForm(EducationGroupYearModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.fields["domains"].widget.attrs['placeholder'] = _('Enter text to search')
+        self.fields["main_domain"].widget.attrs['placeholder'] = _('Enter text to search')
+        self.fields["secondary_domains"].widget.attrs['placeholder'] = _('Enter text to search')
 
         if getattr(self.instance, 'management_entity', None):
             self.initial['management_entity'] = get_last_version(self.instance.management_entity).pk
@@ -70,14 +80,14 @@ class TrainingEducationGroupYearForm(EducationGroupYearModelForm):
         education_group_year = super().save(commit=False)
         education_group_year.save()
 
-        self.save_domains()
+        self.save_secondary_domains()
 
         return education_group_year
 
-    def save_domains(self):
-        self.instance.domains.clear()
+    def save_secondary_domains(self):
+        self.instance.secondary_domains.clear()
         # Save_m2m can not be used because the many_to_many use a through parameter
-        for domain_id in self.cleaned_data["domains"]:
+        for domain_id in self.cleaned_data["secondary_domains"]:
             EducationGroupYearDomain.objects.get_or_create(
                 education_group_year=self.instance,
                 domain_id=domain_id)
@@ -96,6 +106,10 @@ class TrainingForm(CommonBaseForm):
 class DomainsLookup(LookupChannel):
 
     model = Domain
+
+    def check_auth(self, request):
+        # override the default behaviour
+        pass
 
     def get_query(self, q, request):
         return self.model.objects.filter(name__icontains=q)
