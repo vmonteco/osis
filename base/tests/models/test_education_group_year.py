@@ -129,9 +129,9 @@ class EducationGroupYearTest(TestCase):
         with self.assertRaises(MaximumOneParentAllowedException):
             parent_by_training=self.education_group_year_1.parent_by_training
 
-    def test_children_by_group_element_year_property(self):
-        children_by_group_element_year = self.education_group_year_1.children_by_group_element_year
-        self.assertListEqual(children_by_group_element_year, [])
+    def test_children_group_element_years_property(self):
+        children_group_element_years = self.education_group_year_1.children_group_element_years
+        self.assertListEqual(children_group_element_years, [])
 
 
 class TestFindWithEnrollmentsCount(TestCase):

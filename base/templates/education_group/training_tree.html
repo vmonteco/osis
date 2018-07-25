@@ -40,7 +40,7 @@
 
 {#            Tree figure#}
             <div class="row" id="panel_file_tree">
-                {% include "education_group/branch.html" with parent=parent children=parent.children_by_group_element_year root=parent current_education_group_year=education_group_year viewname=request.resolver_match.url_name only%}
+                {% include "education_group/branch.html" with parent=parent children=parent.children_group_element_years root=parent current_education_group_year=education_group_year viewname=request.resolver_match.url_name only%}
             </div>
         </div>
     </div>
