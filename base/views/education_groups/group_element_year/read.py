@@ -28,7 +28,7 @@ from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 
 from base.models.education_group_year import EducationGroupYear
-from base.views import layout
+from osis_common.document.pdf_build import Render
 
 
 @login_required
@@ -36,7 +36,7 @@ def pdf_content(request, education_group_year_id):
     parent = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
     tree = [_("%(title)s (%(credits)d credits)") % {"title": parent.title, "credits": parent.credits or 0},
             get_verbose_children(parent)]
-    return layout.render(request, 'education_group/pdf_content.html', {'tree': tree})
+    return Render.render('education_group/pdf_content.html', {'tree': tree})
 
 
 def get_verbose_children(parent):

@@ -30,7 +30,7 @@
             {{ parent.partial_acronym| default_if_none:'' }} - {{ parent.acronym }}
         </a>
         {% for elem in children %}
-        {% include "education_group/branch.html" with children=elem.child.children_by_group_element_year parent=elem.child root=root current_education_group_year=current_education_group_year viewname=viewname only%}
+        {% include "education_group/branch.html" with children=elem.children_by_group_element_year parent=elem root=root current_education_group_year=current_education_group_year viewname=viewname only%}
         {% endfor %}
     </li>
 </ul>
