@@ -55,7 +55,7 @@
                 {% flag "pdf_content" %}
                     <li>
                         <a href="{% url 'pdf_content' education_group_year_id=education_group_year.id %}?root={{ request.GET.root }}" target="_blank">
-                            {% trans 'pdf_content' %}
+                            {% trans 'Group content' %}
                         </a>
                     </li>
                 {% endflag %}

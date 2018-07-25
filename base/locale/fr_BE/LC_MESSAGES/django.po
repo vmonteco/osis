@@ -3307,5 +3307,5 @@ msgstr "Certificat universitaire 30 crédits "
 msgid "CERTIFICATE_MEDECINE_COMPETENCE"
 msgstr "Certificat compétence médecine "
 
-msgid "pdf_content"
+msgid "Group content"
 msgstr "Contenu du groupement"
