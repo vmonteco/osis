@@ -36,7 +36,8 @@ from waffle.decorators import waffle_flag
 
 from base.forms.education_group.group_element_year import UpdateGroupElementYearForm
 from base.models.education_group_year import EducationGroupYear
-from base.models.group_element_year import GroupElementYear
+from base.models.group_element_year import GroupElementYear, get_or_create_group_element_year
+from base.utils.cache import cache
 from base.views.common import display_success_messages
 from base.views.common_classes import AjaxTemplateMixin, FlagMixin, RulesRequiredMixin
 from base.views.education_groups import perms
@@ -58,9 +59,7 @@ def management(request, root_id, education_group_year_id, group_element_year_id)
     if response:
         return response
 
-    # @Todo: Correct with new URL
-    success_url = reverse('education_group_content', args=[education_group_year_id]) + '?root={}'.format(root_id)
-    return redirect(success_url)
+    return redirect(request.META.get('HTTP_REFERER'))
 
 
 @require_http_methods(['POST'])
@@ -86,12 +85,25 @@ def _detach(request, group_element_year, *args, **kwargs):
         **kwargs
     )
 
+@require_http_methods(['GET', 'POST'])
+def _attach(request, group_element_year, *args, **kwargs):
+    new_parent = EducationGroupYear.objects.get(id=kwargs.get('education_group_year_id'))
+    success_msg = _("Attached to %(acronym)s") % {'acronym': new_parent}
+    child_id = int(cache.get('child_to_cache_id'))
+    get_or_create_group_element_year(
+        parent=new_parent,
+        child=EducationGroupYear.objects.get(id=child_id)
+    )
+    cache.set('education_group_year_id', None, timeout=None)
+    display_success_messages(request, success_msg)
+
 
 def _get_action_method(request):
     AVAILABLE_ACTIONS = {
         'up': _up,
         'down': _down,
         'detach': _detach,
+        'attach': _attach,
     }
     data = getattr(request, request.method, {})
     action = data.get('action')
