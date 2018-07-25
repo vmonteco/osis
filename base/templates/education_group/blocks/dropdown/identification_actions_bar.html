@@ -52,6 +52,13 @@
                 {% flag "education_group_delete" %}
                     {% li_with_deletion_perm "#" _('Delete') %}
                 {% endflag %}
+                {% flag "pdf_content" %}
+                    <li>
+                        <a href="{% url 'pdf_content' education_group_year_id=education_group_year.id %}?root={{ request.GET.root }}" target="_blank">
+                            {% trans 'Group content' %}
+                        </a>
+                    </li>
+                {% endflag %}
             </ul>
         </div>
     {% endif %}

@@ -29,7 +29,7 @@ from django.urls import reverse
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
-from base.models import entity_version
+from base.models import entity_version, learning_component_year
 from base.models.entity import Entity
 from base.models.enums import academic_type, fee, internship_presence, schedule_type, activity_presence, \
     diploma_printing_orientation, active_status, duration_unit, decree_category, rate_code
@@ -267,11 +267,18 @@ class EducationGroupYear(models.Model):
         return [group_element_year.parent for group_element_year in group_elements_year
                 if group_element_year.parent]
 
-    @property
+    @cached_property
+    def children_without_leaf(self):
+        return self.children.exclude(child_leaf__isnull=False)
+
+    @cached_property
+    def children(self):
+        return self.groupelementyear_set.select_related('child_branch', 'child_leaf')
+
+    @cached_property
     def children_by_group_element_year(self):
-        group_elements_year = self.parents.filter(parent=self).select_related('child_branch')
-        return [group_element_year.child_branch for group_element_year in group_elements_year
-                if group_element_year.child_branch]
+        group_elements_year = self.children_without_leaf
+        return [group_element_year.child_branch for group_element_year in group_elements_year]
 
     @cached_property
     def coorganizations(self):
@@ -343,6 +350,6 @@ def _count_education_group_enrollments_by_id(education_groups_years):
 
 
 def _find_with_learning_unit_enrollment_count(learning_unit_year):
-    return EducationGroupYear.objects\
-        .filter(offerenrollment__learningunitenrollment__learning_unit_year_id=learning_unit_year)\
+    return EducationGroupYear.objects \
+        .filter(offerenrollment__learningunitenrollment__learning_unit_year_id=learning_unit_year) \
         .annotate(count_learning_unit_enrollments=Count('offerenrollment__learningunitenrollment')).order_by('acronym')
