@@ -2016,7 +2016,7 @@ msgid "studies_domain"
 msgstr "Domaine d'études"
 
 msgid "main domain"
-msgstr "domaine princial"
+msgstr "domaine principal"
 
 msgid "secondary domains"
 msgstr "domaines secondaires"
