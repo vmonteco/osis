@@ -25,6 +25,9 @@
 ##############################################################################
 from django import template
 from django.core.exceptions import PermissionDenied
+from django.utils import six
+from django.utils.encoding import force_text
+from django.utils.html import conditional_escape
 from django.utils.safestring import mark_safe
 
 from base.business.education_groups.perms import is_eligible_to_delete_education_group, \
@@ -127,3 +130,64 @@ def button_with_permission(context, title, id_a, value):
         title = permission_denied_message
 
     return mark_safe(BUTTON_TEMPLATE.format(title, id_a, disabled, ICONS[value]))
+
+
+@register.filter(is_safe=True, needs_autoescape=True)
+def tree_list(value, autoescape=True):
+    if autoescape:
+        escaper = conditional_escape
+    else:
+        def escaper(x):
+            return x
+
+    def walk_items(item_list):
+        item_iterator = iter(item_list)
+        try:
+            item = next(item_iterator)
+            while True:
+                try:
+                    next_item = next(item_iterator)
+                except StopIteration:
+                    yield item, None
+                    break
+                if not isinstance(next_item, six.string_types):
+                    try:
+                        iter(next_item)
+                    except TypeError:
+                        pass
+                    else:
+                        yield item, next_item
+                        item = next(item_iterator)
+                        continue
+                yield item, None
+                item = next_item
+        except StopIteration:
+            pass
+
+    def list_formatter(item_list, tabs=1):
+        indent = '\t' * tabs
+        output = []
+        for item, children in walk_items(item_list):
+            sublist = ''
+            case = ''
+            if children:
+                sublist = '\n%s<ul>\n%s\n%s</ul>\n%s' % (
+                    indent, list_formatter(children, tabs + 1), indent, indent)
+
+            if item.child_leaf:
+                if item.is_mandatory:
+                    output.append('%s<li style="list-style-type: none;">[ ][O]%s%s</li>' % (
+                        indent, escaper(force_text(item.verbose)), sublist))
+                else:
+                    output.append('%s<li style="list-style-type: none;">[ ][F]%s%s</li>' % (
+                        indent, escaper(force_text(item.verbose)), sublist))
+            else:
+                if item.is_mandatory:
+                    output.append('%s<li style="list-style-type: none;">[O]%s%s</li>' % (
+                        indent, escaper(force_text(item.verbose)), sublist))
+                else:
+                    output.append('%s<li style="list-style-type: none;">[F]%s%s</li>' % (
+                        indent, escaper(force_text(item.verbose)), sublist))
+        return '\n'.join(output)
+
+    return mark_safe(list_formatter(value))

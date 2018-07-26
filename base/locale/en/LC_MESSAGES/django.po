@@ -3307,3 +3307,9 @@ msgstr "Certificate medecine competence"
 
 msgid "Group content"
 msgstr "Group content"
+
+msgid "%(title)s (%(credits)s credits)"
+msgstr "%(title)s (%(credits)s credits)"
+
+msgid "%(acronym)s %(title)s [%(volumes)s] (%(credits)s credits)"
+msgstr "%(acronym)s %(title)s [%(volumes)s] (%(credits)s crédits)"

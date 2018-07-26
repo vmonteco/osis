@@ -1,8 +1,9 @@
-{% load i18n %}
+{% load education_group %}
 <!doctype html>
 <html>
 <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>OF</title>
     <style type="text/css">
         @page {
@@ -14,7 +15,7 @@
 <body>
     <div class="container">
         <div class="list-group">
-            <ul>{{ tree|unordered_list }}</ul>
+            <ul>{{ tree|tree_list }}</ul>
         </div>
     </div>
 </body>
