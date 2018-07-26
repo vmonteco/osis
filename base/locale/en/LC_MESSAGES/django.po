@@ -3307,3 +3307,15 @@ msgstr "Certificate medecine competence"
 
 msgid "Group content"
 msgstr "Group content"
+
+msgid "Link type"
+msgstr ""
+
+msgid "REFERENCE"
+msgstr "Reference"
+
+msgid "Quadrimester derogation"
+msgstr ""
+
+msgid "Quad. derog."
+msgstr ""

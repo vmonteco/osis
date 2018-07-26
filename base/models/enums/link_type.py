@@ -23,27 +23,16 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django import forms
+from enum import Enum
+from base.models.utils.utils import ChoiceEnum
+from django.utils.translation import ugettext_lazy as _
 
-from base.models.group_element_year import GroupElementYear
+REFERENCE = "REFERENCE"
+
+LINK_TYPE = (
+    (REFERENCE, _(REFERENCE)),
+)
 
 
-class UpdateGroupElementYearForm(forms.ModelForm):
-    class Meta:
-        model = GroupElementYear
-        fields = [
-            "relative_credits",
-            "min_credits",
-            "max_credits",
-            "is_mandatory",
-            "block",
-            "quadrimester_derogation",
-            "link_type",
-            "comment",
-            "comment_english",
-        ]
-        widgets = {
-            "comment": forms.Textarea(attrs={'rows': 5}),
-            "comment_english": forms.Textarea(attrs={'rows': 5}),
-
-        }
+class LinkTypes(ChoiceEnum):
+    REFERENCE = "REFERENCE"
