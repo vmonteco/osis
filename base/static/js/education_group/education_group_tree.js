@@ -42,10 +42,10 @@ $(document).ready(function () {
                   "action" : function (data) {
                     var inst = $.jstree.reference(data.reference),
                         obj = inst.get_node(data.reference);
-
+                    var education_group_year_id = obj.li_attr.id.split('_').slice(-1)[0]
                     $.ajax({
                         url: 'select/',
-                        data: {'child_to_cache_id' : obj.li_attr.id},
+                        data: {'child_to_cache_id' : education_group_year_id},
                         type: 'GET',
                         dataType: 'json',
                     });

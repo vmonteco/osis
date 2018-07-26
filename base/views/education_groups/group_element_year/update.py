@@ -146,14 +146,15 @@ class GenericUpdateGroupElementYearMixin(FlagMixin, RulesRequiredMixin, SuccessM
     def get_success_url(self):
         redirect_path_by_source = {
             'identification':
-                reverse("education_group_read", args=[self.kwargs["root_id"]]),
+                reverse("education_group_read", args=[self.kwargs["root_id"]]) + \
+                "?root={root_id}".format(root_id=self.kwargs["root_id"]),
             'content':
                 reverse("education_group_content", args=[self.kwargs["education_group_year_id"]]) + \
-                "?root={root_id}".format(root_id=self.kwargs["root_id"])
+                "?root={root_id}".format(root_id=self.kwargs["root_id"]),
         }
         default_url = redirect_path_by_source.get('content')
-
-        return redirect_path_by_source.get(self.kwargs.get('source'), default_url)
+        redirect_url = redirect_path_by_source.get(self.kwargs.get('source'), default_url)
+        return redirect_url
 
 
 class UpdateGroupElementYearView(GenericUpdateGroupElementYearMixin, UpdateView):
