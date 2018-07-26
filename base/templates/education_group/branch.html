@@ -1,36 +1,17 @@
 {% load i18n %}
 {% load format %}
-{% comment "License" %}
-* OSIS stands for Open Student Information System. It's an application
-* designed to manage the core business of higher education institutions,
-* such as universities, faculties, institutes and professional schools.
-* The core business involves the administration of students, teachers,
-* courses, programs and so on.
-*
-* Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
-*
-* This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* A copy of this license - GNU General Public License - is available
-* at the root of the source code of this program.  If not,
-* see http://www.gnu.org/licenses/.
-{% endcomment %}
+
 
 <ul>
     <li {% if not children %} data-jstree='{"icon":"jstree-icon jstree-file"}'{% endif %} id={{ parent.id }}>
-        <a href="{% url viewname education_group_year_id=parent.id %}?root={{ root.id }}{% if group_to_parent %}&group_to_parent={{ group_to_parent }}{% endif %}" {% if parent.id == current_education_group_year.id %}class="jstree-wholerow-clicked"{% endif %} >
-            {{ parent.partial_acronym| default_if_none:'' }} - {{ parent.acronym }}
+
+        <a href="{% url viewname education_group_year_id=parent.id %}?root={{ root.id }}" {% if parent.id == current_education_group_year.id %}class="jstree-wholerow-clicked"{% endif %} >
+            {{ parent.verbose }}
         </a>
-        {% for group_to_parent in children %}
-            {% include "education_group/branch.html" with children=group_to_parent.child_branch.children_group_element_years parent=group_to_parent.child_branch group_to_parent=group_to_parent.id root=root current_education_group_year=current_education_group_year viewname=viewname only%}
+
+        {% for elem in children %}
+
+            {% include "education_group/branch.html" with children=elem.group_element_year_branches parent=elem root=root current_education_group_year=current_education_group_year viewname=viewname only %}
         {% endfor %}
     </li>
 </ul>
