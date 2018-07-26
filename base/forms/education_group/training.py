@@ -25,6 +25,7 @@
 ##############################################################################
 from ajax_select import register, LookupChannel
 from ajax_select.fields import AutoCompleteSelectMultipleField
+from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
 
 from base.forms.education_group.common import CommonBaseForm, EducationGroupModelForm, \
@@ -115,7 +116,15 @@ class DomainsLookup(LookupChannel):
         pass
 
     def get_query(self, q, request):
-        return self.model.objects.filter(name__icontains=q)
+        return self.model.objects.filter(Q(name__icontains=q) | Q(decree__name__icontains=q))\
+                                 .select_related('decree')\
+                                 .order_by('decree__name', 'name')
 
     def format_item_display(self, item):
-        return u"<span class='tag'>%s</span>" % item.name
+        return "<span class='tag'>{}</span>".format(self.format_match(item))
+
+    def get_result(self, item):
+        return self.format_match(item)
+
+    def format_match(self, item):
+        return "{}: {}".format(item.decree.name, item.name)
