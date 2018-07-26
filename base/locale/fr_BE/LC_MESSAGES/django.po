@@ -2015,6 +2015,12 @@ msgstr "Certificat universitaire"
 msgid "studies_domain"
 msgstr "Domaine d'études"
 
+msgid "main domain"
+msgstr "domaine principal"
+
+msgid "secondary domains"
+msgstr "domaines secondaires"
+
 msgid "primary_language"
 msgstr "Langue principale"
 
@@ -3268,8 +3274,41 @@ msgstr[1] "%(count_enrollment)d étudiants sont inscrits à l'offre."
 msgid "The content of the education group is not empty."
 msgstr "Le contenu du programme type n'est pas vide."
 
-msgid "Cred. abs./rel."
-msgstr "Créd. abs./rel."
+msgid "Cred. rel./abs."
+msgstr "Créd. rel./abs."
+
+msgid "Decree category"
+msgstr "Catégorie décret"
+
+msgid "Rate code"
+msgstr "Code tarif"
+
+msgid "NO_ADDITIONAL_FEES"
+msgstr "Sans frais complémentaire"
+
+msgid "AESS_CAPAES"
+msgstr "AESS et CAPAES"
+
+msgid "MINERVAL_COMPLETE"
+msgstr "Minerval complet"
+
+msgid "UNIVERSITY_CERTIFICATE"
+msgstr "Certificat universitaire"
+
+msgid "ADVANCED_MASTER_IN_MEDICAL_SPECIALIZATION"
+msgstr "Master complémentaire spécialisation médicale"
+
+msgid "ACCESS_CONTEST"
+msgstr "Concours d’accès"
+
+msgid "UNIVERSITY_CERTIFICATE_30_CREDITS"
+msgstr "Certificat universitaire 30 crédits "
+
+msgid "CERTIFICATE_MEDECINE_COMPETENCE"
+msgstr "Certificat compétence médecine "
+
+msgid "Group content"
+msgstr "Contenu du groupement"
 
 msgid "Produce xls with a list of education groups"
 msgstr "Produire un fichier Excel avec la liste des organisations de formations"
@@ -3300,3 +3339,4 @@ msgstr "Liste des organisation de formation"
 
 msgid "List of trainings with administrative data"
 msgstr "Liste des formations avec données administratives"
+

@@ -156,7 +156,7 @@ class TestUpdate(TestCase):
             'administration_entity': new_entity_version.pk,
             'main_teaching_campus': "",
             'academic_year': self.training_education_group_year.academic_year.pk,
-            'domains': ['|' + ('|'.join([str(domain.pk) for domain in self.domains])) + '|'],
+            'secondary_domains': ['|' + ('|'.join([str(domain.pk) for domain in self.domains])) + '|'],
             'active': ACTIVE,
             'schedule_type': DAILY,
         }
@@ -171,7 +171,7 @@ class TestUpdate(TestCase):
         self.assertEqual(self.training_education_group_year.partial_acronym, 'LDVLD101R')
         self.assertEqual(self.training_education_group_year.administration_entity, new_entity_version.entity)
         self.assertListEqual(
-            list(self.training_education_group_year.domains.values_list('id', flat=True)),
+            list(self.training_education_group_year.secondary_domains.values_list('id', flat=True)),
             list_domains
         )
-        self.assertNotIn(old_domain, self.education_group_year.domains.all())
+        self.assertNotIn(old_domain, self.education_group_year.secondary_domains.all())

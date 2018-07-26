@@ -2013,6 +2013,12 @@ msgstr "University certificate"
 msgid "studies_domain"
 msgstr "Studies domain"
 
+msgid "main domain"
+msgstr ""
+
+msgid "secondary domains"
+msgstr ""
+
 msgid "primary_language"
 msgstr "Primary language"
 
@@ -2895,8 +2901,6 @@ msgstr ""
 msgid "english comment"
 msgstr ""
 
-
-
 msgid "The comments of %(acronym)s has been updated"
 msgstr ""
 
@@ -3268,8 +3272,41 @@ msgstr[1] ""
 msgid "The content of the education group is not empty."
 msgstr ""
 
-msgid "Cred. abs./rel."
+msgid "Cred. rel./abs."
 msgstr ""
+
+msgid "Decree category"
+msgstr ""
+
+msgid "Rate code"
+msgstr ""
+
+msgid "NO_ADDITIONAL_FEES"
+msgstr "No additional fees"
+
+msgid "AESS_CAPAES"
+msgstr "AESS and CAPAES"
+
+msgid "MINERVAL_COMPLETE"
+msgstr "Minerval complete"
+
+msgid "UNIVERSITY_CERTIFICATE"
+msgstr "University certificate"
+
+msgid "ADVANCED_MASTER_IN_MEDICAL_SPECIALIZATION"
+msgstr "Advanced master in medical specialization"
+
+msgid "ACCESS_CONTEST"
+msgstr "Access contest"
+
+msgid "UNIVERSITY_CERTIFICATE_30_CREDITS"
+msgstr "University certificate 30 credits"
+
+msgid "CERTIFICATE_MEDECINE_COMPETENCE"
+msgstr "Certificate medecine competence"
+
+msgid "Group content"
+msgstr "Group content"
 
 msgid "Produce xls with a list of education groups"
 msgstr ""
@@ -3300,3 +3337,4 @@ msgstr ""
 
 msgid "List of trainings with administrative data"
 msgstr ""
+

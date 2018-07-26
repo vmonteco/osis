@@ -29,10 +29,10 @@ from django.urls import reverse
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
-from base.models import entity_version
+from base.models import entity_version, learning_component_year
 from base.models.entity import Entity
-from base.models.enums import academic_type, fee, internship_presence, schedule_type, activity_presence, \
-    diploma_printing_orientation, active_status, duration_unit
+from base.models.enums import academic_type, internship_presence, schedule_type, activity_presence, \
+    diploma_printing_orientation, active_status, duration_unit, decree_category, rate_code
 from base.models.enums import education_group_association
 from base.models.enums import education_group_categories
 from base.models.exceptions import MaximumOneParentAllowedException
@@ -90,7 +90,6 @@ class EducationGroupYear(models.Model):
     )
 
     university_certificate = models.BooleanField(default=False, verbose_name=_('university_certificate'))
-    fee_type = models.CharField(max_length=20, choices=fee.FEES, blank=True, null=True)
 
     enrollment_campus = models.ForeignKey(
         'Campus', related_name='enrollment', blank=True, null=True, verbose_name=_("enrollment_campus")
@@ -172,10 +171,19 @@ class EducationGroupYear(models.Model):
         verbose_name=_("maximum credits")
     )
 
-    domains = models.ManyToManyField(
+    main_domain = models.ForeignKey(
+        "reference.domain",
+        on_delete=models.CASCADE,
+        null=True, blank=True,
+        verbose_name=_("main domain")
+    )
+
+    secondary_domains = models.ManyToManyField(
         "reference.domain",
         through="EducationGroupYearDomain",
-        related_name="education_group_years"
+        related_name="education_group_years",
+        verbose_name=_("secondary domains")
+
     )
 
     management_entity = models.ForeignKey(
@@ -206,6 +214,14 @@ class EducationGroupYear(models.Model):
         related_name="education_group_years"
     )
 
+    decree_category = models.CharField(max_length=40,
+                                       choices=decree_category.DECREE_CATEGORY,
+                                       blank=True, null=True, verbose_name=_('Decree category'))
+
+    rate_code = models.CharField(max_length=50,
+                                 choices=rate_code.RATE_CODE,
+                                 blank=True, null=True, verbose_name=_('Rate code'))
+
     def __str__(self):
         return u"%s - %s" % (self.academic_year, self.acronym)
 
@@ -217,8 +233,9 @@ class EducationGroupYear(models.Model):
 
     @property
     def str_domains(self):
-        ch = ''
-        for domain in self.domains.all():
+        ch = "{}-{}\n".format(self.main_domain.decree, self.main_domain.name) if self.main_domain else ""
+
+        for domain in self.secondary_domains.all():
             ch += "{}-{}\n".format(domain.decree, domain.name)
         return ch
 
@@ -249,11 +266,18 @@ class EducationGroupYear(models.Model):
         return [group_element_year.parent for group_element_year in group_elements_year
                 if group_element_year.parent]
 
-    @property
+    @cached_property
+    def children_without_leaf(self):
+        return self.children.exclude(child_leaf__isnull=False)
+
+    @cached_property
+    def children(self):
+        return self.groupelementyear_set.select_related('child_branch', 'child_leaf')
+
+    @cached_property
     def children_by_group_element_year(self):
-        group_elements_year = self.parents.filter(parent=self).select_related('child_branch')
-        return [group_element_year.child_branch for group_element_year in group_elements_year
-                if group_element_year.child_branch]
+        group_elements_year = self.children_without_leaf
+        return [group_element_year.child_branch for group_element_year in group_elements_year]
 
     @cached_property
     def coorganizations(self):
@@ -325,6 +349,6 @@ def _count_education_group_enrollments_by_id(education_groups_years):
 
 
 def _find_with_learning_unit_enrollment_count(learning_unit_year):
-    return EducationGroupYear.objects\
-        .filter(offerenrollment__learningunitenrollment__learning_unit_year_id=learning_unit_year)\
+    return EducationGroupYear.objects \
+        .filter(offerenrollment__learningunitenrollment__learning_unit_year_id=learning_unit_year) \
         .annotate(count_learning_unit_enrollments=Count('offerenrollment__learningunitenrollment')).order_by('acronym')
