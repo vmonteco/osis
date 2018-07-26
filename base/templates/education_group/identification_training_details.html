@@ -149,6 +149,16 @@
                 </div>
                 <br>
                 <div>
+                    <label>{% trans 'Decree category' %}</label><br>
+                    {% if education_group_year.decree_category %}{% trans education_group_year.decree_category %}{% endif %}
+                </div>
+                <br>
+                <div>
+                    <label>{% trans 'Rate code' %}</label><br>
+                    {% if education_group_year.rate_code %}{% trans education_group_year.rate_code %}{% endif %}
+                </div>
+                <br>
+                <div>
                     <label>{% trans 'primary_language' %}</label><br>
                     {% if education_group_languages %}
                         {{ education_group_languages|join_with_spaces:education_group_year.language_association }}

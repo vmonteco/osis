@@ -27,14 +27,14 @@
 <div class="panel panel-default">
     <div class="panel-body">
         <div>
-            <label>{% trans 'remark'%}</label><br>
+            <label>{% trans 'comment_title'%}</label><br>
             {% if education_group_year.remark %}
                 {{ education_group_year.remark }}
             {% elif parent.remark %}
                 <strong class="text-primary">{{ parent.remark }}</strong>
             {% endif %}
             <br><br>
-            <label>{% trans 'remark_english'%}</label><br>
+            <label>{% trans 'english comment'|capfirst %}</label><br>
             {% if education_group_year.remark_english %}
                 {{ education_group_year.remark_english }}
             {% elif parent.remark_english %}
