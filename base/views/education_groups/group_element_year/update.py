@@ -50,16 +50,22 @@ from base.views.learning_units.perms import PermissionDecoratorWithUser
 def management(request, root_id, education_group_year_id, group_element_year_id):
     group_element_year = get_object_or_404(GroupElementYear, pk=group_element_year_id)
     action_method = _get_action_method(request)
+    source = _get_source(request)
     response = action_method(
         request,
         group_element_year,
         root_id=root_id,
         education_group_year_id=education_group_year_id,
+        source=source,
     )
     if response:
         return response
 
     return redirect(request.META.get('HTTP_REFERER'))
+
+
+def _get_source(request):
+    return getattr(request, request.method, {}).get('source')
 
 
 @require_http_methods(['POST'])
@@ -138,8 +144,16 @@ class GenericUpdateGroupElementYearMixin(FlagMixin, RulesRequiredMixin, SuccessM
         return get_object_or_404(EducationGroupYear, pk=self.kwargs["education_group_year_id"])
 
     def get_success_url(self):
-        return reverse("education_group_content", args=[self.kwargs["education_group_year_id"]]) + \
-               "?root={root_id}".format(root_id=self.kwargs["root_id"])
+        redirect_path_by_source = {
+            'identification':
+                reverse("education_group_read", args=[self.kwargs["root_id"]]),
+            'content':
+                reverse("education_group_content", args=[self.kwargs["education_group_year_id"]]) + \
+                "?root={root_id}".format(root_id=self.kwargs["root_id"])
+        }
+        default_url = redirect_path_by_source.get('content')
+
+        return redirect_path_by_source.get(self.kwargs.get('source'), default_url)
 
 
 class UpdateGroupElementYearView(GenericUpdateGroupElementYearMixin, UpdateView):
