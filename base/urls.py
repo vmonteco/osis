@@ -49,6 +49,7 @@ from base.views.education_groups.detach import education_group_detach
 from base.views.education_groups.select import education_group_select
 from base.views.education_groups.delete import DeleteGroupEducationYearView
 from base.views.education_groups.group_element_year import update
+from base.views.education_groups.group_element_year.read import pdf_content
 from base.views.education_groups.update import update_education_group
 from base.views.learning_units.external import create as create_external
 from base.views.learning_units.external.search import filter_cities_by_country, filter_campus_by_city
@@ -284,6 +285,7 @@ urlpatterns = [
                 education_group.education_group_year_admission_condition_get_line,
                 name='education_group_year_admission_condition_get_line'),
             url(r'^delete/$', DeleteGroupEducationYearView.as_view(), name="delete_education_group"),
+            url(r'^pdf_content/$', pdf_content, name="pdf_content"),
         ])),
         url(r'^(?P<root_id>[0-9]+)/', include([
             url(r'^(?P<education_group_year_id>[0-9]+)/', include([

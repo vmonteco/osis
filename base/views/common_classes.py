@@ -67,7 +67,7 @@ class RulesRequiredMixin(UserPassesTestMixin):
         return rule(self.request.user, self.get_object())
 
 
-class AjaxTemplateMixin(object):
+class AjaxTemplateMixin:
     ajax_template_suffix = "_inner"
 
     def get_template_names(self):

@@ -2013,6 +2013,12 @@ msgstr "University certificate"
 msgid "studies_domain"
 msgstr "Studies domain"
 
+msgid "main domain"
+msgstr ""
+
+msgid "secondary domains"
+msgstr ""
+
 msgid "primary_language"
 msgstr "Primary language"
 
@@ -3310,3 +3316,6 @@ msgstr "University certificate 30 credits"
 
 msgid "CERTIFICATE_MEDECINE_COMPETENCE"
 msgstr "Certificate medecine competence"
+
+msgid "Group content"
+msgstr "Group content"

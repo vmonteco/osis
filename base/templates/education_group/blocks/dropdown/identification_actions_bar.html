@@ -63,7 +63,8 @@
                         </a>
                     </li>
                 {% endflag %}
-                    <li class="divider"></li>
+
+                <li class="divider"></li>
 
                 {% flag "education_group_attach" %}
                     <li {% if not can_change_education_group %} class="disabled" {% endif %}>
@@ -81,6 +82,16 @@
                     </li>
                     <li>
                         {% a_with_permission _("Detach") "btn_operation_detach_"|addstr:group_to_parent|addstr:dropdirection  "detach" %}
+                    </li>
+                {% endflag %}
+
+                <li class="divider"></li>
+
+                {% flag "pdf_content" %}
+                    <li>
+                        <a href="{% url 'pdf_content' education_group_year_id=education_group_year.id %}?root={{ request.GET.root }}" target="_blank">
+                            {% trans 'Group content' %}
+                        </a>
                     </li>
                 {% endflag %}
             </ul>

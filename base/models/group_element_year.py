@@ -36,6 +36,7 @@ from base.models.education_group_type import GROUP_TYPE_OPTION
 from base.models.education_group_year import EducationGroupYear
 from base.models.enums import education_group_categories
 from base.models.enums import sessions_derogation
+from base.models.learning_component_year import LearningComponentYear, volume_total_verbose
 from base.models.learning_unit_year import LearningUnitYear
 from osis_common.decorators.deprecated import deprecated
 from osis_common.models import osis_model_admin
@@ -60,20 +61,19 @@ class GroupElementYear(OrderedModel):
 
     parent = models.ForeignKey(
         EducationGroupYear,
-        related_name='parents',
         null=True,  # TODO: can not be null, dirty data
     )
 
     child_branch = models.ForeignKey(
         EducationGroupYear,
-        related_name='child_branch',
+        related_name='child_branch',  # TODO: can not be child_branch
         blank=True, null=True,
         on_delete=models.CASCADE,
     )
 
     child_leaf = models.ForeignKey(
         LearningUnitYear,
-        related_name='child_leaf',
+        related_name='child_leaf',  # TODO: can not be child_leaf
         blank=True, null=True,
         on_delete=models.CASCADE,
     )
@@ -140,6 +140,25 @@ class GroupElementYear(OrderedModel):
 
     def __str__(self):
         return "{} - {}".format(self.parent, self.child)
+
+    @property
+    def verbose(self):
+        if self.child_branch:
+            return _("%(title)s (%(credits)s credits)") % {
+                "title": self.child.title,
+                "credits": self.relative_credits or self.child_branch.credits or 0
+            }
+        else:
+            components = LearningComponentYear.objects.filter(
+                learningunitcomponent__learning_unit_year=self.child_leaf
+            )
+
+            return _("%(acronym)s %(title)s [%(volumes)s] (%(credits)s credits)") % {
+                "acronym": self.child_leaf.acronym,
+                "title": self.child_leaf.specific_title,
+                "volumes": volume_total_verbose(components),
+                "credits": self.relative_credits or self.child_leaf.credits or 0
+            }
 
     class Meta:
         ordering = ('order',)

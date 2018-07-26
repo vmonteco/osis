@@ -25,7 +25,6 @@
 ##############################################################################
 from django.db import models
 from django.db.models import Sum
-from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
 from base.models import learning_class_year
@@ -120,6 +119,16 @@ class LearningComponentYear(SerializableModel):
         return _warnings
 
 
+def volume_total_verbose(learning_component_years):
+    q1 = [learning_component_year.hourly_volume_partial_q1
+          for learning_component_year in learning_component_years
+          if learning_component_year.hourly_volume_partial_q1]
+    q2 = [learning_component_year.hourly_volume_partial_q2
+          for learning_component_year in learning_component_years
+          if learning_component_year.hourly_volume_partial_q2]
+    return "{}h + {}h".format(sum(q1) or "-", sum(q2) or "-")
+
+
 def find_by_id(learning_component_year_id):
     return LearningComponentYear.objects.get(pk=learning_component_year_id)
 
@@ -129,7 +138,7 @@ def find_by_learning_container_year(learning_container_year, with_classes=False)
         .order_by('type', 'acronym')
     if with_classes:
         queryset = queryset.prefetch_related(
-             models.Prefetch('learningclassyear_set', to_attr="classes")
+            models.Prefetch('learningclassyear_set', to_attr="classes")
         )
 
     return queryset
