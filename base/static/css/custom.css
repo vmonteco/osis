@@ -137,3 +137,22 @@ table.volumes thead{
 .no_label{
     font-weight: normal;
 }
+
+/* Override style for trash in ajax-multi-select*/
+.results_on_deck .ui-icon.ui-icon-trash {
+    display: inline-block;
+    font: normal normal normal 14px/1 FontAwesome;
+    text-rendering: auto;
+    -webkit-font-smoothing: antialiased;
+    text-indent: 0px;
+    float: none;
+    font-size: 16px;
+    background-image: none;
+    width: 14px;
+    color: transparent;
+}
+
+.results_on_deck .ui-icon.ui-icon-trash:before {
+    color: black;
+    content: "\f00d";
+}
