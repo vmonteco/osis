@@ -25,6 +25,7 @@
 ##############################################################################
 from ajax_select import register, LookupChannel
 from ajax_select.fields import AutoCompleteSelectMultipleField
+from django import forms
 from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
 
@@ -33,7 +34,13 @@ from base.forms.education_group.common import CommonBaseForm, EducationGroupMode
 from base.models.education_group_year_domain import EducationGroupYearDomain
 from base.models.entity_version import get_last_version
 from base.models.enums import education_group_categories, rate_code, decree_category
+from reference.models import domain
 from reference.models.domain import Domain
+
+
+class MainDomainChoiceField(forms.ModelChoiceField):
+    def label_from_instance(self, domain):
+        return "{}: {}".format(domain.decree.name, domain.name)
 
 
 class TrainingEducationGroupYearForm(EducationGroupYearModelForm):
@@ -65,7 +72,11 @@ class TrainingEducationGroupYearForm(EducationGroupYearModelForm):
         ]
 
         field_classes = {
-            **EducationGroupYearModelForm.Meta.field_classes, **{"management_entity": MainEntitiesVersionChoiceField}
+            **EducationGroupYearModelForm.Meta.field_classes,
+            **{
+                "management_entity": MainEntitiesVersionChoiceField,
+                "main_domain": MainDomainChoiceField
+            }
         }
 
     def __init__(self, *args, **kwargs):
@@ -79,6 +90,8 @@ class TrainingEducationGroupYearForm(EducationGroupYearModelForm):
 
         self.fields['decree_category'].choices = sorted(decree_category.DECREE_CATEGORY, key=lambda c: c[1])
         self.fields['rate_code'].choices = sorted(rate_code.RATE_CODE, key=lambda c: c[1])
+        self.fields['main_domain'].queryset = domain.Domain.objects.all().select_related('decree')\
+                                                                         .order_by('-decree__name', 'name')
 
     def save(self, commit=True):
         education_group_year = super().save(commit=False)
@@ -118,7 +131,7 @@ class DomainsLookup(LookupChannel):
     def get_query(self, q, request):
         return self.model.objects.filter(Q(name__icontains=q) | Q(decree__name__icontains=q))\
                                  .select_related('decree')\
-                                 .order_by('decree__name', 'name')
+                                 .order_by('-decree__name', 'name')
 
     def format_item_display(self, item):
         return "<span class='tag'>{}</span>".format(self.format_match(item))
