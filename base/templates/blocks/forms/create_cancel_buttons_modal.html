@@ -1,4 +1,3 @@
-{% load staticfiles %}
 {% load i18n %}
 {% comment "License" %}
     * OSIS stands for Open Student Information System. It's an application
@@ -24,23 +23,11 @@
     * see http://www.gnu.org/licenses/.
 {% endcomment %}
 
-<div class="panel panel-default">
-    <div class="panel-body">
-        <div>
-            <label>{% trans 'comment_title'%}</label><br>
-            {% if education_group_year.remark %}
-                {{ education_group_year.remark }}
-            {% elif parent.remark %}
-                <strong class="text-primary">{{ parent.remark }}</strong>
-            {% endif %}
-            <br><br>
-            <label>{% trans 'english comment'|capfirst %}</label><br>
-            {% if education_group_year.remark_english %}
-                {{ education_group_year.remark_english }}
-            {% elif parent.remark_english %}
-                <strong class="text-primary">{{ parent.remark_english }}</strong>
-            {% endif %}
-            <br>
-        </div>
-    </div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-default" data-dismiss="modal">{% trans "cancel" %}</button>
+    <button type="submit" {% if btn_submit_name %} name="{{ btn_submit_name }}" {% endif %}
+            class="btn btn-primary pull-right" title="{% trans 'add' %}">
+        <span class="glyphicon glyphicon-floppy-save" aria-hidden="true"></span>
+        {% trans 'save' %}
+    </button>
 </div>

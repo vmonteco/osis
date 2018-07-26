@@ -350,7 +350,8 @@ def _get_academic_calendar_from_prefetched_data(an_education_group_year, academi
     )
     return next((
         offer_year_cal.academic_calendar for offer_year_cal in offer_year_cals
-        if offer_year_cal.academic_calendar.session_exam_calendar.number_session == session_number
+        if offer_year_cal.academic_calendar.sessionexamcalendar and \
+           offer_year_cal.academic_calendar.sessionexamcalendar.number_session == session_number
     ), None)
 
 

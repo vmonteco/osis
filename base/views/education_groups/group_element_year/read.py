@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -23,29 +23,28 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-FEE_1 = 'FEE_1'
-FEE_2 = 'FEE_2'
-FEE_3 = 'FEE_3'
-FEE_4 = 'FEE_4'
-FEE_5 = 'FEE_5'
-FEE_6 = 'FEE_6'
-FEE_7 = 'FEE_7'
-FEE_8 = 'FEE_8'
-FEE_10 = 'FEE_10'
-FEE_11 = 'FEE_11'
-FEE_12 = 'FEE_12'
-FEE_13 = 'FEE_13'
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404
+from django.utils.translation import ugettext_lazy as _
+
+from base.models.education_group_year import EducationGroupYear
+from osis_common.document.pdf_build import Render
 
 
-FEES = ((FEE_1, FEE_1),  ## Rôle
-         (FEE_2, FEE_2), ## rôle + examen
-         (FEE_3, FEE_3), ## AESS, CAPAES ou fin de cycle
-         (FEE_4, FEE_4), ## Minerval sans examen
-         (FEE_5, FEE_5), ## Minerval complet
-         (FEE_6, FEE_6), ## certificat universitaire
-         (FEE_7, FEE_7), ## Master complémentaire spécialisation médicale
-         (FEE_8, FEE_8), ## Concours d’accès
-         (FEE_10, FEE_10), ## CU 30 crédits
-         (FEE_11, FEE_11), ## Certificat compétence méd
-         (FEE_12, FEE_12), ## Offres ISA : 12BA et 21MS
-         (FEE_13, FEE_13)) ## Offres ISA : 13BA et 22MS
+@login_required
+def pdf_content(request, education_group_year_id):
+    parent = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
+    tree = [_("%(title)s (%(credits)d credits)") % {"title": parent.title, "credits": parent.credits or 0},
+            get_verbose_children(parent)]
+    return Render.render('education_group/pdf_content.html', {'tree': tree})
+
+
+def get_verbose_children(parent):
+    result = []
+
+    for group_element_year in parent.children:
+        result.append(group_element_year.verbose)
+        if group_element_year.child_branch:
+            result.append(get_verbose_children(group_element_year.child_branch))
+
+    return result

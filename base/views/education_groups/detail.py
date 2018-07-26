@@ -211,6 +211,7 @@ class EducationGroupContent(EducationGroupGenericDetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["group_elements"] = _group_elements(self.object)
+
         return context
 
 

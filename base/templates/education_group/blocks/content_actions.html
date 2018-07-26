@@ -33,7 +33,7 @@
 
 
 {% with "btn_operation_detach_"|addstr:element.group_element.id as id_detach %}
-    {% a_with_permission _("Detach") id_detach  "detach" %}
+    {% button_with_permission _("Detach") id_detach "detach" %}
 
     {% url 'group_element_year_management' root_id=parent.id education_group_year_id=education_group_year.id group_element_year_id=element.group_element.id as detach_url %}
     {% include "blocks/modal/modal_ajax.html" with modal_url=detach_url|add:"?action=detach" click_id=id_detach form_id="form_detach_confirm" %}
@@ -41,7 +41,7 @@
 
 
 {% with "btn_operation_edit_"|addstr:element.group_element.id as id_edit %}
-    {% a_with_permission _("edit") id_edit  "edit" %}
+    {% button_with_permission _("edit") id_edit "edit" %}
 
     {% url 'group_element_year_management_comment' root_id=parent.id education_group_year_id=education_group_year.id group_element_year_id=element.group_element.id as update_comment_url %}
     {% include "blocks/modal/modal_ajax.html" with modal_url=update_comment_url click_id=id_edit form_id="form_comment_update" %}
