@@ -54,7 +54,7 @@ class TestUpdate(TestCase):
         EntityVersionFactory(entity=self.education_group_year.administration_entity,
                              start_date=self.education_group_year.academic_year.start_date)
 
-        self.url = reverse(update_education_group, kwargs={'education_group_year_id': self.education_group_year.pk})
+        self.url = reverse(update_education_group, args=[self.education_group_year.pk, self.education_group_year.pk])
         self.person = PersonFactory()
 
         self.client.force_login(self.person.user)
@@ -76,8 +76,9 @@ class TestUpdate(TestCase):
                              start_date=self.education_group_year.academic_year.start_date)
         EntityVersionFactory(entity=self.training_education_group_year.management_entity,
                              start_date=self.education_group_year.academic_year.start_date)
-        return reverse(update_education_group,
-                       kwargs={'education_group_year_id': self.training_education_group_year.pk})
+        return reverse(update_education_group, args=[
+            self.training_education_group_year.pk, self.training_education_group_year.pk
+        ])
 
     def tearDown(self):
         self.perm_patcher.stop()

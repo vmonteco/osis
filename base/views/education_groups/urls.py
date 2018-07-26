@@ -37,7 +37,7 @@ urlpatterns = [
     url(r'^new/(?P<category>[A-Z_]+)/(?P<parent_id>[0-9]+)/$', create.create_education_group,
         name='new_education_group'),
 
-    url(r'^(?P<education_group_year_id>[0-9]+)/', include([
+    url(r'^(?P<root_id>[0-9]+)/(?P<education_group_year_id>[0-9]+)/', include([
 
         url(r'^$', detail.EducationGroupRead.as_view(), name='education_group_read'),
         url(r'^update/$', update.update_education_group, name="update_education_group"),
@@ -63,6 +63,7 @@ urlpatterns = [
                 name='education_group_edit_administrative')
         ])),
 
+        # TODO content  must be moved to group_element_year
         url(r'^content/$', detail.EducationGroupContent.as_view(), name='education_group_content'),
 
         url(r'^admission_conditions/$',

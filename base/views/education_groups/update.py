@@ -44,11 +44,12 @@ from base.views.learning_units.perms import PermissionDecoratorWithUser
 @login_required
 @waffle_flag("education_group_update")
 @PermissionDecoratorWithUser(can_change_education_group, "education_group_year_id", EducationGroupYear)
-def update_education_group(request, education_group_year_id):
+def update_education_group(request, root_id, education_group_year_id):
     education_group_year = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
+    root = get_object_or_404(EducationGroupYear, pk=root_id)
 
     view_function = _get_view(education_group_year.education_group_type.category)
-    return view_function(request, education_group_year)
+    return view_function(request, education_group_year, root)
 
 
 def _get_view(category):
@@ -66,10 +67,10 @@ def _common_success_redirect(request, education_group_year):
     return redirect(url)
 
 
-def _update_group(request, education_group_year):
+def _update_group(request, education_group_year, root):
     # TODO :: IMPORTANT :: Fix urls patterns to get the GroupElementYear_id and the root_id in the url path !
     # TODO :: IMPORTANT :: pass the parent in paramter of the form
-    form_education_group_year = GroupForm(request.POST or None, instance=education_group_year)
+    form_education_group_year = GroupForm(request.POST or None, instance=education_group_year, parent=root)
     html_page = "education_group/update_groups.html"
 
     if form_education_group_year.is_valid():
@@ -81,10 +82,10 @@ def _update_group(request, education_group_year):
     })
 
 
-def _update_training(request, education_group_year):
+def _update_training(request, education_group_year, root):
     # TODO :: IMPORTANT :: Fix urls patterns to get the GroupElementYear_id and the root_id in the url path !
     # TODO :: IMPORTANT :: pass the parent in paramter of the form
-    form_education_group_year = TrainingForm(request.POST or None, instance=education_group_year)
+    form_education_group_year = TrainingForm(request.POST or None, instance=education_group_year, parent=root)
     if form_education_group_year.is_valid():
         return _common_success_redirect(request, form_education_group_year.save())
 
@@ -95,10 +96,10 @@ def _update_training(request, education_group_year):
     })
 
 
-def _update_mini_training(request, education_group_year):
+def _update_mini_training(request, education_group_year, root):
     # TODO :: IMPORTANT :: Fix urls patterns to get the GroupElementYear_id and the root_id in the url path !
     # TODO :: IMPORTANT :: pass the parent in paramter of the form
-    form = MiniTrainingForm(request.POST or None, instance=education_group_year)
+    form = MiniTrainingForm(request.POST or None, instance=education_group_year, parent=root)
 
     if form.is_valid():
         return _common_success_redirect(request, form.save())

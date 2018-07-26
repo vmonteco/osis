@@ -102,6 +102,7 @@ class TestDetach(TestCase):
     def test_detach_case_post_success_redirection(self, mock_permission, mock_delete):
         mock_permission.return_value = True
         response = self.client.post(self.url, data=self.post_valid_data)
-        redirected_url = reverse('education_group_content', args=[self.education_group_year.id]) + \
-                         "?root={root_id}".format(root_id=self.education_group_year.id)
+        redirected_url = reverse('education_group_content', args=[
+            self.education_group_year.id, self.education_group_year.id
+        ])
         self.assertRedirects(response, redirected_url)
