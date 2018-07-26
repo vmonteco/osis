@@ -63,10 +63,13 @@ def education_groups(request):
                           {ORDER_COL: request.GET.get('xls_order_col'), ORDER_DIRECTION: request.GET.get('xls_order')})
 
     if request.GET.get('xls_status') == "xls_administrative":
-        return create_xls_administrative_data(request.user, _get_administrative_data(object_list),
-                                              _get_filter_keys(form),
-                                              {ORDER_COL: request.GET.get('xls_order_col'),
-                                               ORDER_DIRECTION: request.GET.get('xls_order')})
+        return create_xls_administrative_data(
+            request.user,
+            object_list,
+            _get_filter_keys(form),
+            {ORDER_COL: request.GET.get('xls_order_col'), ORDER_DIRECTION: request.GET.get('xls_order')}
+        )
+
     context = {
         'form': form,
         'object_list': paginate_queryset(object_list, request.GET),
@@ -98,37 +101,37 @@ def _get_filter_keys(form):
     return OrderedDict(itertools.chain(get_research_criteria(form)))
 
 
-def _get_administrative_data(object_list_param):
-    object_list = [education_group_yr for education_group_yr in object_list_param if
-                   education_group_yr.education_group_type.category == 'TRAINING']
-    for education_group_yr in object_list:
-        education_group_yr.administrative_data = dict()
-        education_group_yr.administrative_data['course_enrollment'] = \
-            get_dates(academic_calendar_type.COURSE_ENROLLMENT, education_group_yr)
-        education_group_yr.administrative_data['exam_enrollments'] = \
-            get_sessions_dates(academic_calendar_type.EXAM_ENROLLMENTS, education_group_yr)
-        education_group_yr.administrative_data['scores_exam_submission'] = \
-            get_sessions_dates(academic_calendar_type.SCORES_EXAM_SUBMISSION,
-                               education_group_yr)
-        education_group_yr.administrative_data['dissertation_submission'] = get_sessions_dates(
-            academic_calendar_type.DISSERTATION_SUBMISSION,
-            education_group_yr)
-        education_group_yr.administrative_data['deliberation'] = \
-            get_sessions_dates(academic_calendar_type.DELIBERATION,
-                               education_group_yr)
-        education_group_yr.administrative_data['scores_exam_diffusion'] = \
-            get_sessions_dates(academic_calendar_type.SCORES_EXAM_DIFFUSION,
-                               education_group_yr)
-        _get_mandate_data(education_group_yr)
-    return object_list
+# def _get_administrative_data(object_list_param):
+#     object_list = [education_group_yr for education_group_yr in object_list_param if
+#                    education_group_yr.education_group_type.category == 'TRAINING']
+#     for education_group_yr in object_list:
+#         education_group_yr.administrative_data = dict()
+#         education_group_yr.administrative_data['course_enrollment'] = \
+#             get_dates(academic_calendar_type.COURSE_ENROLLMENT, education_group_yr)
+#         education_group_yr.administrative_data['exam_enrollments'] = \
+#             get_sessions_dates(academic_calendar_type.EXAM_ENROLLMENTS, education_group_yr)
+#         education_group_yr.administrative_data['scores_exam_submission'] = \
+#             get_sessions_dates(academic_calendar_type.SCORES_EXAM_SUBMISSION,
+#                                education_group_yr)
+#         education_group_yr.administrative_data['dissertation_submission'] = get_sessions_dates(
+#             academic_calendar_type.DISSERTATION_SUBMISSION,
+#             education_group_yr)
+#         education_group_yr.administrative_data['deliberation'] = \
+#             get_sessions_dates(academic_calendar_type.DELIBERATION,
+#                                education_group_yr)
+#         education_group_yr.administrative_data['scores_exam_diffusion'] = \
+#             get_sessions_dates(academic_calendar_type.SCORES_EXAM_DIFFUSION,
+#                                education_group_yr)
+#         _get_mandate_data(education_group_yr)
+#     return object_list
 
 
-def _get_mandate_data(education_group_yr_param):
-    education_group_yr = education_group_yr_param
-    education_group_yr.administrative_data[PRESIDENTS] = \
-        mdl.mandatary.find_by_education_group_year_function(education_group_yr, mandate_types.PRESIDENT)
-    education_group_yr.administrative_data[SECRETARIES] = \
-        mdl.mandatary.find_by_education_group_year_function(education_group_yr, mandate_types.SECRETARY)
-    education_group_yr.administrative_data[SIGNATORIES] = \
-        mdl.mandatary.find_by_education_group_year_function(education_group_yr, mandate_types.SIGNATORY)
-    return education_group_yr
+# def _get_mandate_data(education_group_yr_param):
+#     education_group_yr = education_group_yr_param
+#     education_group_yr.administrative_data[PRESIDENTS] = \
+#         mdl.mandatary.find_by_education_group_year_function(education_group_yr, mandate_types.PRESIDENT)
+#     education_group_yr.administrative_data[SECRETARIES] = \
+#         mdl.mandatary.find_by_education_group_year_function(education_group_yr, mandate_types.SECRETARY)
+#     education_group_yr.administrative_data[SIGNATORIES] = \
+#         mdl.mandatary.find_by_education_group_year_function(education_group_yr, mandate_types.SIGNATORY)
+#     return education_group_yr
