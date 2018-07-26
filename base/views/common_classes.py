@@ -27,7 +27,7 @@ import waffle
 from django.contrib.admin.utils import NestedObjects
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
-from django.http import Http404
+from django.http import Http404, JsonResponse
 from django.utils.encoding import force_text
 from django.utils.text import capfirst
 from django.utils.translation import ugettext_lazy as _
@@ -83,6 +83,24 @@ class AjaxTemplateMixin:
         split[-1] = '_inner'
         split.append('.html')
         return "".join(split)
+
+    def form_valid(self, form):
+        redirect = super().form_valid(form)
+
+        # When the form is saved, we return only the url, not all the template
+        if self.request.is_ajax():
+            return JsonResponse({"success": True, "success_url": self.get_success_url()})
+        else:
+            return redirect
+
+    def delete(self, request, *args, **kwargs):
+        redirect = super().delete(request, *args, **kwargs)
+
+        # When the form is saved, we return only the url, not all the template
+        if self.request.is_ajax():
+            return JsonResponse({"success": True, "success_url": self.get_success_url()})
+        else:
+            return redirect
 
 
 class DeleteViewWithDependencies(FlagMixin, RulesRequiredMixin, AjaxTemplateMixin, DeleteView):

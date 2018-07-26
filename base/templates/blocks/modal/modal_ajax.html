@@ -47,7 +47,12 @@
                         formAjaxSubmit(form, modal);
                     } else {
                         $(modal).modal('toggle');
-                        $("body").html(xhr);
+                        if (xhr.hasOwnProperty('success_url')) {
+                            window.location.href = xhr["success_url"];
+                        }
+                        else {
+                            window.location.reload();
+                        }
                     }
                 },
                 error: function (xhr, ajaxOptions, thrownError) {
