@@ -32,7 +32,7 @@ from django.urls import reverse
 from waffle.testutils import override_flag
 
 from base.models.enums.sessions_derogation import SessionsDerogationTypes
-from base.models.enums import quadrimester_derogation
+from base.models.enums import quadrimesters
 from base.tests.factories.education_group_year import EducationGroupYearFactory
 from base.tests.factories.group_element_year import GroupElementYearFactory
 from base.tests.factories.person import CentralManagerFactory
@@ -93,7 +93,7 @@ class TestEdit(TestCase):
             going out your door. You step onto the road, and if you don't keep your feet,
              there's no knowing where you might be swept off to.""",
 
-            "quadrimester_derogation": quadrimester_derogation.Q1,
+            "quadrimester_derogation": quadrimesters.Q1,
         }
         response = self.client.post(self.url, data=data)
 

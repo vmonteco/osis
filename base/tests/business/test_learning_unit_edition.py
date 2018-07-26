@@ -43,7 +43,7 @@ from base.models.entity_container_year import EntityContainerYear
 from base.models.enums import learning_component_year_type
 from base.models.enums import learning_unit_year_subtypes, learning_unit_year_periodicity, \
     learning_container_year_types, attribution_procedure, internship_subtypes, learning_unit_year_session, \
-    learning_unit_year_quadrimesters, vacant_declaration_type, entity_container_year_link_type
+    quadrimesters, vacant_declaration_type, entity_container_year_link_type
 from base.models.learning_class_year import LearningClassYear
 from base.models.learning_unit_component import LearningUnitComponent
 from base.models.learning_unit_year import LearningUnitYear
@@ -803,7 +803,7 @@ class TestModifyLearningUnit(TestCase, LearningUnitsMixin):
             "internship_subtype": internship_subtypes.PROFESSIONAL_INTERNSHIP,
             "status": False,
             "session": learning_unit_year_session.SESSION_123,
-            "quadrimester": learning_unit_year_quadrimesters.Q2,
+            "quadrimester": quadrimesters.Q2,
             "attribution_procedure": attribution_procedure.EXTERNAL,
             "language": self.other_language
         }

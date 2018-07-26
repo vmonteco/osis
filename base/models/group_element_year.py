@@ -34,7 +34,7 @@ from ordered_model.models import OrderedModel
 from base.models import education_group_type, education_group_year
 from base.models.education_group_type import GROUP_TYPE_OPTION
 from base.models.education_group_year import EducationGroupYear
-from base.models.enums import education_group_categories, sessions_derogation, link_type, quadrimester_derogation
+from base.models.enums import education_group_categories, sessions_derogation, link_type, quadrimesters
 from base.models.learning_component_year import LearningComponentYear, volume_total_verbose
 from base.models.learning_unit_year import LearningUnitYear
 from osis_common.decorators.deprecated import deprecated
@@ -136,7 +136,7 @@ class GroupElementYear(OrderedModel):
     )
 
     quadrimester_derogation = models.CharField(max_length=10,
-                                               choices=quadrimester_derogation.QUADRIMESTER_DEROGATION,
+                                               choices=quadrimesters.DEROGATION_QUADRIMESTERS,
                                                blank=True, null=True, verbose_name=_('Quadrimester derogation'))
 
     link_type = models.CharField(max_length=25,
