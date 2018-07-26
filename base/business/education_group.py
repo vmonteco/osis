@@ -38,6 +38,7 @@ from base.models.program_manager import is_program_manager
 from base.models import person_entity
 from osis_common.document import xls_build
 from base.business.xls import get_name_or_username, convert_boolean
+from base.models.enums import mandate_type as mandate_types
 
 
 # List of key that a user can modify
@@ -61,7 +62,7 @@ XLS_DESCRIPTION_ADMINISTRATIVE = "List of trainings, with administrative data"
 MANAGEMENT_ENTITY_COL = 'management_entity'
 TRANING_COL = 'TRAINING'
 TYPE_COL = 'type'
-ACADEMIC_YEAR_COL = 'academic_year_small'
+ACADEMIC_YEAR_COL = 'Validity'
 START_COURSE_REGISTRATION_COL = 'Begining of course registration'
 END_COURSE_REGISTRATION_COL = 'Ending of course registration'
 START_EXAM_REGISTRATION_COL = 'Begining of exam registration'
@@ -232,7 +233,7 @@ def _get_translated_header_session_columns():
     all_headers_sessions = []
     for session_number in range(1, SESSIONS_NUMBER + 1):
         all_headers_sessions += ["{} {} ".format(translated_title, session_number) for translated_title in
-                                  translated_session_headers]
+                                 translated_session_headers]
     return all_headers_sessions
 
 
@@ -269,12 +270,12 @@ def _extract_administrative_data(an_education_group_year):
         academic_calendar_type.COURSE_ENROLLMENT
     )
     administrative_data = {
-        START_COURSE_REGISTRATION_COL: _format_date(course_enrollment_calendar, 'start_date'),
-        END_COURSE_REGISTRATION_COL: _format_date(course_enrollment_calendar, 'end_date'),
+        START_COURSE_REGISTRATION_COL: _format_date(course_enrollment_calendar, 'start_date', DATE_FORMAT),
+        END_COURSE_REGISTRATION_COL: _format_date(course_enrollment_calendar, 'end_date', DATE_FORMAT),
         SESSIONS_COLUMNS: [
             _extract_session_data(an_education_group_year, session_number) for
-                session_number in range(1, SESSIONS_NUMBER + 1)
-        ]
+            session_number in range(1, SESSIONS_NUMBER + 1)
+            ]
     }
     return administrative_data
 
@@ -294,25 +295,48 @@ def _extract_session_data(education_group_year, session_number):
             academic_cal_type,
             session_number
         )
-    #@Todo: Fix correct date format
+    #@Todo: Fix correct dates
     return {
-        START_EXAM_REGISTRATION_COL: _format_date(academic_cals[academic_calendar_type.EXAM_ENROLLMENTS], 'start_date'),
-        END_EXAM_REGISTRATION_COL: _format_date(academic_cals[academic_calendar_type.EXAM_ENROLLMENTS], 'end_date'),
-        MARKS_PRESENTATION_COL: _format_date(academic_cals[academic_calendar_type.SCORES_EXAM_SUBMISSION], 'start_date'),
-        DISSERTATION_PRESENTATION_COL: _format_date(academic_cals[academic_calendar_type.DISSERTATION_SUBMISSION], 'start_date'),
-        DELIBERATION_COL: _format_date(academic_cals[academic_calendar_type.DELIBERATION], 'start_date'),
-        SCORES_DIFFUSION_COL: _format_date(academic_cals[academic_calendar_type.SCORES_EXAM_DIFFUSION], 'start_date'),
+        START_EXAM_REGISTRATION_COL: _format_date(academic_cals[academic_calendar_type.EXAM_ENROLLMENTS], 'start_date',
+                                                  DATE_FORMAT),
+        END_EXAM_REGISTRATION_COL: _format_date(academic_cals[academic_calendar_type.EXAM_ENROLLMENTS], 'end_date',
+                                                DATE_FORMAT),
+        MARKS_PRESENTATION_COL: _format_date(academic_cals[academic_calendar_type.SCORES_EXAM_SUBMISSION],
+                                             'start_date', DATE_FORMAT),
+        DISSERTATION_PRESENTATION_COL: _format_date(academic_cals[academic_calendar_type.DISSERTATION_SUBMISSION],
+                                                    'start_date', DATE_FORMAT),
+        DELIBERATION_COL: _format_date(academic_cals[academic_calendar_type.DELIBERATION], 'start_date',
+                                       DATE_TIME_FORMAT),
+        SCORES_DIFFUSION_COL: _format_date(academic_cals[academic_calendar_type.SCORES_EXAM_DIFFUSION], 'start_date',
+                                           DATE_TIME_FORMAT),
     }
 
 
-def _extract_mandatary_data(an_education_group_year):
-    #@Todo: Add mandatary data
+def _extract_mandatary_data(education_group_year):
+    representatives = {mandate_types.PRESIDENT: [], mandate_types.SECRETARY: [], mandate_types.SIGNATORY: []}
+
+    for mandate in education_group_year.education_group.mandate_set.all():
+        representatives = _get_representatives(education_group_year, mandate, representatives)
+
     return {
-        CHAIR_OF_THE_EXAM_BOARD_COL: '',
-        EXAM_BOARD_SECRETARY_COL: '',
-        EXAM_BOARD_SIGNATORY_COL: '',
-        SIGNATORY_QUALIFICATION_COL: '',
+        CHAIR_OF_THE_EXAM_BOARD_COL: names(representatives.get(mandate_types.PRESIDENT)),
+        EXAM_BOARD_SECRETARY_COL: names(representatives.get(mandate_types.SECRETARY)),
+        EXAM_BOARD_SIGNATORY_COL: names(representatives.get(mandate_types.SIGNATORY)),
+        SIGNATORY_QUALIFICATION_COL: qualification(representatives.get(mandate_types.SIGNATORY)),
     }
+
+
+def _get_representatives(education_group_year, mandate, representatives_param):
+    representatives = representatives_param
+    for mandataries in mandate.mandatary_set.all():
+        if _is_valid_mandate(mandataries, education_group_year):
+            if mandataries.mandate.function == mandate_types.PRESIDENT:
+                representatives.get(mandate_types.PRESIDENT).append(mandataries)
+            if mandataries.mandate.function == mandate_types.SECRETARY:
+                representatives.get(mandate_types.SECRETARY).append(mandataries)
+            if mandataries.mandate.function == mandate_types.SIGNATORY:
+                representatives.get(mandate_types.SIGNATORY).append(mandataries)
+    return representatives
 
 
 def _convert_data_to_xls_row(education_group_year_data, header_list):
@@ -362,64 +386,21 @@ def _get_all_offer_year_calendar_from_prefetched_data(an_education_group_year, a
     ]
 
 
-def _format_date(obj, date_key):
+def _format_date(obj, date_key, date_form):
     date = getattr(obj, date_key, None) if obj else None
     if date:
-        return date.strftime(DATE_FORMAT)
+        return date.strftime(date_form)
     return '-'
 
 
-# def extract_xls_administrative_data_from_education_group(an_education_group):
-#     data = [
-#         an_education_group.management_entity_version.acronym,
-#         an_education_group.acronym,
-#         an_education_group.education_group_type,
-#         an_education_group.academic_year.name,
-#         _get_date(an_education_group.administrative_data, 'course_enrollment.dates.start_date',
-#                   DATE_FORMAT),
-#         _get_date(an_education_group.administrative_data, 'course_enrollment.dates.end_date',
-#                   DATE_FORMAT)]
-#     for session_number in range(NUMBER_SESSIONS):
-#         data.extend(_get_dates_by_session(an_education_group.administrative_data, session_number+1))
-#     data.extend([
-#         convert_boolean(an_education_group.weighting),
-#         convert_boolean(an_education_group.default_learning_unit_enrollment),
-#         names(an_education_group.administrative_data[PRESIDENTS]),
-#         names(an_education_group.administrative_data[SECRETARIES]),
-#         names(an_education_group.administrative_data[SIGNATORIES]),
-#         qualification(an_education_group.administrative_data[SIGNATORIES])]
-#     )
-#     return data
-#
-#
-# def names(representatives):
-#     return ', '.join([str(mandatory.person) for mandatory in representatives])
-#
-#
-# def qualification(signatories):
-#     return ', '.join([signatory.mandate.qualification for signatory in signatories if signatory.mandate.qualification])
-#
-#
-# def _get_date(administrative_data, keys_attribute, date_form):
-#     key1, key2, attribute = keys_attribute.split(".")
-#
-#     if administrative_data[key1].get(key2):
-#         attr = getattr(administrative_data[key1].get(key2), attribute) or None
-#         if attr:
-#             return attr.strftime(date_form)
-#     return '-'
-#
-#
-# def _get_dates_by_session(administrative_data, session_number):
-#     session_name = "session{}".format(session_number)
-#     return (
-#         _get_date(administrative_data, "{}.{}.{}".format('exam_enrollments', session_name, 'start_date'), DATE_FORMAT),
-#         _get_date(administrative_data, "{}.{}.{}".format('exam_enrollments', session_name, 'end_date'), DATE_FORMAT),
-#         _get_date(administrative_data, "{}.{}.{}".format('scores_exam_submission', session_name, 'start_date'),
-#                   DATE_TIME_FORMAT),
-#         _get_date(administrative_data, "{}.{}.{}".format('dissertation_submission', session_name, 'start_date'),
-#                   DATE_FORMAT),
-#         _get_date(administrative_data, "{}.{}.{}".format('deliberation', session_name, 'start_date'), DATE_TIME_FORMAT),
-#         _get_date(administrative_data, "{}.{}.{}".format('scores_exam_diffusion', session_name, 'start_date'),
-#                   DATE_TIME_FORMAT)
-#     )
+def _is_valid_mandate(mandate, education_group_yr):
+    return mandate.start_date <= education_group_yr.academic_year.start_date and \
+           mandate.end_date >= education_group_yr.academic_year.end_date
+
+
+def names(representatives):
+    return ', '.join([str(mandatory.person.full_name) for mandatory in representatives])
+
+
+def qualification(signatories):
+    return ', '.join([signatory.mandate.qualification for signatory in signatories if signatory.mandate.qualification])
