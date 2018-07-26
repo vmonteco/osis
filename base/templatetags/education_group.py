@@ -170,17 +170,24 @@ def build_tree(context, current_group_element_year, selected_education_group_yea
     for child in education_group_year.group_element_year_branches:
         chidren_template += build_tree(context, child, selected_education_group_year)
 
-    url_name = request.resolver_match.url_name if request.resolver_match else "education_group_read"
-
     return mark_safe(BRANCH_TEMPLATE.format(
         data_jstree=data_jstree,
-        gey=current_group_element_year.pk if current_group_element_year else 0,
+        gey=_get_group_element_year_id(current_group_element_year),
         egy=education_group_year.pk,
-        url=reverse(url_name, args=[education_group_year.pk]) + "?root=" + (root or ""),
+        url=_get_url(request, education_group_year, root),
         text=education_group_year.verbose,
         a_class=a_class,
         children=chidren_template
     ))
+
+
+def _get_group_element_year_id(current_group_element_year):
+    return current_group_element_year.pk if current_group_element_year else "-"
+
+
+def _get_url(request, edy, root):
+    url_name = request.resolver_match.url_name if request.resolver_match else "education_group_read"
+    return reverse(url_name, args=[edy.pk]) + "?root=" + (root or "")
 
 
 def _get_icon_jstree(education_group_year):
