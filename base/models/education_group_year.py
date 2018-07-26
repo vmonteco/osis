@@ -90,7 +90,6 @@ class EducationGroupYear(models.Model):
     )
 
     university_certificate = models.BooleanField(default=False, verbose_name=_('university_certificate'))
-    fee_type = models.CharField(max_length=20, choices=fee.FEES, blank=True, null=True)
 
     enrollment_campus = models.ForeignKey(
         'Campus', related_name='enrollment', blank=True, null=True, verbose_name=_("enrollment_campus")
