@@ -79,20 +79,25 @@
                             {% trans 'Detach' %}
                         </a>
                     </li>
+                    <li>
+                        {% a_with_permission _("Detach") "btn_operation_detach_"|addstr:group_to_parent|addstr:dropdirection  "detach" %}
+                    </li>
                 {% endflag %}
             </ul>
         </div>
     {% endif %}
 {% endif %}
 
+{% url 'group_element_year_management' root_id=parent.id education_group_year_id=education_group_year.id group_element_year_id=group_to_parent as detach_url %}
+{% include "blocks/modal/modal_ajax.html" with modal_url=detach_url|addstr:"?action=detach" click_id="btn_operation_detach_"|addstr:group_to_parent|addstr:dropdirection form_id="form_detach_confirm" %}
 
-{% with id="link_delete" %}
-    {% if dropdirection == "dropup" %}
-        {#  Should be loaded once #}
-        {% url 'delete_education_group' education_group_year_id=education_group_year.id as delete_url %}
-        {% include "blocks/modal/modal_ajax.html" with modal_url=delete_url click_id="link_delete" form_id="form_delete_education_group" %}
-    {% endif %}
-{% endwith %}
+
+{% if dropdirection == "dropdown" %}
+    {#  Should be loaded once #}
+    {% url 'delete_education_group' education_group_year_id=education_group_year.id as delete_url %}
+    {% include "blocks/modal/modal_ajax.html" with modal_url=delete_url click_id="link_delete" form_id="form_delete_education_group" %}
+{% endif %}
+
 
 {% block script %}
     <script>
