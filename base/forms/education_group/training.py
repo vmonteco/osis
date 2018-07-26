@@ -31,7 +31,7 @@ from base.forms.education_group.common import CommonBaseForm, EducationGroupMode
     MainEntitiesVersionChoiceField, EducationGroupYearModelForm
 from base.models.education_group_year_domain import EducationGroupYearDomain
 from base.models.entity_version import get_last_version
-from base.models.enums import education_group_categories
+from base.models.enums import education_group_categories, rate_code, decree_category
 from reference.models.domain import Domain
 
 
@@ -60,7 +60,7 @@ class TrainingEducationGroupYearForm(EducationGroupYearModelForm):
             "diploma_printing_title", "diploma_printing_orientation",
             "professional_title", "min_credits", "max_credits",
             "administration_entity", "management_entity",
-            "main_domain", "secondary_domains"
+            "main_domain", "secondary_domains", "decree_category", "rate_code"
         ]
 
         field_classes = {
@@ -75,6 +75,9 @@ class TrainingEducationGroupYearForm(EducationGroupYearModelForm):
 
         if getattr(self.instance, 'management_entity', None):
             self.initial['management_entity'] = get_last_version(self.instance.management_entity).pk
+
+        self.fields['decree_category'].choices = sorted(decree_category.DECREE_CATEGORY, key=lambda c: c[1])
+        self.fields['rate_code'].choices = sorted(rate_code.RATE_CODE, key=lambda c: c[1])
 
     def save(self, commit=True):
         education_group_year = super().save(commit=False)

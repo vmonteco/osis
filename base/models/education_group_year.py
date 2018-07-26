@@ -31,7 +31,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from base.models import entity_version, learning_component_year
 from base.models.entity import Entity
-from base.models.enums import academic_type, fee, internship_presence, schedule_type, activity_presence, \
+from base.models.enums import academic_type, internship_presence, schedule_type, activity_presence, \
     diploma_printing_orientation, active_status, duration_unit, decree_category, rate_code
 from base.models.enums import education_group_association
 from base.models.enums import education_group_categories
@@ -90,7 +90,6 @@ class EducationGroupYear(models.Model):
     )
 
     university_certificate = models.BooleanField(default=False, verbose_name=_('university_certificate'))
-    fee_type = models.CharField(max_length=20, choices=fee.FEES, blank=True, null=True)
 
     enrollment_campus = models.ForeignKey(
         'Campus', related_name='enrollment', blank=True, null=True, verbose_name=_("enrollment_campus")
