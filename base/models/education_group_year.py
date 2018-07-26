@@ -31,7 +31,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from base.models import entity_version, learning_component_year
 from base.models.entity import Entity
-from base.models.enums import academic_type, fee, internship_presence, schedule_type, activity_presence, \
+from base.models.enums import academic_type, internship_presence, schedule_type, activity_presence, \
     diploma_printing_orientation, active_status, duration_unit, decree_category, rate_code
 from base.models.enums import education_group_association
 from base.models.enums import education_group_categories
