@@ -44,7 +44,7 @@ class ExternalLearningUnitYearFactory(DjangoModelFactory):
     changed = factory.fuzzy.FuzzyDateTime(datetime.datetime(2016, 1, 1, tzinfo=get_tzinfo()),
                                           datetime.datetime(2017, 3, 1, tzinfo=get_tzinfo()))
     external_acronym = factory.fuzzy.FuzzyText(length=10, chars=string.digits)
-    external_credits = factory.fuzzy.FuzzyDecimal(MINIMUM_CREDITS, MAXIMUM_CREDITS)
+    external_credits = factory.fuzzy.FuzzyInteger(MINIMUM_CREDITS, MAXIMUM_CREDITS)
 
     learning_unit_year = factory.SubFactory(LearningUnitYearFactory)
     requesting_entity = factory.SubFactory(EntityFactory)

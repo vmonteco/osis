@@ -45,7 +45,7 @@ from osis_common.models.serializable_model import SerializableModel, Serializabl
 
 AUTHORIZED_REGEX_CHARS = "$*+.^"
 REGEX_ACRONYM_CHARSET = "[A-Z0-9" + AUTHORIZED_REGEX_CHARS + "]+"
-MINIMUM_CREDITS = 0.0
+MINIMUM_CREDITS = 0
 MAXIMUM_CREDITS = 500
 
 
@@ -84,7 +84,7 @@ class LearningUnitYear(SerializableModel):
                                               verbose_name=_('english_title_proper_to_UE'))
     subtype = models.CharField(max_length=50, choices=learning_unit_year_subtypes.LEARNING_UNIT_YEAR_SUBTYPES,
                                default=learning_unit_year_subtypes.FULL)
-    credits = models.DecimalField(max_digits=5, decimal_places=2, null=True,
+    credits = models.IntegerField(null=True,
                                   validators=[MinValueValidator(MINIMUM_CREDITS), MaxValueValidator(MAXIMUM_CREDITS)],
                                   verbose_name=_('credits'))
     decimal_scores = models.BooleanField(default=False)

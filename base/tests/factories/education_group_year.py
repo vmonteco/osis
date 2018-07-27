@@ -53,9 +53,9 @@ class EducationGroupYearFactory(factory.django.DjangoModelFactory):
     management_entity = factory.SubFactory(EntityFactory)
     administration_entity = factory.SubFactory(EntityFactory)
     main_teaching_campus = factory.SubFactory(CampusFactory)
-    credits = factory.fuzzy.FuzzyDecimal(MINIMUM_CREDITS, MAXIMUM_CREDITS)
-    min_credits = factory.fuzzy.FuzzyDecimal(MAXIMUM_CREDITS)
-    max_credits = factory.fuzzy.FuzzyDecimal(MINIMUM_CREDITS)
+    credits = factory.fuzzy.FuzzyInteger(MINIMUM_CREDITS, MAXIMUM_CREDITS)
+    min_credits = factory.fuzzy.FuzzyInteger(MAXIMUM_CREDITS)
+    max_credits = factory.fuzzy.FuzzyInteger(MINIMUM_CREDITS)
     remark = factory.fuzzy.FuzzyText(length=255)
     remark_english = factory.fuzzy.FuzzyText(length=255)
     active = active_status.ACTIVE
