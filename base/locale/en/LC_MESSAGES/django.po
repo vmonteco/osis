@@ -3316,3 +3316,6 @@ msgstr ""
 
 msgid "Quad. derog."
 msgstr ""
+
+msgid "No type of education group can be created as child of %(category)s of type %(type)s"
+msgstr ""
