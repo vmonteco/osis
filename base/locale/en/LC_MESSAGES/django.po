@@ -2380,9 +2380,6 @@ msgstr "Block"
 msgid "current_order"
 msgstr "Current order"
 
-msgid "sessions_derogation"
-msgstr "Sessions in derogation"
-
 msgid "own_comment"
 msgstr "Own comment"
 
