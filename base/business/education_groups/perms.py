@@ -24,7 +24,7 @@
 #
 ##############################################################################
 from django.core.exceptions import PermissionDenied
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 
 from base.models import academic_calendar
 from base.models.education_group_type import find_authorized_types
@@ -104,7 +104,7 @@ def check_authorized_type(education_group, raise_excetpion=False):
     can_raise_exception(
         raise_excetpion, result,
         _("No type of education group can be created as child of %(category)s of type %(type)s") % {
-            "category": education_group.education_group_type.category,
+            "category": _(education_group.education_group_type.category),
             "type": education_group.education_group_type.name,
         })
 
