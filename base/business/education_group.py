@@ -298,7 +298,7 @@ def _extract_session_data(education_group_year, session_number):
 
     return {
         START_EXAM_REGISTRATION_COL: _format_date(offer_year_cals[academic_calendar_type.EXAM_ENROLLMENTS],
-                                                  'start_date',DATE_FORMAT),
+                                                  'start_date', DATE_FORMAT),
         END_EXAM_REGISTRATION_COL: _format_date(offer_year_cals[academic_calendar_type.EXAM_ENROLLMENTS], 'end_date',
                                                 DATE_FORMAT),
         MARKS_PRESENTATION_COL: _format_date(offer_year_cals[academic_calendar_type.SCORES_EXAM_SUBMISSION],
@@ -367,8 +367,8 @@ def _get_offer_year_calendar_from_prefetched_data(an_education_group_year, acade
     if session_number:
         offer_year_cals = [
             offer_year_cal for offer_year_cal in offer_year_cals
-            if offer_year_cal.academic_calendar.sessionexamcalendar and \
-               offer_year_cal.academic_calendar.sessionexamcalendar.number_session == session_number
+            if offer_year_cal.academic_calendar.sessionexamcalendar and
+            offer_year_cal.academic_calendar.sessionexamcalendar.number_session == session_number
         ]
 
     if len(offer_year_cals) > 1:
