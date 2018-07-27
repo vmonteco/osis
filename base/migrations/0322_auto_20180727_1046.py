@@ -9,7 +9,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('base', '0320_remove_groupelementyear_sessions_derogation'),
+        ('base', '0321_round_credits'),
     ]
 
     operations = [
