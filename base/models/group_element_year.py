@@ -34,7 +34,7 @@ from ordered_model.models import OrderedModel
 from base.models import education_group_type, education_group_year
 from base.models.education_group_type import GROUP_TYPE_OPTION
 from base.models.education_group_year import EducationGroupYear
-from base.models.enums import education_group_categories, sessions_derogation, link_type, quadrimesters
+from base.models.enums import education_group_categories, link_type, quadrimesters
 from base.models.learning_component_year import LearningComponentYear, volume_total_verbose
 from base.models.learning_unit_year import LearningUnitYear
 from osis_common.decorators.deprecated import deprecated
@@ -51,7 +51,7 @@ class GroupElementYearAdmin(osis_model_admin.OsisModelAdmin):
         'parent__acronym',
         'parent__partial_acronym'
     ]
-    list_filter = ('is_mandatory', 'minor_access', 'sessions_derogation')
+    list_filter = ('is_mandatory', 'minor_access', 'quadrimester_derogation')
 
 
 class GroupElementYear(OrderedModel):
@@ -121,13 +121,6 @@ class GroupElementYear(OrderedModel):
     )
 
     own_comment = models.CharField(max_length=500, blank=True, null=True)
-
-    sessions_derogation = models.CharField(
-        max_length=65,
-        choices=sessions_derogation.SessionsDerogationTypes.translation_choices(),
-        default=sessions_derogation.SessionsDerogationTypes.SESSION_UNDEFINED.value,
-        verbose_name=_("sessions_derogation"),
-    )
 
     quadrimester_derogation = models.CharField(max_length=10,
                                                choices=quadrimesters.DEROGATION_QUADRIMESTERS,
