@@ -900,6 +900,7 @@ class WebServiceForManagementTermsEducationGroupYear(TestCase):
         education_group_year = EducationGroupYearFactory()
 
         url = reverse('education_group_pedagogy_get_terms', kwargs={
+            'root_id': education_group_year.pk,
             'education_group_year_id': education_group_year.id,
             'language': 'fr-be'
         })
@@ -919,6 +920,7 @@ class WebServiceForManagementTermsEducationGroupYear(TestCase):
         translated_text_label = TranslatedTextLabelFactory(text_label=text_label, language='fr-be')
 
         url = reverse('education_group_pedagogy_get_terms', kwargs={
+            'root_id': education_group_year.pk,
             'education_group_year_id': education_group_year.id,
             'language': 'fr-be'
         })
@@ -944,6 +946,7 @@ class WebServiceForManagementTermsEducationGroupYear(TestCase):
         translated_text_label_en = TranslatedTextLabelFactory(text_label=text_label, language='en')
 
         url = reverse('education_group_pedagogy_add_term', kwargs={
+            'root_id': education_group_year.pk,
             'education_group_year_id': education_group_year.id,
         })
 

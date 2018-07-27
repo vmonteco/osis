@@ -63,8 +63,16 @@ urlpatterns = [
                 name='education_group_edit_administrative')
         ])),
 
-        # TODO content  must be moved to group_element_year
-        url(r'^content/$', detail.EducationGroupContent.as_view(), name='education_group_content'),
+        url(r'^content/', include([
+            url(u'^$', detail.EducationGroupContent.as_view(), name='education_group_content'),
+            url(r'^(?P<group_element_year_id>[0-9]+)/', include([
+                url(r'^management/$', group_element_year.update.management,
+                    name="group_element_year_management"),
+
+                url(r'^comment/$', group_element_year.update.UpdateGroupElementYearView.as_view(),
+                    name="group_element_year_management_comment")
+            ]))
+        ])),
 
         url(r'^admission_conditions/$',
             education_group.education_group_year_admission_condition_edit,
@@ -97,5 +105,3 @@ urlpatterns = [
         url(r'^pdf_content/$', pdf_content, name="pdf_content"),
     ])),
 ]
-
-urlpatterns += (group_element_year.urls.urlpatterns)

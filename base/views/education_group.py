@@ -184,7 +184,7 @@ def education_group_year_pedagogy_remove_term(request, root_id, education_group_
 @login_required
 @ajax_required
 @permission_required('base.can_edit_educationgroup_pedagogy', raise_exception=True)
-def education_group_year_pedagogy_get_terms(request, education_group_year_id, language):
+def education_group_year_pedagogy_get_terms(request, root_id, education_group_year_id, language):
     text_labels = TextLabel.objects.filter(entity='offer_year')
 
     translated_texts = TranslatedText.objects.filter(text_label__entity=entity_name.OFFER_YEAR,

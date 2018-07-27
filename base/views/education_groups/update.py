@@ -26,6 +26,7 @@
 from django import forms
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 from waffle.decorators import waffle_flag
 
@@ -36,7 +37,7 @@ from base.forms.education_group.training import TrainingForm
 from base.models.education_group_year import EducationGroupYear
 from base.models.enums import education_group_categories
 from base.views import layout
-from base.views.common import display_success_messages, reverse_url_with_root
+from base.views.common import display_success_messages
 from base.views.education_groups.perms import can_change_education_group
 from base.views.learning_units.perms import PermissionDecoratorWithUser
 
@@ -60,10 +61,10 @@ def _get_view(category):
     }[category]
 
 
-def _common_success_redirect(request, education_group_year):
+def _common_success_redirect(request, education_group_year, root):
     success_msg = _("{} successfully updated").format(_(education_group_year.education_group_type.category))
     display_success_messages(request, success_msg)
-    url = reverse_url_with_root(request, "education_group_read", args=[education_group_year.id])
+    url = reverse("education_group_read", args=[root.pk, education_group_year.id])
     return redirect(url)
 
 
@@ -74,7 +75,7 @@ def _update_group(request, education_group_year, root):
     html_page = "education_group/update_groups.html"
 
     if form_education_group_year.is_valid():
-        return _common_success_redirect(request, form_education_group_year.save())
+        return _common_success_redirect(request, form_education_group_year.save(), root)
 
     return layout.render(request, html_page, {
         "education_group_year": education_group_year,
@@ -87,7 +88,7 @@ def _update_training(request, education_group_year, root):
     # TODO :: IMPORTANT :: pass the parent in paramter of the form
     form_education_group_year = TrainingForm(request.POST or None, instance=education_group_year, parent=root)
     if form_education_group_year.is_valid():
-        return _common_success_redirect(request, form_education_group_year.save())
+        return _common_success_redirect(request, form_education_group_year.save(), root)
 
     return layout.render(request, "education_group/update_trainings.html", {
         "education_group_year": education_group_year,
@@ -102,7 +103,7 @@ def _update_mini_training(request, education_group_year, root):
     form = MiniTrainingForm(request.POST or None, instance=education_group_year, parent=root)
 
     if form.is_valid():
-        return _common_success_redirect(request, form.save())
+        return _common_success_redirect(request, form.save(), root)
 
     return layout.render(request, "education_group/update_minitrainings.html", {
         "form_education_group_year": form.forms[forms.ModelForm],

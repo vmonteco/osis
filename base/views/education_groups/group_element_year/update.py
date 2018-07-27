@@ -59,7 +59,7 @@ def management(request, root_id, education_group_year_id, group_element_year_id)
         return response
 
     # @Todo: Correct with new URL
-    success_url = reverse('education_group_content', args=[root_id, group_element_year_id])
+    success_url = reverse('education_group_content', args=[root_id, education_group_year_id])
     return redirect(success_url)
 
 
@@ -127,10 +127,10 @@ class GenericUpdateGroupElementYearMixin(FlagMixin, RulesRequiredMixin, SuccessM
 
     @property
     def education_group_year(self):
-        return self.get_object().child_branch
+        return get_object_or_404(EducationGroupYear, pk=self.kwargs.get("education_group_year_id"))
 
     def get_success_url(self):
-        return reverse("education_group_content", args=[self.kwargs["root_id"], self.get_object().pk])
+        return reverse("education_group_content", args=[self.kwargs["root_id"], self.education_group_year.pk])
 
 
 class UpdateGroupElementYearView(GenericUpdateGroupElementYearMixin, UpdateView):
