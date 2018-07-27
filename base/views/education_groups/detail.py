@@ -46,7 +46,8 @@ TITLE = 'title'
 CREDITS_MIN = "credits_min"
 CREDITS_MAX = "credits_max"
 BLOCK = "block"
-SESSIONS_DEROGATION = "sessions_derogation"
+QUADRIMESTER_DEROGATION = "quadrimester_derogation"
+LINK_TYPE = "link_type"
 NUMBER_SESSIONS = 3
 
 
@@ -233,7 +234,10 @@ def _get_education_group_detail(dict_param, group_element):
                        TITLE: group_element.child_branch.title,
                        CREDITS_MIN: group_element.min_credits,
                        CREDITS_MAX: group_element.max_credits,
-                       BLOCK: None})
+                       BLOCK: None,
+                       QUADRIMESTER_DEROGATION: group_element.quadrimester_derogation,
+                       LINK_TYPE: group_element.link_type
+                       })
     return dict_param
 
 
@@ -243,7 +247,8 @@ def _get_learning_unit_detail(dict_param, group_element):
                        CREDITS_MIN: None,
                        CREDITS_MAX: None,
                        BLOCK: group_element.block,
-                       SESSIONS_DEROGATION: group_element.sessions_derogation})
+                       QUADRIMESTER_DEROGATION: group_element.quadrimester_derogation,
+                       LINK_TYPE: group_element.link_type})
     return dict_param
 
 
