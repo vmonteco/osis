@@ -30,14 +30,16 @@ from osis_common.models.serializable_model import SerializableModel, Serializabl
 
 
 class DomainAdmin(SerializableModelAdmin):
-    list_display = ('name', 'parent', 'decree', 'type')
+    list_display = ('code', 'name', 'parent', 'decree', 'type', )
+    fieldsets = ((None, {'fields': ('code', 'name', 'parent', 'decree', 'type')}),)
     list_filter = ('type', 'national', 'adhoc')
-    search_fields = ['name']
+    search_fields = ['code', 'name']
 
 
 class Domain(SerializableModel):
     external_id = models.CharField(max_length=100, blank=True, null=True)
     name = models.CharField(max_length=255)
+    code = models.CharField(max_length=50)
     parent = models.ForeignKey('self', null=True, blank=True)
     decree = models.ForeignKey('Decree', null=True, blank=True)
     type = models.CharField(max_length=50, choices=domain_type.TYPES, default=domain_type.UNKNOWN)
@@ -47,6 +49,10 @@ class Domain(SerializableModel):
 
     def __str__(self):
         return self.name
+
+
+def find_by_type(type):
+    return Domain.objects.filter(type=type)
 
 
 def find_all_for_sync():
