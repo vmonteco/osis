@@ -19,7 +19,7 @@ def _round_credits_in_learning_unit_year():
 
 
 def _round_credits_in_external_learning_unit_year():
-    return "update base_externallearningunityear set credits=ceil(credits);"
+    return "update base_externallearningunityear set external_credits=ceil(external_credits);"
 
 
 class Migration(migrations.Migration):
