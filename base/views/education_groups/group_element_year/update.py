@@ -59,7 +59,7 @@ def management(request, root_id, education_group_year_id, group_element_year_id)
         return response
 
     # @Todo: Correct with new URL
-    success_url = reverse('education_group_content', args=[education_group_year_id]) + '?root={}'.format(root_id)
+    success_url = reverse('education_group_content', args=[root_id, education_group_year_id])
     return redirect(success_url)
 
 
@@ -115,19 +115,22 @@ class GenericUpdateGroupElementYearMixin(FlagMixin, RulesRequiredMixin, SuccessM
 
     def _call_rule(self, rule):
         """ The permission is computed from the education_group_year """
-        return rule(self.request.user, self.get_education_group_year())
+        return rule(self.request.user, self.education_group_year)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['root'] = self.kwargs["root_id"]
         return context
 
-    def get_education_group_year(self):
-        return get_object_or_404(EducationGroupYear, pk=self.kwargs["education_group_year_id"])
+    def get_root(self):
+        return get_object_or_404(EducationGroupYear, pk=self.kwargs.get("root_id"))
+
+    @property
+    def education_group_year(self):
+        return get_object_or_404(EducationGroupYear, pk=self.kwargs.get("education_group_year_id"))
 
     def get_success_url(self):
-        return reverse("education_group_content", args=[self.kwargs["education_group_year_id"]]) + \
-               "?root={root_id}".format(root_id=self.kwargs["root_id"])
+        return reverse("education_group_content", args=[self.kwargs["root_id"], self.education_group_year.pk])
 
 
 class UpdateGroupElementYearView(GenericUpdateGroupElementYearMixin, UpdateView):

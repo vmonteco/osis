@@ -99,7 +99,6 @@ class TestCreate(TestCase):
                 self.client.get(url)
                 self.mocked_perm.assert_called_with(self.person, None, raise_exception=True)
 
-
     def test_template_used(self):
         for category in self.test_categories:
             with self.subTest(category=category):

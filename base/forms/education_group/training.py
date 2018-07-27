@@ -34,20 +34,20 @@ from base.forms.education_group.common import CommonBaseForm, EducationGroupMode
 from base.models.education_group_year_domain import EducationGroupYearDomain
 from base.models.entity_version import get_last_version
 from base.models.enums import education_group_categories, rate_code, decree_category
-from reference.models import domain
 from reference.models.domain import Domain
+from reference.models.enums import domain_type
 
 
 class MainDomainChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, domain):
-        return "{}: {}".format(domain.decree.name, domain.name)
+        return "{}:{} {}".format(domain.decree.name, domain.code, domain.name)
 
 
 class TrainingEducationGroupYearForm(EducationGroupYearModelForm):
     category = education_group_categories.TRAINING
 
     secondary_domains = AutoCompleteSelectMultipleField(
-        'domains', required=False, help_text="", label=_('secondary domains').title()
+        'university_domains', required=False, help_text="", label=_('secondary domains').title()
     )
 
     class Meta(EducationGroupYearModelForm.Meta):
@@ -82,7 +82,6 @@ class TrainingEducationGroupYearForm(EducationGroupYearModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.fields["main_domain"].widget.attrs['placeholder'] = _('Enter text to search')
         self.fields["secondary_domains"].widget.attrs['placeholder'] = _('Enter text to search')
 
         if getattr(self.instance, 'management_entity', None):
@@ -90,8 +89,9 @@ class TrainingEducationGroupYearForm(EducationGroupYearModelForm):
 
         self.fields['decree_category'].choices = sorted(decree_category.DECREE_CATEGORY, key=lambda c: c[1])
         self.fields['rate_code'].choices = sorted(rate_code.RATE_CODE, key=lambda c: c[1])
-        self.fields['main_domain'].queryset = domain.Domain.objects.all().select_related('decree')\
-                                                                         .order_by('-decree__name', 'name')
+        self.fields['main_domain'].queryset = Domain.objects.filter(type=domain_type.UNIVERSITY)\
+                                                    .select_related('decree')\
+                                                    .order_by('-decree__name', 'name')
 
     def save(self, commit=True):
         education_group_year = super().save(commit=False)
@@ -119,8 +119,8 @@ class TrainingForm(CommonBaseForm):
         super().__init__(education_group_year_form, education_group_form)
 
 
-@register('domains')
-class DomainsLookup(LookupChannel):
+@register('university_domains')
+class UniversityDomainsLookup(LookupChannel):
 
     model = Domain
 
@@ -129,7 +129,9 @@ class DomainsLookup(LookupChannel):
         pass
 
     def get_query(self, q, request):
-        return self.model.objects.filter(Q(name__icontains=q) | Q(decree__name__icontains=q))\
+        return self.model.objects.filter(type=domain_type.UNIVERSITY)\
+                                 .filter(Q(name__icontains=q) | Q(code__icontains=q) |
+                                         Q(decree__name__icontains=q))\
                                  .select_related('decree')\
                                  .order_by('-decree__name', 'name')
 
@@ -140,4 +142,4 @@ class DomainsLookup(LookupChannel):
         return self.format_match(item)
 
     def format_match(self, item):
-        return "{}: {}".format(item.decree.name, item.name)
+        return "{}:{} {}".format(item.decree.name, item.code, item.name)

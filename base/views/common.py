@@ -32,9 +32,7 @@ from django.contrib.auth import authenticate, logout
 from django.contrib.auth.decorators import login_required, permission_required, user_passes_test
 from django.contrib.auth.views import login as django_login
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django.http import QueryDict
 from django.shortcuts import redirect
-from django.urls import reverse
 from django.utils import translation
 from django.utils.translation import ugettext_lazy as _
 
@@ -236,21 +234,3 @@ def paginate_queryset(qs, request_get):
     except EmptyPage:
         paginated_qs = paginator.page(paginator.num_pages)
     return paginated_qs
-
-
-def reverse_url_with_query_string(*args, **kwargs):
-    query = kwargs.pop("query", {})
-    url = reverse(*args, **kwargs)
-    if not query:
-        return url
-
-    formatted_query = {key: value if value else "" for key, value in query.items()}
-    q = QueryDict(mutable=True)
-    q.update(formatted_query)
-    return "{path}?{query}".format(path=url, query=q.urlencode())
-
-
-def reverse_url_with_root(request, template, args):
-    return reverse_url_with_query_string(
-        template, args=args, query={"root": request.GET.get("root")}
-    )

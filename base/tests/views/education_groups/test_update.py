@@ -34,6 +34,7 @@ from base.forms.education_group.group import GroupModelForm
 from base.models.enums import education_group_categories
 from base.models.enums.active_status import ACTIVE
 from base.models.enums.schedule_type import DAILY
+from base.tests.factories.authorized_relationship import AuthorizedRelationshipFactory
 from base.tests.factories.education_group_type import EducationGroupTypeFactory
 from base.tests.factories.education_group_year import GroupFactory, TrainingFactory
 from base.tests.factories.education_group_year_domain import EducationGroupYearDomainFactory
@@ -54,7 +55,12 @@ class TestUpdate(TestCase):
         EntityVersionFactory(entity=self.education_group_year.administration_entity,
                              start_date=self.education_group_year.academic_year.start_date)
 
-        self.url = reverse(update_education_group, kwargs={'education_group_year_id': self.education_group_year.pk})
+        AuthorizedRelationshipFactory(
+            parent_type=self.education_group_year.education_group_type,
+            child_type=self.education_group_year.education_group_type
+        )
+
+        self.url = reverse(update_education_group, args=[self.education_group_year.pk, self.education_group_year.pk])
         self.person = PersonFactory()
 
         self.client.force_login(self.person.user)
@@ -64,20 +70,33 @@ class TestUpdate(TestCase):
                                        return_value=True)
         self.mocked_perm = self.perm_patcher.start()
 
-        self.training_url = self._get_training_url()
+        self.an_training_education_group_type = EducationGroupTypeFactory(category=education_group_categories.TRAINING)
+
+        self.training_education_group_year = TrainingFactory(
+            education_group_type=self.an_training_education_group_type
+        )
+
+        AuthorizedRelationshipFactory(
+            parent_type=self.an_training_education_group_type,
+            child_type=self.an_training_education_group_type,
+        )
+
+        EntityVersionFactory(
+            entity=self.training_education_group_year.administration_entity,
+            start_date=self.education_group_year.academic_year.start_date
+        )
+
+        EntityVersionFactory(
+            entity=self.training_education_group_year.management_entity,
+            start_date=self.education_group_year.academic_year.start_date
+        )
+
+        self.training_url = reverse(
+            update_education_group,
+            args=[self.training_education_group_year.pk, self.training_education_group_year.pk]
+        )
 
         self.domains = [DomainFactory() for x in range(10)]
-
-    def _get_training_url(self):
-        self.an_training_education_group_type = EducationGroupTypeFactory(category=education_group_categories.TRAINING)
-        self.training_education_group_year = TrainingFactory(
-            education_group_type=self.an_training_education_group_type)
-        EntityVersionFactory(entity=self.training_education_group_year.administration_entity,
-                             start_date=self.education_group_year.academic_year.start_date)
-        EntityVersionFactory(entity=self.training_education_group_year.management_entity,
-                             start_date=self.education_group_year.academic_year.start_date)
-        return reverse(update_education_group,
-                       kwargs={'education_group_year_id': self.training_education_group_year.pk})
 
     def tearDown(self):
         self.perm_patcher.stop()
@@ -108,12 +127,11 @@ class TestUpdate(TestCase):
 
     def test_post(self):
         new_entity_version = MainEntityVersionFactory()
-        new_education_group_type = EducationGroupTypeFactory(category=education_group_categories.GROUP)
 
         data = {
             'title': 'Cours au choix',
             'title_english': 'deaze',
-            'education_group_type': new_education_group_type.id,
+            'education_group_type': self.education_group_year.education_group_type.id,
             'credits': 42,
             'acronym': 'CRSCHOIXDVLD',
             'partial_acronym': 'LDVLD101R',
@@ -160,7 +178,9 @@ class TestUpdate(TestCase):
             'active': ACTIVE,
             'schedule_type': DAILY,
         }
+
         response = self.client.post(self.training_url, data=data)
+
         self.assertEqual(response.status_code, 302)
 
         self.training_education_group_year.refresh_from_db()
