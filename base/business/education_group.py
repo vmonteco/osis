@@ -23,7 +23,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, MultipleObjectsReturned
 from django.db.models import Prefetch
 from django.utils.translation import ugettext_lazy as _
 
@@ -275,7 +275,7 @@ def _extract_administrative_data(an_education_group_year):
         SESSIONS_COLUMNS: [
             _extract_session_data(an_education_group_year, session_number) for
             session_number in range(1, SESSIONS_NUMBER + 1)
-            ]
+        ]
     }
     return administrative_data
 
@@ -288,26 +288,26 @@ def _extract_session_data(education_group_year, session_number):
         academic_calendar_type.DELIBERATION,
         academic_calendar_type.SCORES_EXAM_DIFFUSION
     ]
-    academic_cals = {}
+    offer_year_cals = {}
     for academic_cal_type in session_academic_cal_type:
-        academic_cals[academic_cal_type] = _get_academic_calendar_from_prefetched_data(
+        offer_year_cals[academic_cal_type] = _get_offer_year_calendar_from_prefetched_data(
             education_group_year,
             academic_cal_type,
-            session_number
+            session_number=session_number
         )
-    #@Todo: Fix correct dates
+
     return {
-        START_EXAM_REGISTRATION_COL: _format_date(academic_cals[academic_calendar_type.EXAM_ENROLLMENTS], 'start_date',
-                                                  DATE_FORMAT),
-        END_EXAM_REGISTRATION_COL: _format_date(academic_cals[academic_calendar_type.EXAM_ENROLLMENTS], 'end_date',
+        START_EXAM_REGISTRATION_COL: _format_date(offer_year_cals[academic_calendar_type.EXAM_ENROLLMENTS],
+                                                  'start_date',DATE_FORMAT),
+        END_EXAM_REGISTRATION_COL: _format_date(offer_year_cals[academic_calendar_type.EXAM_ENROLLMENTS], 'end_date',
                                                 DATE_FORMAT),
-        MARKS_PRESENTATION_COL: _format_date(academic_cals[academic_calendar_type.SCORES_EXAM_SUBMISSION],
+        MARKS_PRESENTATION_COL: _format_date(offer_year_cals[academic_calendar_type.SCORES_EXAM_SUBMISSION],
                                              'start_date', DATE_FORMAT),
-        DISSERTATION_PRESENTATION_COL: _format_date(academic_cals[academic_calendar_type.DISSERTATION_SUBMISSION],
+        DISSERTATION_PRESENTATION_COL: _format_date(offer_year_cals[academic_calendar_type.DISSERTATION_SUBMISSION],
                                                     'start_date', DATE_FORMAT),
-        DELIBERATION_COL: _format_date(academic_cals[academic_calendar_type.DELIBERATION], 'start_date',
+        DELIBERATION_COL: _format_date(offer_year_cals[academic_calendar_type.DELIBERATION], 'start_date',
                                        DATE_TIME_FORMAT),
-        SCORES_DIFFUSION_COL: _format_date(academic_cals[academic_calendar_type.SCORES_EXAM_DIFFUSION], 'start_date',
+        SCORES_DIFFUSION_COL: _format_date(offer_year_cals[academic_calendar_type.SCORES_EXAM_DIFFUSION], 'start_date',
                                            DATE_TIME_FORMAT),
     }
 
@@ -319,10 +319,10 @@ def _extract_mandatary_data(education_group_year):
         representatives = _get_representatives(education_group_year, mandate, representatives)
 
     return {
-        CHAIR_OF_THE_EXAM_BOARD_COL: names(representatives.get(mandate_types.PRESIDENT)),
-        EXAM_BOARD_SECRETARY_COL: names(representatives.get(mandate_types.SECRETARY)),
-        EXAM_BOARD_SIGNATORY_COL: names(representatives.get(mandate_types.SIGNATORY)),
-        SIGNATORY_QUALIFICATION_COL: qualification(representatives.get(mandate_types.SIGNATORY)),
+        CHAIR_OF_THE_EXAM_BOARD_COL: names(representatives[mandate_types.PRESIDENT]),
+        EXAM_BOARD_SECRETARY_COL: names(representatives[mandate_types.SECRETARY]),
+        EXAM_BOARD_SIGNATORY_COL: names(representatives[mandate_types.SIGNATORY]),
+        SIGNATORY_QUALIFICATION_COL: qualification(representatives[mandate_types.SIGNATORY]),
     }
 
 
@@ -359,24 +359,21 @@ def _convert_session_data_to_xls_row(session_datas):
     return xls_session_rows
 
 
-def _get_offer_year_calendar_from_prefetched_data(an_education_group_year, academic_calendar_type):
+def _get_offer_year_calendar_from_prefetched_data(an_education_group_year, academic_calendar_type, session_number=None):
     offer_year_cals = _get_all_offer_year_calendar_from_prefetched_data(
         an_education_group_year,
         academic_calendar_type
     )
+    if session_number:
+        offer_year_cals = [
+            offer_year_cal for offer_year_cal in offer_year_cals
+            if offer_year_cal.academic_calendar.sessionexamcalendar and \
+               offer_year_cal.academic_calendar.sessionexamcalendar.number_session == session_number
+        ]
+
+    if len(offer_year_cals) > 1:
+        raise MultipleObjectsReturned
     return offer_year_cals[0] if offer_year_cals else None
-
-
-def _get_academic_calendar_from_prefetched_data(an_education_group_year, academic_calendar_type, session_number):
-    offer_year_cals = _get_all_offer_year_calendar_from_prefetched_data(
-        an_education_group_year,
-        academic_calendar_type
-    )
-    return next((
-        offer_year_cal.academic_calendar for offer_year_cal in offer_year_cals
-        if offer_year_cal.academic_calendar.sessionexamcalendar and \
-           offer_year_cal.academic_calendar.sessionexamcalendar.number_session == session_number
-    ), None)
 
 
 def _get_all_offer_year_calendar_from_prefetched_data(an_education_group_year, academic_calendar_type):
