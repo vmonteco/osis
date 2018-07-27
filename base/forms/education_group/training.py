@@ -34,7 +34,6 @@ from base.forms.education_group.common import CommonBaseForm, EducationGroupMode
 from base.models.education_group_year_domain import EducationGroupYearDomain
 from base.models.entity_version import get_last_version
 from base.models.enums import education_group_categories, rate_code, decree_category
-from reference.models import domain
 from reference.models.domain import Domain
 from reference.models.enums import domain_type
 
@@ -91,7 +90,7 @@ class TrainingEducationGroupYearForm(EducationGroupYearModelForm):
 
         self.fields['decree_category'].choices = sorted(decree_category.DECREE_CATEGORY, key=lambda c: c[1])
         self.fields['rate_code'].choices = sorted(rate_code.RATE_CODE, key=lambda c: c[1])
-        self.fields['main_domain'].queryset = domain.find_by_type(type=domain_type.UNIVERSITY)\
+        self.fields['main_domain'].queryset = Domain.objects.filter(type=domain_type.UNIVERSITY)\
                                                     .select_related('decree')\
                                                     .order_by('-decree__name', 'name')
 

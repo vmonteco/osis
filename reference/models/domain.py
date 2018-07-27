@@ -50,10 +50,6 @@ class Domain(SerializableModel):
         return self.name
 
 
-def find_by_type(type):
-    return Domain.objects.filter(type=type)
-
-
 def find_all_for_sync():
     """
     :return: All records in the 'Domain' model (table). Used to synchronize date from Osis to Osis-portal.
