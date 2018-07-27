@@ -77,25 +77,19 @@ class GroupElementYear(OrderedModel):
         on_delete=models.CASCADE,
     )
 
-    relative_credits = models.DecimalField(
-        max_digits=5,
-        decimal_places=2,
+    relative_credits = models.IntegerField(
         blank=True,
         null=True,
         verbose_name=_("relative credits"),
     )
 
-    min_credits = models.DecimalField(
-        max_digits=5,
-        decimal_places=2,
+    min_credits = models.IntegerField(
         blank=True,
         null=True,
         verbose_name=_("min_credits"),
     )
 
-    max_credits = models.DecimalField(
-        max_digits=5,
-        decimal_places=2,
+    max_credits = models.IntegerField(
         blank=True,
         null=True,
         verbose_name=_("max_credits"),

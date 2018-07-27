@@ -100,7 +100,7 @@ class TestSave(TestCase):
             "specific_title_english": "New title english",
             "container_type": self.learning_unit_year.learning_container_year.container_type,
             "internship_subtype": "",
-            "credits": "4",
+            "credits": 4,
             "periodicity": learning_unit_year_periodicity.BIENNIAL_ODD,
             "status": False,
             "language": self.language.pk,
@@ -153,7 +153,7 @@ class TestSave(TestCase):
         self._assert_acronym_has_changed_in_proposal(learning_unit_year)
         self._assert_common_titles_stored_in_container(learning_unit_year)
         self.assertFalse(learning_unit_year.status)
-        self.assertEqual(learning_unit_year.credits, Decimal(self.form_data['credits']))
+        self.assertEqual(learning_unit_year.credits, self.form_data['credits'])
         self.assertEqual(learning_unit_year.quadrimester, self.form_data['quadrimester'])
         self.assertEqual(learning_unit_year.specific_title, self.form_data["specific_title"])
         self.assertEqual(learning_unit_year.specific_title_english, self.form_data["specific_title_english"])
