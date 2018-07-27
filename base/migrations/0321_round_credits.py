@@ -14,7 +14,7 @@ def _round_credits_in_group_elemement_year():
     return "update base_groupelementyear set relative_credits=ceil(relative_credits), min_credits=ceil(min_credits), max_credits=ceil(max_credits);"
 
 
-def _round_credits_in_round_credits_in_learning_unit_year():
+def _round_credits_in_learning_unit_year():
     return "update base_learningunityear set credits=ceil(credits);"
 
 
