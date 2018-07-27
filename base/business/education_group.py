@@ -396,8 +396,9 @@ def _is_valid_mandate(mandate, education_group_yr):
 
 
 def names(representatives):
-    return ', '.join([str(mandatory.person.full_name) for mandatory in representatives])
+    return ', '.join(sorted(str(mandatory.person.full_name) for mandatory in representatives))
 
 
 def qualification(signatories):
-    return ', '.join([signatory.mandate.qualification for signatory in signatories if signatory.mandate.qualification])
+    return ', '.join(sorted(signatory.mandate.qualification for signatory in signatories
+                            if signatory.mandate.qualification))
