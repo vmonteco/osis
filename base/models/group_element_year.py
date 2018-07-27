@@ -34,8 +34,7 @@ from ordered_model.models import OrderedModel
 from base.models import education_group_type, education_group_year
 from base.models.education_group_type import GROUP_TYPE_OPTION
 from base.models.education_group_year import EducationGroupYear
-from base.models.enums import education_group_categories
-from base.models.enums import sessions_derogation
+from base.models.enums import education_group_categories, sessions_derogation, link_type, quadrimesters
 from base.models.learning_component_year import LearningComponentYear, volume_total_verbose
 from base.models.learning_unit_year import LearningUnitYear
 from osis_common.decorators.deprecated import deprecated
@@ -135,6 +134,14 @@ class GroupElementYear(OrderedModel):
         default=sessions_derogation.SessionsDerogationTypes.SESSION_UNDEFINED.value,
         verbose_name=_("sessions_derogation"),
     )
+
+    quadrimester_derogation = models.CharField(max_length=10,
+                                               choices=quadrimesters.DEROGATION_QUADRIMESTERS,
+                                               blank=True, null=True, verbose_name=_('Quadrimester derogation'))
+
+    link_type = models.CharField(max_length=25,
+                                 choices=link_type.LINK_TYPE,
+                                 blank=True, null=True, verbose_name=_('Link type'))
 
     order_with_respect_to = 'parent'
 

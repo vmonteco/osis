@@ -34,7 +34,7 @@ from base.forms.learning_unit_proposal import ProposalBaseForm
 from base.models import proposal_learning_unit, entity_container_year
 from base.models.entity_container_year import EntityContainerYear
 from base.models.enums import organization_type, proposal_type, proposal_state, entity_type, \
-    learning_container_year_types, learning_unit_year_quadrimesters, entity_container_year_link_type, \
+    learning_container_year_types, quadrimesters, entity_container_year_link_type, \
     learning_unit_year_periodicity, internship_subtypes, learning_unit_year_subtypes
 from base.models.enums.proposal_state import ProposalState
 from base.models.learning_unit_year import LearningUnitYear
@@ -104,7 +104,7 @@ class TestSave(TestCase):
             "periodicity": learning_unit_year_periodicity.BIENNIAL_ODD,
             "status": False,
             "language": self.language.pk,
-            "quadrimester": learning_unit_year_quadrimesters.Q1,
+            "quadrimester": quadrimesters.Q1,
             "campus": self.campus.id,
             "entity": self.entity_version.id,
             "folder_id": "1",

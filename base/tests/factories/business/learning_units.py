@@ -34,7 +34,7 @@ from base.models.academic_year import LEARNING_UNIT_CREATION_SPAN_YEARS, compute
 from base.models.enums import entity_container_year_link_type, learning_container_year_types, \
     learning_unit_year_periodicity, learning_unit_year_subtypes, component_type
 from base.models.enums import entity_type
-from base.models.enums import learning_unit_year_quadrimesters
+from base.models.enums import quadrimesters
 from base.models.enums import learning_unit_year_session
 from base.models.enums import organization_type
 from base.tests.factories.academic_year import AcademicYearFactory, create_current_academic_year
@@ -405,7 +405,7 @@ def _get_default_common_value_learning_unit_year(learning_container_year, subtyp
         'specific_title_english': 'Title Specific English',
         'credits': Decimal(5),
         'session': learning_unit_year_session.SESSION_1X3,
-        'quadrimester': learning_unit_year_quadrimesters.Q1,
+        'quadrimester': quadrimesters.Q1,
         'internship_subtype': None,
         'language': language,
         'periodicity': learning_unit_year_periodicity.ANNUAL
