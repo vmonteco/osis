@@ -37,7 +37,7 @@ from base.forms.education_group.training import TrainingForm
 from base.models.education_group_year import EducationGroupYear
 from base.models.enums import education_group_categories
 from base.views import layout
-from base.views.common import display_success_messages, reverse_url_with_root
+from base.views.common import display_success_messages
 from base.views.education_groups.perms import can_create_education_group
 
 
@@ -58,10 +58,12 @@ def create_education_group(request, category=None, parent_id=None):
     if form_education_group_year.is_valid():
         education_group_year = form_education_group_year.save()
 
-        success_msg = create_success_message_for_creation_education_group_year(education_group_year)
+        parent_id = parent.pk if parent else education_group_year.pk
+
+        success_msg = create_success_message_for_creation_education_group_year(parent_id, education_group_year)
         display_success_messages(request, success_msg, extra_tags='safe')
 
-        url = reverse_url_with_root(request, "education_group_read", args=[education_group_year.id])
+        url = reverse("education_group_read", args=[parent_id, education_group_year.pk])
 
         return redirect(url)
 
@@ -78,8 +80,8 @@ def create_education_group(request, category=None, parent_id=None):
     })
 
 
-def create_success_message_for_creation_education_group_year(education_group_year):
+def create_success_message_for_creation_education_group_year(parent_id, education_group_year):
     MSG_KEY = "Education group year <a href='%(link)s'> %(acronym)s (%(academic_year)s) </a> successfuly created."
-    link = reverse("education_group_read", args=[education_group_year.id])
+    link = reverse("education_group_read", args=[parent_id, education_group_year.id])
     return _(MSG_KEY) % {"link": link, "acronym": education_group_year.acronym,
                          "academic_year": education_group_year.academic_year}

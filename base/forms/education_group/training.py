@@ -82,7 +82,6 @@ class TrainingEducationGroupYearForm(EducationGroupYearModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.fields["main_domain"].widget.attrs['placeholder'] = _('Enter text to search')
         self.fields["secondary_domains"].widget.attrs['placeholder'] = _('Enter text to search')
 
         if getattr(self.instance, 'management_entity', None):

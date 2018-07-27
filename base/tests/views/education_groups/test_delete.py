@@ -49,7 +49,7 @@ class TestDeleteGroupEducationYearView(TestCase):
         self.education_group_year = EducationGroupYearFactory(education_group=self.education_group)
         self.person = PersonFactory()
         PersonEntityFactory(person=self.person, entity=self.education_group_year.management_entity)
-        self.url = reverse('delete_education_group', args=[self.education_group_year.id])
+        self.url = reverse('delete_education_group', args=[self.education_group_year.id, self.education_group_year.id])
 
         self.person.user.user_permissions.add(Permission.objects.get(codename="delete_educationgroup"))
         self.client.force_login(user=self.person.user)
