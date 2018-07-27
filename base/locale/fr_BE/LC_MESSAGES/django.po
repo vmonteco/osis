@@ -2385,9 +2385,6 @@ msgstr "Bloc"
 msgid "current_order"
 msgstr "Ordre présent"
 
-msgid "sessions_derogation"
-msgstr "Sessions en dérogation"
-
 msgid "own_comment"
 msgstr "Commentaire propre"
 
