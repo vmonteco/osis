@@ -58,7 +58,7 @@ class TestEducationGroupTag(TestCase):
         self.education_group_year = EducationGroupYearFactory()
         self.person = PersonFactory()
         PersonEntityFactory(person=self.person, entity=self.education_group_year.management_entity)
-        self.url = reverse('delete_education_group', args=[self.education_group_year.id])
+        self.url = reverse('delete_education_group', args=[self.education_group_year.id, self.education_group_year.id])
 
         self.person.user.user_permissions.add(Permission.objects.get(codename="delete_educationgroup"))
         self.person.user.user_permissions.add(Permission.objects.get(codename="change_educationgroup"))
@@ -78,7 +78,7 @@ class TestEducationGroupTag(TestCase):
 
     def test_li_with_deletion_perm(self):
         result = li_with_deletion_perm(self.context, self.url, DELETE_MSG)
-        self.assertEqual(result, ENABLED_LI.format(self.url + "?root=", DELETE_MSG))
+        self.assertEqual(result, ENABLED_LI.format(self.url, DELETE_MSG))
 
     def test_li_without_deletion_perm(self):
         self.academic_calendar.delete()

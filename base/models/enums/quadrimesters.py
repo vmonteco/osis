@@ -38,3 +38,10 @@ LEARNING_UNIT_YEAR_QUADRIMESTERS = (
     (Q1or2, _(Q1or2)),
     (Q3, Q3)
 )
+
+DEROGATION_QUADRIMESTERS = (
+    (Q1, Q1),
+    (Q2, Q2),
+    (Q1or2, _(Q1or2)),
+    (Q3, Q3)
+)

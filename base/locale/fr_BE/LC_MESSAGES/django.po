@@ -3310,6 +3310,18 @@ msgstr "Certificat compétence médecine "
 msgid "Group content"
 msgstr "Contenu du groupement"
 
+msgid "Link type"
+msgstr "Type de lien"
+
+msgid "REFERENCE"
+msgstr "Référence"
+
+msgid "Quadrimester derogation"
+msgstr "Quadrimestre dérogation"
+
+msgid "Quad. derog."
+msgstr "Quad. dérog."
+
 msgid "Produce xls with a list of education groups"
 msgstr "Produire un fichier Excel avec la liste des organisations de formations"
 

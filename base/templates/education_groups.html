@@ -157,7 +157,7 @@
                     <tr>
                         <td>{{ education_group_year.academic_year}}</td>
                         <td>
-				            <a href="{% url 'education_group_read' education_group_year_id=education_group_year.id %}?root={{ education_group_year.id}}"
+                            <a href="{% url 'education_group_read' education_group_year.id education_group_year.id %}"
                                id="lnk_offer_{education_group_year.id}}">{{ education_group_year.acronym }}</a>
 			            </td>
                         <td>{{ education_group_year.title }}</td>
