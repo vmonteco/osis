@@ -31,7 +31,6 @@ from django.test import TestCase
 from django.urls import reverse
 from waffle.testutils import override_flag
 
-from base.models.enums.sessions_derogation import SessionsDerogationTypes
 from base.models.enums import quadrimesters
 from base.tests.factories.education_group_year import EducationGroupYearFactory
 from base.tests.factories.group_element_year import GroupElementYearFactory
