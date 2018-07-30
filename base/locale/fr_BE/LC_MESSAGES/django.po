@@ -3322,6 +3322,9 @@ msgstr "Quadrimestre dérogation"
 msgid "Quad. derog."
 msgstr "Quad. dérog."
 
+msgid "No type of education group can be created as child of %(category)s of type %(type)s"
+msgstr "Aucun type de Groupement ne peut être créé comme enfant d'une %(category)s de type %(type)s"
+
 msgid "Produce xls with a list of education groups"
 msgstr "Produire un fichier Excel avec la liste des organisations de formations"
 
