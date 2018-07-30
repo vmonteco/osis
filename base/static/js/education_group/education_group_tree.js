@@ -58,13 +58,18 @@ $(document).ready(function () {
                  "action" : function (data) {
                     var inst = $.jstree.reference(data.reference),
                         obj = inst.get_node(data.reference);
+                    var args = obj.li_attr.id.split('_');
+                    var group_element_year = args[1];
+                    var education_group_year_id = args[2];
 
-                    $.ajax({
-                        url: 'attach/',
-                        data: {'new_parent_id' : obj.li_attr.id},
-                        type: 'GET',
-                        dataType: 'json',
-                    });
+                    var attach_url = "/educationgroups/"
+                        + root
+                        + "/"
+                        + education_group_year_id
+                        + "/contents/"
+                        + group_element_year
+                        + "/management/?action=attach";
+                    window.location.href = attach_url;
                   },
                   "icon": "fa fa-paperclip"
               },
@@ -74,12 +79,21 @@ $(document).ready(function () {
                  "action" : function (data) {
                     var inst = $.jstree.reference(data.reference),
                         obj = inst.get_node(data.reference);
+                    var args = obj.li_attr.id.split('_');
+                    var group_element_year = args[1];
+                    var education_group_year_id = args[2];
 
-                    $.ajax({
-                        url: 'detach/',
-                        data: {'child_to_cache_id' : obj.li_attr.id},
-                        type: 'GET',
-                        dataType: 'json',
+                    var detach_url = "/educationgroups/"
+                       + root
+                       + "/"
+                       + education_group_year_id
+                       + "/contents/"
+                       + group_element_year
+                       + "/management/?action=detach&source=identification";
+
+                    $('#form-modal-content').load(detach_url, function () {
+                        $('#form-modal').modal('toggle');
+                        formAjaxSubmit('#form-modal-body form', '#form-modal');
                     });
                   },
                   "icon": "fa fa-cut"

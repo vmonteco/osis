@@ -131,7 +131,7 @@ class EducationGroupYearTest(TestCase):
 
     def test_children_group_element_years_property(self):
         children_group_element_years = self.education_group_year_1.children_group_element_years
-        self.assertListEqual(children_group_element_years, [])
+        self.assertListEqual(list(children_group_element_years), [])
 
 
 class TestFindWithEnrollmentsCount(TestCase):

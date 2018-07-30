@@ -29,7 +29,7 @@ from unittest import mock
 from unittest.mock import patch
 
 from dateutil.utils import today
-from django.test import TestCase
+from django.test import TestCase, Client
 from django.urls import reverse
 from waffle.testutils import override_flag
 
@@ -44,6 +44,7 @@ from base.views.education_groups import select
 
 @override_flag('education_group_attach', active=True)
 @override_flag('education_group_select', active=True)
+@override_flag('education_group_update', active=True)
 class TestAttach(TestCase):
 
     def setUp(self):
@@ -53,6 +54,7 @@ class TestAttach(TestCase):
         self.patch.start()
 
         self.person = PersonFactory()
+        self.client = Client()
         self.client.force_login(self.person.user)
         self.perm_patcher = mock.patch("base.business.education_groups.perms.is_eligible_to_change_education_group",
                                        return_value=True)
@@ -69,7 +71,14 @@ class TestAttach(TestCase):
         )
 
         self.url_select = reverse("education_group_select", args=[self.child_education_group_year.id])
-        self.url_attach = reverse("education_group_attach",  args=[self.new_parent_education_group_year.id])
+        self.url_attach = reverse(
+            "group_element_year_management",
+            args=[
+                self.new_parent_education_group_year.id,
+                self.new_parent_education_group_year.id,
+                self.initial_group_element_year.id,
+        ]
+        ) + "?action=attach"
 
         cache.set('child_to_cache_id', None, timeout=None)
 
@@ -100,7 +109,8 @@ class TestAttach(TestCase):
         self._assert_link_with_inital_parent_present()
 
         self.client.get(self.url_select, data={'child_to_cache_id' : self.child_education_group_year.id})
-        self.client.get(self.url_attach, data={'new_parent_id' : self.new_parent_education_group_year.id})
+        self.client.get(self.url_attach, HTTP_REFERER='http://foo/bar')
+
 
         expected_group_element_year_count = GroupElementYear.objects.filter(
             parent=self.new_parent_education_group_year,

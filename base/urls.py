@@ -44,12 +44,10 @@ from base.views import learning_achievement, search, education_groups
 from base.views import learning_unit, offer, common, institution, organization, academic_calendar, \
     my_osis, entity, student, education_group
 from base.views import teaching_material
-from base.views.education_groups.attach import education_group_attach
-from base.views.education_groups.detach import education_group_detach
-from base.views.education_groups.select import education_group_select
 from base.views.education_groups.delete import DeleteGroupEducationYearView
 from base.views.education_groups.group_element_year import update
 from base.views.education_groups.group_element_year.read import pdf_content
+from base.views.education_groups.select import education_group_select
 from base.views.education_groups.update import update_education_group
 from base.views.learning_units.external import create as create_external
 from base.views.learning_units.external.search import filter_cities_by_country, filter_campus_by_city
@@ -234,8 +232,6 @@ urlpatterns = [
             url(r'^$', base.views.education_groups.detail.EducationGroupRead.as_view(), name='education_group_read'),
             url(r'^update/$', update_education_group, name="update_education_group"),
             url(r'^select/$', education_group_select, name='education_group_select'),
-            url(r'^attach/$', education_group_attach, name='education_group_attach'),
-            url(r'^detach/$', education_group_detach, name='education_group_detach'),
             url(r'^diplomas/$', base.views.education_groups.detail.EducationGroupDiplomas.as_view(),
                 name='education_group_diplomas'),
             url(r'^informations/$', base.views.education_groups.detail.EducationGroupGeneralInformation.as_view(),
