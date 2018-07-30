@@ -92,7 +92,11 @@ class TestUp(TestCase):
     @mock.patch("base.business.education_groups.perms.is_eligible_to_change_education_group")
     def test_up_case_success(self, mock_permission, mock_up):
         mock_permission.return_value = True
-        response = self.client.post(self.url, data=self.post_valid_data, follow=True)
+        http_referer = reverse(
+            'education_group_content',
+            kwargs={'education_group_year_id': self.education_group_year.id}
+        ) + '?root={}'.format(self.education_group_year.id)
+        response = self.client.post(self.url, data=self.post_valid_data, follow=True, HTTP_REFERER=http_referer)
         self.assertEqual(response.status_code, HttpResponse.status_code)
         self.assertTrue(mock_up.called)
 
@@ -150,6 +154,10 @@ class TestDown(TestCase):
     @mock.patch("base.business.education_groups.perms.is_eligible_to_change_education_group")
     def test_down_case_success(self, mock_permission, mock_down):
         mock_permission.return_value = True
-        response = self.client.post(self.url, data=self.post_valid_data, follow=True)
+        http_referer = reverse(
+            'education_group_content',
+            kwargs={'education_group_year_id': self.education_group_year.id}
+        ) + '?root={}'.format(self.education_group_year.id)
+        response = self.client.post(self.url, data=self.post_valid_data, follow=True, HTTP_REFERER=http_referer)
         self.assertEqual(response.status_code, HttpResponse.status_code)
         self.assertTrue(mock_down.called)
