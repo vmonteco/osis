@@ -188,48 +188,50 @@ def tree_list(value, autoescape=True):
             if children:
                 sublist = '%s' % (
                     list_formatter(children, tabs + 1, depth + 1))
-
-            if item.child_leaf:
-                if item.is_mandatory:
-                    output.append(
-                        '<tr><td style="padding-left:%sem);width:%s;float:left;"><img '
-                        'src="https://image.freepik.com/free-icon/rectangle-of-cutted-line-geometrical-shape_318'
-                        '-44527.jpg" height="20" width="20"><img '
-                        'src="https://cdn4.iconfinder.com/data/icons/ionicons/512/icon-arrow-right-b-512.png" '
-                        'height="14" width="14">%s%s</td><td style="width:%s;text-align: center;">%s</td"><td '
-                        'style="width:%s;text-align: center;">%s</td><td style="width:%s;text-align: '
-                        'center;">%s</td></tr>' % (
-                            padding, "85%", escaper(force_text(item.verbose)), sublist, "5%",
-                            "X" if item.block and "1" in item.block else "", "5%",
-                            "X" if item.block and "2" in item.block else "", "5%",
-                            "X" if item.block and "3" in item.block else ""))
-                else:
-                    output.append(
-                        '<tr><td style="padding-left:%sem;width:%s;float:left;"><img '
-                        'src="https://image.freepik.com/free-icon/rectangle-of-cutted-line-geometrical-shape_318'
-                        '-44527.jpg" height="20" width="20"><img '
-                        'src="http://iconshow.me/media/images/ui/ios7-icons/png/512/arrow-left-b.png" height="14" '
-                        'width="14">%s%s</td><td style="width:%s;text-align: center;">%s</td"><td '
-                        'style="width:%s;text-align: center;">%s</td><td '
-                        'style="width:%s;text-align: center;">%s</td></tr>' % (
-                            padding, "85%", escaper(force_text(item.verbose)), sublist, "5%",
-                            "X" if item.block and "1" in item.block else "", "5%",
-                            "X" if item.block and "2" in item.block else "", "5%",
-                            "X" if item.block and "3" in item.block else ""))
-            else:
-                if item.is_mandatory:
-                    output.append(
-                        '<tr><td style="padding-left:%sem;width:%s;float:left;"><img '
-                        'src="https://cdn4.iconfinder.com/data/icons/ionicons/512/icon-arrow-right-b-512.png" '
-                        'height="14" width="14">%s%s</td></tr>' % (
-                            padding, "85%", escaper(force_text(item.verbose)), sublist))
-                else:
-                    output.append(
-                        '<tr><td style="padding-left:%sem;width:%s;float:left;"><img '
-                        'src="http://iconshow.me/media/images/ui/ios7-icons/png/512/arrow-left-b.png" height="14" '
-                        'width="14">%s%s</td></tr>' % (
-                            padding, "85%", escaper(force_text(item.verbose)), sublist))
+            append_output(item, output, padding, sublist)
         return '\n'.join(output)
+
+    def append_output(item, output, padding, sublist):
+        if item.child_leaf:
+            if item.is_mandatory:
+                output.append(
+                    '<tr><td style="padding-left:%sem);width:%s;float:left;"><img '
+                    'src="https://image.freepik.com/free-icon/rectangle-of-cutted-line-geometrical-shape_318'
+                    '-44527.jpg" height="20" width="20"><img '
+                    'src="https://cdn4.iconfinder.com/data/icons/ionicons/512/icon-arrow-right-b-512.png" '
+                    'height="14" width="14">%s%s</td><td style="width:%s;text-align: center;">%s</td"><td '
+                    'style="width:%s;text-align: center;">%s</td><td style="width:%s;text-align: '
+                    'center;">%s</td></tr>' % (
+                        padding, "85%", escaper(force_text(item.verbose)), sublist, "5%",
+                        "X" if item.block and "1" in item.block else "", "5%",
+                        "X" if item.block and "2" in item.block else "", "5%",
+                        "X" if item.block and "3" in item.block else ""))
+            else:
+                output.append(
+                    '<tr><td style="padding-left:%sem;width:%s;float:left;"><img '
+                    'src="https://image.freepik.com/free-icon/rectangle-of-cutted-line-geometrical-shape_318'
+                    '-44527.jpg" height="20" width="20"><img '
+                    'src="http://iconshow.me/media/images/ui/ios7-icons/png/512/arrow-left-b.png" height="14" '
+                    'width="14">%s%s</td><td style="width:%s;text-align: center;">%s</td"><td '
+                    'style="width:%s;text-align: center;">%s</td><td '
+                    'style="width:%s;text-align: center;">%s</td></tr>' % (
+                        padding, "85%", escaper(force_text(item.verbose)), sublist, "5%",
+                        "X" if item.block and "1" in item.block else "", "5%",
+                        "X" if item.block and "2" in item.block else "", "5%",
+                        "X" if item.block and "3" in item.block else ""))
+        else:
+            if item.is_mandatory:
+                output.append(
+                    '<tr><td style="padding-left:%sem;width:%s;float:left;"><img '
+                    'src="https://cdn4.iconfinder.com/data/icons/ionicons/512/icon-arrow-right-b-512.png" '
+                    'height="14" width="14">%s%s</td></tr>' % (
+                        padding, "85%", escaper(force_text(item.verbose)), sublist))
+            else:
+                output.append(
+                    '<tr><td style="padding-left:%sem;width:%s;float:left;"><img '
+                    'src="http://iconshow.me/media/images/ui/ios7-icons/png/512/arrow-left-b.png" height="14" '
+                    'width="14">%s%s</td></tr>' % (
+                        padding, "85%", escaper(force_text(item.verbose)), sublist))
 
     return mark_safe(list_formatter(value))
 
