@@ -32,7 +32,7 @@ from osis_common.document.pdf_build import Render
 
 
 @login_required
-def pdf_content(request, education_group_year_id):
+def pdf_content(request, root_id, education_group_year_id):
     parent = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
     tree = [_("%(title)s (%(credits)d credits)") % {"title": parent.title, "credits": parent.credits or 0},
             get_verbose_children(parent)]

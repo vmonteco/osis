@@ -30,7 +30,6 @@ from django.utils.safestring import mark_safe
 
 from base.business.education_groups.perms import is_eligible_to_delete_education_group, \
     is_eligible_to_change_education_group, is_eligible_to_add_education_group
-from base.models.education_group_year import EducationGroupYear
 
 NO_GIVEN_ROOT = "INVALID TREE : no given root"
 ICON_JSTREE_FILE = "data-jstree='{\"icon\":\"jstree-icon jstree-file\"}'"
@@ -96,7 +95,7 @@ def li_with_permission(context, permission, url, message, url_id):
     permission_denied_message, disabled, root = _get_permission(context, permission)
 
     if not disabled:
-        href = url + "?root=" + root
+        href = url
     else:
         href = "#"
 
@@ -149,14 +148,11 @@ def button_with_permission(context, title, id_a, value):
 @register.simple_tag(takes_context=True)
 def build_tree(context, current_group_element_year, selected_education_group_year):
     request = context["request"]
-    root = request.GET.get("root")
+    root = context["root"]
 
     # If it is the root, the group_element_year is not yet available.
     if not current_group_element_year:
-        try:
-            education_group_year = EducationGroupYear.objects.get(pk=root)
-        except (EducationGroupYear.MultipleObjectsReturned, EducationGroupYear.DoesNotExist):
-            return NO_GIVEN_ROOT
+        education_group_year = root
     else:
         education_group_year = current_group_element_year.child_branch
 
@@ -187,9 +183,8 @@ def _get_group_element_year_id(current_group_element_year):
 
 def _get_url(request, egy, root, current_group_element_year):
     url_name = request.resolver_match.url_name if request.resolver_match else "education_group_read"
-    return reverse(url_name, args=[egy.pk]) + \
-           "?root=" + (root or "") + \
-           "&group_to_parent=" + (str(current_group_element_year.id) if current_group_element_year else '0')
+    return reverse(url_name, args=[root.pk, egy.pk])+ \
+           "?group_to_parent=" + (str(current_group_element_year.id) if current_group_element_year else '0')
 
 
 def _get_icon_jstree(education_group_year):

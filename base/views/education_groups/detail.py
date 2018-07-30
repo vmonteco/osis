@@ -46,7 +46,8 @@ TITLE = 'title'
 CREDITS_MIN = "credits_min"
 CREDITS_MAX = "credits_max"
 BLOCK = "block"
-SESSIONS_DEROGATION = "sessions_derogation"
+QUADRIMESTER_DEROGATION = "quadrimester_derogation"
+LINK_TYPE = "link_type"
 NUMBER_SESSIONS = 3
 
 
@@ -67,18 +68,23 @@ class EducationGroupGenericDetailView(PermissionRequiredMixin, DetailView):
         return get_object_or_404(Person, user=self.request.user)
 
     def get_root(self):
-        return self.request.GET.get("root")
+        return get_object_or_404(EducationGroupYear, pk=self.kwargs.get("root_id"))
 
     def get_group_to_parent(self):
         return self.request.GET.get("group_to_parent")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
         # This objects are mandatory for all education group views
         context['person'] = self.get_person()
+
+        # TODO same param
         context['root'] = self.get_root()
+        context['parent'] = self.get_root()
+
+        context["education_group_year"] = self.get_object()
         context['group_to_parent'] = self.get_group_to_parent()
-        context['parent'] = get_education_group_root(self.get_root(), self.object)
         context['can_change_education_group'] = perms.is_eligible_to_change_education_group(
             person=self.get_person(),
             education_group=context['object'],
@@ -223,11 +229,6 @@ class EducationGroupContent(EducationGroupGenericDetailView):
         return context
 
 
-def get_education_group_root(education_group_year_root_id, default_education_group_year_root):
-    return get_object_or_404(mdl.education_group_year.EducationGroupYear, id=education_group_year_root_id) \
-        if education_group_year_root_id else default_education_group_year_root
-
-
 def _group_elements(education_group_yr):
     group_elements = mdl.group_element_year.find_by_parent(education_group_yr)
     if group_elements.exists():
@@ -241,7 +242,10 @@ def _get_education_group_detail(dict_param, group_element):
                        TITLE: group_element.child_branch.title,
                        CREDITS_MIN: group_element.min_credits,
                        CREDITS_MAX: group_element.max_credits,
-                       BLOCK: None})
+                       BLOCK: None,
+                       QUADRIMESTER_DEROGATION: group_element.quadrimester_derogation,
+                       LINK_TYPE: group_element.link_type
+                       })
     return dict_param
 
 
@@ -251,7 +255,8 @@ def _get_learning_unit_detail(dict_param, group_element):
                        CREDITS_MIN: None,
                        CREDITS_MAX: None,
                        BLOCK: group_element.block,
-                       SESSIONS_DEROGATION: group_element.sessions_derogation})
+                       QUADRIMESTER_DEROGATION: group_element.quadrimester_derogation,
+                       LINK_TYPE: group_element.link_type})
     return dict_param
 
 

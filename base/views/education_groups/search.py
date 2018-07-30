@@ -32,7 +32,7 @@ from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 
 from base import models as mdl
-from base.business.education_group import create_xls, ORDER_COL, ORDER_DIRECTION
+from base.business.education_group import create_xls, ORDER_COL, ORDER_DIRECTION, create_xls_administrative_data
 from base.business.education_groups import perms
 from base.forms.education_groups import EducationGroupFilter
 from base.forms.search.search_form import get_research_criteria
@@ -58,6 +58,14 @@ def education_groups(request):
     if request.GET.get('xls_status') == "xls":
         return create_xls(request.user, object_list, _get_filter_keys(form),
                           {ORDER_COL: request.GET.get('xls_order_col'), ORDER_DIRECTION: request.GET.get('xls_order')})
+
+    if request.GET.get('xls_status') == "xls_administrative":
+        return create_xls_administrative_data(
+            request.user,
+            object_list,
+            _get_filter_keys(form),
+            {ORDER_COL: request.GET.get('xls_order_col'), ORDER_DIRECTION: request.GET.get('xls_order')}
+        )
 
     context = {
         'form': form,

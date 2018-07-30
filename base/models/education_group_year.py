@@ -155,18 +155,16 @@ class EducationGroupYear(models.Model):
     partial_acronym = models.CharField(max_length=15, db_index=True, null=True, verbose_name=_("code"))
 
     # TODO :: rename credits into expected_credits
-    credits = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True, verbose_name=_("credits"))
+    credits = models.IntegerField(blank=True, null=True, verbose_name=_("credits"))
     remark = models.TextField(blank=True, null=True, verbose_name=_("remark"))
     remark_english = models.TextField(blank=True, null=True, verbose_name=_("remark_english"))
 
-    min_credits = models.DecimalField(
-        max_digits=5, decimal_places=2,
+    min_credits = models.IntegerField(
         blank=True, null=True,
         verbose_name=_("minimum credits")
     )
 
-    max_credits = models.DecimalField(
-        max_digits=5, decimal_places=2,
+    max_credits = models.IntegerField(
         blank=True, null=True,
         verbose_name=_("maximum credits")
     )

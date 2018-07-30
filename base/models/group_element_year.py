@@ -34,8 +34,7 @@ from ordered_model.models import OrderedModel
 from base.models import education_group_type, education_group_year
 from base.models.education_group_type import GROUP_TYPE_OPTION
 from base.models.education_group_year import EducationGroupYear
-from base.models.enums import education_group_categories
-from base.models.enums import sessions_derogation
+from base.models.enums import education_group_categories, link_type, quadrimesters
 from base.models.learning_component_year import LearningComponentYear, volume_total_verbose
 from base.models.learning_unit_year import LearningUnitYear
 from osis_common.decorators.deprecated import deprecated
@@ -52,7 +51,7 @@ class GroupElementYearAdmin(osis_model_admin.OsisModelAdmin):
         'parent__acronym',
         'parent__partial_acronym'
     ]
-    list_filter = ('is_mandatory', 'minor_access', 'sessions_derogation', 'parent__academic_year')
+    list_filter = ('is_mandatory', 'minor_access', 'quadrimester_derogation', 'parent__academic_year')
 
 
 class GroupElementYear(OrderedModel):
@@ -78,25 +77,19 @@ class GroupElementYear(OrderedModel):
         on_delete=models.CASCADE,
     )
 
-    relative_credits = models.DecimalField(
-        max_digits=5,
-        decimal_places=2,
+    relative_credits = models.IntegerField(
         blank=True,
         null=True,
         verbose_name=_("relative credits"),
     )
 
-    min_credits = models.DecimalField(
-        max_digits=5,
-        decimal_places=2,
+    min_credits = models.IntegerField(
         blank=True,
         null=True,
         verbose_name=_("min_credits"),
     )
 
-    max_credits = models.DecimalField(
-        max_digits=5,
-        decimal_places=2,
+    max_credits = models.IntegerField(
         blank=True,
         null=True,
         verbose_name=_("max_credits"),
@@ -129,12 +122,13 @@ class GroupElementYear(OrderedModel):
 
     own_comment = models.CharField(max_length=500, blank=True, null=True)
 
-    sessions_derogation = models.CharField(
-        max_length=65,
-        choices=sessions_derogation.SessionsDerogationTypes.translation_choices(),
-        default=sessions_derogation.SessionsDerogationTypes.SESSION_UNDEFINED.value,
-        verbose_name=_("sessions_derogation"),
-    )
+    quadrimester_derogation = models.CharField(max_length=10,
+                                               choices=quadrimesters.DEROGATION_QUADRIMESTERS,
+                                               blank=True, null=True, verbose_name=_('Quadrimester derogation'))
+
+    link_type = models.CharField(max_length=25,
+                                 choices=link_type.LINK_TYPE,
+                                 blank=True, null=True, verbose_name=_('Link type'))
 
     order_with_respect_to = 'parent'
 

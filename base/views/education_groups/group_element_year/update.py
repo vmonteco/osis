@@ -133,23 +133,27 @@ class GenericUpdateGroupElementYearMixin(FlagMixin, RulesRequiredMixin, SuccessM
 
     def _call_rule(self, rule):
         """ The permission is computed from the education_group_year """
-        return rule(self.request.user, self.get_education_group_year())
+        return rule(self.request.user, self.education_group_year)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['root'] = self.kwargs["root_id"]
         return context
 
-    def get_education_group_year(self):
-        return get_object_or_404(EducationGroupYear, pk=self.kwargs["education_group_year_id"])
+    def get_root(self):
+        return get_object_or_404(EducationGroupYear, pk=self.kwargs.get("root_id"))
+
+    @property
+    def education_group_year(self):
+        return get_object_or_404(EducationGroupYear, pk=self.kwargs.get("education_group_year_id"))
 
     def get_success_url(self):
         redirect_path_by_source = {
             'identification':
-                reverse("education_group_read", args=[self.kwargs["root_id"]]) + \
+                reverse("education_group_read", args=[self.kwargs["root_id"], self.education_group_year.pk]) + \
                 "?root={root_id}".format(root_id=self.kwargs["root_id"]),
             'content':
-                reverse("education_group_content", args=[self.kwargs["education_group_year_id"]]) + \
+                reverse("education_group_content", args=[self.kwargs["root_id"], self.education_group_year.pk]) + \
                 "?root={root_id}".format(root_id=self.kwargs["root_id"]),
         }
         default_url = redirect_path_by_source.get('content')

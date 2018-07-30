@@ -33,7 +33,7 @@ from faker import Faker
 
 from base.models.enums import internship_subtypes
 from base.models.enums import learning_unit_year_periodicity
-from base.models.enums import learning_unit_year_quadrimesters
+from base.models.enums import quadrimesters
 from base.models.enums import learning_unit_year_session
 from base.models.enums import learning_unit_year_subtypes
 from base.models.learning_unit_year import MINIMUM_CREDITS, MAXIMUM_CREDITS
@@ -67,11 +67,11 @@ class LearningUnitYearFactory(DjangoModelFactory):
     specific_title_english = factory.Sequence(lambda n: 'Learning unit year english - %d' % n)
     subtype = factory.Iterator(learning_unit_year_subtypes.LEARNING_UNIT_YEAR_SUBTYPES, getter=operator.itemgetter(0))
     internship_subtype = factory.Iterator(internship_subtypes.INTERNSHIP_SUBTYPES, getter=operator.itemgetter(0))
-    credits = factory.fuzzy.FuzzyDecimal(MINIMUM_CREDITS, MAXIMUM_CREDITS)
+    credits = factory.fuzzy.FuzzyInteger(MINIMUM_CREDITS, MAXIMUM_CREDITS)
     decimal_scores = False
     status = True
     session = factory.Iterator(learning_unit_year_session.LEARNING_UNIT_YEAR_SESSION, getter=operator.itemgetter(0))
-    quadrimester = factory.Iterator(learning_unit_year_quadrimesters.LEARNING_UNIT_YEAR_QUADRIMESTERS,
+    quadrimester = factory.Iterator(quadrimesters.LEARNING_UNIT_YEAR_QUADRIMESTERS,
                                     getter=operator.itemgetter(0))
     language = factory.SubFactory(LanguageFactory)
     attribution_procedure = None
@@ -94,11 +94,11 @@ class LearningUnitYearFakerFactory(DjangoModelFactory):
     specific_title_english = None
     subtype = factory.Iterator(learning_unit_year_subtypes.LEARNING_UNIT_YEAR_SUBTYPES, getter=operator.itemgetter(0))
     internship_subtype = factory.Iterator(internship_subtypes.INTERNSHIP_SUBTYPES, getter=operator.itemgetter(0))
-    credits = factory.fuzzy.FuzzyDecimal(MINIMUM_CREDITS, MAXIMUM_CREDITS)
+    credits = factory.fuzzy.FuzzyInteger(MINIMUM_CREDITS, MAXIMUM_CREDITS)
     decimal_scores = False
     status = True
     session = factory.Iterator(learning_unit_year_session.LEARNING_UNIT_YEAR_SESSION, getter=operator.itemgetter(0))
-    quadrimester = factory.Iterator(learning_unit_year_quadrimesters.LEARNING_UNIT_YEAR_QUADRIMESTERS,
+    quadrimester = factory.Iterator(quadrimesters.LEARNING_UNIT_YEAR_QUADRIMESTERS,
                                     getter=operator.itemgetter(0))
     language = factory.SubFactory(LanguageFactory)
     attribution_procedure = None

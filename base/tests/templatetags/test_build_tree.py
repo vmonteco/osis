@@ -27,7 +27,7 @@
 from django.test import TestCase, RequestFactory
 from django.urls import reverse
 
-from base.templatetags.education_group import build_tree, NO_GIVEN_ROOT, BRANCH_TEMPLATE, ICON_JSTREE_FILE
+from base.templatetags.education_group import build_tree, BRANCH_TEMPLATE, ICON_JSTREE_FILE
 from base.tests.factories.group_element_year import GroupElementYearFactory
 
 
@@ -36,16 +36,12 @@ class TestBuildTree(TestCase):
 
     def setUp(self):
         self.group_element_year = GroupElementYearFactory()
-        self.url = reverse("education_group_read", args=[self.group_element_year.child_branch.pk])
+        self.egy = self.group_element_year.child_branch
+        self.url = reverse("education_group_read", args=[self.egy.pk, self.egy.pk])
         self.context = {
-            "request": RequestFactory().get(self.url)
+            "request": RequestFactory().get(self.url),
+            "root": self.egy
         }
-
-    def test_invalid_tree(self):
-        result = build_tree(context=self.context,
-                            current_group_element_year=None,
-                            selected_education_group_year=None)
-        self.assertEqual(result, NO_GIVEN_ROOT)
 
     def test_valid_tree_only_root(self):
         result = build_tree(
@@ -79,7 +75,8 @@ class TestBuildTree(TestCase):
             data_jstree=ICON_JSTREE_FILE if not gey.child_branch.group_element_year_branches else "",
             gey=gey.pk,
             egy=gey.child_branch.pk,
-            url=reverse("education_group_read", args=[gey.child_branch.pk]) + "?root=&group_to_parent=" + str(gey.pk),
+            url=reverse("education_group_read", args=[self.egy.pk, gey.child_branch.pk]) +
+                "?group_to_parent=" + str(gey.pk),
             text=gey.child_branch.verbose,
             a_class="jstree-wholerow-clicked" if root else "",
             children=sub_templates

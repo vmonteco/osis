@@ -25,20 +25,14 @@
 ##############################################################################
 from enum import Enum
 from base.models.utils.utils import ChoiceEnum
+from django.utils.translation import ugettext_lazy as _
+
+REFERENCE = "REFERENCE"
+
+LINK_TYPE = (
+    (REFERENCE, _(REFERENCE)),
+)
 
 
-class SessionsDerogationTypes(ChoiceEnum):
-    SESSION_1 = "SESSION_1"
-    SESSION_2 = "SESSION_2"
-    SESSION_3 = "SESSION_3"
-
-    SESSION_1_2 = "SESSION_1_2"
-    SESSION_1_3 = "SESSION_1_3"
-    SESSION_2_3 = "SESSION_2_3"
-
-    SESSION_1_2_3 = "SESSION_1_2_3"
-
-    SESSION_UNDEFINED = "SESSION_UNDEFINED"
-
-    SESSION_PARTIAL_2_3 = "SESSION_PARTIAL_2_3"
-
+class LinkTypes(ChoiceEnum):
+    REFERENCE = "REFERENCE"

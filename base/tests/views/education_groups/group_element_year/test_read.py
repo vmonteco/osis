@@ -58,7 +58,7 @@ class TestRead(TestCase):
         cls.a_superuser = SuperUserFactory()
 
     def test_pdf_content(self):
-        url = reverse("pdf_content", args=[self.education_group_year_1.id])
+        url = reverse("pdf_content", args=[self.education_group_year_1.id, self.education_group_year_1.id])
         response = self.client.get(url)
         self.assertEqual(response.status_code, HttpResponseRedirect.status_code)
 

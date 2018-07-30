@@ -24,6 +24,7 @@
 * at the root of the source code of this program.  If not,
 * see http://www.gnu.org/licenses/.
 {% endcomment %}
+
 {% if "base" in perms %}
     {% features_or "education_group_create" "education_group_update" "education_group_delete" as show_button%}
     {% if show_button %}
@@ -47,7 +48,7 @@
                 {% endflag %}
 
                 {% flag "education_group_update" %}
-                    {% url 'update_education_group' education_group_year_id=education_group_year.id as update_url %}
+                    {% url 'update_education_group' root.pk education_group_year.pk as update_url %}
                     {% li_with_update_perm update_url _('Modify') %}
                 {% endflag %}
 
@@ -85,7 +86,7 @@
 
                 {% flag "pdf_content" %}
                     <li>
-                        <a href="{% url 'pdf_content' education_group_year_id=education_group_year.id %}?root={{ request.GET.root }}" target="_blank">
+                        <a href="{% url 'pdf_content' root.pk education_group_year.pk %}" target="_blank">
                             {% trans 'Group content' %}
                         </a>
                     </li>
@@ -98,12 +99,11 @@
 {% url 'group_element_year_management' root_id=parent.id education_group_year_id=education_group_year.id group_element_year_id=group_to_parent as detach_url %}
 {% include "blocks/modal/modal_ajax.html" with modal_url=detach_url|addstr:"?action=detach&source=identification" click_id="btn_operation_detach_"|addstr:group_to_parent|addstr:dropdirection form_id="form_detach_confirm" %}
 
-{% if dropdirection == "dropdown" %}
+{% if dropdirection == "dropup" %}
     {#  Should be loaded once #}
-    {% url 'delete_education_group' education_group_year_id=education_group_year.id as delete_url %}
+    {% url 'delete_education_group' root.pk education_group_year.pk as delete_url %}
     {% include "blocks/modal/modal_ajax.html" with modal_url=delete_url click_id="link_delete" form_id="form_delete_education_group" %}
-
-    {% endif %}
+{% endif %}
 
 
 {% block script %}
