@@ -53,8 +53,8 @@ $(document).ready(function () {
                   "icon": "fa fa-check-square"
               },
 
-              "attach" : {
-                 "label" : gettext("Attach"),
+              "move" : {
+                 "label" : gettext("Move"),
                  "action" : function (data) {
                     var inst = $.jstree.reference(data.reference),
                         obj = inst.get_node(data.reference);
@@ -62,16 +62,27 @@ $(document).ready(function () {
                     var group_element_year = args[1];
                     var education_group_year_id = args[2];
 
-                    var attach_url = "/educationgroups/"
-                        + root_id
-                        + "/"
-                        + education_group_year_id
-                        + "/content/"
-                        + group_element_year
-                        + "/management/?action=attach";
-                    window.location.href = attach_url;
+                    var detach_url = "/educationgroups/"
+                       + root_id
+                       + "/"
+                       + education_group_year_id
+                       + "/content/"
+                       + group_element_year
+                       + "/management/?action=detach&source=identification";
+
+                    $.ajax({
+                        url: 'select/',
+                        data: {'child_to_cache_id' : education_group_year_id},
+                        type: 'GET',
+                        dataType: 'json',
+                    });
+
+                    $('#form-modal-content').load(detach_url, function () {
+                        $('#form-modal').modal('toggle');
+                        formAjaxSubmit('#form-modal-body form', '#form-modal');
+                    });
                   },
-                  "icon": "fa fa-paperclip"
+                  "icon": "fa fa-arrow-circle-o-right"
               },
 
               "detach" : {
@@ -97,7 +108,29 @@ $(document).ready(function () {
                     });
                   },
                   "icon": "fa fa-cut"
-              }
+              },
+
+              "attach" : {
+                 "label" : gettext("Attach"),
+                 "separator_before": true,
+                 "action" : function (data) {
+                    var inst = $.jstree.reference(data.reference),
+                        obj = inst.get_node(data.reference);
+                    var args = obj.li_attr.id.split('_');
+                    var group_element_year = args[1];
+                    var education_group_year_id = args[2];
+
+                    var attach_url = "/educationgroups/"
+                        + root_id
+                        + "/"
+                        + education_group_year_id
+                        + "/content/"
+                        + group_element_year
+                        + "/management/?action=attach";
+                    window.location.href = attach_url;
+                  },
+                  "icon": "fa fa-paperclip"
+              },
             }
         }
     });

@@ -65,12 +65,10 @@
                     </li>
                 {% endflag %}
 
-                <li class="divider"></li>
-
-                {% flag "education_group_attach" %}
+                {% flag "education_group_move" %}
                     <li {% if not can_change_education_group %} class="disabled" {% endif %}>
-                        <a {% if can_change_education_group %} href="{% url 'group_element_year_management' root_id=parent.id education_group_year_id=education_group_year.id group_element_year_id=group_to_parent|default_if_none:0 %}?action=attach" {% endif %}>
-                            {% trans 'Attach' %}
+                        <a {% if can_change_education_group %} href="#" onclick="javascript:select_and_detach()" {% endif %}>
+                            {% trans 'Move' %}
                         </a>
                     </li>
                 {% endflag %}
@@ -79,6 +77,16 @@
                     <li {% if not can_change_education_group %} class="disabled" {% endif %}>
                         <a href="#" title="{% trans 'Detach' %}" {% if can_change_education_group %}id="btn_operation_detach_{{ group_to_parent }}{{ dropdirection }}"{% endif %} data-toggle="tooltip-wrapper" name="action">
                             {% trans 'Detach' %}
+                        </a>
+                    </li>
+                {% endflag %}
+
+                <li class="divider"></li>
+
+                {% flag "education_group_attach" %}
+                    <li {% if not can_change_education_group %} class="disabled" {% endif %}>
+                        <a {% if can_change_education_group %} href="{% url 'group_element_year_management' root_id=parent.id education_group_year_id=education_group_year.id group_element_year_id=group_to_parent|default_if_none:0 %}?action=attach" {% endif %}>
+                            {% trans 'Attach' %}
                         </a>
                     </li>
                 {% endflag %}
@@ -114,6 +122,28 @@
                 data: {'child_to_cache_id' : {{ education_group_year.id }} },
                 type: 'GET',
                 dataType: 'json',
+            });
+        }
+
+        function select_and_detach() {
+            var detach_url = "/educationgroups/"
+               + root_id
+               + "/"
+               + {{ education_group_year.id }}
+               + "/content/"
+               + {{ group_to_parent }}
+               + "/management/?action=detach&source=identification";
+
+            $.ajax({
+                url: 'select/',
+                data: {'child_to_cache_id' : {{ education_group_year.id }} },
+                type: 'GET',
+                dataType: 'json',
+            });
+
+            $('#form-modal-content').load(detach_url, function () {
+                $('#form-modal').modal('toggle');
+                formAjaxSubmit('#form-modal-body form', '#form-modal');
             });
         }
     </script>
