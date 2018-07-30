@@ -66,10 +66,10 @@
                                         <td width="10%">{{ element.code_scs | default_if_none:'' }}</td>
                                         <td width="20%">{{ element.title | default_if_none:'' }}</td>
                                         <td width="12%">{{ element.group_element.relative_credits | default_if_none:'-' }} / {% if element.group_element.child %}{{ element.group_element.child.credits | default_if_none:'-' }}{% else %}-{% endif %}</td>
-                                        <td width="6%">{{ element.credits_min | default_if_none:'-' }}</td>
-                                        <td width="6%">{{ element.credits_max | default_if_none:'-' }}</td>
+                                        <td width="6%">{{ element.group_element.min_credits | default_if_none:'-' }}</td>
+                                        <td width="6%">{{ element.group_element.max_credits | default_if_none:'-' }}</td>
                                         <td width="6%">{% if element.group_element.is_mandatory %}{% trans 'yes'%} {% else %}{% trans 'no' %}{% endif %}</td>
-                                        <td width="6%">{{ element.block | default_if_none:'-' }}</td>
+                                        <td width="6%">{{ element.group_element.block | default_if_none:'-' }}</td>
                                         <td width="5%">{{ element.quadrimester_derogation | default_if_none:'-' }}</td>
                                         <td width="14%">{% if element.link_type %}{% trans element.link_type %}{% else %}-{% endif %}</td>
                                         <td width="15%">
