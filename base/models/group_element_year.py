@@ -190,6 +190,10 @@ def search(**kwargs):
     return queryset
 
 
+def get_group_element_year_by_id(id):
+    return GroupElementYear.objects.get(id=id)
+
+
 # TODO : education_group_yr.parent.all() instead
 @deprecated
 def find_by_parent(an_education_group_year):

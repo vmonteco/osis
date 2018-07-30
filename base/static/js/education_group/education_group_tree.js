@@ -60,6 +60,9 @@ $(document).ready(function () {
                         obj = inst.get_node(data.reference);
                     var args = obj.li_attr.id.split('_');
                     var group_element_year = args[1];
+                    if (group_element_year === '-') {
+                        group_element_year = 0
+                    }
                     var education_group_year_id = args[2];
 
                     var detach_url = "/educationgroups/"
@@ -92,6 +95,9 @@ $(document).ready(function () {
                         obj = inst.get_node(data.reference);
                     var args = obj.li_attr.id.split('_');
                     var group_element_year = args[1];
+                    if (group_element_year === '-') {
+                        group_element_year = 0
+                    }
                     var education_group_year_id = args[2];
 
                     var detach_url = "/educationgroups/"
@@ -118,6 +124,9 @@ $(document).ready(function () {
                         obj = inst.get_node(data.reference);
                     var args = obj.li_attr.id.split('_');
                     var group_element_year = args[1];
+                    if (group_element_year === '-') {
+                        group_element_year = 0
+                    }
                     var education_group_year_id = args[2];
 
                     var attach_url = "/educationgroups/"

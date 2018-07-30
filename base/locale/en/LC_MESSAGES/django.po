@@ -3364,3 +3364,6 @@ msgstr ""
 
 msgid "Validity"
 msgstr ""
+
+msgid "Please Select or Move an item before Attach it"
+msgstr ""
