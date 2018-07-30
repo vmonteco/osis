@@ -25,6 +25,7 @@
 ##############################################################################
 from django import template
 from django.core.exceptions import PermissionDenied
+from django.urls import reverse
 from django.utils import six
 from django.utils.encoding import force_text
 from django.utils.html import conditional_escape
@@ -33,7 +34,8 @@ from django.utils.safestring import mark_safe
 from base.business.education_groups.perms import is_eligible_to_delete_education_group, \
     is_eligible_to_change_education_group, is_eligible_to_add_education_group
 
-register = template.Library()
+NO_GIVEN_ROOT = "INVALID TREE : no given root"
+ICON_JSTREE_FILE = "data-jstree='{\"icon\":\"jstree-icon jstree-file\"}'"
 
 # TODO use inclusion tag
 LI_TEMPLATE = """
@@ -62,6 +64,19 @@ ICONS = {
     "edit": "fa-edit",
 }
 
+BRANCH_TEMPLATE = """
+<ul>
+    <li {data_jstree} id="node_{gey}_{egy}">
+        <a href="{url}" class="{a_class}">
+            {text}
+        </a>
+        {children}
+    </li>
+</ul>
+"""
+
+register = template.Library()
+
 
 @register.simple_tag(takes_context=True)
 def li_with_deletion_perm(context, url, message, url_id="link_delete"):
@@ -82,7 +97,7 @@ def li_with_permission(context, permission, url, message, url_id):
     permission_denied_message, disabled, root = _get_permission(context, permission)
 
     if not disabled:
-        href = url + "?root=" + root
+        href = url
     else:
         href = "#"
 
@@ -176,17 +191,74 @@ def tree_list(value, autoescape=True):
             if item.child_leaf:
                 if item.is_mandatory:
                     output.append(
-                        '%s<li style="list-style-type: none;"><img src="https://image.freepik.com/free-icon/rectangle-of-cutted-line-geometrical-shape_318-44527.jpg" height="20" width="20"><img src="https://cdn4.iconfinder.com/data/icons/ionicons/512/icon-arrow-right-b-512.png" height="14" width="14">%s%s</li>' % (indent, escaper(force_text(item.verbose)), sublist))
+                        '%s<li style="list-style-type: none;"><img src="https://image.freepik.com/free-icon/rectangle-of-cutted-line-geometrical-shape_318-44527.jpg" height="20" width="20"><img src="https://cdn4.iconfinder.com/data/icons/ionicons/512/icon-arrow-right-b-512.png" height="14" width="14">%s%s</li>' % (
+                        indent, escaper(force_text(item.verbose)), sublist))
                 else:
                     output.append(
-                        '%s<li style="list-style-type: none;"><img src="https://image.freepik.com/free-icon/rectangle-of-cutted-line-geometrical-shape_318-44527.jpg" height="20" width="20"><img src="http://iconshow.me/media/images/ui/ios7-icons/png/512/arrow-left-b.png" height="14" width="14">%s%s</li>' % (indent, escaper(force_text(item.verbose)), sublist))
+                        '%s<li style="list-style-type: none;"><img src="https://image.freepik.com/free-icon/rectangle-of-cutted-line-geometrical-shape_318-44527.jpg" height="20" width="20"><img src="http://iconshow.me/media/images/ui/ios7-icons/png/512/arrow-left-b.png" height="14" width="14">%s%s</li>' % (
+                        indent, escaper(force_text(item.verbose)), sublist))
             else:
                 if item.is_mandatory:
                     output.append(
-                        '%s<li style="list-style-type: none;"><img src="https://cdn4.iconfinder.com/data/icons/ionicons/512/icon-arrow-right-b-512.png" height="14" width="14">%s%s</li>' % (indent, escaper(force_text(item.verbose)), sublist))
+                        '%s<li style="list-style-type: none;"><img src="https://cdn4.iconfinder.com/data/icons/ionicons/512/icon-arrow-right-b-512.png" height="14" width="14">%s%s</li>' % (
+                        indent, escaper(force_text(item.verbose)), sublist))
                 else:
                     output.append(
-                        '%s<li style="list-style-type: none;"><img src="http://iconshow.me/media/images/ui/ios7-icons/png/512/arrow-left-b.png" height="14" width="14">%s%s</li>' % (indent, escaper(force_text(item.verbose)), sublist))
+                        '%s<li style="list-style-type: none;"><img src="http://iconshow.me/media/images/ui/ios7-icons/png/512/arrow-left-b.png" height="14" width="14">%s%s</li>' % (
+                        indent, escaper(force_text(item.verbose)), sublist))
         return '\n'.join(output)
 
     return mark_safe(list_formatter(value))
+
+
+@register.simple_tag(takes_context=True)
+def build_tree(context, current_group_element_year, selected_education_group_year):
+    request = context["request"]
+    root = context["root"]
+
+    # If it is the root, the group_element_year is not yet available.
+    if not current_group_element_year:
+        education_group_year = root
+    else:
+        education_group_year = current_group_element_year.child_branch
+
+    if not selected_education_group_year:
+        selected_education_group_year = education_group_year
+
+    data_jstree = _get_icon_jstree(education_group_year)
+    a_class = _get_a_class(education_group_year, selected_education_group_year)
+
+    chidren_template = ""
+    for child in education_group_year.group_element_year_branches:
+        chidren_template += build_tree(context, child, selected_education_group_year)
+
+    return mark_safe(BRANCH_TEMPLATE.format(
+        data_jstree=data_jstree,
+        gey=_get_group_element_year_id(current_group_element_year),
+        egy=education_group_year.pk,
+        url=_get_url(request, education_group_year, root),
+        text=education_group_year.verbose,
+        a_class=a_class,
+        children=chidren_template
+    ))
+
+
+def _get_group_element_year_id(current_group_element_year):
+    return current_group_element_year.pk if current_group_element_year else "-"
+
+
+def _get_url(request, egy, root):
+    url_name = request.resolver_match.url_name if request.resolver_match else "education_group_read"
+    return reverse(url_name, args=[root.pk, egy.pk])
+
+
+def _get_icon_jstree(education_group_year):
+    if not education_group_year.group_element_year_branches:
+        data_jstree = ICON_JSTREE_FILE
+    else:
+        data_jstree = ""
+    return data_jstree
+
+
+def _get_a_class(education_group_year, selected_education_group_year):
+    return "jstree-wholerow-clicked" if education_group_year.pk == selected_education_group_year.pk else ""

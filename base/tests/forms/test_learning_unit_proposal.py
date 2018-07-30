@@ -34,7 +34,7 @@ from base.forms.learning_unit_proposal import ProposalBaseForm
 from base.models import proposal_learning_unit, entity_container_year
 from base.models.entity_container_year import EntityContainerYear
 from base.models.enums import organization_type, proposal_type, proposal_state, entity_type, \
-    learning_container_year_types, learning_unit_year_quadrimesters, entity_container_year_link_type, \
+    learning_container_year_types, quadrimesters, entity_container_year_link_type, \
     learning_unit_year_periodicity, internship_subtypes, learning_unit_year_subtypes
 from base.models.enums.proposal_state import ProposalState
 from base.models.learning_unit_year import LearningUnitYear
@@ -100,11 +100,11 @@ class TestSave(TestCase):
             "specific_title_english": "New title english",
             "container_type": self.learning_unit_year.learning_container_year.container_type,
             "internship_subtype": "",
-            "credits": "4",
+            "credits": 4,
             "periodicity": learning_unit_year_periodicity.BIENNIAL_ODD,
             "status": False,
             "language": self.language.pk,
-            "quadrimester": learning_unit_year_quadrimesters.Q1,
+            "quadrimester": quadrimesters.Q1,
             "campus": self.campus.id,
             "entity": self.entity_version.id,
             "folder_id": "1",
@@ -153,7 +153,7 @@ class TestSave(TestCase):
         self._assert_acronym_has_changed_in_proposal(learning_unit_year)
         self._assert_common_titles_stored_in_container(learning_unit_year)
         self.assertFalse(learning_unit_year.status)
-        self.assertEqual(learning_unit_year.credits, Decimal(self.form_data['credits']))
+        self.assertEqual(learning_unit_year.credits, self.form_data['credits'])
         self.assertEqual(learning_unit_year.quadrimester, self.form_data['quadrimester'])
         self.assertEqual(learning_unit_year.specific_title, self.form_data["specific_title"])
         self.assertEqual(learning_unit_year.specific_title_english, self.form_data["specific_title_english"])

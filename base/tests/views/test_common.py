@@ -23,14 +23,11 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from collections import OrderedDict
 
-from django.test import TestCase, SimpleTestCase
-from django.core.urlresolvers import reverse
-from django.test.utils import override_settings
 from django.contrib.auth.models import User, Permission
-
-from base.views.common import reverse_url_with_query_string
+from django.core.urlresolvers import reverse
+from django.test import TestCase
+from django.test.utils import override_settings
 
 
 class ErrorViewTestCase(TestCase):
@@ -44,24 +41,3 @@ class ErrorViewTestCase(TestCase):
         self.client.login(username='tmp', password='tmp')
         response = self.client.get(reverse('academic_calendar_read', args=[46898]), follow=True)
         self.assertEqual(response.status_code, 404)
-
-
-class UtilityMethods(SimpleTestCase):
-    def test_reverse_url_with_query_string_with_no_parameters(self):
-        expected_url = reverse('home')
-        actual_url = reverse_url_with_query_string('home')
-        self.assertEqual(expected_url, actual_url)
-
-    def test_reverse_url_with_query_string(self):
-        expected_url = "{path}?".format(path=reverse('academic_calendar_read', args=[46898]))
-
-        query_parameters = {"value1": "hello", "value2": None, "value3": 54}
-        actual_url = reverse_url_with_query_string(
-            'academic_calendar_read',
-            args=[46898],
-            query=OrderedDict(sorted(query_parameters.items(), key=lambda t: t[0]))
-        )
-        self.assertTrue(actual_url.startswith(expected_url))
-        self.assertTrue("value1=hello" in actual_url)
-        self.assertTrue("value2=" in actual_url)
-        self.assertTrue("value3=54" in actual_url)

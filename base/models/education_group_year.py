@@ -29,7 +29,7 @@ from django.urls import reverse
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
-from base.models import entity_version, learning_component_year
+from base.models import entity_version
 from base.models.entity import Entity
 from base.models.enums import academic_type, internship_presence, schedule_type, activity_presence, \
     diploma_printing_orientation, active_status, duration_unit, decree_category, rate_code
@@ -155,18 +155,16 @@ class EducationGroupYear(models.Model):
     partial_acronym = models.CharField(max_length=15, db_index=True, null=True, verbose_name=_("code"))
 
     # TODO :: rename credits into expected_credits
-    credits = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True, verbose_name=_("credits"))
+    credits = models.IntegerField(blank=True, null=True, verbose_name=_("credits"))
     remark = models.TextField(blank=True, null=True, verbose_name=_("remark"))
     remark_english = models.TextField(blank=True, null=True, verbose_name=_("remark_english"))
 
-    min_credits = models.DecimalField(
-        max_digits=5, decimal_places=2,
+    min_credits = models.IntegerField(
         blank=True, null=True,
         verbose_name=_("minimum credits")
     )
 
-    max_credits = models.DecimalField(
-        max_digits=5, decimal_places=2,
+    max_credits = models.IntegerField(
         blank=True, null=True,
         verbose_name=_("maximum credits")
     )
@@ -225,6 +223,10 @@ class EducationGroupYear(models.Model):
     def __str__(self):
         return u"%s - %s" % (self.academic_year, self.acronym)
 
+    @property
+    def verbose(self):
+        return "{} - {}".format(self.partial_acronym or "", self.acronym)
+
     class Meta:
         verbose_name = _("education group year")
 
@@ -278,6 +280,10 @@ class EducationGroupYear(models.Model):
     def children_by_group_element_year(self):
         group_elements_year = self.children_without_leaf
         return [group_element_year.child_branch for group_element_year in group_elements_year]
+
+    @cached_property
+    def group_element_year_branches(self):
+        return self.groupelementyear_set.filter(child_branch__isnull=False)
 
     @cached_property
     def coorganizations(self):

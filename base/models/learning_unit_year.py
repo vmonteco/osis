@@ -37,7 +37,7 @@ from base.models.academic_year import current_academic_year, compute_max_academi
     MAX_ACADEMIC_YEAR_FACULTY
 from base.models.enums import active_status, learning_container_year_types
 from base.models.enums import learning_unit_year_subtypes, internship_subtypes, \
-    learning_unit_year_session, entity_container_year_link_type, learning_unit_year_quadrimesters, attribution_procedure
+    learning_unit_year_session, entity_container_year_link_type, quadrimesters, attribution_procedure
 from base.models.enums.learning_container_year_types import COURSE, INTERNSHIP
 from base.models.enums.learning_unit_year_periodicity import PERIODICITY_TYPES, ANNUAL, BIENNIAL_EVEN, BIENNIAL_ODD
 from base.models.learning_unit import LEARNING_UNIT_ACRONYM_REGEX_ALL, REGEX_BY_SUBTYPE
@@ -45,7 +45,7 @@ from osis_common.models.serializable_model import SerializableModel, Serializabl
 
 AUTHORIZED_REGEX_CHARS = "$*+.^"
 REGEX_ACRONYM_CHARSET = "[A-Z0-9" + AUTHORIZED_REGEX_CHARS + "]+"
-MINIMUM_CREDITS = 0.0
+MINIMUM_CREDITS = 0
 MAXIMUM_CREDITS = 500
 
 
@@ -84,7 +84,7 @@ class LearningUnitYear(SerializableModel):
                                               verbose_name=_('english_title_proper_to_UE'))
     subtype = models.CharField(max_length=50, choices=learning_unit_year_subtypes.LEARNING_UNIT_YEAR_SUBTYPES,
                                default=learning_unit_year_subtypes.FULL)
-    credits = models.DecimalField(max_digits=5, decimal_places=2, null=True,
+    credits = models.IntegerField(null=True,
                                   validators=[MinValueValidator(MINIMUM_CREDITS), MaxValueValidator(MAXIMUM_CREDITS)],
                                   verbose_name=_('credits'))
     decimal_scores = models.BooleanField(default=False)
@@ -97,7 +97,7 @@ class LearningUnitYear(SerializableModel):
                                choices=learning_unit_year_session.LEARNING_UNIT_YEAR_SESSION,
                                verbose_name=_('session_title'))
     quadrimester = models.CharField(max_length=9, blank=True, null=True, verbose_name=_('quadrimester'),
-                                    choices=learning_unit_year_quadrimesters.LEARNING_UNIT_YEAR_QUADRIMESTERS)
+                                    choices=quadrimesters.LEARNING_UNIT_YEAR_QUADRIMESTERS)
     attribution_procedure = models.CharField(max_length=20, blank=True, null=True, verbose_name=_('procedure'),
                                              choices=attribution_procedure.ATTRIBUTION_PROCEDURES)
     summary_locked = models.BooleanField(default=False, verbose_name=_("summary_locked"))

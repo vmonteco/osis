@@ -37,7 +37,8 @@ class UpdateGroupElementYearForm(forms.ModelForm):
             "max_credits",
             "is_mandatory",
             "block",
-            "sessions_derogation",
+            "quadrimester_derogation",
+            "link_type",
             "comment",
             "comment_english",
         ]

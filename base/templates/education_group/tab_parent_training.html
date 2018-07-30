@@ -37,7 +37,7 @@
                         <div class="col-md-6">
                         <label>{% trans 'focuses'%}</label> :
                         {% for child in education_group_year.children_by_group_element_year %}
-                            <a href="{% url 'education_group_read' child.id %}">
+                            <a href="{% url 'education_group_read' education_group_year.pk child.id %}">
                                     {{ child.acronym }}
                             </a>
                             {% if not forloop.last %},&nbsp;{% endif %}

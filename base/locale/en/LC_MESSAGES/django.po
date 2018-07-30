@@ -3313,3 +3313,48 @@ msgstr "%(title)s (%(credits)s credits)"
 
 msgid "%(acronym)s %(title)s [%(volumes)s] (%(credits)s credits)"
 msgstr "%(acronym)s %(title)s [%(volumes)s] (%(credits)s crédits)"
+
+msgid "Link type"
+msgstr ""
+
+msgid "REFERENCE"
+msgstr "Reference"
+
+msgid "Quadrimester derogation"
+msgstr ""
+
+msgid "Quad. derog."
+msgstr ""
+
+msgid "Produce xls with a list of education groups"
+msgstr ""
+
+msgid "Produce xls of trainings with administrative data"
+msgstr ""
+
+msgid "Begining of course registration"
+msgstr ""
+
+msgid "Ending of course registration"
+msgstr ""
+
+msgid "Begining of exam registration"
+msgstr ""
+
+msgid "Ending of exam registration"
+msgstr ""
+
+msgid "Exam board signatory"
+msgstr ""
+
+msgid "List of trainings, with administrative data"
+msgstr ""
+
+msgid "List of trainings"
+msgstr ""
+
+msgid "List of trainings with administrative data"
+msgstr ""
+
+msgid "Validity"
+msgstr ""

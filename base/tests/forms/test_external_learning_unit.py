@@ -95,7 +95,7 @@ def get_valid_external_learning_unit_form_data(academic_year, person, learning_u
         # External learning unit model form
         'requesting_entity': requesting_entity.id,
         'external_acronym': 'Gorzyne',
-        'external_credits': '5.5',
+        'external_credits': '5',
 
         # Learning component year data model form
         'form-TOTAL_FORMS': '2',
