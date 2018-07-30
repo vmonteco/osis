@@ -47,4 +47,10 @@ def education_group_select(request, root_id=None, education_group_year_id=None):
     if request.is_ajax():
         return HttpResponse(HTTPStatus.OK)
     else:
-        return redirect(reverse('education_group_read', kwargs={'education_group_year_id': education_group_year_id}))
+        return redirect(reverse(
+            'education_group_read',
+            args=[
+                root_id,
+                education_group_year_id,
+            ]
+        ))

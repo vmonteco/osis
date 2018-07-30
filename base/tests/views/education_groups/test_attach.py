@@ -70,7 +70,13 @@ class TestAttach(TestCase):
             child_branch=self.child_education_group_year
         )
 
-        self.url_select = reverse("education_group_select", args=[self.child_education_group_year.id])
+        self.url_select = reverse(
+            "education_group_select",
+            args=[
+                self.initial_parent_education_group_year.id,
+                self.child_education_group_year.id,
+            ]
+        )
         self.url_attach = reverse(
             "group_element_year_management",
             args=[
