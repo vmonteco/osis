@@ -1026,7 +1026,7 @@ class TestLearningUnitProposalDisplay(TestCase):
         )
 
         cls.proposal_learning_unit = ProposalLearningUnitFactory(learning_unit_year=cls.learning_unit_yr)
-        cls.initial_credits = 3.0
+        cls.initial_credits = 3
         cls.initial_quadrimester = 'Q1'
         cls.initial_language = cls.language_it.pk
         cls.initial_data_learning_unit_year = {'credits': cls.initial_credits}
