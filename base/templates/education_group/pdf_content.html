@@ -15,7 +15,20 @@
 <body>
 <div class="container">
     <div class="list-group">
-        <ul>{{ tree|tree_list }}</ul>
+        <table>
+            <tr>
+                <th style="width:80%;float:left;"></th>
+                <th style="width:5%;text-align: center;">An 1</th>
+                <th style="width:5%;text-align: center;">An 2</th>
+                <th style="width:5%;text-align: center;">An 3</th>
+            </tr>
+            <tr>
+                <td style="width:80%;float:left;"><img
+                        src="https://cdn4.iconfinder.com/data/icons/ionicons/512/icon-arrow-right-b-512.png" height="14"
+                        width="14">{{ parent.verbose_credit }}</td>
+            </tr>
+            {{ tree|tree_list }}
+        </table>
     </div>
 </div>
 </body>

@@ -25,10 +25,8 @@
 ##############################################################################
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
-from django.utils.translation import ugettext_lazy as _
 
 from base.models.education_group_year import EducationGroupYear
-from base.views import layout
 from osis_common.document.pdf_build import Render
 
 
@@ -36,8 +34,7 @@ from osis_common.document.pdf_build import Render
 def pdf_content(request, root_id, education_group_year_id):
     parent = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
     tree = get_verbose_children(parent)
-    #return Render.render('education_group/pdf_content.html', {'tree': tree})
-    return layout.render(request, 'education_group/pdf_content.html', {'tree': tree})
+    return Render.render('education_group/pdf_content.html', {'parent': parent, 'tree': tree})
 
 
 def get_verbose_children(parent):
