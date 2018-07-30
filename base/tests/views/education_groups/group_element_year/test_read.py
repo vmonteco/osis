@@ -64,18 +64,6 @@ class TestRead(TestCase):
 
     def test_get_verbose_children(self):
         result = get_verbose_children(self.education_group_year_1)
-        context_waiting = [
-            _("{} ({} credits)").format(self.education_group_year_2.title, self.education_group_year_2.credits),
-            [
-                _("{} {} [-h + -h] ({} credits)".format(self.learning_unit_year_1.acronym,
-                                                        self.learning_unit_year_1.specific_title,
-                                                        self.learning_unit_year_1.credits))
-            ],
-            _("{} ({} credits)").format(self.education_group_year_3.title, self.education_group_year_3.credits),
-            [
-                _("{} {} [-h + -h] ({} credits)".format(self.learning_unit_year_2.acronym,
-                                                        self.learning_unit_year_2.specific_title,
-                                                        self.learning_unit_year_2.credits))
-            ]
-        ]
+        context_waiting = [self.group_element_year_1, [self.group_element_year_2], self.group_element_year_3,
+                           [self.group_element_year_4]]
         self.assertEqual(result, context_waiting)
