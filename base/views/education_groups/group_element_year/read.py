@@ -36,7 +36,8 @@ from osis_common.document.pdf_build import Render
 def pdf_content(request, education_group_year_id):
     parent = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
     tree = get_verbose_children(parent)
-    return Render.render('education_group/pdf_content.html', {'tree': tree})
+    #return Render.render('education_group/pdf_content.html', {'tree': tree})
+    return layout.render(request, 'education_group/pdf_content.html', {'tree': tree})
 
 
 def get_verbose_children(parent):

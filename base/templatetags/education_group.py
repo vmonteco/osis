@@ -169,25 +169,24 @@ def tree_list(value, autoescape=True):
         output = []
         for item, children in walk_items(item_list):
             sublist = ''
-            case = ''
             if children:
                 sublist = '\n%s<ul>\n%s\n%s</ul>\n%s' % (
                     indent, list_formatter(children, tabs + 1), indent, indent)
 
             if item.child_leaf:
                 if item.is_mandatory:
-                    output.append('%s<li style="list-style-type: none;">[ ][O]%s%s</li>' % (
-                        indent, escaper(force_text(item.verbose)), sublist))
+                    output.append(
+                        '%s<li style="list-style-type: none;"><img src="https://image.freepik.com/free-icon/rectangle-of-cutted-line-geometrical-shape_318-44527.jpg" height="20" width="20"><img src="https://cdn4.iconfinder.com/data/icons/ionicons/512/icon-arrow-right-b-512.png" height="14" width="14">%s%s</li>' % (indent, escaper(force_text(item.verbose)), sublist))
                 else:
-                    output.append('%s<li style="list-style-type: none;">[ ][F]%s%s</li>' % (
-                        indent, escaper(force_text(item.verbose)), sublist))
+                    output.append(
+                        '%s<li style="list-style-type: none;"><img src="https://image.freepik.com/free-icon/rectangle-of-cutted-line-geometrical-shape_318-44527.jpg" height="20" width="20"><img src="http://iconshow.me/media/images/ui/ios7-icons/png/512/arrow-left-b.png" height="14" width="14">%s%s</li>' % (indent, escaper(force_text(item.verbose)), sublist))
             else:
                 if item.is_mandatory:
-                    output.append('%s<li style="list-style-type: none;">[O]%s%s</li>' % (
-                        indent, escaper(force_text(item.verbose)), sublist))
+                    output.append(
+                        '%s<li style="list-style-type: none;"><img src="https://cdn4.iconfinder.com/data/icons/ionicons/512/icon-arrow-right-b-512.png" height="14" width="14">%s%s</li>' % (indent, escaper(force_text(item.verbose)), sublist))
                 else:
-                    output.append('%s<li style="list-style-type: none;">[F]%s%s</li>' % (
-                        indent, escaper(force_text(item.verbose)), sublist))
+                    output.append(
+                        '%s<li style="list-style-type: none;"><img src="http://iconshow.me/media/images/ui/ios7-icons/png/512/arrow-left-b.png" height="14" width="14">%s%s</li>' % (indent, escaper(force_text(item.verbose)), sublist))
         return '\n'.join(output)
 
     return mark_safe(list_formatter(value))
