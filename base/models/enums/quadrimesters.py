@@ -42,6 +42,7 @@ LEARNING_UNIT_YEAR_QUADRIMESTERS = (
 DEROGATION_QUADRIMESTERS = (
     (Q1, Q1),
     (Q2, Q2),
+    (Q1and2, _(Q1and2)),
     (Q1or2, _(Q1or2)),
     (Q3, Q3)
 )
