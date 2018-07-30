@@ -41,7 +41,7 @@ from base.views.learning_units.perms import PermissionDecoratorWithUser
 @waffle_flag("education_group_select")
 @PermissionDecoratorWithUser(can_change_education_group, "education_group_year_id", EducationGroupYear)
 @cache_filter()
-def education_group_select(request, education_group_year_id=None):
+def education_group_select(request, root_id=None, education_group_year_id=None):
     child_to_cache_id = request.GET.get('child_to_cache_id')
     cache.set('child_to_cache_id', child_to_cache_id, timeout=None)
     if request.is_ajax():

@@ -81,6 +81,7 @@ class EducationGroupGenericDetailView(PermissionRequiredMixin, DetailView):
 
         # TODO same param
         context['root'] = self.get_root()
+        context['root_id'] = self.kwargs.get("root_id")
         context['parent'] = self.get_root()
 
         context["education_group_year"] = self.get_object()

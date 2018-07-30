@@ -63,10 +63,10 @@ $(document).ready(function () {
                     var education_group_year_id = args[2];
 
                     var attach_url = "/educationgroups/"
-                        + root
+                        + root_id
                         + "/"
                         + education_group_year_id
-                        + "/contents/"
+                        + "/content/"
                         + group_element_year
                         + "/management/?action=attach";
                     window.location.href = attach_url;
@@ -84,10 +84,10 @@ $(document).ready(function () {
                     var education_group_year_id = args[2];
 
                     var detach_url = "/educationgroups/"
-                       + root
+                       + root_id
                        + "/"
                        + education_group_year_id
-                       + "/contents/"
+                       + "/content/"
                        + group_element_year
                        + "/management/?action=detach&source=identification";
 
