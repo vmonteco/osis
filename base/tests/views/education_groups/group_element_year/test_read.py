@@ -49,9 +49,11 @@ class TestRead(TestCase):
         cls.learning_unit_year_1 = LearningUnitYearFactory()
         cls.learning_unit_year_2 = LearningUnitYearFactory()
         cls.learning_component_year_1 = LearningComponentYearFactory(
-            learning_container_year=cls.learning_unit_year_1.learning_container_year)
+            learning_container_year=cls.learning_unit_year_1.learning_container_year, hourly_volume_partial_q1=10,
+            hourly_volume_partial_q2=10)
         cls.learning_component_year_2 = LearningComponentYearFactory(
-            learning_container_year=cls.learning_unit_year_1.learning_container_year)
+            learning_container_year=cls.learning_unit_year_1.learning_container_year, hourly_volume_partial_q1=10,
+            hourly_volume_partial_q2=10)
         cls.learning_unit_component_1 = LearningUnitComponentFactory(
             learning_component_year=cls.learning_component_year_1,
             learning_unit_year=cls.learning_unit_year_1)
