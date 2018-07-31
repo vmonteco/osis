@@ -32,6 +32,7 @@ from dateutil.utils import today
 from django.contrib.auth.models import Permission
 from django.test import TestCase, Client
 from django.urls import reverse
+from django.utils.translation import ugettext as _
 from waffle.testutils import override_flag
 
 from base.forms.education_group.group import GroupModelForm
@@ -292,6 +293,29 @@ class TestSelectDetachAttach(TestCase):
         self.assertEquals(expected_group_element_year_count, 1)
 
         self._assert_link_with_inital_parent_present()
+
+    def test_attach_without_selecting_gives_warning(self):
+        expected_absent_group_element_year = GroupElementYear.objects.filter(
+            parent=self.new_parent_education_group_year,
+            child_branch=self.child_education_group_year
+        ).exists()
+        self.assertFalse(expected_absent_group_element_year)
+
+        http_referer = reverse(
+            "education_group_read",
+            args=[
+                self.initial_parent_education_group_year.id,
+                self.child_education_group_year.id
+            ]
+        )
+        response = self.client.get(self.url_attach, follow=True, HTTP_REFERER=http_referer)
+
+        from django.contrib.messages import get_messages
+        messages = list(get_messages(response.wsgi_request))
+        self.assertEqual(len(messages), 1)
+        self.assertEqual(str(messages[0]), _("Please Select or Move an item before Attach it"))
+
+
 
     def _assert_link_with_inital_parent_present(self):
         expected_initial_group_element_year = GroupElementYear.objects.get(
