@@ -49,7 +49,7 @@ class TestBuildPDFTree(TestCase):
         tree = get_verbose_children(self.education_group_year_1)
         out = Template(
             "{% load education_group %}"
-            "{{ tree|tree_list }}"
+            "{{ tree|pdf_tree_list }}"
         ).render(Context({
             'tree': tree
         }))
@@ -73,7 +73,7 @@ class TestBuildPDFTree(TestCase):
         tree = get_verbose_children(self.education_group_year_1)
         out = Template(
             "{% load education_group %}"
-            "{{ tree|tree_list }}"
+            "{{ tree|pdf_tree_list }}"
         ).render(Context({
             'tree': tree
         }))
@@ -100,7 +100,7 @@ class TestBuildPDFTree(TestCase):
     def test_tree_list_with_empty(self):
         out = Template(
             "{% load education_group %}"
-            "{{ tree|tree_list }}"
+            "{{ tree|pdf_tree_list }}"
         ).render(Context({
             'tree': []
         }))

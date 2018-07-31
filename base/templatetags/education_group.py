@@ -148,7 +148,7 @@ def button_with_permission(context, title, id_a, value):
 
 
 @register.filter(is_safe=True, needs_autoescape=True)
-def tree_list(value, autoescape=True):
+def pdf_tree_list(value, autoescape=True):
     if autoescape:
         escaper = conditional_escape
     else:
