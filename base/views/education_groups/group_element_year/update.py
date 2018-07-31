@@ -156,7 +156,6 @@ class GenericUpdateGroupElementYearMixin(FlagMixin, RulesRequiredMixin, SuccessM
         return get_object_or_404(EducationGroupYear, pk=self.kwargs.get("education_group_year_id"))
 
 
-
 class UpdateGroupElementYearView(GenericUpdateGroupElementYearMixin, UpdateView):
     # UpdateView
     form_class = UpdateGroupElementYearForm
