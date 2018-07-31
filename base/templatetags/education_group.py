@@ -156,28 +156,31 @@ def tree_list(value, autoescape=True):
             return x
 
     def walk_items(item_list):
-        item_iterator = iter(item_list)
-        try:
-            item = next(item_iterator)
-            while True:
-                try:
-                    next_item = next(item_iterator)
-                except StopIteration:
-                    yield item, None
-                    break
-                if not isinstance(next_item, six.string_types):
+        if item_list:
+            item_iterator = iter(item_list)
+            try:
+                item = next(item_iterator)
+                while True:
                     try:
-                        iter(next_item)
-                    except TypeError:
-                        pass
-                    else:
-                        yield item, next_item
-                        item = next(item_iterator)
-                        continue
-                yield item, None
-                item = next_item
-        except StopIteration:
-            pass
+                        next_item = next(item_iterator)
+                    except StopIteration:
+                        yield item, None
+                        break
+                    if not isinstance(next_item, six.string_types):
+                        try:
+                            iter(next_item)
+                        except TypeError:
+                            pass
+                        else:
+                            yield item, next_item
+                            item = next(item_iterator)
+                            continue
+                    yield item, None
+                    item = next_item
+            except StopIteration:
+                pass
+        else:
+            return ""
 
     def list_formatter(item_list, tabs=1, depth=None):
         output = []
@@ -195,11 +198,10 @@ def tree_list(value, autoescape=True):
         if item.child_leaf:
             if item.is_mandatory:
                 output.append(
-                    '<tr><td style="padding-left:%sem);width:%s;float:left;"><img '
-                    'src="https://image.freepik.com/free-icon/rectangle-of-cutted-line-geometrical-shape_318'
-                    '-44527.jpg" height="20" width="20"><img '
-                    'src="https://cdn4.iconfinder.com/data/icons/ionicons/512/icon-arrow-right-b-512.png" '
-                    'height="14" width="14">%s%s</td><td style="width:%s;text-align: center;">%s</td"><td '
+                    '<tr><td style="padding-left:%sem;width:%s;float:left;"><img '
+                    'src="base/static/img/education_group_year/case.jpg" height="20" width="20"><img '
+                    'src="base/static/img/education_group_year/mandatory.png" '
+                    'height="14" width="14">%s%s</td><td style="width:%s;text-align: center;">%s</td><td '
                     'style="width:%s;text-align: center;">%s</td><td style="width:%s;text-align: '
                     'center;">%s</td></tr>' % (
                         padding, "85%", escaper(force_text(item.verbose)), sublist, "5%",
@@ -209,10 +211,9 @@ def tree_list(value, autoescape=True):
             else:
                 output.append(
                     '<tr><td style="padding-left:%sem;width:%s;float:left;"><img '
-                    'src="https://image.freepik.com/free-icon/rectangle-of-cutted-line-geometrical-shape_318'
-                    '-44527.jpg" height="20" width="20"><img '
-                    'src="http://iconshow.me/media/images/ui/ios7-icons/png/512/arrow-left-b.png" height="14" '
-                    'width="14">%s%s</td><td style="width:%s;text-align: center;">%s</td"><td '
+                    'src="base/static/img/education_group_year/case.jpg" height="20" width="20"><img '
+                    'src="base/static/img/education_group_year/optional.png" height="14" '
+                    'width="14">%s%s</td><td style="width:%s;text-align: center;">%s</td><td '
                     'style="width:%s;text-align: center;">%s</td><td '
                     'style="width:%s;text-align: center;">%s</td></tr>' % (
                         padding, "85%", escaper(force_text(item.verbose)), sublist, "5%",
@@ -223,13 +224,13 @@ def tree_list(value, autoescape=True):
             if item.is_mandatory:
                 output.append(
                     '<tr><td style="padding-left:%sem;width:%s;float:left;"><img '
-                    'src="https://cdn4.iconfinder.com/data/icons/ionicons/512/icon-arrow-right-b-512.png" '
+                    'src="base/static/img/education_group_year/mandatory.png" '
                     'height="14" width="14">%s%s</td></tr>' % (
                         padding, "85%", escaper(force_text(item.verbose)), sublist))
             else:
                 output.append(
                     '<tr><td style="padding-left:%sem;width:%s;float:left;"><img '
-                    'src="http://iconshow.me/media/images/ui/ios7-icons/png/512/arrow-left-b.png" height="14" '
+                    'src="base/static/img/education_group_year/optional.png" height="14" '
                     'width="14">%s%s</td></tr>' % (
                         padding, "85%", escaper(force_text(item.verbose)), sublist))
 

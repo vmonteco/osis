@@ -1,4 +1,5 @@
 {% load education_group %}
+{% load staticfiles %}
 <!doctype html>
 <html>
 <head>
@@ -23,9 +24,10 @@
                 <th style="width:5%;text-align: center;">An 3</th>
             </tr>
             <tr>
-                <td style="width:80%;float:left;"><img
-                        src="https://cdn4.iconfinder.com/data/icons/ionicons/512/icon-arrow-right-b-512.png" height="14"
-                        width="14">{{ parent.verbose_credit }}</td>
+                <td style="width:80%;float:left;">
+                    <img src="base/static/img/education_group_year/mandatory.png" height="14" width="14">
+                    {{ parent.verbose_credit }}
+                </td>
             </tr>
             {{ tree|tree_list }}
         </table>
