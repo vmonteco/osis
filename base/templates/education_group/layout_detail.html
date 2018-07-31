@@ -1,4 +1,5 @@
 {% extends "education_group/layout.html" %}
+{% load format %}
 
 {% block breadcrumb %}
     {{ block.super }}
@@ -22,4 +23,9 @@
         <small style="color:black;font-family:Verdana;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{education_group_year.academic_year}}</small>
     </h2>
 </div>
+{% endblock %}
+
+{% block modal %}
+    {% url 'group_element_year_management' root_id=parent.id education_group_year_id=education_group_year.id group_element_year_id=group_to_parent as detach_url %}
+    {% include "blocks/modal/modal_ajax.html" with modal_url=detach_url|addstr:"?action=detach&source=identification" click_class="btn_operation_detach_"|addstr:group_to_parent form_id="form_detach_confirm" %}
 {% endblock %}
