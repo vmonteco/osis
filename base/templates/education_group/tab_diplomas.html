@@ -61,5 +61,8 @@
 </div>
 {% endblock %}
 {% block script %}
+    <script>
+        var root_id = "{{ root_id }}"
+    </script>
     <script src="{% static 'js/education_group/education_group_tree.js' %}"></script>
 {% endblock %}%}

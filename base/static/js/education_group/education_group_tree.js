@@ -44,7 +44,7 @@ $(document).ready(function () {
                         obj = inst.get_node(data.reference);
                     var education_group_year_id = obj.li_attr.id.split('_').slice(-1)[0]
                     $.ajax({
-                        url: 'select/',
+                        url: '../select/',
                         data: {'child_to_cache_id' : education_group_year_id},
                         type: 'GET',
                         dataType: 'json',
@@ -76,7 +76,7 @@ $(document).ready(function () {
                        + "/management/?action=detach&source=identification";
 
                     $.ajax({
-                        url: 'select/',
+                        url: '../select/',
                         data: {'child_to_cache_id' : education_group_year_id},
                         type: 'GET',
                         dataType: 'json',

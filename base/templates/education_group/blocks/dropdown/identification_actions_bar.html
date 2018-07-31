@@ -118,7 +118,7 @@
     <script>
         function select() {
             $.ajax({
-                url: 'select/',
+                url: '../select/',
                 data: {'child_to_cache_id' : {{ education_group_year.id }} },
                 type: 'GET',
                 dataType: 'json',
@@ -135,7 +135,7 @@
                + "/management/?action=detach&source=identification";
 
             $.ajax({
-                url: 'select/',
+                url: '../select/',
                 data: {'child_to_cache_id' : {{ education_group_year.id }} },
                 type: 'GET',
                 dataType: 'json',
