@@ -70,7 +70,7 @@
                                         <td width="6%">{{ element.group_element.max_credits | default_if_none:'-' }}</td>
                                         <td width="6%">{% if element.group_element.is_mandatory %}{% trans 'yes'%} {% else %}{% trans 'no' %}{% endif %}</td>
                                         <td width="6%">{{ element.group_element.block | default_if_none:'-' }}</td>
-                                        <td width="5%">{{ element.quadrimester_derogation | default_if_none:'-' }}</td>
+                                        <td width="5%">{% if element.quadrimester_derogation %} {% trans element.quadrimester_derogation %} {% else %} - {% endif %} </td>
                                         <td width="14%">{% if element.link_type %}{% trans element.link_type %}{% else %}-{% endif %}</td>
                                         <td width="15%">
                                             {% include "education_group/blocks/content_actions.html" %}
