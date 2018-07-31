@@ -91,7 +91,7 @@ class TestBuildPDFTree(TestCase):
     def test_tree_list_with_none(self):
         out = Template(
             "{% load education_group %}"
-            "{{ tree|tree_list }}"
+            "{{ tree|pdf_tree_list }}"
         ).render(Context({
             'tree': None
         }))

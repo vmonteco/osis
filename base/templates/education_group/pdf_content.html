@@ -1,15 +1,18 @@
 {% load education_group %}
-{% load staticfiles %}
+{% load static %}
 <!doctype html>
 <html>
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ parent.verbose_credit }}</title>
     <style type="text/css">
         @page {
             size: A4;
             margin: 1cm;
+        }
+
+        td, th, tr {
+            font-size: 9px;
         }
     </style>
 </head>
@@ -18,14 +21,14 @@
     <div class="list-group">
         <table>
             <tr>
-                <th style="width:80%;float:left;"></th>
-                <th style="width:5%;text-align: center;">An 1</th>
-                <th style="width:5%;text-align: center;">An 2</th>
-                <th style="width:5%;text-align: center;">An 3</th>
+                <th style="width:70%;float:left;"></th>
+                <th style="width:4%;text-align: center;">An 1</th>
+                <th style="width:4%;text-align: center;">An 2</th>
+                <th style="width:4%;text-align: center;">An 3</th>
             </tr>
             <tr>
-                <td style="width:80%;float:left;">
-                    <img src="base/static/img/education_group_year/mandatory.png" height="14" width="14">
+                <td style="width:70%;float:left;">
+                    <img src="{% static 'img/education_group_year/mandatory.png' %}" height="10" width="10">
                     {{ parent.verbose_credit }}
                 </td>
             </tr>
