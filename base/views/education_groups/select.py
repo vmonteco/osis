@@ -29,6 +29,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.urls import reverse
+from django.views.decorators.http import require_http_methods
 from waffle.decorators import waffle_flag
 
 from base.models.education_group_year import EducationGroupYear
@@ -36,14 +37,21 @@ from base.utils.cache import cache_filter, cache
 from base.views.education_groups.perms import can_change_education_group
 from base.views.learning_units.perms import PermissionDecoratorWithUser
 
+LEARNING_UNIT_YEAR = 'learningunityear'
+EDUCATION_GROUP_YEAR = 'educationgroupyear'
+CACHE_KEY = 'child_to_cache_id'
+
 
 @login_required
 @waffle_flag("education_group_select")
 @PermissionDecoratorWithUser(can_change_education_group, "education_group_year_id", EducationGroupYear)
 @cache_filter()
 def education_group_select(request, root_id=None, education_group_year_id=None):
-    child_to_cache_id = request.GET.get('child_to_cache_id')
-    cache.set('child_to_cache_id', child_to_cache_id, timeout=None)
+    data_to_cache = {
+        'id': request.GET.get('child_to_cache_id'),
+        'modelname': EDUCATION_GROUP_YEAR
+    }
+    cache.set(CACHE_KEY, data_to_cache, timeout=None)
     if request.is_ajax():
         return HttpResponse(HTTPStatus.OK)
     else:
@@ -53,4 +61,22 @@ def education_group_select(request, root_id=None, education_group_year_id=None):
                 root_id,
                 education_group_year_id,
             ]
+        ))
+
+
+@login_required
+@waffle_flag("education_group_select")
+@require_http_methods(['POST'])
+def learning_unit_select(request, learning_unit_year_id):
+    data_to_cache = {
+        'id': learning_unit_year_id,
+        'modelname': LEARNING_UNIT_YEAR
+    }
+    cache.set(CACHE_KEY, data_to_cache, timeout=None)
+    if request.is_ajax():
+        return HttpResponse(HTTPStatus.OK)
+    else:
+        return redirect(reverse(
+            'learning_unit',
+            args=[learning_unit_year_id]
         ))
