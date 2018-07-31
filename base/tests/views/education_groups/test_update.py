@@ -182,7 +182,7 @@ class TestUpdate(TestCase):
             'credits': 42,
             'acronym': 'CRSCHOIXDVLD',
             'partial_acronym': 'LDVLD101R',
-            'administration_entity': new_entity_version.pk,
+            'management_entity': new_entity_version.pk,
             'main_teaching_campus': "",
             'academic_year': self.training_education_group_year.academic_year.pk,
             'secondary_domains': ['|' + ('|'.join([str(domain.pk) for domain in self.domains])) + '|'],
@@ -200,7 +200,7 @@ class TestUpdate(TestCase):
         self.assertEqual(self.training_education_group_year.credits, 42)
         self.assertEqual(self.training_education_group_year.acronym, 'CRSCHOIXDVLD')
         self.assertEqual(self.training_education_group_year.partial_acronym, 'LDVLD101R')
-        self.assertEqual(self.training_education_group_year.administration_entity, new_entity_version.entity)
+        self.assertEqual(self.training_education_group_year.management_entity, new_entity_version.entity)
         self.assertListEqual(
             list(self.training_education_group_year.secondary_domains.values_list('id', flat=True)),
             list_domains
