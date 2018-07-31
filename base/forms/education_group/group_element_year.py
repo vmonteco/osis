@@ -26,7 +26,6 @@
 from django import forms
 
 from base.models.group_element_year import GroupElementYear
-from django.utils.translation import ugettext_lazy as _
 
 
 class UpdateGroupElementYearForm(forms.ModelForm):
