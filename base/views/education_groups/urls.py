@@ -27,6 +27,7 @@ from django.conf.urls import url, include
 
 from base.views import education_group
 from base.views.education_groups.group_element_year.read import pdf_content
+from base.views.education_groups.select import education_group_select
 from . import search, create, detail, update, delete, group_element_year
 
 urlpatterns = [
@@ -62,7 +63,7 @@ urlpatterns = [
             url(u'^edit/$', education_group.education_group_edit_administrative_data,
                 name='education_group_edit_administrative')
         ])),
-
+        url(r'^select/$', education_group_select, name='education_group_select'),
         url(r'^content/', include([
             url(u'^$', detail.EducationGroupContent.as_view(), name='education_group_content'),
             url(r'^(?P<group_element_year_id>[0-9]+)/', include([
