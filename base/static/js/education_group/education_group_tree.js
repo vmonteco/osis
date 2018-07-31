@@ -64,7 +64,9 @@ $(document).ready(function () {
                         group_element_year = 0
                     }
                     var education_group_year_id = args[2];
-
+                    /*
+                    * TODO : Use tree_management proxy instead of building URLs here
+                    * */
                     var detach_url = "/educationgroups/"
                        + root_id
                        + "/"
