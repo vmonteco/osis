@@ -284,9 +284,8 @@ class EducationGroupYear(models.Model):
         return self.groupelementyear_set.select_related('child_branch', 'child_leaf')
 
     @cached_property
-    def children_by_group_element_year(self):
-        group_elements_year = self.children_without_leaf
-        return [group_element_year.child_branch for group_element_year in group_elements_year]
+    def children_group_element_years(self):
+        return self.children_without_leaf
 
     @cached_property
     def group_element_year_branches(self):

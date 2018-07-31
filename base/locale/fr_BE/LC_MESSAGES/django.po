@@ -3251,6 +3251,18 @@ msgstr "Session"
 msgid "The user is not attached to the management entity"
 msgstr "L'utilisateur n'est pas rattaché à l'entité de gestion"
 
+msgid "Attach"
+msgstr "Attacher"
+
+msgid "Detach"
+msgstr "Détacher"
+
+msgid "Move"
+msgstr "Déplacer"
+
+msgid "Select"
+msgstr "Sélectionner"
+
 msgid "Help"
 msgstr "Aide"
 
@@ -3328,6 +3340,9 @@ msgstr "Quadrimestre dérogation"
 msgid "Quad. derog."
 msgstr "Quad. dérog."
 
+msgid "No type of education group can be created as child of %(category)s of type %(type)s"
+msgstr "Aucun type de Groupement ne peut être créé comme enfant d'une %(category)s de type %(type)s"
+
 msgid "Produce xls with a list of education groups"
 msgstr "Produire un fichier Excel avec la liste des organisations de formations"
 
@@ -3360,3 +3375,6 @@ msgstr "Liste des formations avec données administratives"
 
 msgid "Validity"
 msgstr "Validité"
+
+msgid "Please Select or Move an item before Attach it"
+msgstr "Veuillez Sélectionner ou Déplacer un élément avant d'Attacher"

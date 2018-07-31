@@ -3244,7 +3244,19 @@ msgid "Default learning unit enrollment"
 msgstr ""
 
 msgid "Session"
-msgstr "Session"
+msgstr ""
+
+msgid "Attach"
+msgstr ""
+
+msgid "Detach"
+msgstr ""
+
+msgid "Move"
+msgstr ""
+
+msgid "Select"
+msgstr ""
 
 msgid "The user is not attached to the management entity"
 msgstr ""
@@ -3326,6 +3338,9 @@ msgstr ""
 msgid "Quad. derog."
 msgstr ""
 
+msgid "No type of education group can be created as child of %(category)s of type %(type)s"
+msgstr ""
+
 msgid "Produce xls with a list of education groups"
 msgstr ""
 
@@ -3357,4 +3372,7 @@ msgid "List of trainings with administrative data"
 msgstr ""
 
 msgid "Validity"
+msgstr ""
+
+msgid "Please Select or Move an item before Attach it"
 msgstr ""

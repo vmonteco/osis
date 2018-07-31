@@ -28,7 +28,6 @@ import random
 from unittest import mock
 
 import factory.fuzzy
-from django.contrib import messages
 from django.contrib.auth.models import Permission, Group
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.core.exceptions import ObjectDoesNotExist
@@ -43,7 +42,6 @@ from waffle.testutils import override_flag
 
 import base.business.learning_unit
 import base.business.xls
-from attribution.tests.factories.attribution import AttributionFactory
 from base.business import learning_unit as learning_unit_business
 from base.forms.learning_unit.learning_unit_create import LearningUnitModelForm
 from base.forms.learning_unit.search_form import LearningUnitYearForm, LearningUnitSearchForm
@@ -62,9 +60,6 @@ from base.models.enums import learning_unit_year_subtypes
 from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES_MUST_HAVE_SAME_ENTITIES
 from base.models.enums.learning_unit_year_subtypes import FULL
 from base.models.person import FACULTY_MANAGER_GROUP
-from base.models.person_entity import PersonEntity
-from base.models.teaching_material import TeachingMaterial
-from base.tests.factories.academic_calendar import AcademicCalendarSummaryCourseSubmissionFactory
 from base.tests.factories.academic_year import AcademicYearFactory, create_current_academic_year
 from base.tests.factories.business.learning_units import GenerateContainer, GenerateAcademicYear
 from base.tests.factories.campus import CampusFactory
@@ -86,7 +81,6 @@ from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from base.tests.factories.organization import OrganizationFactory
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.person_entity import PersonEntityFactory
-from base.tests.factories.tutor import TutorFactory
 from base.tests.factories.user import SuperUserFactory, UserFactory
 from base.views.learning_unit import learning_unit_components, learning_class_year_edit, learning_unit_specifications, \
     learning_unit_formations

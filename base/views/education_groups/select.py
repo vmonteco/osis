@@ -23,26 +23,34 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.utils.translation import ugettext_lazy as _
+from http import HTTPStatus
 
-Q1 = "Q1"
-Q2 = "Q2"
-Q3 = "Q3"
-Q1and2 = "Q1 and Q2"
-Q1or2 = "Q1 or Q2"
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse
+from django.shortcuts import redirect
+from django.urls import reverse
+from waffle.decorators import waffle_flag
 
-LEARNING_UNIT_YEAR_QUADRIMESTERS = (
-    (Q1, Q1),
-    (Q2, Q2),
-    (Q1and2, _(Q1and2)),
-    (Q1or2, _(Q1or2)),
-    (Q3, Q3)
-)
+from base.models.education_group_year import EducationGroupYear
+from base.utils.cache import cache_filter, cache
+from base.views.education_groups.perms import can_change_education_group
+from base.views.learning_units.perms import PermissionDecoratorWithUser
 
-DEROGATION_QUADRIMESTERS = (
-    (Q1, Q1),
-    (Q2, Q2),
-    (Q1and2, _(Q1and2)),
-    (Q1or2, _(Q1or2)),
-    (Q3, Q3)
-)
+
+@login_required
+@waffle_flag("education_group_select")
+@PermissionDecoratorWithUser(can_change_education_group, "education_group_year_id", EducationGroupYear)
+@cache_filter()
+def education_group_select(request, root_id=None, education_group_year_id=None):
+    child_to_cache_id = request.GET.get('child_to_cache_id')
+    cache.set('child_to_cache_id', child_to_cache_id, timeout=None)
+    if request.is_ajax():
+        return HttpResponse(HTTPStatus.OK)
+    else:
+        return redirect(reverse(
+            'education_group_read',
+            args=[
+                root_id,
+                education_group_year_id,
+            ]
+        ))

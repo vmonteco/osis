@@ -51,7 +51,7 @@ class GroupElementYearAdmin(osis_model_admin.OsisModelAdmin):
         'parent__acronym',
         'parent__partial_acronym'
     ]
-    list_filter = ('is_mandatory', 'minor_access', 'quadrimester_derogation')
+    list_filter = ('is_mandatory', 'minor_access', 'quadrimester_derogation', 'parent__academic_year')
 
 
 class GroupElementYear(OrderedModel):
@@ -160,6 +160,8 @@ class GroupElementYear(OrderedModel):
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         if self.child_branch and self.child_leaf:
             raise IntegrityError("Can not save GroupElementYear with a child branch and a child leaf.")
+        if self.child_branch == self.parent:
+            raise IntegrityError("Can not save GroupElementYear when a child branch and a parent are identical.")
 
         return super().save(force_insert, force_update, using, update_fields)
 
@@ -186,6 +188,10 @@ def search(**kwargs):
         queryset = queryset.filter(child_leaf=kwargs['child_leaf'])
 
     return queryset
+
+
+def get_group_element_year_by_id(id):
+    return GroupElementYear.objects.get(id=id)
 
 
 # TODO : education_group_yr.parent.all() instead
