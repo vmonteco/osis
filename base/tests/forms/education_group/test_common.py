@@ -65,12 +65,12 @@ class EducationGroupYearModelFormMixin(TestCase):
             "title": "Test data",
             "main_teaching_campus": cls.campus.id,
             "academic_year": cls.academic_year.id,
-            "administration_entity": new_entity_version.pk,
+            "management_entity": new_entity_version.pk,
             "remark": "This is a test!!"
         }
 
         cls.parent_education_group_year = EducationGroupYearFactory(academic_year=cls.academic_year)
-        cls.entity_version = EntityVersionFactory(entity=cls.parent_education_group_year.administration_entity)
+        cls.entity_version = EntityVersionFactory(entity=cls.parent_education_group_year.management_entity)
 
     def _test_fields(self, form_class, fields):
         form = form_class(parent=None)
@@ -96,9 +96,9 @@ class EducationGroupYearModelFormMixin(TestCase):
 
     def _test_preselect_entity_version_from_entity_value(self, form_class):
         form = form_class(instance=self.parent_education_group_year)
-        educ_group_entity = self.parent_education_group_year.administration_entity
+        educ_group_entity = self.parent_education_group_year.management_entity
         expected_entity_version = EntityVersion.objects.filter(entity=educ_group_entity).latest('start_date')
-        self.assertEqual(form.initial['administration_entity'], expected_entity_version.id)
+        self.assertEqual(form.initial['management_entity'], expected_entity_version.id)
 
 
 class TestCommonBaseFormIsValid(TestCase):
@@ -125,7 +125,7 @@ class TestCommonBaseFormIsValid(TestCase):
 
     def test_post_with_errors(self):
         expected_educ_group_year, wrong_post_data = _get_valid_post_data(self.category)
-        wrong_post_data['administration_entity'] = None
+        wrong_post_data['management_entity'] = None
         wrong_post_data['end_year'] = "some text"
         education_group_year_form = MiniTrainingModelForm(wrong_post_data)
         education_group_form = EducationGroupModelForm(wrong_post_data)
@@ -155,7 +155,7 @@ class TestCommonBaseFormSave(TestCase):
     def test_update_without_parent(self):
         entity_version = MainEntityVersionFactory()
         initial_educ_group_year = EducationGroupYearFactory(academic_year=current_academic_year(),
-                                                            administration_entity=entity_version.entity)
+                                                            management_entity=entity_version.entity)
         initial_educ_group = initial_educ_group_year.education_group
 
         form = self.form_class(data=self.post_data, instance=initial_educ_group_year, parent=None)
@@ -200,7 +200,7 @@ class TestCommonBaseFormSave(TestCase):
         parent = EducationGroupYearFactory(academic_year=self.expected_educ_group_year.academic_year)
 
         entity_version = MainEntityVersionFactory()
-        initial_educ_group_year = EducationGroupYearFactory(administration_entity=entity_version.entity,
+        initial_educ_group_year = EducationGroupYearFactory(management_entity=entity_version.entity,
                                                             academic_year=self.expected_educ_group_year.academic_year)
 
         GroupElementYearFactory(parent=parent, child_branch=initial_educ_group_year)
@@ -233,7 +233,7 @@ def _get_valid_post_data(category):
     current_academic_year = create_current_academic_year()
     fake_education_group_year = EducationGroupYearFactory.build(
         academic_year=current_academic_year,
-        administration_entity=entity_version.entity,
+        management_entity=entity_version.entity,
         main_teaching_campus=campus,
         education_group_type=education_group_type,
         education_group__start_year=current_academic_year.year
@@ -241,7 +241,7 @@ def _get_valid_post_data(category):
     AuthorizedRelationshipFactory(child_type=fake_education_group_year.education_group_type)
     post_data = {
         'main_teaching_campus': str(fake_education_group_year.main_teaching_campus.id),
-        'administration_entity': str(entity_version.id),
+        'management_entity': str(entity_version.id),
         'remark_english': str(fake_education_group_year.remark_english),
         'title_english': str(fake_education_group_year.title_english),
         'education_group_type': str(fake_education_group_year.education_group_type.id),

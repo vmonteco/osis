@@ -74,7 +74,7 @@ class TrainingEducationGroupYearForm(EducationGroupYearModelForm):
         field_classes = {
             **EducationGroupYearModelForm.Meta.field_classes,
             **{
-                "management_entity": MainEntitiesVersionChoiceField,
+                "administration_entity": MainEntitiesVersionChoiceField,
                 "main_domain": MainDomainChoiceField
             }
         }
@@ -84,8 +84,8 @@ class TrainingEducationGroupYearForm(EducationGroupYearModelForm):
 
         self.fields["secondary_domains"].widget.attrs['placeholder'] = _('Enter text to search')
 
-        if getattr(self.instance, 'management_entity', None):
-            self.initial['management_entity'] = get_last_version(self.instance.management_entity).pk
+        if getattr(self.instance, 'administration_entity', None):
+            self.initial['administration_entity'] = get_last_version(self.instance.administration_entity).pk
 
         self.fields['decree_category'].choices = sorted(decree_category.DECREE_CATEGORY, key=lambda c: c[1])
         self.fields['rate_code'].choices = sorted(rate_code.RATE_CODE, key=lambda c: c[1])

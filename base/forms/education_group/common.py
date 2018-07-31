@@ -51,7 +51,7 @@ class EducationGroupYearModelForm(forms.ModelForm):
     class Meta:
         model = EducationGroupYear
         field_classes = {
-            "administration_entity": MainEntitiesVersionChoiceField,
+            "management_entity": MainEntitiesVersionChoiceField,
             "main_teaching_campus": MainTeachingCampusChoiceField
         }
         fields = []
@@ -81,8 +81,8 @@ class EducationGroupYearModelForm(forms.ModelForm):
             self.fields["academic_year"].required = False
 
     def _preselect_entity_version_from_entity_value(self):
-        if getattr(self.instance, 'administration_entity', None):
-            self.initial['administration_entity'] = get_last_version(self.instance.administration_entity).pk
+        if getattr(self.instance, 'management_entity', None):
+            self.initial['management_entity'] = get_last_version(self.instance.management_entity).pk
 
 
 class EducationGroupModelForm(forms.ModelForm):
