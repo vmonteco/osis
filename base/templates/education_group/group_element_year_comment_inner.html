@@ -30,8 +30,54 @@
 
 <form method="post" id="form_comment_update" action="{{ request.path }}">
     {% csrf_token %}
-    {% bootstrap_form form %}
 
+    <div class="row" style="margin-top:10px;">
+        <div class="col-md-4">
+            <label>{% trans 'Link type' %}</label>
+            {{ form.link_type }}
+        </div>
+        <div class="col-md-4">
+            {{ form.is_mandatory }}
+            <label>{% trans 'required' %}</label>
+        </div>
+        <div class="col-md-4">
+        </div>
+    </div>
+    <br>
+    <div class="row">
+        <div class="col-md-4">
+            <label>{% trans 'relative credits'|capfirst %}</label>
+            {{ form.relative_credits }}
+        </div>
+        <div class="col-md-4">
+            <label>{% trans 'min_credits' %}</label>
+            {{ form.min_credits }}
+        </div>
+        <div class="col-md-4">
+            <label>{% trans 'max_credits' %}</label>
+            {{ form.max_credits }}
+        </div>
+    </div>
+    <br>
+    <div class="row">
+        <div class="col-md-6">
+            <label>{% trans 'block' %}</label>
+            {{ form.block }}
+        </div>
+        <div class="col-md-6"><label>{% trans 'Quadrimester derogation' %}</label>
+            {{ form.quadrimester_derogation }}
+        </div>
+    </div>
+    <br>
+    <label>{% trans 'comment'|capfirst %}</label>
+    <br>
+    {{ form.comment }}
+    <br>
+    <br>
+    <label>{% trans 'english comment'|capfirst %}</label>
+    <br>
+    {{ form.comment_english }}
+    <br>
     {% include "blocks/forms/create_cancel_buttons_modal.html" %}
 </form>
 
