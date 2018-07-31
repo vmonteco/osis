@@ -93,6 +93,7 @@ def _detach(request, group_element_year, *args, **kwargs):
         **kwargs
     )
 
+
 @require_http_methods(['GET', 'POST'])
 def _attach(request, group_element_year, *args, **kwargs):
     child_to_cache_id = cache.get('child_to_cache_id')
