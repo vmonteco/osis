@@ -36,8 +36,10 @@ from waffle.decorators import waffle_flag
 
 from base.forms.education_group.group_element_year import UpdateGroupElementYearForm
 from base.models.education_group_year import EducationGroupYear
-from base.models.group_element_year import GroupElementYear
-from base.views.common import display_success_messages
+from base.models.group_element_year import GroupElementYear, get_or_create_group_element_year, \
+    get_group_element_year_by_id
+from base.utils.cache import cache
+from base.views.common import display_success_messages, display_warning_messages
 from base.views.common_classes import AjaxTemplateMixin, FlagMixin, RulesRequiredMixin
 from base.views.education_groups import perms
 from base.views.learning_units.perms import PermissionDecoratorWithUser
@@ -47,20 +49,25 @@ from base.views.learning_units.perms import PermissionDecoratorWithUser
 @waffle_flag("education_group_update")
 @PermissionDecoratorWithUser(perms.can_change_education_group, "education_group_year_id", EducationGroupYear)
 def management(request, root_id, education_group_year_id, group_element_year_id):
-    group_element_year = get_object_or_404(GroupElementYear, pk=group_element_year_id)
+    group_element_year_id = int(group_element_year_id)
+    group_element_year = get_group_element_year_by_id(group_element_year_id) if group_element_year_id else None
     action_method = _get_action_method(request)
+    source = _get_source(request)
     response = action_method(
         request,
         group_element_year,
         root_id=root_id,
         education_group_year_id=education_group_year_id,
+        source=source,
     )
     if response:
         return response
 
-    # @Todo: Correct with new URL
-    success_url = reverse('education_group_content', args=[root_id, education_group_year_id])
-    return redirect(success_url)
+    return redirect(request.META.get('HTTP_REFERER'))
+
+
+def _get_source(request):
+    return getattr(request, request.method, {}).get('source')
 
 
 @require_http_methods(['POST'])
@@ -87,11 +94,30 @@ def _detach(request, group_element_year, *args, **kwargs):
     )
 
 
+@require_http_methods(['GET', 'POST'])
+def _attach(request, group_element_year, *args, **kwargs):
+    child_to_cache_id = cache.get('child_to_cache_id')
+    if child_to_cache_id:
+        new_parent = EducationGroupYear.objects.get(id=kwargs.get('education_group_year_id'))
+        success_msg = _("Attached to %(acronym)s") % {'acronym': new_parent}
+        child_id = int(child_to_cache_id)
+        get_or_create_group_element_year(
+            parent=new_parent,
+            child=EducationGroupYear.objects.get(id=child_id)
+        )
+        cache.set('child_to_cache_id', None, timeout=None)
+        display_success_messages(request, success_msg)
+    else:
+        warning_msg = _("Please Select or Move an item before Attach it")
+        display_warning_messages(request, warning_msg)
+
+
 def _get_action_method(request):
     AVAILABLE_ACTIONS = {
         'up': _up,
         'down': _down,
         'detach': _detach,
+        'attach': _attach,
     }
     data = getattr(request, request.method, {})
     action = data.get('action')
@@ -130,7 +156,15 @@ class GenericUpdateGroupElementYearMixin(FlagMixin, RulesRequiredMixin, SuccessM
         return get_object_or_404(EducationGroupYear, pk=self.kwargs.get("education_group_year_id"))
 
     def get_success_url(self):
-        return reverse("education_group_content", args=[self.kwargs["root_id"], self.education_group_year.pk])
+        redirect_path_by_source = {
+            'identification':
+                reverse("education_group_read", args=[self.kwargs["root_id"], self.kwargs["root_id"]]),
+            'content':
+                reverse("education_group_content", args=[self.kwargs["root_id"], self.kwargs["root_id"]]),
+        }
+        default_url = redirect_path_by_source.get('content')
+        redirect_url = redirect_path_by_source.get(self.kwargs.get('source'), default_url)
+        return redirect_url
 
 
 class UpdateGroupElementYearView(GenericUpdateGroupElementYearMixin, UpdateView):

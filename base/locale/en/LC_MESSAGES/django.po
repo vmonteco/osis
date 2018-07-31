@@ -3244,7 +3244,19 @@ msgid "Default learning unit enrollment"
 msgstr ""
 
 msgid "Session"
-msgstr "Session"
+msgstr ""
+
+msgid "Attach"
+msgstr ""
+
+msgid "Detach"
+msgstr ""
+
+msgid "Move"
+msgstr ""
+
+msgid "Select"
+msgstr ""
 
 msgid "The user is not attached to the management entity"
 msgstr ""
@@ -3354,4 +3366,7 @@ msgid "List of trainings with administrative data"
 msgstr ""
 
 msgid "Validity"
+msgstr ""
+
+msgid "Please Select or Move an item before Attach it"
 msgstr ""
