@@ -1,6 +1,6 @@
 {% extends "education_group/layout_detail.html" %}
 {% load i18n %}
-{% load staticfiles education_group %}
+{% load staticfiles education_group format %}
 {% comment "License" %}
 * OSIS stands for Open Student Information System. It's an application
 * designed to manage the core business of higher education institutions,
@@ -64,4 +64,10 @@
     </script>
     <script type="text/javascript" src="{% static 'js/education_group/education_group_tree.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/education_group/tbl_coorganization.js' %}"></script>
+{% endblock %}
+
+{% block modal %}
+    {% url_name as url_name %}
+    {% url 'group_element_year_management' root_id=parent.id education_group_year_id=education_group_year.id group_element_year_id=group_to_parent as detach_url %}
+    {% include "blocks/modal/modal_ajax.html" with modal_url=detach_url|addstr:"?action=detach&source="|add:url_name click_class="btn_operation_detach_"|addstr:group_to_parent form_id="form_detach_confirm" %}
 {% endblock %}

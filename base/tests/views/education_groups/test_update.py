@@ -290,7 +290,7 @@ class TestSelectDetachAttach(TestCase):
             parent=self.new_parent_education_group_year,
             child_branch=self.child_education_group_year
         ).count()
-        self.assertEquals(expected_group_element_year_count, 1)
+        self.assertEqual(expected_group_element_year_count, 1)
 
         self._assert_link_with_inital_parent_present()
 
@@ -322,4 +322,4 @@ class TestSelectDetachAttach(TestCase):
             parent=self.initial_parent_education_group_year,
             child_branch=self.child_education_group_year
         )
-        self.assertEquals(expected_initial_group_element_year, self.initial_group_element_year)
+        self.assertEqual(expected_initial_group_element_year, self.initial_group_element_year)
