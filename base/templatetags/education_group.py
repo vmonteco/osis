@@ -201,5 +201,5 @@ def _get_a_class(education_group_year, selected_education_group_year):
 
 
 @register.simple_tag(takes_context=True)
-def url_name(context):
+def url_resolver_match(context):
     return context.request.resolver_match.url_name
