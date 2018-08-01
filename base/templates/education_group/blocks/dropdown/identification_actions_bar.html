@@ -74,8 +74,8 @@
                 {% endflag %}
 
                 {% flag "education_group_detach" %}
-                    <li {% if not can_change_education_group %} class="disabled" {% endif %}>
-                        <a href="#" title="{% trans 'Detach' %}" {% if can_change_education_group %}class="btn_operation_detach_{{ group_to_parent }}"{% endif %} data-toggle="tooltip-wrapper" name="action">
+                    <li {% if can_change_education_group %} id="btn_operation_detach_{{ group_to_parent }}" {% else %} class="disabled" {% endif %}>
+                        <a href="#" title="{% trans 'Detach' %}" data-toggle="tooltip-wrapper" name="action">
                             {% trans 'Detach' %}
                         </a>
                     </li>
