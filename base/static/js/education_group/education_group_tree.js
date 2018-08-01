@@ -74,7 +74,7 @@ $(document).ready(function () {
                        + "/content/"
                        + group_element_year
                        + "/management/?action=detach&source="
-                       + url_name;
+                       + url_resolver_match;
 
                     $.ajax({
                         url: '../select/',
@@ -110,7 +110,7 @@ $(document).ready(function () {
                        + "/content/"
                        + group_element_year
                        + "/management/?action=detach&source="
-                       + url_name;
+                       + url_resolver_match;
 
                     $('#form-modal-content').load(detach_url, function () {
                         $('#form-modal').modal('toggle');
