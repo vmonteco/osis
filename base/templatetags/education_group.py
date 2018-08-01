@@ -199,8 +199,8 @@ def pdf_tree_list(value, autoescape=True):
         if item.child_leaf:
             if item.is_mandatory:
                 output.append(
-                    '<tr><td style="padding-left:%sem;width:%s;float:left;"><img '
-                    'src="%s/img/education_group_year/case.jpg" height="14" width="17" style="float:left;"><img '
+                    '<tr><td style="padding-left:%sem;width:%s;"><img '
+                    'src="%s/img/education_group_year/case.jpg" height="14" width="17""><img '
                     'src="%s/img/education_group_year/mandatory.png" '
                     'height="10" width="10">%s%s</td><td style="width:%s;text-align: center;">%s</td><td '
                     'style="width:%s;text-align: center;">%s</td><td style="width:%s;text-align: '
@@ -211,8 +211,8 @@ def pdf_tree_list(value, autoescape=True):
                         "X" if item.block and "3" in item.block else ""))
             else:
                 output.append(
-                    '<tr><td style="padding-left:%sem;width:%s;float:left;"><img '
-                    'src="%s/img/education_group_year/case.jpg" height="14" width="17"><img '
+                    '<tr><td style="padding-left:%sem;width:%s;"><img '
+                    'src="%s/img/education_group_year/case.jpg" height="14" width="17""><img '
                     'src="%s/img/education_group_year/optional.png" height="10" '
                     'width="10">%s%s</td><td style="width:%s;text-align: center;">%s</td><td '
                     'style="width:%s;text-align: center;">%s</td><td '
@@ -224,13 +224,13 @@ def pdf_tree_list(value, autoescape=True):
         else:
             if item.is_mandatory:
                 output.append(
-                    '<tr><td style="padding-left:%sem;width:%s;float:left;"><img '
+                    '<tr><td style="padding-left:%sem;width:%s;"><img '
                     'src="%s/img/education_group_year/mandatory.png" '
                     'height="10" width="10">%s%s</td></tr>' % (
                         padding, "580px", base.STATIC_URL, escaper(force_text(item.verbose)), sublist))
             else:
                 output.append(
-                    '<tr><td style="padding-left:%sem;width:%s;float:left;"><img '
+                    '<tr><td style="padding-left:%sem;width:%s;"><img '
                     'src="%s/img/education_group_year/optional.png" height="10" '
                     'width="10">%s%s</td></tr>' % (
                         padding, "580px", base.STATIC_URL, escaper(force_text(item.verbose)), sublist))
