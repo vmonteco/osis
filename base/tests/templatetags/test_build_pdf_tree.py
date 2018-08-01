@@ -54,7 +54,7 @@ class TestBuildPDFTree(TestCase):
             'tree': tree
         }))
         self.assertEqual(out,
-                         str('<tr><td style="padding-left:1em;width:580px;"><img '
+                         str('<tr><td style="padding-left:2em;width:580px;"><img '
                              'src="base/static/img/education_group_year/mandatory.png" height="14" width="14">{}<tr>'
                              '<td style="padding-left:2em;width:580px;float:left;">'
                              '<img src="base/static/img/education_group_year/case.jpg" height="20" width="20">'
@@ -79,7 +79,7 @@ class TestBuildPDFTree(TestCase):
             'tree': tree
         }))
         self.assertEqual(out,
-                         str('<tr><td style="padding-left:1em;width:580px;"><img '
+                         str('<tr><td style="padding-left:2em;width:580px;"><img '
                              'src="base/static/img/education_group_year/optional.png" height="14" width="14">{}<tr>'
                              '<td style="padding-left:2em;width:580px;float:left;">'
                              '<img src="base/static/img/education_group_year/case.jpg" height="20" width="20">'
