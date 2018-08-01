@@ -268,7 +268,7 @@ class TestSelectDetachAttach(TestCase):
         self.perm_patcher.stop()
 
     def test_select_case_education_group(self):
-        response = self.client.get(
+        response = self.client.post(
             self.url_select_education_group,
             data={'child_to_cache_id': self.child_education_group_year.id},
             HTTP_X_REQUESTED_WITH='XMLHttpRequest',
@@ -315,14 +315,14 @@ class TestSelectDetachAttach(TestCase):
 
         self._assert_link_with_inital_parent_present()
 
-        self.client.get(self.url_select_education_group, data={'child_to_cache_id': self.child_education_group_year.id})
+        self.client.post(self.url_select_education_group, data={'child_to_cache_id': self.child_education_group_year.id})
         self.client.get(self.url_attach, HTTP_REFERER='http://foo/bar')
 
         expected_group_element_year_count = GroupElementYear.objects.filter(
             parent=self.new_parent_education_group_year,
             child_branch=self.child_education_group_year
         ).count()
-        self.assertEquals(expected_group_element_year_count, 1)
+        self.assertEqual(expected_group_element_year_count, 1)
 
         self._assert_link_with_inital_parent_present()
 
@@ -372,4 +372,4 @@ class TestSelectDetachAttach(TestCase):
             parent=self.initial_parent_education_group_year,
             child_branch=self.child_education_group_year
         )
-        self.assertEquals(expected_initial_group_element_year, self.initial_group_element_year)
+        self.assertEqual(expected_initial_group_element_year, self.initial_group_element_year)

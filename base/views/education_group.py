@@ -249,9 +249,10 @@ def education_group_year_admission_condition_edit(request, root_id, education_gr
     context = {
         'admission_condition_form': admission_condition_form,
         'education_group_year': education_group_year,
-        # TODO
+        # TODO : same parameters
         'parent': parent,
         'root': parent,
+        'root_id': parent.id,
 
         'can_edit_information': request.user.has_perm('base.can_edit_educationgroup_pedagogy'),
         'info': {

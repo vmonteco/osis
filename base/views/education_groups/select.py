@@ -36,17 +36,12 @@ from base.business import group_element_years
 from base.business.group_element_years.management import LEARNING_UNIT_YEAR
 from base.models.education_group_year import EducationGroupYear
 from base.models.learning_unit_year import LearningUnitYear
-from base.utils.cache import cache_filter
-from base.views.education_groups.perms import can_change_education_group
-from base.views.learning_units.perms import PermissionDecoratorWithUser
 
 
 @login_required
 @waffle_flag("education_group_select")
-@PermissionDecoratorWithUser(can_change_education_group, "education_group_year_id", EducationGroupYear)
-@cache_filter()
 def education_group_select(request, root_id=None, education_group_year_id=None):
-    education_group_year = get_object_or_404(EducationGroupYear, pk=request.GET['child_to_cache_id'])
+    education_group_year = get_object_or_404(EducationGroupYear, pk=request.POST['child_to_cache_id'])
     group_element_years.management.select_education_group_year(education_group_year)
     if request.is_ajax():
         return HttpResponse(HTTPStatus.OK)
