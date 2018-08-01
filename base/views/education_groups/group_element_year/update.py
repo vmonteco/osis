@@ -25,6 +25,7 @@
 ##############################################################################
 from django.contrib.auth.decorators import login_required
 from django.contrib.messages.views import SuccessMessageMixin
+from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.utils.decorators import method_decorator
@@ -34,14 +35,14 @@ from django.views.generic import DeleteView
 from django.views.generic import UpdateView
 from waffle.decorators import waffle_flag
 
+from base.business import group_element_years
 from base.forms.education_group.group_element_year import UpdateGroupElementYearForm
 from base.models.education_group_year import EducationGroupYear
-from base.models.group_element_year import GroupElementYear, get_or_create_group_element_year, \
-    get_group_element_year_by_id
-from base.utils.cache import cache
+from base.models.group_element_year import GroupElementYear, get_group_element_year_by_id
 from base.views.common import display_success_messages, display_warning_messages
 from base.views.common_classes import AjaxTemplateMixin, FlagMixin, RulesRequiredMixin
 from base.views.education_groups import perms
+from base.business.group_element_years.management import SELECT_CACHE_KEY
 from base.views.learning_units.perms import PermissionDecoratorWithUser
 
 
@@ -96,18 +97,12 @@ def _detach(request, group_element_year, *args, **kwargs):
 
 @require_http_methods(['GET', 'POST'])
 def _attach(request, group_element_year, *args, **kwargs):
-    child_to_cache_id = cache.get('child_to_cache_id')
-    if child_to_cache_id:
-        new_parent = EducationGroupYear.objects.get(id=kwargs.get('education_group_year_id'))
-        success_msg = _("Attached to %(acronym)s") % {'acronym': new_parent}
-        child_id = int(child_to_cache_id)
-        get_or_create_group_element_year(
-            parent=new_parent,
-            child=EducationGroupYear.objects.get(id=child_id)
-        )
-        cache.set('child_to_cache_id', None, timeout=None)
+    parent = get_object_or_404(EducationGroupYear, pk=kwargs['education_group_year_id'])
+    try:
+        group_element_years.management.attach_from_cache(parent)
+        success_msg = _("Attached to %(acronym)s") % {'acronym': parent}
         display_success_messages(request, success_msg)
-    else:
+    except ObjectDoesNotExist:
         warning_msg = _("Please Select or Move an item before Attach it")
         display_warning_messages(request, warning_msg)
 

@@ -27,19 +27,18 @@ from http import HTTPStatus
 
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
-from django.shortcuts import redirect
+from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse
 from django.views.decorators.http import require_http_methods
 from waffle.decorators import waffle_flag
 
+from base.business import group_element_years
+from base.business.group_element_years.management import LEARNING_UNIT_YEAR
 from base.models.education_group_year import EducationGroupYear
-from base.utils.cache import cache_filter, cache
+from base.models.learning_unit_year import LearningUnitYear
+from base.utils.cache import cache_filter
 from base.views.education_groups.perms import can_change_education_group
 from base.views.learning_units.perms import PermissionDecoratorWithUser
-
-LEARNING_UNIT_YEAR = 'learningunityear'
-EDUCATION_GROUP_YEAR = 'educationgroupyear'
-CACHE_KEY = 'child_to_cache_id'
 
 
 @login_required
@@ -47,11 +46,8 @@ CACHE_KEY = 'child_to_cache_id'
 @PermissionDecoratorWithUser(can_change_education_group, "education_group_year_id", EducationGroupYear)
 @cache_filter()
 def education_group_select(request, root_id=None, education_group_year_id=None):
-    data_to_cache = {
-        'id': request.GET.get('child_to_cache_id'),
-        'modelname': EDUCATION_GROUP_YEAR
-    }
-    cache.set(CACHE_KEY, data_to_cache, timeout=None)
+    education_group_year = get_object_or_404(EducationGroupYear, pk=request.GET['child_to_cache_id'])
+    group_element_years.management.select_education_group_year(education_group_year)
     if request.is_ajax():
         return HttpResponse(HTTPStatus.OK)
     else:
@@ -68,11 +64,8 @@ def education_group_select(request, root_id=None, education_group_year_id=None):
 @waffle_flag("education_group_select")
 @require_http_methods(['POST'])
 def learning_unit_select(request, learning_unit_year_id):
-    data_to_cache = {
-        'id': learning_unit_year_id,
-        'modelname': LEARNING_UNIT_YEAR
-    }
-    cache.set(CACHE_KEY, data_to_cache, timeout=None)
+    learning_unit_year = get_object_or_404(LearningUnitYear, pk=learning_unit_year_id)
+    group_element_years.management.select_learning_unit_year(learning_unit_year)
     if request.is_ajax():
         return HttpResponse(HTTPStatus.OK)
     else:
