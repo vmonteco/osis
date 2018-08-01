@@ -29,7 +29,6 @@ import logging
 from django.conf import settings
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core.exceptions import PermissionDenied
-from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.utils.translation import ugettext_lazy as _
@@ -107,8 +106,15 @@ def entities_version(request, entity_version_id):
 @login_required
 def entity_diagram(request, entity_version_id):
     entity_version = mdl.entity_version.find_by_id(entity_version_id)
-    entities_version_as_json = json.dumps(entity_version.get_organogram_data(level=0))
-    return layout.render(request, "entity/organogram.html", locals())
+    entities_version_as_json = json.dumps(entity_version.get_organogram_data())
+
+    return layout.render(
+        request, "entity/organogram.html",
+        {
+            "entity_version": entity_version,
+            "entities_version_as_json": entities_version_as_json,
+        }
+    )
 
 
 @login_required

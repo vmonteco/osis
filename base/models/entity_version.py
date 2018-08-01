@@ -24,17 +24,66 @@
 #
 ##############################################################################
 import datetime
+from collections import OrderedDict
 
-from django.db import models
+from django.db import models, connection
 from django.db.models import Q
 from django.utils import timezone
 from django.utils.functional import cached_property
+from django.utils.timezone import now
 
+from base.models.entity import Entity
 from base.models.enums import entity_type
 from base.models.enums.entity_type import MAIN_ENTITY_TYPE
 from base.models.enums.organization_type import MAIN
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
 from osis_common.utils.datetime import get_tzinfo
+
+SQL_RECURSIVE_QUERY = """
+WITH RECURSIVE under_entity AS (
+
+    SELECT id, acronym, parent_id, entity_id, '{{}}'::int[] as parents, '{date}'::date as date, 0 as level 
+    FROM base_entityversion where entity_id={entity}
+
+    UNION ALL
+
+    SELECT b.id,
+        b.acronym,
+        b.parent_id,
+        b.entity_id,
+        parents || b.parent_id,
+        u.date,
+        u.level + 1
+
+    FROM under_entity AS u, base_entityversion AS b
+    WHERE (u.entity_id=b.parent_id) AND (
+        (b.end_date >= date::date OR b.end_date IS NULL) AND
+        b.start_date <= date::date)
+    )
+
+SELECT * FROM under_entity ;
+"""
+
+
+class Node:
+    """ Node used to create an hierarchy between the entity_version """
+
+    def __init__(self, id, acronym, parent_id, level):
+        self.id = id
+        self.acronym = acronym
+        self.parent_id = parent_id
+        self.children = []
+        self.level = level
+
+    def append_child(self, node):
+        self.children.append(node)
+
+    def to_json(self, limit):
+        return {
+            'id': self.id,
+            'acronym': self.acronym,
+            'children': [child.to_json(limit) for child in self.children if child.level < limit]
+        }
 
 
 class EntityVersionAdmin(SerializableModelAdmin):
@@ -53,6 +102,22 @@ class EntityVersionQuerySet(models.QuerySet):
 
     def entity(self, entity):
         return self.filter(entity=entity)
+
+    def get_tree(self, entity, date=None):
+        if not date:
+            date = now()
+
+        if isinstance(entity, Entity):
+            entity = entity.pk
+
+        with connection.cursor() as cursor:
+            cursor.execute(SQL_RECURSIVE_QUERY.format(entity=entity, date=date))
+
+            return cursor.fetchall()
+
+    def descendants(self, entity, date=None):
+        tree = self.get_tree(entity.pk, date)
+        return self.filter(pk__in=[node[0] for node in tree[1:]]).order_by('acronym')
 
 
 class EntityVersion(SerializableModel):
@@ -138,21 +203,14 @@ class EntityVersion(SerializableModel):
 
     @cached_property
     def descendants(self):
-        return self.find_descendants()
+        return EntityVersion.objects.descendants(self.entity)
 
     @cached_property
     def children(self):
         return self._direct_children()
 
     def find_descendants(self, date=None):
-        descendants = []
-        direct_children = self.find_direct_children(date)
-        if len(direct_children) > 0:
-            descendants.extend(direct_children)
-            for child in direct_children:
-                descendants.extend(child.find_descendants(date))
-
-        return sorted(descendants, key=lambda an_entity: an_entity.acronym)
+        return EntityVersion.objects.descendants(self.entity, date)
 
     def find_faculty_version(self, academic_yr):
         if self.entity_type == entity_type.FACULTY:
@@ -197,20 +255,18 @@ class EntityVersion(SerializableModel):
         else:
             return False
 
-    def get_organogram_data(self, level):
-        level += 1
-        if level < 3:
-            return {
-                'id': self.id,
-                'acronym': self.acronym,
-                'children': [child.get_organogram_data(level) for child in self.children]
-            }
-        else:
-            return {
-                'id': self.id,
-                'acronym': self.acronym,
-                'children': []
-            }
+    def get_organogram_data(self, limit=3):
+        tree = EntityVersion.objects.get_tree(self.entity_id)
+
+        nodes = OrderedDict()
+        for (id, acronym, parent_id, entity_id, parents, date, level) in tree:
+            node = Node(id, acronym, parent_id, level)
+            nodes[entity_id] = node
+
+            if parent_id in nodes:
+                nodes[parent_id].append_child(node)
+
+        return nodes[tree[0][3]].to_json(limit)
 
 
 def find(acronym, date=None):
@@ -347,6 +403,7 @@ def find_all_current_entities_version():
     return find_latest_version(date=now)
 
 
+# TODO Use recursive query instead
 def build_current_entity_version_structure_in_memory(date=None):
     if date:
         all_current_entities_version = find_latest_version(date=date)
