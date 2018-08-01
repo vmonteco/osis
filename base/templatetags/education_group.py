@@ -35,25 +35,31 @@ from backoffice.settings import base
 from base.business.education_groups.perms import is_eligible_to_delete_education_group, \
     is_eligible_to_change_education_group, is_eligible_to_add_education_group
 
-CHILD_BRANCH_OPTIONAL = '<tr><td style="padding-left:{}em;width:{};">' \
-                        '<img src="{}img/education_group_year/optional.png" height="10" width="10">{}{}</td></tr>'
+OPTIONAL_PNG = base.STATIC_URL + 'img/education_group_year/optional.png'
+MANDATORY_PNG = base.STATIC_URL + 'img/education_group_year/mandatory.png'
+CASE_JPG = base.STATIC_URL + 'img/education_group_year/case.jpg'
 
-CHILD_BRANCH_MANDATORY = '<tr><td style="padding-left:{}em;width:{};">' \
-                         '<img src="{}img/education_group_year/mandatory.png" height="10" width="10">{}{}</td></tr>'
+CHILD_BRANCH = """\
+<tr>
+    <td style="padding-left:{padding}em;width:{width_main};">
+        <img src="{icon_list_2}" height="10" width="10">
+        {value}{sublist}
+    </td>
+</tr>
+"""
 
-CHILD_LEAF_OPTIONAL = '<tr><td style="padding-left:{}em;width:{};">' \
-                      '<img src="{}img/education_group_year/case.jpg" height="14" width="17">' \
-                      '<img src="{}img/education_group_year/optional.png" height="10" width="10">' \
-                      '{}{}</td><td style="width:{};text-align: center;">{}</td>' \
-                      '<td style="width:{};text-align: center;">{}</td>' \
-                      '<td style="width:{};text-align: center;">{}</td></tr>'
-
-CHILD_LEAF_MANDATORY = '<tr><td style="padding-left:{}em;width:{};">' \
-                      '<img src="{}img/education_group_year/case.jpg" height="14" width="17">' \
-                      '<img src="{}img/education_group_year/mandatory.png" height="10" width="10">' \
-                      '{}{}</td><td style="width:{};text-align: center;">{}</td>' \
-                      '<td style="width:{};text-align: center;">{}</td>' \
-                      '<td style="width:{};text-align: center;">{}</td></tr>'
+CHILD_LEAF = """\
+<tr>
+    <td style="padding-left:{padding}em;width:{width_main};">
+        <img src="{icon_list_1}" height="14" width="17">
+        <img src="{icon_list_2}" height="10" width="10">
+        {value}{sublist}
+    </td>
+    <td style="width:{width_an};text-align: center;">{an_1}</td>
+    <td style="width:{width_an};text-align: center;">{an_2}</td>
+    <td style="width:{width_an};text-align: center;">{an_3}</td>
+</tr>
+"""
 
 NO_GIVEN_ROOT = "INVALID TREE : no given root"
 ICON_JSTREE_FILE = "data-jstree='{\"icon\":\"jstree-icon jstree-file\"}'"
@@ -223,27 +229,41 @@ def append_output(item, output, padding, sublist):
     if item.child_leaf:
         if item.is_mandatory:
             output.append(
-                CHILD_LEAF_MANDATORY.format(padding, "580px", base.STATIC_URL, base.STATIC_URL,
-                                            escaper(force_text(item.verbose)),
-                                            sublist, "15px", "X" if item.block and "1" in item.block else "", "15px",
-                                            "X" if item.block and "2" in item.block else "", "15px",
-                                            "X" if item.block and "3" in item.block else ""))
+                CHILD_LEAF.format(padding=padding,
+                                  width_main="580px",
+                                  icon_list_1=CASE_JPG,
+                                  icon_list_2=MANDATORY_PNG,
+                                  value=escaper(force_text(item.verbose)),
+                                  sublist=sublist,
+                                  width_an="15px",
+                                  an_1="X" if item.block and "1" in item.block else "",
+                                  an_2="X" if item.block and "2" in item.block else "",
+                                  an_3="X" if item.block and "3" in item.block else ""))
         else:
             output.append(
-                CHILD_LEAF_OPTIONAL.format(padding, "580px", base.STATIC_URL, base.STATIC_URL,
-                                           escaper(force_text(item.verbose)),
-                                           sublist, "15px", "X" if item.block and "1" in item.block else "", "15px",
-                                           "X" if item.block and "2" in item.block else "", "15px",
-                                           "X" if item.block and "3" in item.block else ""))
+                CHILD_LEAF.format(padding=padding,
+                                  width_main="580px",
+                                  icon_list_1=CASE_JPG,
+                                  icon_list_2=OPTIONAL_PNG,
+                                  value=escaper(force_text(item.verbose)),
+                                  sublist=sublist,
+                                  width_an="15px",
+                                  an_1="X" if item.block and "1" in item.block else "",
+                                  an_2="X" if item.block and "2" in item.block else "",
+                                  an_3="X" if item.block and "3" in item.block else ""))
     else:
         if item.is_mandatory:
             output.append(
-                CHILD_BRANCH_MANDATORY.format(padding, "580px", base.STATIC_URL, escaper(force_text(item.verbose)),
-                                              sublist))
+                CHILD_BRANCH.format(padding=padding, width_main="580px",
+                                    icon_list_2=MANDATORY_PNG,
+                                    value=escaper(force_text(item.verbose)),
+                                    sublist=sublist))
         else:
             output.append(
-                CHILD_BRANCH_OPTIONAL.format(padding, "580px", base.STATIC_URL, escaper(force_text(item.verbose)),
-                                             sublist))
+                CHILD_BRANCH.format(padding=padding, width_main="580px",
+                                    icon_list_2=OPTIONAL_PNG,
+                                    value=escaper(force_text(item.verbose)),
+                                    sublist=sublist))
 
 
 def escaper(x):
