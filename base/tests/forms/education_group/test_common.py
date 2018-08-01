@@ -90,7 +90,7 @@ class EducationGroupYearModelFormMixin(TestCase):
         self.assertTrue(mock_authorized_types.called)
         expected_kwargs = {
             'category': expected_category,
-            'parent_type': self.parent_education_group_year.education_group_type
+            'parents': [self.parent_education_group_year]
         }
         mock_authorized_types.assert_called_with(**expected_kwargs)
 

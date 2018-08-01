@@ -98,7 +98,7 @@ def check_authorized_type(education_group, raise_excetpion=False):
 
     result = find_authorized_types(
         category=education_group.education_group_type.category,
-        parent_type=education_group.education_group_type
+        parents=[education_group]
     ).exists()
 
     can_raise_exception(
