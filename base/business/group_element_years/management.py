@@ -53,16 +53,16 @@ def _set_selected_element_on_cache(id, modelname):
 def attach_from_cache(parent):
     selected_data = cache.get(SELECT_CACHE_KEY)
     if selected_data:
-       kwargs = {'parent': parent}
-       if selected_data['modelname'] == LEARNING_UNIT_YEAR:
-           luy = LearningUnitYear.objects.get(pk=selected_data['id'])
-           kwargs['child_leaf'] = luy
-       elif selected_data['modelname'] == EDUCATION_GROUP_YEAR:
-           egy = EducationGroupYear.objects.get(pk=selected_data['id'])
-           kwargs['child_branch'] = egy
-       new_gey = group_element_year.get_or_create_group_element_year(**kwargs)
-       _clear_cache()
-       return new_gey
+        kwargs = {'parent': parent}
+        if selected_data['modelname'] == LEARNING_UNIT_YEAR:
+            luy = LearningUnitYear.objects.get(pk=selected_data['id'])
+            kwargs['child_leaf'] = luy
+        elif selected_data['modelname'] == EDUCATION_GROUP_YEAR:
+            egy = EducationGroupYear.objects.get(pk=selected_data['id'])
+            kwargs['child_branch'] = egy
+        new_gey = group_element_year.get_or_create_group_element_year(**kwargs)
+        _clear_cache()
+        return new_gey
     raise ObjectDoesNotExist
 
 

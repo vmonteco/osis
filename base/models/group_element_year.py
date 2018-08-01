@@ -310,4 +310,3 @@ def get_or_create_group_element_year(parent, child_branch=None, child_leaf=None)
     elif child_leaf:
         return GroupElementYear.objects.get_or_create(parent=parent, child_leaf=child_leaf)
     return AttributeError('child branch OR child leaf params must be set')
-
