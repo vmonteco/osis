@@ -37,7 +37,7 @@ from base.utils.cache import cache
 @login_required
 @waffle_flag("education_group_select")
 def education_group_select(request, root_id=None, education_group_year_id=None):
-    child_to_cache_id = request.GET.get('child_to_cache_id')
+    child_to_cache_id = request.POST.get('child_to_cache_id')
     cache.set('child_to_cache_id', child_to_cache_id, timeout=None)
     if request.is_ajax():
         return HttpResponse(HTTPStatus.OK)

@@ -46,7 +46,7 @@ $(document).ready(function () {
                     $.ajax({
                         url: '../select/',
                         data: {'child_to_cache_id' : education_group_year_id},
-                        type: 'GET',
+                        type: 'POST',
                         dataType: 'json',
                     });
                   },
@@ -79,7 +79,7 @@ $(document).ready(function () {
                     $.ajax({
                         url: '../select/',
                         data: {'child_to_cache_id' : education_group_year_id},
-                        type: 'GET',
+                        type: 'POST',
                         dataType: 'json',
                     });
 

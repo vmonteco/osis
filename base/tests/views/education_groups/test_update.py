@@ -263,7 +263,7 @@ class TestSelectDetachAttach(TestCase):
         self.perm_patcher.stop()
 
     def test_select(self):
-        response = self.client.get(
+        response = self.client.post(
             self.url_select,
             data={'child_to_cache_id': self.child_education_group_year.id},
             HTTP_X_REQUESTED_WITH='XMLHttpRequest',
@@ -282,7 +282,7 @@ class TestSelectDetachAttach(TestCase):
 
         self._assert_link_with_inital_parent_present()
 
-        self.client.get(self.url_select, data={'child_to_cache_id' : self.child_education_group_year.id})
+        self.client.post(self.url_select, data={'child_to_cache_id' : self.child_education_group_year.id})
         self.client.get(self.url_attach, HTTP_REFERER='http://foo/bar')
 
 
