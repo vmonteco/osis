@@ -236,9 +236,9 @@ def append_output(item, output, padding, sublist):
                                   value=escaper(force_text(item.verbose)),
                                   sublist=sublist,
                                   width_an="15px",
-                                  an_1="X" if item.block and "1" in item.block else "",
-                                  an_2="X" if item.block and "2" in item.block else "",
-                                  an_3="X" if item.block and "3" in item.block else ""))
+                                  an_1=check_block(item, "1"),
+                                  an_2=check_block(item, "2"),
+                                  an_3=check_block(item, "3")))
         else:
             output.append(
                 CHILD_LEAF.format(padding=padding,
@@ -248,9 +248,9 @@ def append_output(item, output, padding, sublist):
                                   value=escaper(force_text(item.verbose)),
                                   sublist=sublist,
                                   width_an="15px",
-                                  an_1="X" if item.block and "1" in item.block else "",
-                                  an_2="X" if item.block and "2" in item.block else "",
-                                  an_3="X" if item.block and "3" in item.block else ""))
+                                  an_1=check_block(item, "1"),
+                                  an_2=check_block(item, "2"),
+                                  an_3=check_block(item, "3")))
     else:
         if item.is_mandatory:
             output.append(
@@ -264,6 +264,10 @@ def append_output(item, output, padding, sublist):
                                     icon_list_2=OPTIONAL_PNG,
                                     value=escaper(force_text(item.verbose)),
                                     sublist=sublist))
+
+
+def check_block(item, value):
+    return "X" if item.block and value in item.block else ""
 
 
 def escaper(x):
