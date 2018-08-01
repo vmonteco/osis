@@ -26,7 +26,7 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.messages.views import SuccessMessageMixin
 from django.shortcuts import get_object_or_404, redirect
-from django.urls import reverse
+from django.urls import reverse, NoReverseMatch
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_http_methods
@@ -174,17 +174,15 @@ class DetachGroupElementYearView(GenericUpdateGroupElementYearMixin, DeleteView)
     template_name = "education_group/group_element_year/confirm_detach.html"
 
     def delete(self, request, *args, **kwargs):
-        success_msg = _("The %(acronym)s has been detached") % {'acronym': self.get_object().child}
+        success_msg = _("\"%(child)s\" has been detached from \"%(parent)s\"") % {
+            'child': self.get_object().child,
+            'parent': self.get_object().parent,
+        }
         display_success_messages(request, success_msg)
         return super().delete(request, *args, **kwargs)
 
     def get_success_url(self):
-        redirect_path_by_source = {
-            'identification':
-                reverse("education_group_read", args=[self.kwargs["root_id"], self.kwargs["root_id"]]),
-            'content':
-                reverse("education_group_content", args=[self.kwargs["root_id"], self.kwargs["root_id"]]),
-        }
-        default_url = redirect_path_by_source.get('content')
-        redirect_url = redirect_path_by_source.get(self.kwargs.get('source'), default_url)
-        return redirect_url
+        try:
+            return reverse(self.kwargs.get('source'), args=[self.kwargs["root_id"], self.kwargs["root_id"]])
+        except NoReverseMatch:
+            return reverse("education_group_read", args=[self.kwargs["root_id"], self.kwargs["root_id"]])

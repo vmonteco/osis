@@ -73,7 +73,8 @@ $(document).ready(function () {
                        + education_group_year_id
                        + "/content/"
                        + group_element_year
-                       + "/management/?action=detach&source=identification";
+                       + "/management/?action=detach&source="
+                       + url_name;
 
                     $.ajax({
                         url: '../select/',
@@ -108,7 +109,8 @@ $(document).ready(function () {
                        + education_group_year_id
                        + "/content/"
                        + group_element_year
-                       + "/management/?action=detach&source=identification";
+                       + "/management/?action=detach&source="
+                       + url_name;
 
                     $('#form-modal-content').load(detach_url, function () {
                         $('#form-modal').modal('toggle');

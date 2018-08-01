@@ -129,7 +129,8 @@
                + {{ education_group_year.id }}
                + "/content/"
                + {{ group_to_parent }}
-               + "/management/?action=detach&source=identification";
+               + "/management/?action=detach&source="
+               + {% url_name %};
 
             $.ajax({
                 url: '../select/',

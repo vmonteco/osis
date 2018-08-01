@@ -198,3 +198,8 @@ def _get_icon_jstree(education_group_year):
 
 def _get_a_class(education_group_year, selected_education_group_year):
     return "jstree-wholerow-clicked" if education_group_year.pk == selected_education_group_year.pk else ""
+
+
+@register.simple_tag(takes_context=True)
+def url_name(context):
+    return context.request.resolver_match.url_name

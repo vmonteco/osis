@@ -3231,7 +3231,7 @@ msgstr ""
 msgid "The %(acronym)s has been moved"
 msgstr ""
 
-msgid "The %(acronym)s has been detached"
+msgid "\"%(child)s\" has been detached from \"%(parent)s\""
 msgstr ""
 
 msgid "Additional info"

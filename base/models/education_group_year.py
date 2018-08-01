@@ -221,7 +221,7 @@ class EducationGroupYear(models.Model):
                                  blank=True, null=True, verbose_name=_('Rate code'))
 
     def __str__(self):
-        return u"%s - %s" % (self.academic_year, self.acronym)
+        return u"%s - %s - %s" % (self.partial_acronym, self.acronym, self.academic_year)
 
     @property
     def verbose(self):

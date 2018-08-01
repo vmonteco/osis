@@ -1,6 +1,6 @@
 {% extends "education_group/layout_detail.html" %}
 {% load i18n %}
-{% load staticfiles getattr %}
+{% load staticfiles getattr education_group %}
 {% comment "License" %}
 * OSIS stands for Open Student Information System. It's an application
 * designed to manage the core business of higher education institutions,
@@ -119,7 +119,8 @@
 
 {% block script %}
     <script>
-        var root_id = "{{ root_id }}"
+        var root_id = "{{ root_id }}";
+        var url_name= "{% url_name %}";
     </script>
     <script src="{% static 'js/education_group/education_group_tree.js' %}"></script>
 {% endblock %}
