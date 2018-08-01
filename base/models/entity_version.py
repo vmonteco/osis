@@ -39,7 +39,7 @@ from base.models.enums.organization_type import MAIN
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
 from osis_common.utils.datetime import get_tzinfo
 
-SQL_RECURSIVE_QUERY = """
+SQL_RECURSIVE_QUERY = """\
 WITH RECURSIVE under_entity AS (
 
     SELECT id, acronym, parent_id, entity_id, '{{}}'::int[] as parents, '{date}'::date as date, 0 as level 
