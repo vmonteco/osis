@@ -35,6 +35,26 @@ from backoffice.settings import base
 from base.business.education_groups.perms import is_eligible_to_delete_education_group, \
     is_eligible_to_change_education_group, is_eligible_to_add_education_group
 
+CHILD_BRANCH_OPTIONAL = '<tr><td style="padding-left:{}em;width:{};">' \
+                        '<img src="{}img/education_group_year/optional.png" height="10" width="10">{}{}</td></tr>'
+
+CHILD_BRANCH_MANDATORY = '<tr><td style="padding-left:{}em;width:{};">' \
+                         '<img src="{}img/education_group_year/mandatory.png" height="10" width="10">{}{}</td></tr>'
+
+CHILD_LEAF_OPTIONAL = '<tr><td style="padding-left:{}em;width:{};">' \
+                      '<img src="{}img/education_group_year/case.jpg" height="14" width="17">' \
+                      '<img src="{}img/education_group_year/optional.png" height="10" width="10">' \
+                      '{}{}</td><td style="width:{};text-align: center;">{}</td>' \
+                      '<td style="width:{};text-align: center;">{}</td>' \
+                      '<td style="width:{};text-align: center;">{}</td></tr>'
+
+CHILD_LEAF_MANDATORY = '<tr><td style="padding-left:{}em;width:{};">' \
+                      '<img src="{}img/education_group_year/case.jpg" height="14" width="17">' \
+                      '<img src="{}img/education_group_year/mandatory.png" height="10" width="10">' \
+                      '{}{}</td><td style="width:{};text-align: center;">{}</td>' \
+                      '<td style="width:{};text-align: center;">{}</td>' \
+                      '<td style="width:{};text-align: center;">{}</td></tr>'
+
 NO_GIVEN_ROOT = "INVALID TREE : no given root"
 ICON_JSTREE_FILE = "data-jstree='{\"icon\":\"jstree-icon jstree-file\"}'"
 
@@ -155,101 +175,79 @@ def pdf_tree_list(value, autoescape=True):
     else:
         def escaper(x):
             return x
-
-    def walk_items(item_list):
-        if item_list:
-            item_iterator = iter(item_list)
-            try:
-                item = next(item_iterator)
-                while True:
-                    try:
-                        next_item = next(item_iterator)
-                    except StopIteration:
-                        yield item, None
-                        break
-                    if not isinstance(next_item, six.string_types):
-                        try:
-                            iter(next_item)
-                        except TypeError:
-                            pass
-                        else:
-                            yield item, next_item
-                            item = next(item_iterator)
-                            continue
-                    yield item, None
-                    item = next_item
-            except StopIteration:
-                pass
-        else:
-            return ""
-
-    def list_formatter(item_list, tabs=1, depth=None):
-        output = []
-        depth = depth if depth else 1
-        for item, children in walk_items(item_list):
-            sublist = ''
-            padding = 2 * depth
-            if children:
-                sublist = '%s' % (
-                    list_formatter(children, tabs + 1, depth + 1))
-            append_output(item, output, padding, sublist)
-        return '\n'.join(output)
-
-    def append_output(item, output, padding, sublist):
-        if item.child_leaf:
-            if item.is_mandatory:
-                output.append(
-                    '<tr>'
-                    '<td style="padding-left:%sem;width:%s;">'
-                    '<img src="%simg/education_group_year/case.jpg" height="14" width="17">'
-                    '<img src="%simg/education_group_year/mandatory.png" height="10" width="10">'
-                    '%s%s'
-                    '</td>'
-                    '<td style="width:%s;text-align: center;">%s</td>'
-                    '<td style="width:%s;text-align: center;">%s</td>'
-                    '<td style="width:%s;text-align: center;">%s</td>'
-                    '</tr>' % (
-                        padding, "580px", base.STATIC_URL, base.STATIC_URL, escaper(force_text(item.verbose)),
-                        sublist, "15px", "X" if item.block and "1" in item.block else "", "15px",
-                        "X" if item.block and "2" in item.block else "", "15px",
-                        "X" if item.block and "3" in item.block else ""))
-            else:
-                output.append(
-                    '<tr>'
-                    '<td style="padding-left:%sem;width:%s;">'
-                    '<img src="%simg/education_group_year/case.jpg" height="14" width="17">'
-                    '<img src="%simg/education_group_year/optional.png" height="10" width="10">'
-                    '%s%s'
-                    '</td>'
-                    '<td style="width:%s;text-align: center;">%s</td>'
-                    '<td style="width:%s;text-align: center;">%s</td>'
-                    '<td style="width:%s;text-align: center;">%s</td>'
-                    '</tr>' % (
-                        padding, "580px", base.STATIC_URL, base.STATIC_URL, escaper(force_text(item.verbose)),
-                        sublist, "15px", "X" if item.block and "1" in item.block else "", "15px",
-                        "X" if item.block and "2" in item.block else "", "15px",
-                        "X" if item.block and "3" in item.block else ""))
-        else:
-            if item.is_mandatory:
-                output.append(
-                    '<tr>'
-                    '<td style="padding-left:%sem;width:%s;">'
-                    '<img src="%simg/education_group_year/mandatory.png" height="10" width="10">'
-                    '%s%s'
-                    '</td>'
-                    '</tr>' % (
-                        padding, "580px", base.STATIC_URL, escaper(force_text(item.verbose)), sublist))
-            else:
-                output.append(
-                    '<tr>'
-                    '<td style="padding-left:%sem;width:%s;">'
-                    '<img src="%simg/education_group_year/optional.png" height="10" width="10">'
-                    '%s%s'
-                    '</td>'
-                    '</tr>' % (
-                        padding, "580px", base.STATIC_URL, escaper(force_text(item.verbose)), sublist))
-
     return mark_safe(list_formatter(value))
+
+
+def walk_items(item_list):
+    if item_list:
+        item_iterator = iter(item_list)
+        try:
+            item = next(item_iterator)
+            while True:
+                try:
+                    next_item = next(item_iterator)
+                except StopIteration:
+                    yield item, None
+                    break
+                if not isinstance(next_item, six.string_types):
+                    try:
+                        iter(next_item)
+                    except TypeError:
+                        pass
+                    else:
+                        yield item, next_item
+                        item = next(item_iterator)
+                        continue
+                yield item, None
+                item = next_item
+        except StopIteration:
+            pass
+    else:
+        return ""
+
+
+def list_formatter(item_list, tabs=1, depth=None):
+    output = []
+    depth = depth if depth else 1
+    for item, children in walk_items(item_list):
+        sublist = ''
+        padding = 2 * depth
+        if children:
+            sublist = '%s' % (
+                list_formatter(children, tabs + 1, depth + 1))
+        append_output(item, output, padding, sublist)
+    return '\n'.join(output)
+
+
+def append_output(item, output, padding, sublist):
+    if item.child_leaf:
+        if item.is_mandatory:
+            output.append(
+                CHILD_LEAF_MANDATORY.format(padding, "580px", base.STATIC_URL, base.STATIC_URL,
+                                            escaper(force_text(item.verbose)),
+                                            sublist, "15px", "X" if item.block and "1" in item.block else "", "15px",
+                                            "X" if item.block and "2" in item.block else "", "15px",
+                                            "X" if item.block and "3" in item.block else ""))
+        else:
+            output.append(
+                CHILD_LEAF_OPTIONAL.format(padding, "580px", base.STATIC_URL, base.STATIC_URL,
+                                           escaper(force_text(item.verbose)),
+                                           sublist, "15px", "X" if item.block and "1" in item.block else "", "15px",
+                                           "X" if item.block and "2" in item.block else "", "15px",
+                                           "X" if item.block and "3" in item.block else ""))
+    else:
+        if item.is_mandatory:
+            output.append(
+                CHILD_BRANCH_MANDATORY.format(padding, "580px", base.STATIC_URL, escaper(force_text(item.verbose)),
+                                              sublist))
+        else:
+            output.append(
+                CHILD_BRANCH_OPTIONAL.format(padding, "580px", base.STATIC_URL, escaper(force_text(item.verbose)),
+                                             sublist))
+
+
+def escaper(x):
+    return x
 
 
 @register.simple_tag(takes_context=True)
