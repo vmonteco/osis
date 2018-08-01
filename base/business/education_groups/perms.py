@@ -114,8 +114,6 @@ def check_authorized_type(education_group, category=None, raise_exception=False)
         parents=[education_group]
     ).exists()
 
-    print(result, category)
-
     can_raise_exception(
         raise_exception, result,
         _("No type of education group can be created as child of %(category)s of type %(type)s") % {
