@@ -55,6 +55,9 @@ if 'webservices' in settings.INSTALLED_APPS:
     urlpatterns += (url(r'^api/', include('webservices.urls')),)
 if 'partnership' in settings.INSTALLED_APPS:
     urlpatterns += (url(r'^partnerships/', include('partnership.urls', namespace='partnerships')),)
+if 'debug_toolbar' in settings.INSTALLED_APPS:
+    import debug_toolbar
+    urlpatterns += (url(r'^__debug__/', include(debug_toolbar.urls, namespace='debug_toolbar')),)
 
 handler404 = 'base.views.common.page_not_found'
 handler403 = 'base.views.common.access_denied'
