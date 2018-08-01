@@ -66,6 +66,7 @@
                 {% endflag %}
 
                 {% flag "education_group_move" %}
+                {# TODO : Put this logic into a templatetag #}
                     <li {% if can_change_education_group %} id="btn_operation_detach_{{ group_to_parent }}" {% else %} class="disabled" {% endif %}>
                         <a {% if can_change_education_group %} href="#" onclick="javascript:select()" {% endif %}>
                             {% trans 'Move' %}
