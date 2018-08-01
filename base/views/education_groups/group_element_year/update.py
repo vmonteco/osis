@@ -36,13 +36,13 @@ from django.views.generic import UpdateView
 from waffle.decorators import waffle_flag
 
 from base.business import group_element_years
+from base.business.group_element_years.management import SELECT_CACHE_KEY
 from base.forms.education_group.group_element_year import UpdateGroupElementYearForm
 from base.models.education_group_year import EducationGroupYear
 from base.models.group_element_year import GroupElementYear, get_group_element_year_by_id
 from base.views.common import display_success_messages, display_warning_messages
 from base.views.common_classes import AjaxTemplateMixin, FlagMixin, RulesRequiredMixin
 from base.views.education_groups import perms
-from base.business.group_element_years.management import SELECT_CACHE_KEY
 from base.views.learning_units.perms import PermissionDecoratorWithUser
 
 
@@ -178,6 +178,6 @@ class DetachGroupElementYearView(GenericUpdateGroupElementYearMixin, DeleteView)
 
     def get_success_url(self):
         try:
-            return reverse(self.kwargs.get('source'), args=[self.kwargs["root_id"], self.kwargs["root_id"]])
+            return reverse(self.kwargs.get('source'), args=[self.kwargs["root_id"], self.education_group_year.pk])
         except NoReverseMatch:
             return reverse("education_group_read", args=[self.kwargs["root_id"], self.kwargs["root_id"]])

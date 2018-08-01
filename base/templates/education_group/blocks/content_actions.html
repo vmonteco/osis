@@ -34,9 +34,9 @@
 
 {% with "btn_operation_detach_"|addstr:element.group_element.id as id_detach %}
     {% button_with_permission _("Detach") id_detach "detach" %}
-
+    {% url_name as url_name %}
     {% url 'group_element_year_management' root_id=parent.id education_group_year_id=education_group_year.id group_element_year_id=element.group_element.id as detach_url %}
-    {% include "blocks/modal/modal_ajax.html" with modal_url=detach_url|add:"?action=detach&source=content" click_id=id_detach form_id="form_detach_confirm" %}
+    {% include "blocks/modal/modal_ajax.html" with modal_url=detach_url|add:"?action=detach&source="|add:url_name click_id=id_detach form_id="form_detach_confirm" %}
 {% endwith %}
 
 
