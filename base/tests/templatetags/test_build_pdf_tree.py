@@ -55,12 +55,12 @@ class TestBuildPDFTree(TestCase):
         }))
         self.assertEqual(out,
                          str('<tr><td style="padding-left:2em;width:580px;"><img '
-                             'src="base/static/img/education_group_year/mandatory.png" height="14" width="14">{}<tr>'
-                             '<td style="padding-left:2em;width:580px;float:left;">'
-                             '<img src="base/static/img/education_group_year/case.jpg" height="20" width="20">'
-                             '<img src="base/static/img/education_group_year/mandatory.png" height="14" '
-                             'width="14">{}</td><td style="width:15px;text-align: center;"></td>'
-                             '<td style="width15px;text-align: center;"></td>'
+                             'src="/static/img/education_group_year/mandatory.png" height="10" width="10">{}<tr>'
+                             '<td style="padding-left:4em;width:580px;">'
+                             '<img src="/static/img/education_group_year/case.jpg" height="14" width="17">'
+                             '<img src="/static/img/education_group_year/mandatory.png" height="10" '
+                             'width="10">{}</td><td style="width:15px;text-align: center;"></td>'
+                             '<td style="width:15px;text-align: center;"></td>'
                              '<td style="width:15px;text-align: center;">'
                              '</td></tr></td></tr>').format(
                              self.education_group_year_2.verbose_credit, self.group_element_year_2.verbose))
@@ -80,11 +80,11 @@ class TestBuildPDFTree(TestCase):
         }))
         self.assertEqual(out,
                          str('<tr><td style="padding-left:2em;width:580px;"><img '
-                             'src="base/static/img/education_group_year/optional.png" height="14" width="14">{}<tr>'
-                             '<td style="padding-left:2em;width:580px;float:left;">'
-                             '<img src="base/static/img/education_group_year/case.jpg" height="20" width="20">'
-                             '<img src="base/static/img/education_group_year/optional.png" height="14" '
-                             'width="14">{}</td><td style="width:15px;text-align: center;"></td>'
+                             'src="/static/img/education_group_year/optional.png" height="10" width="10">{}<tr>'
+                             '<td style="padding-left:4em;width:580px;">'
+                             '<img src="/static/img/education_group_year/case.jpg" height="14" width="17">'
+                             '<img src="/static/img/education_group_year/optional.png" height="10" '
+                             'width="10">{}</td><td style="width:15px;text-align: center;"></td>'
                              '<td style="width:15px;text-align: center;"></td>'
                              '<td style="width:15px;text-align: center;">'
                              '</td></tr></td></tr>').format(

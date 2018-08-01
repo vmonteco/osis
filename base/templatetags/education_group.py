@@ -200,38 +200,38 @@ def pdf_tree_list(value, autoescape=True):
             if item.is_mandatory:
                 output.append(
                     '<tr><td style="padding-left:%sem;width:%s;"><img '
-                    'src="%s/img/education_group_year/case.jpg" height="14" width="17""><img '
-                    'src="%s/img/education_group_year/mandatory.png" '
+                    'src="%simg/education_group_year/case.jpg" height="14" width="17"><img '
+                    'src="%simg/education_group_year/mandatory.png" '
                     'height="10" width="10">%s%s</td><td style="width:%s;text-align: center;">%s</td><td '
                     'style="width:%s;text-align: center;">%s</td><td style="width:%s;text-align: '
                     'center;">%s</td></tr>' % (
                         padding, "580px", base.STATIC_URL, base.STATIC_URL, escaper(force_text(item.verbose)),
-                        sublist, "15px", "X" if item.block and "1" in item.block else "", "10px",
-                        "X" if item.block and "2" in item.block else "", "10px",
+                        sublist, "15px", "X" if item.block and "1" in item.block else "", "15px",
+                        "X" if item.block and "2" in item.block else "", "15px",
                         "X" if item.block and "3" in item.block else ""))
             else:
                 output.append(
                     '<tr><td style="padding-left:%sem;width:%s;"><img '
-                    'src="%s/img/education_group_year/case.jpg" height="14" width="17""><img '
-                    'src="%s/img/education_group_year/optional.png" height="10" '
+                    'src="%simg/education_group_year/case.jpg" height="14" width="17"><img '
+                    'src="%simg/education_group_year/optional.png" height="10" '
                     'width="10">%s%s</td><td style="width:%s;text-align: center;">%s</td><td '
                     'style="width:%s;text-align: center;">%s</td><td '
                     'style="width:%s;text-align: center;">%s</td></tr>' % (
                         padding, "580px", base.STATIC_URL, base.STATIC_URL, escaper(force_text(item.verbose)),
-                        sublist, "15px", "X" if item.block and "1" in item.block else "", "10px",
-                        "X" if item.block and "2" in item.block else "", "10px",
+                        sublist, "15px", "X" if item.block and "1" in item.block else "", "15px",
+                        "X" if item.block and "2" in item.block else "", "15px",
                         "X" if item.block and "3" in item.block else ""))
         else:
             if item.is_mandatory:
                 output.append(
                     '<tr><td style="padding-left:%sem;width:%s;"><img '
-                    'src="%s/img/education_group_year/mandatory.png" '
+                    'src="%simg/education_group_year/mandatory.png" '
                     'height="10" width="10">%s%s</td></tr>' % (
                         padding, "580px", base.STATIC_URL, escaper(force_text(item.verbose)), sublist))
             else:
                 output.append(
                     '<tr><td style="padding-left:%sem;width:%s;"><img '
-                    'src="%s/img/education_group_year/optional.png" height="10" '
+                    'src="%simg/education_group_year/optional.png" height="10" '
                     'width="10">%s%s</td></tr>' % (
                         padding, "580px", base.STATIC_URL, escaper(force_text(item.verbose)), sublist))
 
