@@ -66,8 +66,8 @@
                 {% endflag %}
 
                 {% flag "education_group_move" %}
-                    <li {% if not can_change_education_group %} class="disabled" {% endif %}>
-                        <a {% if can_change_education_group %} href="#" onclick="javascript:select_and_detach()" {% endif %}>
+                    <li {% if can_change_education_group %} id="btn_operation_detach_{{ group_to_parent }}" {% else %} class="disabled" {% endif %}>
+                        <a {% if can_change_education_group %} href="#" onclick="javascript:select()" {% endif %}>
                             {% trans 'Move' %}
                         </a>
                     </li>
@@ -119,29 +119,6 @@
                 data: {'child_to_cache_id' : {{ education_group_year.id }} },
                 type: 'POST',
                 dataType: 'json',
-            });
-        }
-
-        function select_and_detach() {
-            var detach_url = "/educationgroups/"
-               + root_id
-               + "/"
-               + {{ education_group_year.id }}
-               + "/content/"
-               + {{ group_to_parent }}
-               + "/management/?action=detach&source="
-               + {% url_name %};
-
-            $.ajax({
-                url: '../select/',
-                data: {'child_to_cache_id' : {{ education_group_year.id }} },
-                type: 'POST',
-                dataType: 'json',
-            });
-
-            $('#form-modal-content').load(detach_url, function () {
-                $('#form-modal').modal('toggle');
-                formAjaxSubmit('#form-modal-body form', '#form-modal');
             });
         }
     </script>
