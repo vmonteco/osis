@@ -42,7 +42,7 @@ from osis_common.utils.datetime import get_tzinfo
 SQL_RECURSIVE_QUERY = """\
 WITH RECURSIVE under_entity AS (
 
-    SELECT id, acronym, parent_id, entity_id, '{{}}'::int[] as parents, '{date}'::date as date, 0 as level 
+    SELECT id, acronym, parent_id, entity_id, '{{}}'::int[] as parents, '{date}'::date as date, 0 as level
     FROM base_entityversion where entity_id={entity}
 
     UNION ALL
