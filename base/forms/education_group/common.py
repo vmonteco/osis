@@ -66,7 +66,7 @@ class EducationGroupYearModelForm(forms.ModelForm):
         self._preselect_entity_version_from_entity_value()
 
     def _filter_education_group_type(self):
-        # In case of update, we need to fetch all parent
+        # In case of update, we need to fetch all parents
         if self.instance.pk:
             parents = EducationGroupYear.objects.filter(
                 groupelementyear__child_branch=self.instance.pk
