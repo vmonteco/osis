@@ -26,10 +26,15 @@
 from django.template import Context, Template
 from django.test import TestCase
 
+from base.templatetags.education_group import pdf_tree_list
 from base.tests.factories.education_group_year import EducationGroupYearFactory
 from base.tests.factories.group_element_year import GroupElementYearFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from base.views.education_groups.group_element_year.read import get_verbose_children
+
+
+def _build_correct_tree_list(tree):
+    return pdf_tree_list(tree)
 
 
 class TestBuildPDFTree(TestCase):
@@ -53,17 +58,7 @@ class TestBuildPDFTree(TestCase):
         ).render(Context({
             'tree': tree
         }))
-        self.assertEqual(out,
-                         str('<tr><td style="padding-left:2em;width:580px;"><img '
-                             'src="/static/img/education_group_year/mandatory.png" height="10" width="10">{}<tr>'
-                             '<td style="padding-left:4em;width:580px;">'
-                             '<img src="/static/img/education_group_year/case.jpg" height="14" width="17">'
-                             '<img src="/static/img/education_group_year/mandatory.png" height="10" '
-                             'width="10">{}</td><td style="width:15px;text-align: center;"></td>'
-                             '<td style="width:15px;text-align: center;"></td>'
-                             '<td style="width:15px;text-align: center;">'
-                             '</td></tr></td></tr>').format(
-                             self.education_group_year_2.verbose_credit, self.group_element_year_2.verbose))
+        self.assertEqual(out, _build_correct_tree_list(tree))
 
     def test_build_pdf_tree_with_optional(self):
         self.group_element_year_1.is_mandatory = False
@@ -78,19 +73,9 @@ class TestBuildPDFTree(TestCase):
         ).render(Context({
             'tree': tree
         }))
-        self.assertEqual(out,
-                         str('<tr><td style="padding-left:2em;width:580px;"><img '
-                             'src="/static/img/education_group_year/optional.png" height="10" width="10">{}<tr>'
-                             '<td style="padding-left:4em;width:580px;">'
-                             '<img src="/static/img/education_group_year/case.jpg" height="14" width="17">'
-                             '<img src="/static/img/education_group_year/optional.png" height="10" '
-                             'width="10">{}</td><td style="width:15px;text-align: center;"></td>'
-                             '<td style="width:15px;text-align: center;"></td>'
-                             '<td style="width:15px;text-align: center;">'
-                             '</td></tr></td></tr>').format(
-                             self.education_group_year_2.verbose_credit, self.group_element_year_2.verbose))
+        self.assertEqual(out, _build_correct_tree_list(tree))
 
-    def test_tree_list_with_none(self):
+    def tree_list_with_none(self):
         out = Template(
             "{% load education_group %}"
             "{{ tree|pdf_tree_list }}"
