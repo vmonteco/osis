@@ -80,10 +80,11 @@ def find_authorized_types(category=None, parents=None):
         queryset = EducationGroupType.objects.all()
 
     if parents:
-        queryset = queryset.filter(
-            authorized_child_type__parent_type__educationgroupyear__in=parents)
-        # ).values_list('child_type', flat=True)
-        # queryset = queryset.filter(pk__in=parent_type.authorized_parent_type.all()
+        # Consecutive filters : we want to match all types not any types
+        for parent in parents:
+            queryset = queryset.filter(
+                authorized_child_type__parent_type__educationgroupyear=parent
+            )
 
     return queryset.order_by('name')
 
