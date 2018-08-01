@@ -23,27 +23,26 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
-from django.utils.translation import ugettext_lazy as _
 
 from base.models.education_group_year import EducationGroupYear
-from osis_common.document.pdf_build import Render
+from osis_common.document.pdf_build import render_pdf
 
 
 @login_required
 def pdf_content(request, root_id, education_group_year_id):
     parent = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
-    tree = [_("%(title)s (%(credits)d credits)") % {"title": parent.title, "credits": parent.credits or 0},
-            get_verbose_children(parent)]
-    return Render.render('education_group/pdf_content.html', {'tree': tree})
+    tree = get_verbose_children(parent)
+    return render_pdf(request, parent, tree, 'education_group/pdf_content.html')
 
 
 def get_verbose_children(parent):
     result = []
 
     for group_element_year in parent.children:
-        result.append(group_element_year.verbose)
+        result.append(group_element_year)
         if group_element_year.child_branch:
             result.append(get_verbose_children(group_element_year.child_branch))
 
