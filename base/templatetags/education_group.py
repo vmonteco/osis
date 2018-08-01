@@ -200,14 +200,14 @@ def pdf_tree_list(value, autoescape=True):
             if item.is_mandatory:
                 output.append(
                     '<tr><td style="padding-left:%sem;width:%s;float:left;"><img '
-                    'src="%s/img/education_group_year/case.jpg" height="14" width="17"><img '
+                    'src="%s/img/education_group_year/case.jpg" height="14" width="17" style="float:left;"><img '
                     'src="%s/img/education_group_year/mandatory.png" '
                     'height="10" width="10">%s%s</td><td style="width:%s;text-align: center;">%s</td><td '
                     'style="width:%s;text-align: center;">%s</td><td style="width:%s;text-align: '
                     'center;">%s</td></tr>' % (
-                        padding, "88%", base.STATIC_URL, base.STATIC_URL, escaper(force_text(item.verbose)),
-                        sublist, "4%", "X" if item.block and "1" in item.block else "", "4%",
-                        "X" if item.block and "2" in item.block else "", "4%",
+                        padding, "580px", base.STATIC_URL, base.STATIC_URL, escaper(force_text(item.verbose)),
+                        sublist, "15px", "X" if item.block and "1" in item.block else "", "10px",
+                        "X" if item.block and "2" in item.block else "", "10px",
                         "X" if item.block and "3" in item.block else ""))
             else:
                 output.append(
@@ -217,9 +217,9 @@ def pdf_tree_list(value, autoescape=True):
                     'width="10">%s%s</td><td style="width:%s;text-align: center;">%s</td><td '
                     'style="width:%s;text-align: center;">%s</td><td '
                     'style="width:%s;text-align: center;">%s</td></tr>' % (
-                        padding, "88%", base.STATIC_URL, base.STATIC_URL, escaper(force_text(item.verbose)),
-                        sublist, "4%", "X" if item.block and "1" in item.block else "", "4%",
-                        "X" if item.block and "2" in item.block else "", "4%",
+                        padding, "580px", base.STATIC_URL, base.STATIC_URL, escaper(force_text(item.verbose)),
+                        sublist, "15px", "X" if item.block and "1" in item.block else "", "10px",
+                        "X" if item.block and "2" in item.block else "", "10px",
                         "X" if item.block and "3" in item.block else ""))
         else:
             if item.is_mandatory:
@@ -227,13 +227,13 @@ def pdf_tree_list(value, autoescape=True):
                     '<tr><td style="padding-left:%sem;width:%s;float:left;"><img '
                     'src="%s/img/education_group_year/mandatory.png" '
                     'height="10" width="10">%s%s</td></tr>' % (
-                        padding, "88%", base.STATIC_URL, escaper(force_text(item.verbose)), sublist))
+                        padding, "580px", base.STATIC_URL, escaper(force_text(item.verbose)), sublist))
             else:
                 output.append(
                     '<tr><td style="padding-left:%sem;width:%s;float:left;"><img '
                     'src="%s/img/education_group_year/optional.png" height="10" '
                     'width="10">%s%s</td></tr>' % (
-                        padding, "88%", base.STATIC_URL, escaper(force_text(item.verbose)), sublist))
+                        padding, "580px", base.STATIC_URL, escaper(force_text(item.verbose)), sublist))
 
     return mark_safe(list_formatter(value))
 
@@ -276,9 +276,8 @@ def _get_group_element_year_id(current_group_element_year):
 
 def _get_url(request, egy, root, current_group_element_year):
     url_name = request.resolver_match.url_name if request.resolver_match else "education_group_read"
-    return reverse(url_name, args=[root.pk, egy.pk]) + \
-           "?group_to_parent=" + \
-           (str(current_group_element_year.id) if current_group_element_year else '0')
+    return reverse(url_name, args=[root.pk, egy.pk]) + "?group_to_parent=" + (
+        str(current_group_element_year.id) if current_group_element_year else '0')
 
 
 def _get_icon_jstree(education_group_year):

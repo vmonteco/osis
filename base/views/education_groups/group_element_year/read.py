@@ -23,36 +23,19 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import tempfile
 
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-from django.template.loader import render_to_string
-from weasyprint import HTML
 
 from base.models.education_group_year import EducationGroupYear
+from osis_common.document.pdf_build import render_pdf
 
 
 @login_required
 def pdf_content(request, root_id, education_group_year_id):
     parent = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
     tree = get_verbose_children(parent)
-    html_string = render_to_string('education_group/pdf_content.html', {'parent': parent, 'tree': tree})
-    html = HTML(string=html_string, base_url=request.build_absolute_uri())
-    result = html.write_pdf(presentational_hints=True)
-
-    # Creating http response
-    response = HttpResponse(content_type='application/pdf;')
-    response['Content-Disposition'] = 'inline; filename={}.pdf'.format(parent.title)
-    response['Content-Transfer-Encoding'] = 'binary'
-    with tempfile.NamedTemporaryFile(delete=True) as output:
-        output.write(result)
-        output.flush()
-        output = open(output.name, 'rb')
-        response.write(output.read())
-
-    return response
+    return render_pdf(request, parent, tree, 'education_group/pdf_content.html')
 
 
 def get_verbose_children(parent):
