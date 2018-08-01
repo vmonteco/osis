@@ -25,6 +25,7 @@
 ##############################################################################
 import itertools
 
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models, IntegrityError
 from django.db.models import Q
 from django.utils.functional import cached_property
@@ -303,5 +304,9 @@ def _match_any_filters(element_year, filters):
     return any(element_year[col_name] in values_list for col_name, values_list in filters.items())
 
 
-def get_or_create_group_element_year(parent, child):
-    return GroupElementYear.objects.get_or_create(parent=parent, child_branch=child)
+def get_or_create_group_element_year(parent, child_branch=None, child_leaf=None):
+    if child_branch:
+        return GroupElementYear.objects.get_or_create(parent=parent, child_branch=child_branch)
+    elif child_leaf:
+        return GroupElementYear.objects.get_or_create(parent=parent, child_leaf=child_leaf)
+    return AttributeError('child branch OR child leaf params must be set')

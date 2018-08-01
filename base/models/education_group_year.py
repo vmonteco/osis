@@ -187,7 +187,7 @@ class EducationGroupYear(models.Model):
     management_entity = models.ForeignKey(
         Entity,
         verbose_name=_("management_entity"),
-        blank=True, null=True,
+        null=True,
         related_name="management_entity"
     )
 
