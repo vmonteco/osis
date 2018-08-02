@@ -73,9 +73,10 @@ class TestRead(TestCase):
         cls.a_superuser = SuperUserFactory()
 
     def test_pdf_content(self):
+        self.client.force_login(self.a_superuser)
         url = reverse("pdf_content", args=[self.education_group_year_1.id, self.education_group_year_1.id])
         response = self.client.get(url)
-        self.assertEqual(response.status_code, HttpResponseRedirect.status_code)
+        self.assertTemplateUsed(response, 'education_group/pdf_content.html')
 
     def test_get_verbose_children(self):
         result = get_verbose_children(self.education_group_year_1)

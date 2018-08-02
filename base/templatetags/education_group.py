@@ -42,7 +42,7 @@ CASE_JPG = base.STATIC_URL + 'img/education_group_year/case.jpg'
 
 CHILD_BRANCH = """\
 <tr>
-    <td style="padding-left:{padding}em;width:{width_main};">
+    <td style="padding-left:{padding}em;width:{width_main};float:left;">
         <img src="{icon_list_2}" height="10" width="10">
         {value}{sublist}
     </td>
@@ -51,7 +51,7 @@ CHILD_BRANCH = """\
 
 CHILD_LEAF = """\
 <tr>
-    <td style="padding-left:{padding}em;width:{width_main};">
+    <td style="padding-left:{padding}em;width:{width_main};float:left;">
         <img src="{icon_list_1}" height="14" width="17">
         <img src="{icon_list_2}" height="10" width="10">
         {value}{sublist}
@@ -246,7 +246,7 @@ def append_output(item, output, padding, sublist):
         if item.is_mandatory:
             output.append(
                 CHILD_LEAF.format(padding=padding,
-                                  width_main="580px",
+                                  width_main="80%",
                                   icon_list_1=CASE_JPG,
                                   icon_list_2=MANDATORY_PNG,
                                   value=escaper(force_text(item.verbose)),
@@ -258,7 +258,7 @@ def append_output(item, output, padding, sublist):
         else:
             output.append(
                 CHILD_LEAF.format(padding=padding,
-                                  width_main="580px",
+                                  width_main="80%",
                                   icon_list_1=CASE_JPG,
                                   icon_list_2=OPTIONAL_PNG,
                                   value=escaper(force_text(item.verbose)),
@@ -270,13 +270,13 @@ def append_output(item, output, padding, sublist):
     else:
         if item.is_mandatory:
             output.append(
-                CHILD_BRANCH.format(padding=padding, width_main="580px",
+                CHILD_BRANCH.format(padding=padding, width_main="80%",
                                     icon_list_2=MANDATORY_PNG,
                                     value=escaper(force_text(item.verbose)),
                                     sublist=sublist))
         else:
             output.append(
-                CHILD_BRANCH.format(padding=padding, width_main="580px",
+                CHILD_BRANCH.format(padding=padding, width_main="80%",
                                     icon_list_2=OPTIONAL_PNG,
                                     value=escaper(force_text(item.verbose)),
                                     sublist=sublist))
