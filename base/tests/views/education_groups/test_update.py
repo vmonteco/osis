@@ -28,7 +28,7 @@ from http import HTTPStatus
 from unittest import mock
 from unittest.mock import patch
 
-from dateutil.utils import today
+
 from django.contrib.auth.models import Permission
 from django.test import TestCase, Client
 from django.urls import reverse
@@ -40,7 +40,7 @@ from base.models.enums import education_group_categories
 from base.models.enums.active_status import ACTIVE
 from base.models.enums.schedule_type import DAILY
 from base.models.group_element_year import GroupElementYear
-from base.tests.factories.academic_year import AcademicYearFactory
+from base.tests.factories.academic_year import create_current_academic_year
 from base.tests.factories.authorized_relationship import AuthorizedRelationshipFactory
 from base.tests.factories.education_group_type import EducationGroupTypeFactory
 from base.tests.factories.education_group_year import EducationGroupYearFactory
@@ -48,9 +48,10 @@ from base.tests.factories.education_group_year import GroupFactory, TrainingFact
 from base.tests.factories.education_group_year_domain import EducationGroupYearDomainFactory
 from base.tests.factories.entity_version import EntityVersionFactory, MainEntityVersionFactory
 from base.tests.factories.group_element_year import GroupElementYearFactory
+from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from base.tests.factories.person import PersonFactory
 from base.utils.cache import cache
-from base.views.education_groups import select
+from base.business.group_element_years import management
 from base.views.education_groups.update import update_education_group
 from reference.tests.factories.domain import DomainFactory
 
@@ -93,12 +94,12 @@ class TestUpdate(TestCase):
         )
 
         EntityVersionFactory(
-            entity=self.training_education_group_year.administration_entity,
+            entity=self.training_education_group_year.management_entity,
             start_date=self.education_group_year.academic_year.start_date
         )
 
         EntityVersionFactory(
-            entity=self.training_education_group_year.management_entity,
+            entity=self.training_education_group_year.administration_entity,
             start_date=self.education_group_year.academic_year.start_date
         )
 
@@ -146,7 +147,7 @@ class TestUpdate(TestCase):
             'credits': 42,
             'acronym': 'CRSCHOIXDVLD',
             'partial_acronym': 'LDVLD101R',
-            'administration_entity': new_entity_version.pk,
+            'management_entity': new_entity_version.pk,
             'main_teaching_campus': "",
             'academic_year': self.education_group_year.academic_year.pk
         }
@@ -159,7 +160,7 @@ class TestUpdate(TestCase):
         self.assertEqual(self.education_group_year.credits, 42)
         self.assertEqual(self.education_group_year.acronym, 'CRSCHOIXDVLD')
         self.assertEqual(self.education_group_year.partial_acronym, 'LDVLD101R')
-        self.assertEqual(self.education_group_year.administration_entity, new_entity_version.entity)
+        self.assertEqual(self.education_group_year.management_entity, new_entity_version.entity)
 
     def test_template_used_for_training(self):
         response = self.client.get(self.training_url)
@@ -182,6 +183,7 @@ class TestUpdate(TestCase):
             'credits': 42,
             'acronym': 'CRSCHOIXDVLD',
             'partial_acronym': 'LDVLD101R',
+            'management_entity': new_entity_version.pk,
             'administration_entity': new_entity_version.pk,
             'main_teaching_campus': "",
             'academic_year': self.training_education_group_year.academic_year.pk,
@@ -200,6 +202,7 @@ class TestUpdate(TestCase):
         self.assertEqual(self.training_education_group_year.credits, 42)
         self.assertEqual(self.training_education_group_year.acronym, 'CRSCHOIXDVLD')
         self.assertEqual(self.training_education_group_year.partial_acronym, 'LDVLD101R')
+        self.assertEqual(self.training_education_group_year.management_entity, new_entity_version.entity)
         self.assertEqual(self.training_education_group_year.administration_entity, new_entity_version.entity)
         self.assertListEqual(
             list(self.training_education_group_year.secondary_domains.values_list('id', flat=True)),
@@ -208,17 +211,14 @@ class TestUpdate(TestCase):
         self.assertNotIn(old_domain, self.education_group_year.secondary_domains.all())
 
 
-
-
 @override_flag('education_group_attach', active=True)
 @override_flag('education_group_select', active=True)
 @override_flag('education_group_update', active=True)
 class TestSelectDetachAttach(TestCase):
-
     def setUp(self):
         self.locmem_cache = cache
         self.locmem_cache.clear()
-        self.patch = patch.object(select, 'cache', self.locmem_cache)
+        self.patch = patch.object(management, 'cache', self.locmem_cache)
         self.patch.start()
 
         self.person = PersonFactory()
@@ -228,8 +228,9 @@ class TestSelectDetachAttach(TestCase):
                                        return_value=True)
         self.mocked_perm = self.perm_patcher.start()
 
-        self.academic_year = AcademicYearFactory(year=today().year)
+        self.academic_year = create_current_academic_year()
         self.child_education_group_year = EducationGroupYearFactory(academic_year=self.academic_year)
+        self.learning_unit_year = LearningUnitYearFactory(academic_year=self.academic_year)
         self.initial_parent_education_group_year = EducationGroupYearFactory(academic_year=self.academic_year)
         self.new_parent_education_group_year = EducationGroupYearFactory(academic_year=self.academic_year)
 
@@ -238,12 +239,16 @@ class TestSelectDetachAttach(TestCase):
             child_branch=self.child_education_group_year
         )
 
-        self.url_select = reverse(
+        self.url_select_education_group = reverse(
             "education_group_select",
             args=[
                 self.initial_parent_education_group_year.id,
                 self.child_education_group_year.id,
             ]
+        )
+        self.url_select_learning_unit = reverse(
+            "learning_unit_select",
+            args=[self.learning_unit_year.id]
         )
         self.url_attach = reverse(
             "group_element_year_management",
@@ -262,18 +267,46 @@ class TestSelectDetachAttach(TestCase):
         self.client.logout()
         self.perm_patcher.stop()
 
-    def test_select(self):
-        response = self.client.get(
-            self.url_select,
+    def test_select_case_education_group(self):
+        response = self.client.post(
+            self.url_select_education_group,
             data={'child_to_cache_id': self.child_education_group_year.id},
             HTTP_X_REQUESTED_WITH='XMLHttpRequest',
         )
-        child_id = int(cache.get('child_to_cache_id'))
+        data_cached = cache.get(management.SELECT_CACHE_KEY)
 
         self.assertEquals(response.status_code, HTTPStatus.OK)
-        self.assertEquals(child_id, self.child_education_group_year.id)
+        self.assertIsInstance(data_cached, dict)
+        self.assertEqual(int(data_cached['id']), self.child_education_group_year.id)
+        self.assertEqual(data_cached['modelname'], management.EDUCATION_GROUP_YEAR)
 
-    def test_attach(self):
+    def test_select_ajax_case_learning_unit_year(self):
+        response = self.client.post(
+            self.url_select_learning_unit,
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+        )
+        data_cached = cache.get(management.SELECT_CACHE_KEY)
+
+        self.assertEquals(response.status_code, HTTPStatus.OK)
+        self.assertIsInstance(data_cached, dict)
+        self.assertEqual(int(data_cached['id']), self.learning_unit_year.id)
+        self.assertEqual(data_cached['modelname'], management.LEARNING_UNIT_YEAR)
+
+    def test_select_case_learning_unit_year(self):
+        """In this test, we ensure that redirect is made if the request is not in AJAX """
+        response = self.client.post(self.url_select_learning_unit)
+
+        # Verify cache
+        data_cached = cache.get(management.SELECT_CACHE_KEY)
+        self.assertIsInstance(data_cached, dict)
+        self.assertEqual(int(data_cached['id']), self.learning_unit_year.id)
+        self.assertEqual(data_cached['modelname'], management.LEARNING_UNIT_YEAR)
+
+        # Verify redirection
+        redirected_url = reverse('learning_unit', args=[self.learning_unit_year.id])
+        self.assertRedirects(response, redirected_url, fetch_redirect_response=False)
+
+    def test_attach_case_child_education_group_year(self):
         expected_absent_group_element_year = GroupElementYear.objects.filter(
             parent=self.new_parent_education_group_year,
             child_branch=self.child_education_group_year
@@ -282,17 +315,36 @@ class TestSelectDetachAttach(TestCase):
 
         self._assert_link_with_inital_parent_present()
 
-        self.client.get(self.url_select, data={'child_to_cache_id' : self.child_education_group_year.id})
+        self.client.post(self.url_select_education_group, data={'child_to_cache_id': self.child_education_group_year.id})
         self.client.get(self.url_attach, HTTP_REFERER='http://foo/bar')
-
 
         expected_group_element_year_count = GroupElementYear.objects.filter(
             parent=self.new_parent_education_group_year,
             child_branch=self.child_education_group_year
         ).count()
-        self.assertEquals(expected_group_element_year_count, 1)
+        self.assertEqual(expected_group_element_year_count, 1)
 
         self._assert_link_with_inital_parent_present()
+
+    def test_attach_case_child_learning_unit_year(self):
+        expected_absent_group_element_year = GroupElementYear.objects.filter(
+            parent=self.new_parent_education_group_year,
+            child_leaf=self.learning_unit_year
+        ).exists()
+        self.assertFalse(expected_absent_group_element_year)
+
+        cache.set(
+            management.SELECT_CACHE_KEY,
+            {'id': self.learning_unit_year.pk, 'modelname': management.LEARNING_UNIT_YEAR},
+            timeout=None,
+        )
+        self.client.get(self.url_attach, HTTP_REFERER='http://foo/bar')
+
+        expected_group_element_year_count = GroupElementYear.objects.filter(
+            parent=self.new_parent_education_group_year,
+            child_leaf=self.learning_unit_year
+        ).count()
+        self.assertEquals(expected_group_element_year_count, 1)
 
     def test_attach_without_selecting_gives_warning(self):
         expected_absent_group_element_year = GroupElementYear.objects.filter(
@@ -315,11 +367,9 @@ class TestSelectDetachAttach(TestCase):
         self.assertEqual(len(messages), 1)
         self.assertEqual(str(messages[0]), _("Please Select or Move an item before Attach it"))
 
-
-
     def _assert_link_with_inital_parent_present(self):
         expected_initial_group_element_year = GroupElementYear.objects.get(
             parent=self.initial_parent_education_group_year,
             child_branch=self.child_education_group_year
         )
-        self.assertEquals(expected_initial_group_element_year, self.initial_group_element_year)
+        self.assertEqual(expected_initial_group_element_year, self.initial_group_element_year)

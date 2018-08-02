@@ -33,7 +33,8 @@ from django.utils.safestring import mark_safe
 
 from backoffice.settings import base
 from base.business.education_groups.perms import is_eligible_to_delete_education_group, \
-    is_eligible_to_change_education_group, is_eligible_to_add_education_group
+    is_eligible_to_change_education_group, is_eligible_to_add_education_group, is_eligible_to_add_training, \
+    is_eligible_to_add_mini_training, is_eligible_to_add_group
 
 OPTIONAL_PNG = base.STATIC_URL + 'img/education_group_year/optional.png'
 MANDATORY_PNG = base.STATIC_URL + 'img/education_group_year/mandatory.png'
@@ -118,6 +119,21 @@ def li_with_update_perm(context, url, message, url_id="link_update"):
 @register.simple_tag(takes_context=True)
 def li_with_create_perm(context, url, message, url_id="link_create"):
     return li_with_permission(context, is_eligible_to_add_education_group, url, message, url_id)
+
+
+@register.simple_tag(takes_context=True)
+def li_with_create_perm_training(context, url, message, url_id="link_create"):
+    return li_with_permission(context, is_eligible_to_add_training, url, message, url_id)
+
+
+@register.simple_tag(takes_context=True)
+def li_with_create_perm_mini_training(context, url, message, url_id="link_create"):
+    return li_with_permission(context, is_eligible_to_add_mini_training, url, message, url_id)
+
+
+@register.simple_tag(takes_context=True)
+def li_with_create_perm_group(context, url, message, url_id="link_create"):
+    return li_with_permission(context, is_eligible_to_add_group, url, message, url_id)
 
 
 def li_with_permission(context, permission, url, message, url_id):
@@ -326,3 +342,8 @@ def _get_icon_jstree(education_group_year):
 
 def _get_a_class(education_group_year, selected_education_group_year):
     return "jstree-wholerow-clicked" if education_group_year.pk == selected_education_group_year.pk else ""
+
+
+@register.simple_tag(takes_context=True)
+def url_resolver_match(context):
+    return context.request.resolver_match.url_name

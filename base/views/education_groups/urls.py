@@ -27,20 +27,20 @@ from django.conf.urls import url, include
 
 from base.views import education_group
 from base.views.education_groups.group_element_year.read import pdf_content
-from base.views.education_groups.select import education_group_select
+from base.views.education_groups.select import education_group_select, learning_unit_select
 from . import search, create, detail, update, delete, group_element_year
 
 urlpatterns = [
 
     url(r'^$', search.education_groups, name='education_groups'),
-
+    url(r'^select_lu/(?P<learning_unit_year_id>[0-9]+)$', learning_unit_select, name='learning_unit_select'),
     url(r'^new/(?P<category>[A-Z_]+)/$', create.create_education_group, name='new_education_group'),
     url(r'^new/(?P<category>[A-Z_]+)/(?P<parent_id>[0-9]+)/$', create.create_education_group,
         name='new_education_group'),
 
     url(r'^(?P<root_id>[0-9]+)/(?P<education_group_year_id>[0-9]+)/', include([
 
-        url(r'^$', detail.EducationGroupRead.as_view(), name='education_group_read'),
+        url(r'^identification/$', detail.EducationGroupRead.as_view(), name='education_group_read'),
         url(r'^update/$', update.update_education_group, name="update_education_group"),
 
         url(r'^diplomas/$', detail.EducationGroupDiplomas.as_view(),

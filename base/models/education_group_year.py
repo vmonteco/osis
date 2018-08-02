@@ -187,7 +187,7 @@ class EducationGroupYear(models.Model):
     management_entity = models.ForeignKey(
         Entity,
         verbose_name=_("management_entity"),
-        blank=True, null=True,
+        null=True,
         related_name="management_entity"
     )
 
@@ -221,7 +221,11 @@ class EducationGroupYear(models.Model):
                                  blank=True, null=True, verbose_name=_('Rate code'))
 
     def __str__(self):
-        return u"%s - %s" % (self.academic_year, self.acronym)
+        return "{} - {} - {}".format(
+            self.partial_acronym,
+            self.acronym,
+            self.academic_year,
+        )
 
     @property
     def verbose(self):
