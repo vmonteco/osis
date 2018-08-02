@@ -218,4 +218,24 @@
         "groups": [],
         "users": []
     }
+},
+{
+    "model": "waffle.flag",
+    "pk": 2,
+    "fields": {
+        "name": "pdf_content",
+        "everyone": null,
+        "percent": null,
+        "testing": false,
+        "superusers": true,
+        "staff": true,
+        "authenticated": true,
+        "languages": "",
+        "rollout": false,
+        "note": "",
+        "created": "2018-07-10T08:51:05Z",
+        "modified": "2018-07-10T11:52:42.584Z",
+        "groups": [],
+        "users": []
+    }
 }]
