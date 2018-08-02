@@ -27,27 +27,11 @@ from django import template
 from django.utils.translation import ugettext_lazy as _
 from base.models.learning_unit_year import LearningUnitYear
 from django.forms import model_to_dict
-register = template.Library()
 from base.business.learning_units.comparison import get_value
+register = template.Library()
+
 
 @register.filter
 def get_attribute(obj, field_name):
     data = model_to_dict(obj, fields=[field_name])
-
     return get_value(LearningUnitYear, data, field_name)
-
-    # if obj._meta.get_field(field_name).choices:
-    #     if data.get(field_name):
-    #         return _(data.get(field_name, None))
-    #     return None
-    # else:
-    #     if obj._meta.get_field(field_name).get_internal_type() == 'BooleanField':
-    #         if data.get(field_name) is None:
-    #             return None
-    #         else:
-    #             if data.get(field_name):
-    #                 return _('yes')
-    #             else:
-    #                 return _('no')
-    #     else:
-    #         return data.get(field_name, None)

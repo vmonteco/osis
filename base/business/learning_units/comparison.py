@@ -56,5 +56,3 @@ def get_list_sorted_by_translation(list_of_keys):
 
 def get_translation(item):
     return _(item)
-
-
