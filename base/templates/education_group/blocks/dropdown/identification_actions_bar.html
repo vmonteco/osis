@@ -38,13 +38,13 @@
             <ul class="dropdown-menu dropdown-menu-large row text-right pull-right">
                 {% flag "education_group_create" %}
                     {% url 'new_education_group' category=enums.GROUP parent_id=education_group_year.id as create_group_url %}
-                    {% li_with_create_perm create_group_url _('New Education Group') %}
+                    {% li_with_create_perm_group create_group_url _('New Education Group') %}
 
                     {% url 'new_education_group' category=enums.TRAINING parent_id=education_group_year.id as create_training_url %}
-                    {% li_with_create_perm create_training_url _('New Training') %}
+                    {% li_with_create_perm_training create_training_url _('New Training') %}
 
                     {% url 'new_education_group' category=enums.MINI_TRAINING parent_id=education_group_year.id as create_mini_training_url %}
-                    {% li_with_create_perm create_mini_training_url _('New Mini-Training') %}
+                    {% li_with_create_perm_mini_training create_mini_training_url _('New Mini-Training') %}
                 {% endflag %}
 
                 {% flag "education_group_update" %}
@@ -59,7 +59,7 @@
 
                 {% flag "education_group_select" %}
                     <li {% if not can_change_education_group %} class="disabled" {% endif %}>
-                        <a {% if can_change_education_group %} href="#" onclick="javascript:select()" {% endif %}>
+                        <a {% if can_change_education_group %} href="#" onclick="select()" {% endif %}>
                             {% trans 'Select' %}
                         </a>
                     </li>
@@ -68,7 +68,7 @@
                 {% flag "education_group_move" %}
                 {# TODO : Put this logic into a templatetag #}
                     <li {% if can_change_education_group %} id="btn_operation_detach_{{ group_to_parent }}" {% else %} class="disabled" {% endif %}>
-                        <a {% if can_change_education_group %} href="#" onclick="javascript:select()" {% endif %}>
+                        <a {% if can_change_education_group %} href="#" onclick="select()" {% endif %}>
                             {% trans 'Move' %}
                         </a>
                     </li>
