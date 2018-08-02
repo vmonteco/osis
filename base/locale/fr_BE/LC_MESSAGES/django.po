@@ -3372,3 +3372,18 @@ msgstr "Validité"
 
 msgid "Please Select or Move an item before Attach it"
 msgstr "Veuillez Sélectionner ou Déplacer un élément avant d'Attacher"
+
+msgid "Learning units comparison"
+msgstr "Fiche comparative"
+
+msgid "specific_title"
+msgstr "Intitulé"
+
+msgid "specific_title_english"
+msgstr "Intitulé en anglais"
+
+msgid "attribution_procedure"
+msgstr "Procédure"
+
+msgid "No difference"
+msgstr "Aucune différence"

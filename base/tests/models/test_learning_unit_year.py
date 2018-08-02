@@ -24,24 +24,28 @@
 #
 ##############################################################################
 from django.test import TestCase
+from django.test.utils import override_settings
 from django.utils.translation import ugettext_lazy as _
 
 from attribution.models import attribution
 from base.models import learning_unit_year
 from base.models.entity_component_year import EntityComponentYear
+from base.models.enums import quadrimesters, learning_unit_year_session, attribution_procedure
 from base.models.enums import learning_unit_year_periodicity
 from base.models.enums import learning_unit_year_subtypes
 from base.models.enums.entity_container_year_link_type import REQUIREMENT_ENTITY
 from base.models.enums.learning_component_year_type import LECTURING, PRACTICAL_EXERCISES
 from base.models.learning_component_year import LearningComponentYear
 from base.models.learning_unit_year import find_max_credits_of_related_partims, check_if_acronym_regex_is_valid
-from base.tests.factories.academic_year import create_current_academic_year
+from base.tests.factories.academic_year import create_current_academic_year, AcademicYearFactory
 from base.tests.factories.business.learning_units import GenerateAcademicYear, GenerateContainer
 from base.tests.factories.external_learning_unit_year import ExternalLearningUnitYearFactory
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
 from base.tests.factories.learning_unit import LearningUnitFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory, create_learning_units_year
 from base.tests.factories.tutor import TutorFactory
+
+NEW_ACRONYM = "LDROI1005"
 
 
 class LearningUnitYearTest(TestCase):
@@ -514,3 +518,39 @@ class LearningUnitYearWarningsTest(TestCase):
         luy_partim.periodicity = learning_unit_year_periodicity.BIENNIAL_ODD
         result = luy_partim._check_partim_parent_periodicity()
         self.assertFalse(result)
+
+
+class LearningUnitYearComparaisonTest(TestCase):
+
+    def setUp(self):
+        self.academic_year = create_current_academic_year()
+        self.previous_academic_year = AcademicYearFactory(year=self.academic_year.year + 1)
+
+        self.learning_unit_year = self.create_learning_unit_yr(self.academic_year, "LDR", True,
+                                                               learning_unit_year_subtypes.FULL)
+        self.previous_learning_unit_year = self.create_learning_unit_yr(self.previous_academic_year, NEW_ACRONYM, False,
+                                                                        learning_unit_year_subtypes.PARTIM)
+
+    def create_learning_unit_yr(self, academic_year, acronym, status, subtype):
+        return LearningUnitYearFactory(acronym=acronym,
+                                       academic_year=academic_year,
+                                       subtype=subtype,
+                                       status=status,
+                                       internship_subtype=None,
+                                       credits=5,
+                                       periodicity=learning_unit_year_periodicity.ANNUAL,
+                                       language=None,
+                                       professional_integration=True,
+                                       specific_title="Juridic law courses",
+                                       specific_title_english=None,
+                                       quadrimester=quadrimesters.Q1,
+                                       session=learning_unit_year_session.SESSION_123,
+                                       attribution_procedure=attribution_procedure.EXTERNAL
+                                       )
+
+    @override_settings(LANGUAGES=[('fr-be', 'French'), ('en', 'English'), ], LANGUAGE_CODE='fr-be')
+    def test_compare(self):
+        self.assertCountEqual(self.learning_unit_year.compare(self.previous_learning_unit_year),
+                              {'acronym': NEW_ACRONYM,
+                               'status': 'Non',
+                               'subtype': 'Partim'})

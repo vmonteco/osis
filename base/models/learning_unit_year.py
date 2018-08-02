@@ -42,6 +42,11 @@ from base.models.enums.learning_container_year_types import COURSE, INTERNSHIP
 from base.models.enums.learning_unit_year_periodicity import PERIODICITY_TYPES, ANNUAL, BIENNIAL_EVEN, BIENNIAL_ODD
 from base.models.learning_unit import LEARNING_UNIT_ACRONYM_REGEX_ALL, REGEX_BY_SUBTYPE
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
+from base.business.learning_units.comparison import get_value
+
+FIELDS_FOR_COMPARISON = 'acronym', 'subtype', 'internship_subtype', 'credits', 'periodicity', 'status', 'language', \
+                        'professional_integration', 'specific_title', 'specific_title_english', 'quadrimester', \
+                        'session', 'attribution_procedure'
 
 AUTHORIZED_REGEX_CHARS = "$*+.^"
 REGEX_ACRONYM_CHARSET = "[A-Z0-9" + AUTHORIZED_REGEX_CHARS + "]+"
@@ -332,6 +337,24 @@ class LearningUnitYear(SerializableModel):
 
     def is_external(self):
         return hasattr(self, "externallearningunityear")
+
+    def compare(self, obj):
+        return self._compare(self, obj, FIELDS_FOR_COMPARISON)
+
+    def _compare(self, obj1, obj2, included_keys):
+        data_obj1, data_obj2 = obj1.__dict__, obj2.__dict__
+        changed_values = {}
+        for key, value in data_obj1.items():
+
+            if key not in included_keys:
+                continue
+            try:
+                if value != data_obj2[key]:
+                    changed_values.update({key: get_value(LearningUnitYear, data_obj2, key)})
+
+            except KeyError:
+                old.update({key: value})
+        return changed_values
 
 
 def get_by_id(learning_unit_year_id):

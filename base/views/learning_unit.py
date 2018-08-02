@@ -37,6 +37,7 @@ from base.business.learning_unit import get_cms_label_data, \
     get_same_container_year_components, find_language_in_settings, \
     CMS_LABEL_SPECIFICATIONS, get_achievements_group_by_language
 from base.business.learning_units import perms as business_perms
+from base.business.learning_units.comparison import get_keys
 from base.business.learning_units.perms import can_update_learning_achievement
 from base.forms.learning_class import LearningClassEditForm
 from base.forms.learning_unit_component import LearningUnitComponentEditForm
@@ -227,3 +228,29 @@ def learning_class_year_edit(request, learning_unit_year_id):
     form.load_initial()  # Load data from database
     context['form'] = form
     return layout.render(request, "learning_unit/class_edit.html", context)
+
+
+def learning_unit_comparison(request, learning_unit_year_id):
+    context = get_common_context_learning_unit_year(learning_unit_year_id,
+                                                    get_object_or_404(Person, user=request.user))
+    learning_unit_yr = context['learning_unit_year']
+    previous_academic_yr = mdl.academic_year.find_academic_year_by_year(learning_unit_yr.academic_year.year - 1)
+    previous_values = compare_learning_unit(previous_academic_yr, learning_unit_yr)
+    next_academic_yr = mdl.academic_year.find_academic_year_by_year(learning_unit_yr.academic_year.year + 1)
+    next_values = compare_learning_unit(next_academic_yr, learning_unit_yr)
+
+    context.update(
+        {'previous_values': previous_values,
+         'previous_academic_yr': previous_academic_yr,
+         'next_academic_yr': next_academic_yr,
+         'next_values': next_values,
+         'fields': get_keys(list(previous_values.keys()), list(next_values.keys()))})
+    return layout.render(request, "learning_unit/comparison.html", context)
+
+
+def compare_learning_unit(academic_yr, learning_unit_yr):
+    learning_unit_years = mdl.learning_unit_year.search(learning_unit=learning_unit_yr.learning_unit,
+                                                        academic_year_id=academic_yr.id)
+    if learning_unit_years.exists():
+        return learning_unit_yr.compare(learning_unit_years[0])
+    return {}
