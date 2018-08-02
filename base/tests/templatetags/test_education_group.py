@@ -139,7 +139,6 @@ class TestEducationGroupTag(TestCase):
 
     def test_li_with_create_perm_training_disabled(self):
         result = li_with_create_perm_training(self.context, self.url, "")
-        print(result)
 
         msg = UNAUTHORIZED_TYPE_MSG % {
             "category": _(self.education_group_year.education_group_type.category),
