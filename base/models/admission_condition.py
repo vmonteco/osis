@@ -1,4 +1,5 @@
 from django.db import models
+from ordered_model.models import OrderedModel
 
 from osis_common.models import osis_model_admin
 
@@ -58,7 +59,7 @@ class AdmissionConditionAdmin(osis_model_admin.OsisModelAdmin):
         return obj.education_group_year.acronym
 
 
-class AdmissionConditionLine(models.Model):
+class AdmissionConditionLine(OrderedModel):
     admission_condition = models.ForeignKey(AdmissionCondition)
 
     section = models.CharField(max_length=32)
@@ -75,6 +76,11 @@ class AdmissionConditionLine(models.Model):
     conditions_en = models.TextField(default='')
     access_en = models.TextField(default='')
     remarks_en = models.TextField(default='')
+
+    order_with_respect_to = ('admission_condition', 'section')
+
+    class Meta(OrderedModel.Meta):
+        ordering = ('admission_condition', 'section', 'order')
 
 
 class AdmissionConditionLineAdmin(osis_model_admin.OsisModelAdmin):
