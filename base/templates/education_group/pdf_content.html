@@ -1,21 +1,40 @@
-{% load i18n %}
+{% load education_group %}
+{% load static %}
 <!doctype html>
 <html>
 <head>
     <meta charset="utf-8">
-    <title>OF</title>
+    <title>{{ parent.verbose_credit }}</title>
     <style type="text/css">
         @page {
             size: A4;
-            margin: 1cm;
+            margin: 0.5cm;
+        }
+
+        td, th, tr {
+            font-size: 10px;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="list-group">
-            <ul>{{ tree|unordered_list }}</ul>
-        </div>
+<div class="container">
+    <div class="list-group">
+        <table>
+            <tr>
+                <th style="width:480px;"></th>
+                <th style="width:15px;text-align: center;">An 1</th>
+                <th style="width:15px;text-align: center;">An 2</th>
+                <th style="width:15px;text-align: center;">An 3</th>
+            </tr>
+            <tr>
+                <td style="width:auto;float:left;">
+                    <img src="{% static 'img/education_group_year/mandatory.png' %}" height="10" width="10">
+                    {{ parent.verbose_credit }}
+                </td>
+            </tr>
+            {{ tree|pdf_tree_list }}
+        </table>
     </div>
+</div>
 </body>
 </html>

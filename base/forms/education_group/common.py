@@ -66,11 +66,21 @@ class EducationGroupYearModelForm(forms.ModelForm):
         self._preselect_entity_version_from_entity_value()
 
     def _filter_education_group_type(self):
-        parent_group_type = None
-        if self.parent:
-            parent_group_type = self.parent.education_group_type
+        # In case of update, we need to fetch all parents
+        if self.instance.pk:
+            parents = EducationGroupYear.objects.filter(
+                groupelementyear__child_branch=self.instance.pk
+            )
+        elif self.parent:
+            parents = [self.parent]
 
-        queryset = education_group_type.find_authorized_types(category=self.category, parent_type=parent_group_type)
+        else:
+            parents = []
+
+        queryset = education_group_type.find_authorized_types(
+            category=self.category,
+            parents=parents
+        )
         self.fields["education_group_type"].queryset = queryset
 
     def _init_and_disable_academic_year(self):
@@ -129,7 +139,7 @@ class CommonBaseForm:
     def _save_group_element_year(parent, child):
         # TODO :: what if this relation parent/child already exists? Should we create a new GroupElementYear anymore?
         if parent:
-            group_element_year.get_or_create_group_element_year(parent, child)
+            group_element_year.get_or_create_group_element_year(parent, child_branch=child)
 
     @property
     def errors(self):

@@ -3231,7 +3231,7 @@ msgstr ""
 msgid "The %(acronym)s has been moved"
 msgstr ""
 
-msgid "The %(acronym)s has been detached"
+msgid "\"%(child)s\" has been detached from \"%(parent)s\""
 msgstr ""
 
 msgid "Additional info"
@@ -3319,6 +3319,12 @@ msgstr "Certificate medecine competence"
 
 msgid "Group content"
 msgstr "Group content"
+
+msgid "%(title)s (%(credits)s credits)"
+msgstr "%(title)s (%(credits)s credits)"
+
+msgid "%(acronym)s %(title)s [%(volumes)s] (%(credits)s credits)"
+msgstr "%(acronym)s %(title)s [%(volumes)s] (%(credits)s crédits)"
 
 msgid "Link type"
 msgstr ""

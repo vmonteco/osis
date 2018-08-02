@@ -132,6 +132,27 @@
                     </ul>
                 </div>
             </div>
+            {% flag "learning_unit_delete" %}
+                {% if "base.can_delete_learningunit" in perms %}
+                    <li {% if not can_delete %}class="disabled"{% endif %}>
+                        <a  {% if can_delete %} href="#" data-toggle="modal" data-target="#modalDeleteLuy" {% endif %}>
+                            <span data-toggle="tooltip" title="{% trans 'Delete the learning unit for all academic years' %}">
+                                {% trans 'delete' %}
+                            </span>
+                        </a>
+                    </li>
+                {% endif %}
+            {% endflag %}
+
+            {# This feature is used for managing tree in education group context #}
+            {% flag "education_group_select" %}
+                <li>
+                    <a href="#" onclick="javascript:select()">
+                        {% trans 'Select' %}
+                    </a>
+                </li>
+            {% endflag %}
+            </ul>
         </div>
         {% flag "learning_unit_proposal_delete" %}
             {% if can_cancel_proposal %}
@@ -165,7 +186,17 @@
             {% endif %}
         {% endflag %}
 
-
     {% endif %}
 
 {% endif %}
+
+{% block script %}
+    <script>
+        function select() {
+            $.ajax({
+                url: "{% url 'learning_unit_select' learning_unit_year_id=learning_unit_year.id %}",
+                type: 'POST'
+            });
+        }
+    </script>
+{% endblock %}

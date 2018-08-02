@@ -28,8 +28,11 @@ from django.test import TestCase
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
+from base.models.learning_component_year import LearningComponentYear, volume_total_verbose
 from base.tests.factories.education_group_year import EducationGroupYearFactory
 from base.tests.factories.group_element_year import GroupElementYearFactory
+from base.tests.factories.learning_component_year import LearningComponentYearFactory
+from base.tests.factories.learning_unit_component import LearningUnitComponentFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.user import SuperUserFactory
@@ -45,6 +48,18 @@ class TestRead(TestCase):
         cls.education_group_year_3 = EducationGroupYearFactory()
         cls.learning_unit_year_1 = LearningUnitYearFactory()
         cls.learning_unit_year_2 = LearningUnitYearFactory()
+        cls.learning_component_year_1 = LearningComponentYearFactory(
+            learning_container_year=cls.learning_unit_year_1.learning_container_year, hourly_volume_partial_q1=10,
+            hourly_volume_partial_q2=10)
+        cls.learning_component_year_2 = LearningComponentYearFactory(
+            learning_container_year=cls.learning_unit_year_1.learning_container_year, hourly_volume_partial_q1=10,
+            hourly_volume_partial_q2=10)
+        cls.learning_unit_component_1 = LearningUnitComponentFactory(
+            learning_component_year=cls.learning_component_year_1,
+            learning_unit_year=cls.learning_unit_year_1)
+        cls.learning_unit_component_2 = LearningUnitComponentFactory(
+            learning_component_year=cls.learning_component_year_2,
+            learning_unit_year=cls.learning_unit_year_1)
         cls.group_element_year_1 = GroupElementYearFactory(parent=cls.education_group_year_1,
                                                            child_branch=cls.education_group_year_2)
         cls.group_element_year_2 = GroupElementYearFactory(parent=cls.education_group_year_2,
@@ -58,24 +73,30 @@ class TestRead(TestCase):
         cls.a_superuser = SuperUserFactory()
 
     def test_pdf_content(self):
+        self.client.force_login(self.a_superuser)
         url = reverse("pdf_content", args=[self.education_group_year_1.id, self.education_group_year_1.id])
         response = self.client.get(url)
-        self.assertEqual(response.status_code, HttpResponseRedirect.status_code)
+        self.assertTemplateUsed(response, 'education_group/pdf_content.html')
 
     def test_get_verbose_children(self):
         result = get_verbose_children(self.education_group_year_1)
-        context_waiting = [
-            _("{} ({} credits)").format(self.education_group_year_2.title, self.education_group_year_2.credits),
-            [
-                _("{} {} [-h + -h] ({} credits)".format(self.learning_unit_year_1.acronym,
-                                                        self.learning_unit_year_1.specific_title,
-                                                        self.learning_unit_year_1.credits))
-            ],
-            _("{} ({} credits)").format(self.education_group_year_3.title, self.education_group_year_3.credits),
-            [
-                _("{} {} [-h + -h] ({} credits)".format(self.learning_unit_year_2.acronym,
-                                                        self.learning_unit_year_2.specific_title,
-                                                        self.learning_unit_year_2.credits))
-            ]
-        ]
+        context_waiting = [self.group_element_year_1, [self.group_element_year_2], self.group_element_year_3,
+                           [self.group_element_year_4]]
         self.assertEqual(result, context_waiting)
+
+        verbose_branch = _("%(title)s (%(credits)s credits)") % {
+            "title": self.group_element_year_1.child.title,
+            "credits": self.group_element_year_1.relative_credits or self.group_element_year_1.child_branch.credits or 0
+        }
+        self.assertEqual(self.group_element_year_1.verbose, verbose_branch)
+
+        components = LearningComponentYear.objects.filter(
+            learningunitcomponent__learning_unit_year=self.group_element_year_2.child_leaf
+        )
+        verbose_leaf = _("%(acronym)s %(title)s [%(volumes)s] (%(credits)s credits)") % {
+            "acronym": self.group_element_year_2.child_leaf.acronym,
+            "title": self.group_element_year_2.child_leaf.specific_title,
+            "volumes": volume_total_verbose(components),
+            "credits": self.group_element_year_2.relative_credits or self.group_element_year_2.child_leaf.credits or 0
+        }
+        self.assertEqual(self.group_element_year_2.verbose, verbose_leaf)

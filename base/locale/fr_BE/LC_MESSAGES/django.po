@@ -3233,8 +3233,8 @@ msgstr "L'organisation de formation a été supprimée."
 msgid "The %(acronym)s has been moved"
 msgstr "%(acronym)s a été déplacé"
 
-msgid "The %(acronym)s has been detached"
-msgstr "%(acronym)s a été détaché"
+msgid "\"%(child)s\" has been detached from \"%(parent)s\""
+msgstr "\"%(child)s\" a été détaché de \"%(parent)s\""
 
 msgid "Additional info"
 msgstr "Infos complémentaires"
@@ -3321,6 +3321,12 @@ msgstr "Certificat compétence médecine "
 
 msgid "Group content"
 msgstr "Contenu du groupement"
+
+msgid "%(title)s (%(credits)s credits)"
+msgstr "%(title)s (%(credits)s crédits)"
+
+msgid "%(acronym)s %(title)s [%(volumes)s] (%(credits)s credits)"
+msgstr "%(acronym)s %(title)s [%(volumes)s] (%(credits)s crédits)"
 
 msgid "Link type"
 msgstr "Type de lien"

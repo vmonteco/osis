@@ -221,11 +221,22 @@ class EducationGroupYear(models.Model):
                                  blank=True, null=True, verbose_name=_('Rate code'))
 
     def __str__(self):
-        return u"%s - %s" % (self.academic_year, self.acronym)
+        return "{} - {} - {}".format(
+            self.partial_acronym,
+            self.acronym,
+            self.academic_year,
+        )
 
     @property
     def verbose(self):
         return "{} - {}".format(self.partial_acronym or "", self.acronym)
+
+    @property
+    def verbose_credit(self):
+        return _("%(title)s (%(credits)s credits)") % {
+                "title": self.title,
+                "credits": self.credits or 0
+            }
 
     class Meta:
         verbose_name = _("education group year")

@@ -23,12 +23,13 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from base.models.education_group_type import EducationGroupType, find_authorized_types
+from django.test import TestCase
+
+from base.models.education_group_type import find_authorized_types
+from base.models.enums import education_group_categories
+from base.tests.factories.authorized_relationship import AuthorizedRelationshipFactory
 from base.tests.factories.education_group_type import EducationGroupTypeFactory
 from base.tests.factories.education_group_year import EducationGroupYearFactory
-from base.tests.factories.authorized_relationship import AuthorizedRelationshipFactory
-from django.test import TestCase
-from base.models.enums import education_group_categories
 
 
 class TestAuthorizedTypes(TestCase):
@@ -49,7 +50,7 @@ class TestAuthorizedTypes(TestCase):
         doctorate = EducationGroupTypeFactory(name='PhD', category=education_group_categories.TRAINING)
         AuthorizedRelationshipFactory(parent_type=doctorate, child_type=self.options_list)
         educ_group_year = EducationGroupYearFactory(education_group_type=doctorate)
-        result = find_authorized_types(parent_type=educ_group_year.education_group_type)
+        result = find_authorized_types(parents=[educ_group_year])
         self.assertEqual(len(result), 1)
         self.assertIn(self.options_list, result)
         self.assertNotIn(self.subgroup, result)
@@ -59,5 +60,5 @@ class TestAuthorizedTypes(TestCase):
         AuthorizedRelationshipFactory(parent_type=self.complementary_module, child_type=self.options_list)
         AuthorizedRelationshipFactory(parent_type=self.options_list, child_type=self.subgroup)
         educ_group_year = EducationGroupYearFactory(education_group_type=self.subgroup)
-        result = find_authorized_types(parent_type=educ_group_year.education_group_type)
+        result = find_authorized_types(parents=[educ_group_year])
         self.assertEqual(result.count(), 0)
