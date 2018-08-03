@@ -53,7 +53,7 @@ class TestDeleteGroupEducationView(TestCase):
         PersonEntityFactory(person=self.person, entity=self.education_group_year2.management_entity)
 
         self.url = reverse('delete_education_group', args=[self.education_group_year.id,
-                                                               self.education_group_year.education_group.id])
+                                                           self.education_group_year.education_group.id])
 
         self.person.user.user_permissions.add(Permission.objects.get(codename="delete_educationgroup"))
         self.client.force_login(user=self.person.user)
@@ -89,6 +89,7 @@ class TestDeleteGroupEducationView(TestCase):
             OfferEnrollmentFactory(education_group_year=self.education_group_year),
             GroupElementYearFactory(parent=self.education_group_year),
             GroupElementYearFactory(parent=self.education_group_year),
+            self.education_group_year
         }
 
         response = self.client.get(self.url)
