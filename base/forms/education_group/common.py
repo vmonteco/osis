@@ -46,8 +46,12 @@ class MainEntitiesVersionChoiceField(EntitiesVersionChoiceField):
         super(MainEntitiesVersionChoiceField, self).__init__(queryset, *args, **kwargs)
 
 
-class ValidationDependingOfEducationGroupTypeMixin:
-    # Mixin for ModelForm
+class ValidationRuleMixin:
+    """
+    Mixin for ModelForm
+
+    It appends additional rules from VadilationRule table on fields.
+    """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -57,14 +61,14 @@ class ValidationDependingOfEducationGroupTypeMixin:
     def get_rules(self):
         result = {}
         for name, field in self.fields.items():
-            full_name = self.get_field_full_name(name)
+            full_name = self.field_reference(name)
             qs = ValidationRule.objects.filter(field_reference=full_name)
             if qs:
                 result[name] = qs.get()
         return result
 
-    def get_field_full_name(self, name):
-        return '.'.join([self._meta.model._meta.db_table, name, self.get_type()])
+    def field_reference(self, name):
+        return '.'.join([self._meta.model._meta.db_table, name])
 
     def _set_rule_on_fields(self):
         for name, field in self.fields.items():
@@ -72,18 +76,31 @@ class ValidationDependingOfEducationGroupTypeMixin:
                 rule = self.rules[name]
                 field.initial = rule.initial_value
                 field.required = rule.required_field
-                field.validators = [RegexValidator(rule.regex_rule, rule.regex_error_message or None)]
+                field.validators.append(RegexValidator(rule.regex_rule, rule.regex_error_message or None))
+
+
+class ValidationRuleEducationGroupTypeMixin(ValidationRuleMixin):
+    """
+    ValidationRuleMixin For EducationGroupType
+
+    The object reference must be structured like that:
+        {db_table_name}.{col_name}.{education_group_type_name}
+    """
+
+    def field_reference(self, name):
+        full_name = super().field_reference(name)
+        return full_name + '.' + self.get_type()
 
     def get_type(self):
         if self.instance and self.instance.education_group_type:
             return self.instance.education_group_type.name
         elif "education_group_type" in self.initial:
-            return self.initial["education_group_type"]
+            return self.initial["education_group_type"].name
         else:
             return ""
 
 
-class EducationGroupYearModelForm(ValidationDependingOfEducationGroupTypeMixin, forms.ModelForm):
+class EducationGroupYearModelForm(ValidationRuleEducationGroupTypeMixin, forms.ModelForm):
     category = None
 
     class Meta:
