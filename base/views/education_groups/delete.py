@@ -56,72 +56,59 @@ class DeleteGroupEducationView(DeleteViewWithDependencies):
     education_group_years = []
 
     def post_collect(self):
-        for instance, obj in self.collector.model_objs.items():
-            if instance is GroupElementYear:
-                self._append_protected_object(obj)
+        for instance, list_objects in self.collector.model_objs.items():
+            self._append_protected_object(list_objects)
 
-        self._append_education_group_years()
+            if instance is EducationGroupYear:
+                self.education_group_years = list_objects
 
     def _append_protected_object(self, list_objects):
         if not isinstance(list_objects, (list, set)):
             list_objects = [list_objects]
 
         for obj in list_objects:
-            if not obj.is_deletable():
+            if getattr(obj, 'is_deletable', False) and not obj.is_deletable():
                 self.collector.protected.add(obj)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
         if self.collector.protected:
-            context["education_group_years"] = self.education_group_years
             context["protected_messages"] = self.get_protected_messages()
         return context
 
     def get_protected_messages(self):
-        if self.education_group_years:
-            return self._get_protected_messages_by_education_group_year(
-                sorted(list(self.education_group_years), key=lambda t: t.academic_year.year))
-        return []
-
-    def _get_protected_messages_by_education_group_year(self, educ_sorted):
+        """This function will return all protected message ordered by year"""
         protected_messages = []
-        for educ in educ_sorted:
-            protected_message = []
-            count_enrollment = len([
-                                       enrollment for enrollment in self.collector.protected if
-                                       isinstance(enrollment,
-                                                  OfferEnrollment) and enrollment.education_group_year == educ
-                                       ])
-
-            if count_enrollment:
-                protected_message.append(
-                    ngettext_lazy(
-                        "%(count_enrollment)d student is  enrolled in the offer.",
-                        "%(count_enrollment)d students are  enrolled in the offer.",
-                        count_enrollment
-                    ) % {"count_enrollment": count_enrollment}
-                )
-
-            for group in self.collector.protected:
-                if isinstance(group, GroupElementYear) and group.parent == educ:
-                    protected_message.append(_("The content of the education group is not empty."))
-                    break
-            usage_nb = 0
-            for group in self.collector.protected:
-                if isinstance(group, GroupElementYear) and group.child_branch == educ:
-                    usage_nb += 1
-                    if usage_nb >= 2:
-                        protected_message.append("{} : {}.".format(_('Used by an other education group'), educ))
-                        break
-
+        for education_group_year in sorted(self.education_group_years, key=lambda egy: egy.academic_year.year):
+            protected_message = self._get_protected_messages_by_education_group_year(education_group_year)
             if protected_message:
-                protected_messages.append({'year': educ, 'messages': protected_message})
+                protected_messages.append({
+                    'education_group_year': education_group_year,
+                    'messages': protected_message
+                })
         return protected_messages
 
-    def _append_education_group_years(self):
-        for obj in self.collector.nested():
-            if isinstance(obj, (list, set)):
-                for oo in obj:
-                    if type(oo) is EducationGroupYear:
-                        self.education_group_years.append(oo)
+    def _get_protected_messages_by_education_group_year(self, education_group_year):
+        protected_message = []
+
+        # Count the number of enrollment
+        count_enrollment = len([
+            enrollment for enrollment in self.collector.protected if
+            isinstance(enrollment, OfferEnrollment) and enrollment.education_group_year_id == education_group_year.id
+        ])
+        if count_enrollment:
+            protected_message.append(
+                ngettext_lazy(
+                    "%(count_enrollment)d student is  enrolled in the offer.",
+                    "%(count_enrollment)d students are  enrolled in the offer.",
+                    count_enrollment
+                ) % {"count_enrollment": count_enrollment}
+            )
+
+        # Check if content is not empty
+        if any(isinstance(gey, GroupElementYear) and gey.parent_id == education_group_year.id
+               for gey in self.collector.protected):
+            protected_message.append(_("The content of the education group is not empty."))
+
+        return protected_message

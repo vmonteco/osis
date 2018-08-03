@@ -302,6 +302,12 @@ class EducationGroupYear(models.Model):
             result = self.education_group.delete()
         return result
 
+    def is_deletable(self):
+        """An education group year cannot be deleted if there are enrollment on it"""
+        if self.offerenrollment_set.all().exists():
+            return False
+        return True
+
 
 def find_by_id(an_id):
     try:
