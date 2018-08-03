@@ -33,10 +33,14 @@ from django.contrib.messages.storage.fallback import FallbackStorage
 from django.http import HttpResponseForbidden, HttpResponseNotFound, HttpResponse
 from django.test import TestCase, RequestFactory
 from django.urls import reverse
-from django.utils.translation import ugettext_lazy as _
+from waffle.testutils import override_flag
 
+from base.forms.learning_unit.entity_form import EntityContainerBaseForm
+from base.forms.learning_unit.learning_unit_create import LearningUnitModelForm, LearningUnitYearModelForm, \
+    LearningContainerYearModelForm
 from base.models.entity_component_year import EntityComponentYear
-from base.models.enums import learning_unit_periodicity, learning_container_year_types, learning_unit_year_subtypes, \
+from base.models.enums import learning_unit_year_periodicity, learning_container_year_types, \
+    learning_unit_year_subtypes, \
     entity_container_year_link_type, vacant_declaration_type, attribution_procedure, entity_type, organization_type
 from base.tests.factories.academic_year import create_current_academic_year, AcademicYearFactory, get_current_year
 from base.tests.factories.business.learning_units import LearningUnitsMixin, GenerateContainer, GenerateAcademicYear
@@ -51,9 +55,12 @@ from base.tests.factories.person_entity import PersonEntityFactory
 from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
 from base.tests.factories.user import UserFactory, SuperUserFactory
 from base.tests.forms.test_edition_form import get_valid_formset_data
-from base.views.learning_units.update import learning_unit_edition_end_date, learning_unit_volumes_management
+from base.views.learning_unit import learning_unit_identification, learning_unit_components
+from base.views.learning_units.update import learning_unit_edition_end_date, learning_unit_volumes_management, \
+    update_learning_unit, _get_learning_units_for_context
 
 
+@override_flag('learning_unit_update', active=True)
 class TestLearningUnitEditionView(TestCase, LearningUnitsMixin):
 
     def setUp(self):
@@ -65,7 +72,7 @@ class TestLearningUnitEditionView(TestCase, LearningUnitsMixin):
         self.client.force_login(self.user)
 
         self.setup_academic_years()
-        self.learning_unit = self.setup_learning_unit(self.current_academic_year.year, learning_unit_periodicity.ANNUAL)
+        self.learning_unit = self.setup_learning_unit(self.current_academic_year.year)
         self.learning_container_year = self.setup_learning_container_year(
             academic_year=self.current_academic_year,
             container_type=learning_container_year_types.COURSE
@@ -74,7 +81,8 @@ class TestLearningUnitEditionView(TestCase, LearningUnitsMixin):
             self.current_academic_year,
             self.learning_unit,
             self.learning_container_year,
-            learning_unit_periodicity.ANNUAL
+            learning_unit_year_subtypes.FULL,
+            learning_unit_year_periodicity.ANNUAL
         )
 
         self.a_superuser = SuperUserFactory()
@@ -99,7 +107,7 @@ class TestLearningUnitEditionView(TestCase, LearningUnitsMixin):
 
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
-        self.assertEqual(template, "learning_unit/update_end_date.html")
+        self.assertEqual(template, "learning_unit/simple/update_end_date.html")
 
     @mock.patch('base.business.learning_units.perms.is_eligible_for_modification_end_date')
     def test_view_learning_unit_edition_post(self, mock_perms):
@@ -121,28 +129,45 @@ class TestLearningUnitEditionView(TestCase, LearningUnitsMixin):
         self.assertEqual(len(msg), 1)
         self.assertIn(messages.SUCCESS, msg_level)
 
+    @mock.patch('base.business.learning_units.perms.is_eligible_for_modification_end_date')
+    def test_view_learning_unit_edition_template(self, mock_perms):
+        mock_perms.return_value = True
+        url = reverse("learning_unit_edition", args=[self.learning_unit_year.id])
+        response = self.client.get(url)
+        self.assertTemplateUsed(response, "learning_unit/simple/update_end_date.html")
 
+
+@override_flag('learning_unit_update', active=True)
 class TestEditLearningUnit(TestCase):
     @classmethod
     def setUpTestData(cls):
+        today = datetime.date.today()
         an_academic_year = create_current_academic_year()
         learning_container_year = LearningContainerYearFactory(
             academic_year=an_academic_year,
             container_type=learning_container_year_types.COURSE,
             type_declaration_vacant=vacant_declaration_type.DO_NOT_ASSIGN,
-            campus=CampusFactory(organization=OrganizationFactory(type=organization_type.MAIN)))
-        cls.learning_unit_year = LearningUnitYearFactory(learning_container_year=learning_container_year,
-                                                         acronym="LOSIS4512",
-                                                         academic_year=an_academic_year,
-                                                         subtype=learning_unit_year_subtypes.FULL,
-                                                         attribution_procedure=attribution_procedure.INTERNAL_TEAM,
-                                                         credits=15)
+        )
 
-        cls.partim_learning_unit = LearningUnitYearFactory(learning_container_year=learning_container_year,
-                                                           acronym="LOSIS4512A",
-                                                           academic_year=an_academic_year,
-                                                           subtype=learning_unit_year_subtypes.PARTIM,
-                                                           credits=10)
+        cls.learning_unit_year = LearningUnitYearFactory(
+            learning_container_year=learning_container_year,
+            acronym="LOSIS4512",
+            academic_year=an_academic_year,
+            subtype=learning_unit_year_subtypes.FULL,
+            attribution_procedure=attribution_procedure.INTERNAL_TEAM,
+            credits=15,
+            campus=CampusFactory(organization=OrganizationFactory(type=organization_type.MAIN)),
+            internship_subtype=None,
+        )
+
+        cls.partim_learning_unit = LearningUnitYearFactory(
+            learning_container_year=learning_container_year,
+            acronym="LOSIS4512A",
+            academic_year=an_academic_year,
+            subtype=learning_unit_year_subtypes.PARTIM,
+            credits=10,
+            campus=CampusFactory(organization=OrganizationFactory(type=organization_type.MAIN))
+        )
 
         cls.requirement_entity_container = EntityContainerYearFactory(
             learning_container_year=learning_container_year, type=entity_container_year_link_type.REQUIREMENT_ENTITY)
@@ -150,34 +175,34 @@ class TestEditLearningUnit(TestCase):
         cls.requirement_entity_container.entity.organization.save()
         cls.requirement_entity = EntityVersionFactory(entity=cls.requirement_entity_container.entity,
                                                       entity_type=entity_type.SCHOOL,
-                                                      start_date=an_academic_year.start_date,
+                                                      start_date=today.replace(year=1900),
                                                       end_date=None)
 
         cls.allocation_entity_container = EntityContainerYearFactory(
             learning_container_year=learning_container_year, type=entity_container_year_link_type.ALLOCATION_ENTITY)
         cls.allocation_entity = EntityVersionFactory(entity=cls.allocation_entity_container.entity,
-                                                     start_date=an_academic_year.start_date,
+                                                     start_date=today.replace(year=1900),
                                                      end_date=None)
 
         cls.additional_entity_container_1 = EntityContainerYearFactory(
             learning_container_year=learning_container_year,
             type=entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1)
         cls.additional_entity_1 = EntityVersionFactory(entity=cls.additional_entity_container_1.entity,
-                                                       start_date=an_academic_year.start_date,
+                                                       start_date=today.replace(year=1900),
                                                        end_date=None)
 
         cls.additional_entity_container_2 = EntityContainerYearFactory(
             learning_container_year=learning_container_year,
             type=entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2)
         cls.additional_entity_2 = EntityVersionFactory(entity=cls.additional_entity_container_2.entity,
-                                                       start_date=an_academic_year.start_date,
+                                                       start_date=today.replace(year=1900),
                                                        end_date=None)
 
         cls.person = PersonEntityFactory(entity=cls.requirement_entity_container.entity).person
         cls.user = cls.person.user
         cls.user.user_permissions.add(Permission.objects.get(codename="can_edit_learningunit"),
                                       Permission.objects.get(codename="can_access_learningunit"))
-        cls.url = reverse("edit_learning_unit", args=[cls.learning_unit_year.id])
+        cls.url = reverse(update_learning_unit, args=[cls.learning_unit_year.id])
 
     def setUp(self):
         self.client.force_login(self.user)
@@ -230,18 +255,18 @@ class TestEditLearningUnit(TestCase):
         self.assertTemplateUsed(response, "access_denied.html")
         self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
 
-    def test_cannot_modify_learning_unit_on_modification_proposal(self):
+    def test_template_used_for_get_request_learning_unit_on_modification_proposal(self):
         ProposalLearningUnitFactory(learning_unit_year=self.learning_unit_year)
 
         response = self.client.get(self.url)
 
-        self.assertTemplateUsed(response, "access_denied.html")
-        self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
+        self.assertTemplateUsed(response, "learning_unit/simple/update.html")
+        self.assertEqual(response.status_code, HttpResponse.status_code)
 
     def test_template_used_for_get_request(self):
         response = self.client.get(self.url)
 
-        self.assertTemplateUsed(response, "learning_unit/modification.html")
+        self.assertTemplateUsed(response, "learning_unit/simple/update.html")
         self.assertEqual(response.status_code, HttpResponse.status_code)
 
     def test_context_used_for_get_request(self):
@@ -249,46 +274,66 @@ class TestEditLearningUnit(TestCase):
 
         context = response.context
         self.assertEqual(context["learning_unit_year"], self.learning_unit_year)
-        self.assertTrue(context["form"])
+        self.assertIsInstance(context["learning_unit_form"], LearningUnitModelForm)
+        self.assertIsInstance(context["learning_unit_year_form"], LearningUnitYearModelForm)
+        self.assertIsInstance(context["learning_container_year_form"], LearningContainerYearModelForm)
+        self.assertIsInstance(context["entity_container_form"], EntityContainerBaseForm)
 
     def test_form_initial_data(self):
         response = self.client.get(self.url)
-        form = response.context["form"]
-        initial_data = form.initial
-        expected_initial = {
-            "acronym": self.learning_unit_year.acronym[1:],
-            "academic_year": self.learning_unit_year.academic_year.id,
-            "status": self.learning_unit_year.status,
-            "credits": self.learning_unit_year.credits,
-            "common_title": self.learning_unit_year.learning_container_year.common_title,
-            "common_title_english": self.learning_unit_year.learning_container_year.common_title_english,
-            "specific_title": self.learning_unit_year.specific_title,
-            "specific_title_english": self.learning_unit_year.specific_title_english,
-            "session": self.learning_unit_year.session,
-            "subtype": self.learning_unit_year.subtype,
-            "first_letter": self.learning_unit_year.acronym[0],
-            "container_type": self.learning_unit_year.learning_container_year.container_type,
-            "faculty_remark": self.learning_unit_year.learning_unit.faculty_remark,
-            "other_remark": self.learning_unit_year.learning_unit.other_remark,
-            "periodicity": self.learning_unit_year.learning_unit.periodicity,
-            "quadrimester": self.learning_unit_year.quadrimester,
-            "campus": self.learning_unit_year.learning_container_year.campus.id,
-            "requirement_entity": self.requirement_entity.id,
-            "allocation_entity": self.allocation_entity.id,
-            "additional_requirement_entity_1": self.additional_entity_1.id,
-            "additional_requirement_entity_2": self.additional_entity_2.id,
-            "language": self.learning_unit_year.learning_container_year.language.pk,
-            "is_vacant": self.learning_unit_year.learning_container_year.is_vacant,
-            "team": self.learning_unit_year.learning_container_year.team,
-            "type_declaration_vacant": self.learning_unit_year.learning_container_year.type_declaration_vacant,
-            "attribution_procedure": self.learning_unit_year.attribution_procedure
+        context = response.context[-1]
+        acronym = self.learning_unit_year.acronym
+        # Expected initials form
+        expected_initials = {
+            'learning_container_year_form': {
+                "container_type": self.learning_unit_year.learning_container_year.container_type,
+                "common_title": self.learning_unit_year.learning_container_year.common_title,
+                "common_title_english": self.learning_unit_year.learning_container_year.common_title_english,
+                "team": self.learning_unit_year.learning_container_year.team,
+                "is_vacant": self.learning_unit_year.learning_container_year.is_vacant,
+                "type_declaration_vacant": self.learning_unit_year.learning_container_year.type_declaration_vacant
+            },
+            'learning_unit_year_form': {
+                "acronym": [acronym[0], acronym[1:]],
+                "academic_year": self.learning_unit_year.academic_year.id,
+                "status": self.learning_unit_year.status,
+                "credits": self.learning_unit_year.credits,
+                "specific_title": self.learning_unit_year.specific_title,
+                "specific_title_english": self.learning_unit_year.specific_title_english,
+                "session": self.learning_unit_year.session,
+                "quadrimester": self.learning_unit_year.quadrimester,
+                "attribution_procedure": self.learning_unit_year.attribution_procedure,
+                "internship_subtype": self.learning_unit_year.internship_subtype,
+                "professional_integration": self.learning_unit_year.professional_integration,
+                "campus": self.learning_unit_year.campus.pk,
+                "language": self.learning_unit_year.language.pk,
+                "periodicity": self.learning_unit_year.periodicity
+            },
+            'learning_unit_form': {
+                "faculty_remark": self.learning_unit_year.learning_unit.faculty_remark,
+                "other_remark": self.learning_unit_year.learning_unit.other_remark
+            }
         }
-        self.assertDictEqual(initial_data, expected_initial)
+        for form_name, expected_initial in expected_initials.items():
+            initial_data = context[form_name].initial
+            self.assertDictEqual(initial_data, expected_initial)
+
+        expected_initials = [
+            {'entity': self.requirement_entity.pk},
+            {'entity': self.allocation_entity.pk},
+            {'entity': self.additional_entity_1.pk},
+            {'entity': self.additional_entity_2.pk},
+        ]
+        entity_container_formset = context['entity_container_form']
+        for idx, expected_initial in enumerate(expected_initials):
+            initial_data = entity_container_formset.forms[idx].initial
+            self.assertDictEqual(initial_data, expected_initial)
 
     def test_valid_post_request(self):
         credits = 18
         form_data = self._get_valid_form_data()
         form_data['credits'] = credits
+        form_data['container_type'] = learning_container_year_types.COURSE
         response = self.client.post(self.url, data=form_data)
 
         expected_redirection = reverse("learning_unit", args=[self.learning_unit_year.id])
@@ -297,43 +342,35 @@ class TestEditLearningUnit(TestCase):
         self.learning_unit_year.refresh_from_db()
         self.assertEqual(self.learning_unit_year.credits, credits)
 
-    def test_consistency_report_error_displayed(self):
-        next_academic_year = AcademicYearFactory(year=self.learning_unit_year.academic_year.year + 1)
-        next_learning_container_year = LearningContainerYearFactory(academic_year=next_academic_year,
-                                                                    container_type=learning_container_year_types.COURSE)
-        LearningUnitYearFactory(learning_container_year=next_learning_container_year,
-                                learning_unit=self.learning_unit_year.learning_unit,
-                                acronym="LOSIS4512",
-                                academic_year=next_academic_year,
-                                subtype=learning_unit_year_subtypes.FULL,
-                                credits=26)
-
-        form_data = self._get_valid_form_data()
-        response = self.client.post(self.url, data=form_data)
-
-        expected_redirection = reverse("learning_unit", args=[self.learning_unit_year.id])
-        self.assertRedirects(response, expected_redirection, fetch_redirect_response=False)
-
-        messages = [str(message) for message in get_messages(response.wsgi_request)]
-        self.assertIn(_('The learning unit has been updated until %(year)s.')
-                          % {'year': self.learning_unit_year.academic_year}, list(messages))
-
     def _get_valid_form_data(self):
         form_data = {
-            "acronym": self.learning_unit_year.acronym[1:],
-            "credits": str(self.learning_unit_year.credits),
+            "acronym_0": self.learning_unit_year.acronym[0],
+            "acronym_1": self.learning_unit_year.acronym[1:],
+            "credits": self.learning_unit_year.credits,
             "specific_title": self.learning_unit_year.specific_title,
-            "first_letter": self.learning_unit_year.acronym[0],
-            "periodicity": learning_unit_periodicity.ANNUAL,
-            "campus": str(self.learning_unit_year.learning_container_year.campus.id),
-            "requirement_entity": str(self.requirement_entity.id),
-            "allocation_entity": str(self.requirement_entity.id),
-            "language": str(self.learning_unit_year.learning_container_year.language.pk),
-            "status": True
+            "periodicity": learning_unit_year_periodicity.ANNUAL,
+            "campus": self.learning_unit_year.campus.pk,
+            "language": self.learning_unit_year.language.pk,
+            "status": True,
+
+            'requirement_entity-entity': self.requirement_entity.id,
+            'allocation_entity-entity': self.requirement_entity.id,
+            'additional_requirement_entity_1-entity': '',
+            # Learning component year data model form
+            'form-TOTAL_FORMS': '2',
+            'form-INITIAL_FORMS': '0',
+            'form-MAX_NUM_FORMS': '2',
+            'form-0-hourly_volume_total_annual': 20,
+            'form-0-hourly_volume_partial_q1': 10,
+            'form-0-hourly_volume_partial_q2': 10,
+            'form-1-hourly_volume_total_annual': 20,
+            'form-1-hourly_volume_partial_q1': 10,
+            'form-1-hourly_volume_partial_q2': 10,
         }
         return form_data
 
 
+@override_flag('learning_unit_update', active=True)
 class TestLearningUnitVolumesManagement(TestCase):
     def setUp(self):
         self.academic_years = GenerateAcademicYear(start_year=get_current_year(), end_year=get_current_year()+10)
@@ -349,7 +386,10 @@ class TestLearningUnitVolumesManagement(TestCase):
         edit_learning_unit_permission = Permission.objects.get(codename="can_edit_learningunit")
         self.person.user.user_permissions.add(edit_learning_unit_permission)
 
-        self.url = reverse('learning_unit_volumes_management', args=[self.learning_unit_year.id])
+        self.url = reverse('learning_unit_volumes_management', kwargs={
+                'learning_unit_year_id': self.learning_unit_year.id,
+                'form_type': 'full'
+            })
 
         self.client.force_login(self.person.user)
         self.user = self.person.user
@@ -358,18 +398,17 @@ class TestLearningUnitVolumesManagement(TestCase):
 
     @mock.patch('base.models.program_manager.is_program_manager')
     @mock.patch('base.views.layout.render')
-    def test_learning_unit_volumes_management_get(self, mock_render, mock_program_manager):
+    def test_learning_unit_volumes_management_get_full_form(self, mock_render, mock_program_manager):
         mock_program_manager.return_value = True
 
         request_factory = RequestFactory()
-        request = request_factory.get(reverse(learning_unit_volumes_management,
-                                              args=[self.learning_unit_year.id]))
+        request = request_factory.get(self.url)
 
         request.user = self.user
-        setattr(request, 'session', 'session')
-        setattr(request, '_messages', FallbackStorage(request))
+        request.session = 'session'
+        request._messages = FallbackStorage(request)
 
-        learning_unit_volumes_management(request, self.learning_unit_year.id)
+        learning_unit_volumes_management(request, learning_unit_year_id=self.learning_unit_year.id, form_type="full")
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
 
@@ -378,8 +417,46 @@ class TestLearningUnitVolumesManagement(TestCase):
         for formset in context['formsets'].keys():
             self.assertIn(formset, [self.learning_unit_year, self.learning_unit_year_partim])
 
+        # Check that we display only the current learning_unit_year in the volumes management page (not all the family)
+        self.assertListEqual(
+            context['learning_units'],
+            [self.learning_unit_year, self.learning_unit_year_partim]
+        )
+
     @mock.patch('base.models.program_manager.is_program_manager')
-    def test_learning_unit_volumes_management_post(self, mock_program_manager):
+    @mock.patch('base.views.layout.render')
+    def test_learning_unit_volumes_management_get_simple_form(self, mock_render, mock_program_manager):
+        mock_program_manager.return_value = True
+
+        simple_url = reverse('learning_unit_volumes_management', kwargs={
+            'learning_unit_year_id': self.learning_unit_year.id,
+            'form_type': 'simple'
+        })
+
+        request_factory = RequestFactory()
+        request = request_factory.get(simple_url)
+
+        request.user = self.user
+        request.session = 'session'
+        request._messages = FallbackStorage(request)
+
+        learning_unit_volumes_management(request, learning_unit_year_id=self.learning_unit_year.id, form_type="simple")
+        self.assertTrue(mock_render.called)
+        request, template, context = mock_render.call_args[0]
+
+        self.assertEqual(template, 'learning_unit/volumes_management.html')
+        self.assertEqual(context['learning_unit_year'], self.learning_unit_year)
+        for formset in context['formsets'].keys():
+            self.assertIn(formset, [self.learning_unit_year, self.learning_unit_year_partim])
+
+        # Check that we display only the current learning_unit_year in the volumes management page (not all the family)
+        self.assertListEqual(
+            context['learning_units'],
+            [self.learning_unit_year]
+        )
+
+    @mock.patch('base.models.program_manager.is_program_manager')
+    def test_learning_unit_volumes_management_post_full_form(self, mock_program_manager):
         mock_program_manager.return_value = True
 
         request_factory = RequestFactory()
@@ -387,19 +464,56 @@ class TestLearningUnitVolumesManagement(TestCase):
         data.update(get_valid_formset_data(self.learning_unit_year_partim.acronym, is_partim=True))
 
         request = request_factory.post(reverse(learning_unit_volumes_management,
-                                               args=[self.learning_unit_year.id]),
+                                               kwargs={
+                                                   'learning_unit_year_id': self.learning_unit_year.id,
+                                                   'form_type': 'full'
+                                               }),
                                        data=data)
 
         request.user = self.user
         setattr(request, 'session', 'session')
         setattr(request, '_messages', FallbackStorage(request))
 
-        learning_unit_volumes_management(request, self.learning_unit_year.id)
+        response = learning_unit_volumes_management(request, learning_unit_year_id=self.learning_unit_year.id,
+                                                    form_type="full")
 
         msg_level = [m.level for m in get_messages(request)]
         msg = [m.message for m in get_messages(request)]
         self.assertEqual(len(msg), 1)
         self.assertIn(messages.SUCCESS, msg_level)
+        self.assertEqual(response.url, reverse(learning_unit_components, args=[self.learning_unit_year.id]))
+
+        for generated_container_year in self.generate_container:
+            learning_component_year = generated_container_year.learning_component_cm_full
+            self.check_postponement(learning_component_year)
+
+    @mock.patch('base.models.program_manager.is_program_manager')
+    def test_learning_unit_volumes_management_post_simple_form(self, mock_program_manager):
+        mock_program_manager.return_value = True
+
+        request_factory = RequestFactory()
+        data = get_valid_formset_data(self.learning_unit_year.acronym)
+        data.update(get_valid_formset_data(self.learning_unit_year_partim.acronym, is_partim=True))
+
+        request = request_factory.post(reverse(learning_unit_volumes_management,
+                                               kwargs={
+                                                   'learning_unit_year_id': self.learning_unit_year.id,
+                                                   'form_type': 'simple'
+                                               }),
+                                       data=data)
+
+        request.user = self.user
+        setattr(request, 'session', 'session')
+        setattr(request, '_messages', FallbackStorage(request))
+
+        response = learning_unit_volumes_management(request, learning_unit_year_id=self.learning_unit_year.id,
+                                                    form_type="simple")
+
+        msg_level = [m.level for m in get_messages(request)]
+        msg = [m.message for m in get_messages(request)]
+        self.assertEqual(len(msg), 1)
+        self.assertIn(messages.SUCCESS, msg_level)
+        self.assertEqual(response.url, reverse(learning_unit_identification, args=[self.learning_unit_year.id]))
 
         for generated_container_year in self.generate_container:
             learning_component_year = generated_container_year.learning_component_cm_full
@@ -408,7 +522,7 @@ class TestLearningUnitVolumesManagement(TestCase):
     def check_postponement(self, learning_component_year):
         learning_component_year.refresh_from_db()
         self.assertEqual(learning_component_year.planned_classes, 1)
-        self.assertEqual(learning_component_year.hourly_volume_partial, 0)
+        self.assertEqual(learning_component_year.hourly_volume_partial_q1, 0)
         self.assertEqual(EntityComponentYear.objects.get(
             learning_component_year=learning_component_year,
             entity_container_year__type=entity_container_year_link_type.REQUIREMENT_ENTITY
@@ -422,24 +536,28 @@ class TestLearningUnitVolumesManagement(TestCase):
         request_factory = RequestFactory()
         data = get_valid_formset_data(self.learning_unit_year.acronym)
         data.update(get_valid_formset_data(self.learning_unit_year_partim.acronym))
+        data.update({'LDROI1200A-0-volume_total': 3})
+        data.update({'LDROI1200A-0-volume_q2': 3})
+        data.update({'LDROI1200A-0-volume_requirement_entity': 2})
+        data.update({'LDROI1200A-0-volume_total_requirement_entities': 3})
 
         request = request_factory.post(reverse(learning_unit_volumes_management,
-                                               args=[self.learning_unit_year.id]),
+                                               kwargs={
+                                                   'learning_unit_year_id': self.learning_unit_year.id,
+                                                   'form_type': 'full'
+                                               }),
                                        data=data)
 
         request.user = self.user
         setattr(request, 'session', 'session')
         setattr(request, '_messages', FallbackStorage(request))
 
-        learning_unit_volumes_management(request, self.learning_unit_year.id)
-
-        self.assertTrue(mock_render.called)
-        request, template, context = mock_render.call_args[0]
-        self.assertEqual(template, 'learning_unit/volumes_management.html')
-        self.assertEqual(
-            context['formsets'][self.learning_unit_year_partim].errors[0],
-            {'volume_total': [_('vol_tot_full_must_be_greater_than_partim')]}
-        )
+        learning_unit_volumes_management(request, learning_unit_year_id=self.learning_unit_year.id, form_type="full")
+        # Volumes of partims can be greater than parent's
+        msg_level = [m.level for m in get_messages(request)]
+        msg = [m.message for m in get_messages(request)]
+        self.assertEqual(len(msg), 1)
+        self.assertIn(messages.SUCCESS, msg_level)
 
     @mock.patch('base.models.program_manager.is_program_manager')
     def test_learning_unit_volumes_management_post_wrong_data_ajax(self, mock_program_manager):
@@ -448,21 +566,26 @@ class TestLearningUnitVolumesManagement(TestCase):
         request_factory = RequestFactory()
         data = get_valid_formset_data(self.learning_unit_year.acronym)
         data.update(get_valid_formset_data(self.learning_unit_year_partim.acronym))
+        data.update({'LDROI1200A-0-volume_total': 3})
+        data.update({'LDROI1200A-0-volume_q2': 3})
+        data.update({'LDROI1200A-0-volume_requirement_entity': 2})
+        data.update({'LDROI1200A-0-volume_total_requirement_entities': 3})
 
         request = request_factory.post(reverse(learning_unit_volumes_management,
-                                               args=[self.learning_unit_year.id]),
+                                               kwargs={
+                                                   'learning_unit_year_id': self.learning_unit_year.id,
+                                                   'form_type': 'full'
+                                               }),
                                        data=data,
                                        HTTP_X_REQUESTED_WITH='XMLHttpRequest')
 
         request.user = self.user
 
-        response = learning_unit_volumes_management(request, self.learning_unit_year.id)
-        prefix = self.learning_unit_year_partim.acronym
-        self.assertJSONEqual(response.content.decode("utf-8"),
-                             {"errors":
-                                  {prefix+"-0-volume_total": [_("vol_tot_full_must_be_greater_than_partim")],
-                                   prefix+"-1-volume_total": [_("vol_tot_full_must_be_greater_than_partim")]}
-                              })
+        response = learning_unit_volumes_management(request,
+                                                    learning_unit_year_id=self.learning_unit_year.id,
+                                                    form_type="full")
+        # Volumes of partims can be greater than parent's
+        self.assertEqual(response.status_code, HttpResponse.status_code)
 
     def test_with_user_not_logged(self):
         self.client.logout()
@@ -488,3 +611,13 @@ class TestLearningUnitVolumesManagement(TestCase):
         self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
         self.assertTemplateUsed(response, 'access_denied.html')
 
+    def test_get_learning_units_for_context(self):
+        self.assertListEqual(
+            _get_learning_units_for_context(self.learning_unit_year, with_family=True),
+            [self.learning_unit_year, self.learning_unit_year_partim]
+        )
+
+        self.assertListEqual(
+            _get_learning_units_for_context(self.learning_unit_year, with_family=False),
+            [self.learning_unit_year]
+        )

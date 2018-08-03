@@ -24,15 +24,14 @@
 #
 ##############################################################################
 from django.db import models
-from django.contrib import admin
+from osis_common.models import osis_model_admin
 from django.core import serializers
 
 
-class CurrencyAdmin(admin.ModelAdmin):
+class CurrencyAdmin(osis_model_admin.OsisModelAdmin):
     list_display = ('name', 'code', 'symbol')
     ordering = ('name',)
     search_fields = ['code', 'name']
-    fieldsets = ((None, {'fields': ('name', 'code', 'symbol')}),)
 
 
 class Currency(models.Model):

@@ -1,7 +1,6 @@
 {% extends "layout.html" %}
-{% load staticfiles %}
-{% load i18n %}
-
+{% load staticfiles i18n %}
+{% load staticfiles bootstrap3 %}
 {% comment "License" %}
 * OSIS stands for Open Student Information System. It's an application
 * designed to manage the core business of higher education institutions,
@@ -28,49 +27,113 @@
 
 {% block breadcrumb %}
 <li><a href="{% url 'catalog' %}" id="lnk_catalog">{% trans 'formation_catalogue'%}</a></li>
-<li><a href="{% url 'learning_units' %}" id="lnk_learning_units">{% trans 'learning_units'%}</a></li>
-<li id="lnk_learning_unit">{% trans 'new_learning_unit' %}</li>
+<li><a href="{% url 'learning_units' %}" id="lnk_learning_units">{% trans 'learning_units'%}</a> </li>
+{% if subtype == 'PARTIM' %}
+    <li id="lnk_learning_unit_UE">
+        <a href="{% url 'learning_unit' learning_unit_year.id %}">
+            {{ learning_unit_year_form.acronym.value.0 }}{{ learning_unit_year_form.acronym.value.1 }}
+        </a>
+    </li>
+    <li id="lnk_learning_unit">{% trans 'New partim' %}</li>
+{% else %}
+    {% if form_proposal %}
+        <li id="lnk_learning_unit">{% trans 'proposal_creation' %}</li>
+    {% else %}
+        <li id="lnk_learning_unit">{% trans 'new_learning_unit' %}</li>
+    {% endif %}
+
+{% endif %}
 {% endblock %}
 
 {% block content %}
 <div class="page-header">
-    <h2>{% trans 'new_learning_unit' %}</h2>
+    <h2>{% block h2_title %}{% trans 'new_learning_unit' %}{% endblock %}</h2>
 </div>
 <div class="panel panel-default">
+    <div class="panel-heading">
+        {% include "learning_unit/blocks/create_cancel_buttons.html" %}
+    </div>
     <div class="panel-body">
-        <form method="post" action="{% url 'learning_unit_year_add' %}" id="LearningUnitYearForm"
-        data-validate-url="{% url 'check_acronym' type='FULL' %}">
+        <form method="post" id="LearningUnitYearForm" data-validate-url="{% url 'check_acronym' subtype %}">
             {% csrf_token %}
-            {% include "learning_unit/blocks/create_form_learning_unit.html" %}
-            <div class="panel-body">
-                <button type="button" id="learning_unit_year_add" class="btn btn-primary" title="{% trans 'add' %}">{% trans 'save' %}</button>
+            <div class="row">
+                <div class="col-md-8">
+
+                    {% block learning_unit_identification %}
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+
+                                <div class="row">
+                                    <div class="col-md-4 acronym-group required_field">
+                                        {% bootstrap_label learning_unit_year_form.acronym.label label_class="control-label" %}
+                                        <abbr title="{% trans 'acronym_rules' %}">
+                                            <span class="glyphicon glyphicon-question-sign " title="{% trans 'acronym_rules' %}" style="font-size: 14pt;"></span>
+                                        </abbr>
+                                        {% bootstrap_field learning_unit_year_form.acronym show_label=False %}
+                                    </div>
+                                    {% bootstrap_field learning_container_year_form.container_type form_group_class="col-md-3" %}
+                                    {% if learning_unit_year_form.internship_subtype in learning_unit_year_form.visible_fields %}
+                                        {% bootstrap_field  learning_unit_year_form.internship_subtype form_group_class="col-md-5"%}
+                                    {% endif %}
+                                </div>
+                                <div class="row">
+                                    {% bootstrap_field learning_unit_year_form.credits form_group_class="col-md-3" %}
+                                    {% bootstrap_field learning_unit_year_form.periodicity form_group_class="col-md-3" %}
+                                    {% bootstrap_field learning_unit_year_form.status form_group_class="col-md-2" %}
+                                    {% bootstrap_field learning_unit_year_form.language form_group_class="col-md-4" %}
+                                </div>
+                                <br>
+                                <div class="row">
+                                    {% bootstrap_field learning_unit_year_form.professional_integration form_group_class="col-md-3" %}
+                                </div>
+                                <br>
+                                {% block titles %}
+                                    {% include "learning_unit/blocks/titles.html" %}
+                                {% endblock titles %}
+                            </div>
+                        </div>
+                    {% endblock learning_unit_identification %}
+
+                    {% include "learning_unit/blocks/components.html" %}
+
+                    {% block remarks %}
+                        {% include "learning_unit/blocks/remarks.html" %}
+                    {% endblock remarks %}
+                </div>
+
+                <div class="col-md-4">
+                    {% block institution %}
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                {% bootstrap_field learning_unit_year_form.campus %}
+                                {% bootstrap_field entity_container_form.0.entity %}
+                                {% bootstrap_field entity_container_form.1.entity %}
+                                {% bootstrap_field entity_container_form.2.entity %}
+                                {% bootstrap_field entity_container_form.3.entity %}
+                                <div class="row">
+                                    {% bootstrap_field learning_unit_year_form.academic_year form_group_class="col-md-7" %}
+                                    {% if learning_unit_form.end_year %}
+                                        {% bootstrap_field learning_unit_form.end_year form_group_class="col-md-5" %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endblock %}
+                    {% block create_proposal %}{% endblock %}
+                </div>
             </div>
+            <br>
         </form>
 
-        <!-- Modal -->
-        <div class="modal fade" id="prolongOrCreateModal" tabindex="-1" role="dialog" aria-labelledby="prolongOrCreateModalLabel">
-          <div class="modal-dialog" role="document">
-            <div class="modal-content">
-              <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title">{% trans 'confirm_your_action' %}</h4>
-              </div>
-              <div class="modal-body">
-                {% trans 'prolong_or_create_learning_unit_message' %}
-              </div>
-              <div class="modal-footer">
-                  <button type="submit" id="buttonCreate" class="btn btn-primary" form="LearningUnitYearForm" value="Submit">{% trans 'create' %}</button>
-                  <button type="button" class="btn btn-info" >{% trans 'prolong' %}</button>
-                  <button type="button" class="btn btn-default" data-dismiss="modal">{% trans 'cancel' %}</button>
-              </div>
-            </div>
-          </div>
-        </div>
-
+        {% include 'learning_unit/blocks/modal/prolongOrCreateModal.html' %}
+    </div>
+    <div class="panel-footer">
+        {% include "learning_unit/blocks/create_cancel_buttons.html" %}
     </div>
 </div>
 {% endblock %}
 
 {% block script %}
     <script type="text/javascript" src="{% static 'js/learning_unit_creation.js' %}"></script>
+    <script> const learning_unit_current_subtype = "{{ subtype }}"; </script>
 {% endblock %}

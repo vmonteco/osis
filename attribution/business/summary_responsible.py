@@ -23,7 +23,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.core.exceptions import PermissionDenied, ObjectDoesNotExist
+from django.core.exceptions import PermissionDenied
 
 from attribution import models as mdl_attr
 from attribution.models.attribution import search_by_learning_unit_this_year
@@ -44,20 +44,23 @@ def _is_user_manager_of_entity_allocation_of_learning_unit_year(user, a_learning
     return a_learning_unit_year.allocation_entity in entities_with_descendants
 
 
-def search_attributions(**criteria):
-    entities_manager = criteria["entities_manager"]
-    course_code = criteria["course_code"]
-    learning_unit_title = criteria["learning_unit_title"]
-    tutor = criteria["tutor"]
-    responsible = criteria["summary_responsible"]
-
+def search_attributions(academic_year, entities_manager=None, course_code=None, learning_unit_title=None,
+                        tutor=None, summary_responsible=None):
+    if entities_manager is None:
+        entities_manager = []
     entities_with_descendants = find_entities_with_descendants_from_entity_managers(entities_manager)
-    learning_unit_year_attributions_queryset = search_by_learning_unit_this_year(course_code, learning_unit_title)
-
-    attributions = list(mdl_attr.attribution.filter_attributions(
-        attributions_queryset=learning_unit_year_attributions_queryset, entities=entities_with_descendants,
-        tutor=tutor, responsible=responsible))
-    return attributions
+    learning_unit_year_attributions_queryset = search_by_learning_unit_this_year(
+        course_code,
+        learning_unit_title,
+        academic_year=academic_year,
+    )
+    attributions = mdl_attr.attribution.filter_attributions(
+        attributions_queryset=learning_unit_year_attributions_queryset,
+        entities=entities_with_descendants,
+        tutor=tutor,
+        responsible=summary_responsible,
+    )
+    return list(attributions)
 
 
 def get_attributions_data(user, learning_unit_year_id):
@@ -65,5 +68,5 @@ def get_attributions_data(user, learning_unit_year_id):
     return {
         'learning_unit_year': a_learning_unit_year,
         'attributions': mdl_attr.attribution.find_all_responsible_by_learning_unit_year(a_learning_unit_year),
-        'academic_year': mdl_base.academic_year.current_academic_year()
+        'academic_year': a_learning_unit_year.academic_year
     }

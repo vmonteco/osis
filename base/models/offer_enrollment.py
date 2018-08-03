@@ -30,12 +30,10 @@ from osis_common.models.serializable_model import SerializableModel, Serializabl
 
 
 class OfferEnrollmentAdmin(SerializableModelAdmin):
-    list_display = ('offer_year', 'student', 'date_enrollment', 'enrollment_state', 'changed')
-    fieldsets = ((None, {'fields': ('offer_year', 'student', 'date_enrollment', 'enrollment_state')}),)
+    list_display = ('offer_year', 'education_group_year', 'student', 'date_enrollment', 'enrollment_state', 'changed')
     list_filter = ('offer_year__academic_year', 'enrollment_state')
-    raw_id_fields = ('offer_year', 'student')
-    search_fields = ['offer_year__acronym', 'student__person__first_name', 'student__person__last_name',
-                     'student__registration_id', 'enrollment_state']
+    search_fields = ['offer_year__acronym', 'education_group_year__acronym', 'student__person__first_name',
+                     'student__person__last_name', 'student__registration_id', 'enrollment_state']
 
 
 class OfferEnrollment(SerializableModel):
@@ -45,6 +43,7 @@ class OfferEnrollment(SerializableModel):
     offer_year = models.ForeignKey('OfferYear')
     student = models.ForeignKey('Student')
     enrollment_state = models.CharField(max_length=15, choices=offer_enrollment_state.STATES, blank=True, null=True)
+    education_group_year = models.ForeignKey('EducationGroupYear', null=True, on_delete=models.PROTECT)
 
     def __str__(self):
         return u"%s - %s" % (self.student, self.offer_year)
@@ -64,3 +63,7 @@ def find_by_student(a_student):
 
 def find_by_student_offer(a_student, offer_year):
     return OfferEnrollment.objects.filter(student=a_student, offer_year=offer_year)
+
+
+def find_by_offers_years(offers_years):
+    return OfferEnrollment.objects.filter(offer_year__in=offers_years)

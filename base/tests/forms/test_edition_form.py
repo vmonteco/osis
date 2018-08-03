@@ -25,10 +25,9 @@
 ##############################################################################
 from django.contrib.auth.models import Group
 from django.test import TestCase, RequestFactory
-from django.utils.translation import ugettext_lazy as _
 
 from base.business.learning_unit_year_with_context import get_with_context
-from base.forms.learning_unit.edition_volume import VolumeEditionForm, VolumeEditionBaseFormset, ENTITY_TYPES_VOLUME, \
+from base.forms.learning_unit.edition_volume import VolumeEditionForm, VolumeEditionBaseFormset, \
     VolumeEditionFormsetContainer
 from base.models.person import CENTRAL_MANAGER_GROUP, FACULTY_MANAGER_GROUP
 from base.tests.factories.business.learning_units import GenerateContainer, GenerateAcademicYear
@@ -86,8 +85,7 @@ class TestVolumeEditionForm(TestCase):
                 initial=component_values,
                 component=component,
                 entities=self.learning_unit_with_context.entities)
-            self.assertFalse(form.is_valid())
-            self.assertEqual(form.errors['volume_total'][0], _('vol_tot_not_equal_to_q1_q2'))
+            self.assertTrue(form.is_valid()) # Accept that vol_q1 + vol_q2 is not equal to vol_tot
 
     def test_post_volume_form_wrong_volume_tot_requirement(self):
         for component, component_values in self.learning_unit_with_context.components.items():
@@ -98,9 +96,7 @@ class TestVolumeEditionForm(TestCase):
                 initial=component_values,
                 component=component,
                 entities=self.learning_unit_with_context.entities)
-            self.assertFalse(form.is_valid())
-            self.assertEqual(form.errors['volume_total_requirement_entities'][0],
-                             _('vol_tot_req_entities_not_equal_to_vol_tot_mult_cp'))
+            self.assertTrue(form.is_valid()) # Accept that vol_tot * cp is not equal to vol_global
 
     def test_post_volume_form_wrong_vol_req_entity(self):
         for component, component_values in self.learning_unit_with_context.components.items():
@@ -111,12 +107,7 @@ class TestVolumeEditionForm(TestCase):
                 initial=component_values,
                 component=component,
                 entities=self.learning_unit_with_context.entities)
-            self.assertFalse(form.is_valid())
-
-            error_msg = ' + '.join([self.learning_unit_with_context.entities.get(t).acronym for t in ENTITY_TYPES_VOLUME
-                                    if self.learning_unit_with_context.entities.get(t)])
-            error_msg += ' = {}'.format(_('vol_charge'))
-            self.assertEqual(form.errors['volume_total_requirement_entities'][0], error_msg)
+            self.assertTrue(form.is_valid()) # Accept that vol_global is not equal to sum of volumes of entities
 
     def test_post_volume_form_partim_q1(self):
         for component, component_values in self.learning_unit_with_context.components.items():
@@ -128,15 +119,20 @@ class TestVolumeEditionForm(TestCase):
                 component=component,
                 entities=self.learning_unit_with_context.entities)
             self.assertTrue(form.is_valid())
-            parent_data = _get_valid_data()
-            errors = form.validate_parent_partim_component(parent_data)
-            self.assertEqual(len(errors), 7)
 
-    def test_compare(self):
-        self.assertFalse(VolumeEditionForm._compare(0, 0, False))
-        self.assertTrue(VolumeEditionForm._compare(12, 14, False))
-        self.assertTrue(VolumeEditionForm._compare(12, 12, True))
-        self.assertFalse(VolumeEditionForm._compare(12, 12, False))
+    def test_get_entity_fields(self):
+        for component, component_values in self.learning_unit_with_context.components.items():
+            component_values = VolumeEditionBaseFormset._clean_component_keys(component_values)
+            form = VolumeEditionForm(
+                data=_get_valid_partim_data_alter(),
+                learning_unit_year=self.learning_unit_with_context,
+                initial=component_values,
+                component=component,
+                entities=self.learning_unit_with_context.entities)
+            actual_entity_fields = form.get_entity_fields()
+            self.assertEqual(len(actual_entity_fields), 3)
+
+
 
 
 def _get_wrong_data_empty_field():
@@ -251,16 +247,29 @@ class TestVolumeEditionFormsetContainer(TestCase):
 
         data_forms = get_valid_formset_data(self.learning_unit_year_full.acronym)
         data_forms.update(get_valid_formset_data(self.learning_unit_year_partim.acronym))
+        data_forms.update({'LDROI1200A-0-volume_total': 3})
+        data_forms.update({'LDROI1200A-0-volume_q2': 3})
+        data_forms.update({'LDROI1200A-0-volume_requirement_entity': 2})
+        data_forms.update({'LDROI1200A-0-volume_total_requirement_entities': 3})
 
         volume_edition_formset_container = VolumeEditionFormsetContainer(
             request_factory.post(None, data=data_forms),
             self.learning_units_with_context, self.central_manager)
 
-        self.assertFalse(volume_edition_formset_container.is_valid())
-        self.assertEqual(
-            volume_edition_formset_container.formsets[self.learning_unit_year_partim].errors[0],
-            {'volume_total': [_('vol_tot_full_must_be_greater_than_partim')]}
-        )
+        self.assertTrue(volume_edition_formset_container.is_valid()) # Volumes of partims can be greater than parent's
+
+    def test_post_volume_edition_formset_container__vol_tot_full_can_be_equal_to_partim(self):
+        request_factory = RequestFactory()
+
+        data_forms = get_valid_formset_data(self.learning_unit_year_full.acronym)
+        data_forms.update(get_valid_formset_data(self.learning_unit_year_partim.acronym))
+
+        volume_edition_formset_container = VolumeEditionFormsetContainer(
+            request_factory.post(None, data=data_forms),
+            self.learning_units_with_context, self.central_manager)
+
+        self.assertTrue(volume_edition_formset_container.is_valid())
+
 
     def test_get_volume_edition_formset_container_as_faculty_manager(self):
         request_factory = RequestFactory()
@@ -304,24 +313,6 @@ def get_valid_formset_data(prefix, is_partim=False):
 
     for i in range(2):
         form_data.update({'{}-{}'.format(i, k): v for k, v in data.items()})
-
-    form_data.update(
-        {'INITIAL_FORMS': '0',
-         'MAX_NUM_FORMS': '1000',
-         'MIN_NUM_FORMS': '0',
-         'TOTAL_FORMS': '2'}
-    )
-    return {'{}-{}'.format(prefix, k): v for k, v in form_data.items()}
-
-
-def _get_wrong_formset_data(prefix, is_partim=False):
-    form_data = {}
-    data = _get_valid_data() if not is_partim else _get_valid_partim_data()
-
-    for i in range(2):
-        form_data.update({'{}-{}'.format(i, k): v for k, v in data.items()})
-        if is_partim:
-            form_data['{}-{}'.format(i, 'volume_q1')] = 6
 
     form_data.update(
         {'INITIAL_FORMS': '0',

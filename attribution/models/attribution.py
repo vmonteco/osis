@@ -157,8 +157,10 @@ def filter_attributions(attributions_queryset, entities, tutor, responsible):
     return queryset.select_related('learning_unit_year').distinct("learning_unit_year")
 
 
-def search_by_learning_unit_this_year(code, specific_title):
-    queryset = Attribution.objects.filter(learning_unit_year__academic_year=current_academic_year())
+def search_by_learning_unit_this_year(code, specific_title, academic_year=None):
+    if academic_year is None:
+        academic_year = current_academic_year()
+    queryset = Attribution.objects.filter(learning_unit_year__academic_year=academic_year)
     if specific_title:
         queryset = queryset.filter(learning_unit_year__specific_title__icontains=specific_title)
     if code:
@@ -182,6 +184,16 @@ def find_all_responsible_by_learning_unit_year(learning_unit_year):
                               .order_by("tutor__person")
 
 
+def find_all_summary_responsibles_by_learning_unit_years(learning_unit_years):
+    summary_responsibles_group_by_luy = {}
+    all_attributions = Attribution.objects.filter(
+        learning_unit_year__in=learning_unit_years,
+        summary_responsible=True).select_related('tutor__person')
+    for attribution in all_attributions:
+        summary_responsibles_group_by_luy.setdefault(attribution.learning_unit_year_id, []).append(attribution.tutor)
+    return summary_responsibles_group_by_luy
+
+
 def find_by_tutor(tutor):
     if tutor:
         return [att.learning_unit_year for att in list(search(tutor=tutor))]
@@ -198,17 +210,14 @@ def clear_summary_responsible_by_learning_unit_year(learning_unit_year_pk):
 
 
 def _clear_attributions_field_of_learning__unit_year(learning_unit_year_pk, field_to_clear):
-    attributions = search_by_learning_unit_year_pk_this_academic_year(learning_unit_year_pk)
+    attributions = search_by_learning_unit_year_pk(learning_unit_year_pk)
     for attribution in attributions:
         setattr(attribution, field_to_clear, False)
         attribution.save()
 
 
-def search_by_learning_unit_year_pk_this_academic_year(learning_unit_year_pk):
-    a_learning_unit_year = learning_unit_year.get_by_id(learning_unit_year_pk)
-    attributions = Attribution.objects.filter(learning_unit_year=a_learning_unit_year,
-                                              learning_unit_year__academic_year=current_academic_year())
-    return attributions
+def search_by_learning_unit_year_pk(learning_unit_year_pk):
+    return Attribution.objects.filter(learning_unit_year__id=learning_unit_year_pk)
 
 
 def find_by_id(attribution_id):

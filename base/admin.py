@@ -23,10 +23,9 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from base.models import *
 from django.contrib import admin
 
-from base.models.bibliography import Bibliography, BibliographyAdmin
+from base.models import *
 
 admin.site.register(academic_calendar.AcademicCalendar,
                     academic_calendar.AcademicCalendarAdmin)
@@ -34,7 +33,11 @@ admin.site.register(academic_calendar.AcademicCalendar,
 admin.site.register(academic_year.AcademicYear,
                     academic_year.AcademicYearAdmin)
 
-admin.site.register(Bibliography, BibliographyAdmin)
+admin.site.register(admission_condition.AdmissionCondition,
+                    admission_condition.AdmissionConditionAdmin)
+
+admin.site.register(admission_condition.AdmissionConditionLine,
+                    admission_condition.AdmissionConditionLineAdmin)
 
 admin.site.register(campus.Campus,
                     campus.CampusAdmin)
@@ -53,6 +56,9 @@ admin.site.register(education_group_type.EducationGroupType,
 
 admin.site.register(education_group_year.EducationGroupYear,
                     education_group_year.EducationGroupYearAdmin)
+
+admin.site.register(education_group_year_domain.EducationGroupYearDomain,
+                    education_group_year_domain.EducationGroupYearDomainAdmin)
 
 admin.site.register(entity.Entity,
                     entity.EntityAdmin)
@@ -78,11 +84,17 @@ admin.site.register(exam_enrollment.ExamEnrollment,
 admin.site.register(exam_enrollment.ExamEnrollmentHistory,
                     exam_enrollment.ExamEnrollmentHistoryAdmin)
 
+admin.site.register(external_learning_unit_year.ExternalLearningUnitYear,
+                    external_learning_unit_year.ExternalLearningUnitYearAdmin)
+
 admin.site.register(external_offer.ExternalOffer,
                     external_offer.ExternalOfferAdmin)
 
 admin.site.register(group_element_year.GroupElementYear,
                     group_element_year.GroupElementYearAdmin)
+
+admin.site.register(learning_achievement.LearningAchievement,
+                    learning_achievement.LearningAchievementAdmin)
 
 admin.site.register(learning_class_year.LearningClassYear,
                     learning_class_year.LearningClassYearAdmin)
@@ -180,5 +192,11 @@ admin.site.register(student.Student,
 admin.site.register(synchronization.Synchronization,
                     synchronization.SynchronizationAdmin)
 
+admin.site.register(teaching_material.TeachingMaterial,
+                    teaching_material.TeachingMaterialAdmin)
+
 admin.site.register(tutor.Tutor,
                     tutor.TutorAdmin)
+
+admin.site.register(authorized_relationship.AuthorizedRelationship,
+                    authorized_relationship.AuthorizedRelationshipAdmin)

@@ -31,7 +31,7 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, logout
 from django.contrib.auth.decorators import login_required, permission_required, user_passes_test
 from django.contrib.auth.views import login as django_login
-from django.contrib.messages import ERROR, SUCCESS
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.shortcuts import redirect
 from django.utils import translation
 from django.utils.translation import ugettext_lazy as _
@@ -39,6 +39,8 @@ from django.utils.translation import ugettext_lazy as _
 from base import models as mdl
 from base.models.utils import native
 from . import layout
+
+ITEMS_PER_PAGE = 25
 
 logger = logging.getLogger(settings.DEFAULT_LOGGER)
 
@@ -55,8 +57,8 @@ def method_not_allowed(request):
     return response
 
 
-def access_denied(request):
-    response = layout.render(request, 'access_denied.html', {})
+def access_denied(request, exception):
+    response = layout.render(request, 'access_denied.html', {'exception': exception})
     response.status_code = 403
     return response
 
@@ -194,6 +196,14 @@ def display_success_messages(request, messages_to_display, extra_tags=None):
     display_messages(request, messages_to_display, messages.SUCCESS, extra_tags=extra_tags)
 
 
+def display_info_messages(request, messages_to_display, extra_tags=None):
+    display_messages(request, messages_to_display, messages.INFO, extra_tags=extra_tags)
+
+
+def display_warning_messages(request, messages_to_display, extra_tags=None):
+    display_messages(request, messages_to_display, messages.WARNING, extra_tags=extra_tags)
+
+
 def display_messages(request, messages_to_display, level, extra_tags=None):
     if not isinstance(messages_to_display, (tuple, list)):
         messages_to_display = [messages_to_display]
@@ -208,13 +218,19 @@ def check_if_display_message(request, results):
     return True
 
 
-def display_most_critical_messages(request, messages_by_level):
-    if messages_by_level.get(ERROR, []):
-        display_error_messages(request, messages_by_level[ERROR])
-    else:
-        display_success_messages(request, messages_by_level.get(SUCCESS, []), extra_tags='safe')
-
-
 def display_messages_by_level(request, messages_by_level):
-    display_error_messages(request, messages_by_level.get(ERROR, []))
-    display_success_messages(request, messages_by_level.get(SUCCESS, []), extra_tags='safe')
+    for level, msgs in messages_by_level.items():
+        display_messages(request, msgs, level, extra_tags='safe')
+
+
+def paginate_queryset(qs, request_get):
+    paginator = Paginator(qs, ITEMS_PER_PAGE)
+
+    page = request_get.get('page')
+    try:
+        paginated_qs = paginator.page(page)
+    except PageNotAnInteger:
+        paginated_qs = paginator.page(1)
+    except EmptyPage:
+        paginated_qs = paginator.page(paginator.num_pages)
+    return paginated_qs

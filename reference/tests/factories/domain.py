@@ -37,7 +37,7 @@ class DomainFactory(DjangoModelFactory):
     parent = None
     decree = factory.SubFactory(DecreeFactory)
     name = factory.Sequence(lambda n: 'Domain %d' % n)
-    type = domain_type.UNKNOWN
+    code = factory.Faker('text', max_nb_chars=10)
+    type = domain_type.UNIVERSITY
     adhoc = factory.Faker('boolean', chance_of_getting_true=50)
     national = factory.Faker('boolean', chance_of_getting_true=50)
-    reference = factory.Faker('text', max_nb_chars=10)

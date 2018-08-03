@@ -24,6 +24,8 @@
 #
 ##############################################################################
 from django.db import models
+from django.db.models import Sum
+from django.utils.translation import ugettext_lazy as _
 
 from base.models import learning_class_year
 from base.models.enums import learning_component_year_type, learning_container_year_types
@@ -31,11 +33,8 @@ from osis_common.models.serializable_model import SerializableModel, Serializabl
 
 
 class LearningComponentYearAdmin(SerializableModelAdmin):
-    list_display = ('learning_container_year', 'title', 'acronym', 'type', 'comment')
-    fieldsets = ((None, {'fields': ('learning_container_year', 'title', 'acronym', 'volume_declared_vacant',
-                                    'type', 'comment', 'planned_classes', 'hourly_volume_partial')}),)
+    list_display = ('learning_container_year', 'acronym', 'type', 'comment')
     search_fields = ['acronym', 'learning_container_year__acronym']
-    raw_id_fields = ('learning_container_year',)
     list_filter = ('learning_container_year__academic_year',)
 
 
@@ -43,17 +42,24 @@ class LearningComponentYear(SerializableModel):
     external_id = models.CharField(max_length=100, blank=True, null=True)
     changed = models.DateTimeField(null=True, auto_now=True)
     learning_container_year = models.ForeignKey('LearningContainerYear')
-    title = models.CharField(max_length=255, blank=True, null=True)
     acronym = models.CharField(max_length=4, blank=True, null=True)
     type = models.CharField(max_length=30, choices=learning_component_year_type.LEARNING_COMPONENT_YEAR_TYPES,
                             blank=True, null=True)
     comment = models.CharField(max_length=255, blank=True, null=True)
-    planned_classes = models.IntegerField(blank=True, null=True)
-    hourly_volume_partial = models.DecimalField(max_digits=6, decimal_places=2, blank=True, null=True)
-    volume_declared_vacant = models.DecimalField(max_digits=6, decimal_places=1, blank=True, null=True)
+    planned_classes = models.IntegerField(blank=True, null=True, default=1)
+    hourly_volume_total_annual = models.DecimalField(max_digits=6, decimal_places=2, blank=True, null=True,
+                                                     verbose_name=_("hourly volume total annual"))
+    hourly_volume_partial_q1 = models.DecimalField(max_digits=6, decimal_places=2, blank=True, null=True,
+                                                   verbose_name=_("hourly volume partial q1"))
+    hourly_volume_partial_q2 = models.DecimalField(max_digits=6, decimal_places=2, blank=True, null=True,
+                                                   verbose_name=_("hourly volume partial q2"))
+    volume_declared_vacant = models.DecimalField(max_digits=6, decimal_places=1, blank=True, null=True,
+                                                 verbose_name=_("volume declared vacant"))
+
+    _warnings = None
 
     def __str__(self):
-        return u"%s - %s - %s" % (self.acronym, self.learning_container_year.acronym, self.title)
+        return u"%s - %s" % (self.acronym, self.learning_container_year.acronym)
 
     class Meta:
         permissions = (
@@ -73,8 +79,60 @@ class LearningComponentYear(SerializableModel):
             }.get(self.learning_container_year.container_type)
 
     @property
+    def complete_acronym(self):
+        queryset = self.learningunitcomponent_set
+        learning_unit_acronym = queryset.all().values_list('learning_unit_year__acronym', flat=True).get()
+        return '{}/{}'.format(learning_unit_acronym, self.acronym)
+
+    @property
     def real_classes(self):
         return len(learning_class_year.find_by_learning_component_year(self))
+
+    @property
+    def warnings(self):
+        if self._warnings is None:
+            self._warnings = self._check_volumes_consistency()
+        return self._warnings
+
+    def _check_volumes_consistency(self):
+        _warnings = []
+
+        vol_global = self.entitycomponentyear_set.aggregate(Sum('repartition_volume'))['repartition_volume__sum'] or 0
+        vol_total_annual = self.hourly_volume_total_annual or 0
+        vol_q1 = self.hourly_volume_partial_q1 or 0
+        vol_q2 = self.hourly_volume_partial_q2 or 0
+        planned_classes = self.planned_classes or 0
+
+        inconsitent_msg = _('Volumes of {} are inconsistent').format(self.complete_acronym)
+        if vol_q1 + vol_q2 != vol_total_annual:
+            _warnings.append("{} ({})".format(
+                inconsitent_msg,
+                _('Vol_tot is not equal to vol_q1 + vol_q2')))
+        if vol_total_annual * planned_classes != vol_global:
+            _warnings.append("{} ({})".format(
+                inconsitent_msg,
+                _('Vol_global is not equal to Vol_tot * planned_classes')))
+        if self.planned_classes == 0:
+            _warnings.append("{} ({})".format(
+                inconsitent_msg,
+                _('planned classes cannot be 0')))
+        return _warnings
+
+
+def volume_total_verbose(learning_component_years):
+    sum_q1 = sum([learning_component_year.hourly_volume_partial_q1
+                  for learning_component_year in learning_component_years
+                  if learning_component_year.hourly_volume_partial_q1])
+    sum_q2 = sum([learning_component_year.hourly_volume_partial_q2
+                  for learning_component_year in learning_component_years
+                  if learning_component_year.hourly_volume_partial_q2])
+    q1 = volumes_format(sum_q1)
+    q2 = volumes_format(sum_q2)
+    return "%(q1)s + %(q2)s" % {"q1": q1, "q2": q2}
+
+
+def volumes_format(sum):
+    return "%(sum)sh" % {"sum": float(sum)} if sum else '-h'
 
 
 def find_by_id(learning_component_year_id):
@@ -86,7 +144,7 @@ def find_by_learning_container_year(learning_container_year, with_classes=False)
         .order_by('type', 'acronym')
     if with_classes:
         queryset = queryset.prefetch_related(
-             models.Prefetch('learningclassyear_set', to_attr="classes")
+            models.Prefetch('learningclassyear_set', to_attr="classes")
         )
 
     return queryset

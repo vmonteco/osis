@@ -147,7 +147,7 @@ def find_academic_calendar(academic_year_id, a_reference, a_date):
     return None
 
 
-def is_academic_calendar_opened(an_academic_year_id, a_reference):
+def is_academic_calendar_opened_for_specific_academic_year(an_academic_year_id, a_reference):
     an_academic_calendar = find_academic_calendar(an_academic_year_id,
                                                   a_reference,
                                                   timezone.now())
@@ -156,9 +156,25 @@ def is_academic_calendar_opened(an_academic_year_id, a_reference):
     return False
 
 
+def is_academic_calendar_opened(a_reference):
+    now = timezone.now()
+    return AcademicCalendar.objects.filter(reference=a_reference, start_date__lte=now, end_date__gte=now).exists()
+
+
 def find_dates_for_current_academic_year(reference):
     try:
         return AcademicCalendar.objects.current_academic_year().filter(reference=reference).\
             values("start_date", "end_date").get()
     except AcademicCalendar.DoesNotExist:
         return {}
+
+
+def is_academic_calendar_has_started(academic_year, reference, date=None):
+    if date is None:
+        date = timezone.now()
+
+    return AcademicCalendar.objects.filter(
+            academic_year=academic_year,
+            reference=reference,
+            start_date__lte=date,
+    ).exists()

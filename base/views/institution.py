@@ -29,7 +29,6 @@ import logging
 from django.conf import settings
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core.exceptions import PermissionDenied
-from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.utils.translation import ugettext_lazy as _
@@ -40,7 +39,7 @@ from base.forms.entity import EntitySearchForm
 from base.forms.entity_calendar import EntityCalendarEducationalInformationForm
 from base.models import entity_version as entity_version_mdl
 from base.models.entity_version import EntityVersion
-from base.views.common import display_success_messages
+from base.views.common import display_success_messages, paginate_queryset
 from . import layout
 
 logger = logging.getLogger(settings.DEFAULT_LOGGER)
@@ -69,15 +68,7 @@ def entities_search(request):
     form = EntitySearchForm(request.GET or None)
 
     entities_version_list = form.get_entities().order_by(order_by)
-
-    paginator = Paginator(entities_version_list, 20)
-    page = request.GET.get('page', 1)
-    try:
-        entities_version_list = paginator.page(page)
-    except PageNotAnInteger:
-        entities_version_list = paginator.page(1)
-    except EmptyPage:
-        entities_version_list = paginator.page(paginator.num_pages)
+    entities_version_list = paginate_queryset(entities_version_list, request.GET)
 
     return render(request, "entities.html", {'entities_version': entities_version_list, 'form': form})
 
@@ -115,8 +106,15 @@ def entities_version(request, entity_version_id):
 @login_required
 def entity_diagram(request, entity_version_id):
     entity_version = mdl.entity_version.find_by_id(entity_version_id)
-    entities_version_as_json = json.dumps(entity_version.get_organogram_data(level=0))
-    return layout.render(request, "entity/organogram.html", locals())
+    entities_version_as_json = json.dumps(entity_version.get_organogram_data())
+
+    return layout.render(
+        request, "entity/organogram.html",
+        {
+            "entity_version": entity_version,
+            "entities_version_as_json": entities_version_as_json,
+        }
+    )
 
 
 @login_required

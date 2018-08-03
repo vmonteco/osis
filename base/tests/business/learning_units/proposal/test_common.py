@@ -26,7 +26,7 @@
 from django.contrib.auth.models import Group
 from django.test import TestCase
 
-from base.business.learning_units.proposal.common import compute_proposal_state
+from base.business.learning_unit_proposal import compute_proposal_state
 from base.models.enums import proposal_state
 from base.models.person import FACULTY_MANAGER_GROUP, CENTRAL_MANAGER_GROUP
 from base.tests.factories.person import PersonFactory

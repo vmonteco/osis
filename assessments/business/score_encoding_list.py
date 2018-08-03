@@ -26,6 +26,9 @@
 import copy
 from decimal import Decimal, Context, Inexact
 import unicodedata
+
+from django.db import transaction
+
 from base.models import academic_year, session_exam_calendar, exam_enrollment, program_manager, tutor, offer_year, \
                         learning_unit_year
 from base.models.enums import exam_enrollment_justification_type
@@ -145,12 +148,13 @@ def update_enrollment(enrollment, user, is_program_manager=None):
     if can_modify_exam_enrollment(enrollment, is_program_manager) and \
             is_enrollment_changed(enrollment, is_program_manager):
 
-        enrollment_updated = set_score_and_justification(enrollment, is_program_manager)
+        with transaction.atomic():
+            enrollment_updated = set_score_and_justification(enrollment, is_program_manager)
 
-        if is_program_manager:
-            exam_enrollment.create_exam_enrollment_historic(user, enrollment)
+            if is_program_manager:
+                exam_enrollment.create_exam_enrollment_historic(user, enrollment)
 
-        return enrollment_updated
+            return enrollment_updated
     return None
 
 

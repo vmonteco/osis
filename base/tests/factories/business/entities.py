@@ -23,30 +23,42 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from reference.tests.factories.country import CountryFactory
+from datetime import date
+
+from base.models.enums.entity_type import SECTOR, FACULTY
+from base.models.enums.organization_type import MAIN
 from base.tests.factories.entity import EntityFactory
 from base.tests.factories.entity_version import EntityVersionFactory
+from base.tests.factories.organization import OrganizationFactory
+from reference.tests.factories.country import CountryFactory
 
 
-def create_entities_hierarchy():
+def create_entities_hierarchy(organization_type=MAIN):
     country = CountryFactory()
-
-    root_entity = EntityFactory(country=country)
+    start_date = date.today().replace(year=1900)
+    organization = OrganizationFactory(type=organization_type)
+    root_entity = EntityFactory(country=country, organization=organization)
     root_entity_version = EntityVersionFactory(entity=root_entity,
                                                acronym="ROOT_V",
+                                               entity_type=SECTOR,
                                                parent=None,
-                                               end_date=None)
+                                               end_date=None,
+                                               start_date=start_date)
 
-    child_one_entity = EntityFactory(country=country)
+    child_one_entity = EntityFactory(country=country, organization=organization)
     child_one_entity_version = EntityVersionFactory(acronym="CHILD_1_V",
                                                     parent=root_entity,
+                                                    entity_type=FACULTY,
                                                     end_date=None,
-                                                    entity=child_one_entity)
+                                                    entity=child_one_entity,
+                                                    start_date=start_date)
 
-    child_two_entity = EntityFactory(country=country)
+    child_two_entity = EntityFactory(country=country, organization=organization)
     child_two_entity_version = EntityVersionFactory(acronym="CHILD_2_V",
                                                     parent=root_entity,
+                                                    entity_type=FACULTY,
                                                     end_date=None,
-                                                    entity=child_two_entity)
+                                                    entity=child_two_entity,
+                                                    start_date=start_date)
 
     return locals()

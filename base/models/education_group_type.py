@@ -24,10 +24,12 @@
 #
 ##############################################################################
 from django.db import models
-from django.contrib import admin
+from django.utils.translation import ugettext_lazy as _
 
 from base.models.enums import education_group_categories
-from base.models.osis_model_admin import OsisModelAdmin
+from osis_common.models.osis_model_admin import OsisModelAdmin
+
+GROUP_TYPE_OPTION = 'Option'
 
 
 class EducationGroupTypeAdmin(OsisModelAdmin):
@@ -36,20 +38,56 @@ class EducationGroupTypeAdmin(OsisModelAdmin):
     search_fields = ['name', 'category']
 
 
+class EducationGroupTypeManager(models.Manager):
+    def get_by_natural_key(self, category, name):
+        return self.get(category=category, name=name)
+
+
 class EducationGroupType(models.Model):
+
+    objects = EducationGroupTypeManager()
+
     external_id = models.CharField(max_length=100, blank=True, null=True)
-    category = models.CharField(max_length=25, choices=education_group_categories.CATEGORIES, default=education_group_categories.TRAINING)
-    name = models.CharField(max_length=255)
+    changed = models.DateTimeField(null=True, auto_now=True)
+    category = models.CharField(max_length=25, choices=education_group_categories.CATEGORIES,
+                                default=education_group_categories.TRAINING, verbose_name=_('type'))
+    name = models.CharField(max_length=255, verbose_name=_('training_type'))
 
     def __str__(self):
         return u"%s" % self.name
+
+    def natural_key(self):
+        return self.category, self.name
+
+
+def search(**kwargs):
+    queryset = EducationGroupType.objects
+
+    if 'category' in kwargs:
+        queryset = queryset.filter(category=kwargs['category'])
+
+    return queryset
 
 
 def find_all():
     return EducationGroupType.objects.order_by('name')
 
-def find_by_category(category=None):
-    return EducationGroupType.objects.filter(category=category).order_by('name')
+
+def find_authorized_types(category=None, parents=None):
+    if category:
+        queryset = search(category=category)
+    else:
+        queryset = EducationGroupType.objects.all()
+
+    if parents:
+        # Consecutive filters : we want to match all types not any types
+        for parent in parents:
+            queryset = queryset.filter(
+                authorized_child_type__parent_type__educationgroupyear=parent
+            )
+
+    return queryset.order_by('name')
+
 
 def find_by_name(name=None):
     return EducationGroupType.objects.filter(name=name)

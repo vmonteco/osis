@@ -24,34 +24,38 @@
 #
 ##############################################################################
 import datetime
+import json
+from http import HTTPStatus
 from unittest import mock
 
-from django.contrib.auth.models import Permission, Group
+import bs4
 from django.conf import settings
-from django.utils.translation import ugettext_lazy as _
+from django.contrib.auth.models import Permission, Group
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseForbidden, HttpResponseNotFound, HttpResponse
 from django.test import TestCase, RequestFactory
+from django.utils.translation import ugettext_lazy as _
+from waffle.testutils import override_flag
 
 from base.forms.education_group_general_informations import EducationGroupGeneralInformationsForm
-from base.forms.education_groups import EducationGroupFilter, MAX_RECORDS
-from base.models.enums import education_group_categories, offer_year_entity_type, academic_calendar_type
-from cms.enums import entity_name
-
+from base.forms.education_groups import EducationGroupFilter
+from base.models.admission_condition import AdmissionCondition, AdmissionConditionLine
+from base.models.enums import education_group_categories, academic_calendar_type
 from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.education_group_language import EducationGroupLanguageFactory
-from base.tests.factories.entity import EntityFactory
-from base.tests.factories.entity_version import EntityVersionFactory
 from base.tests.factories.education_group_type import EducationGroupTypeFactory
 from base.tests.factories.education_group_year import EducationGroupYearFactory
+from base.tests.factories.entity import EntityFactory
+from base.tests.factories.entity_version import EntityVersionFactory
 from base.tests.factories.group_element_year import GroupElementYearFactory
-from base.tests.factories.offer_year_entity import OfferYearEntityFactory
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.program_manager import ProgramManagerFactory
-from base.tests.factories.user import UserFactory
+from base.tests.factories.user import UserFactory, SuperUserFactory
+from cms.enums import entity_name
+from cms.models.translated_text import TranslatedText
 from cms.tests.factories.text_label import TextLabelFactory
-from cms.tests.factories.translated_text import TranslatedTextFactory
-
+from cms.tests.factories.translated_text import TranslatedTextFactory, TranslatedTextRandomFactory
+from cms.tests.factories.translated_text_label import TranslatedTextLabelFactory
 
 
 class EducationGroupSearch(TestCase):
@@ -68,37 +72,39 @@ class EducationGroupSearch(TestCase):
         cls.type_minitraining = EducationGroupTypeFactory(category=education_group_categories.MINI_TRAINING)
         cls.type_group = EducationGroupTypeFactory(category=education_group_categories.GROUP)
 
-        cls.education_group_edph2 = EducationGroupYearFactory(acronym='EDPH2', academic_year=cls.academic_year,
-                                                              partial_acronym='EDPH2_SCS',
-                                                              education_group_type=cls.type_group)
-        cls.education_group_arke2a = EducationGroupYearFactory(acronym='ARKE2A', academic_year=cls.academic_year,
-                                                               education_group_type=cls.type_training)
-        cls.education_group_hist2a = EducationGroupYearFactory(acronym='HIST2A', academic_year=cls.academic_year,
-                                                               education_group_type=cls.type_group)
-        cls.education_group_arke2a_previous_year = EducationGroupYearFactory(acronym='ARKE2A',
-                                                                             academic_year=cls.previous_academic_year,
-                                                                             education_group_type=cls.type_training)
-
         oph_entity = EntityFactory()
         envi_entity = EntityFactory()
+
+        cls.education_group_edph2 = EducationGroupYearFactory(
+            acronym='EDPH2', academic_year=cls.academic_year,
+            partial_acronym='EDPH2_SCS',
+            education_group_type=cls.type_group,
+            management_entity=envi_entity
+        )
+
+        cls.education_group_arke2a = EducationGroupYearFactory(
+            acronym='ARKE2A', academic_year=cls.academic_year,
+            education_group_type=cls.type_training,
+            management_entity=oph_entity
+        )
+
+        cls.education_group_hist2a = EducationGroupYearFactory(
+            acronym='HIST2A', academic_year=cls.academic_year,
+            education_group_type=cls.type_group,
+            management_entity=oph_entity
+        )
+
+        cls.education_group_arke2a_previous_year = EducationGroupYearFactory(
+            acronym='ARKE2A',
+            academic_year=cls.previous_academic_year,
+            education_group_type=cls.type_training,
+            management_entity=oph_entity
+        )
+
         cls.oph_entity_v = EntityVersionFactory(entity=oph_entity, parent=envi_entity, end_date=None)
         cls.envi_entity_v = EntityVersionFactory(entity=envi_entity, end_date=None)
 
-        cls.offer_year_entity_edph2 = OfferYearEntityFactory(education_group_year=cls.education_group_edph2,
-                                                             entity=envi_entity,
-                                                             type=offer_year_entity_type.ENTITY_MANAGEMENT)
-        cls.offer_year_entity_hist2a = OfferYearEntityFactory(education_group_year=cls.education_group_hist2a,
-                                                              entity=oph_entity,
-                                                              type=offer_year_entity_type.ENTITY_MANAGEMENT)
-        cls.offer_year_entity_arke2a = OfferYearEntityFactory(education_group_year=cls.education_group_arke2a,
-                                                              type=offer_year_entity_type.ENTITY_MANAGEMENT,
-                                                              entity=oph_entity)
-        cls.offer_year_entity_arke2a_previous_year = \
-            OfferYearEntityFactory(education_group_year=cls.education_group_arke2a_previous_year,
-                                   entity=oph_entity,
-                                   type=offer_year_entity_type.ENTITY_MANAGEMENT)
-
-        cls.user = UserFactory()
+        cls.user = PersonFactory().user
         cls.user.user_permissions.add(Permission.objects.get(codename="can_access_education_group"))
         cls.url = reverse("education_groups")
 
@@ -126,7 +132,7 @@ class EducationGroupSearch(TestCase):
 
         context = response.context
         self.assertIsInstance(context["form"], EducationGroupFilter)
-        self.assertEqual(context["object_list"], None)
+        self.assertEqual(context["object_list_count"], 0)
         self.assertEqual(context["experimental_phase"], True)
 
     def test_without_get_data(self):
@@ -136,7 +142,7 @@ class EducationGroupSearch(TestCase):
 
         context = response.context
         self.assertIsInstance(context["form"], EducationGroupFilter)
-        self.assertEqual(context["object_list"], None)
+        self.assertEqual(context["object_list_count"], 0)
         self.assertEqual(context["experimental_phase"], True)
 
     def test_initial_form_data(self):
@@ -157,19 +163,6 @@ class EducationGroupSearch(TestCase):
         self.assertEqual(len(context["object_list"]), 0)
         messages = [str(m) for m in context["messages"]]
         self.assertIn(_('no_result'), messages)
-
-    @mock.patch.object(EducationGroupFilter, "get_object_list", lambda self: list(range(0, MAX_RECORDS+2)))
-    def test_with_too_many_results(self):
-        response = self.client.get(self.url, data={"category": education_group_categories.MINI_TRAINING})
-
-        self.assertTemplateUsed(response, "education_groups.html")
-
-        context = response.context
-        self.assertIsInstance(context["form"], EducationGroupFilter)
-        self.assertEqual(context["experimental_phase"], True)
-        self.assertEqual(context["object_list"], None)
-        messages = [str(m) for m in context["messages"]]
-        self.assertIn(_('too_many_results'), messages)
 
     def test_search_with_acronym_only(self):
         response = self.client.get(self.url, data={"acronym": self.education_group_arke2a.acronym})
@@ -217,18 +210,28 @@ class EducationGroupSearch(TestCase):
                                self.education_group_hist2a])
 
     def test_search_with_entities_subordinated(self):
-        response = self.client.get(self.url,
-                                   data={"requirement_entity_acronym": self.envi_entity_v.acronym,
-                                         "with_entity_subordinated": True})
+        response = self.client.get(
+            self.url,
+            data={
+                "requirement_entity_acronym": self.envi_entity_v.acronym,
+                "with_entity_subordinated": True
+            }
+        )
 
         self.assertTemplateUsed(response, "education_groups.html")
 
         context = response.context
         self.assertIsInstance(context["form"], EducationGroupFilter)
         self.assertEqual(context["experimental_phase"], True)
-        self.assertCountEqual(context["object_list"],
-                              [self.education_group_arke2a, self.education_group_arke2a_previous_year,
-                               self.education_group_hist2a, self.education_group_edph2])
+        self.assertCountEqual(
+            context["object_list"],
+            [
+                self.education_group_arke2a,
+                self.education_group_arke2a_previous_year,
+                self.education_group_hist2a,
+                self.education_group_edph2
+            ]
+        )
 
     def test_search_by_education_group_type(self):
         response = self.client.get(self.url,
@@ -253,12 +256,15 @@ class EducationGroupSearch(TestCase):
         self.assertCountEqual(context["object_list"],
                               [self.education_group_arke2a, self.education_group_arke2a_previous_year])
 
-    def test_with_multiple_criterias(self):
-        response = self.client.get(self.url,
-                                   data={"academic_year": self.academic_year.id,
-                                         "acronym": self.education_group_arke2a.acronym,
-                                         "requirement_entity_acronym": self.envi_entity_v.acronym,
-                                         "with_entity_subordinated": True})
+    def test_with_multiple_criteria(self):
+        response = self.client.get(
+            self.url, data={
+                "academic_year": self.academic_year.id,
+                "acronym": self.education_group_arke2a.acronym,
+                "requirement_entity_acronym": self.envi_entity_v.acronym,
+                "with_entity_subordinated": True
+            }
+        )
 
         self.assertTemplateUsed(response, "education_groups.html")
 
@@ -286,9 +292,10 @@ class EducationGroupRead(TestCase):
         cls.education_group_language_child_1 = \
             EducationGroupLanguageFactory(education_group_year=cls.education_group_child_1)
 
-        cls.user = UserFactory()
+        cls.user = PersonFactory().user
         cls.user.user_permissions.add(Permission.objects.get(codename="can_access_education_group"))
-        cls.url = reverse("education_group_read", args=[cls.education_group_child_1.id])
+        cls.url = reverse("education_group_read",
+                          args=[cls.education_group_parent.id, cls.education_group_child_1.id])
 
     def setUp(self):
         self.client.force_login(self.user)
@@ -310,7 +317,7 @@ class EducationGroupRead(TestCase):
     def test_with_non_existent_education_group_year(self):
         non_existent_id = self.education_group_child_1.id + self.education_group_child_2.id + \
                           self.education_group_parent.id
-        url = reverse("education_group_read", args=[non_existent_id])
+        url = reverse("education_group_read", args=[self.education_group_parent.pk, non_existent_id])
         response = self.client.get(url)
 
         self.assertTemplateUsed(response, "page_not_found.html")
@@ -326,7 +333,7 @@ class EducationGroupRead(TestCase):
         self.assertListEqual(context["education_group_languages"],
                              [self.education_group_language_child_1.language.name])
         self.assertEqual(context["enums"], education_group_categories)
-        self.assertEqual(context["parent"], self.education_group_child_1)
+        self.assertEqual(context["parent"], self.education_group_parent)
 
     def test_with_root_set(self):
         response = self.client.get(self.url, data={"root": self.education_group_parent.id})
@@ -343,7 +350,10 @@ class EducationGroupRead(TestCase):
     def test_with_non_existent_root_id(self):
         non_existent_id = self.education_group_child_1.id + self.education_group_child_2.id + \
                          self.education_group_parent.id
-        response = self.client.get(self.url, data={"root": non_existent_id})
+        url = reverse("education_group_read",
+                      args=[non_existent_id, self.education_group_child_1.id])
+
+        response = self.client.get(url)
 
         self.assertTemplateUsed(response, "page_not_found.html")
         self.assertEqual(response.status_code, HttpResponseNotFound.status_code)
@@ -358,10 +368,10 @@ class EducationGroupRead(TestCase):
         self.assertListEqual(context["education_group_languages"],
                              [self.education_group_language_child_1.language.name])
         self.assertEqual(context["enums"], education_group_categories)
-        self.assertEqual(context["parent"], self.education_group_child_1)
+        self.assertEqual(context["parent"], self.education_group_parent)
 
     def test_with_without_education_group_language(self):
-        url = reverse("education_group_read", args=[self.education_group_child_2.id])
+        url = reverse("education_group_read", args=[self.education_group_parent.pk, self.education_group_child_2.id])
         response = self.client.get(url)
 
         self.assertTemplateUsed(response, "education_group/tab_identification.html")
@@ -370,7 +380,7 @@ class EducationGroupRead(TestCase):
         self.assertEqual(context["education_group_year"], self.education_group_child_2)
         self.assertListEqual(context["education_group_languages"], [])
         self.assertEqual(context["enums"], education_group_categories)
-        self.assertEqual(context["parent"], self.education_group_child_2)
+        self.assertEqual(context["parent"], self.education_group_parent)
 
 
 class EducationGroupDiplomas(TestCase):
@@ -384,8 +394,10 @@ class EducationGroupDiplomas(TestCase):
                                                               education_group_type=type_training)
         GroupElementYearFactory(parent=cls.education_group_parent, child_branch=cls.education_group_child)
         cls.user = UserFactory()
+        cls.person = PersonFactory(user=cls.user)
         cls.user.user_permissions.add(Permission.objects.get(codename="can_access_education_group"))
-        cls.url = reverse("education_group_diplomas", args=[cls.education_group_child.id])
+        cls.url = reverse("education_group_diplomas",
+                          args=[cls.education_group_parent.pk, cls.education_group_child.id])
 
     def setUp(self):
         self.client.force_login(self.user)
@@ -406,7 +418,7 @@ class EducationGroupDiplomas(TestCase):
 
     def test_with_non_existent_education_group_year(self):
         non_existent_id = self.education_group_child.id + self.education_group_parent.id
-        url = reverse("education_group_diplomas", args=[non_existent_id])
+        url = reverse("education_group_diplomas", args=[self.education_group_parent.pk, non_existent_id])
         response = self.client.get(url)
 
         self.assertTemplateUsed(response, "page_not_found.html")
@@ -417,7 +429,8 @@ class EducationGroupDiplomas(TestCase):
         mini_training_education_group_year.education_group_type.category = education_group_categories.MINI_TRAINING
         mini_training_education_group_year.education_group_type.save()
 
-        url = reverse("education_group_diplomas", args=[mini_training_education_group_year.id])
+        url = reverse("education_group_diplomas",
+                      args=[mini_training_education_group_year.id, mini_training_education_group_year.id])
         response = self.client.get(url)
 
         self.assertTemplateUsed(response, "access_denied.html")
@@ -428,7 +441,9 @@ class EducationGroupDiplomas(TestCase):
         group_education_group_year.education_group_type.category = education_group_categories.GROUP
         group_education_group_year.education_group_type.save()
 
-        url = reverse("education_group_diplomas", args=[group_education_group_year.id])
+        url = reverse("education_group_diplomas",
+                      args=[group_education_group_year.id, group_education_group_year.id]
+                      )
         response = self.client.get(url)
 
         self.assertTemplateUsed(response, "access_denied.html")
@@ -441,11 +456,12 @@ class EducationGroupDiplomas(TestCase):
 
         context = response.context
         self.assertEqual(context["education_group_year"], self.education_group_child)
-        self.assertEqual(context["parent"], self.education_group_child)
+        self.assertEqual(context["parent"], self.education_group_parent)
 
     def test_with_non_existent_root_id(self):
         non_existent_id = self.education_group_child.id + self.education_group_parent.id
-        response = self.client.get(self.url, data={"root": non_existent_id})
+        url = reverse("education_group_diplomas", args=[non_existent_id, self.education_group_child.pk])
+        response = self.client.get(url)
 
         self.assertTemplateUsed(response, "page_not_found.html")
         self.assertEqual(response.status_code, HttpResponseNotFound.status_code)
@@ -453,6 +469,7 @@ class EducationGroupDiplomas(TestCase):
     def test_with_root_set(self):
         response = self.client.get(self.url, data={"root": self.education_group_parent.id})
 
+        self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertTemplateUsed(response, "education_group/tab_diplomas.html")
 
         context = response.context
@@ -476,8 +493,10 @@ class EducationGroupGeneralInformations(TestCase):
                                                         reference=cls.education_group_child.id)
 
         cls.user = UserFactory()
+        cls.person = PersonFactory(user=cls.user)
         cls.user.user_permissions.add(Permission.objects.get(codename="can_access_education_group"))
-        cls.url = reverse("education_group_general_informations", args=[cls.education_group_child.id])
+        cls.url = reverse("education_group_general_informations",
+                          args=[cls.education_group_parent.pk, cls.education_group_child.id])
 
     def setUp(self):
         self.client.force_login(self.user)
@@ -498,7 +517,7 @@ class EducationGroupGeneralInformations(TestCase):
 
     def test_with_non_existent_education_group_year(self):
         non_existent_id = self.education_group_child.id + self.education_group_parent.id
-        url = reverse("education_group_diplomas", args=[non_existent_id])
+        url = reverse("education_group_diplomas", args=[self.education_group_parent.pk, non_existent_id])
         response = self.client.get(url)
 
         self.assertTemplateUsed(response, "page_not_found.html")
@@ -509,7 +528,8 @@ class EducationGroupGeneralInformations(TestCase):
         group_education_group_year.education_group_type.category = education_group_categories.GROUP
         group_education_group_year.education_group_type.save()
 
-        url = reverse("education_group_general_informations", args=[group_education_group_year.id])
+        url = reverse("education_group_general_informations",
+                      args=[group_education_group_year.id, group_education_group_year.id])
         response = self.client.get(url)
 
         self.assertTemplateUsed(response, "access_denied.html")
@@ -521,7 +541,7 @@ class EducationGroupGeneralInformations(TestCase):
         self.assertTemplateUsed(response, "education_group/tab_general_informations.html")
 
         context = response.context
-        self.assertEqual(context["parent"], self.education_group_child)
+        self.assertEqual(context["parent"], self.education_group_parent)
         self.assertEqual(context["education_group_year"], self.education_group_child)
         self.assertDictEqual(context["cms_labels_translated"], {self.cms_label_for_child.text_label.label: None})
         self.assertIsInstance(context["form_french"], EducationGroupGeneralInformationsForm)
@@ -545,7 +565,27 @@ class EducationGroupGeneralInformations(TestCase):
         self.assertEqual(list(form_french.text_labels_name), [self.cms_label_for_child.text_label.label])
         self.assertEqual(list(form_english.text_labels_name), [self.cms_label_for_child.text_label.label])
 
+    def test_user_has_link_to_edit_pedagogy(self):
+        self.user.user_permissions.add(Permission.objects.get(codename='can_edit_educationgroup_pedagogy'))
 
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, HttpResponse.status_code)
+        self.assertTemplateUsed(response, "education_group/tab_general_informations.html")
+
+        soup = bs4.BeautifulSoup(response.content, 'html.parser')
+        self.assertEqual(len(soup.select('a.pedagogy-edit-btn')), 2)
+
+    def test_user_has_not_link_to_edit_pedagogy(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, HttpResponse.status_code)
+        self.assertTemplateUsed(response, "education_group/tab_general_informations.html")
+
+        soup = bs4.BeautifulSoup(response.content, 'html.parser')
+        self.assertEqual(len(soup.select('a.pedagogy-edit-btn')), 0)
+
+
+@override_flag('education_group_update', active=True)
 class EducationGroupViewTestCase(TestCase):
     def setUp(self):
         today = datetime.date.today()
@@ -560,7 +600,7 @@ class EducationGroupViewTestCase(TestCase):
     def test_education_administrative_data(self):
         an_education_group = EducationGroupYearFactory()
         self.initialize_session()
-        url = reverse("education_group_administrative", args=[an_education_group.id])
+        url = reverse("education_group_administrative", args=[an_education_group.id, an_education_group.id])
         response = self.client.get(url)
         self.assertTemplateUsed(response, "education_group/tab_administrative_data.html")
         self.assertEqual(response.context['education_group_year'], an_education_group)
@@ -569,14 +609,15 @@ class EducationGroupViewTestCase(TestCase):
     def test_education_administrative_data_with_root_set(self):
         a_group_element_year = GroupElementYearFactory()
         self.initialize_session()
-        url = reverse("education_group_administrative", args=[a_group_element_year.child_branch.id])
-        response = self.client.get(url, data={"root": a_group_element_year.parent.id})
+        url = reverse("education_group_administrative",
+                      args=[a_group_element_year.parent.id, a_group_element_year.child_branch.id])
+        response = self.client.get(url)
         self.assertTemplateUsed(response, "education_group/tab_administrative_data.html")
         self.assertEqual(response.context['education_group_year'], a_group_element_year.child_branch)
         self.assertEqual(response.context['parent'], a_group_element_year.parent)
 
     def test_get_sessions_dates(self):
-        from base.views.education_group import get_sessions_dates
+        from base.views.education_groups.detail import get_sessions_dates
         from base.tests.factories.session_exam_calendar import SessionExamCalendarFactory
         from base.tests.factories.academic_calendar import AcademicCalendarFactory
         from base.tests.factories.education_group_year import EducationGroupYearFactory
@@ -621,12 +662,13 @@ class EducationGroupViewTestCase(TestCase):
 
         request_factory = RequestFactory()
         request = request_factory.get(reverse(education_group_edit_administrative_data, kwargs={
+            'root_id': education_group_year.id,
             'education_group_year_id': education_group_year.id
         }))
         request.user = mock.Mock()
         mock_can_user_edit_administrative_data.return_value = True
 
-        education_group_edit_administrative_data(request, education_group_year.id)
+        education_group_edit_administrative_data(request, education_group_year.id, education_group_year.id)
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
         self.assertEqual(template, 'education_group/tab_edit_administrative_data.html')
@@ -637,14 +679,15 @@ class EducationGroupViewTestCase(TestCase):
     def test_education_content(self):
         an_education_group = EducationGroupYearFactory()
         self.initialize_session()
-        url = reverse("education_group_diplomas", args=[an_education_group.id])
+        url = reverse("education_group_diplomas", args=[an_education_group.id, an_education_group.id])
         response = self.client.get(url)
+        self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertTemplateUsed(response, "education_group/tab_diplomas.html")
 
     def initialize_session(self):
-        user = UserFactory()
-        user.user_permissions.add(Permission.objects.get(codename="can_access_education_group"))
-        self.client.force_login(user)
+        person = PersonFactory()
+        person.user.user_permissions.add(Permission.objects.get(codename="can_access_education_group"))
+        self.client.force_login(person.user)
 
 
 class EducationGroupAdministrativedata(TestCase):
@@ -661,7 +704,9 @@ class EducationGroupAdministrativedata(TestCase):
         self.program_manager = ProgramManagerFactory(person=self.person,
                                                      education_group=self.education_group_year.education_group)
 
-        self.url = reverse('education_group_administrative', args=[self.education_group_year.id])
+        self.url = reverse('education_group_administrative', args=[
+            self.education_group_year.id, self.education_group_year.id
+        ])
         self.client.force_login(self.person.user)
 
     def test_when_not_logged(self):
@@ -708,7 +753,8 @@ class EducationGroupAdministrativedata(TestCase):
         mini_training_education_group_year.education_group_type.category = education_group_categories.MINI_TRAINING
         mini_training_education_group_year.education_group_type.save()
 
-        url = reverse("education_group_administrative", args=[mini_training_education_group_year.id])
+        url = reverse("education_group_administrative",
+                      args=[mini_training_education_group_year.id, mini_training_education_group_year.id])
         response = self.client.get(url)
 
         self.assertTemplateUsed(response, "access_denied.html")
@@ -719,7 +765,8 @@ class EducationGroupAdministrativedata(TestCase):
         group_education_group_year.education_group_type.category = education_group_categories.GROUP
         group_education_group_year.education_group_type.save()
 
-        url = reverse("education_group_administrative", args=[group_education_group_year.id])
+        url = reverse("education_group_administrative",
+                      args=[group_education_group_year.id, group_education_group_year.id])
         response = self.client.get(url)
 
         self.assertTemplateUsed(response, "access_denied.html")
@@ -734,6 +781,47 @@ class EducationGroupAdministrativedata(TestCase):
         self.assertTrue(response.context["can_edit_administrative_data"])
 
 
+@override_flag('education_group_update', active=True)
+class EducationGroupYearEditPedagogy(TestCase):
+    def setUp(self):
+        self.person = PersonFactory()
+
+        self.permission = Permission.objects.get(codename='can_edit_educationgroup_pedagogy')
+        self.person.user.user_permissions.add(self.permission)
+
+        self.education_group_year = EducationGroupYearFactory()
+
+        self.url = reverse('education_group_pedagogy_edit',
+                           args=[self.education_group_year.id, self.education_group_year.id])
+        self.client.force_login(self.person.user)
+
+    def test_when_not_logged(self):
+        self.client.logout()
+
+        response = self.client.get(self.url)
+        self.assertRedirects(response, '/login/?next={}'.format(self.url))
+
+    def test_user_has_not_permission(self):
+        self.person.user.user_permissions.remove(self.permission)
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
+        self.assertTemplateUsed(response, "access_denied.html")
+
+    def test_user_has_permission(self):
+        text_label = TextLabelFactory(entity=entity_name.OFFER_YEAR)
+
+        url = "{}?label={}&language={}".format(self.url, text_label.label, self.person.language)
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, HttpResponse.status_code)
+        self.assertTemplateUsed(response, "education_group/pedagogy_edit.html")
+
+        soup = bs4.BeautifulSoup(response.content, 'html.parser')
+        self.assertEqual(soup.div.form['action'], self.url)
+
+
+@override_flag('education_group_update', active=True)
 class EducationGroupEditAdministrativeData(TestCase):
     def setUp(self):
         self.person = PersonFactory()
@@ -744,7 +832,8 @@ class EducationGroupEditAdministrativeData(TestCase):
         self.education_group_year = EducationGroupYearFactory()
         self.program_manager = ProgramManagerFactory(person=self.person,
                                                      education_group=self.education_group_year.education_group)
-        self.url = reverse('education_group_edit_administrative', args=[self.education_group_year.id])
+        self.url = reverse('education_group_edit_administrative',
+                           args=[self.education_group_year.id, self.education_group_year.id])
         self.client.force_login(self.person.user)
 
     def test_when_not_logged(self):
@@ -779,7 +868,8 @@ class EducationGroupEditAdministrativeData(TestCase):
         mini_training_education_group_year.education_group_type.category = education_group_categories.MINI_TRAINING
         mini_training_education_group_year.education_group_type.save()
 
-        url = reverse("education_group_edit_administrative", args=[mini_training_education_group_year.id])
+        url = reverse("education_group_edit_administrative",
+                      args=[mini_training_education_group_year.id, mini_training_education_group_year.id])
         response = self.client.get(url)
 
         self.assertTemplateUsed(response, "access_denied.html")
@@ -790,8 +880,386 @@ class EducationGroupEditAdministrativeData(TestCase):
         group_education_group_year.education_group_type.category = education_group_categories.GROUP
         group_education_group_year.education_group_type.save()
 
-        url = reverse("education_group_edit_administrative", args=[group_education_group_year.id])
+        url = reverse("education_group_edit_administrative",
+                      args=[group_education_group_year.id, group_education_group_year.id])
         response = self.client.get(url)
 
         self.assertTemplateUsed(response, "access_denied.html")
         self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
+
+
+class WebServiceForManagementTermsEducationGroupYear(TestCase):
+    def setUp(self):
+        user = SuperUserFactory()
+
+        self.client.force_login(user)
+
+    def test_get_no_terms(self):
+        kwargs = {'HTTP_X_REQUESTED_WITH': 'XMLHttpRequest'}
+
+        education_group_year = EducationGroupYearFactory()
+
+        url = reverse('education_group_pedagogy_get_terms', kwargs={
+            'root_id': education_group_year.pk,
+            'education_group_year_id': education_group_year.id,
+            'language': 'fr-be'
+        })
+
+        response = self.client.get(url, **kwargs)
+        self.assertEqual(response.status_code, 200)
+        response_json = response.json()
+
+        self.assertDictEqual(response_json, {'records': []})
+
+    def test_get_terms(self):
+        kwargs = {'HTTP_X_REQUESTED_WITH': 'XMLHttpRequest'}
+
+        education_group_year = EducationGroupYearFactory()
+
+        text_label=TextLabelFactory(entity='offer_year')
+        translated_text_label = TranslatedTextLabelFactory(text_label=text_label, language='fr-be')
+
+        url = reverse('education_group_pedagogy_get_terms', kwargs={
+            'root_id': education_group_year.pk,
+            'education_group_year_id': education_group_year.id,
+            'language': 'fr-be'
+        })
+
+        response = self.client.get(url, **kwargs)
+        self.assertEqual(response.status_code, 200)
+        response_json = response.json()
+
+        self.assertDictEqual(response_json, {'records': [
+            {'id': translated_text_label.id,
+             'language': translated_text_label.language,
+             'label': translated_text_label.text_label.label,
+             'translation': translated_text_label.label}
+        ]})
+
+    def test_add_term(self):
+        kwargs = {'HTTP_X_REQUESTED_WITH': 'XMLHttpRequest'}
+
+        education_group_year = EducationGroupYearFactory()
+
+        text_label = TextLabelFactory(entity='offer_year', label='label')
+        translated_text_label_fr = TranslatedTextLabelFactory(text_label=text_label, language='fr-be')
+        translated_text_label_en = TranslatedTextLabelFactory(text_label=text_label, language='en')
+
+        url = reverse('education_group_pedagogy_add_term', kwargs={
+            'root_id': education_group_year.pk,
+            'education_group_year_id': education_group_year.id,
+        })
+
+        translated_texts = TranslatedText.objects.filter(reference=str(education_group_year.id),
+                                                         entity='offer_year',
+                                                         text_label=text_label)
+
+        self.assertEqual(translated_texts.count(), 0)
+
+        response = self.client.post(url + "?label={}".format(text_label.label), **kwargs)
+
+        self.assertEqual(response.status_code, 200)
+
+        response_json = response.json()
+
+        self.assertDictEqual(response_json, {
+            'message': 'added',
+            'translated_texts': {
+                'label': text_label.label,
+                'fr-be': {
+                    'id': translated_text_label_fr.id,
+                    'translation': translated_text_label_fr.label,
+                },
+                'en': {
+                    'id': translated_text_label_en.id,
+                    'translation': translated_text_label_en.label,
+                }
+            }
+        })
+
+        translated_texts = TranslatedText.objects.filter(reference=str(education_group_year.id),
+                                                         entity='offer_year',
+                                                         text_label=text_label)
+
+        self.assertEqual(translated_texts.count(), 2)
+
+    def test_remove_term(self):
+        kwargs = {'HTTP_X_REQUESTED_WITH': 'XMLHttpRequest'}
+
+        education_group_year = EducationGroupYearFactory()
+
+        text_label = TextLabelFactory(entity='offer_year', label='label')
+
+        for language in ('fr-be', 'en'):
+            TranslatedTextRandomFactory(text_label=text_label, language=language,
+                                        reference=str(education_group_year.id), entity=text_label.entity)
+
+        url = reverse('education_group_pedagogy_remove_term', kwargs={
+            'root_id': education_group_year.id,
+            'education_group_year_id': education_group_year.id,
+        })
+
+        response = self.client.delete(url + "?label={}".format(text_label.label), **kwargs)
+
+        self.assertEqual(response.status_code, 200)
+
+        response_json = response.json()
+
+        self.assertDictEqual(response_json, {'education_group_year': education_group_year.id})
+
+
+class EducationGroupAdmissionConditionWSTest(TestCase):
+    def setUp(self):
+        user = SuperUserFactory()
+
+        self.client.force_login(user)
+
+    def test_ws_add_line(self):
+        kwargs = {'HTTP_X_REQUESTED_WITH': 'XMLHttpRequest'}
+        education_group_year = EducationGroupYearFactory(acronym='actu2m')
+
+        url = reverse('education_group_year_admission_condition_add_line',
+                      args=[education_group_year.pk, education_group_year.pk]
+                      )
+        data = {
+            'language': 'fr',
+            'section': 'ucl_bachelors',
+            'diploma': 'Diplome',
+            'conditions': '',
+            'access': 'Access',
+            'remarks': 'Remarks',
+        }
+
+        response = self.client.post(url, data=json.dumps(data), content_type='application/json',
+                                    **kwargs)
+
+        self.assertEqual(response.status_code, 200)
+
+        response_json = response.json()
+
+        self.assertEqual(response_json['message'], 'added')
+        response_json['record'].pop('id')
+
+        self.assertDictEqual(response_json['record'], {
+            'section': data['section'],
+            'diploma': data['diploma'],
+            'conditions': data['conditions'],
+            'access': data['access'],
+            'remarks': data['remarks']
+        })
+
+    def test_ws_remove_line(self):
+        kwargs = {'HTTP_X_REQUESTED_WITH': 'XMLHttpRequest'}
+
+        education_group_year = EducationGroupYearFactory(acronym='actu2m')
+        admission_condition = AdmissionCondition.objects.create(education_group_year=education_group_year)
+        self.assertEqual(AdmissionConditionLine.objects.filter(admission_condition=admission_condition).count(), 0)
+        admission_condition_line = AdmissionConditionLine.objects.create(admission_condition=admission_condition,
+                                                                         section='ucl_bachelors',
+                                                                         diploma='Diploma',
+                                                                         conditions='',
+                                                                         access='Access',
+                                                                         remarks='Remarks')
+        self.assertEqual(AdmissionConditionLine.objects.filter(admission_condition=admission_condition).count(), 1)
+
+        data = {
+            'id': admission_condition_line.id,
+        }
+
+        url = reverse('education_group_year_admission_condition_remove_line', kwargs={
+            'root_id': education_group_year.id,
+            'education_group_year_id': education_group_year.id,
+        })
+
+        response = self.client.post(url, data=json.dumps(data), content_type='application/json', **kwargs)
+
+        self.assertEqual(response.status_code, 200)
+
+        response_json = response.json()
+
+        self.assertEqual(response_json['message'], 'deleted')
+        self.assertEqual(AdmissionConditionLine.objects.filter(admission_condition=admission_condition).count(), 0)
+
+    def test_ws_update_line(self):
+        kwargs = {'HTTP_X_REQUESTED_WITH': 'XMLHttpRequest'}
+
+        education_group_year = EducationGroupYearFactory(acronym='actu2m')
+        admission_condition = AdmissionCondition.objects.create(education_group_year=education_group_year)
+        self.assertEqual(AdmissionConditionLine.objects.filter(admission_condition=admission_condition).count(), 0)
+        admission_condition_line = AdmissionConditionLine.objects.create(admission_condition=admission_condition,
+                                                                         section='ucl_bachelors',
+                                                                         diploma='Diploma',
+                                                                         conditions='',
+                                                                         access='Access',
+                                                                         remarks='Remarks')
+        self.assertEqual(AdmissionConditionLine.objects.filter(admission_condition=admission_condition).count(), 1)
+
+        data = {
+            'id': admission_condition_line.id,
+            'language': 'fr',
+            'section': admission_condition_line.section,
+            'diploma': 'New Diploma',
+            'conditions': 'New Conditions',
+            'access': 'New Access',
+            'remarks': 'New Remarques',
+        }
+
+        url = reverse('education_group_year_admission_condition_update_line', kwargs={
+            'root_id': education_group_year.id,
+            'education_group_year_id': education_group_year.id,
+        })
+
+        response = self.client.post(url, data=json.dumps(data), content_type='application/json', **kwargs)
+
+        self.assertEqual(response.status_code, 200)
+
+        response_json = response.json()
+
+        self.assertEqual(response_json['message'], 'updated')
+        self.assertEqual(AdmissionConditionLine.objects.filter(admission_condition=admission_condition).count(), 1)
+
+        checked_response = dict(data, message='updated')
+        checked_response.pop('language')
+
+        self.assertDictEqual(response_json, checked_response)
+
+    def test_ws_get_text(self):
+        kwargs = {'HTTP_X_REQUESTED_WITH': 'XMLHttpRequest'}
+
+        education_group_year = EducationGroupYearFactory(acronym='actu2m')
+        admission_condition = AdmissionCondition.objects.create(
+            education_group_year=education_group_year,
+            text_bachelor='ceci est un test',
+            text_bachelor_en='this is a test',
+        )
+
+        url = reverse('education_group_year_admission_condition_get_text', kwargs={
+            'root_id': education_group_year.id,
+            'education_group_year_id': education_group_year.id,
+        })
+
+        data = {
+            'section': 'bachelor',
+            'language': 'fr',
+        }
+        response = self.client.post(url, data=json.dumps(data), content_type='application/json', **kwargs)
+
+        self.assertEqual(response.status_code, 200)
+
+        response_json = response.json()
+
+        self.assertDictEqual(response_json, {
+            'message': 'read',
+            'section': 'bachelor',
+            'text': admission_condition.text_bachelor,
+        })
+
+        data = {
+            'section': 'bachelor',
+            'language': 'en',
+        }
+        response = self.client.post(url, data=json.dumps(data), content_type='application/json', **kwargs)
+
+        self.assertEqual(response.status_code, 200)
+
+        response_json = response.json()
+
+        self.assertDictEqual(response_json, {
+            'message': 'read',
+            'section': 'bachelor',
+            'text': admission_condition.text_bachelor_en,
+        })
+
+    def test_ws_modify_text(self):
+        kwargs = {'HTTP_X_REQUESTED_WITH': 'XMLHttpRequest'}
+
+        education_group_year = EducationGroupYearFactory(acronym='actu2m')
+        admission_condition = AdmissionCondition.objects.create(
+            education_group_year=education_group_year,
+            text_bachelor='ceci est un test',
+            text_bachelor_en='this is a test',
+        )
+
+        url = reverse('education_group_year_admission_condition_modify_text', kwargs={
+            'root_id': education_group_year.id,
+            'education_group_year_id': education_group_year.id,
+        })
+
+        data = {
+            'section': 'bachelor',
+            'language': 'fr',
+            'text': 'ceci est un second test'
+        }
+        response = self.client.post(url, data=json.dumps(data), content_type='application/json', **kwargs)
+
+        self.assertEqual(response.status_code, 200)
+
+        response_json = response.json()
+
+        self.assertDictEqual(response_json, {
+            'message': 'updated',
+            'text': data['text'],
+        })
+
+        admission_condition.refresh_from_db()
+
+        self.assertEqual(admission_condition.text_bachelor, data['text'])
+
+        data = {
+            'section': 'bachelor',
+            'language': 'en',
+            'text': 'this is a second test'
+        }
+        response = self.client.post(url, data=json.dumps(data), content_type='application/json', **kwargs)
+
+        self.assertEqual(response.status_code, 200)
+
+        response_json = response.json()
+
+        self.assertDictEqual(response_json, {
+            'message': 'updated',
+            'text': data['text'],
+        })
+
+        admission_condition.refresh_from_db()
+
+        self.assertEqual(admission_condition.text_bachelor_en, data['text'])
+
+    def test_ws_get_line(self):
+        kwargs = {'HTTP_X_REQUESTED_WITH': 'XMLHttpRequest'}
+        education_group_year = EducationGroupYearFactory(acronym='actu2m')
+
+        admission_condition = AdmissionCondition.objects.create(education_group_year=education_group_year)
+        admission_condition_line = AdmissionConditionLine.objects.create(admission_condition=admission_condition,
+                                                                         section='ucl_bachelors',
+                                                                         diploma='Diplome',
+                                                                         conditions='Conditions',
+                                                                         access='Acces',
+                                                                         remarks='Remarks'
+                                                                         )
+
+        url = reverse('education_group_year_admission_condition_get_line', kwargs={
+            'root_id': education_group_year.id,
+            'education_group_year_id': education_group_year.id,
+        })
+
+        data = {
+            'id': admission_condition_line.id,
+            'language': 'fr',
+            'section': admission_condition_line.section,
+        }
+
+        response = self.client.post(url, data=json.dumps(data), content_type='application/json', **kwargs)
+
+        self.assertEqual(response.status_code, 200)
+
+        response_json = response.json()
+        self.assertDictEqual(response_json, {
+            'message': 'read',
+            'section': admission_condition_line.section,
+            'id': admission_condition_line.id,
+            'diploma': admission_condition_line.diploma,
+            'conditions': admission_condition_line.conditions,
+            'access': admission_condition_line.access,
+            'remarks': admission_condition_line.remarks
+        })

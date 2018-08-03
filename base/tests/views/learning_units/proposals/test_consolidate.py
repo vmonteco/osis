@@ -29,13 +29,18 @@ from django.contrib.auth.models import Permission
 from django.http import HttpResponseNotAllowed, HttpResponseForbidden, HttpResponseNotFound
 from django.test import TestCase
 from rest_framework.reverse import reverse
+from waffle.testutils import override_flag
 
-from base.models.enums import proposal_state
+from base.models.enums import proposal_state, entity_container_year_link_type
 from base.tests.factories.academic_year import create_current_academic_year
+from base.tests.factories.entity_container_year import EntityContainerYearFactory
+from base.tests.factories.entity_version import EntityVersionFactory
 from base.tests.factories.person import PersonFactory
+from base.tests.factories.person_entity import PersonEntityFactory
 from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
 
 
+@override_flag('learning_unit_proposal_delete', active=True)
 class TestConsolidate(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -48,6 +53,11 @@ class TestConsolidate(TestCase):
         cls.person.user.user_permissions.add(Permission.objects.get(codename="can_access_learningunit"))
         cls.person.user.user_permissions.add(Permission.objects.get(codename="can_consolidate_learningunit_proposal"))
 
+        person_entity = PersonEntityFactory(person=cls.person,
+                                            entity=EntityContainerYearFactory(
+                                                learning_container_year=cls.learning_unit_year.learning_container_year,
+                                                type=entity_container_year_link_type.REQUIREMENT_ENTITY).entity)
+        EntityVersionFactory(entity=person_entity.entity)
         cls.url = reverse("learning_unit_consolidate_proposal")
         cls.post_data = {"learning_unit_year_id": cls.learning_unit_year.id}
 
@@ -89,11 +99,11 @@ class TestConsolidate(TestCase):
         self.assertTemplateUsed(response, "page_not_found.html")
         self.assertEqual(response.status_code, HttpResponseNotFound.status_code)
 
-    @mock.patch("base.business.learning_unit_proposal.consolidate_proposal",
+    @mock.patch("base.business.learning_unit_proposal.consolidate_proposals_and_send_report",
                 side_effect=lambda prop, author, send_mail: {})
     def test_when_proposal_and_can_consolidate_proposal(self, mock_consolidate):
         response = self.client.post(self.url, data=self.post_data, follow=False)
 
         expected_redirect_url = reverse('learning_unit', args=[self.learning_unit_year.id])
         self.assertRedirects(response, expected_redirect_url)
-        mock_consolidate.assert_called_once_with(self.proposal, author=self.person, send_mail=True)
+        mock_consolidate.assert_called_once_with([self.proposal], self.person, {})

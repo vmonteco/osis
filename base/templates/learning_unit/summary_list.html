@@ -2,6 +2,7 @@
 {% load i18n %}
 {% load learning_unit %}
 {% load bootstrap3 %}
+{% load waffle_tags %}
 {% comment "License" %}
 * OSIS stands for Open Student Information System. It's an application
 * designed to manage the core business of higher education institutions,
@@ -32,23 +33,23 @@
         {% include "learning_unit/blocks/form/search_form_summary_list.html" %}
 
         <div style="margin-top:10px;">
-            {% if learning_units %}
-                <div class="row">
-                    <div class="col-md-3">
-                        <button type="button" class="btn btn-default" style="margin-left:10px;"
-                                id="btn_modal_mail_educational_information_update_reminder"
-                                data-toggle="modal" data-target="#modal_mail_summary_reminder"
-                                {% if not formset %}disabled title='{% trans 'need_no_reminder' %}'{% endif %}>
-                            {% trans 'educational_information_update_reminder' %}
-                        </button>
+            {% if learning_units_with_errors %}
+                {% flag "educational_information_mailing" %}
+                    <div class="row">
+                        <div class="col-md-3">
+                            <button type="button" class="btn btn-default" style="margin-left:10px;"
+                                    id="btn_modal_mail_educational_information_update_reminder"
+                                    data-toggle="modal" data-target="#modal_mail_summary_reminder"
+                                    {% if not formset %}disabled title='{% trans 'need_no_reminder' %}'{% endif %}>
+                                {% trans 'educational_information_update_reminder' %}
+                            </button>
+                        </div>
+                        <div class="col-md-8"></div>
                     </div>
-                    <div class="col-md-8">
-
-                    </div>
-                </div>
+                {% endflag %}
                 <br>
                 <strong style="margin-left:10px;color:grey;">
-                    {{learning_units|length}}
+                    {{learning_units_with_errors|length}}
                     {% trans 'learning_units'|lower %}
                 </strong>
 
@@ -61,14 +62,14 @@
                         <th>{% trans 'type'%}</th>
                         <th>{% trans 'subtype'%}</th>
                         <th>{% trans 'summary_responsible' %}</th>
-                        <th>{% trans 'updated' %}</th>
+                        <th>{% trans 'status' %}</th>
                     </tr>
                     </thead>
-                    {% for learning_unit in learning_units %}
+                    {% for learning_unit, error in learning_units_with_errors %}
                         <tr data-id="{{learning_unit.id}}" data-value="{{learning_unit.acronym}}">
                             <td>{{learning_unit.academic_year.name}}</td>
                             <td>
-                                <a href="{% url 'learning_unit' learning_unit.id %}"
+                                <a href="{% url 'learning_unit_pedagogy' learning_unit.id %}"
                                    id="lnk_learning_unit_{{learning_unit.id}}">{{ learning_unit.acronym }}</a>
                             </td>
                             <td>{{ learning_unit.complete_title|default_if_none:'' }}</td>
@@ -86,19 +87,12 @@
                                     {% if forloop.counter0 > 0 %}
                                         ,
                                     {% endif %}
-                                    {{responsible.tutor.person.last_name}} {{responsible.tutor.person.first_name}}
+                                    {{responsible.tutor.person.last_name}} {{responsible.tutor.person.first_name|default_if_none:'' }}
                                 {% endfor %}
                             </td>
                             <td>
-                                {% if learning_unit.summary_status %}
-                                    <span class="glyphicon glyphicon-ok-circle" aria-hidden="true" style="color:green;"
-                                          title="{% trans  'updated' %}"></span>
-                                    <div style="display:none;">1</div>
-                                {% else %}
-                                    <span class="glyphicon glyphicon-ok-circle" aria-hidden="true" style="color:gray;"
-                                          title="{% trans  'unupdated' %}"></span>
-                                    <div style="display:none;">0</div>
-                                {% endif %}
+                                {% trans 'Modification made' as title_status_true %}
+                                {% include "blocks/span/span_status.html" with status=learning_unit.summary_status title_status_false=error.as_ul title_status_true=title_status_true %}
                             </td>
                         </tr>
                     {% endfor %}

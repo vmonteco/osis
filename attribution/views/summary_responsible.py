@@ -41,27 +41,31 @@ from base.views import layout
 @user_passes_test(is_entity_manager)
 def search(request):
     entities_manager = mdl_base.entity_manager.find_by_user(request.user)
-    academic_year = mdl_base.academic_year.current_academic_year()
+    # The academic year for summary responsible is the next of current academic year
+    academic_year = mdl_base.academic_year.current_academic_year().next()
     _append_entity_version(entities_manager, academic_year)
-    context = {"entities_manager": entities_manager,
-               "academic_year": academic_year,
-               "init": "0"}
+    context = {"entities_manager": entities_manager, "academic_year": academic_year, "init": "0"}
     if request.GET:
         tutor = request.GET.get('tutor')
         summary_responsible = request.GET.get('summary_responsible')
         course_code = request.GET.get('course_code')
         learning_unit_title = request.GET.get('learning_unit_title')
-        attributions = search_attributions(entities_manager=entities_manager, tutor=tutor,
-                                           summary_responsible=summary_responsible,
-                                           course_code=course_code,
-                                           learning_unit_title=learning_unit_title)
-        context.update({"dict_attribution": get_attributions_list(attributions, "-summary_responsible"),
-                        "learning_unit_title": learning_unit_title,
-                        "course_code": course_code,
-                        "tutor": tutor,
-                        "summary_responsible": summary_responsible,
-                        "init": "1"})
-
+        attributions = search_attributions(
+            entities_manager=entities_manager,
+            tutor=tutor,
+            summary_responsible=summary_responsible,
+            course_code=course_code,
+            learning_unit_title=learning_unit_title,
+            academic_year=academic_year,
+        )
+        context.update({
+            "dict_attribution": get_attributions_list(attributions, "-summary_responsible"),
+            "learning_unit_title": learning_unit_title,
+            "course_code": course_code,
+            "tutor": tutor,
+            "summary_responsible": summary_responsible,
+            "init": "1"
+        })
     return layout.render(request, 'summary_responsible.html', context)
 
 

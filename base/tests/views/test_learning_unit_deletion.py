@@ -33,7 +33,10 @@ from django.contrib.messages.storage.fallback import FallbackStorage
 from django.core.urlresolvers import reverse
 from django.test import TestCase, RequestFactory
 from django.utils.translation import ugettext_lazy as _
+from waffle.testutils import override_flag
 
+from attribution.tests.factories.attribution import AttributionFactory, AttributionNewFactory
+from attribution.tests.factories.attribution_charge_new import AttributionChargeNewFactory
 from base.models.enums import entity_container_year_link_type
 from base.models.enums import entity_type
 from base.models.enums import learning_unit_year_subtypes
@@ -55,6 +58,7 @@ from base.tests.factories.user import UserFactory
 from base.views.learning_units.delete import delete_all_learning_units_year
 
 
+@override_flag('learning_unit_delete', active=True)
 class LearningUnitDelete(TestCase):
     def setUp(self):
         self.user = UserFactory(username="jeandp")
@@ -71,6 +75,7 @@ class LearningUnitDelete(TestCase):
         self.learning_unit_year_list = self.create_learning_unit_years_and_dependencies()
 
     def create_learning_unit_years_and_dependencies(self):
+        acronym = "LDROI1004"
         l1 = LearningUnitFactory(start_year=2015)
 
         learning_unit_years = []
@@ -79,7 +84,7 @@ class LearningUnitDelete(TestCase):
             l_containeryear = LearningContainerYearFactory(academic_year=ac_year)
             EntityContainerYearFactory(learning_container_year=l_containeryear, entity=self.entity_version.entity,
                                        type=entity_container_year_link_type.REQUIREMENT_ENTITY)
-            learning_unit_year = LearningUnitYearFactory(learning_unit=l1, academic_year=ac_year,
+            learning_unit_year = LearningUnitYearFactory(acronym=acronym, learning_unit=l1, academic_year=ac_year,
                                                          learning_container_year=l_containeryear)
             learning_unit_years.append(learning_unit_year)
 
@@ -95,8 +100,6 @@ class LearningUnitDelete(TestCase):
     def test_delete_all_learning_units_year_method_not_allowed(self):
         learning_unit_years = self.learning_unit_year_list
 
-        from base.views.learning_units.delete import delete_all_learning_units_year
-
         request_factory = RequestFactory()
         request = request_factory.get(reverse(delete_all_learning_units_year, args=[learning_unit_years[1].id]))
         request.user = self.user
@@ -106,8 +109,6 @@ class LearningUnitDelete(TestCase):
 
     def test_delete_all_learning_units_year_case_success(self):
         learning_unit_years = self.learning_unit_year_list
-
-        from base.views.learning_units.delete import delete_all_learning_units_year
 
         request_factory = RequestFactory()
 
@@ -160,8 +161,6 @@ class LearningUnitDelete(TestCase):
         ly1 = learning_unit_years[1]
         LearningUnitEnrollmentFactory(learning_unit_year=ly1)
 
-        from base.views.learning_units.delete import delete_all_learning_units_year
-
         request_factory = RequestFactory()
 
         request = request_factory.post(reverse(delete_all_learning_units_year, args=[ly1.id]))
@@ -185,6 +184,111 @@ class LearningUnitDelete(TestCase):
                          'acronym': ly1.acronym,
                          'year': ly1.academic_year,
                          'count': 1},
+                      msg)
+
+        # Check that record is not deleted
+        self.assertTrue(LearningUnitYear.objects.filter(pk=ly1.pk).exists())
+
+        # Check redirection to identification
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse('learning_unit', kwargs={'learning_unit_year_id': ly1.pk}))
+
+
+    def test_delete_all_learning_units_year_case_error_have_attribution(self):
+        learning_unit_years = self.learning_unit_year_list
+        ly1 = learning_unit_years[1]
+        attrib_1 = AttributionFactory(learning_unit_year=ly1)
+
+        request_factory = RequestFactory()
+
+        request = request_factory.post(reverse(delete_all_learning_units_year, args=[ly1.id]))
+        request.user = self.user
+
+        setattr(request, 'session', 'session')
+        setattr(request, '_messages', FallbackStorage(request))
+
+        response = delete_all_learning_units_year(request, ly1.id)
+
+        # Get message from context
+        msg = [m.message for m in get_messages(request)]
+        msg_level = [m.level for m in get_messages(request)]
+        self.assertEqual(len(msg), 1)
+        self.assertIn(messages.ERROR, msg_level)
+
+        # Check error message
+        subtype = _('The partim') if ly1.is_partim() else _('The learning unit')
+        self.assertIn(_("%(subtype)s %(acronym)s is assigned to %(tutor)s for the year %(year)s")
+                      % {'subtype': subtype,
+                         'acronym': ly1.acronym,
+                         'tutor': attrib_1.tutor,
+                         'year': ly1.academic_year},
+                      msg)
+
+        # Check that record is not deleted
+        self.assertTrue(LearningUnitYear.objects.filter(pk=ly1.pk).exists())
+
+        # Check redirection to identification
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse('learning_unit', kwargs={'learning_unit_year_id': ly1.pk}))
+
+
+    def test_delete_all_learning_units_year_case_success_have_attribution_new_without_charge(self):
+        learning_unit_years = self.learning_unit_year_list
+        ly1 = learning_unit_years[1]
+        AttributionNewFactory(learning_container_year=ly1.learning_container_year)
+        request_factory = RequestFactory()
+
+        request = request_factory.post(reverse(delete_all_learning_units_year, args=[ly1.id]))
+        request.user = self.user
+        setattr(request, 'session', 'session')
+        setattr(request, '_messages', FallbackStorage(request))
+
+        response = delete_all_learning_units_year(request, ly1.id)
+
+        msg_level = [m.level for m in get_messages(request)]
+        msg = [m.message for m in get_messages(request)]
+        self.assertEqual(len(msg), 5)
+        self.assertIn(messages.SUCCESS, msg_level)
+
+        for y in range(4):
+            self.assertFalse(LearningUnitYear.objects.filter(pk=learning_unit_years[y].pk).exists())
+
+        # Check redirection to identification
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse('learning_units'))
+
+
+    def test_delete_all_learning_units_year_case_error_have_attributionnew_with_charge(self):
+        learning_unit_years = self.learning_unit_year_list
+        ly1 = learning_unit_years[1]
+        attrib_new_1 = AttributionNewFactory(learning_container_year=ly1.learning_container_year)
+        learning_component_year_1 = LearningComponentYearFactory(learning_container_year=ly1.learning_container_year)
+        LearningUnitComponentFactory(learning_unit_year=ly1, learning_component_year=learning_component_year_1)
+        AttributionChargeNewFactory(attribution=attrib_new_1, learning_component_year=learning_component_year_1)
+
+        request_factory = RequestFactory()
+
+        request = request_factory.post(reverse(delete_all_learning_units_year, args=[ly1.id]))
+        request.user = self.user
+
+        setattr(request, 'session', 'session')
+        setattr(request, '_messages', FallbackStorage(request))
+
+        response = delete_all_learning_units_year(request, ly1.id)
+
+        # Get message from context
+        msg = [m.message for m in get_messages(request)]
+        msg_level = [m.level for m in get_messages(request)]
+        self.assertEqual(len(msg), 1)
+        self.assertIn(messages.ERROR, msg_level)
+
+        # Check error message
+        subtype = _('The partim') if ly1.is_partim() else _('The learning unit')
+        self.assertIn(_("%(subtype)s %(acronym)s is assigned to %(tutor)s for the year %(year)s")
+                      % {'subtype': subtype,
+                         'acronym': ly1.acronym,
+                         'tutor': attrib_new_1.tutor,
+                         'year': ly1.academic_year},
                       msg)
 
         # Check that record is not deleted
