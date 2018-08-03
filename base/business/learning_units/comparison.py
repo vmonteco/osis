@@ -25,6 +25,8 @@
 ##############################################################################
 from django.utils.translation import ugettext_lazy as _
 
+from base import models as mdl
+
 
 def get_value(model, data, field_name):
     if model._meta.get_field(field_name).choices:
@@ -56,3 +58,11 @@ def get_list_sorted_by_translation(list_of_keys):
 
 def get_translation(item):
     return _(item)
+
+
+def compare_learning_unit(academic_yr, learning_unit_yr):
+    learning_unit_years = mdl.learning_unit_year.search(learning_unit=learning_unit_yr.learning_unit,
+                                                        academic_year_id=academic_yr.id)
+    if learning_unit_years.exists():
+        return learning_unit_yr.compare(learning_unit_years[0])
+    return {}

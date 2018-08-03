@@ -37,7 +37,7 @@ from base.business.learning_unit import get_cms_label_data, \
     get_same_container_year_components, find_language_in_settings, \
     CMS_LABEL_SPECIFICATIONS, get_achievements_group_by_language
 from base.business.learning_units import perms as business_perms
-from base.business.learning_units.comparison import get_keys
+from base.business.learning_units.comparison import get_keys, compare_learning_unit
 from base.business.learning_units.perms import can_update_learning_achievement
 from base.forms.learning_class import LearningClassEditForm
 from base.forms.learning_unit_component import LearningUnitComponentEditForm
@@ -246,11 +246,3 @@ def learning_unit_comparison(request, learning_unit_year_id):
          'next_values': next_values,
          'fields': get_keys(list(previous_values.keys()), list(next_values.keys()))})
     return layout.render(request, "learning_unit/comparison.html", context)
-
-
-def compare_learning_unit(academic_yr, learning_unit_yr):
-    learning_unit_years = mdl.learning_unit_year.search(learning_unit=learning_unit_yr.learning_unit,
-                                                        academic_year_id=academic_yr.id)
-    if learning_unit_years.exists():
-        return learning_unit_yr.compare(learning_unit_years[0])
-    return {}

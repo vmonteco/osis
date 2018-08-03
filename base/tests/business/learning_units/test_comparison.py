@@ -28,24 +28,23 @@ from django.test import TestCase
 from django.test.utils import override_settings
 
 from base.models.learning_unit_year import LearningUnitYear
-from base.tests.factories.learning_unit_year import LearningUnitYearFactory
-from base.tests.factories.academic_year import create_current_academic_year
-from base.business.learning_units.comparison import get_value, get_keys
-from base.models.enums import learning_unit_year_subtypes
+from base.business.learning_units.comparison import get_value, get_keys, translate, compare_learning_unit
+from base.tests.factories.academic_year import create_current_academic_year, AcademicYearFactory
+from base.tests.factories.learning_unit import LearningUnitFactory
+from base.tests.factories.learning_unit_year import create_learning_unit_year
 
 TITLE = 'Intitulé'
+OTHER_TITLE = 'title 1'
 
 
 class TestComparison(TestCase):
     def setUp(self):
+        learning_unit = LearningUnitFactory()
         self.academic_year = create_current_academic_year()
-        self.learning_unit_year = LearningUnitYearFactory(
-            academic_year=self.academic_year,
-            subtype=learning_unit_year_subtypes.FULL,
-            status=True,
-            specific_title=TITLE
-
-        )
+        self.learning_unit_year = create_learning_unit_year(self.academic_year, TITLE, learning_unit)
+        self.previous_academic_yr = AcademicYearFactory(year=self.academic_year.year - 1)
+        self.previous_learning_unit_year = create_learning_unit_year(self.previous_academic_yr, OTHER_TITLE,
+                                                                     learning_unit)
 
     @override_settings(LANGUAGES=[('fr-be', 'French'), ('en', 'English'), ], LANGUAGE_CODE='fr-be')
     def test_get_value_for_boolean(self):
@@ -64,3 +63,15 @@ class TestComparison(TestCase):
 
     def test_get_keys(self):
         self.assertCountEqual(get_keys(['a1', 'c3'], ['a1', 'b2', 'c1']), ['a1', 'b2', 'c1', 'c3'])
+
+    def test_translate(self):
+        self.assertIsNone(translate(None))
+
+    def test_compare_learning_unit_with_nothing(self):
+        self.academic_year_with_no_luy = AcademicYearFactory(year=self.academic_year.year - 2)
+        self.assertEqual(compare_learning_unit(self.academic_year_with_no_luy, self.learning_unit_year), {})
+
+    def test_compare_learning_unit(self):
+        self.assertEqual(compare_learning_unit(self.previous_academic_yr, self.learning_unit_year),
+                         {'specific_title': OTHER_TITLE})
+

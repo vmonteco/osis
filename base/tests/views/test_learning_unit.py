@@ -77,14 +77,14 @@ from base.tests.factories.learning_container import LearningContainerFactory
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
 from base.tests.factories.learning_unit_component import LearningUnitComponentFactory
 from base.tests.factories.learning_unit_component_class import LearningUnitComponentClassFactory
-from base.tests.factories.learning_unit_year import LearningUnitYearFactory
+from base.tests.factories.learning_unit_year import LearningUnitYearFactory, create_learning_unit_year
 from base.tests.factories.organization import OrganizationFactory
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.person_entity import PersonEntityFactory
 from base.tests.factories.user import SuperUserFactory, UserFactory
 from base.views.learning_unit import learning_unit_components, learning_class_year_edit, learning_unit_specifications, \
     learning_unit_formations
-from base.views.learning_unit import learning_unit_identification
+from base.views.learning_unit import learning_unit_identification, learning_unit_comparison
 from base.views.learning_units.create import create_partim_form
 from base.views.learning_units.pedagogy.read import learning_unit_pedagogy
 from base.views.learning_units.search import learning_units
@@ -95,6 +95,7 @@ from cms.tests.factories.translated_text import TranslatedTextFactory
 from osis_common.document import xls_build
 from reference.tests.factories.country import CountryFactory
 from reference.tests.factories.language import LanguageFactory
+from base.tests.factories.learning_unit import LearningUnitFactory
 
 
 @override_flag('learning_unit_create', active=True)
@@ -1370,6 +1371,38 @@ class LearningUnitViewTestCase(TestCase):
         request.user = self.a_superuser
         return request
 
+    @mock.patch('base.views.layout.render')
+    @mock.patch('base.models.program_manager.is_program_manager')
+    def test_learning_unit_comparison(self, mock_program_manager, mock_render):
+        mock_program_manager.return_value = True
+        learning_unit = LearningUnitFactory()
+        learning_unit_year_1 = create_learning_unit_year(self.current_academic_year,
+                                                               'title', learning_unit)
+        previous_academic_yr = AcademicYearFactory(year=self.current_academic_year.year - 1)
+        previous_learning_unit_year = create_learning_unit_year(previous_academic_yr,
+                                                                 'previous title',
+                                                                 learning_unit)
+        next_academic_yr = AcademicYearFactory(year=self.current_academic_year.year + 1)
+
+        next_learning_unit_year = create_learning_unit_year(next_academic_yr,
+                                                             'next title',
+                                                             learning_unit)
+
+        request = self.create_learning_unit_request(learning_unit_year_1)
+
+        learning_unit_comparison(request, learning_unit_year_1.id)
+
+        self.assertTrue(mock_render.called)
+
+        request, template, context = mock_render.call_args[0]
+
+        self.assertEqual(template, 'learning_unit/comparison.html')
+        self.assertEqual(context['previous_academic_yr'], previous_academic_yr)
+        self.assertEqual(context['next_academic_yr'], next_academic_yr)
+        self.assertEqual(context['fields'], ['specific_title'])
+        self.assertEqual(context['previous_values'], {'specific_title': previous_learning_unit_year.specific_title})
+        self.assertEqual(context['next_values'], {'specific_title': next_learning_unit_year.specific_title})
+
 
 class TestCreateXls(TestCase):
     def setUp(self):
@@ -1491,3 +1524,6 @@ class TestLearningAchievements(TestCase):
         for code_language in self.code_languages:
             key = "achievements_{}".format(code_language)
             self.assertTrue(result[key])
+
+
+

@@ -36,7 +36,8 @@ from base.models.enums import learning_unit_year_subtypes
 from base.models.enums.entity_container_year_link_type import REQUIREMENT_ENTITY
 from base.models.enums.learning_component_year_type import LECTURING, PRACTICAL_EXERCISES
 from base.models.learning_component_year import LearningComponentYear
-from base.models.learning_unit_year import find_max_credits_of_related_partims, check_if_acronym_regex_is_valid
+from base.models.learning_unit_year import find_max_credits_of_related_partims, check_if_acronym_regex_is_valid, \
+    _get_changed_values
 from base.tests.factories.academic_year import create_current_academic_year, AcademicYearFactory
 from base.tests.factories.business.learning_units import GenerateAcademicYear, GenerateContainer
 from base.tests.factories.external_learning_unit_year import ExternalLearningUnitYearFactory
@@ -100,7 +101,7 @@ class LearningUnitYearTest(TestCase):
 
         result = list(selected_learning_unit_year.find_gte_learning_units_year().values_list('academic_year__year',
                                                                                              flat=True))
-        self.assertListEqual(result, list(range(2007,2018)))
+        self.assertListEqual(result, list(range(2007, 2018)))
 
     def test_find_gte_learning_units_year_case_no_future(self):
         learning_unit = LearningUnitFactory()
@@ -119,7 +120,7 @@ class LearningUnitYearTest(TestCase):
         selected_learning_unit_year = dict_learning_unit_year[2007]
 
         result = list(selected_learning_unit_year.find_gt_learning_units_year().values_list('academic_year__year',
-                                                                                             flat=True))
+                                                                                            flat=True))
         self.assertListEqual(result, list(range(2008, 2018)))
 
     def test_find_gt_learning_units_year_case_no_future(self):
@@ -129,7 +130,7 @@ class LearningUnitYearTest(TestCase):
         selected_learning_unit_year = dict_learning_unit_year[2017]
 
         result = list(selected_learning_unit_year.find_gt_learning_units_year().values_list('academic_year__year',
-                                                                                             flat=True))
+                                                                                            flat=True))
         self.assertEqual(result, [])
 
     def test_get_learning_unit_parent(self):
@@ -163,7 +164,6 @@ class LearningUnitYearTest(TestCase):
         self.assertEqual(learning_unit_year.search(title=a_common_title)[0], luy)
         self.assertEqual(learning_unit_year.search(title=common_part)[0], luy)
         self.assertEqual(learning_unit_year.search(title=a_specific_title)[0], luy)
-
 
     def test_find_max_credits_of_partims(self):
         self.partim_1 = LearningUnitYearFactory(academic_year=self.academic_year,
@@ -554,3 +554,10 @@ class LearningUnitYearComparaisonTest(TestCase):
                               {'acronym': NEW_ACRONYM,
                                'status': 'Non',
                                'subtype': 'Partim'})
+
+    @override_settings(LANGUAGES=[('fr-be', 'French'), ('en', 'English'), ], LANGUAGE_CODE='fr-be')
+    def test_get_changed_value_wrong_fieldname(self):
+        data_obj1, data_obj2 = self.learning_unit_year.__dict__, self.previous_learning_unit_year.__dict__
+        del data_obj2['acronym']
+        with self.assertRaises(KeyError):
+            _get_changed_values(data_obj1, data_obj2, ['acronym'])
