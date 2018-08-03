@@ -74,8 +74,12 @@ class ValidationRuleMixin:
         for name, field in self.fields.items():
             if name in self.rules:
                 rule = self.rules[name]
-                field.initial = rule.initial_value
+
                 field.required = rule.required_field
+                field.disabled = rule.disabled_field
+                if not field.disabled:
+                    field.initial = rule.initial_value
+
                 field.validators.append(RegexValidator(rule.regex_rule, rule.regex_error_message or None))
 
 
@@ -88,8 +92,7 @@ class ValidationRuleEducationGroupTypeMixin(ValidationRuleMixin):
     """
 
     def field_reference(self, name):
-        full_name = super().field_reference(name)
-        return full_name + '.' + self.get_type()
+        return super().field_reference(name) + '.' + self.get_type()
 
     def get_type(self):
         if self.instance and self.instance.education_group_type:

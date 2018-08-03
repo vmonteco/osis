@@ -45,6 +45,11 @@ class ValidationRule(models.Model):
         verbose_name=_("required field")
     )
 
+    disabled_field = models.BooleanField(
+        default=False,
+        verbose_name=_("disabled field")
+    )
+
     initial_value = models.CharField(
         max_length=255,
         verbose_name=_("initial value")
@@ -64,3 +69,10 @@ class ValidationRule(models.Model):
 
     class Meta:
         verbose_name = _("validation rule")
+
+    def save(self, force_insert=False, force_update=False, using=None,
+             update_fields=None):
+        if self.disabled_field:
+            self.required_field = False
+
+        return super().save(force_insert, force_update, using, update_fields)

@@ -106,3 +106,4 @@ class TestGroupForm(TestCase):
         education_group_year = form.save()
 
         self.assertTrue(GroupElementYear.objects.get(child_branch=education_group_year, parent=parent))
+
