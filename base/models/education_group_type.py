@@ -24,10 +24,10 @@
 #
 ##############################################################################
 from django.db import models
+from django.utils.translation import ugettext_lazy as _
 
 from base.models.enums import education_group_categories
 from osis_common.models.osis_model_admin import OsisModelAdmin
-from django.utils.translation import ugettext_lazy as _
 
 GROUP_TYPE_OPTION = 'Option'
 
@@ -73,13 +73,19 @@ def find_all():
     return EducationGroupType.objects.order_by('name')
 
 
-def find_authorized_types(category=None, parent_type=None):
+def find_authorized_types(category=None, parents=None):
     if category:
         queryset = search(category=category)
     else:
         queryset = EducationGroupType.objects.all()
-    if parent_type:
-        queryset = queryset.filter(pk__in=parent_type.authorized_parent_type.all().values_list('child_type', flat=True))
+
+    if parents:
+        # Consecutive filters : we want to match all types not any types
+        for parent in parents:
+            queryset = queryset.filter(
+                authorized_child_type__parent_type__educationgroupyear=parent
+            )
+
     return queryset.order_by('name')
 
 

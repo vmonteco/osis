@@ -87,6 +87,7 @@ MIDDLEWARE = (
     'waffle.middleware.WaffleMiddleware',
 )
 
+INTERNAL_IPS = ()
 # check if we are testing right now
 TESTING = 'test' in sys.argv
 if TESTING:

@@ -25,6 +25,7 @@
 ##############################################################################
 import itertools
 
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models, IntegrityError
 from django.db.models import Q
 from django.utils.functional import cached_property
@@ -51,7 +52,7 @@ class GroupElementYearAdmin(osis_model_admin.OsisModelAdmin):
         'parent__acronym',
         'parent__partial_acronym'
     ]
-    list_filter = ('is_mandatory', 'minor_access', 'quadrimester_derogation')
+    list_filter = ('is_mandatory', 'minor_access', 'quadrimester_derogation', 'parent__academic_year')
 
 
 class GroupElementYear(OrderedModel):
@@ -160,6 +161,8 @@ class GroupElementYear(OrderedModel):
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         if self.child_branch and self.child_leaf:
             raise IntegrityError("Can not save GroupElementYear with a child branch and a child leaf.")
+        if self.child_branch == self.parent:
+            raise IntegrityError("Can not save GroupElementYear when a child branch and a parent are identical.")
 
         return super().save(force_insert, force_update, using, update_fields)
 
@@ -186,6 +189,10 @@ def search(**kwargs):
         queryset = queryset.filter(child_leaf=kwargs['child_leaf'])
 
     return queryset
+
+
+def get_group_element_year_by_id(id):
+    return GroupElementYear.objects.get(id=id)
 
 
 # TODO : education_group_yr.parent.all() instead
@@ -297,5 +304,9 @@ def _match_any_filters(element_year, filters):
     return any(element_year[col_name] in values_list for col_name, values_list in filters.items())
 
 
-def get_or_create_group_element_year(parent, child):
-    return GroupElementYear.objects.get_or_create(parent=parent, child_branch=child)
+def get_or_create_group_element_year(parent, child_branch=None, child_leaf=None):
+    if child_branch:
+        return GroupElementYear.objects.get_or_create(parent=parent, child_branch=child_branch)
+    elif child_leaf:
+        return GroupElementYear.objects.get_or_create(parent=parent, child_leaf=child_leaf)
+    return AttributeError('child branch OR child leaf params must be set')

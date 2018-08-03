@@ -26,14 +26,44 @@
 from django import template
 from django.core.exceptions import PermissionDenied
 from django.urls import reverse
+from django.utils import six
+from django.utils.encoding import force_text
+from django.utils.html import conditional_escape
 from django.utils.safestring import mark_safe
 
+from backoffice.settings import base
 from base.business.education_groups.perms import is_eligible_to_delete_education_group, \
-    is_eligible_to_change_education_group, is_eligible_to_add_education_group
+    is_eligible_to_change_education_group, is_eligible_to_add_education_group, is_eligible_to_add_training, \
+    is_eligible_to_add_mini_training, is_eligible_to_add_group
+
+OPTIONAL_PNG = base.STATIC_URL + 'img/education_group_year/optional.png'
+MANDATORY_PNG = base.STATIC_URL + 'img/education_group_year/mandatory.png'
+CASE_JPG = base.STATIC_URL + 'img/education_group_year/case.jpg'
+
+CHILD_BRANCH = """\
+<tr>
+    <td style="padding-left:{padding}em;width:{width_main};float:left;">
+        <img src="{icon_list_2}" height="10" width="10">
+        {value}{sublist}
+    </td>
+</tr>
+"""
+
+CHILD_LEAF = """\
+<tr>
+    <td style="padding-left:{padding}em;width:{width_main};float:left;">
+        <img src="{icon_list_1}" height="14" width="17">
+        <img src="{icon_list_2}" height="10" width="10">
+        {value}{sublist}
+    </td>
+    <td style="width:{width_an};text-align: center;">{an_1}</td>
+    <td style="width:{width_an};text-align: center;">{an_2}</td>
+    <td style="width:{width_an};text-align: center;">{an_3}</td>
+</tr>
+"""
 
 NO_GIVEN_ROOT = "INVALID TREE : no given root"
 ICON_JSTREE_FILE = "data-jstree='{\"icon\":\"jstree-icon jstree-file\"}'"
-
 
 # TODO use inclusion tag
 LI_TEMPLATE = """
@@ -91,6 +121,21 @@ def li_with_create_perm(context, url, message, url_id="link_create"):
     return li_with_permission(context, is_eligible_to_add_education_group, url, message, url_id)
 
 
+@register.simple_tag(takes_context=True)
+def li_with_create_perm_training(context, url, message, url_id="link_create"):
+    return li_with_permission(context, is_eligible_to_add_training, url, message, url_id)
+
+
+@register.simple_tag(takes_context=True)
+def li_with_create_perm_mini_training(context, url, message, url_id="link_create"):
+    return li_with_permission(context, is_eligible_to_add_mini_training, url, message, url_id)
+
+
+@register.simple_tag(takes_context=True)
+def li_with_create_perm_group(context, url, message, url_id="link_create"):
+    return li_with_permission(context, is_eligible_to_add_group, url, message, url_id)
+
+
 def li_with_permission(context, permission, url, message, url_id):
     permission_denied_message, disabled, root = _get_permission(context, permission)
 
@@ -145,6 +190,106 @@ def button_with_permission(context, title, id_a, value):
     return mark_safe(BUTTON_TEMPLATE.format(title, id_a, disabled, ICONS[value]))
 
 
+@register.filter(is_safe=True, needs_autoescape=True)
+def pdf_tree_list(value, autoescape=True):
+    if autoescape:
+        escaper = conditional_escape
+    else:
+        def escaper(x):
+            return x
+    return mark_safe(list_formatter(value))
+
+
+def walk_items(item_list):
+    if item_list:
+        item_iterator = iter(item_list)
+        try:
+            item = next(item_iterator)
+            while True:
+                try:
+                    next_item = next(item_iterator)
+                except StopIteration:
+                    yield item, None
+                    break
+                if not isinstance(next_item, six.string_types):
+                    try:
+                        iter(next_item)
+                    except TypeError:
+                        pass
+                    else:
+                        yield item, next_item
+                        item = next(item_iterator)
+                        continue
+                yield item, None
+                item = next_item
+        except StopIteration:
+            pass
+    else:
+        return ""
+
+
+def list_formatter(item_list, tabs=1, depth=None):
+    output = []
+    depth = depth if depth else 1
+    for item, children in walk_items(item_list):
+        sublist = ''
+        padding = 2 * depth
+        if children:
+            sublist = '%s' % (
+                list_formatter(children, tabs + 1, depth + 1))
+        append_output(item, output, padding, sublist)
+    return '\n'.join(output)
+
+
+def append_output(item, output, padding, sublist):
+    if item.child_leaf:
+        if item.is_mandatory:
+            output.append(
+                CHILD_LEAF.format(padding=padding,
+                                  width_main="80%",
+                                  icon_list_1=CASE_JPG,
+                                  icon_list_2=MANDATORY_PNG,
+                                  value=escaper(force_text(item.verbose)),
+                                  sublist=sublist,
+                                  width_an="15px",
+                                  an_1=check_block(item, "1"),
+                                  an_2=check_block(item, "2"),
+                                  an_3=check_block(item, "3")))
+        else:
+            output.append(
+                CHILD_LEAF.format(padding=padding,
+                                  width_main="80%",
+                                  icon_list_1=CASE_JPG,
+                                  icon_list_2=OPTIONAL_PNG,
+                                  value=escaper(force_text(item.verbose)),
+                                  sublist=sublist,
+                                  width_an="15px",
+                                  an_1=check_block(item, "1"),
+                                  an_2=check_block(item, "2"),
+                                  an_3=check_block(item, "3")))
+    else:
+        if item.is_mandatory:
+            output.append(
+                CHILD_BRANCH.format(padding=padding, width_main="80%",
+                                    icon_list_2=MANDATORY_PNG,
+                                    value=escaper(force_text(item.verbose)),
+                                    sublist=sublist))
+        else:
+            output.append(
+                CHILD_BRANCH.format(padding=padding, width_main="80%",
+                                    icon_list_2=OPTIONAL_PNG,
+                                    value=escaper(force_text(item.verbose)),
+                                    sublist=sublist))
+
+
+def check_block(item, value):
+    return "X" if item.block and value in item.block else ""
+
+
+def escaper(x):
+    return x
+
+
 @register.simple_tag(takes_context=True)
 def build_tree(context, current_group_element_year, selected_education_group_year):
     request = context["request"]
@@ -170,7 +315,7 @@ def build_tree(context, current_group_element_year, selected_education_group_yea
         data_jstree=data_jstree,
         gey=_get_group_element_year_id(current_group_element_year),
         egy=education_group_year.pk,
-        url=_get_url(request, education_group_year, root),
+        url=_get_url(request, education_group_year, root, current_group_element_year),
         text=education_group_year.verbose,
         a_class=a_class,
         children=chidren_template
@@ -181,9 +326,10 @@ def _get_group_element_year_id(current_group_element_year):
     return current_group_element_year.pk if current_group_element_year else "-"
 
 
-def _get_url(request, egy, root):
+def _get_url(request, egy, root, current_group_element_year):
     url_name = request.resolver_match.url_name if request.resolver_match else "education_group_read"
-    return reverse(url_name, args=[root.pk, egy.pk])
+    return reverse(url_name, args=[root.pk, egy.pk]) + "?group_to_parent=" + (
+        str(current_group_element_year.id) if current_group_element_year else '0')
 
 
 def _get_icon_jstree(education_group_year):
@@ -196,3 +342,8 @@ def _get_icon_jstree(education_group_year):
 
 def _get_a_class(education_group_year, selected_education_group_year):
     return "jstree-wholerow-clicked" if education_group_year.pk == selected_education_group_year.pk else ""
+
+
+@register.simple_tag(takes_context=True)
+def url_resolver_match(context):
+    return context.request.resolver_match.url_name

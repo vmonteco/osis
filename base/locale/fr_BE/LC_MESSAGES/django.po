@@ -3233,8 +3233,8 @@ msgstr "L'organisation de formation a été supprimée."
 msgid "The %(acronym)s has been moved"
 msgstr "%(acronym)s a été déplacé"
 
-msgid "The %(acronym)s has been detached"
-msgstr "%(acronym)s a été détaché"
+msgid "\"%(child)s\" has been detached from \"%(parent)s\""
+msgstr "\"%(child)s\" a été détaché de \"%(parent)s\""
 
 msgid "Additional info"
 msgstr "Infos complémentaires"
@@ -3266,8 +3266,8 @@ msgstr "Abs. créd."
 msgid "Sess. derog."
 msgstr "Sess. dérog."
 
-msgid "%(count_enrollment)d student is enrolled in the offer"
-msgid_plural "%(count_enrollment)d students are enrolled in the offer"
+msgid "%(count_enrollment)d student is  enrolled in the offer."
+msgid_plural "%(count_enrollment)d students are  enrolled in the offer."
 msgstr[0] "%(count_enrollment)d étudiant est inscrit à l'offre."
 msgstr[1] "%(count_enrollment)d étudiants sont inscrits à l'offre."
 
@@ -3310,6 +3310,12 @@ msgstr "Certificat compétence médecine "
 msgid "Group content"
 msgstr "Contenu du groupement"
 
+msgid "%(title)s (%(credits)s credits)"
+msgstr "%(title)s (%(credits)s crédits)"
+
+msgid "%(acronym)s %(title)s [%(volumes)s] (%(credits)s credits)"
+msgstr "%(acronym)s %(title)s [%(volumes)s] (%(credits)s crédits)"
+
 msgid "Link type"
 msgstr "Type de lien"
 
@@ -3321,6 +3327,9 @@ msgstr "Quadrimestre dérogation"
 
 msgid "Quad. derog."
 msgstr "Quad. dérog."
+
+msgid "No type of education group can be created as child of %(category)s of type %(type)s"
+msgstr "Aucun type de Groupement ne peut être créé comme enfant d'une %(category)s de type %(type)s"
 
 msgid "Produce xls with a list of education groups"
 msgstr "Produire un fichier Excel avec la liste des organisations de formations"
@@ -3354,6 +3363,9 @@ msgstr "Liste des formations avec données administratives"
 
 msgid "Validity"
 msgstr "Validité"
+
+msgid "Please Select or Move an item before Attach it"
+msgstr "Veuillez Sélectionner ou Déplacer un élément avant d'Attacher"
 
 msgid "Used by an other education group"
 msgstr "Utilisé dans une autre formation"

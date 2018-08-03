@@ -75,7 +75,8 @@ class TestBuildTree(TestCase):
             data_jstree=ICON_JSTREE_FILE if not gey.child_branch.group_element_year_branches else "",
             gey=gey.pk,
             egy=gey.child_branch.pk,
-            url=reverse("education_group_read", args=[self.egy.pk, gey.child_branch.pk]),
+            url=reverse("education_group_read", args=[self.egy.pk, gey.child_branch.pk]) +
+                "?group_to_parent=" + str(gey.pk),
             text=gey.child_branch.verbose,
             a_class="jstree-wholerow-clicked" if root else "",
             children=sub_templates

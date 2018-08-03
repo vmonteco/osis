@@ -39,7 +39,7 @@ class TestMiniTrainingModelForm(EducationGroupYearModelFormMixin):
     def test_fields(self):
         fields = ("acronym", "partial_acronym", "education_group_type", "title", "title_english", "credits", "active",
                   "main_teaching_campus", "academic_year", "remark", "remark_english", "min_credits", "max_credits",
-                  "schedule_type", "administration_entity", "keywords")
+                  "schedule_type", "management_entity", "keywords")
         self._test_fields(self.form_class, fields)
 
     def test_init_academic_year_field(self):

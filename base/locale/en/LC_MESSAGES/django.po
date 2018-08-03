@@ -3231,7 +3231,7 @@ msgstr ""
 msgid "The %(acronym)s has been moved"
 msgstr ""
 
-msgid "The %(acronym)s has been detached"
+msgid "\"%(child)s\" has been detached from \"%(parent)s\""
 msgstr ""
 
 msgid "Additional info"
@@ -3244,7 +3244,19 @@ msgid "Default learning unit enrollment"
 msgstr ""
 
 msgid "Session"
-msgstr "Session"
+msgstr ""
+
+msgid "Attach"
+msgstr ""
+
+msgid "Detach"
+msgstr ""
+
+msgid "Move"
+msgstr ""
+
+msgid "Select"
+msgstr ""
 
 msgid "The user is not attached to the management entity"
 msgstr ""
@@ -3264,8 +3276,8 @@ msgstr ""
 msgid "Sess. derog."
 msgstr ""
 
-msgid "%(count_enrollment)d student is enrolled in the offer"
-msgid_plural "%(count_enrollment)d students are enrolled in the offer"
+msgid "%(count_enrollment)d student is  enrolled in the offer."
+msgid_plural "%(count_enrollment)d students are  enrolled in the offer."
 msgstr[0] ""
 msgstr[1] ""
 
@@ -3308,6 +3320,12 @@ msgstr "Certificate medecine competence"
 msgid "Group content"
 msgstr "Group content"
 
+msgid "%(title)s (%(credits)s credits)"
+msgstr "%(title)s (%(credits)s credits)"
+
+msgid "%(acronym)s %(title)s [%(volumes)s] (%(credits)s credits)"
+msgstr "%(acronym)s %(title)s [%(volumes)s] (%(credits)s crédits)"
+
 msgid "Link type"
 msgstr ""
 
@@ -3318,6 +3336,9 @@ msgid "Quadrimester derogation"
 msgstr ""
 
 msgid "Quad. derog."
+msgstr ""
+
+msgid "No type of education group can be created as child of %(category)s of type %(type)s"
 msgstr ""
 
 msgid "Produce xls with a list of education groups"
@@ -3351,6 +3372,9 @@ msgid "List of trainings with administrative data"
 msgstr ""
 
 msgid "Validity"
+msgstr ""
+
+msgid "Please Select or Move an item before Attach it"
 msgstr ""
 
 msgid "Used by an other education group"

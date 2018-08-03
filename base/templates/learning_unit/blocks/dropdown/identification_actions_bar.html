@@ -121,6 +121,15 @@
                     </li>
                 {% endif %}
             {% endflag %}
+
+            {# This feature is used for managing tree in education group context #}
+            {% flag "education_group_select" %}
+                <li>
+                    <a href="#" onclick="javascript:select()">
+                        {% trans 'Select' %}
+                    </a>
+                </li>
+            {% endflag %}
             </ul>
         </div>
 
@@ -156,7 +165,17 @@
             {% endif %}
         {% endflag %}
 
-
     {% endif %}
 
 {% endif %}
+
+{% block script %}
+    <script>
+        function select() {
+            $.ajax({
+                url: "{% url 'learning_unit_select' learning_unit_year_id=learning_unit_year.id %}",
+                type: 'POST'
+            });
+        }
+    </script>
+{% endblock %}

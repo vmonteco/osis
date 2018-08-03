@@ -187,7 +187,7 @@ class EducationGroupYear(models.Model):
     management_entity = models.ForeignKey(
         Entity,
         verbose_name=_("management_entity"),
-        blank=True, null=True,
+        null=True,
         related_name="management_entity"
     )
 
@@ -221,11 +221,22 @@ class EducationGroupYear(models.Model):
                                  blank=True, null=True, verbose_name=_('Rate code'))
 
     def __str__(self):
-        return u"%s - %s" % (self.academic_year, self.acronym)
+        return "{} - {} - {}".format(
+            self.partial_acronym,
+            self.acronym,
+            self.academic_year,
+        )
 
     @property
     def verbose(self):
         return "{} - {}".format(self.partial_acronym or "", self.acronym)
+
+    @property
+    def verbose_credit(self):
+        return _("%(title)s (%(credits)s credits)") % {
+                "title": self.title,
+                "credits": self.credits or 0
+            }
 
     class Meta:
         verbose_name = _("education group year")
@@ -277,9 +288,8 @@ class EducationGroupYear(models.Model):
         return self.groupelementyear_set.select_related('child_branch', 'child_leaf')
 
     @cached_property
-    def children_by_group_element_year(self):
-        group_elements_year = self.children_without_leaf
-        return [group_element_year.child_branch for group_element_year in group_elements_year]
+    def children_group_element_years(self):
+        return self.children_without_leaf
 
     @cached_property
     def group_element_year_branches(self):

@@ -27,9 +27,12 @@ import datetime
 
 from django.test import TestCase
 
-from base.business.education_groups.perms import is_education_group_creation_period_opened, check_permission
+from base.business.education_groups.perms import is_education_group_creation_period_opened, check_permission, \
+    check_authorized_type
 from base.models.enums import academic_calendar_type
 from base.tests.factories.academic_calendar import AcademicCalendarFactory
+from base.tests.factories.authorized_relationship import AuthorizedRelationshipFactory
+from base.tests.factories.education_group_year import EducationGroupYearFactory
 from base.tests.factories.person import PersonFactory, PersonWithPermissionsFactory, CentralManagerFactory
 
 
@@ -62,3 +65,18 @@ class TestPerms(TestCase):
 
         central_manager = CentralManagerFactory()
         self.assertTrue(central_manager.is_central_manager())
+
+    def test_check_unauthorized_type(self):
+        education_group = EducationGroupYearFactory()
+        result = check_authorized_type(education_group)
+        self.assertFalse(result)
+
+    def test_check_authorized_type(self):
+        education_group = EducationGroupYearFactory()
+        AuthorizedRelationshipFactory(parent_type=education_group.education_group_type)
+        result = check_authorized_type(education_group)
+        self.assertTrue(result)
+
+    def test_check_authorized_type_without_parent(self):
+        result = check_authorized_type(None)
+        self.assertTrue(result)
