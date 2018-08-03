@@ -155,6 +155,26 @@ class GroupElementYear(OrderedModel):
                 "credits": self.relative_credits or self.child_leaf.credits or 0
             }
 
+    @property
+    def verbose_english(self):
+        if self.child_branch:
+            return _("%(title)s (%(credits)s credits)") % {
+                "title": self.child.title_english if self.child.title_english else self.child.title,
+                "credits": self.relative_credits or self.child_branch.credits or 0
+            }
+        else:
+            components = LearningComponentYear.objects.filter(
+                learningunitcomponent__learning_unit_year=self.child_leaf
+            )
+
+            return _("%(acronym)s %(title)s [%(volumes)s] (%(credits)s credits)") % {
+                "acronym": self.child_leaf.acronym,
+                "title": self.child_leaf.specific_title_english
+                if self.child_leaf.specific_title_english else self.child_leaf.specific_title,
+                "volumes": volume_total_verbose(components),
+                "credits": self.relative_credits or self.child_leaf.credits or 0
+            }
+
     class Meta:
         ordering = ('order',)
 

@@ -191,13 +191,13 @@ def button_with_permission(context, title, id_a, value):
 
 
 @register.filter(is_safe=True, needs_autoescape=True)
-def pdf_tree_list(value, autoescape=True):
+def pdf_tree_list(value, language, autoescape=True):
     if autoescape:
         escaper = conditional_escape
     else:
         def escaper(x):
             return x
-    return mark_safe(list_formatter(value))
+    return mark_safe(list_formatter(value, language=language))
 
 
 def walk_items(item_list):
@@ -228,7 +228,7 @@ def walk_items(item_list):
         return ""
 
 
-def list_formatter(item_list, tabs=1, depth=None):
+def list_formatter(item_list, language, tabs=1, depth=None):
     output = []
     depth = depth if depth else 1
     for item, children in walk_items(item_list):
@@ -236,12 +236,16 @@ def list_formatter(item_list, tabs=1, depth=None):
         padding = 2 * depth
         if children:
             sublist = '%s' % (
-                list_formatter(children, tabs + 1, depth + 1))
-        append_output(item, output, padding, sublist)
+                list_formatter(children, language, tabs + 1, depth + 1))
+        append_output(item, output, padding, sublist, language=language)
     return '\n'.join(output)
 
 
-def append_output(item, output, padding, sublist):
+def append_output(item, output, padding, sublist, language):
+    if language=="fr":
+        verbose = item.verbose
+    else:
+        verbose = item.verbose_english
     if item.child_leaf:
         if item.is_mandatory:
             output.append(
@@ -249,7 +253,7 @@ def append_output(item, output, padding, sublist):
                                   width_main="80%",
                                   icon_list_1=CASE_JPG,
                                   icon_list_2=MANDATORY_PNG,
-                                  value=escaper(force_text(item.verbose)),
+                                  value=escaper(force_text(verbose)),
                                   sublist=sublist,
                                   width_an="15px",
                                   an_1=check_block(item, "1"),
@@ -261,7 +265,7 @@ def append_output(item, output, padding, sublist):
                                   width_main="80%",
                                   icon_list_1=CASE_JPG,
                                   icon_list_2=OPTIONAL_PNG,
-                                  value=escaper(force_text(item.verbose)),
+                                  value=escaper(force_text(verbose)),
                                   sublist=sublist,
                                   width_an="15px",
                                   an_1=check_block(item, "1"),
@@ -272,13 +276,13 @@ def append_output(item, output, padding, sublist):
             output.append(
                 CHILD_BRANCH.format(padding=padding, width_main="80%",
                                     icon_list_2=MANDATORY_PNG,
-                                    value=escaper(force_text(item.verbose)),
+                                    value=escaper(force_text(verbose)),
                                     sublist=sublist))
         else:
             output.append(
                 CHILD_BRANCH.format(padding=padding, width_main="80%",
                                     icon_list_2=OPTIONAL_PNG,
-                                    value=escaper(force_text(item.verbose)),
+                                    value=escaper(force_text(verbose)),
                                     sublist=sublist))
 
 

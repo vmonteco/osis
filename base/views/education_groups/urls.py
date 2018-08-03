@@ -103,6 +103,6 @@ urlpatterns = [
             name='education_group_year_admission_condition_get_line'),
 
         url(r'^delete/$', delete.DeleteGroupEducationYearView.as_view(), name="delete_education_group"),
-        url(r'^pdf_content/$', pdf_content, name="pdf_content"),
+        url(r'^pdf_content/(?P<language>[a-z\-]+)', pdf_content, name="pdf_content"),
     ])),
 ]

@@ -32,12 +32,17 @@ from osis_common.document.pdf_build import render_pdf
 
 
 @login_required
-def pdf_content(request, root_id, education_group_year_id):
+def pdf_content(request, root_id, education_group_year_id, language):
     parent = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
     tree = get_verbose_children(parent)
+    if language == "fr":
+        parent_verbose = parent.verbose_credit
+    else:
+        parent_verbose = parent.verbose_credit_english
     context = {
-        'parent': parent,
+        'parent': parent_verbose,
         'tree': tree,
+        'language': language,
     }
     return render_pdf(
         request,

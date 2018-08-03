@@ -3324,7 +3324,7 @@ msgid "%(title)s (%(credits)s credits)"
 msgstr "%(title)s (%(credits)s credits)"
 
 msgid "%(acronym)s %(title)s [%(volumes)s] (%(credits)s credits)"
-msgstr "%(acronym)s %(title)s [%(volumes)s] (%(credits)s crédits)"
+msgstr "%(acronym)s %(title)s [%(volumes)s] (%(credits)s credits)"
 
 msgid "Link type"
 msgstr ""
