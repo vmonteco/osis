@@ -24,16 +24,17 @@
 #
 ##############################################################################
 from django import forms
+from django.core.validators import RegexValidator
 
 from base.forms.learning_unit.entity_form import EntitiesVersionChoiceField
 from base.models import campus, education_group_type, group_element_year
 from base.models.education_group import EducationGroup
 from base.models.education_group_year import EducationGroupYear
 from base.models.entity_version import find_main_entities_version, get_last_version
+from base.models.validation_rule import ValidationRule
 
 
 class MainTeachingCampusChoiceField(forms.ModelChoiceField):
-
     def __init__(self, queryset, *args, **kwargs):
         queryset = campus.find_main_campuses()
         super(MainTeachingCampusChoiceField, self).__init__(queryset, *args, **kwargs)
@@ -45,7 +46,44 @@ class MainEntitiesVersionChoiceField(EntitiesVersionChoiceField):
         super(MainEntitiesVersionChoiceField, self).__init__(queryset, *args, **kwargs)
 
 
-class EducationGroupYearModelForm(forms.ModelForm):
+class ValidationDependingOfEducationGroupTypeMixin:
+    # Mixin for ModelForm
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.rules = self.get_rules()
+        self._set_rule_on_fields()
+
+    def get_rules(self):
+        result = {}
+        for name, field in self.fields.items():
+            full_name = self.get_field_full_name(name)
+            qs = ValidationRule.objects.filter(field_reference=full_name)
+            if qs:
+                result[name] = qs.get()
+        return result
+
+    def get_field_full_name(self, name):
+        return '.'.join([self._meta.model._meta.db_table, name, self.get_type()])
+
+    def _set_rule_on_fields(self):
+        for name, field in self.fields.items():
+            if name in self.rules:
+                rule = self.rules[name]
+                field.initial = rule.initial_value
+                field.required = rule.required_field
+                field.validators = [RegexValidator(rule.regex_rule, rule.regex_error_message or None)]
+
+    def get_type(self):
+        if self.instance and self.instance.education_group_type:
+            return self.instance.education_group_type.name
+        elif "education_group_type" in self.initial:
+            return self.initial["education_group_type"]
+        else:
+            return ""
+
+
+class EducationGroupYearModelForm(ValidationDependingOfEducationGroupTypeMixin, forms.ModelForm):
     category = None
 
     class Meta:
