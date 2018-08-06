@@ -126,7 +126,7 @@ class EducationGroupYearModelForm(ValidationRuleEducationGroupTypeMixin, forms.M
         # Default campus selected 'Louvain-la-Neuve' if exist
         kwargs['initial']['main_teaching_campus'] = Campus.objects.filter(name='Louvain-la-Neuve').first()
         kwargs['initial']['enrollment_campus'] = Campus.objects.filter(name='Louvain-la-Neuve').first()
-        kwargs['initial']['primary_language'] = Language.objects.get(code='FR')
+        kwargs['initial']['primary_language'] = Language.objects.filter(code='FR').first()
 
         super().__init__(*args, **kwargs)
 
