@@ -85,6 +85,7 @@ class EducationGroupYear(models.Model):
         null=True,
         verbose_name=_("training_type")
     )
+
     active = models.CharField(
         max_length=20,
         choices=active_status.ACTIVE_STATUS_LIST,
@@ -163,7 +164,7 @@ class EducationGroupYear(models.Model):
     internship = models.CharField(
         max_length=20,
         choices=internship_presence.INTERNSHIP_PRESENCE,
-        blank=True,
+        default=internship_presence.NO,
         null=True,
         verbose_name=_('internship')
     )
@@ -221,9 +222,9 @@ class EducationGroupYear(models.Model):
 
     primary_language = models.ForeignKey(
         'reference.Language',
-        blank=True,
         null=True,
-        verbose_name=_('primary_language')
+        verbose_name=_('primary_language'),
+        # default='FR'
     )
 
     language_association = models.CharField(
@@ -240,7 +241,7 @@ class EducationGroupYear(models.Model):
         verbose_name=_('keywords')
     )
 
-    duration = models.IntegerField(
+    duration = models.PositiveIntegerField(
         blank=True,
         null=True,
         verbose_name=_('duration')

@@ -37,7 +37,7 @@ class ValidationRule(models.Model):
     field_reference = models.CharField(
         max_length=255,
         verbose_name=_("field reference"),
-        unique=True
+        primary_key=True
     )
 
     required_field = models.BooleanField(

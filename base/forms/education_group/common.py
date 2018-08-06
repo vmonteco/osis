@@ -28,10 +28,12 @@ from django.core.validators import RegexValidator
 
 from base.forms.learning_unit.entity_form import EntitiesVersionChoiceField
 from base.models import campus, education_group_type, group_element_year
+from base.models.campus import Campus
 from base.models.education_group import EducationGroup
 from base.models.education_group_year import EducationGroupYear
 from base.models.entity_version import find_main_entities_version, get_last_version
 from base.models.validation_rule import ValidationRule
+from reference.models.language import Language
 
 
 class MainTeachingCampusChoiceField(forms.ModelChoiceField):
@@ -116,6 +118,15 @@ class EducationGroupYearModelForm(ValidationRuleEducationGroupTypeMixin, forms.M
 
     def __init__(self, *args, **kwargs):
         self.parent = kwargs.pop("parent", None)
+
+        if "initial" not in kwargs:
+            kwargs["initial"] = {}
+
+        # TODO use natural-key to select default value
+        # Default campus selected 'Louvain-la-Neuve' if exist
+        kwargs['initial']['main_teaching_campus'] = Campus.objects.filter(name='Louvain-la-Neuve').first()
+        kwargs['initial']['enrollment_campus'] = Campus.objects.filter(name='Louvain-la-Neuve').first()
+        kwargs['initial']['primary_language'] = Language.objects.get(code='FR')
 
         super().__init__(*args, **kwargs)
 
