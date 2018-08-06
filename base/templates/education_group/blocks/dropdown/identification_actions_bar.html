@@ -66,20 +66,11 @@
                 {% endflag %}
 
                 {% flag "education_group_move" %}
-                {# TODO : Put this logic into a templatetag #}
-                    <li {% if can_change_education_group %} id="btn_operation_detach_{{ group_to_parent }}" {% else %} class="disabled" {% endif %}>
-                        <a {% if can_change_education_group %} href="#" onclick="select()" {% endif %}>
-                            {% trans 'Move' %}
-                        </a>
-                    </li>
+                    {% link_move_education_group %}
                 {% endflag %}
 
                 {% flag "education_group_detach" %}
-                    <li {% if can_change_education_group %} id="btn_operation_detach_{{ group_to_parent }}" {% else %} class="disabled" {% endif %}>
-                        <a href="#" title="{% trans 'Detach' %}" data-toggle="tooltip-wrapper" name="action">
-                            {% trans 'Detach' %}
-                        </a>
-                    </li>
+                    {% link_detach_education_group %}
                 {% endflag %}
 
                 {% flag "education_group_attach" %}

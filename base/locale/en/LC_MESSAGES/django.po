@@ -3379,3 +3379,12 @@ msgstr ""
 
 msgid "Used by an other education group"
 msgstr ""
+
+msgid "The user has not permission to change education groups."
+msgstr ""
+
+msgid "It is not possible to move the root element."
+msgstr ""
+
+msgid "It is not possible to detach the root element."
+msgstr ""

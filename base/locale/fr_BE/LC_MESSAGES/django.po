@@ -3381,3 +3381,12 @@ msgstr "Veuillez Sélectionner ou Déplacer un élément avant d'Attacher"
 
 msgid "Used by an other education group"
 msgstr "Utilisé dans une autre formation"
+
+msgid "The user has not permission to change education groups."
+msgstr "L'utilisateur n'a pas la permission de modifier les formations."
+
+msgid "It is not possible to move the root element."
+msgstr "Il n'est pas possible de déplacer l'élément racine de l'arbre."
+
+msgid "It is not possible to detach the root element."
+msgstr "Il n'est pas possible de détacher l'élément racine de l'arbre."
