@@ -365,7 +365,7 @@ def _custom_link_education_group(context, action, onclick):
         li_attributes = """ id="btn_operation_detach_{group_to_parent}" """.format(
             group_to_parent=context['group_to_parent']
         )
-        a_attributes = """ href="#" title="{title}" {onclick}" """.format(title=_(action), onclick=onclick)
+        a_attributes = """ href="#" title="{title}" {onclick} """.format(title=_(action), onclick=onclick)
     else:
         li_attributes = """ class="disabled" """
         title = ""
