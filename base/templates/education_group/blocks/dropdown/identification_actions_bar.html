@@ -103,13 +103,6 @@
     {% endif %}
 {% endif %}
 
-{% if dropdirection == "dropup" %}
-    {#  Should be loaded once #}
-    {% url 'delete_education_group' root.pk education_group_year.education_group.pk as delete_url %}
-    {% include "blocks/modal/modal_ajax.html" with modal_url=delete_url click_id="link_delete" form_id="form_delete_education_group" %}
-{% endif %}
-
-
 {% block script %}
     <script>
         function select() {
