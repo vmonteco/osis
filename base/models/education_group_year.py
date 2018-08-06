@@ -457,7 +457,7 @@ class EducationGroupYear(models.Model):
         if self.offerenrollment_set.all().exists():
             return False
         return True
-      
+
 
 def find_by_id(an_id):
     try:

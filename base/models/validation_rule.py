@@ -70,9 +70,8 @@ class ValidationRule(models.Model):
     class Meta:
         verbose_name = _("validation rule")
 
-    def save(self, force_insert=False, force_update=False, using=None,
-             update_fields=None):
+    def save(self, *args, **kwargs):
         if self.disabled_field:
             self.required_field = False
 
-        return super().save(force_insert, force_update, using, update_fields)
+        return super().save(*args, **kwargs)
