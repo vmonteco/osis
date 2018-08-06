@@ -28,16 +28,6 @@ from django.utils.translation import ugettext_lazy as _
 from base import models as mdl
 
 
-def get_value(model, data, field_name):
-    if model._meta.get_field(field_name).choices:
-        return translate(data[field_name])
-    else:
-        if model._meta.get_field(field_name).get_internal_type() == 'BooleanField':
-            return _('yes') if data[field_name] else _('no')
-        else:
-            return data.get(field_name)
-
-
 def translate(value):
     if value:
         return _(value)
@@ -58,11 +48,3 @@ def get_list_sorted_by_translation(list_of_keys):
 
 def get_translation(item):
     return _(item)
-
-
-def compare_learning_unit(academic_yr, learning_unit_yr):
-    learning_unit_years = mdl.learning_unit_year.search(learning_unit=learning_unit_yr.learning_unit,
-                                                        academic_year_id=academic_yr.id)
-    if len(learning_unit_years) > 0:
-        return learning_unit_yr.compare(learning_unit_years.first())
-    return {}

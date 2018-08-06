@@ -25,9 +25,10 @@
 ##############################################################################
 from django import template
 from django.utils.translation import ugettext_lazy as _
-from base.models.learning_unit_year import LearningUnitYear
+from base.models.learning_unit_year import LearningUnitYear, get_value
 from django.forms import model_to_dict
-from base.business.learning_units.comparison import get_value
+from base.models.learning_unit_year import get_value
+
 register = template.Library()
 
 

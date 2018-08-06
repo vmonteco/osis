@@ -33,14 +33,13 @@
 {% endblock %}
 
 {% block content %}
-    {% if previous_values or next_values %}
+    {% if fields or entity_changes %}
         <div class="panel panel-default">
             <div class="panel-body">
                 <table class="table">
                     <thead>
-                    <tr>
+                    <tr style="background-color: lightgray">
                         <th>{{ learning_unit_year.acronym }}</th>
-                        <th></th>
                         <th>{{ previous_academic_yr }}</th>
                         <th>{{ learning_unit_year.academic_year }}</th>
                         <th>{{ next_academic_yr }}</th>
@@ -49,13 +48,22 @@
                     <tbody>
                         {% for key in fields %}
                             <tr>
-                                <td></td>
-                                <td>{%  trans key %}</td>
+                                <td style="background-color: lightgray">{%  trans key %}</td>
                                 <td>{% if previous_values|get_item:key %}<label>{{ previous_values|get_item:key }}</label>{% else %}{{ learning_unit_year|get_learning_unit_yr_attribute:key | default_if_none:''}}{% endif %}</td>
                                 <td>{{ learning_unit_year|get_learning_unit_yr_attribute:key | default_if_none:'' }}</td>
                                 <td>{% if next_values|get_item:key %}<label>{{ next_values|get_item:key}}</label>{% else %}{{ learning_unit_year|get_learning_unit_yr_attribute:key | default_if_none:''}}{% endif %}</td>
                             </tr>
                         {% endfor %}
+                        {% if entity_changes %}
+                            {% for k in entity_changes %}
+                                <tr {% if forloop.first%}style="border-top: dashed"{% endif %}>
+                                    <td style="background-color: lightgray">{% trans k %}</td>
+                                    <td>{% value_label entity_changes key=k sub_key='prev' key_comp='current' %}</td>
+                                    <td>{% value_label entity_changes key=k sub_key='current' key_comp='current' %}</td>
+                                    <td>{% value_label  entity_changes key=k sub_key='next' key_comp='current'%}</td>
+                                </tr>
+                            {% endfor %}
+                        {% endif %}
                     </tbody>
                 </table>
             </div>

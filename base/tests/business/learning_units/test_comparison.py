@@ -27,8 +27,8 @@
 from django.test import TestCase
 from django.test.utils import override_settings
 
-from base.models.learning_unit_year import LearningUnitYear
-from base.business.learning_units.comparison import get_value, get_keys, translate, compare_learning_unit
+from base.models.learning_unit_year import LearningUnitYear, get_value
+from base.business.learning_units.comparison import get_keys, translate, compare_learning_unit
 from base.tests.factories.academic_year import create_current_academic_year, AcademicYearFactory
 from base.tests.factories.learning_unit import LearningUnitFactory
 from base.tests.factories.learning_unit_year import create_learning_unit_year

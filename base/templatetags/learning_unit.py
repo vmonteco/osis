@@ -136,3 +136,17 @@ def _get_acronym_from_proposal(luy):
     if proposal and proposal.initial_data and proposal.initial_data.get('learning_unit_year'):
         return proposal.initial_data['learning_unit_year']['acronym']
     return None
+
+
+@register.simple_tag
+def value_label(values_dict, key, **kwargs):
+    sub_key = kwargs.get('sub_key', None)
+    key_comp = kwargs.get('key_comp', None)
+    data = values_dict.get(key, None)
+    if data:
+        val = data.get(sub_key, None)
+        if val != data.get(key_comp):
+            return mark_safe("<label>{}</label>".format('-' if val is None else val))
+        else:
+            return mark_safe("{}".format('-' if val is None else val))
+    return ''

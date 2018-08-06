@@ -31,6 +31,7 @@ from django.db import models
 from django.db.models import Q
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
+from base.business.learning_units.comparison import translate
 
 from base.models import entity_container_year as mdl_entity_container_year
 from base.models.academic_year import current_academic_year, compute_max_academic_year_adjournment, AcademicYear, \
@@ -42,7 +43,6 @@ from base.models.enums.learning_container_year_types import COURSE, INTERNSHIP
 from base.models.enums.learning_unit_year_periodicity import PERIODICITY_TYPES, ANNUAL, BIENNIAL_EVEN, BIENNIAL_ODD
 from base.models.learning_unit import LEARNING_UNIT_ACRONYM_REGEX_ALL, REGEX_BY_SUBTYPE
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
-from base.business.learning_units.comparison import get_value
 
 FIELDS_FOR_COMPARISON = ['acronym', 'subtype', 'internship_subtype', 'credits', 'periodicity', 'status', 'language',
                          'professional_integration', 'specific_title', 'specific_title_english', 'quadrimester',
@@ -516,3 +516,13 @@ def toggle_summary_locked(learning_unit_year_id):
     luy.summary_locked = not luy.summary_locked
     luy.save()
     return luy
+
+
+def get_value(model, data, field_name):
+    if model._meta.get_field(field_name).choices:
+        return translate(data[field_name])
+    else:
+        if model._meta.get_field(field_name).get_internal_type() == 'BooleanField':
+            return _('yes') if data[field_name] else _('no')
+        else:
+            return data.get(field_name)
