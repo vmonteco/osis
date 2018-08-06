@@ -51,9 +51,9 @@
                             <tr>
                                 <td></td>
                                 <td>{%  trans key %}</td>
-                                <td>{% if previous_values|get_item:key %}<label>{{ previous_values|get_item:key }}</label>{% else %}{{ learning_unit_year|get_attribute:key | default_if_none:''}}{% endif %}</td>
-                                <td>{{ learning_unit_year|get_attribute:key | default_if_none:'' }}</td>
-                                <td>{% if next_values|get_item:key %}<label>{{ next_values|get_item:key}}</label>{% else %}{{ learning_unit_year|get_attribute:key | default_if_none:''}}{% endif %}</td>
+                                <td>{% if previous_values|get_item:key %}<label>{{ previous_values|get_item:key }}</label>{% else %}{{ learning_unit_year|get_learning_unit_yr_attribute:key | default_if_none:''}}{% endif %}</td>
+                                <td>{{ learning_unit_year|get_learning_unit_yr_attribute:key | default_if_none:'' }}</td>
+                                <td>{% if next_values|get_item:key %}<label>{{ next_values|get_item:key}}</label>{% else %}{{ learning_unit_year|get_learning_unit_yr_attribute:key | default_if_none:''}}{% endif %}</td>
                             </tr>
                         {% endfor %}
                     </tbody>
