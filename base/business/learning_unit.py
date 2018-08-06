@@ -47,6 +47,7 @@ from cms.enums.entity_name import LEARNING_UNIT_YEAR
 from cms.models import translated_text
 from osis_common.document import xls_build
 from osis_common.utils.datetime import convert_date_to_datetime
+from django.shortcuts import get_object_or_404
 
 # List of key that a user can modify
 WORKSHEET_TITLE = 'learning_units'
@@ -288,3 +289,22 @@ def get_achievements_group_by_language(learning_unit_year):
 def get_no_summary_responsible_teachers(learning_unit_yr, summary_responsibles):
     tutors = find_all_tutors_by_learning_unit_year(learning_unit_yr, "-summary_responsible")
     return [tutor[0] for tutor in tutors if tutor[0] not in summary_responsibles]
+
+
+def get_learning_unit_comparison_context(learning_unit_year):
+    print('get_learning_unit_comparison_contex')
+    context = {}
+    print(learning_unit_year)
+    context['campus'] = learning_unit_year.campus
+    context['experimental_phase'] = True
+
+    components = get_components_identification(learning_unit_year)
+    print(components)
+    context['components'] = components.get('components')
+    print(components.get('REQUIREMENT_ENTITY'))
+    context['REQUIREMENT_ENTITY'] = components.get('REQUIREMENT_ENTITY')
+    context['ADDITIONAL_REQUIREMENT_ENTITY_1'] = components.get('ADDITIONAL_REQUIREMENT_ENTITY_1')
+    context['ADDITIONAL_REQUIREMENT_ENTITY_2'] = components.get('ADDITIONAL_REQUIREMENT_ENTITY_2')
+    print('contexttttttt')
+    print(context)
+    return context

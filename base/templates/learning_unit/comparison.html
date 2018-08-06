@@ -2,6 +2,8 @@
 {% load i18n %}
 {% load learning_unit %}
 {% load dictionnary model_field%}
+{% load components_classes %}
+{% load index %}
 {% comment "License" %}
     * OSIS stands for Open Student Information System. It's an application
     * designed to manage the core business of higher education institutions,
@@ -40,7 +42,7 @@
                     <thead>
                     <tr>
                         <th>{{ learning_unit_year.acronym }}</th>
-                        <th></th>
+                        <th>{{ previous_values.REQUIREMENT_ENTITY   }}</th>
                         <th>{{ previous_academic_yr }}</th>
                         <th>{{ learning_unit_year.academic_year }}</th>
                         <th>{{ next_academic_yr }}</th>
@@ -51,11 +53,107 @@
                             <tr>
                                 <td></td>
                                 <td>{%  trans key %}</td>
-                                <td>{% if previous_values|get_item:key %}<label>{{ previous_values|get_item:key }}</label>{% else %}{{ learning_unit_year|get_attribute:key | default_if_none:''}}{% endif %}</td>
-                                <td>{{ learning_unit_year|get_attribute:key | default_if_none:'' }}</td>
-                                <td>{% if next_values|get_item:key %}<label>{{ next_values|get_item:key}}</label>{% else %}{{ learning_unit_year|get_attribute:key | default_if_none:''}}{% endif %}</td>
+                                <td>{% if previous_values|get_item:key %}<label>{{ previous_values|get_item:key }}</label>{% else %}{{ learning_unit_year|get_attribute:key | default_if_none:'-'}}{% endif %}</td>
+                                <td>{{ learning_unit_year|get_attribute:key | default_if_none:'-' }}</td>
+                                <td>{% if next_values|get_item:key %}<label>{{ next_values|get_item:key}}</label>{% else %}{{ learning_unit_year|get_attribute:key | default_if_none:'-'}}{% endif %}</td>
                             </tr>
                         {% endfor %}
+                        {% for k in entity_changes %}
+
+                            <tr>
+                                <td></td>
+                                <td>{{ k }}</td>
+                                <td>{% value_label  entity_changes key=k sub_key='prev' key_comp='current' %}</td>
+                                <td>{{ entity_changes|get_item:k|get_item:'current' | default_if_none:'-'}}</td>
+                                <td>{% value_label  entity_changes key=k sub_key='next' key_comp='current'%}</td>
+                            </tr>
+                        {% endfor %}
+                        {% for c in compo_current %}
+                            {% with prev=compo_prev|index:forloop.counter0  next=compo_prev|index:forloop.counter0%}
+
+                            <tr>
+                                <td>{% trans 'components' %} {{ c.learning_component_year.acronym }}</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                 <td></td>
+                            </tr>
+
+                            <tr>
+                                <td></td>
+                                <td>{% trans 'volume_partial'%}</td>
+                                <td>{{ prev.volumes.VOLUME_Q1  | default_if_none:'' }}</td>
+                                <td>{{ c.volumes.VOLUME_Q1  | default_if_none:'' }}</td>
+                                <td>{{ next.volumes.VOLUME_Q1  | default_if_none:'' }}</td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td>{% trans 'volume_remaining'%}</td>
+                                <td>{% changed_label  prev.volumes.VOLUME_Q2  other1=c.volumes.VOLUME_Q2  other2=next.volumes.VOLUME_Q2%} </td>
+                                <td>{{ c.volumes.VOLUME_Q2  | default_if_none:'' }}</td>
+                                <td>{{ next.volumes.VOLUME_Q2  | default_if_none:'' }}</td>
+                            </tr>
+                                <tr>
+                                    <td></td>
+                                    <td>{% trans 'Vol. annual'%}</td>
+                                    <td>{{ prev.volumes.VOLUME_TOTAL  | default_if_none:'' }}</td>
+                                    <td>{{ c.volumes.VOLUME_TOTAL  | default_if_none:'' }}</td>
+                                    <td>{{ next.volumes.VOLUME_TOTAL  | default_if_none:'' }}</td>
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <td>{% trans 'Classes'%}</td>
+                                    <td>{{ prev.learning_component_year.real_classes  | default_if_none:'0' }} / {{ prev.learning_component_year.planned_classes| default_if_none:'0' }}</td>
+                                    <td>{{ c.learning_component_year.real_classes  | default_if_none:'0' }} / {{ c.learning_component_year.planned_classes| default_if_none:'0' }}</td>
+                                    <td>{{ next.learning_component_year.real_classes  | default_if_none:'0' }} / {{ next.learning_component_year.planned_classes| default_if_none:'0' }}</td>
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <td>{% trans 'vol_global'%}</td>
+                                    <td>{{ prev.volumes.VOLUME_GLOBAL  | default_if_none:'0' }}</td>
+                                    <td>{{ c.volumes.VOLUME_GLOBAL  | default_if_none:'0' }}</td>
+                                    <td>{{ next.volumes.VOLUME_GLOBAL  | default_if_none:'0' }}</td>
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <td>{% trans 'requirement_entity'%} {% trans c.entity_component_yr.entity_container_year.type|lower %}  </td>
+                                    <td>{{ prev.entity_component_yr.entity_container_year.entity  | default_if_none:'' }}</td>
+                                    <td>{{ c.entity_component_yr.entity_container_year.entity | default_if_none:'' }}</td>
+                                    <td>{{ next.entity_component_yr.entity_container_year.entity | default_if_none:'' }}</td>
+                                </tr>
+                                {% if c.entity_component_yr.entity_container_year.type == 'REQUIREMENT_ENTITY' %}
+                                    <tr>
+                                        <td></td>
+                                        <td>{% trans 'requirement_entity'%}</td>
+                                        <td>{{ prev.volumes.VOLUME_REQUIREMENT_ENTITY  | default_if_none:'' }}</td>
+                                        <td>{{ c.volumes.VOLUME_REQUIREMENT_ENTITY  | default_if_none:'' }}</td>
+                                        <td>{{ next.volumes.VOLUME_REQUIREMENT_ENTITY  | default_if_none:'' }}</td>
+                                    </tr>
+                                {% endif %}
+                                {% if c.entity_component_yr.entity_container_year.type == 'ADDITIONAL_REQUIREMENT_ENTITY_1' %}
+                                <tr>
+                                    <td></td>
+                                    <td>{% trans 'additional_requirement_entity_1'%}</td>
+                                    <td>{{ prev.volumes.VOLUME_ADDITIONAL_REQUIREMENT_ENTITY_1  | default_if_none:'' }}</td>
+                                    <td>{{ c.volumes.VOLUME_ADDITIONAL_REQUIREMENT_ENTITY_1  | default_if_none:'' }}</td>
+                                    <td>{{ next.volumes.VOLUME_ADDITIONAL_REQUIREMENT_ENTITY_1  | default_if_none:'' }}</td>
+                                </tr>
+                                {% endif %}
+                                {% if c.entity_component_yr.entity_container_year.type == 'ADDITIONAL_REQUIREMENT_ENTITY_2' %}
+                                <tr>
+                                    <td></td>
+                                    <td>{% trans 'additional_requirement_entity_2'%}</td>
+                                    <td>{{ prev.volumes.VOLUME_ADDITIONAL_REQUIREMENT_ENTITY_2  | default_if_none:'' }}</td>
+                                    <td>{{ c.volumes.VOLUME_ADDITIONAL_REQUIREMENT_ENTITY_2  | default_if_none:'' }}</td>
+                                    <td>{{ next.volumes.VOLUME_ADDITIONAL_REQUIREMENT_ENTITY_2  | default_if_none:'' }}</td>
+                                </tr>
+                                {% endif %}
+
+                            {% endwith %}
+                        {% endfor %}
+
+
+
                     </tbody>
                 </table>
             </div>

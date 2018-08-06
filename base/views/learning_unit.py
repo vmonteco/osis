@@ -37,7 +37,7 @@ from base.business.learning_unit import get_cms_label_data, \
     get_same_container_year_components, find_language_in_settings, \
     CMS_LABEL_SPECIFICATIONS, get_achievements_group_by_language
 from base.business.learning_units import perms as business_perms
-from base.business.learning_units.comparison import get_keys, compare_learning_unit
+from base.business.learning_units.comparison import get_keys
 from base.business.learning_units.perms import can_update_learning_achievement
 from base.forms.learning_class import LearningClassEditForm
 from base.forms.learning_unit_component import LearningUnitComponentEditForm
@@ -48,6 +48,13 @@ from base.views.learning_units.common import get_learning_unit_identification_co
     get_common_context_learning_unit_year, get_text_label_translated
 from cms.models import text_label
 from . import layout
+from base.business.learning_unit import get_learning_unit_comparison_context
+from django.utils.translation import ugettext_lazy as _
+from base.models.enums import learning_component_year_type
+from base.models.learning_component_year import LearningComponentYear
+from base.models.entity_component_year import EntityComponentYear
+
+ENTI_KEYS = ['REQUIREMENT_ENTITY', 'ADDITIONAL_REQUIREMENT_ENTITY_1', 'ADDITIONAL_REQUIREMENT_ENTITY_2', 'campus']
 
 
 @login_required
@@ -231,18 +238,184 @@ def learning_class_year_edit(request, learning_unit_year_id):
 
 
 def learning_unit_comparison(request, learning_unit_year_id):
-    context = get_common_context_learning_unit_year(learning_unit_year_id,
-                                                    get_object_or_404(Person, user=request.user))
-    learning_unit_yr = context['learning_unit_year']
-    previous_academic_yr = mdl.academic_year.find_academic_year_by_year(learning_unit_yr.academic_year.year - 1)
-    previous_values = compare_learning_unit(previous_academic_yr, learning_unit_yr)
-    next_academic_yr = mdl.academic_year.find_academic_year_by_year(learning_unit_yr.academic_year.year + 1)
-    next_values = compare_learning_unit(next_academic_yr, learning_unit_yr)
 
+    query_set = mdl.learning_unit_year.LearningUnitYear.objects.all().select_related('learning_unit', 'learning_container_year')
+    learning_unit_yr  = get_object_or_404(query_set, pk=learning_unit_year_id)
+    context = get_learning_unit_comparison_context(learning_unit_yr)
+    context.update({'learning_unit_year':learning_unit_yr})
+    print(context)
+    previous_academic_yr = mdl.academic_year.find_academic_year_by_year(learning_unit_yr.academic_year.year - 1)
+
+
+
+    previous_lu = get_learning_unit(previous_academic_yr, learning_unit_yr)
+    previous_values = compare_learning_unit(learning_unit_yr, previous_lu)
+    previous_values_ent = compare_entities(context, get_learning_unit_comparison_context(previous_lu))
+
+    next_academic_yr = mdl.academic_year.find_academic_year_by_year(learning_unit_yr.academic_year.year + 1)
+    next_lu = get_learning_unit(next_academic_yr, learning_unit_yr)
+    next_values = compare_learning_unit(learning_unit_yr, next_lu)
+    next_values_ent = compare_entities(context, get_learning_unit_comparison_context(next_lu))
+    print('++++++++++++')
+    print(previous_values_ent)
+    print(next_values_ent)
+    print('++++++++++++')
+    previous_context = get_learning_unit_comparison_context(previous_lu)
+    next_context = get_learning_unit_comparison_context(next_lu)
+    entity_changes = get_change_entities(context, previous_context, next_context)
     context.update(
         {'previous_values': previous_values,
          'previous_academic_yr': previous_academic_yr,
          'next_academic_yr': next_academic_yr,
          'next_values': next_values,
-         'fields': get_keys(list(previous_values.keys()), list(next_values.keys()))})
+         'fields': get_keys(list(previous_values.keys()), list(next_values.keys())),
+         'previous_values_ent': previous_values_ent,
+         'next_values_ent': next_values_ent,
+         'entity_changes': entity_changes,
+
+         })
+    context.update(get_comp(previous_context['components'], context['components'], next_context['components']))
+    # context.update({'compoo': get_comp2(previous_context['components'], context['components'], next_context['components'])})
     return layout.render(request, "learning_unit/comparison.html", context)
+
+def get_comp(prev,cur,next):
+    print('get_comp')
+
+    if cur != prev or cur != next:
+        print('))))))))))))))))))))))))))')
+
+        for c in cur:
+            print(c.get('REQUIREMENT_ENTITY'))
+            print('for')
+            print(c)
+            for p in prev:
+
+
+                if p.get('learning_component_year').type == c.get('learning_component_year').type:
+                    if p.get('learning_component_year').acronym != c.get('learning_component_year').acronym or \
+                        p.get('learning_component_year').real_classes != c.get('learning_component_year').real_classes or \
+                        p.get('learning_component_year').planned_classes != c.get('learning_component_year').planned_classes or \
+                        p.get('volumes')!= c.get('volumes'):
+                        return {'compo_prev': prev, 'compo_current':cur,'compo_next':next }
+            for p in next:
+                if p.get('learning_component_year').type == c.get('learning_component_year').type:
+                    if p.get('learning_component_year').acronym != c.get('learning_component_year').acronym or \
+                                    p.get('learning_component_year').real_classes != c.get('learning_component_year').real_classes or \
+                                    p.get('learning_component_year').planned_classes != c.get('learning_component_year').planned_classes or \
+                                    p.get('volumes')!= c.get('volumes'):
+                        return {'compo_prev': prev, 'compo_current':cur,'compo_next':next }
+
+    return None
+
+def compare_learning_unit(learning_unit_yr, learning_unit_yr_other):
+    return learning_unit_yr.compare(learning_unit_yr_other)
+
+
+def get_learning_unit(academic_yr, learning_unit_yr):
+    learning_unit_years = mdl.learning_unit_year.search(learning_unit=learning_unit_yr.learning_unit,
+                                                        academic_year_id=academic_yr.id)
+    if learning_unit_years.exists():
+        return learning_unit_years[0]
+    return None
+
+
+def compare_entities(data_obj1, data_obj2):
+    return _get_changed_values(data_obj1, data_obj2, ENTI_KEYS)
+
+
+def _get_changed_values(data_obj1, data_obj2, included_keys):
+    changed_values = {}
+    for key, value in data_obj1.items():
+        if key not in included_keys:
+            continue
+        try:
+            if value != data_obj2[key]:
+                changed_values.update({key: data_obj2[key]})
+        except KeyError:
+            raise KeyError('Invalid key for learning_unit_year compare')
+    return changed_values
+
+def get_change_entities(context, context_prev,context_next):
+    data = {}
+    for f in ENTI_KEYS:
+        if context.get(f,None) != context_next.get(f,None) or context.get(f,None)  != context_prev.get(f,None):
+            data.update({_(f.lower()):{'prev':context_prev.get(f,None), 'current':context.get(f,None),'next':context_next.get(f,None)}})
+
+    return data
+
+def get_change_component(context, context_prev, context_next):
+    print('get_change_component')
+    data = {}
+    data2=[]
+
+    prev_components = context_next.get('components', {})
+    print(len(prev_components))
+    for p in prev_components:
+        print(p.get('learning_component_year'))
+    current_components = context.get('components',{})
+    next_components = context_prev.get('components',{})
+    # if current_components != prev_components or current_components  != next_components:
+    data.update({'prev':prev_components, 'current':current_components,'next':next_components})
+    data2.append(prev_components)
+    data2.append(current_components)
+    data2.append(next_components)
+    # print(data2)
+    d = {}
+    for key, value in current_components.items():    # for name, age in list.items():  (for Python 3.x)
+        d.update({key, [prev_components.get(key,'-'), value,next_components.get(key,'-')]})
+    return data
+
+def get_change_component2(context, context_prev, context_next):
+    print('get_change_component')
+    data = {}
+    data2=[]
+
+    prev_components = context_next.get('components', {})
+    print(len(prev_components))
+    for p in prev_components:
+        print(p.get('learning_component_year'))
+    current_components = context.get('components',{})
+    next_components = context_prev.get('components',{})
+    # if current_components != prev_components or current_components  != next_components:
+    data.update({'prev':prev_components, 'current':current_components,'next':next_components})
+    data2.append(prev_components)
+    data2.append(current_components)
+    data2.append(next_components)
+    # print(data2)
+    d = {}
+    for key, value in current_components.items():    # for name, age in list.items():  (for Python 3.x)
+        d.update({key, [prev_components.get(key,'-'), value,next_components.get(key,'-')]})
+    return data
+    d = {}
+    for key, value in current_components.items():    # for name, age in list.items():  (for Python 3.x)
+        d.update({key, [prev_components.get(key,'-'), value,next_components.get(key,'-')]})
+    return d
+
+def get_comp2(prev,cur,next):
+    print('get_comp2')
+    d = []
+    diction = {}
+    if cur != prev or cur != next:
+        cpt = 0
+        for c in cur:
+            dd = {}
+            for key, value in c.items():
+                # print(key)
+                # print(value)
+                if isinstance(value, LearningComponentYear):
+                    dd.update({'acronym': value.acronym})
+                elif isinstance(value,EntityComponentYear):
+                    dd.update({'entity': value})
+                else:
+                    pass
+                diction.update({key: [prev[cpt].get(key,'-'),value,next[cpt].get(key,'-') ]})
+            cpt=cpt+1
+
+
+
+    print('diction')
+    # print(diction)
+    for key, value in diction.items():
+        print("{} {}".format(key,value))
+        print('************************************')
+    return diction

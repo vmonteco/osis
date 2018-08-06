@@ -125,3 +125,5 @@ def get_common_context_learning_unit_year(learning_unit_year_id, person):
 def get_text_label_translated(text_lb, user_language):
     return next((txt for txt in text_lb.translated_text_labels
                  if txt.language == user_language), None)
+
+
