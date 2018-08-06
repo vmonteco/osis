@@ -82,8 +82,6 @@
                     </li>
                 {% endflag %}
 
-                <li class="divider"></li>
-
                 {% flag "education_group_attach" %}
                     <li {% if not can_change_education_group %} class="disabled" {% endif %}>
                         <a {% if can_change_education_group %} href="{% url 'group_element_year_management' root_id=parent.id education_group_year_id=education_group_year.id group_element_year_id=group_to_parent|default_if_none:0 %}?action=attach" {% endif %}>
@@ -104,13 +102,6 @@
         </div>
     {% endif %}
 {% endif %}
-
-{% if dropdirection == "dropup" %}
-    {#  Should be loaded once #}
-    {% url 'delete_education_group' root.pk education_group_year.pk as delete_url %}
-    {% include "blocks/modal/modal_ajax.html" with modal_url=delete_url click_id="link_delete" form_id="form_delete_education_group" %}
-{% endif %}
-
 
 {% block script %}
     <script>

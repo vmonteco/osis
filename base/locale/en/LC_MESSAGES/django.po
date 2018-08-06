@@ -3376,3 +3376,6 @@ msgstr ""
 
 msgid "Please Select or Move an item before Attach it"
 msgstr ""
+
+msgid "Used by an other education group"
+msgstr ""

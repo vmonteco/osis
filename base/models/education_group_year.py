@@ -452,18 +452,12 @@ class EducationGroupYear(models.Model):
     def category(self):
         return self.education_group_type.category
 
-    def clean(self):
-        pass
-
-    def clean_acronym(self):
-        pass
-
-    def clean_code(self):
-        pass
-
-
-
-
+    def is_deletable(self):
+        """An education group year cannot be deleted if there are enrollment on it"""
+        if self.offerenrollment_set.all().exists():
+            return False
+        return True
+      
 
 def find_by_id(an_id):
     try:

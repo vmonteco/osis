@@ -42,14 +42,18 @@ from base.tests.factories.person_entity import PersonEntityFactory
 
 
 @override_flag('education_group_delete', active=True)
-class TestDeleteGroupEducationYearView(TestCase):
+class TestDeleteGroupEducationView(TestCase):
 
     def setUp(self):
         self.education_group = EducationGroupFactory()
         self.education_group_year = EducationGroupYearFactory(education_group=self.education_group)
+        self.education_group_year2 = EducationGroupYearFactory(education_group=self.education_group)
         self.person = PersonFactory()
         PersonEntityFactory(person=self.person, entity=self.education_group_year.management_entity)
-        self.url = reverse('delete_education_group', args=[self.education_group_year.id, self.education_group_year.id])
+        PersonEntityFactory(person=self.person, entity=self.education_group_year2.management_entity)
+
+        self.url = reverse('delete_education_group', args=[self.education_group_year.id,
+                                                           self.education_group_year.education_group.id])
 
         self.person.user.user_permissions.add(Permission.objects.get(codename="delete_educationgroup"))
         self.client.force_login(user=self.person.user)
@@ -77,6 +81,7 @@ class TestDeleteGroupEducationYearView(TestCase):
         response = self.client.post(self.url)
         self.assertEqual(response.status_code, 302)
         self.assertFalse(EducationGroupYear.objects.filter(pk=self.education_group_year.pk).exists())
+        self.assertFalse(EducationGroupYear.objects.filter(pk=self.education_group_year2.pk).exists())
         self.assertFalse(EducationGroup.objects.filter(pk=self.education_group.pk).exists())
 
     def test_delete_get_with_protected_objects(self):
@@ -84,6 +89,7 @@ class TestDeleteGroupEducationYearView(TestCase):
             OfferEnrollmentFactory(education_group_year=self.education_group_year),
             GroupElementYearFactory(parent=self.education_group_year),
             GroupElementYearFactory(parent=self.education_group_year),
+            self.education_group_year
         }
 
         response = self.client.get(self.url)
