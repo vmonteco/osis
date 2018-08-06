@@ -23,12 +23,16 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import factory
 import factory.fuzzy
 
+from base.models.education_group_year import EducationGroupYear
+from base.models.enums import education_group_categories, active_status, schedule_type
+from base.models.learning_unit_year import MAXIMUM_CREDITS, MINIMUM_CREDITS
 from base.tests.factories.academic_year import AcademicYearFactory
+from base.tests.factories.campus import CampusFactory
 from base.tests.factories.education_group import EducationGroupFactory
 from base.tests.factories.education_group_type import EducationGroupTypeFactory
+from base.tests.factories.entity import EntityFactory
 
 
 def generate_title(education_group_year):
@@ -37,11 +41,39 @@ def generate_title(education_group_year):
 
 class EducationGroupYearFactory(factory.django.DjangoModelFactory):
     class Meta:
-        model = "base.EducationGroupYear"
+        model = EducationGroupYear
 
     education_group = factory.SubFactory(EducationGroupFactory)
     academic_year = factory.SubFactory(AcademicYearFactory)
-    acronym = factory.Sequence(lambda n: 'Education %d' % n)
-    partial_acronym = factory.Sequence(lambda n: 'SCS %d' % n)
+    acronym = factory.Sequence(lambda n: 'Education%d' % n)
+    partial_acronym = factory.Sequence(lambda n: 'SCS%d' % n)
     title = factory.LazyAttribute(generate_title)
+    title_english = factory.LazyAttribute(generate_title)
     education_group_type = factory.SubFactory(EducationGroupTypeFactory)
+    management_entity = factory.SubFactory(EntityFactory)
+    administration_entity = factory.SubFactory(EntityFactory)
+    main_teaching_campus = factory.SubFactory(CampusFactory)
+    credits = factory.fuzzy.FuzzyInteger(MINIMUM_CREDITS, MAXIMUM_CREDITS)
+    min_credits = factory.fuzzy.FuzzyInteger(MAXIMUM_CREDITS)
+    max_credits = factory.fuzzy.FuzzyInteger(MINIMUM_CREDITS)
+    remark = factory.fuzzy.FuzzyText(length=255)
+    remark_english = factory.fuzzy.FuzzyText(length=255)
+    active = active_status.ACTIVE
+    schedule_type = schedule_type.DAILY
+    weighting = False
+    default_learning_unit_enrollment = False
+
+
+class MiniTrainingFactory(EducationGroupYearFactory):
+    education_group_type = factory.SubFactory('base.tests.factories.education_group_type.EducationGroupTypeFactory',
+                                              category=education_group_categories.MINI_TRAINING)
+
+
+class TrainingFactory(EducationGroupYearFactory):
+    education_group_type = factory.SubFactory('base.tests.factories.education_group_type.EducationGroupTypeFactory',
+                                              category=education_group_categories.TRAINING)
+
+
+class GroupFactory(EducationGroupYearFactory):
+    education_group_type = factory.SubFactory('base.tests.factories.education_group_type.EducationGroupTypeFactory',
+                                              category=education_group_categories.GROUP)

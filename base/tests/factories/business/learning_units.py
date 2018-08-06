@@ -24,19 +24,20 @@
 #
 ##############################################################################
 import datetime
-import factory.fuzzy
-
+import itertools
 from decimal import Decimal
 
-from base.business.learning_unit import LEARNING_UNIT_CREATION_SPAN_YEARS, compute_max_academic_year_adjournment
+import factory.fuzzy
+
 from base.models import academic_year as mdl_academic_year
-from base.models.academic_year import AcademicYear
+from base.models.academic_year import LEARNING_UNIT_CREATION_SPAN_YEARS, compute_max_academic_year_adjournment
 from base.models.enums import entity_container_year_link_type, learning_container_year_types, \
-    learning_unit_periodicity, learning_unit_year_subtypes, component_type
-from base.models.enums import learning_unit_year_quadrimesters
+    learning_unit_year_periodicity, learning_unit_year_subtypes, component_type
+from base.models.enums import entity_type
+from base.models.enums import quadrimesters
 from base.models.enums import learning_unit_year_session
-from base.tests.factories.academic_year import AcademicYearFactory
-from base.tests.factories.bibliography import BibliographyFactory
+from base.models.enums import organization_type
+from base.tests.factories.academic_year import AcademicYearFactory, create_current_academic_year
 from base.tests.factories.campus import CampusFactory
 from base.tests.factories.entity_component_year import EntityComponentYearFactory
 from base.tests.factories.entity_container_year import EntityContainerYearFactory
@@ -48,6 +49,7 @@ from base.tests.factories.learning_container_year import LearningContainerYearFa
 from base.tests.factories.learning_unit import LearningUnitFactory
 from base.tests.factories.learning_unit_component import LearningUnitComponentFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
+from base.tests.factories.teaching_material import TeachingMaterialFactory
 from cms.tests.factories.translated_text import TranslatedTextFactory
 from reference.tests.factories.language import LanguageFactory
 
@@ -108,18 +110,15 @@ class LearningUnitsMixin:
     def create_list_of_academic_years(start_year, end_year):
         results = None
         if start_year and end_year:
-            results = [AcademicYearFactory.build(year=year) for year in range(start_year, end_year + 1)]
-            for result in results:
-                super(AcademicYear, result).save()
+            results = [AcademicYearFactory(year=year) for year in range(start_year, end_year + 1)]
         return results
 
     @staticmethod
-    def setup_learning_unit(start_year, periodicity=learning_unit_periodicity.ANNUAL, end_year=None):
+    def setup_learning_unit(start_year, end_year=None):
         result = None
         if start_year:
             result = LearningUnitFactory(
                 start_year=start_year,
-                periodicity=periodicity,
                 end_year=end_year)
         return result
 
@@ -134,18 +133,19 @@ class LearningUnitsMixin:
         return result
 
     @staticmethod
-    def setup_learning_unit_year(academic_year, learning_unit, learning_container_year, learning_unit_year_subtype):
+    def setup_learning_unit_year(academic_year, learning_unit, learning_container_year, learning_unit_year_subtype,
+                                 periodicity):
         create = False
         result = None
         end_year = learning_unit.end_year or compute_max_academic_year_adjournment()
         if learning_unit.start_year <= academic_year.year <= end_year:
-            if learning_unit.periodicity == learning_unit_periodicity.BIENNIAL_ODD:
+            if periodicity == learning_unit_year_periodicity.BIENNIAL_ODD:
                 if not (academic_year.year % 2):
                     create = True
-            elif learning_unit.periodicity == learning_unit_periodicity.BIENNIAL_EVEN:
+            elif periodicity == learning_unit_year_periodicity.BIENNIAL_EVEN:
                 if academic_year.year % 2:
                     create = True
-            elif learning_unit.periodicity == learning_unit_periodicity.ANNUAL:
+            elif periodicity == learning_unit_year_periodicity.ANNUAL:
                 create = True
 
             if create:
@@ -155,16 +155,16 @@ class LearningUnitsMixin:
                     )
 
                 result = LearningUnitYearFactory(
-                    acronym=learning_unit.acronym,
                     academic_year=academic_year,
                     learning_unit=learning_unit,
                     learning_container_year=learning_container_year,
-                    subtype=learning_unit_year_subtype
+                    subtype=learning_unit_year_subtype,
+                    periodicity=periodicity
                 )
         return result
 
     @staticmethod
-    def setup_list_of_learning_unit_years_full(list_of_academic_years, learning_unit_full):
+    def setup_list_of_learning_unit_years_full(list_of_academic_years, learning_unit_full, periodicity):
         results = []
         if not list_of_academic_years or not learning_unit_full:
             return results
@@ -175,7 +175,8 @@ class LearningUnitsMixin:
                 academic_year=academic_year,
                 learning_unit=learning_unit_full,
                 learning_container_year=None,
-                learning_unit_year_subtype=learning_unit_year_subtypes.FULL)
+                learning_unit_year_subtype=learning_unit_year_subtypes.FULL,
+                periodicity=periodicity)
             if new_luy:
                 results.append(new_luy)
 
@@ -193,7 +194,8 @@ class LearningUnitsMixin:
                 academic_year=academic_year,
                 learning_unit=learning_unit_full,
                 learning_container_year=None,
-                learning_unit_year_subtype=learning_unit_year_subtypes.FULL
+                learning_unit_year_subtype=learning_unit_year_subtypes.FULL,
+                periodicity=learning_unit_year_periodicity.ANNUAL
             )
 
             if learning_unit_year_full:
@@ -203,7 +205,8 @@ class LearningUnitsMixin:
                     academic_year=academic_year,
                     learning_unit=learning_unit_partim,
                     learning_container_year=learning_unit_year_full.learning_container_year,
-                    learning_unit_year_subtype=learning_unit_year_subtypes.PARTIM
+                    learning_unit_year_subtype=learning_unit_year_subtypes.PARTIM,
+                    periodicity=learning_unit_year_periodicity.ANNUAL
                 )
                 if learning_unit_year_partim:
                     results.append(learning_unit_year_partim)
@@ -218,28 +221,31 @@ class LearningUnitsMixin:
 
 
 class GenerateAcademicYear:
-    academic_years = []
-
     def __init__(self, start_year, end_year):
         self.start_year = start_year
         self.end_year = end_year
         self.academic_years = LearningUnitsMixin.create_list_of_academic_years(start_year, end_year)
 
 
-class GenerateContainer:
+def generate_academic_years(range=2):
+    current_academic_year = create_current_academic_year()
+    previous_years = GenerateAcademicYear(current_academic_year.year-range, current_academic_year.year-1).academic_years
+    next_years = GenerateAcademicYear(current_academic_year.year+1, current_academic_year.year+range).academic_years
+    return list(itertools.chain(previous_years, [current_academic_year], next_years))
 
+
+class GenerateContainer:
     def __init__(self, start_year, end_year):
         self.start_year = start_year
         self.end_year = end_year
         self.learning_container = LearningContainerFactory()
         self.learning_unit_full = LearningUnitFactory(learning_container=self.learning_container,
                                                       start_year=start_year,
-                                                      end_year=end_year,
-                                                      periodicity=learning_unit_periodicity.ANNUAL)
+                                                      end_year=end_year)
         self.learning_unit_partim = LearningUnitFactory(learning_container=self.learning_container,
                                                         start_year=start_year,
-                                                        end_year=end_year,
-                                                        periodicity=learning_unit_periodicity.ANNUAL)
+                                                        end_year=end_year
+                                                        )
 
         self._setup_entities()
         self._setup_common_data()
@@ -260,17 +266,22 @@ class GenerateContainer:
         self.entities = [
             EntityVersionFactory(
                 start_date=datetime.datetime(1900, 1, 1),
-                end_date=None
+                end_date=None,
+                entity_type=entity_type.FACULTY,
+                entity__organization__type=organization_type.MAIN
             ).entity for _ in range(4)
         ]
 
     def _setup_common_data(self):
         self.language = LanguageFactory(code='FR', name='French')
-        self.campus = CampusFactory(name='Louvain-la-Neuve')
+        self.campus = CampusFactory(name='Louvain-la-Neuve', organization__type=organization_type.MAIN)
 
     def __iter__(self):
         for generated_container_year in self.generated_container_years:
             yield generated_container_year
+
+    def __getitem__(self, index):
+        return self.generated_container_years[index]
 
 
 class GenerateContainerYear:
@@ -296,18 +307,24 @@ class GenerateContainerYear:
                                                                     container_type=learning_container_year_types.COURSE,
                                                                     acronym="LDROI1200",
                                                                     common_title="Droit international",
-                                                                    common_title_english="Droit international english",
-                                                                    campus=self.campus,
-                                                                    language=self.language)
+                                                                    common_title_english="Droit international english")
         self.learning_container = self.learning_container_year.learning_container
 
     def _setup_learning_unit_year_full(self, learning_unit):
-        self.learning_unit_year_full = _setup_learning_unit_year(learning_unit, self.learning_container_year,
-                                                                 learning_unit_year_subtypes.FULL)
+        self.learning_unit_year_full = _setup_learning_unit_year(
+            learning_unit, self.learning_container_year,
+            learning_unit_year_subtypes.FULL,
+            campus=self.campus,
+            language=self.language
+        )
 
     def _setup_learning_unit_year_partim(self, learning_unit):
-        self.learning_unit_year_partim = _setup_learning_unit_year(learning_unit, self.learning_container_year,
-                                                                   learning_unit_year_subtypes.PARTIM)
+        self.learning_unit_year_partim = _setup_learning_unit_year(
+            learning_unit, self.learning_container_year,
+            learning_unit_year_subtypes.PARTIM,
+            campus=self.campus,
+            language=self.language
+        )
 
     def _setup_learning_components_year(self):
 
@@ -364,13 +381,14 @@ class GenerateContainerYear:
             _setup_classes(component, number_classes=self.nb_classes)
 
 
-def _setup_learning_unit_year(learning_unit, learning_container_year, subtype):
-    common_luy_data = _get_default_common_value_learning_unit_year(learning_container_year, subtype)
+def _setup_learning_unit_year(learning_unit, learning_container_year, subtype, campus, language):
+    common_luy_data = _get_default_common_value_learning_unit_year(learning_container_year, subtype, language)
     learning_unit_year = LearningUnitYearFactory(
         learning_unit=learning_unit,
         learning_container_year=learning_container_year,
         academic_year=learning_container_year.academic_year,
         subtype=subtype,
+        campus=campus,
         **common_luy_data
     )
     learning_unit = learning_unit_year.learning_unit
@@ -379,15 +397,18 @@ def _setup_learning_unit_year(learning_unit, learning_container_year, subtype):
     return learning_unit_year
 
 
-def _get_default_common_value_learning_unit_year(learning_container_year, subtype):
+def _get_default_common_value_learning_unit_year(learning_container_year, subtype, language):
     """This function return all common data which must be equals in order to allow postponement"""
     common_data = {
         'acronym': learning_container_year.acronym,
         'specific_title': 'Title Specific',
         'specific_title_english': 'Title Specific English',
-        'credits': Decimal(5),
+        'credits': 5,
         'session': learning_unit_year_session.SESSION_1X3,
-        'quadrimester': learning_unit_year_quadrimesters.Q1
+        'quadrimester': quadrimesters.Q1,
+        'internship_subtype': None,
+        'language': language,
+        'periodicity': learning_unit_year_periodicity.ANNUAL
     }
     if subtype == learning_unit_year_subtypes.PARTIM:
         common_data['acronym'] += 'A'
@@ -411,8 +432,7 @@ def _setup_learning_component_year(learning_unit_year, component_type):
                                              type=component_type,
                                              planned_classes=1)
 
-    LearningUnitComponentFactory(learning_unit_year=learning_unit_year,
-                                 learning_component_year=component)
+    LearningUnitComponentFactory(learning_unit_year=learning_unit_year, learning_component_year=component)
     return component
 
 
@@ -436,15 +456,13 @@ def _setup_classes(learning_component_year, number_classes=5):
 
 
 def _create_fixed_educational_information_for_luy(luy):
-    luy.mobility_modality = factory.fuzzy.FuzzyText(length=150).fuzz()
-    luy.save()
-    _create_bibliography_for_luy(luy)
+    _create_teaching_material_for_luy(luy)
     _create_cms_data_for_luy(luy)
 
 
-def _create_bibliography_for_luy(luy, quantity=10):
+def _create_teaching_material_for_luy(luy, quantity=10):
     for _ in range(quantity):
-        BibliographyFactory(learning_unit_year=luy)
+        TeachingMaterialFactory(learning_unit_year=luy)
 
 
 def _create_cms_data_for_luy(luy, quantity=10):

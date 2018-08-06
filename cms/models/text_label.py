@@ -25,20 +25,18 @@
 ##############################################################################
 from django.core.validators import MinValueValidator
 from django.db import models
-from django.contrib import admin
 from django.db.models import Prefetch
 
 from cms.enums.entity_name import ENTITY_NAME
+from osis_common.models import osis_model_admin
 
 
-class TextLabelAdmin(admin.ModelAdmin):
+class TextLabelAdmin(osis_model_admin.OsisModelAdmin):
     actions = None  # Remove ability to delete in Admin Interface
     list_display = ('parent', 'entity', 'label', 'order', 'published',)
     search_fields = ['label']
     ordering = ('entity',)
-    raw_id_fields = ('parent',)
     list_filter = ('published',)
-    fieldsets = ((None, {'fields': ('parent', 'entity', 'label', 'order', 'published',)}),)
 
     def delete_selected(self, request, obj):
         for text_label in obj.all():
@@ -124,8 +122,14 @@ def reorganise_order(parent):
             super(TextLabel, text_label).save()
 
 
-def find_root_by_name(text_label_name):
+def get_by_name(text_label_name):
     return TextLabel.objects.prefetch_related(
-                                Prefetch('translatedtextlabel_set',to_attr="translated_text_labels")
-                            ).get(label=text_label_name, order=1, parent__isnull=True)
+        Prefetch('translatedtextlabel_set',to_attr="translated_text_labels")
+    ).get(label=text_label_name)
 
+
+def get_by_label_or_none(label):
+    try:
+        return TextLabel.objects.get(label=label)
+    except TextLabel.DoesNotExist:
+        return None

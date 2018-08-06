@@ -390,7 +390,7 @@ msgid "encoding_status_notended"
 msgstr "It remains notes to encode."
 
 msgid "end_date"
-msgstr "Teacher Deadline"
+msgstr "End date"
 
 msgid "end_date_teacher"
 msgstr "Teacher Deadline"
@@ -1131,6 +1131,9 @@ msgstr "Temporary save (not submitted to the faculty yet)"
 msgid "the_coordinator_must_still_submit_scores"
 msgstr "The coordinator must still submit the scores"
 
+msgid "text"
+msgstr "Text"
+
 msgid "title"
 msgstr "Title"
 
@@ -1501,9 +1504,6 @@ msgstr "The start's date of '%s' of the academic calendar can't be higher than %
 msgid "component_type"
 msgstr "Component type"
 
-msgid "volume_quarter"
-msgstr "Quarter"
-
 msgid "vol_q1"
 msgstr "Vol. q1"
 
@@ -1612,23 +1612,23 @@ msgstr "Duration"
 msgid "experimental_phase"
 msgstr "This feature is in testing phase"
 
-msgid "title_official_1"
-msgstr "Official title (Part 1, common with partims)"
+msgid "title_1"
+msgstr "Title common with partims(Part 1)"
 
-msgid "common_official_title"
-msgstr "Common official title"
+msgid "common_title"
+msgstr "Common title"
 
-msgid "common_official_english_title"
-msgstr "Common official English title"
+msgid "common_english_title"
+msgstr "Common English title"
 
-msgid "title_official_2"
-msgstr "Official title (Part 2, specific to each partim)"
+msgid "title_2"
+msgstr "Title (Part 2, specific to each partim)"
 
-msgid "official_title_proper_to_UE"
-msgstr "Official title proper to the learning unit"
+msgid "title_proper_to_UE"
+msgstr "Title proper"
 
-msgid "official_english_title_proper_to_UE"
-msgstr "Official English title proper to the learning unit"
+msgid "english_title_proper_to_UE"
+msgstr "English title proper"
 
 msgid "title_in_english"
 msgstr "Title in English"
@@ -1821,9 +1821,6 @@ msgstr "Site with one letter\n"
 msgid "end_year_title"
 msgstr "End year"
 
-msgid "basic_informations_title"
-msgstr "Basics informations"
-
 msgid "active_title"
 msgstr "Active"
 
@@ -1854,41 +1851,8 @@ msgstr "Classes prévues"
 msgid "planned_classes_pc"
 msgstr "P.C."
 
-msgid "total_volume"
-msgstr "Volume total"
-
-msgid "total_volume_charge"
-msgstr "Volume de charge total"
-
 msgid "total_volume_voltot"
 msgstr "Vol.tot"
-
-msgid "vol_charge"
-msgstr "Vol.charge"
-
-msgid "vol_tot_not_equal_to_q1_q2"
-msgstr "Vol.tot = Q1 + Q2"
-
-msgid "vol_tot_req_entities_not_equal_to_entity"
-msgstr "Vol.tot requirement is not equals to sum of requirement volumes"
-
-msgid "vol_tot_req_entities_not_equal_to_vol_tot_mult_cp"
-msgstr "Vol.requirement = Vol.tot * C.P"
-
-msgid "vol_tot_full_must_be_greater_than_partim"
-msgstr "Vol.tot [Full] > Vol.tot [Partim]"
-
-msgid "vol_q1_full_must_be_greater_or_equal_to_partim"
-msgstr "Q1 [Full] >= Q1 [Partim]"
-
-msgid "vol_q2_full_must_be_greater_or_equal_to_partim"
-msgstr "Q2 [Full] >= Q2 [Partim]"
-
-msgid "planned_classes_full_must_be_greater_or_equal_to_partim"
-msgstr "C.P. [Full] >= C.P. [Partim]"
-
-msgid "entity_requirement_full_must_be_greater_or_equal_to_partim"
-msgstr "Requirement entity [Full] >= Requirement entity [Partim]"
 
 msgid "volumes_management"
 msgstr "Volumes management"
@@ -1900,7 +1864,7 @@ msgid "end_date_gt_begin_date"
 msgstr "The end year must be equals or upper than the start year"
 
 msgid "session_title"
-msgstr "Sessions"
+msgstr "Session derogation"
 
 msgid "remarks_title"
 msgstr "Remarks"
@@ -2049,6 +2013,12 @@ msgstr "University certificate"
 msgid "studies_domain"
 msgstr "Studies domain"
 
+msgid "main domain"
+msgstr ""
+
+msgid "secondary domains"
+msgstr ""
+
 msgid "primary_language"
 msgstr "Primary language"
 
@@ -2128,10 +2098,10 @@ msgid "of_category"
 msgstr "Education group type"
 
 msgid "activity_search"
-msgstr "Activity - Search"
+msgstr "Learning unit"
 
 msgid "service_course_search"
-msgstr "Service cours - Search"
+msgstr "Service courses"
 
 msgid "TRAINING"
 msgstr "Training"
@@ -2257,7 +2227,7 @@ msgstr ""
 msgid "Delete from this academic year"
 msgstr ""
 
-msgid "Delete all the learning unit"
+msgid "Delete the learning unit for all academic years"
 msgstr ""
 
 msgid "publish_attribution_to_portal"
@@ -2392,6 +2362,9 @@ msgstr "Abs. credits"
 msgid "relative_target_credits"
 msgstr "Relative target's credits"
 
+msgid "relative credits"
+msgstr ""
+
 msgid "min_credits"
 msgstr "Min. credits"
 
@@ -2461,22 +2434,19 @@ msgstr "Academic entity"
 msgid "folder_number"
 msgstr "Folder n°{}"
 
-msgid "produce_xls"
-msgstr "Produce an Excel file with the list of results"
-
-msgid "produce_xls_lu"
-msgstr "Xls with learning units"
+msgid "produce_xls_lus"
+msgstr "The learning units"
 
 msgid "%(date)s must be set within %(start_date)s and %(end_date)s"
 msgstr ""
 
-msgid "cancel_proposal"
-msgstr "Cancel proposal"
+msgid "Cancel the proposal"
+msgstr ""
 
-msgid "edit_proposal"
-msgstr "Edit proposal"
+msgid "Edit the proposal"
+msgstr ""
 
-msgid "Consolidate proposal"
+msgid "Consolidate the proposal"
 msgstr ""
 
 msgid "msg_confirm_cancel_proposal"
@@ -2512,11 +2482,14 @@ msgstr "Substitute"
 msgid "not_end_year"
 msgstr "no planned end"
 
-msgid "edit_learning_unit_end_date"
-msgstr "Edit learning unit end date"
+msgid "Modify"
+msgstr ""
 
-msgid "new_partim"
-msgstr "Create a new partim"
+msgid "Edit learning unit end date"
+msgstr ""
+
+msgid "Modify end date"
+msgstr ""
 
 msgid "learning_unit_successfuly_created"
 msgstr "Learning unit <a href='%(link)s'> %(acronym)s (%(academic_year)s) </a> successfuly created."
@@ -2563,14 +2536,14 @@ msgstr "Ensure this value is greater than %(limit_value)s."
 msgid "Entity_not_exist"
 msgstr "The entity %(entity_acronym)s does not exist for the selected academic year %(academic_year)s"
 
-msgid "edit_learning_unit"
-msgstr "Edit learning unit"
+msgid "Edit the learning unit"
+msgstr ""
 
 msgid "requirement_entity_end_date_too_short"
 msgstr "The requirement entity lifetime is too short."
 
-msgid "requirement_and_allocation_entities_cannot_be_different"
-msgstr "The requirement and allocation entities cannot be different for this learning unit type."
+msgid "Requirement and allocation entities must be linked to the same faculty for this learning unit type."
+msgstr ""
 
 msgid "success_modification_learning_unit"
 msgstr "The learning unit has been updated."
@@ -2600,7 +2573,7 @@ msgid "folder_entity"
 msgstr "Folder entity"
 
 msgid "proposals_search"
-msgstr "Proposal - Search"
+msgstr "Proposals"
 
 msgid "folder_num"
 msgstr "Folder num."
@@ -2654,7 +2627,7 @@ msgid "in_proposal"
 msgstr "Existing proposal"
 
 msgid "summary_locked"
-msgstr "blocked update"
+msgstr "blocked update for tutor"
 
 msgid "get_back_to_initial"
 msgstr "Get back to initial data"
@@ -2693,19 +2666,16 @@ msgid "Educational information ending"
 msgstr ""
 
 msgid "official_title_proper_to_partim"
-msgstr "Official title proper to the partim"
+msgstr "Title proper to the partim"
 
 msgid "official_english_title_proper_to_partim"
-msgstr "Official English title proper to the partim"
+msgstr "English title proper to the partim"
 
 msgid "Educational information submission dates updated"
 msgstr ""
 
-msgid "partim_credits_gt_parent_credits"
-msgstr "The credits value is greater than the credits value of the learning unit."
-
-msgid "partim_credits_equals_parent_credits"
-msgstr "The credits value is equal to the credits value of the learning unit."
+msgid "The credits value of the partim %(acronym)s is greater or equal than the credits value of the parent learning unit."
+msgstr ""
 
 msgid "The learning unit has been updated until %(year)s."
 msgstr ""
@@ -2725,24 +2695,27 @@ msgstr "Unupdated"
 msgid "summary_list"
 msgstr "Education information status"
 
-msgctxt "bibliography"
+msgctxt "teachingmaterial"
 msgid "title"
 msgstr ""
 
-msgctxt "bibliography"
+msgctxt "teachingmaterial"
 msgid "mandatory"
 msgstr ""
 
 msgid "Bibliography"
 msgstr ""
 
-msgid "Modalities specific to IN and OUT mobility"
+msgid "bibliography"
 msgstr ""
 
-msgid "The partim must be inactive because the parent is inactive"
+msgid "Teaching material"
 msgstr ""
 
-msgid "The parent must be active because there are partim active"
+msgid "Mobility"
+msgstr ""
+
+msgid "The periodicity of the parent and the partims do not match"
 msgstr ""
 
 msgid "educational_information_update_reminder"
@@ -2766,14 +2739,640 @@ msgstr "Do you want to consolidate ?"
 msgid "need_no_reminder"
 msgstr "Need no reminder"
 
-msgid "error_consolidate_proposal"
-msgstr "Proposal {acronym} ({academic_year}) cannot be consolidated."
+msgid "Proposal %(acronym)s (%(academic_year)s) cannot be consolidated."
+msgstr ""
 
-msgid "success_consolidate_proposal"
-msgstr "Proposal {acronym} ({academic_year}) successfully consolidated."
+msgid "Proposal %(acronym)s (%(academic_year)s) successfully consolidated."
+msgstr ""
 
-msgid "error_cancel_proposal"
-msgstr "Proposal {acronym} ({academic_year}) cannot be canceled."
+msgid "Proposal %(acronym)s (%(academic_year)s) cannot be canceled."
+msgstr ""
 
-msgid "success_cancel_proposal"
-msgstr "Proposal {acronym} ({academic_year}) successfully canceled."
+msgid "Proposal %(acronym)s (%(academic_year)s) successfully canceled."
+msgstr ""
+
+msgid "A report has been sent."
+msgstr ""
+
+msgid "Success"
+msgstr ""
+
+msgid "Failure"
+msgstr ""
+
+msgid "Remarks"
+msgstr ""
+
+msgid "Learning unit"
+msgstr ""
+
+msgid "Research criteria"
+msgstr ""
+
+msgid "The learning unit %(acronym)s is included in the following education groups"
+msgstr ""
+
+msgid "type_code_formation"
+msgstr "Formation's type"
+
+msgid "absolute_and_relative_credits"
+msgstr "Relative / Absolute <br>credits"
+
+msgid "Proposal is neither accepted nor refused."
+msgstr ""
+
+msgid "learning_achievements"
+msgstr "Learning achievements"
+
+msgid "up"
+msgstr "Up"
+
+msgid "down"
+msgstr "Down"
+
+msgid "learning_achievements_headline"
+msgstr "At the end of this learning unit, the student is able to:"
+
+msgid "User %(person)s do not have rights on this proposal."
+msgstr ""
+
+msgid "Enrollments to learning unit"
+msgstr ""
+
+msgid "Training"
+msgstr ""
+
+msgid "Enrollments to training"
+msgstr ""
+
+msgid "Enrolled to learning unit"
+msgstr "Enrollments to learning unit"
+
+msgid "No proposals was selected."
+msgstr ""
+
+msgid "Proposal %(acronym)s (%(academic_year)s) successfully changed state."
+msgstr ""
+
+msgid "Proposal %(acronym)s (%(academic_year)s) cannot be changed state."
+msgstr ""
+
+msgid "cancellation"
+msgstr ""
+
+msgid "consolidation"
+msgstr "consolidation"
+
+msgid "borrowed_course_search"
+msgstr "Borrowed courses"
+
+msgid "add_another"
+msgstr "Add another"
+
+msgid "The parent is inactive and there is at least one partim active"
+msgstr ""
+
+msgid "This partim is active and the parent is inactive"
+msgstr ""
+
+msgid "faculty_borrowing"
+msgstr "Faculty borrowing"
+
+msgid "The value of this attribute is inherited from the parent UE"
+msgstr ""
+
+msgid "to_complete"
+msgstr "To complete"
+
+msgid "The value of this attribute is not annualized"
+msgstr ""
+
+msgid "start_year"
+msgstr "Starting year"
+
+msgid "produce_xls_attributions"
+msgstr "The learning units and attributions"
+
+msgid "produce_xls_proposals"
+msgstr "Xls with proposals"
+
+msgid "proposal_date"
+msgstr "Proposals date"
+
+msgid "search_type"
+msgstr "Search type"
+
+msgid "The linked %(entity)s does not exist at the start date of the academic year linked to this learning unit"
+msgstr ""
+
+msgid "COURSE_ENROLLMENT"
+msgstr "Course enrollment"
+
+msgid "vol_global"
+msgstr "Vol.global"
+
+msgid "volume_global"
+msgstr "volume total global"
+
+msgid "Vol. annual"
+msgstr ""
+
+msgid "Volume annual"
+msgstr ""
+
+msgid "missing_internship_subtype"
+msgstr "It is necessary to indicate the internship subtype"
+
+msgid "different_status_with_parent"
+msgstr "The learning unit's parent is inactive"
+
+msgid "new_external_learning_unit"
+msgstr "Create a new external learning unit"
+
+msgid "external"
+msgstr "External"
+
+msgid "comment_title"
+msgstr "Comment"
+
+msgid "comment"
+msgstr ""
+
+msgid "english comment"
+msgstr ""
+
+msgid "The comments of %(acronym)s has been updated"
+msgstr ""
+
+msgid "requesting_entity"
+msgstr "Requesting entity"
+
+msgid "local_credits"
+msgstr "Local credits"
+
+msgid "Consistency error in %(academic_year)s : %(error)s"
+msgstr ""
+
+msgid "%(col_name)s has been already modified. ({%(new_value)s} instead of {%(current_value)s})"
+msgstr ""
+
+msgid "external_code"
+msgstr "External code"
+
+msgid "Proposals"
+msgstr ""
+
+msgid "learning_units_and_attributions_filename"
+msgstr "learning_units_and_attributions"
+
+msgid "attribution_list"
+msgstr "List of attributions"
+
+msgid "List_proposals"
+msgstr "List of proposals"
+
+msgid "List_activities"
+msgstr "List of activities"
+
+msgid "learning_units_filename"
+msgstr "learning_units"
+
+msgid "warnigns_detected"
+msgstr "We detected inconsistencies in the following data :"
+
+msgid "Volumes are inconsistent"
+msgstr ""
+
+msgid "Volumes of {} are inconsistent"
+msgstr ""
+
+msgid "planned classes cannot be 0"
+msgstr ""
+
+msgid "Vol_tot is not equal to vol_q1 + vol_q2"
+msgstr ""
+
+msgid "Vol_global is not equal to Vol_tot * planned_classes"
+msgstr "The overall volume must be equal to the annual volume multiplied by the number of classes"
+
+msgid "At least a partim volume value is greater than corresponding volume of parent"
+msgstr ""
+
+msgid "url of the learning unit"
+msgstr "URL of the learning unit"
+
+msgid "professional_integration"
+msgstr "Professional integration"
+
+msgid "external_search"
+msgstr "Externals"
+
+msgid "formerly"
+msgstr "Formerly"
+
+msgid "title_1_in_english"
+msgstr "Title common title with partims (part 1) in English"
+
+msgid "title_2_in_english"
+msgstr "Title specific with partim (part 2) in English"
+
+msgid "Manage volumes"
+msgstr ""
+
+msgid "New external learning unit"
+msgstr ""
+
+msgid "New partim"
+msgstr ""
+
+msgid "middle_name"
+msgstr "Middle name"
+
+msgid "Select the missing term for the offer"
+msgstr "Select the missing term for the offer"
+
+msgid "Remove the term"
+msgstr "Remove the term"
+
+msgid "Do you want to remove this term?"
+msgstr "Do you want to remove this term?"
+
+msgid "Sorry but you can not remove the term of an offer"
+msgstr "Sorry but you can not remove the term of an offer"
+
+msgid "Do you want to remove the term?"
+msgstr "Do you want to remove the term?"
+
+msgid "Export"
+msgstr ""
+
+msgid "produce_xls_lus_desc"
+msgstr "Produce xls with a list of learning units"
+
+msgid "produce_xls_attributions_desc"
+msgstr "Produce xls with a list of learning units and attributions"
+
+msgid "hourly volume total annual"
+msgstr ""
+
+msgid "hourly volume partial q1"
+msgstr ""
+
+msgid "hourly volume partial q2"
+msgstr ""
+
+msgid "volume declared vacant"
+msgstr ""
+
+msgid "Xls with education groups"
+msgstr ""
+
+msgid "education_groups_filename"
+msgstr "education_groups"
+
+msgid "list_education_groups"
+msgstr "Education group's list"
+
+msgid "Q1 and Q2"
+msgstr ""
+
+msgid "Q1 or Q2"
+msgstr ""
+
+msgid "New Education Group"
+msgstr ""
+
+msgid "New Training"
+msgstr ""
+
+msgid "New Mini-Training"
+msgstr ""
+
+msgid "untyped"
+msgstr ""
+
+msgid "validity"
+msgstr ""
+
+msgid "Education group year <a href='%(link)s'> %(acronym)s (%(academic_year)s) </a> successfuly created."
+msgstr ""
+
+msgid "minimum credits"
+msgstr ""
+
+msgid "maximum credits"
+msgstr ""
+
+msgid "EDUCATION_GROUP_EDITION"
+msgstr "Edition group edition"
+
+msgid "The learning unit %(acronym)s is not included in any education group"
+msgstr ""
+
+msgid "No enrollment for this learning unit"
+msgstr ""
+
+msgid "Changed"
+msgstr ""
+
+msgid "Other teacher(s)"
+msgstr ""
+
+msgid "Summary responsible(s)"
+msgstr ""
+
+msgid "The annual volume must be equal to the sum of the volumes Q1 and Q2"
+msgstr ""
+
+msgid "The global volume corresponding to the product of the annual volume and the number of planned classes must be equal to the sum of the volumes for each entity"
+msgstr ""
+
+msgid "This partim is %(partim_periodicity)s and the parent is %(parent_periodicty)s"
+msgstr ""
+
+msgid "The parent is %(parent_periodicty)s and there is at least one partim which is not %(parent_periodicty)s"
+msgstr ""
+
+msgid "Admission Conditions for Bachelors"
+msgstr "Admission Conditions for Bachelors"
+
+msgid "Alert Message"
+msgstr "Alert Message"
+
+msgid "Free Text"
+msgstr "Free Text"
+
+msgid "University Bachelors"
+msgstr "University Bachelors"
+
+msgid "Diploma"
+msgstr "Diploma"
+
+msgid "Conditions"
+msgstr "Conditions"
+
+msgid "Access"
+msgstr "Access"
+
+msgid "Actions"
+msgstr "Actions"
+
+msgid "UCL Bachelors"
+msgstr "UCL Bachelors"
+
+msgid "Others Bachelors of the French speaking Community of Belgium"
+msgstr "Others Bachelors of the French speaking Community of Belgium"
+
+msgid "Bachelors of the Dutch speaking Community of Beligum"
+msgstr "Bachelors of the Dutch speaking Community of Beligum"
+
+msgid "Foreign Bachelors"
+msgstr "Foreign Bachelors"
+
+msgid "Non university Bachelors"
+msgstr "Non university Bachelors"
+
+msgid "Holders of a 2nd cycle University degree"
+msgstr "Holders of a 2nd cycle University degree"
+
+msgid "Holders of a non-University 2nd cycle degree"
+msgstr "Holders of a non-University 2nd cycle degree"
+
+msgid "Adults taking up their university training"
+msgstr "Adults taking up their university training"
+
+msgid "Personalized access"
+msgstr "Personalized access"
+
+msgid "Admission and Enrolment Procedures for general registration"
+msgstr "Admission and Enrolment Procedures for general registration"
+
+msgid "Modify text"
+msgstr "Modify text"
+
+msgid "Add a new line"
+msgstr "Add a new line"
+
+msgid "Modify an existing line"
+msgstr "Modify an existing line"
+
+msgid "Are you sure you want to delete %(education_group_year)s?"
+msgstr ""
+
+msgid "You are not summary responsible for this learning unit."
+msgstr ""
+
+msgid "The learning unit is not summary editable."
+msgstr ""
+
+msgid "Submission dates are not set."
+msgstr ""
+
+msgid "Not in period to edit educational information."
+msgstr ""
+
+msgid "Modification made"
+msgstr ""
+
+msgid "You can not delete this object because some dependencies are protected"
+msgstr ""
+
+msgid "It will delete also this following objects"
+msgstr ""
+
+msgid "The education group edition period is not open."
+msgstr ""
+
+msgid "The user has not permission to delete education groups."
+msgstr ""
+
+msgid "The teaching material has been deleted"
+msgstr ""
+
+msgid "Teaching materials has been updated"
+msgstr ""
+
+msgid "Are you sure you want to delete the teaching material?"
+msgstr ""
+
+msgid "{} successfully updated"
+msgstr ""
+
+msgid "unit"
+msgstr ""
+
+msgid "Enter text to search"
+msgstr ""
+
+msgid "Mobility has been updated"
+msgstr ""
+
+msgid "lock"
+msgstr ""
+
+msgid "unlock"
+msgstr ""
+
+msgid "Update for teacher unlocked"
+msgstr ""
+
+msgid "Update for teacher locked"
+msgstr ""
+
+msgid "lock update for teacher"
+msgstr ""
+
+msgid "unlock update for teacher"
+msgstr ""
+
+msgid "The education group has been deleted."
+msgstr ""
+
+msgid "The %(acronym)s has been moved"
+msgstr ""
+
+msgid "\"%(child)s\" has been detached from \"%(parent)s\""
+msgstr ""
+
+msgid "Additional info"
+msgstr ""
+
+msgid "Weighting"
+msgstr ""
+
+msgid "Default learning unit enrollment"
+msgstr ""
+
+msgid "Session"
+msgstr ""
+
+msgid "Attach"
+msgstr ""
+
+msgid "Detach"
+msgstr ""
+
+msgid "Move"
+msgstr ""
+
+msgid "Select"
+msgstr ""
+
+msgid "The user is not attached to the management entity"
+msgstr ""
+
+msgid "Help"
+msgstr ""
+
+msgid "Are you sure you want to detach this content?"
+msgstr ""
+
+msgid "detach"
+msgstr ""
+
+msgid "Abs. cred."
+msgstr ""
+
+msgid "Sess. derog."
+msgstr ""
+
+msgid "%(count_enrollment)d student is  enrolled in the offer."
+msgid_plural "%(count_enrollment)d students are  enrolled in the offer."
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "The content of the education group is not empty."
+msgstr ""
+
+msgid "Cred. rel./abs."
+msgstr ""
+
+msgid "Decree category"
+msgstr ""
+
+msgid "Rate code"
+msgstr ""
+
+msgid "NO_ADDITIONAL_FEES"
+msgstr "No additional fees"
+
+msgid "AESS_CAPAES"
+msgstr "AESS and CAPAES"
+
+msgid "MINERVAL_COMPLETE"
+msgstr "Minerval complete"
+
+msgid "UNIVERSITY_CERTIFICATE"
+msgstr "University certificate"
+
+msgid "ADVANCED_MASTER_IN_MEDICAL_SPECIALIZATION"
+msgstr "Advanced master in medical specialization"
+
+msgid "ACCESS_CONTEST"
+msgstr "Access contest"
+
+msgid "UNIVERSITY_CERTIFICATE_30_CREDITS"
+msgstr "University certificate 30 credits"
+
+msgid "CERTIFICATE_MEDECINE_COMPETENCE"
+msgstr "Certificate medecine competence"
+
+msgid "Group content"
+msgstr "Group content"
+
+msgid "%(title)s (%(credits)s credits)"
+msgstr "%(title)s (%(credits)s credits)"
+
+msgid "%(acronym)s %(title)s [%(volumes)s] (%(credits)s credits)"
+msgstr "%(acronym)s %(title)s [%(volumes)s] (%(credits)s crédits)"
+
+msgid "Link type"
+msgstr ""
+
+msgid "REFERENCE"
+msgstr "Reference"
+
+msgid "Quadrimester derogation"
+msgstr ""
+
+msgid "Quad. derog."
+msgstr ""
+
+msgid "No type of education group can be created as child of %(category)s of type %(type)s"
+msgstr ""
+
+msgid "Produce xls with a list of education groups"
+msgstr ""
+
+msgid "Produce xls of trainings with administrative data"
+msgstr ""
+
+msgid "Begining of course registration"
+msgstr ""
+
+msgid "Ending of course registration"
+msgstr ""
+
+msgid "Begining of exam registration"
+msgstr ""
+
+msgid "Ending of exam registration"
+msgstr ""
+
+msgid "Exam board signatory"
+msgstr ""
+
+msgid "List of trainings, with administrative data"
+msgstr ""
+
+msgid "List of trainings"
+msgstr ""
+
+msgid "List of trainings with administrative data"
+msgstr ""
+
+msgid "Validity"
+msgstr ""
+
+msgid "Please Select or Move an item before Attach it"
+msgstr ""

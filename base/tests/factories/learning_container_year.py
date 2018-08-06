@@ -25,14 +25,12 @@
 ##############################################################################
 import datetime
 import operator
-import factory
+
 import factory.fuzzy
 
+from base.models.enums import learning_container_year_types
 from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.learning_container import LearningContainerFactory
-from base.tests.factories.campus import CampusFactory
-from base.models.enums import learning_container_year_types
-from reference.tests.factories.language import LanguageFactory
 from osis_common.utils.datetime import get_tzinfo
 
 
@@ -43,13 +41,11 @@ class LearningContainerYearFactory(factory.django.DjangoModelFactory):
     external_id = factory.Sequence(lambda n: '10000000%02d' % n)
     academic_year = factory.SubFactory(AcademicYearFactory)
     learning_container = factory.SubFactory(LearningContainerFactory)
-    container_type = factory.Iterator(learning_container_year_types.LEARNING_CONTAINER_YEAR_TYPES,
+    container_type = factory.Iterator(learning_container_year_types.LEARNING_CONTAINER_YEAR_TYPES_WITHOUT_EXTERNAL,
                                       getter=operator.itemgetter(0))
     common_title = factory.Sequence(lambda n: 'Learning container year - %d' % n)
     common_title_english = factory.Sequence(lambda n: 'Learning container year english - %d' % n)
     acronym = factory.Sequence(lambda n: 'LCY-%d' % n)
-    campus = factory.SubFactory(CampusFactory)
-    language = factory.SubFactory(LanguageFactory)
     changed = factory.fuzzy.FuzzyDateTime(datetime.datetime(2016, 1, 1, tzinfo=get_tzinfo()),
                                           datetime.datetime(2017, 3, 1, tzinfo=get_tzinfo()))
     in_charge = False

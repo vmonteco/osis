@@ -30,7 +30,6 @@ from osis_common.models.serializable_model import SerializableModel, Serializabl
 
 class DecreeAdmin(SerializableModelAdmin):
     list_display = ('name', 'start_date', 'end_date')
-    fieldsets = ((None, {'fields': ('name', 'start_date', 'end_date')}),)
     ordering = ('name',)
     search_fields = ['name']
 

@@ -31,7 +31,6 @@ from osis_common.models.serializable_model import SerializableModel, Serializabl
 
 class OrganizationAdmin(SerializableModelAdmin):
     list_display = ('name', 'acronym', 'prefix', 'type', 'changed')
-    fieldsets = ((None, {'fields': ('name', 'acronym', 'prefix', 'website', 'type', 'logo')}),)
     search_fields = ['acronym', 'name']
 
 
@@ -56,6 +55,14 @@ class Organization(SerializableModel):
         permissions = (
             ("can_access_organization", "Can access organization"),
         )
+
+    @property
+    def country(self):
+        # FIXME : Workaround, the address must be directly selectable
+        qs = self.organizationaddress_set
+        if qs.exists():
+            return qs.first().country
+        return None
 
 
 def find_by_id(organization_id):

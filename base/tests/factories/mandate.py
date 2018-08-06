@@ -46,8 +46,6 @@ class MandateFactory(DjangoModelFactory):
     changed = factory.fuzzy.FuzzyDateTime(datetime.datetime(2016, 1, 1, tzinfo=get_tzinfo()),
                                           datetime.datetime(2017, 3, 1, tzinfo=get_tzinfo()))
     education_group = factory.SubFactory(EducationGroupFactory)
-
-
     function = factory.Iterator(mandate_types.MANDATE_TYPES,
                             getter=operator.itemgetter(0))
     qualification = factory.Sequence(lambda n: 'qualification - %d' % n)

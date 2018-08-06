@@ -23,13 +23,14 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from django.utils.translation import ugettext_lazy as _
 
 YES = "YES"
 NO = "NO"
 OPTIONAL = "OPTIONAL"
 
 ACTIVITY_PRESENCES = (
-    (YES, YES),
-    (NO, NO),
-    (OPTIONAL, OPTIONAL)
+    (YES, _(YES)),
+    (NO, _(NO)),
+    (OPTIONAL, _(OPTIONAL))
 )

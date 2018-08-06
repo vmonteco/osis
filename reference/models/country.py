@@ -31,8 +31,6 @@ from osis_common.models.serializable_model import SerializableModel, Serializabl
 class CountryAdmin(SerializableModelAdmin):
     list_display = ('uuid', 'name', 'iso_code', 'nationality', 'european_union', 'dialing_code', 'cref_code', 'currency',
                     'continent')
-    fieldsets = ((None, {'fields': ('iso_code', 'name', 'nationality', 'european_union', 'dialing_code', 'cref_code',
-                                    'currency', 'continent')}),)
     list_filter = ('european_union',)
     ordering = ('name',)
     search_fields = ['name']

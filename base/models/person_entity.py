@@ -24,12 +24,12 @@
 #
 ##############################################################################
 from django.db import models
+from django.db.models import QuerySet
 
-from base.models import entity
 from base.models import entity_version
 from base.models.entity import Entity
 from base.models.entity_version import EntityVersion
-from base.models.osis_model_admin import OsisModelAdmin
+from osis_common.models.osis_model_admin import OsisModelAdmin
 
 
 class PersonEntityAdmin(OsisModelAdmin):
@@ -63,21 +63,27 @@ def find_entities_by_person(person):
     person_entities = PersonEntity.objects.filter(person=person).select_related('entity')
 
     entities = set()
-    entities |= {pers_ent.entity for pers_ent in person_entities if not pers_ent.with_child }
-    entity_with_child = [pers_ent.entity for pers_ent in person_entities if pers_ent.with_child]
-    if entity_with_child:
-        entity_with_find_descendants = entity.find_descendants(entity_with_child, with_entities=True)
-        entities |= set(entity_with_find_descendants) if entity_with_find_descendants else set()
+    entities |= {pers_ent.entity for pers_ent in person_entities if not pers_ent.with_child}
+    entities_with_child = [pers_ent.entity for pers_ent in person_entities if pers_ent.with_child]
+    entities_data = entity_version.build_current_entity_version_structure_in_memory()
+    for entity_with_child in entities_with_child:
+        entities.add(entity_with_child)
+        entity_data = entities_data.get(entity_with_child.id)
+        if entity_data:
+            entities |= set([ent_version.entity for ent_version in entity_data['all_children']])
     return list(entities)
 
 
-def is_attached_entities(person, entity_queryset):
-    admissible_entities = list(entity_queryset.values_list('pk', flat=True))
+def is_attached_entities(person, entities):
+    if isinstance(entities, QuerySet):
+        admissible_entities = list(entities.values_list('pk', flat=True))
+    else:
+        admissible_entities = entities
 
     qs = PersonEntity.objects.filter(person=person)
     if qs.filter(entity__in=admissible_entities).exists():
         return True
-    elif qs.filter(entity__in=_entity_ancestors(entity_queryset), with_child=True).exists():
+    elif qs.filter(entity__in=_entity_ancestors(entities), with_child=True).exists():
         return True
     else:
         return False

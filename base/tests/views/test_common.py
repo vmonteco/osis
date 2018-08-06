@@ -23,10 +23,11 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.test import TestCase
-from django.core.urlresolvers import reverse
-from django.test.utils import override_settings
+
 from django.contrib.auth.models import User, Permission
+from django.core.urlresolvers import reverse
+from django.test import TestCase
+from django.test.utils import override_settings
 
 
 class ErrorViewTestCase(TestCase):
@@ -40,5 +41,3 @@ class ErrorViewTestCase(TestCase):
         self.client.login(username='tmp', password='tmp')
         response = self.client.get(reverse('academic_calendar_read', args=[46898]), follow=True)
         self.assertEqual(response.status_code, 404)
-
-

@@ -26,6 +26,8 @@
 from django.db import models
 from django.contrib import messages
 from django.contrib.auth.models import Group
+from django.db.models import Q
+
 from attribution.models import attribution
 from base.models import person
 from osis_common.models import serializable_model
@@ -34,9 +36,7 @@ from osis_common.models import serializable_model
 class TutorAdmin(serializable_model.SerializableModelAdmin):
     actions = ['add_to_group']
     list_display = ('person', 'changed')
-    fieldsets = ((None, {'fields': ('person',)}),)
     list_filter = ('person__gender', 'person__language')
-    raw_id_fields = ('person', )
     search_fields = ['person__first_name', 'person__last_name', 'person__global_id']
 
     def add_to_group(self, request, queryset):
@@ -107,3 +107,17 @@ def is_tutor(user):
     :return: True if the user is a tutor. False if the user is not a tutor.
     """
     return Tutor.objects.filter(person__user=user).count() > 0
+
+
+def search(**criterias):
+    queryset = Tutor.objects.all()
+    if "name" in criterias:
+        full_name = criterias["name"]
+        for name in full_name.split():
+            queryset = queryset.filter(Q(person__first_name__icontains=name) | Q(person__last_name__icontains=name))
+    return queryset.distinct().select_related("person")
+
+
+def find_all_summary_responsibles_by_learning_unit_year(a_learning_unit_year):
+    return Tutor.objects.filter(attribution__learning_unit_year=a_learning_unit_year,
+                                attribution__summary_responsible=True)

@@ -1,6 +1,6 @@
-{% extends "layout.html" %}
+{% extends "education_group/layout_detail.html" %}
 {% load i18n %}
-{% load staticfiles %}
+{% load staticfiles education_group format %}
 {% comment "License" %}
 * OSIS stands for Open Student Information System. It's an application
 * designed to manage the core business of higher education institutions,
@@ -25,37 +25,49 @@
 * see http://www.gnu.org/licenses/.
 {% endcomment %}
 
-{% block breadcrumb %}
-    {% include "education_group/breadcrumb.html" %}
-{% endblock %}
 
 {% block content %}
-
-    {% include "education_group/header.html" %}
-
+    
     <div class="panel panel-default">
+        <div class="panel-heading">
+            <div class="row">
+                {% include "education_group/blocks/hamburger_button.html" %}
+                <div class="pull-right" style="margin-right: 15px;">
+                    {% include "education_group/blocks/dropdown/identification_actions_bar.html" with dropdirection="dropdown"%}
+                </div>
+            </div>
+        </div>
         <div class="panel-body" id="tabs">
             <div class="tab-content" id="tab_content">
                 <div role="tabpanel" class="tab-pane active" id="identification">
                     <div class="row">
                         {% include "education_group/training_tree.html" %}
-                        <div id="panel-data" class="col-md-9">
+                        <div id="panel-data" class="col-md-12">
                             {% include "education_group/tabs.html" %}
                             <br>
-                            {% if education_group_year.education_group_type.category == enums.TRAINING %}
-                                {% include "education_group/identification_training_details.html" %}
-                            {% elif education_group_year.education_group_type.category == enums.MINI_TRAINING %}
-                                {% include "education_group/identification_mini_training_details.html" %}
-                            {% elif education_group_year.education_group_type.category == enums.GROUP %}
-                                {% include "education_group/identification_group_details.html" %}
-                            {% endif %}
+                            {% block details %}
+                            {% endblock %}
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+        <div class="panel-footer text-right">
+            {% include "education_group/blocks/dropdown/identification_actions_bar.html"  with dropdirection="dropup" %}
+        </div>
     </div>
 {% endblock %}
 {% block script %}
-    <script src="{% static 'js/education_group/education_group_tree.js' %}"></script>
+    <script>
+        var root_id = "{{ root_id }}";
+        var url_resolver_match = "{% url_resolver_match %}";
+    </script>
+    <script type="text/javascript" src="{% static 'js/education_group/education_group_tree.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/education_group/tbl_coorganization.js' %}"></script>
+{% endblock %}
+
+{% block modal %}
+    {% url_resolver_match as url_resolver_match %}
+    {% url 'group_element_year_management' root_id=parent.id education_group_year_id=education_group_year.id group_element_year_id=group_to_parent as detach_url %}
+    {% include "blocks/modal/modal_ajax.html" with modal_url=detach_url|addstr:"?action=detach&source="|add:url_resolver_match click_id="btn_operation_detach_"|addstr:group_to_parent form_id="form_detach_confirm" %}
 {% endblock %}

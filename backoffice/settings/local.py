@@ -32,7 +32,18 @@ OPTIONAL_APPS = (
     'internship',
     'assessments',
     'cms',
+    'webservices',
 )
+OPTIONAL_MIDDLEWARES = ()
+OPTIONAL_INTERNAL_IPS = ()
+
+if os.environ.get("ENABLE_DEBUG_TOOLBAR", "False").lower() == "true":
+    OPTIONAL_APPS += ('debug_toolbar',)
+    OPTIONAL_MIDDLEWARES += ('debug_toolbar.middleware.DebugToolbarMiddleware',)
+    OPTIONAL_INTERNAL_IPS += ('127.0.0.1',)
+
 
 INSTALLED_APPS += OPTIONAL_APPS
 APPS_TO_TEST += OPTIONAL_APPS
+MIDDLEWARE += OPTIONAL_MIDDLEWARES
+INTERNAL_IPS += OPTIONAL_INTERNAL_IPS

@@ -23,14 +23,20 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+import datetime
+
 from django.db import models
 from django.utils import timezone
+
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
+
+LEARNING_UNIT_CREATION_SPAN_YEARS = 6
+MAX_ACADEMIC_YEAR_FACULTY = 2
+MAX_ACADEMIC_YEAR_CENTRAL = 6
 
 
 class AcademicYearAdmin(SerializableModelAdmin):
     list_display = ('name', 'start_date', 'end_date')
-    fieldsets = ((None, {'fields': ('year', 'start_date', 'end_date')}),)
 
 
 class AcademicYear(SerializableModel):
@@ -45,9 +51,6 @@ class AcademicYear(SerializableModel):
         return self.__str__()
 
     def save(self, *args, **kwargs):
-        now = timezone.now()
-        if self.year > now.year:
-            raise AttributeError("An academic year cannot be created in the future.")
         if self.start_date and self.year != self.start_date.year:
             raise AttributeError("The start date should be in the same year of the academic year.")
         if self.start_date and self.end_date and self.start_date >= self.end_date:
@@ -64,6 +67,15 @@ class AcademicYear(SerializableModel):
         permissions = (
             ("can_access_academicyear", "Can access academic year"),
         )
+
+    def is_past(self):
+        return self.year < current_academic_year().year
+
+    def next(self):
+        return AcademicYear.objects.get(year=self.year + 1)
+
+    def past(self):
+        return AcademicYear.objects.get(year=self.year - 1)
 
 
 def find_academic_year_by_id(academic_year_id):
@@ -112,3 +124,13 @@ def current_academic_year():
 def starting_academic_year():
     """ If we have two academic year [2015-2016] [2016-2017]. It will return [2016-2017] """
     return current_academic_years().last()
+
+
+def compute_max_academic_year_adjournment():
+    return starting_academic_year().year + LEARNING_UNIT_CREATION_SPAN_YEARS
+
+
+def get_last_academic_years(last_years=10):
+    today = datetime.date.today()
+    date_ten_years_before = today.replace(year=today.year - last_years)
+    return find_academic_years().filter(start_date__gte=date_ten_years_before)

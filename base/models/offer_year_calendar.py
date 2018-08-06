@@ -29,9 +29,8 @@ from django.utils import formats
 from django.utils.translation import ugettext as _
 
 from base.models.abstracts.abstract_calendar import AbstractCalendar
-from osis_common.utils.datetime import is_in_chronological_order
 from base.signals.publisher import compute_scores_encodings_deadlines
-from base.models.osis_model_admin import OsisModelAdmin
+from osis_common.models.osis_model_admin import OsisModelAdmin
 
 
 class OfferYearCalendarAdmin(OsisModelAdmin):

@@ -41,6 +41,5 @@ class GroupElementYearFactory(factory.django.DjangoModelFactory):
                                           datetime.datetime(2017, 3, 1, tzinfo=get_tzinfo()))
     parent = factory.SubFactory(EducationGroupYearFactory)
     child_branch = factory.SubFactory(EducationGroupYearFactory)
-
-
-
+    child_leaf = None
+    is_mandatory = False

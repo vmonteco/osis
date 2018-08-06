@@ -24,10 +24,12 @@
 #
 ##############################################################################
 import datetime
-import factory
-import factory.fuzzy
 import string
+
+import factory.fuzzy
 from django.utils import timezone
+
+from base.models.enums.academic_calendar_type import SUMMARY_COURSE_SUBMISSION
 from base.tests.factories.academic_year import AcademicYearFactory
 from osis_common.utils.datetime import get_tzinfo
 
@@ -62,3 +64,10 @@ class AcademicCalendarFactory(factory.DjangoModelFactory):
     highlight_shortcut = factory.Sequence(lambda n: 'Shortcut Highlight - %d' % n)
     reference = None
 
+
+class AcademicCalendarExamSubmissionFactory(AcademicCalendarFactory):
+    reference = 'SCORES_EXAM_SUBMISSION'
+
+
+class AcademicCalendarSummaryCourseSubmissionFactory(AcademicCalendarFactory):
+    reference = SUMMARY_COURSE_SUBMISSION
