@@ -165,6 +165,12 @@ class EducationGroupYearModelForm(ValidationRuleEducationGroupTypeMixin, forms.M
 
 
 class EducationGroupModelForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # TODO For the moment the start_year value is set after the validation
+        self.fields["start_year"].required = False
+
     class Meta:
         model = EducationGroup
         fields = ("start_year", "end_year")
