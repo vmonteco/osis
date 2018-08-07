@@ -3390,3 +3390,6 @@ msgstr "Il n'est pas possible de déplacer l'élément racine de l'arbre."
 
 msgid "It is not possible to detach the root element."
 msgstr "Il n'est pas possible de détacher l'élément racine de l'arbre."
+
+msgid "Attached to \"%(acronym)s\""
+msgstr "L'élément sélectionné a été attaché à \"%(acronym)s\""
