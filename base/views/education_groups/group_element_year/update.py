@@ -100,7 +100,7 @@ def _attach(request, group_element_year, *args, **kwargs):
     parent = get_object_or_404(EducationGroupYear, pk=kwargs['education_group_year_id'])
     try:
         group_element_years.management.attach_from_cache(parent)
-        success_msg = _("Attached to %(acronym)s") % {'acronym': parent}
+        success_msg = _("Attached to \"%(acronym)s\"") % {'acronym': parent}
         display_success_messages(request, success_msg)
     except ObjectDoesNotExist:
         warning_msg = _("Please Select or Move an item before Attach it")

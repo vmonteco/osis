@@ -3338,7 +3338,7 @@ msgstr ""
 msgid "Quad. derog."
 msgstr ""
 
-msgid "No type of education group can be created as child of %(category)s of type %(type)s"
+msgid "No type of %(category)s can be created as child of %(category)s of type %(type)s"
 msgstr ""
 
 msgid "Produce xls with a list of education groups"
@@ -3378,6 +3378,18 @@ msgid "Please Select or Move an item before Attach it"
 msgstr ""
 
 msgid "Used by an other education group"
+msgstr ""
+
+msgid "The user has not permission to change education groups."
+msgstr ""
+
+msgid "It is not possible to move the root element."
+msgstr ""
+
+msgid "It is not possible to detach the root element."
+msgstr ""
+
+msgid "Attached to \"%(acronym)s\""
 msgstr ""
 
 msgid "Learning units comparison"
