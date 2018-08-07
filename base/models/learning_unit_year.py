@@ -522,6 +522,10 @@ def get_value(model, data, field_name):
     if model._meta.get_field(field_name).choices:
         return _(value) if value else None
     elif model._meta.get_field(field_name).get_internal_type() == 'BooleanField':
-        return _('yes') if value else _('no')
+        return _get_boolean_translation(value)
     else:
         return value
+
+
+def _get_boolean_translation(value):
+    return _('yes') if value else _('no')
