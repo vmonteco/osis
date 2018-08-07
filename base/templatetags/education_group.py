@@ -247,43 +247,23 @@ def append_output(item, output, padding, sublist, language):
     else:
         verbose = item.verbose_english
     if item.child_leaf:
-        if item.is_mandatory:
-            output.append(
-                CHILD_LEAF.format(padding=padding,
-                                  width_main="80%",
-                                  icon_list_1=CASE_JPG,
-                                  icon_list_2=MANDATORY_PNG,
-                                  value=escaper(force_text(verbose)),
-                                  sublist=sublist,
-                                  width_an="15px",
-                                  an_1=check_block(item, "1"),
-                                  an_2=check_block(item, "2"),
-                                  an_3=check_block(item, "3")))
-        else:
-            output.append(
-                CHILD_LEAF.format(padding=padding,
-                                  width_main="80%",
-                                  icon_list_1=CASE_JPG,
-                                  icon_list_2=OPTIONAL_PNG,
-                                  value=escaper(force_text(verbose)),
-                                  sublist=sublist,
-                                  width_an="15px",
-                                  an_1=check_block(item, "1"),
-                                  an_2=check_block(item, "2"),
-                                  an_3=check_block(item, "3")))
+        output.append(
+            CHILD_LEAF.format(padding=padding,
+                              width_main="80%",
+                              icon_list_1=CASE_JPG,
+                              icon_list_2=MANDATORY_PNG if item.is_mandatory else OPTIONAL_PNG,
+                              value=escaper(force_text(verbose)),
+                              sublist=sublist,
+                              width_an="15px",
+                              an_1=check_block(item, "1"),
+                              an_2=check_block(item, "2"),
+                              an_3=check_block(item, "3")))
     else:
-        if item.is_mandatory:
-            output.append(
-                CHILD_BRANCH.format(padding=padding, width_main="80%",
-                                    icon_list_2=MANDATORY_PNG,
-                                    value=escaper(force_text(verbose)),
-                                    sublist=sublist))
-        else:
-            output.append(
-                CHILD_BRANCH.format(padding=padding, width_main="80%",
-                                    icon_list_2=OPTIONAL_PNG,
-                                    value=escaper(force_text(verbose)),
-                                    sublist=sublist))
+        output.append(
+            CHILD_BRANCH.format(padding=padding, width_main="80%",
+                                icon_list_2=MANDATORY_PNG if item.is_mandatory else OPTIONAL_PNG,
+                                value=escaper(force_text(verbose)),
+                                sublist=sublist))
 
 
 def check_block(item, value):

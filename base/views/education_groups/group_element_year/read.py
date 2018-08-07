@@ -23,6 +23,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+import datetime
 
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
@@ -40,9 +41,11 @@ def pdf_content(request, root_id, education_group_year_id, language):
     else:
         parent_verbose = parent.verbose_credit_english
     context = {
-        'parent': parent_verbose,
+        'parent': parent,
+        'parent_verbose': parent_verbose,
         'tree': tree,
         'language': language,
+        'created': datetime.datetime.now(),
     }
     return render_pdf(
         request,

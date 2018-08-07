@@ -3322,9 +3322,6 @@ msgstr "Certificat compétence médecine "
 msgid "Group content"
 msgstr "Contenu du groupement"
 
-msgid "%(title)s (%(credits)s credits)"
-msgstr "%(title)s (%(credits)s crédits)"
-
 msgid "%(acronym)s %(title)s [%(volumes)s] (%(credits)s credits)"
 msgstr "%(acronym)s %(title)s [%(volumes)s] (%(credits)s crédits)"
 
@@ -3378,3 +3375,6 @@ msgstr "Validité"
 
 msgid "Please Select or Move an item before Attach it"
 msgstr "Veuillez Sélectionner ou Déplacer un élément avant d'Attacher"
+
+msgid "legend"
+msgstr "légende"

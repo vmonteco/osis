@@ -139,7 +139,7 @@ class GroupElementYear(OrderedModel):
     @property
     def verbose(self):
         if self.child_branch:
-            return _("%(title)s (%(credits)s credits)") % {
+            return "%(title)s (%(credits)s crédits)" % {
                 "title": self.child.title,
                 "credits": self.relative_credits or self.child_branch.credits or 0
             }
@@ -148,7 +148,7 @@ class GroupElementYear(OrderedModel):
                 learningunitcomponent__learning_unit_year=self.child_leaf
             )
 
-            return _("%(acronym)s %(title)s [%(volumes)s] (%(credits)s credits)") % {
+            return "%(acronym)s %(title)s [%(volumes)s] (%(credits)s crédits)" % {
                 "acronym": self.child_leaf.acronym,
                 "title": self.child_leaf.specific_title,
                 "volumes": volume_total_verbose(components),
@@ -158,7 +158,7 @@ class GroupElementYear(OrderedModel):
     @property
     def verbose_english(self):
         if self.child_branch:
-            return _("%(title)s (%(credits)s credits)") % {
+            return "%(title)s (%(credits)s credits)" % {
                 "title": self.child.title_english if self.child.title_english else self.child.title,
                 "credits": self.relative_credits or self.child_branch.credits or 0
             }
@@ -167,7 +167,7 @@ class GroupElementYear(OrderedModel):
                 learningunitcomponent__learning_unit_year=self.child_leaf
             )
 
-            return _("%(acronym)s %(title)s [%(volumes)s] (%(credits)s credits)") % {
+            return "%(acronym)s %(title)s [%(volumes)s] (%(credits)s credits)" % {
                 "acronym": self.child_leaf.acronym,
                 "title": self.child_leaf.specific_title_english
                 if self.child_leaf.specific_title_english else self.child_leaf.specific_title,
