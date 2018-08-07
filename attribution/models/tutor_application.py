@@ -49,7 +49,7 @@ class TutorApplicationAdmin(admin.ModelAdmin):
 
 
 class TutorApplication(models.Model):
-    external_id = models.CharField(max_length=100, blank=True, null=True)
+    external_id = models.CharField(max_length=100, blank=True, null=True, db_index=True)
     changed = models.DateTimeField(null=True, auto_now=True)
     learning_container_year = models.ForeignKey('base.LearningContainerYear')
     tutor = models.ForeignKey('base.Tutor')

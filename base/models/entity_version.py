@@ -121,7 +121,7 @@ class EntityVersionQuerySet(models.QuerySet):
 
 
 class EntityVersion(SerializableModel):
-    external_id = models.CharField(max_length=100, blank=True, null=True)
+    external_id = models.CharField(max_length=100, blank=True, null=True, db_index=True)
     changed = models.DateTimeField(null=True, auto_now=True)
     entity = models.ForeignKey('Entity')
     title = models.CharField(db_index=True, max_length=255)

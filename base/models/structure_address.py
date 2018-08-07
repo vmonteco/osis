@@ -33,7 +33,7 @@ class StructureAddressAdmin(OsisModelAdmin):
 
 
 class StructureAddress(models.Model):
-    external_id = models.CharField(max_length=100, blank=True, null=True)
+    external_id = models.CharField(max_length=100, blank=True, null=True, db_index=True)
     structure = models.ForeignKey('Structure')
     label = models.CharField(max_length=20)
     location = models.CharField(max_length=255)

@@ -35,7 +35,7 @@ class EducationGroupYearDomainAdmin(OsisModelAdmin):
 
 
 class EducationGroupYearDomain(models.Model):
-    external_id = models.CharField(max_length=100, blank=True, null=True)
+    external_id = models.CharField(max_length=100, blank=True, null=True, db_index=True)
     changed = models.DateTimeField(null=True, auto_now=True)
     domain = models.ForeignKey('reference.Domain')
     education_group_year = models.ForeignKey('base.EducationGroupYear')
