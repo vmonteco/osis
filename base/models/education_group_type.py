@@ -85,7 +85,7 @@ def find_all():
 
 
 def find_authorized_types(category=None, parents=None):
-    if not isinstance(parents, collections.Iterable):
+    if parents and not isinstance(parents, collections.Iterable):
         parents = [parents]
 
     if category:

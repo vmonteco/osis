@@ -16,11 +16,11 @@
         {% url 'select_education_group_type' category=enums.TRAINING parent_id=education_group_year.id as create_training_url %}
         {% url 'select_education_group_type' category=enums.MINI_TRAINING parent_id=education_group_year.id as create_mini_training_url %}
     {% else %}
-        {% url 'select_education_group_type' category=enums.GROUP as create_group_url %}
+        {% url 'select_education_group_type' enums.GROUP as create_group_url %}
         {% url 'select_education_group_type' category=enums.TRAINING as create_training_url %}
         {% url 'select_education_group_type' category=enums.MINI_TRAINING as create_mini_training_url %}
-
     {% endif %}
+
     {# TODO :  The modal should be loaded only once #}
     {% include "blocks/modal/modal_ajax.html" with modal_url=create_group_url click_id="link_create_group" form_id="form_education_group_type" %}
     {% include "blocks/modal/modal_ajax.html" with modal_url=create_training_url click_id="link_create_training" form_id="form_education_group_type" %}

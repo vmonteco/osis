@@ -128,7 +128,7 @@ class EducationGroupSearch(TestCase):
     def test_post_request(self):
         response = self.client.post(self.url, data={})
 
-        self.assertTemplateUsed(response, "education_groups.html")
+        self.assertTemplateUsed(response, "search.html")
 
         context = response.context
         self.assertIsInstance(context["form"], EducationGroupFilter)
@@ -138,7 +138,7 @@ class EducationGroupSearch(TestCase):
     def test_without_get_data(self):
         response = self.client.get(self.url)
 
-        self.assertTemplateUsed(response, "education_groups.html")
+        self.assertTemplateUsed(response, "search.html")
 
         context = response.context
         self.assertIsInstance(context["form"], EducationGroupFilter)
@@ -155,7 +155,7 @@ class EducationGroupSearch(TestCase):
     def test_with_empty_search_result(self):
         response = self.client.get(self.url, data={"category": education_group_categories.MINI_TRAINING})
 
-        self.assertTemplateUsed(response, "education_groups.html")
+        self.assertTemplateUsed(response, "search.html")
 
         context = response.context
         self.assertIsInstance(context["form"], EducationGroupFilter)
@@ -167,7 +167,7 @@ class EducationGroupSearch(TestCase):
     def test_search_with_acronym_only(self):
         response = self.client.get(self.url, data={"acronym": self.education_group_arke2a.acronym})
 
-        self.assertTemplateUsed(response, "education_groups.html")
+        self.assertTemplateUsed(response, "search.html")
 
         context = response.context
         self.assertIsInstance(context["form"], EducationGroupFilter)
@@ -178,7 +178,7 @@ class EducationGroupSearch(TestCase):
     def test_search_with_academic_year_only(self):
         response = self.client.get(self.url, data={"academic_year": self.academic_year.id})
 
-        self.assertTemplateUsed(response, "education_groups.html")
+        self.assertTemplateUsed(response, "search.html")
 
         context = response.context
         self.assertIsInstance(context["form"], EducationGroupFilter)
@@ -189,7 +189,7 @@ class EducationGroupSearch(TestCase):
     def test_search_with_partial_acronym(self):
         response = self.client.get(self.url, data={"partial_acronym": self.education_group_edph2.partial_acronym})
 
-        self.assertTemplateUsed(response, "education_groups.html")
+        self.assertTemplateUsed(response, "search.html")
 
         context = response.context
         self.assertIsInstance(context["form"], EducationGroupFilter)
@@ -200,7 +200,7 @@ class EducationGroupSearch(TestCase):
         response = self.client.get(self.url,
                                    data={"requirement_entity_acronym": self.oph_entity_v.acronym})
 
-        self.assertTemplateUsed(response, "education_groups.html")
+        self.assertTemplateUsed(response, "search.html")
 
         context = response.context
         self.assertIsInstance(context["form"], EducationGroupFilter)
@@ -218,7 +218,7 @@ class EducationGroupSearch(TestCase):
             }
         )
 
-        self.assertTemplateUsed(response, "education_groups.html")
+        self.assertTemplateUsed(response, "search.html")
 
         context = response.context
         self.assertIsInstance(context["form"], EducationGroupFilter)
@@ -237,7 +237,7 @@ class EducationGroupSearch(TestCase):
         response = self.client.get(self.url,
                                    data={"education_group_type": self.type_group.id})
 
-        self.assertTemplateUsed(response, "education_groups.html")
+        self.assertTemplateUsed(response, "search.html")
 
         context = response.context
         self.assertIsInstance(context["form"], EducationGroupFilter)
@@ -248,7 +248,7 @@ class EducationGroupSearch(TestCase):
         response = self.client.get(self.url,
                                    data={"category": education_group_categories.TRAINING})
 
-        self.assertTemplateUsed(response, "education_groups.html")
+        self.assertTemplateUsed(response, "search.html")
 
         context = response.context
         self.assertIsInstance(context["form"], EducationGroupFilter)
@@ -266,7 +266,7 @@ class EducationGroupSearch(TestCase):
             }
         )
 
-        self.assertTemplateUsed(response, "education_groups.html")
+        self.assertTemplateUsed(response, "search.html")
 
         context = response.context
         self.assertIsInstance(context["form"], EducationGroupFilter)

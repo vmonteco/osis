@@ -52,7 +52,7 @@ class EducationGroupTypeForm(forms.Form):
 
         self.fields["name"].queryset = find_authorized_types(
             category=category,
-            parents=[parent]
+            parents=parent
         )
 
 
@@ -68,7 +68,7 @@ class SelectEducationGroupTypeView(FlagMixin, AjaxTemplateMixin, FormView):
         kwargs["category"] = self.kwargs["category"]
         kwargs["parent"] = get_object_or_404(
             EducationGroupYear, pk=self.kwargs["parent_id"]
-        ) if self.kwargs["parent_id"] else None
+        ) if self.kwargs.get("parent_id") else None
         return kwargs
 
     def form_valid(self, form):
