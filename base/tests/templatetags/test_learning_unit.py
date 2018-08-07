@@ -27,7 +27,8 @@ from collections import OrderedDict
 
 from django.test import TestCase
 from django.utils.translation import ugettext_lazy as _
-from base.templatetags.learning_unit import get_difference_css, has_proposal, get_previous_acronym, value_label
+from base.templatetags.learning_unit import get_difference_css, has_proposal, get_previous_acronym, value_label, \
+    DIFFERENCE_CSS
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory, create_learning_units_year
 from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
 from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
@@ -117,5 +118,5 @@ class LearningUnitTagTest(TestCase):
         sub_key = 'next'
         value_to_comp = 'current'
 
-        self.assertCountEqual(value_label(data, key,sub_key=sub_key, key_comp=value_to_comp),
-                              mark_safe("<label>{}</label>".format('campus 2')))
+        self.assertCountEqual(value_label(data, key, sub_key=sub_key, key_comp=value_to_comp),
+                              mark_safe("<label {}>{}</label>".format(DIFFERENCE_CSS, 'campus 2')))

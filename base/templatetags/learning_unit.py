@@ -32,6 +32,7 @@ from base.models.proposal_learning_unit import ProposalLearningUnit
 from base.business.learning_units.comparison import DEFAULT_VALUE_FOR_NONE
 
 register = template.Library()
+DIFFERENCE_CSS = "style='color:#5CB85C;'"
 
 
 @register.filter
@@ -150,7 +151,7 @@ def value_label(values_dict, key, sub_key, key_comp):
 
 def _get_label(data, key_comp, val):
     if val != data.get(key_comp):
-        return mark_safe("<label style='color:#5CB85C;'>{}</label>"
-                         .format(DEFAULT_VALUE_FOR_NONE if val is None else val))
+        return mark_safe("<label {}>{}</label>"
+                         .format(DIFFERENCE_CSS, DEFAULT_VALUE_FOR_NONE if val is None else val))
     else:
         return mark_safe("{}".format(DEFAULT_VALUE_FOR_NONE if val is None else val))
