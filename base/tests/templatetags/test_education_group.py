@@ -27,7 +27,7 @@ from django.contrib.auth.models import Permission
 from django.test import TestCase, RequestFactory
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, pgettext
 
 from base.models.enums.academic_calendar_type import EDUCATION_GROUP_EDITION
 from base.models.enums.education_group_categories import TRAINING, MINI_TRAINING, GROUP
@@ -36,13 +36,13 @@ from base.templatetags.education_group import li_with_deletion_perm, button_with
     li_with_create_perm_mini_training, li_with_create_perm_group, link_move_education_group, link_detach_education_group
 from base.tests.factories.academic_calendar import AcademicCalendarFactory
 from base.tests.factories.authorized_relationship import AuthorizedRelationshipFactory
-from base.tests.factories.education_group_year import EducationGroupYearFactory
+from base.tests.factories.education_group_year import TrainingFactory
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.person_entity import PersonEntityFactory
 
 DELETE_MSG = _("delete education group")
 PERMISSION_DENIED_MSG = _("The education group edition period is not open.")
-UNAUTHORIZED_TYPE_MSG = _("No type of %(category)s can be created as child of %(category)s of type %(type)s")
+UNAUTHORIZED_TYPE_MSG = "No type of %(child_category)s can be created as child of %(category)s of type %(type)s"
 
 DISABLED_LI = """
 <li class="disabled" id="{}">
@@ -65,7 +65,7 @@ CUSTOM_LI_TEMPLATE = """
 
 class TestEducationGroupTag(TestCase):
     def setUp(self):
-        self.education_group_year = EducationGroupYearFactory()
+        self.education_group_year = TrainingFactory()
         self.person = PersonFactory()
         PersonEntityFactory(person=self.person, entity=self.education_group_year.management_entity)
         self.url = reverse('delete_education_group', args=[self.education_group_year.id, self.education_group_year.id])
@@ -146,7 +146,8 @@ class TestEducationGroupTag(TestCase):
     def test_li_with_create_perm_training_disabled(self):
         result = li_with_create_perm_training(self.context, self.url, "")
 
-        msg = UNAUTHORIZED_TYPE_MSG % {
+        msg = pgettext("female", UNAUTHORIZED_TYPE_MSG) % {
+            "child_category": _(TRAINING),
             "category": _(self.education_group_year.education_group_type.category),
             "type": self.education_group_year.education_group_type.name
         }
@@ -154,7 +155,8 @@ class TestEducationGroupTag(TestCase):
 
     def test_li_with_create_perm_mini_training_disabled(self):
         result = li_with_create_perm_mini_training(self.context, self.url, "")
-        msg = UNAUTHORIZED_TYPE_MSG % {
+        msg = pgettext("female", UNAUTHORIZED_TYPE_MSG) % {
+            "child_category": _(MINI_TRAINING),
             "category": _(self.education_group_year.education_group_type.category),
             "type": self.education_group_year.education_group_type.name
         }
@@ -162,7 +164,8 @@ class TestEducationGroupTag(TestCase):
 
     def test_li_with_create_perm_group_disabled(self):
         result = li_with_create_perm_group(self.context, self.url, "")
-        msg = UNAUTHORIZED_TYPE_MSG % {
+        msg = pgettext("female", UNAUTHORIZED_TYPE_MSG) % {
+            "child_category": _(GROUP),
             "category": _(self.education_group_year.education_group_type.category),
             "type": self.education_group_year.education_group_type.name
         }
