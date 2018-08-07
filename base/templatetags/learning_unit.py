@@ -145,8 +145,12 @@ def value_label(values_dict, key, **kwargs):
     data = values_dict.get(key, None)
     if data:
         val = data.get(sub_key, None)
-        if val != data.get(key_comp):
-            return mark_safe("<label>{}</label>".format('-' if val is None else val))
-        else:
-            return mark_safe("{}".format('-' if val is None else val))
+        return _get_label(data, key_comp, val)
     return ''
+
+
+def _get_label(data, key_comp, val):
+    if val != data.get(key_comp):
+        return mark_safe("<label>{}</label>".format('-' if val is None else val))
+    else:
+        return mark_safe("{}".format('-' if val is None else val))

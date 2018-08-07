@@ -30,8 +30,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator, RegexVa
 from django.db import models
 from django.db.models import Q
 from django.utils.functional import cached_property
-from django.utils.translation import ugettext_lazy as _
-from base.business.learning_units.comparison import translate
+from django.utils.translation import ugettext_lazy as _, ugettext_lazy
 
 from base.models import entity_container_year as mdl_entity_container_year
 from base.models.academic_year import current_academic_year, compute_max_academic_year_adjournment, AcademicYear, \
@@ -519,10 +518,11 @@ def toggle_summary_locked(learning_unit_year_id):
 
 
 def get_value(model, data, field_name):
+    value = data.get(field_name, '-')
     if model._meta.get_field(field_name).choices:
-        return translate(data[field_name])
+        return _(value) if value else None
     else:
         if model._meta.get_field(field_name).get_internal_type() == 'BooleanField':
-            return _('yes') if data[field_name] else _('no')
+            return _('yes') if value else _('no')
         else:
-            return data.get(field_name)
+            return value

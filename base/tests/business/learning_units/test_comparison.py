@@ -28,7 +28,7 @@ from django.test import TestCase
 from django.test.utils import override_settings
 
 from base.models.learning_unit_year import LearningUnitYear, get_value
-from base.business.learning_units.comparison import get_keys, translate, compare_learning_unit
+from base.business.learning_units.comparison import get_keys, compare_learning_unit
 from base.tests.factories.academic_year import create_current_academic_year, AcademicYearFactory
 from base.tests.factories.learning_unit import LearningUnitFactory
 from base.tests.factories.learning_unit_year import create_learning_unit_year
@@ -63,9 +63,6 @@ class TestComparison(TestCase):
 
     def test_get_keys(self):
         self.assertCountEqual(get_keys(['a1', 'c3'], ['a1', 'b2', 'c1']), ['a1', 'b2', 'c1', 'c3'])
-
-    def test_translate(self):
-        self.assertIsNone(translate(None))
 
     def test_compare_learning_unit_with_nothing(self):
         self.academic_year_with_no_luy = AcademicYearFactory(year=self.academic_year.year - 2)

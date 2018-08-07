@@ -238,10 +238,11 @@ def learning_class_year_edit(request, learning_unit_year_id):
 
 
 def learning_unit_comparison(request, learning_unit_year_id):
-    query_set = mdl.learning_unit_year.LearningUnitYear.objects.all().select_related('learning_unit', 'learning_container_year')
+    query_set = mdl.learning_unit_year.LearningUnitYear.objects.all()\
+        .select_related('learning_unit', 'learning_container_year')
     learning_unit_yr = get_object_or_404(query_set, pk=learning_unit_year_id)
     context = get_learning_unit_comparison_context(learning_unit_yr)
-    context.update({'learning_unit_year':learning_unit_yr})
+    context.update({'learning_unit_year': learning_unit_yr})
 
     previous_academic_yr = mdl.academic_year.find_academic_year_by_year(learning_unit_yr.academic_year.year - 1)
     previous_lu = get_learning_unit(previous_academic_yr, learning_unit_yr)
@@ -281,11 +282,8 @@ def get_learning_unit(academic_yr, learning_unit_yr):
 def _get_changed_organization(context, context_prev, context_next):
     data = {}
     for key_value in ORGANIZATION_KEYS:
-        if context.get(key_value, None) != context_next.get(key_value, None) or context.get(key_value, None) != context_prev.get(key_value, None):
-            translated_key = _(key_value.lower())
-            if key_value == "campus":
-                translated_key = _('learning_location')
-
+        if _has_changed(context, context_next, context_prev, key_value):
+            translated_key = _('learning_location') if key_value == "campus" else _(key_value.lower())
             data.update({translated_key: {'prev': context_prev.get(key_value, None),
                                           'current': context.get(key_value, None),
                                           'next': context_next.get(key_value, None)}
@@ -293,3 +291,7 @@ def _get_changed_organization(context, context_prev, context_next):
 
     return collections.OrderedDict(sorted(data.items()))
 
+
+def _has_changed(data_reference, data_1, data_2, key):
+    return data_reference.get(key, None) != data_1.get(key, None) or \
+           data_reference.get(key, None) != data_2.get(key, None)

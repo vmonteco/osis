@@ -23,15 +23,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.utils.translation import ugettext_lazy as _
-
-from base import models as mdl
-
-
-def translate(value):
-    if value:
-        return _(value)
-    return None
+from django.utils.translation import ugettext_lazy
 
 
 def get_keys(list1, list2):
@@ -39,12 +31,4 @@ def get_keys(list1, list2):
     for k in list2:
         if k not in keys:
             keys.append(k)
-    return get_list_sorted_by_translation(keys)
-
-
-def get_list_sorted_by_translation(list_of_keys):
-    return sorted(list_of_keys, key=get_translation)
-
-
-def get_translation(item):
-    return _(item)
+    return sorted(keys, key=ugettext_lazy)
