@@ -33,7 +33,7 @@ from django.utils.safestring import mark_safe
 
 from backoffice.settings import base
 from base.business.education_groups.perms import is_eligible_to_delete_education_group, \
-    is_eligible_to_change_education_group, is_eligible_to_add_education_group, is_eligible_to_add_training, \
+    is_eligible_to_change_education_group, is_eligible_to_add_training, \
     is_eligible_to_add_mini_training, is_eligible_to_add_group
 
 OPTIONAL_PNG = base.STATIC_URL + 'img/education_group_year/optional.png'
@@ -114,11 +114,6 @@ def li_with_deletion_perm(context, url, message, url_id="link_delete"):
 @register.simple_tag(takes_context=True)
 def li_with_update_perm(context, url, message, url_id="link_update"):
     return li_with_permission(context, is_eligible_to_change_education_group, url, message, url_id)
-
-
-@register.simple_tag(takes_context=True)
-def li_with_create_perm(context, url, message, url_id="link_create"):
-    return li_with_permission(context, is_eligible_to_add_education_group, url, message, url_id)
 
 
 @register.simple_tag(takes_context=True)
