@@ -24,7 +24,6 @@
 #
 ##############################################################################
 import json
-from http import HTTPStatus
 
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
@@ -64,7 +63,8 @@ def learning_unit_select(request, learning_unit_year_id):
     learning_unit_year = get_object_or_404(LearningUnitYear, pk=learning_unit_year_id)
     group_element_years.management.select_learning_unit_year(learning_unit_year)
     if request.is_ajax():
-        return HttpResponse(HTTPStatus.OK)
+        data = {'learning_unit_year': str(learning_unit_year)}
+        return HttpResponse(json.dumps(data))
     else:
         return redirect(reverse(
             'learning_unit',
