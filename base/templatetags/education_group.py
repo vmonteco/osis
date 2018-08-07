@@ -324,7 +324,7 @@ def build_tree(context, current_group_element_year, selected_education_group_yea
 
 
 def _get_group_element_year_id(current_group_element_year):
-    return current_group_element_year.pk if current_group_element_year else "-"
+    return current_group_element_year.pk if current_group_element_year else "0"
 
 
 def _get_url(request, egy, root, current_group_element_year):
