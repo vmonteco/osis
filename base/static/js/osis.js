@@ -163,9 +163,9 @@ function setEventKeepIds(domTableId, localStorageKey) {
     }
 }
 
-function displayInfoMessage(jsonResult, containerId) {
+function displayInfoMessage(jsonResponse, containerId) {
     var message_info_container = document.getElementById(containerId);
-    message_info_container.innerHTML = jsonResult['responseJSON']['success_message'];
+    message_info_container.innerHTML = jsonResponse['success_message'];
     message_info_container.style.display = "block";
     message_info_container.style.visibility = "visible";
 }

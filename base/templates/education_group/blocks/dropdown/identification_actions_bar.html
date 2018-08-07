@@ -102,8 +102,8 @@
                 data: {'child_to_cache_id' : {{ education_group_year.id }} },
                 type: 'POST',
                 dataType: 'json',
-                complete: function(jsonResult) {
-                    displayInfoMessage(jsonResult, 'message_info_container');
+                success: function(jsonResponse) {
+                    displayInfoMessage(jsonResponse, 'message_info_container');
                 }
             });
         }

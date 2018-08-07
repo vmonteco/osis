@@ -48,8 +48,8 @@ $(document).ready(function () {
                         dataType: 'json',
                         data: {'child_to_cache_id' : education_group_year_id},
                         type: 'POST',
-                        complete: function(jsonResult) {
-                            displayInfoMessage(jsonResult, 'message_info_container')
+                        success: function(jsonResponse) {
+                            displayInfoMessage(jsonResponse, 'message_info_container')
                         }
                     });
                   },

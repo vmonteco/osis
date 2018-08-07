@@ -23,10 +23,9 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import json
 
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse
+from django.http import JsonResponse
 from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse
 from django.utils.translation import ugettext as _
@@ -45,7 +44,7 @@ def education_group_select(request, root_id=None, education_group_year_id=None):
     education_group_year = get_object_or_404(EducationGroupYear, pk=request.POST['child_to_cache_id'])
     group_element_years.management.select_education_group_year(education_group_year)
     if request.is_ajax():
-        return HttpResponse(_build_success_json(education_group_year))
+        return _build_success_json_response(education_group_year)
     else:
         return redirect(reverse(
             'education_group_read',
@@ -63,7 +62,7 @@ def learning_unit_select(request, learning_unit_year_id):
     learning_unit_year = get_object_or_404(LearningUnitYear, pk=learning_unit_year_id)
     group_element_years.management.select_learning_unit_year(learning_unit_year)
     if request.is_ajax():
-        return HttpResponse(_build_success_json(learning_unit_year))
+        return _build_success_json_response(learning_unit_year)
     else:
         return redirect(reverse(
             'learning_unit',
@@ -71,10 +70,10 @@ def learning_unit_select(request, learning_unit_year_id):
         ))
 
 
-def _build_success_json(object):
+def _build_success_json_response(obj):
     success_message = """{} : "{}" """.format(
         _("Selected element"),
-        str(object)
+        str(obj)
     )
     data = {'success_message': success_message}
-    return json.dumps(data)
+    return JsonResponse(data)
