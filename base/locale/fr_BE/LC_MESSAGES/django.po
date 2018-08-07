@@ -3393,3 +3393,6 @@ msgstr "Il n'est pas possible de détacher l'élément racine de l'arbre."
 
 msgid "Attached to \"%(acronym)s\""
 msgstr "L'élément sélectionné a été attaché à \"%(acronym)s\""
+
+msgid "Selected element"
+msgstr "Élément sélectionné"

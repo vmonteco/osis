@@ -88,6 +88,3 @@ msgstr ""
 
 msgid "Move"
 msgstr ""
-
-msgid "Selected element"
-msgstr ""

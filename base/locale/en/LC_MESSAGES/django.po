@@ -3391,3 +3391,6 @@ msgstr ""
 
 msgid "Attached to \"%(acronym)s\""
 msgstr ""
+
+msgid "Selected element"
+msgstr ""

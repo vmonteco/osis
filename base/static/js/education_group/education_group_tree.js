@@ -48,16 +48,8 @@ $(document).ready(function () {
                         dataType: 'json',
                         data: {'child_to_cache_id' : education_group_year_id},
                         type: 'POST',
-                        complete:function(result) {
-                            var message_info_container = document.getElementById('message_info_container');
-                            var selected_education_group_year = result['responseJSON']['education_group_year'];
-                            var message = gettext("Selected element")
-                                + ' : "'
-                                + selected_education_group_year
-                                + '"';
-                            message_info_container.innerHTML = message;
-                            message_info_container.style.display = "block";
-                            message_info_container.style.visibility = "visible";
+                        complete: function(jsonResult) {
+                            displayInfoMessage(jsonResult, 'message_info_container')
                         }
                     });
                   },

@@ -87,6 +87,3 @@ msgstr "Sélectionner"
 
 msgid "Move"
 msgstr "Déplacer"
-
-msgid "Selected element"
-msgstr "Élément sélectionné"

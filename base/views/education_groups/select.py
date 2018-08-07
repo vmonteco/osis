@@ -29,6 +29,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse
+from django.utils.translation import ugettext as _
 from django.views.decorators.http import require_http_methods
 from waffle.decorators import waffle_flag
 
@@ -44,8 +45,7 @@ def education_group_select(request, root_id=None, education_group_year_id=None):
     education_group_year = get_object_or_404(EducationGroupYear, pk=request.POST['child_to_cache_id'])
     group_element_years.management.select_education_group_year(education_group_year)
     if request.is_ajax():
-        data = {'education_group_year': str(education_group_year)}
-        return HttpResponse(json.dumps(data))
+        return HttpResponse(_build_success_json(education_group_year))
     else:
         return redirect(reverse(
             'education_group_read',
@@ -63,10 +63,18 @@ def learning_unit_select(request, learning_unit_year_id):
     learning_unit_year = get_object_or_404(LearningUnitYear, pk=learning_unit_year_id)
     group_element_years.management.select_learning_unit_year(learning_unit_year)
     if request.is_ajax():
-        data = {'learning_unit_year': str(learning_unit_year)}
-        return HttpResponse(json.dumps(data))
+        return HttpResponse(_build_success_json(learning_unit_year))
     else:
         return redirect(reverse(
             'learning_unit',
             args=[learning_unit_year_id]
         ))
+
+
+def _build_success_json(object):
+    success_message = """{} : "{}" """.format(
+        _("Selected element"),
+        str(object)
+    )
+    data = {'success_message': success_message}
+    return json.dumps(data)
