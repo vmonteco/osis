@@ -34,6 +34,7 @@ from base.forms.education_group.common import EducationGroupModelForm
 from base.forms.education_group.group import GroupForm
 from base.forms.education_group.mini_training import MiniTrainingForm
 from base.forms.education_group.training import TrainingForm
+from base.models.education_group_type import EducationGroupType
 from base.models.education_group_year import EducationGroupYear
 from base.models.enums import education_group_categories
 from base.views import layout
@@ -44,16 +45,21 @@ from base.views.education_groups.perms import can_create_education_group
 @login_required
 @waffle_flag("education_group_create")
 @can_create_education_group
-def create_education_group(request, category=None, parent_id=None):
+def create_education_group(request, category, parent_id=None):
     parent = get_object_or_404(EducationGroupYear, id=parent_id) if parent_id is not None else None
+    education_group_type = get_object_or_404(EducationGroupType, pk=request.GET.get("education_group_type"))
 
     forms_by_category = {
-        education_group_categories.GROUP: GroupForm(request.POST or None, parent=parent),
-        education_group_categories.TRAINING: TrainingForm(request.POST or None, parent=parent),
-        education_group_categories.MINI_TRAINING: MiniTrainingForm(request.POST or None, parent=parent),
+        education_group_categories.GROUP: GroupForm,
+        education_group_categories.TRAINING: TrainingForm,
+        education_group_categories.MINI_TRAINING: MiniTrainingForm,
     }
 
-    form_education_group_year = forms_by_category.get(category)
+    form_education_group_year = forms_by_category[category](
+        request.POST or None,
+        parent=parent,
+        education_group_type=education_group_type
+    )
 
     if form_education_group_year.is_valid():
         education_group_year = form_education_group_year.save()

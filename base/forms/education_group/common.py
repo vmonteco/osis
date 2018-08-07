@@ -24,10 +24,12 @@
 #
 ##############################################################################
 from django import forms
+from django.core.exceptions import PermissionDenied
 
 from base.forms.learning_unit.entity_form import EntitiesVersionChoiceField
-from base.models import campus, education_group_type, group_element_year
+from base.models import campus, group_element_year
 from base.models.education_group import EducationGroup
+from base.models.education_group_type import find_authorized_types
 from base.models.education_group_year import EducationGroupYear
 from base.models.entity_version import find_main_entities_version, get_last_version
 
@@ -56,12 +58,24 @@ class EducationGroupYearModelForm(forms.ModelForm):
         }
         fields = []
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, education_group_type=None, **kwargs):
         self.parent = kwargs.pop("parent", None)
 
         super().__init__(*args, **kwargs)
 
-        self._filter_education_group_type()
+        # Fix category
+        # self._disable_field("category")
+
+        # When the type is already given, we need to disabled the field
+        if education_group_type:
+            if education_group_type not in find_authorized_types(self.category):
+                raise PermissionDenied("Unauthorized type {} for {}".format(education_group_type, self.category))
+
+            self.instance.education_group_type = education_group_type
+            self._disable_field("education_group_type", education_group_type.pk)
+        else:
+            self._filter_education_group_type()
+
         self._init_and_disable_academic_year()
         self._preselect_entity_version_from_entity_value()
 
@@ -77,7 +91,7 @@ class EducationGroupYearModelForm(forms.ModelForm):
         else:
             parents = []
 
-        queryset = education_group_type.find_authorized_types(
+        queryset = find_authorized_types(
             category=self.category,
             parents=parents
         )
@@ -94,6 +108,13 @@ class EducationGroupYearModelForm(forms.ModelForm):
         if getattr(self.instance, 'management_entity', None):
             self.initial['management_entity'] = get_last_version(self.instance.management_entity).pk
 
+    def _disable_field(self, key, initial_value=None):
+        field = self.fields[key]
+        if initial_value:
+            self.fields[key].initial = initial_value
+
+        field.disabled = True
+        field.required = False
 
 class EducationGroupModelForm(forms.ModelForm):
     class Meta:

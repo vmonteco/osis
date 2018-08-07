@@ -23,7 +23,6 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-
 from base.forms.education_group.common import CommonBaseForm, EducationGroupModelForm, EducationGroupYearModelForm
 from base.models.education_group_year import EducationGroupYear
 from base.models.enums import education_group_categories
@@ -41,8 +40,15 @@ class MiniTrainingModelForm(EducationGroupYearModelForm):
 
 class MiniTrainingForm(CommonBaseForm):
 
-    def __init__(self, data, instance=None, parent=None):
-        education_group_year_form = MiniTrainingModelForm(data, instance=instance, parent=parent)
+    def __init__(self, data, instance=None, parent=None, education_group_type=None):
+        education_group_year_form = MiniTrainingModelForm(
+            data,
+            instance=instance,
+            parent=parent,
+            education_group_type=education_group_type
+        )
+
         education_group = instance.education_group if instance else None
         education_group_form = EducationGroupModelForm(data, instance=education_group)
-        super(MiniTrainingForm, self).__init__(education_group_year_form, education_group_form)
+
+        super().__init__(education_group_year_form, education_group_form)
