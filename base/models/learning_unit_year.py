@@ -521,8 +521,7 @@ def get_value(model, data, field_name):
     value = data.get(field_name, '-')
     if model._meta.get_field(field_name).choices:
         return _(value) if value else None
+    elif model._meta.get_field(field_name).get_internal_type() == 'BooleanField':
+        return _('yes') if value else _('no')
     else:
-        if model._meta.get_field(field_name).get_internal_type() == 'BooleanField':
-            return _('yes') if value else _('no')
-        else:
-            return value
+        return value
