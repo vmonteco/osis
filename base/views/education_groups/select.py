@@ -23,6 +23,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+import json
 from http import HTTPStatus
 
 from django.contrib.auth.decorators import login_required
@@ -44,7 +45,8 @@ def education_group_select(request, root_id=None, education_group_year_id=None):
     education_group_year = get_object_or_404(EducationGroupYear, pk=request.POST['child_to_cache_id'])
     group_element_years.management.select_education_group_year(education_group_year)
     if request.is_ajax():
-        return HttpResponse(HTTPStatus.OK)
+        data = {'education_group_year': str(education_group_year)}
+        return HttpResponse(json.dumps(data))
     else:
         return redirect(reverse(
             'education_group_read',

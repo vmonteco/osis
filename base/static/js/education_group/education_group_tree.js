@@ -42,12 +42,23 @@ $(document).ready(function () {
                   "action" : function (data) {
                     var inst = $.jstree.reference(data.reference),
                         obj = inst.get_node(data.reference);
-                    var education_group_year_id = obj.li_attr.id.split('_').slice(-1)[0]
+                    var education_group_year_id = obj.li_attr.id.split('_').slice(-1)[0];
                     $.ajax({
                         url: '../select/',
+                        dataType: 'json',
                         data: {'child_to_cache_id' : education_group_year_id},
                         type: 'POST',
-                        dataType: 'json',
+                        complete:function(result) {
+                            var message_info_container = document.getElementById('message_info_container');
+                            var selected_education_group_year = result['responseJSON']['education_group_year'];
+                            var message = gettext("Selected element")
+                                + ' : "'
+                                + selected_education_group_year
+                                + '"';
+                            message_info_container.innerHTML = message;
+                            message_info_container.style.display = "block";
+                            message_info_container.style.visibility = "visible";
+                        }
                     });
                   },
                   "icon": "fa fa-check-square"
