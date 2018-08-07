@@ -275,7 +275,7 @@ def get_learning_unit(academic_yr, learning_unit_yr):
     learning_unit_years = mdl.learning_unit_year.search(learning_unit=learning_unit_yr.learning_unit,
                                                         academic_year_id=academic_yr.id)
     if learning_unit_years.exists():
-        return learning_unit_years[0]
+        return learning_unit_years.first()
     return None
 
 

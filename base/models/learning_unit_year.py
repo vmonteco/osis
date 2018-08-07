@@ -30,7 +30,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator, RegexVa
 from django.db import models
 from django.db.models import Q
 from django.utils.functional import cached_property
-from django.utils.translation import ugettext_lazy as _, ugettext_lazy
+from django.utils.translation import ugettext_lazy as _
 
 from base.models import entity_container_year as mdl_entity_container_year
 from base.models.academic_year import current_academic_year, compute_max_academic_year_adjournment, AcademicYear, \

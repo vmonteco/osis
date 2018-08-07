@@ -139,12 +139,10 @@ def _get_acronym_from_proposal(luy):
 
 
 @register.simple_tag
-def value_label(values_dict, key, **kwargs):
-    sub_key = kwargs.get('sub_key', None)
-    key_comp = kwargs.get('key_comp', None)
-    data = values_dict.get(key, None)
+def value_label(values_dict, key, sub_key, key_comp):
+    data = values_dict.get(key)
     if data:
-        val = data.get(sub_key, None)
+        val = data.get(sub_key)
         return _get_label(data, key_comp, val)
     return ''
 
