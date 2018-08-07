@@ -242,7 +242,7 @@ def list_formatter(item_list, language, tabs=1, depth=None):
 
 
 def append_output(item, output, padding, sublist, language):
-    if language=="fr":
+    if language == "fr":
         verbose = item.verbose
     else:
         verbose = item.verbose_english
