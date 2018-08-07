@@ -74,10 +74,7 @@ def get_value(model, data, field_name):
     if model._meta.get_field(field_name).choices:
         return _(value) if value else DEFAULT_VALUE_FOR_NONE
     elif model._meta.get_field(field_name).get_internal_type() == 'BooleanField':
-        if field_name == 'status':
-            return _get_status(value)
-        else:
-            return _get_boolean_translation(value)
+        return _decrypt_boolean_value(field_name, value)
     else:
         return value
 
@@ -88,3 +85,10 @@ def _get_boolean_translation(value):
 
 def _get_status(value):
     return _('ACTIVE') if value else _('inactive')
+
+
+def _decrypt_boolean_value(field_name, value):
+    if field_name == 'status':
+        return _get_status(value)
+    else:
+        return _get_boolean_translation(value)

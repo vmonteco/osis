@@ -239,11 +239,10 @@ def learning_class_year_edit(request, learning_unit_year_id):
 
 
 def learning_unit_comparison(request, learning_unit_year_id):
-    query_set = mdl.learning_unit_year.LearningUnitYear.objects.all()\
-        .select_related('learning_unit', 'learning_container_year')
-    learning_unit_yr = get_object_or_404(query_set, pk=learning_unit_year_id)
+    learning_unit_yr = get_object_or_404(mdl.learning_unit_year.LearningUnitYear.objects.all()
+                                         .select_related('learning_unit', 'learning_container_year'),
+                                         pk=learning_unit_year_id)
     context = get_learning_unit_comparison_context(learning_unit_yr)
-    context.update({'learning_unit_year': learning_unit_yr})
 
     previous_academic_yr = mdl.academic_year.find_academic_year_by_year(learning_unit_yr.academic_year.year - 1)
     previous_lu = get_learning_unit(previous_academic_yr, learning_unit_yr)
@@ -259,10 +258,6 @@ def learning_unit_comparison(request, learning_unit_year_id):
 
     previous_context = get_learning_unit_comparison_context(previous_lu)
     next_context = get_learning_unit_comparison_context(next_lu)
-    entity_changes = _get_changed_organization(context, previous_context, next_context)
-    # learning_container_yr_changes = _get_learning_container_yr_changes(context['learning_unit_year'],
-    #                                                                    previous_context['learning_unit_year'],
-    #                                                                    next_context['learning_unit_year'])
 
     context.update(
         {'previous_values': previous_values,
@@ -270,7 +265,7 @@ def learning_unit_comparison(request, learning_unit_year_id):
          'next_academic_yr': next_academic_yr,
          'next_values': next_values,
          'fields': get_keys(list(previous_values.keys()), list(next_values.keys())),
-         'entity_changes': entity_changes,
+         'entity_changes': _get_changed_organization(context, previous_context, next_context),
          'fields_lcy': get_keys(list(previous_lcy_values.keys()), list(next_lcy_values.keys())),
          'previous_lcy_values': previous_lcy_values,
          'next_lcy_values': next_lcy_values

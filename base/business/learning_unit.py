@@ -291,7 +291,7 @@ def get_no_summary_responsible_teachers(learning_unit_yr, summary_responsibles):
 
 
 def get_learning_unit_comparison_context(learning_unit_year):
-    context = dict()
+    context = dict({'learning_unit_year': learning_unit_year})
     context['campus'] = learning_unit_year.campus
     context['organization'] = get_organization_from_learning_unit_year(learning_unit_year)
     context['experimental_phase'] = True
