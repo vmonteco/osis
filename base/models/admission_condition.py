@@ -64,7 +64,7 @@ class AdmissionConditionLine(OrderedModel):
 
     section = models.CharField(max_length=32)
     # this external_id is used just for the import, once reddot is dead, we could remove it.
-    external_id = models.CharField(max_length=32, null=True)
+    external_id = models.CharField(max_length=32, null=True, db_index=True)
 
     diploma = models.TextField(default='')
     conditions = models.TextField(default='')

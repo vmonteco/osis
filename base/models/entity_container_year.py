@@ -41,7 +41,7 @@ class EntityContainerYearAdmin(SerializableModelAdmin):
 
 
 class EntityContainerYear(SerializableModel):
-    external_id = models.CharField(max_length=255, blank=True, null=True)
+    external_id = models.CharField(max_length=255, blank=True, null=True, db_index=True)
     changed = models.DateTimeField(null=True, auto_now=True)
     entity = models.ForeignKey('Entity')
     learning_container_year = models.ForeignKey('LearningContainerYear')
