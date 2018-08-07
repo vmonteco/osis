@@ -3251,18 +3251,6 @@ msgstr "Session"
 msgid "The user is not attached to the management entity"
 msgstr "L'utilisateur n'est pas rattaché à l'entité de gestion"
 
-msgid "Attach"
-msgstr "Attacher"
-
-msgid "Detach"
-msgstr "Détacher"
-
-msgid "Move"
-msgstr "Déplacer"
-
-msgid "Select"
-msgstr "Sélectionner"
-
 msgid "Help"
 msgstr "Aide"
 
@@ -3337,8 +3325,13 @@ msgstr "Quadrimestre dérogation"
 msgid "Quad. derog."
 msgstr "Quad. dérog."
 
-msgid "No type of education group can be created as child of %(category)s of type %(type)s"
-msgstr "Aucun type de Groupement ne peut être créé comme enfant d'une %(category)s de type %(type)s"
+msgctxt "male"
+msgid "No type of %(child_category)s can be created as child of %(category)s of type %(type)s"
+msgstr "Aucun type de %(child_category)s ne peut être créé comme enfant d'un %(category)s de type %(type)s"
+
+msgctxt "female"
+msgid "No type of %(child_category)s can be created as child of %(category)s of type %(type)s"
+msgstr "Aucun type de %(child_category)s ne peut être créé comme enfant d'une %(category)s de type %(type)s"
 
 msgid "Produce xls with a list of education groups"
 msgstr "Produire un fichier Excel avec la liste des organisations de formations"
@@ -3373,8 +3366,32 @@ msgstr "Liste des formations avec données administratives"
 msgid "Validity"
 msgstr "Validité"
 
+msgid "Attach"
+msgstr "Attacher"
+
+msgid "Detach"
+msgstr "Détacher"
+
+msgid "Move"
+msgstr "Déplacer"
+
+msgid "Select"
+msgstr "Sélectionner"
+
 msgid "Please Select or Move an item before Attach it"
 msgstr "Veuillez Sélectionner ou Déplacer un élément avant d'Attacher"
 
-msgid "legend"
-msgstr "légende"
+msgid "Used by an other education group"
+msgstr "Utilisé dans une autre formation"
+
+msgid "The user has not permission to change education groups."
+msgstr "L'utilisateur n'a pas la permission de modifier les formations."
+
+msgid "It is not possible to move the root element."
+msgstr "Il n'est pas possible de déplacer l'élément racine de l'arbre."
+
+msgid "It is not possible to detach the root element."
+msgstr "Il n'est pas possible de détacher l'élément racine de l'arbre."
+
+msgid "Attached to \"%(acronym)s\""
+msgstr "L'élément sélectionné a été attaché à \"%(acronym)s\""

@@ -56,7 +56,7 @@ class GroupElementYearAdmin(osis_model_admin.OsisModelAdmin):
 
 
 class GroupElementYear(OrderedModel):
-    external_id = models.CharField(max_length=100, blank=True, null=True)
+    external_id = models.CharField(max_length=100, blank=True, null=True, db_index=True)
     changed = models.DateTimeField(null=True, auto_now=True)
 
     parent = models.ForeignKey(

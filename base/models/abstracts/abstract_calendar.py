@@ -31,7 +31,7 @@ from osis_common.utils.datetime import is_in_chronological_order
 
 
 class AbstractCalendar(models.Model):
-    external_id = models.CharField(max_length=100, blank=True, null=True)
+    external_id = models.CharField(max_length=100, blank=True, null=True, db_index=True)
     changed = models.DateTimeField(null=True, auto_now=True)
     academic_calendar = models.ForeignKey('AcademicCalendar')
     start_date = models.DateTimeField(blank=True, null=True, db_index=True)

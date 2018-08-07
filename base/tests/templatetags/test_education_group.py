@@ -27,22 +27,22 @@ from django.contrib.auth.models import Permission
 from django.test import TestCase, RequestFactory
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, pgettext
 
 from base.models.enums.academic_calendar_type import EDUCATION_GROUP_EDITION
 from base.models.enums.education_group_categories import TRAINING, MINI_TRAINING, GROUP
 from base.templatetags.education_group import li_with_deletion_perm, button_with_permission, BUTTON_TEMPLATE, \
     button_order_with_permission, BUTTON_ORDER_TEMPLATE, li_with_create_perm_training, \
-    li_with_create_perm_mini_training, li_with_create_perm_group
+    li_with_create_perm_mini_training, li_with_create_perm_group, link_move_education_group, link_detach_education_group
 from base.tests.factories.academic_calendar import AcademicCalendarFactory
 from base.tests.factories.authorized_relationship import AuthorizedRelationshipFactory
-from base.tests.factories.education_group_year import EducationGroupYearFactory
+from base.tests.factories.education_group_year import TrainingFactory
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.person_entity import PersonEntityFactory
 
 DELETE_MSG = _("delete education group")
 PERMISSION_DENIED_MSG = _("The education group edition period is not open.")
-UNAUTHORIZED_TYPE_MSG = _("No type of education group can be created as child of %(category)s of type %(type)s")
+UNAUTHORIZED_TYPE_MSG = "No type of %(child_category)s can be created as child of %(category)s of type %(type)s"
 
 DISABLED_LI = """
 <li class="disabled" id="{}">
@@ -56,10 +56,16 @@ ENABLED_LI = """
 </li>
 """
 
+CUSTOM_LI_TEMPLATE = """
+    <li {li_attributes}>
+        <a {a_attributes} data-toggle="tooltip">{text}</a>
+    </li>
+"""
+
 
 class TestEducationGroupTag(TestCase):
     def setUp(self):
-        self.education_group_year = EducationGroupYearFactory()
+        self.education_group_year = TrainingFactory()
         self.person = PersonFactory()
         PersonEntityFactory(person=self.person, entity=self.education_group_year.management_entity)
         self.url = reverse('delete_education_group', args=[self.education_group_year.id, self.education_group_year.id])
@@ -140,7 +146,8 @@ class TestEducationGroupTag(TestCase):
     def test_li_with_create_perm_training_disabled(self):
         result = li_with_create_perm_training(self.context, self.url, "")
 
-        msg = UNAUTHORIZED_TYPE_MSG % {
+        msg = pgettext("female", UNAUTHORIZED_TYPE_MSG) % {
+            "child_category": _(TRAINING),
             "category": _(self.education_group_year.education_group_type.category),
             "type": self.education_group_year.education_group_type.name
         }
@@ -148,7 +155,8 @@ class TestEducationGroupTag(TestCase):
 
     def test_li_with_create_perm_mini_training_disabled(self):
         result = li_with_create_perm_mini_training(self.context, self.url, "")
-        msg = UNAUTHORIZED_TYPE_MSG % {
+        msg = pgettext("female", UNAUTHORIZED_TYPE_MSG) % {
+            "child_category": _(MINI_TRAINING),
             "category": _(self.education_group_year.education_group_type.category),
             "type": self.education_group_year.education_group_type.name
         }
@@ -156,8 +164,103 @@ class TestEducationGroupTag(TestCase):
 
     def test_li_with_create_perm_group_disabled(self):
         result = li_with_create_perm_group(self.context, self.url, "")
-        msg = UNAUTHORIZED_TYPE_MSG % {
+        msg = pgettext("female", UNAUTHORIZED_TYPE_MSG) % {
+            "child_category": _(GROUP),
             "category": _(self.education_group_year.education_group_type.category),
             "type": self.education_group_year.education_group_type.name
         }
         self.assertHTMLEqual(result, DISABLED_LI.format("link_create", msg, ""))
+
+    def test_tag_move_education_group_permitted_and_possible(self):
+        self.context['can_change_education_group'] = True
+        self.context['group_to_parent'] = '1'
+        result = link_move_education_group(self.context)
+        expected_result = CUSTOM_LI_TEMPLATE.format(
+            li_attributes="""id="btn_operation_detach_1" """,
+            a_attributes=""" href="#" title="{}" onclick="select()" """.format(_('Move')),
+            text=_('Move'),
+        )
+        self.assertHTMLEqual(result, expected_result)
+
+    def test_tag_move_education_group_not_permitted(self):
+        self.context['can_change_education_group'] = False
+        self.context['group_to_parent'] = '1'
+        result = link_move_education_group(self.context)
+        expected_result = CUSTOM_LI_TEMPLATE.format(
+            li_attributes=""" class="disabled" """,
+            a_attributes=""" title="{}" """.format(_("The user has not permission to change education groups.")),
+            text=_('Move'),
+        )
+        self.assertHTMLEqual(result, expected_result)
+
+    def test_tag_move_education_group_not_possible(self):
+        self.context['can_change_education_group'] = True
+        self.context['group_to_parent'] = '0'
+        result = link_move_education_group(self.context)
+        expected_result = CUSTOM_LI_TEMPLATE.format(
+            li_attributes=""" class="disabled" """,
+            a_attributes=""" title=" {}" """.format(_("It is not possible to move the root element.")),
+            text=_('Move'),
+        )
+        self.assertHTMLEqual(result, expected_result)
+
+    def test_tag_move_education_group_not_permitted_nor_possible(self):
+        self.context['can_change_education_group'] = False
+        self.context['group_to_parent'] = '0'
+        result = link_move_education_group(self.context)
+        expected_result = CUSTOM_LI_TEMPLATE.format(
+            li_attributes=""" class="disabled" """,
+            a_attributes=""" title="{} {}" """.format(
+                _("The user has not permission to change education groups."),
+                _("It is not possible to move the root element."),
+            ),
+            text=_('Move'),
+        )
+        self.assertHTMLEqual(result, expected_result)
+
+    def test_tag_detach_education_group_permitted_and_possible(self):
+        self.context['can_change_education_group'] = True
+        self.context['group_to_parent'] = '1'
+        result = link_detach_education_group(self.context)
+        expected_result = CUSTOM_LI_TEMPLATE.format(
+            li_attributes="""id="btn_operation_detach_1" """,
+            a_attributes=""" href="#" title="{}" """.format(_('Detach')),
+            text=_('Detach'),
+        )
+        self.assertHTMLEqual(result, expected_result)
+
+    def test_tag_detach_education_group_not_permitted(self):
+        self.context['can_change_education_group'] = False
+        self.context['group_to_parent'] = '1'
+        result = link_detach_education_group(self.context)
+        expected_result = CUSTOM_LI_TEMPLATE.format(
+            li_attributes=""" class="disabled" """,
+            a_attributes=""" title="{}" """.format(_("The user has not permission to change education groups.")),
+            text=_('Detach'),
+        )
+        self.assertHTMLEqual(result, expected_result)
+
+    def test_tag_detach_education_group_not_possible(self):
+        self.context['can_change_education_group'] = True
+        self.context['group_to_parent'] = '0'
+        result = link_detach_education_group(self.context)
+        expected_result = CUSTOM_LI_TEMPLATE.format(
+            li_attributes=""" class="disabled" """,
+            a_attributes=""" title=" {}" """.format(_("It is not possible to detach the root element.")),
+            text=_('Detach'),
+        )
+        self.assertHTMLEqual(result, expected_result)
+
+    def test_tag_detach_education_group_not_permitted_nor_possible(self):
+        self.context['can_change_education_group'] = False
+        self.context['group_to_parent'] = '0'
+        result = link_detach_education_group(self.context)
+        expected_result = CUSTOM_LI_TEMPLATE.format(
+            li_attributes=""" class="disabled" """,
+            a_attributes=""" title="{} {}" """.format(
+                _("The user has not permission to change education groups."),
+                _("It is not possible to detach the root element."),
+            ),
+            text=_('Detach'),
+        )
+        self.assertHTMLEqual(result, expected_result)

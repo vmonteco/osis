@@ -70,9 +70,6 @@ class EducationGroupGenericDetailView(PermissionRequiredMixin, DetailView):
     def get_root(self):
         return get_object_or_404(EducationGroupYear, pk=self.kwargs.get("root_id"))
 
-    def get_group_to_parent(self):
-        return self.request.GET.get("group_to_parent")
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
@@ -85,7 +82,7 @@ class EducationGroupGenericDetailView(PermissionRequiredMixin, DetailView):
         context['parent'] = self.get_root()
 
         context["education_group_year"] = self.get_object()
-        context['group_to_parent'] = self.get_group_to_parent()
+        context['group_to_parent'] = self.request.GET.get("group_to_parent") or '0'
         context['can_change_education_group'] = perms.is_eligible_to_change_education_group(
             person=self.get_person(),
             education_group=context['object'],

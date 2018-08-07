@@ -60,8 +60,8 @@ $(document).ready(function () {
                         obj = inst.get_node(data.reference);
                     var args = obj.li_attr.id.split('_');
                     var group_element_year = args[1];
-                    if (group_element_year === '-') {
-                        group_element_year = 0
+                    if (group_element_year === '0') {
+                        return;
                     }
                     var education_group_year_id = args[2];
                     /*
@@ -88,7 +88,14 @@ $(document).ready(function () {
                         formAjaxSubmit('#form-modal-body form', '#form-modal');
                     });
                   },
-                  "icon": "fa fa-arrow-circle-o-right"
+                  "icon": "fa fa-arrow-circle-o-right",
+                  "_disabled": function(data) {
+                      var inst = $.jstree.reference(data.reference),
+                          obj = inst.get_node(data.reference);
+                      var args = obj.li_attr.id.split('_');
+                      var group_element_year = args[1];
+                      return (group_element_year === '0');
+                  }
               },
 
               "detach" : {
@@ -98,8 +105,8 @@ $(document).ready(function () {
                         obj = inst.get_node(data.reference);
                     var args = obj.li_attr.id.split('_');
                     var group_element_year = args[1];
-                    if (group_element_year === '-') {
-                        group_element_year = 0
+                    if (group_element_year === '0') {
+                        return;
                     }
                     var education_group_year_id = args[2];
 
@@ -117,7 +124,14 @@ $(document).ready(function () {
                         formAjaxSubmit('#form-modal-body form', '#form-modal');
                     });
                   },
-                  "icon": "fa fa-cut"
+                  "icon": "fa fa-cut",
+                  "_disabled": function(data) {
+                      var inst = $.jstree.reference(data.reference),
+                          obj = inst.get_node(data.reference);
+                      var args = obj.li_attr.id.split('_');
+                      var group_element_year = args[1];
+                      return (group_element_year === '0');
+                  }
               },
 
               "attach" : {
@@ -128,9 +142,6 @@ $(document).ready(function () {
                         obj = inst.get_node(data.reference);
                     var args = obj.li_attr.id.split('_');
                     var group_element_year = args[1];
-                    if (group_element_year === '-') {
-                        group_element_year = 0
-                    }
                     var education_group_year_id = args[2];
 
                     var attach_url = "/educationgroups/"

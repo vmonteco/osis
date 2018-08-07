@@ -48,7 +48,7 @@ class EducationGroupYearAdmin(OsisModelAdmin):
 
 
 class EducationGroupYear(models.Model):
-    external_id = models.CharField(max_length=100, blank=True, null=True)
+    external_id = models.CharField(max_length=100, blank=True, null=True, db_index=True)
     changed = models.DateTimeField(null=True, auto_now=True)
     acronym = models.CharField(max_length=40, db_index=True, verbose_name=_("acronym"))
     title = models.CharField(max_length=255, verbose_name=_("title_in_french"))
@@ -318,6 +318,12 @@ class EducationGroupYear(models.Model):
         if not self.education_group.educationgroupyear_set.all().exists():
             result = self.education_group.delete()
         return result
+
+    def is_deletable(self):
+        """An education group year cannot be deleted if there are enrollment on it"""
+        if self.offerenrollment_set.all().exists():
+            return False
+        return True
 
 
 def find_by_id(an_id):

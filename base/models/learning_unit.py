@@ -54,7 +54,7 @@ class LearningUnitAdmin(SerializableModelAdmin):
 
 class LearningUnit(SerializableModel):
     existing_proposal_in_epc = models.BooleanField(default=False)
-    external_id = models.CharField(max_length=100, blank=True, null=True)
+    external_id = models.CharField(max_length=100, blank=True, null=True, db_index=True)
     learning_container = models.ForeignKey('LearningContainer', blank=True, null=True)
     changed = models.DateTimeField(null=True, auto_now=True)
     start_year = models.IntegerField(_('start_year'))

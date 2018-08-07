@@ -39,7 +39,7 @@ class SessionExamCalendarAdmin(OsisModelAdmin):
 
 
 class SessionExamCalendar(models.Model):
-    external_id = models.CharField(max_length=100, blank=True, null=True)
+    external_id = models.CharField(max_length=100, blank=True, null=True, db_index=True)
     changed = models.DateTimeField(null=True, auto_now=True)
     number_session = models.IntegerField(choices=number_session.NUMBERS_SESSION)
     academic_calendar = models.OneToOneField('AcademicCalendar')
