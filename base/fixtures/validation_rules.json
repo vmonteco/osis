@@ -303,7 +303,7 @@
       "required_field": true,
       "disabled_field": false,
       "initial_value": "200E",
-      "regex_rule": "^(.*)(2)$",
+      "regex_rule": "^(.*)(E)$",
       "regex_error_message": ""
     }
   },

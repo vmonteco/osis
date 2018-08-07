@@ -28,18 +28,58 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
+from django.views.generic import FormView
 from waffle.decorators import waffle_flag
 
 from base.forms.education_group.common import EducationGroupModelForm
 from base.forms.education_group.group import GroupForm
 from base.forms.education_group.mini_training import MiniTrainingForm
 from base.forms.education_group.training import TrainingForm
-from base.models.education_group_type import EducationGroupType
+from base.models.education_group_type import EducationGroupType, find_authorized_types
 from base.models.education_group_year import EducationGroupYear
 from base.models.enums import education_group_categories
 from base.views import layout
 from base.views.common import display_success_messages
+from base.views.common_classes import FlagMixin, AjaxTemplateMixin
 from base.views.education_groups.perms import can_create_education_group
+
+
+class EducationGroupTypeForm(forms.Form):
+    name = forms.ModelChoiceField(EducationGroupType.objects.none(), label=_("training_type"), required=True)
+
+    def __init__(self, parent, category, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields["name"].queryset = find_authorized_types(
+            category=category,
+            parents=[parent]
+        )
+
+
+class SelectEducationGroupTypeView(FlagMixin, AjaxTemplateMixin, FormView):
+    flag = "education_group_create"
+    # rules = [can_create_education_group]
+    # raise_exception = True
+    template_name = "education_group/blocks/form/education_group_type.html"
+    form_class = EducationGroupTypeForm
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["category"] = self.kwargs["category"]
+        kwargs["parent"] = get_object_or_404(
+            EducationGroupYear, pk=self.kwargs["parent_id"]
+        ) if self.kwargs["parent_id"] else None
+        return kwargs
+
+    def form_valid(self, form):
+        # Attach form to the object to use it in get_success_url
+        self.form = form
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse(create_education_group, kwargs=self.kwargs) + \
+               "?education_group_type=" + \
+               str(self.form.cleaned_data["name"].pk)
 
 
 @login_required

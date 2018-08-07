@@ -31,6 +31,7 @@ from osis_common.models.osis_model_admin import OsisModelAdmin
 
 class ValidationRuleAdmin(OsisModelAdmin):
     list_display = ('field_reference', 'required_field', 'initial_value', 'regex_rule')
+    search_fields = ['field_reference']
 
 
 class ValidationRule(models.Model):

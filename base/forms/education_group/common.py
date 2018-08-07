@@ -60,31 +60,35 @@ class ValidationRuleMixin:
         super().__init__(*args, **kwargs)
 
         self.rules = self.get_rules()
-        self._set_rule_on_fields()
+        self._set_rules_on_fields()
 
     def get_rules(self):
         result = {}
+
         for name, field in self.fields.items():
-            full_name = self.field_reference(name)
-            qs = ValidationRule.objects.filter(field_reference=full_name)
+            qs = ValidationRule.objects.filter(field_reference=self.field_reference(name))
             if qs:
                 result[name] = qs.get()
+
         return result
 
     def field_reference(self, name):
         return '.'.join([self._meta.model._meta.db_table, name])
 
-    def _set_rule_on_fields(self):
+    def _set_rules_on_fields(self):
         for name, field in self.fields.items():
             if name in self.rules:
                 rule = self.rules[name]
 
-                field.required = rule.required_field
-                field.disabled = rule.disabled_field
-                if not field.disabled:
-                    field.initial = rule.initial_value
+                if not isinstance(field, forms.BooleanField):
+                    field.required = rule.required_field
 
-                field.validators.append(RegexValidator(rule.regex_rule, rule.regex_error_message or None))
+                field.disabled = rule.disabled_field
+                field.initial = rule.initial_value
+
+                field.validators.append(
+                    RegexValidator(rule.regex_rule, rule.regex_error_message or None)
+                )
 
 
 class ValidationRuleEducationGroupTypeMixin(ValidationRuleMixin):
@@ -94,17 +98,18 @@ class ValidationRuleEducationGroupTypeMixin(ValidationRuleMixin):
     The object reference must be structured like that:
         {db_table_name}.{col_name}.{education_group_type_name}
     """
-
     def field_reference(self, name):
         return super().field_reference(name) + '.' + self.get_type()
 
     def get_type(self):
-        if self.instance and self.instance.education_group_type:
+        # For creation
+        if self.education_group_type:
+            return self.education_group_type.name
+        # For updating
+        elif self.instance and self.instance.education_group_type:
             return self.instance.education_group_type.name
-        elif "education_group_type" in self.initial:
-            return self.initial["education_group_type"].name
-        else:
-            return ""
+
+        return ""
 
 
 class EducationGroupYearModelForm(ValidationRuleEducationGroupTypeMixin, forms.ModelForm):
@@ -120,6 +125,11 @@ class EducationGroupYearModelForm(ValidationRuleEducationGroupTypeMixin, forms.M
 
     def __init__(self, *args, education_group_type=None, **kwargs):
         self.parent = kwargs.pop("parent", None)
+        self.education_group_type = education_group_type
+
+        if self.education_group_type:
+            if education_group_type not in find_authorized_types(self.category):
+                raise PermissionDenied("Unauthorized type {} for {}".format(education_group_type, self.category))
 
         if "initial" not in kwargs:
             kwargs["initial"] = {}
@@ -132,39 +142,27 @@ class EducationGroupYearModelForm(ValidationRuleEducationGroupTypeMixin, forms.M
 
         super().__init__(*args, **kwargs)
 
-        # Fix category
-        # self._disable_field("category")
-
-        # When the type is already given, we need to disabled the field
-        if education_group_type:
-            if education_group_type not in find_authorized_types(self.category):
-                raise PermissionDenied("Unauthorized type {} for {}".format(education_group_type, self.category))
-
-            self.instance.education_group_type = education_group_type
-            self._disable_field("education_group_type", education_group_type.pk)
-        else:
-            self._filter_education_group_type()
-
+        self._filter_education_group_type()
         self._init_and_disable_academic_year()
         self._preselect_entity_version_from_entity_value()
 
     def _filter_education_group_type(self):
-        # In case of update, we need to fetch all parents
-        if self.instance.pk:
-            parents = EducationGroupYear.objects.filter(
-                groupelementyear__child_branch=self.instance.pk
-            )
-        elif self.parent:
-            parents = [self.parent]
+        # When the type is already given, we need to disabled the field
+        if self.education_group_type:
+            self.instance.education_group_type = self.education_group_type
+            self._disable_field("education_group_type", self.education_group_type.pk)
 
-        else:
-            parents = []
+        elif self.instance.pk:
+            self._disable_field("education_group_type", self.instance.education_group_type.pk)
 
-        queryset = find_authorized_types(
-            category=self.category,
-            parents=parents
-        )
-        self.fields["education_group_type"].queryset = queryset
+        # else:
+        #     # In case of update, we need to fetch all parents
+        #     queryset = find_authorized_types(
+        #         category=self.category,
+        #         parents=EducationGroupYear.objects.filter(groupelementyear__child_branch=self.instance.pk)
+        #         if self.instance.pk else self.parent
+        #     )
+        #     self.fields["education_group_type"].queryset = queryset
 
     def _init_and_disable_academic_year(self):
         if self.parent or self.instance.academic_year_id:
@@ -185,12 +183,21 @@ class EducationGroupYearModelForm(ValidationRuleEducationGroupTypeMixin, forms.M
         field.disabled = True
         field.required = False
 
-class EducationGroupModelForm(forms.ModelForm):
 
+class EducationGroupModelForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # TODO For the moment the start_year value is set after the validation
-        self.fields["start_year"].required = False
+        # self.fields["start_year"].required = False
+        self._disable_field("start_year", initial_value=2000)
+
+    def _disable_field(self, key, initial_value=None):
+        field = self.fields[key]
+        if initial_value:
+            self.fields[key].initial = initial_value
+
+        field.disabled = True
+        field.required = False
 
     class Meta:
         model = EducationGroup

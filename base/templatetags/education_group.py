@@ -123,17 +123,17 @@ def li_with_create_perm(context, url, message, url_id="link_create"):
 
 
 @register.simple_tag(takes_context=True)
-def li_with_create_perm_training(context, url, message, url_id="link_create"):
+def li_with_create_perm_training(context, url, message, url_id="link_create_training"):
     return li_with_permission(context, is_eligible_to_add_training, url, message, url_id)
 
 
 @register.simple_tag(takes_context=True)
-def li_with_create_perm_mini_training(context, url, message, url_id="link_create"):
+def li_with_create_perm_mini_training(context, url, message, url_id="link_create_mini_training"):
     return li_with_permission(context, is_eligible_to_add_mini_training, url, message, url_id)
 
 
 @register.simple_tag(takes_context=True)
-def li_with_create_perm_group(context, url, message, url_id="link_create"):
+def li_with_create_perm_group(context, url, message, url_id="link_create_group"):
     return li_with_permission(context, is_eligible_to_add_group, url, message, url_id)
 
 

@@ -23,6 +23,8 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+import collections
+
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
@@ -83,6 +85,9 @@ def find_all():
 
 
 def find_authorized_types(category=None, parents=None):
+    if not isinstance(parents, collections.Iterable):
+        parents = [parents]
+
     if category:
         queryset = search(category=category)
     else:
