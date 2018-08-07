@@ -49,9 +49,9 @@
                         {% for key in fields %}
                             <tr>
                                 <td style="background-color: lightgray">{%  trans key %}</td>
-                                <td>{% if previous_values|get_item:key %}<label>{{ previous_values|get_item:key }}</label>{% else %}{{ learning_unit_year|get_learning_unit_yr_attribute:key | default_if_none:''}}{% endif %}</td>
-                                <td>{{ learning_unit_year|get_learning_unit_yr_attribute:key | default_if_none:'' }}</td>
-                                <td>{% if next_values|get_item:key %}<label>{{ next_values|get_item:key}}</label>{% else %}{{ learning_unit_year|get_learning_unit_yr_attribute:key | default_if_none:''}}{% endif %}</td>
+                                <td>{% if previous_values|get_item:key %}<label style='color:#5CB85C;'>{{ previous_values|get_item:key }}</label>{% else %}{{ learning_unit_year|get_attribute:key | default_if_none:''}}{% endif %}</td>
+                                <td>{{ learning_unit_year|get_attribute:key | default_if_none:'' }}</td>
+                                <td>{% if next_values|get_item:key %}<label style='color:#5CB85C;'>{{ next_values|get_item:key}}</label>{% else %}{{ learning_unit_year|get_attribute:key | default_if_none:''}}{% endif %}</td>
                             </tr>
                         {% endfor %}
                         {% if entity_changes %}
@@ -67,9 +67,9 @@
                         {% for key in  fields_lcy %}
                             <tr {% if forloop.first%}style="border-top: groove"{% endif %}>
                                 <td style="background-color: lightgray">{%  trans key %}</td>
-                                <td>{% if previous_lcy_values|get_item:key %}<label>{{ previous_lcy_values|get_item:key }}</label>{% else %}{{ learning_unit_year.learning_container_year|get_learning_unit_yr_attribute:key | default_if_none:''}}{% endif %}</td>
-                                <td>{{ learning_unit_year.learning_container_year|get_learning_unit_yr_attribute:key | default_if_none:'' }}</td>
-                                <td>{% if next_lcy_values|get_item:key %}<label>{{ next_lcy_values|get_item:key}}</label>{% else %}{{ learning_unit_year.learning_container_year|get_learning_unit_yr_attribute:key | default_if_none:''}}{% endif %}</td>
+                                <td>{% if previous_lcy_values|get_item:key %}<label style='color:#5CB85C;'>{{ previous_lcy_values|get_item:key }}</label>{% else %}{{ learning_unit_year.learning_container_year|get_attribute:key | default_if_none:''}}{% endif %}</td>
+                                <td>{{ learning_unit_year.learning_container_year|get_attribute:key | default_if_none:'' }}</td>
+                                <td>{% if next_lcy_values|get_item:key %}<label style='color:#5CB85C;'>{{ next_lcy_values|get_item:key}}</label>{% else %}{{ learning_unit_year.learning_container_year|get_attribute:key | default_if_none:''}}{% endif %}</td>
                             </tr>
                         {% endfor%}
                     </tbody>

@@ -245,19 +245,16 @@ def learning_unit_comparison(request, learning_unit_year_id):
     context = get_learning_unit_comparison_context(learning_unit_yr)
 
     previous_academic_yr = mdl.academic_year.find_academic_year_by_year(learning_unit_yr.academic_year.year - 1)
-    previous_lu = get_learning_unit(previous_academic_yr, learning_unit_yr)
+    previous_lu = _get_learning_unit_year(previous_academic_yr, learning_unit_yr)
     previous_values = compare_learning_unit(learning_unit_yr, previous_lu)
     previous_lcy_values = compare_learning_container_years(learning_unit_yr.learning_container_year,
                                                            previous_lu.learning_container_year)
 
     next_academic_yr = mdl.academic_year.find_academic_year_by_year(learning_unit_yr.academic_year.year + 1)
-    next_lu = get_learning_unit(next_academic_yr, learning_unit_yr)
+    next_lu = _get_learning_unit_year(next_academic_yr, learning_unit_yr)
     next_values = compare_learning_unit(learning_unit_yr, next_lu)
     next_lcy_values = compare_learning_container_years(learning_unit_yr.learning_container_year,
                                                        next_lu.learning_container_year)
-
-    previous_context = get_learning_unit_comparison_context(previous_lu)
-    next_context = get_learning_unit_comparison_context(next_lu)
 
     context.update(
         {'previous_values': previous_values,
@@ -265,7 +262,9 @@ def learning_unit_comparison(request, learning_unit_year_id):
          'next_academic_yr': next_academic_yr,
          'next_values': next_values,
          'fields': get_keys(list(previous_values.keys()), list(next_values.keys())),
-         'entity_changes': _get_changed_organization(context, previous_context, next_context),
+         'entity_changes': _get_changed_organization(context,
+                                                     get_learning_unit_comparison_context(previous_lu),
+                                                     get_learning_unit_comparison_context(next_lu)),
          'fields_lcy': get_keys(list(previous_lcy_values.keys()), list(next_lcy_values.keys())),
          'previous_lcy_values': previous_lcy_values,
          'next_lcy_values': next_lcy_values
@@ -277,7 +276,7 @@ def compare_learning_unit(learning_unit_yr, learning_unit_yr_other):
     return compare_learning_unit_years(learning_unit_yr, learning_unit_yr_other)
 
 
-def get_learning_unit(academic_yr, learning_unit_yr):
+def _get_learning_unit_year(academic_yr, learning_unit_yr):
     learning_unit_years = mdl.learning_unit_year.search(learning_unit=learning_unit_yr.learning_unit,
                                                         academic_year_id=academic_yr.id)
     if learning_unit_years.exists():
@@ -299,5 +298,5 @@ def _get_changed_organization(context, context_prev, context_next):
 
 
 def _has_changed(data_reference, data_1, data_2, key):
-    return data_reference.get(key, None) != data_1.get(key, None) or \
-           data_reference.get(key, None) != data_2.get(key, None)
+    return data_reference.get(key, None) != data_1.get(key, None) or data_reference.get(key, None) != data_2.get(key,
+                                                                                                                 None)

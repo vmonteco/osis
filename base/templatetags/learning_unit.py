@@ -150,6 +150,7 @@ def value_label(values_dict, key, sub_key, key_comp):
 
 def _get_label(data, key_comp, val):
     if val != data.get(key_comp):
-        return mark_safe("<label>{}</label>".format(DEFAULT_VALUE_FOR_NONE if val is None else val))
+        return mark_safe("<label style='color:#5CB85C;'>{}</label>"
+                         .format(DEFAULT_VALUE_FOR_NONE if val is None else val))
     else:
         return mark_safe("{}".format(DEFAULT_VALUE_FOR_NONE if val is None else val))

@@ -33,6 +33,6 @@ register = template.Library()
 
 
 @register.filter
-def get_learning_unit_yr_attribute(obj, field_name):
+def get_attribute(obj, field_name):
     data = model_to_dict(obj, fields=[field_name])
     return get_value(type(obj), data, field_name)

@@ -26,7 +26,7 @@
 from django.test import TestCase
 from django.test.utils import override_settings
 
-from base.templatetags.model_field import get_learning_unit_yr_attribute
+from base.templatetags.model_field import get_attribute
 from base.models.enums import quadrimesters
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 
@@ -42,7 +42,7 @@ class LearningUnitTagTest(TestCase):
 
     @override_settings(LANGUAGES=[('fr-be', 'French'), ('en', 'English'), ], LANGUAGE_CODE='fr-be')
     def test_get_attribute(self):
-        self.assertEqual(get_learning_unit_yr_attribute(self.learning_unit_yr, 'specific_title'), TITLE)
-        self.assertEqual(get_learning_unit_yr_attribute(self.learning_unit_yr, 'professional_integration'), 'Oui')
-        self.assertEqual(get_learning_unit_yr_attribute(self.learning_unit_yr, 'status'), 'Actif')
-        self.assertEqual(get_learning_unit_yr_attribute(self.learning_unit_yr, 'quadrimester'), quadrimesters.Q1)
+        self.assertEqual(get_attribute(self.learning_unit_yr, 'specific_title'), TITLE)
+        self.assertEqual(get_attribute(self.learning_unit_yr, 'professional_integration'), 'Oui')
+        self.assertEqual(get_attribute(self.learning_unit_yr, 'status'), 'Actif')
+        self.assertEqual(get_attribute(self.learning_unit_yr, 'quadrimester'), quadrimesters.Q1)
