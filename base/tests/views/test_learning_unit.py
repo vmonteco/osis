@@ -83,7 +83,7 @@ from base.tests.factories.person import PersonFactory
 from base.tests.factories.person_entity import PersonEntityFactory
 from base.tests.factories.user import SuperUserFactory, UserFactory
 from base.views.learning_unit import learning_unit_components, learning_class_year_edit, learning_unit_specifications, \
-    learning_unit_formations
+    learning_unit_formations, compare_learning_unit
 from base.views.learning_unit import learning_unit_identification, learning_unit_comparison
 from base.views.learning_units.create import create_partim_form
 from base.views.learning_units.pedagogy.read import learning_unit_pedagogy
@@ -1402,6 +1402,24 @@ class LearningUnitViewTestCase(TestCase):
         self.assertEqual(context['fields'], ['specific_title'])
         self.assertEqual(context['previous_values'], {'specific_title': previous_learning_unit_year.specific_title})
         self.assertEqual(context['next_values'], {'specific_title': next_learning_unit_year.specific_title})
+
+    def test_compare_learning_unit(self):
+        title = 'Intitulé'
+        other_title = 'title 1'
+
+        learning_unit = LearningUnitFactory()
+        learning_unit_year_ref = create_learning_unit_year(self.current_academic_year, title, learning_unit)
+        previous_academic_yr = AcademicYearFactory(year=self.current_academic_year.year - 1)
+        previous_learning_unit_year = create_learning_unit_year(previous_academic_yr, other_title,
+                                                                     learning_unit)
+
+        self.assertEqual(compare_learning_unit(learning_unit_year_ref, previous_learning_unit_year),
+                         {'specific_title': other_title})
+
+        previous_learning_unit_year.specific_title = learning_unit_year_ref.specific_title
+        previous_learning_unit_year.save()
+        self.assertEqual(compare_learning_unit(learning_unit_year_ref, previous_learning_unit_year),
+                         {})
 
 
 class TestCreateXls(TestCase):
