@@ -43,10 +43,6 @@ from base.models.enums.learning_unit_year_periodicity import PERIODICITY_TYPES, 
 from base.models.learning_unit import LEARNING_UNIT_ACRONYM_REGEX_ALL, REGEX_BY_SUBTYPE
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
 
-FIELDS_FOR_COMPARISON = ['acronym', 'subtype', 'internship_subtype', 'credits', 'periodicity', 'status', 'language',
-                         'professional_integration', 'specific_title', 'specific_title_english', 'quadrimester',
-                         'session', 'attribution_procedure']
-
 AUTHORIZED_REGEX_CHARS = "$*+.^"
 REGEX_ACRONYM_CHARSET = "[A-Z0-9" + AUTHORIZED_REGEX_CHARS + "]+"
 MINIMUM_CREDITS = 0
@@ -337,26 +333,6 @@ class LearningUnitYear(SerializableModel):
     def is_external(self):
         return hasattr(self, "externallearningunityear")
 
-    def compare(self, obj):
-        return self._compare(self, obj, FIELDS_FOR_COMPARISON)
-
-    def _compare(self, obj1, obj2, included_keys):
-        data_obj1, data_obj2 = obj1.__dict__, obj2.__dict__
-        return _get_changed_values(data_obj1, data_obj2, included_keys)
-
-
-def _get_changed_values(data_obj1, data_obj2, included_keys):
-    changed_values = {}
-    for key, value in data_obj1.items():
-        if key not in included_keys:
-            continue
-        try:
-            if value != data_obj2[key]:
-                changed_values.update({key: get_value(LearningUnitYear, data_obj2, key)})
-        except KeyError:
-            raise KeyError('Invalid key for learning_unit_year compare')
-    return changed_values
-
 
 def get_by_id(learning_unit_year_id):
     return LearningUnitYear.objects.select_related('learning_container_year__learning_container') \
@@ -515,17 +491,3 @@ def toggle_summary_locked(learning_unit_year_id):
     luy.summary_locked = not luy.summary_locked
     luy.save()
     return luy
-
-
-def get_value(model, data, field_name):
-    value = data.get(field_name, '-')
-    if model._meta.get_field(field_name).choices:
-        return _(value) if value else None
-    elif model._meta.get_field(field_name).get_internal_type() == 'BooleanField':
-        return _get_boolean_translation(value)
-    else:
-        return value
-
-
-def _get_boolean_translation(value):
-    return _('yes') if value else _('no')

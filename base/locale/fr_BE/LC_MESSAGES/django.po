@@ -3396,3 +3396,9 @@ msgstr "Procédure"
 
 msgid "No difference"
 msgstr "Aucune différence"
+
+msgid "is_vacant"
+msgstr "Vacant"
+
+msgid "team"
+msgstr "Gestion par équipe"

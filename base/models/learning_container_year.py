@@ -33,6 +33,8 @@ from base.models.enums import learning_unit_year_subtypes, learning_container_ye
 from base.models.enums import vacant_declaration_type
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
 
+FIELDS_FOR_COMPARISON = ['team', 'is_vacant', 'type_declaration_vacant']
+
 
 class LearningContainerYearAdmin(SerializableModelAdmin):
     list_display = ('learning_container', 'academic_year', 'container_type', 'acronym', 'common_title')
@@ -81,6 +83,13 @@ class LearningContainerYear(SerializableModel):
 
     def get_attributions(self):
         return AttributionNew.objects.filter(learning_container_year=self).select_related('tutor')
+
+    def compare(self, obj):
+        return self._compare(self, obj, FIELDS_FOR_COMPARISON)
+
+    def _compare(self, obj1, obj2, included_keys):
+        data_obj1, data_obj2 = obj1.__dict__, obj2.__dict__
+        return _get_changed_values(data_obj1, data_obj2, included_keys)
 
 
 def find_by_id(learning_container_year_id):

@@ -26,21 +26,23 @@
 from django.test import TestCase
 from django.test.utils import override_settings
 
-from base.models.learning_unit_year import LearningUnitYear
 from base.templatetags.model_field import get_learning_unit_yr_attribute
 from base.models.enums import quadrimesters
+from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 
 TITLE = 'title'
 
 
 class LearningUnitTagTest(TestCase):
     def setUp(self):
-        self.learning_unit_yr = LearningUnitYear(specific_title=TITLE,
-                                                 status=True,
-                                                 quadrimester=quadrimesters.Q1)
+        self.learning_unit_yr = LearningUnitYearFactory(specific_title=TITLE,
+                                                        status=True,
+                                                        professional_integration=True,
+                                                        quadrimester=quadrimesters.Q1)
 
     @override_settings(LANGUAGES=[('fr-be', 'French'), ('en', 'English'), ], LANGUAGE_CODE='fr-be')
     def test_get_attribute(self):
         self.assertEqual(get_learning_unit_yr_attribute(self.learning_unit_yr, 'specific_title'), TITLE)
-        self.assertEqual(get_learning_unit_yr_attribute(self.learning_unit_yr, 'status'), 'Oui')
+        self.assertEqual(get_learning_unit_yr_attribute(self.learning_unit_yr, 'professional_integration'), 'Oui')
+        self.assertEqual(get_learning_unit_yr_attribute(self.learning_unit_yr, 'status'), 'Actif')
         self.assertEqual(get_learning_unit_yr_attribute(self.learning_unit_yr, 'quadrimester'), quadrimesters.Q1)
