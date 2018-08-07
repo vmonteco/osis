@@ -33,7 +33,6 @@ from django.utils.translation import ugettext_lazy as _
 
 from base import models as mdl
 from base.business.education_group import create_xls, ORDER_COL, ORDER_DIRECTION, create_xls_administrative_data
-from base.business.education_groups import perms
 from base.forms.education_groups import EducationGroupFilter
 from base.forms.search.search_form import get_research_criteria
 from base.models.enums import education_group_categories
@@ -73,7 +72,7 @@ def education_groups(request):
         'object_list_count': len(object_list),
         'experimental_phase': True,
         'education_group_cats': education_group_categories,
-        'can_create_education_group': perms.is_eligible_to_add_education_group(person=person, education_group=None)
+        'person': person
     }
 
     return layout.render(request, "education_groups.html", context)

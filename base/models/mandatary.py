@@ -35,7 +35,7 @@ class MandataryAdmin(OsisModelAdmin):
 
 
 class Mandatary(models.Model):
-    external_id = models.CharField(max_length=100, blank=True, null=True)
+    external_id = models.CharField(max_length=100, blank=True, null=True, db_index=True)
     changed = models.DateTimeField(null=True, auto_now=True)
     mandate = models.ForeignKey('Mandate')
     person = models.ForeignKey('Person')

@@ -174,7 +174,11 @@
         function select() {
             $.ajax({
                 url: "{% url 'learning_unit_select' learning_unit_year_id=learning_unit_year.id %}",
-                type: 'POST'
+                dataType: 'json',
+                type: 'POST',
+                success: function(jsonResponse) {
+                    displayInfoMessage(jsonResponse, 'message_info_container');
+                }
             });
         }
     </script>

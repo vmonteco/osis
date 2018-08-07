@@ -79,7 +79,7 @@ class TestCreate(TestCase):
 
     def setUp(self):
         self.client.force_login(self.person.user)
-        self.perm_patcher = mock.patch("base.business.education_groups.perms.is_eligible_to_add_education_group",
+        self.perm_patcher = mock.patch("base.business.education_groups.perms._is_eligible_to_add_education_group",
                                        return_value=True)
         self.mocked_perm = self.perm_patcher.start()
 
@@ -97,7 +97,7 @@ class TestCreate(TestCase):
         for url in self.urls_without_parent_by_category.values():
             with self.subTest(url=url):
                 self.client.get(url)
-                self.mocked_perm.assert_called_with(self.person, None, raise_exception=True)
+                self.mocked_perm.assert_called_with(self.person, None, None, raise_exception=True)
 
     def test_template_used(self):
         for category in self.test_categories:

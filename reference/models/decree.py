@@ -35,7 +35,7 @@ class DecreeAdmin(SerializableModelAdmin):
 
 
 class Decree(SerializableModel):
-    external_id = models.CharField(max_length=100, blank=True, null=True)
+    external_id = models.CharField(max_length=100, blank=True, null=True, db_index=True)
     name = models.CharField(max_length=80, unique=True)
     start_date = models.DateField(blank=True, null=True)
     end_date = models.DateField(blank=True, null=True)

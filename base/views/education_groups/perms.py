@@ -31,6 +31,7 @@ from base.models import person
 from base.models.education_group_year import EducationGroupYear
 
 
+# TODO should integrate categories
 def can_create_education_group(view_func):
     def f_can_create_education_group(request, *args, **kwargs):
         pers = get_object_or_404(person.Person, user=request.user)
@@ -38,7 +39,7 @@ def can_create_education_group(view_func):
         parent_id = kwargs.get("parent_id")
         parent = get_object_or_404(EducationGroupYear, pk=parent_id) if parent_id else None
 
-        if not business_perms.is_eligible_to_add_education_group(pers, parent, raise_exception=True):
+        if not business_perms._is_eligible_to_add_education_group(pers, parent, None, raise_exception=True):
             raise PermissionDenied
         return view_func(request, *args, **kwargs)
     return f_can_create_education_group
