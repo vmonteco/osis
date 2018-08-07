@@ -35,7 +35,7 @@ class OrganizationAdmin(SerializableModelAdmin):
 
 
 class Organization(SerializableModel):
-    external_id = models.CharField(max_length=100, blank=True, null=True)
+    external_id = models.CharField(max_length=100, blank=True, null=True, db_index=True)
     changed = models.DateTimeField(null=True, auto_now=True)
     name = models.CharField(max_length=255)
     code = models.CharField(max_length=50, blank=True, null=True)

@@ -40,7 +40,7 @@ class AcademicYearAdmin(SerializableModelAdmin):
 
 
 class AcademicYear(SerializableModel):
-    external_id = models.CharField(max_length=100, blank=True, null=True)
+    external_id = models.CharField(max_length=100, blank=True, null=True, db_index=True)
     changed = models.DateTimeField(null=True, auto_now=True)
     year = models.IntegerField(unique=True)
     start_date = models.DateField(default=timezone.now, blank=True, null=True)
