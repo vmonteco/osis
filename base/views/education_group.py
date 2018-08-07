@@ -134,7 +134,7 @@ def education_group_year_pedagogy_edit(request, root_id, education_group_year_id
     user_language = mdl.person.get_user_interface_language(request.user)
     context['text_label_translated'] = get_text_label_translated(text_lb, user_language)
     context['language_translated'] = find_language_in_settings(language)
-    context['group_to_parent'] = request.GET.get("group_to_parent")
+    context['group_to_parent'] = request.GET.get("group_to_parent") or '0'
 
     return layout.render(request, 'education_group/pedagogy_edit.html', context)
 
