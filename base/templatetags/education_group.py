@@ -30,6 +30,7 @@ from django.utils import six
 from django.utils.encoding import force_text
 from django.utils.html import conditional_escape
 from django.utils.safestring import mark_safe
+from django.utils.translation import ugettext as _
 
 from backoffice.settings import base
 from base.business.education_groups.perms import is_eligible_to_delete_education_group, \
@@ -323,7 +324,7 @@ def build_tree(context, current_group_element_year, selected_education_group_yea
 
 
 def _get_group_element_year_id(current_group_element_year):
-    return current_group_element_year.pk if current_group_element_year else "-"
+    return current_group_element_year.pk if current_group_element_year else "0"
 
 
 def _get_url(request, egy, root, current_group_element_year):
@@ -347,3 +348,44 @@ def _get_a_class(education_group_year, selected_education_group_year):
 @register.simple_tag(takes_context=True)
 def url_resolver_match(context):
     return context.request.resolver_match.url_name
+
+
+@register.simple_tag(takes_context=True)
+def link_move_education_group(context):
+    return _custom_link_education_group(context, action="Move", onclick="""onclick="select()" """)
+
+
+@register.simple_tag(takes_context=True)
+def link_detach_education_group(context):
+    return _custom_link_education_group(context, action="Detach", onclick="")
+
+
+def _custom_link_education_group(context, action, onclick):
+    if context['can_change_education_group'] and context['group_to_parent'] != '0':
+        li_attributes = """ id="btn_operation_detach_{group_to_parent}" """.format(
+            group_to_parent=context['group_to_parent']
+        )
+        a_attributes = """ href="#" title="{title}" {onclick} """.format(title=_(action), onclick=onclick)
+    else:
+        li_attributes = """ class="disabled" """
+        title = ""
+        if not context['can_change_education_group']:
+            title += _("The user has not permission to change education groups.")
+        if context['group_to_parent'] == '0':
+            title += " " + _("It is not possible to {action} the root element.".format(action=str.lower(action)))
+
+        a_attributes = """ title="{title}" """.format(title=title)
+    text = _(action)
+    html_template = """
+        <li {li_attributes}>
+            <a {a_attributes} data-toggle="tooltip">{text}</a>
+        </li>
+    """
+
+    return mark_safe(
+        html_template.format(
+            li_attributes=li_attributes,
+            a_attributes=a_attributes,
+            text=text,
+        )
+    )
