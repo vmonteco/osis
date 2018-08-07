@@ -42,7 +42,7 @@ from base.tests.factories.person_entity import PersonEntityFactory
 
 DELETE_MSG = _("delete education group")
 PERMISSION_DENIED_MSG = _("The education group edition period is not open.")
-UNAUTHORIZED_TYPE_MSG = _("No type of education group can be created as child of %(category)s of type %(type)s")
+UNAUTHORIZED_TYPE_MSG = _("No type of %(category)s can be created as child of %(category)s of type %(type)s")
 
 DISABLED_LI = """
 <li class="disabled" id="{}">

@@ -55,6 +55,8 @@
         <div class="panel-footer text-right">
             {% include "education_group/blocks/dropdown/identification_actions_bar.html"  with dropdirection="dropup" %}
         </div>
+        {% url 'delete_education_group' root.pk education_group_year.education_group.pk as delete_url %}
+        {% include "blocks/modal/modal_ajax.html" with modal_url=delete_url click_id="link_delete" form_id="form_delete_education_group" %}
     </div>
 {% endblock %}
 {% block script %}
