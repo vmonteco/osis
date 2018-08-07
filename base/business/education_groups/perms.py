@@ -116,7 +116,7 @@ def check_authorized_type(education_group, category=None, raise_exception=False)
 
     can_raise_exception(
         raise_exception, result,
-        _("No type of education group can be created as child of %(category)s of type %(type)s") % {
+        _("No type of %(category)s can be created as child of %(category)s of type %(type)s") % {
             "category": _(education_group.education_group_type.category),
             "type": education_group.education_group_type.name,
         })
