@@ -246,13 +246,13 @@ def learning_unit_comparison(request, learning_unit_year_id):
 
     previous_academic_yr = mdl.academic_year.find_academic_year_by_year(learning_unit_yr.academic_year.year - 1)
     previous_lu = _get_learning_unit_year(previous_academic_yr, learning_unit_yr)
-    previous_values = compare_learning_unit(learning_unit_yr, previous_lu)
+    previous_values = compare_learning_unit_years(learning_unit_yr, previous_lu)
     previous_lcy_values = compare_learning_container_years(learning_unit_yr.learning_container_year,
                                                            previous_lu.learning_container_year)
 
     next_academic_yr = mdl.academic_year.find_academic_year_by_year(learning_unit_yr.academic_year.year + 1)
     next_lu = _get_learning_unit_year(next_academic_yr, learning_unit_yr)
-    next_values = compare_learning_unit(learning_unit_yr, next_lu)
+    next_values = compare_learning_unit_years(learning_unit_yr, next_lu)
     next_lcy_values = compare_learning_container_years(learning_unit_yr.learning_container_year,
                                                        next_lu.learning_container_year)
 
@@ -272,10 +272,6 @@ def learning_unit_comparison(request, learning_unit_year_id):
     return layout.render(request, "learning_unit/comparison.html", context)
 
 
-def compare_learning_unit(learning_unit_yr, learning_unit_yr_other):
-    return compare_learning_unit_years(learning_unit_yr, learning_unit_yr_other)
-
-
 def _get_learning_unit_year(academic_yr, learning_unit_yr):
     learning_unit_years = mdl.learning_unit_year.search(learning_unit=learning_unit_yr.learning_unit,
                                                         academic_year_id=academic_yr.id)
@@ -289,14 +285,13 @@ def _get_changed_organization(context, context_prev, context_next):
     for key_value in ORGANIZATION_KEYS:
         if _has_changed(context, context_next, context_prev, key_value):
             translated_key = _('learning_location') if key_value == "campus" else _(key_value.lower())
-            data.update({translated_key: {'prev': context_prev.get(key_value, None),
-                                          'current': context.get(key_value, None),
-                                          'next': context_next.get(key_value, None)}
+            data.update({translated_key: {'prev': context_prev.get(key_value),
+                                          'current': context.get(key_value),
+                                          'next': context_next.get(key_value)}
                          })
 
     return collections.OrderedDict(sorted(data.items()))
 
 
 def _has_changed(data_reference, data_1, data_2, key):
-    return data_reference.get(key, None) != data_1.get(key, None) or data_reference.get(key, None) != data_2.get(key,
-                                                                                                                 None)
+    return data_reference.get(key) != data_1.get(key) or data_reference.get(key) != data_2.get(key)

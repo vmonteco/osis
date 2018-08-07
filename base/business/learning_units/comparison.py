@@ -44,16 +44,13 @@ def get_keys(list1, list2):
 
 
 def compare_learning_unit_years(obj_ref, obj):
-    return _compare(obj_ref, obj, FIELDS_FOR_LEARNING_UNIT_YR_COMPARISON)
+    data_obj1, data_obj2 = obj_ref.__dict__, obj.__dict__
+    return _get_changed_values(data_obj1, data_obj2, FIELDS_FOR_LEARNING_UNIT_YR_COMPARISON, type(obj_ref))
 
 
 def compare_learning_container_years(obj_ref, obj):
-    return _compare(obj_ref, obj, FIELDS_FOR_LEARNING_CONTAINER_YR_COMPARISON)
-
-
-def _compare(obj1, obj2, included_keys):
-    data_obj1, data_obj2 = obj1.__dict__, obj2.__dict__
-    return _get_changed_values(data_obj1, data_obj2, included_keys, type(obj1))
+    data_obj1, data_obj2 = obj_ref.__dict__, obj.__dict__
+    return _get_changed_values(data_obj1, data_obj2, FIELDS_FOR_LEARNING_CONTAINER_YR_COMPARISON, type(obj_ref))
 
 
 def _get_changed_values(data_obj1, data_obj2, included_keys, model):
