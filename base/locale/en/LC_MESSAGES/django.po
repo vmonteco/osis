@@ -3388,3 +3388,6 @@ msgstr ""
 
 msgid "It is not possible to detach the root element."
 msgstr ""
+
+msgid "Attached to \"%(acronym)s\""
+msgstr ""
