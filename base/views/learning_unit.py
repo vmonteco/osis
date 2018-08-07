@@ -281,8 +281,7 @@ def get_learning_unit(academic_yr, learning_unit_yr):
 def _get_changed_organization(context, context_prev, context_next):
     data = {}
     for key_value in ORGANIZATION_KEYS:
-        if context.get(key_value, None) != context_next.get(key_value, None) or \
-                        context.get(key_value, None) != context_prev.get(key_value, None):
+        if context.get(key_value, None) != context_next.get(key_value, None) or context.get(key_value, None) != context_prev.get(key_value, None):
             translated_key = _(key_value.lower())
             if key_value == "campus":
                 translated_key = _('learning_location')
