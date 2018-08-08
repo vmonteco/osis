@@ -6,7 +6,7 @@
 <head>
     <meta charset="utf-8">
     <title>
-        {{ parent_verbose }}
+        {{ parent.verbose_credit }}
     </title>
     <style type="text/css">
         @page {
@@ -14,7 +14,7 @@
             margin: 2cm 1cm 2.5cm 1cm;
 
             @top-left {
-                content: "{% trans 'academic_year' %} {{ parent.academic_year }} \A {{ parent_verbose }} ";
+                content: "{% trans 'academic_year' %} {{ parent.academic_year }} \A {{ parent.verbose_credit }} ";
                 white-space: pre;
                 font-size: 11px;
             }
@@ -36,7 +36,7 @@
                 font-size: 11px;
             }
 
-            @bottom-center {
+            @bottom-center{
                 background: url("{% static 'img/education_group_year/legend.png' %}") no-repeat;
                 display: inline-block;
                 width: 125mm;
@@ -75,7 +75,7 @@
             <tr>
                 <td style="width:auto;float:left;">
                     <img src="{% static 'img/education_group_year/mandatory.png' %}" height="10" width="10">
-                    {{ parent_verbose }}
+                    {{ parent.verbose_credit }}
                 </td>
             </tr>
             {{ tree|pdf_tree_list:language }}

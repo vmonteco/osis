@@ -26,6 +26,7 @@
 from django.db import models
 from django.db.models import Count
 from django.urls import reverse
+from django.utils import translation
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
@@ -233,15 +234,8 @@ class EducationGroupYear(models.Model):
 
     @property
     def verbose_credit(self):
-        return "%(title)s (%(credits)s crédits)" % {
-                "title": self.title,
-                "credits": self.credits or 0
-            }
-
-    @property
-    def verbose_credit_english(self):
-        return "%(title)s (%(credits)s credits)" % {
-            "title": self.title_english if self.title_english else self.verbose,
+        return _("%(title)s (%(credits)s credits)") % {
+            "title": self.title_english if self.title_english and translation.get_language() == 'en' else self.verbose,
             "credits": self.credits or 0
         }
 

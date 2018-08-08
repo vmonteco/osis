@@ -27,6 +27,7 @@ import datetime
 
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
+from django.utils import translation
 
 from base.models.education_group_year import EducationGroupYear
 from osis_common.document.pdf_build import render_pdf
@@ -36,23 +37,20 @@ from osis_common.document.pdf_build import render_pdf
 def pdf_content(request, root_id, education_group_year_id, language):
     parent = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
     tree = get_verbose_children(parent)
-    if language == "fr":
-        parent_verbose = parent.verbose_credit
-    else:
-        parent_verbose = parent.verbose_credit_english
+
     context = {
         'parent': parent,
-        'parent_verbose': parent_verbose,
         'tree': tree,
         'language': language,
         'created': datetime.datetime.now(),
     }
-    return render_pdf(
-        request,
-        context=context,
-        filename=parent.acronym,
-        template='education_group/pdf_content.html'
-    )
+    with translation.override(language):
+        return render_pdf(
+            request,
+            context=context,
+            filename=parent.acronym,
+            template='education_group/pdf_content.html',
+        )
 
 
 def get_verbose_children(parent):

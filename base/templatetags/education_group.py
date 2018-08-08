@@ -238,17 +238,13 @@ def list_formatter(item_list, language, tabs=1, depth=None):
 
 
 def append_output(item, output, padding, sublist, language):
-    if language == "fr":
-        verbose = item.verbose
-    else:
-        verbose = item.verbose_english
     if item.child_leaf:
         output.append(
             CHILD_LEAF.format(padding=padding,
                               width_main="80%",
                               icon_list_1=CASE_JPG,
                               icon_list_2=MANDATORY_PNG if item.is_mandatory else OPTIONAL_PNG,
-                              value=escaper(force_text(verbose)),
+                              value=escaper(force_text(item.verbose)),
                               sublist=sublist,
                               width_an="15px",
                               an_1=check_block(item, "1"),
@@ -258,7 +254,7 @@ def append_output(item, output, padding, sublist, language):
         output.append(
             CHILD_BRANCH.format(padding=padding, width_main="80%",
                                 icon_list_2=MANDATORY_PNG if item.is_mandatory else OPTIONAL_PNG,
-                                value=escaper(force_text(verbose)),
+                                value=escaper(force_text(item.verbose)),
                                 sublist=sublist))
 
 
@@ -339,6 +335,11 @@ def link_detach_education_group(context):
     return _custom_link_education_group(context, action="Detach", onclick="")
 
 
+@register.simple_tag(takes_context=True)
+def link_pdf_content_education_group(context):
+    return _custom_link_pdf_content(context, action="PDF_content", onclick="")
+
+
 def _custom_link_education_group(context, action, onclick):
     if context['can_change_education_group'] and context['group_to_parent'] != '0':
         li_attributes = """ id="btn_operation_detach_{group_to_parent}" """.format(
@@ -354,6 +355,26 @@ def _custom_link_education_group(context, action, onclick):
             title += " " + _("It is not possible to {action} the root element.".format(action=str.lower(action)))
 
         a_attributes = """ title="{title}" """.format(title=title)
+    text = _(action)
+    html_template = """
+        <li {li_attributes}>
+            <a {a_attributes} data-toggle="tooltip">{text}</a>
+        </li>
+    """
+
+    return mark_safe(
+        html_template.format(
+            li_attributes=li_attributes,
+            a_attributes=a_attributes,
+            text=text,
+        )
+    )
+
+
+def _custom_link_pdf_content(context, action, onclick):
+    li_attributes = """ id="btn_operation_pdf_content" """
+    a_attributes = """ href="#" title="{title}" {onclick} """.format(title=_(action), onclick=onclick)
+
     text = _(action)
     html_template = """
         <li {li_attributes}>
