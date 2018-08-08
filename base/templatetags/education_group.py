@@ -187,13 +187,13 @@ def button_with_permission(context, title, id_a, value):
 
 
 @register.filter(is_safe=True, needs_autoescape=True)
-def pdf_tree_list(value, language, autoescape=True):
+def pdf_tree_list(value, autoescape=True):
     if autoescape:
         escaper = conditional_escape
     else:
         def escaper(x):
             return x
-    return mark_safe(list_formatter(value, language=language))
+    return mark_safe(list_formatter(value))
 
 
 def walk_items(item_list):
@@ -224,7 +224,7 @@ def walk_items(item_list):
         return ""
 
 
-def list_formatter(item_list, language, tabs=1, depth=None):
+def list_formatter(item_list, tabs=1, depth=None):
     output = []
     depth = depth if depth else 1
     for item, children in walk_items(item_list):
@@ -232,12 +232,12 @@ def list_formatter(item_list, language, tabs=1, depth=None):
         padding = 2 * depth
         if children:
             sublist = '%s' % (
-                list_formatter(children, language, tabs + 1, depth + 1))
-        append_output(item, output, padding, sublist, language=language)
+                list_formatter(children, tabs + 1, depth + 1))
+        append_output(item, output, padding, sublist)
     return '\n'.join(output)
 
 
-def append_output(item, output, padding, sublist, language):
+def append_output(item, output, padding, sublist):
     if item.child_leaf:
         output.append(
             CHILD_LEAF.format(padding=padding,
