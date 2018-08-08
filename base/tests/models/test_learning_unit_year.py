@@ -24,18 +24,20 @@
 #
 ##############################################################################
 from django.test import TestCase
+from django.test.utils import override_settings
 from django.utils.translation import ugettext_lazy as _
 
 from attribution.models import attribution
 from base.models import learning_unit_year
 from base.models.entity_component_year import EntityComponentYear
+from base.models.enums import quadrimesters, learning_unit_year_session, attribution_procedure
 from base.models.enums import learning_unit_year_periodicity
 from base.models.enums import learning_unit_year_subtypes
 from base.models.enums.entity_container_year_link_type import REQUIREMENT_ENTITY
 from base.models.enums.learning_component_year_type import LECTURING, PRACTICAL_EXERCISES
 from base.models.learning_component_year import LearningComponentYear
 from base.models.learning_unit_year import find_max_credits_of_related_partims, check_if_acronym_regex_is_valid
-from base.tests.factories.academic_year import create_current_academic_year
+from base.tests.factories.academic_year import create_current_academic_year, AcademicYearFactory
 from base.tests.factories.business.learning_units import GenerateAcademicYear, GenerateContainer
 from base.tests.factories.external_learning_unit_year import ExternalLearningUnitYearFactory
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
@@ -96,7 +98,7 @@ class LearningUnitYearTest(TestCase):
 
         result = list(selected_learning_unit_year.find_gte_learning_units_year().values_list('academic_year__year',
                                                                                              flat=True))
-        self.assertListEqual(result, list(range(2007,2018)))
+        self.assertListEqual(result, list(range(2007, 2018)))
 
     def test_find_gte_learning_units_year_case_no_future(self):
         learning_unit = LearningUnitFactory()
@@ -115,7 +117,7 @@ class LearningUnitYearTest(TestCase):
         selected_learning_unit_year = dict_learning_unit_year[2007]
 
         result = list(selected_learning_unit_year.find_gt_learning_units_year().values_list('academic_year__year',
-                                                                                             flat=True))
+                                                                                            flat=True))
         self.assertListEqual(result, list(range(2008, 2018)))
 
     def test_find_gt_learning_units_year_case_no_future(self):
@@ -125,7 +127,7 @@ class LearningUnitYearTest(TestCase):
         selected_learning_unit_year = dict_learning_unit_year[2017]
 
         result = list(selected_learning_unit_year.find_gt_learning_units_year().values_list('academic_year__year',
-                                                                                             flat=True))
+                                                                                            flat=True))
         self.assertEqual(result, [])
 
     def test_get_learning_unit_parent(self):
@@ -159,7 +161,6 @@ class LearningUnitYearTest(TestCase):
         self.assertEqual(learning_unit_year.search(title=a_common_title)[0], luy)
         self.assertEqual(learning_unit_year.search(title=common_part)[0], luy)
         self.assertEqual(learning_unit_year.search(title=a_specific_title)[0], luy)
-
 
     def test_find_max_credits_of_partims(self):
         self.partim_1 = LearningUnitYearFactory(academic_year=self.academic_year,
@@ -514,3 +515,5 @@ class LearningUnitYearWarningsTest(TestCase):
         luy_partim.periodicity = learning_unit_year_periodicity.BIENNIAL_ODD
         result = luy_partim._check_partim_parent_periodicity()
         self.assertFalse(result)
+
+

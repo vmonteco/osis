@@ -3391,3 +3391,27 @@ msgstr ""
 
 msgid "Attached to \"%(acronym)s\""
 msgstr ""
+
+msgid "Learning units comparison"
+msgstr ""
+
+msgid "specific_title"
+msgstr "Title"
+
+msgid "specific_title_english"
+msgstr "English title"
+
+msgid "attribution_procedure"
+msgstr "Procedure"
+
+msgid "No difference"
+msgstr ""
+
+msgid "is_vacant"
+msgstr "Vacant"
+
+msgid "team"
+msgstr "Team management"
+
+msgid "Selected element"
+msgstr ""

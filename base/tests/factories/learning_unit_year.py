@@ -31,6 +31,7 @@ import factory.fuzzy
 from factory.django import DjangoModelFactory
 from faker import Faker
 
+from base.models.enums import attribution_procedure
 from base.models.enums import internship_subtypes
 from base.models.enums import learning_unit_year_periodicity
 from base.models.enums import quadrimesters
@@ -105,3 +106,21 @@ class LearningUnitYearFakerFactory(DjangoModelFactory):
     campus = factory.SubFactory(CampusFactory)
     periodicity = factory.Iterator(learning_unit_year_periodicity.PERIODICITY_TYPES, getter=operator.itemgetter(0))
 
+
+def create_learning_unit_year(academic_yr, title, learning_unit):
+    return LearningUnitYearFactory(acronym='LDROI1001',
+                                   academic_year=academic_yr,
+                                   subtype=learning_unit_year_subtypes.FULL,
+                                   status=True,
+                                   internship_subtype=None,
+                                   credits=5,
+                                   periodicity=learning_unit_year_periodicity.ANNUAL,
+                                   language=None,
+                                   professional_integration=True,
+                                   specific_title=title,
+                                   specific_title_english=None,
+                                   quadrimester=quadrimesters.Q1,
+                                   session=learning_unit_year_session.SESSION_123,
+                                   attribution_procedure=attribution_procedure.EXTERNAL,
+                                   learning_unit=learning_unit
+                                   )
