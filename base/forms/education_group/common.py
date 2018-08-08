@@ -24,7 +24,7 @@
 #
 ##############################################################################
 from django import forms
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ImproperlyConfigured
 from django.core.validators import RegexValidator
 
 from base.forms.learning_unit.entity_form import EntitiesVersionChoiceField
@@ -125,10 +125,13 @@ class EducationGroupYearModelForm(ValidationRuleEducationGroupTypeMixin, forms.M
 
     def __init__(self, *args, education_group_type=None, **kwargs):
         self.parent = kwargs.pop("parent", None)
-        self.education_group_type = education_group_type
 
+        if not education_group_type and not kwargs.get('instance'):
+            raise ImproperlyConfigured("Provide an education_group_type or an instance")
+
+        self.education_group_type = education_group_type
         if self.education_group_type:
-            if education_group_type not in find_authorized_types(self.category):
+            if education_group_type not in find_authorized_types(self.category, self.parent):
                 raise PermissionDenied("Unauthorized type {} for {}".format(education_group_type, self.category))
 
         if "initial" not in kwargs:

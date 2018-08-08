@@ -191,10 +191,10 @@ class TestUpdate(TestCase):
             'active': ACTIVE,
             'schedule_type': DAILY,
             "internship": internship_presence.NO,
-            "primary_language": LanguageFactory().pk
+            "primary_language": LanguageFactory().pk,
+            "start_year": 2010,
         }
         response = self.client.post(self.training_url, data=data)
-
         self.assertEqual(response.status_code, 302)
 
         self.training_education_group_year.refresh_from_db()

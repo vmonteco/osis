@@ -85,15 +85,15 @@ def find_all():
 
 
 def find_authorized_types(category=None, parents=None):
-    if parents and not isinstance(parents, collections.Iterable):
-        parents = [parents]
-
     if category:
         queryset = search(category=category)
     else:
         queryset = EducationGroupType.objects.all()
 
     if parents:
+        if not isinstance(parents, collections.Iterable):
+            parents = [parents]
+
         # Consecutive filters : we want to match all types not any types
         for parent in parents:
             queryset = queryset.filter(
