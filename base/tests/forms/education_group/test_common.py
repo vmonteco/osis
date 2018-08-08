@@ -50,35 +50,34 @@ class EducationGroupYearModelFormMixin(TestCase):
     """Common class used to get common tests on ModelForm instances of Training, MiniTraining and Group"""
     education_group_type = None
 
-    @classmethod
-    def setUp(cls, **kwargs):
-        cls.education_group_type = kwargs.pop('education_group_type')
+    def setUp(self, **kwargs):
+        self.education_group_type = kwargs.pop('education_group_type')
 
-        cls.campus = CampusFactory(organization__type=organization_type.MAIN)
-        cls.academic_year = AcademicYearFactory()
+        self.campus = CampusFactory(organization__type=organization_type.MAIN)
+        self.academic_year = AcademicYearFactory()
         new_entity_version = MainEntityVersionFactory()
 
-        cls.form_data = {
+        self.form_data = {
             "acronym": "ACRO4569",
             "partial_acronym": "PACR8974",
-            "education_group_type": cls.education_group_type.id,
+            "education_group_type": self.education_group_type.id,
             "title": "Test data",
-            "main_teaching_campus": cls.campus.id,
-            "academic_year": cls.academic_year.id,
+            "main_teaching_campus": self.campus.id,
+            "academic_year": self.academic_year.id,
             "management_entity": new_entity_version.pk,
             "remark": "This is a test!!"
         }
 
-        cls.parent_education_group_year = EducationGroupYearFactory(academic_year=cls.academic_year)
-        cls.entity_version = EntityVersionFactory(entity=cls.parent_education_group_year.management_entity)
+        self.parent_education_group_year = EducationGroupYearFactory(academic_year=self.academic_year)
+        self.entity_version = EntityVersionFactory(entity=self.parent_education_group_year.management_entity)
 
     def _test_fields(self, form_class, fields):
         form = form_class(parent=None, education_group_type=self.education_group_type)
         self.assertCountEqual(tuple(form.fields.keys()), fields)
 
-    @patch('base.forms.education_group.common.find_authorized_types',
-           return_value=EducationGroupType.objects.all())
+    @patch('base.forms.education_group.common.find_authorized_types')
     def _test_init_and_disable_academic_year_field(self, form_class, mock_authorized_types):
+        mock_authorized_types.return_value = EducationGroupType.objects.all()
         form = form_class(
             parent=self.parent_education_group_year,
             education_group_type=self.education_group_type
@@ -89,9 +88,10 @@ class EducationGroupYearModelFormMixin(TestCase):
         self.assertTrue(academic_year_field.disabled)
         self.assertTrue(academic_year_field.initial, self.academic_year)
 
-    @patch('base.forms.education_group.common.find_authorized_types',
-           return_value=EducationGroupType.objects.all())
+    @patch('base.forms.education_group.common.find_authorized_types')
     def _test_init_education_group_type_field(self, form_class, expected_category, mock_authorized_types):
+        mock_authorized_types.return_value = EducationGroupType.objects.all()
+
         form_class(
             parent=self.parent_education_group_year,
             education_group_type=self.education_group_type
