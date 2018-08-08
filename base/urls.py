@@ -172,7 +172,8 @@ urlpatterns = [
                     name="teaching_material_edit"),
                 url(r'^(?P<teaching_material_id>[0-9]+)/delete/', teaching_material.delete,
                     name="teaching_material_delete")
-            ]))
+            ])),
+            url(r'^comparison/$', learning_unit.learning_unit_comparison, name="learning_unit_comparison"),
         ])),
         url(r'^check/(?P<subtype>[A-Z]+)$', base.views.learning_units.common.check_acronym, name="check_acronym"),
         url(r'^email_educational_information_update/$',

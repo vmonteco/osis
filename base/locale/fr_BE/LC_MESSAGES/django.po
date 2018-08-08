@@ -3399,6 +3399,27 @@ msgstr "Il n'est pas possible de détacher l'élément racine de l'arbre."
 msgid "Attached to \"%(acronym)s\""
 msgstr "L'élément sélectionné a été attaché à \"%(acronym)s\""
 
+msgid "Learning units comparison"
+msgstr "Fiche comparative"
+
+msgid "specific_title"
+msgstr "Intitulé"
+
+msgid "specific_title_english"
+msgstr "Intitulé en anglais"
+
+msgid "attribution_procedure"
+msgstr "Procédure"
+
+msgid "No difference"
+msgstr "Aucune différence"
+
+msgid "is_vacant"
+msgstr "Vacant"
+
+msgid "team"
+msgstr "Gestion par équipe"
+
 msgid "Selected element"
 msgstr "Élément sélectionné"
 
