@@ -43,6 +43,18 @@ from base.views.common import display_success_messages
 from base.views.common_classes import FlagMixin, AjaxTemplateMixin
 from base.views.education_groups.perms import can_create_education_group
 
+FORMS_BY_CATEGORY = {
+    education_group_categories.GROUP: GroupForm,
+    education_group_categories.TRAINING: TrainingForm,
+    education_group_categories.MINI_TRAINING: MiniTrainingForm,
+}
+
+TEMPLATES_BY_CATEGORY = {
+    education_group_categories.GROUP: "education_group/create_groups.html",
+    education_group_categories.TRAINING: "education_group/create_trainings.html",
+    education_group_categories.MINI_TRAINING: "education_group/create_mini_trainings.html",
+}
+
 
 class SelectEducationGroupTypeView(FlagMixin, AjaxTemplateMixin, FormView):
     flag = "education_group_create"
@@ -75,13 +87,7 @@ def create_education_group(request, category, education_group_type_pk, parent_id
     parent = get_object_or_404(EducationGroupYear, id=parent_id) if parent_id is not None else None
     education_group_type = get_object_or_404(EducationGroupType, pk=education_group_type_pk)
 
-    forms_by_category = {
-        education_group_categories.GROUP: GroupForm,
-        education_group_categories.TRAINING: TrainingForm,
-        education_group_categories.MINI_TRAINING: MiniTrainingForm,
-    }
-
-    form_education_group_year = forms_by_category[category](
+    form_education_group_year = FORMS_BY_CATEGORY[category](
         request.POST or None,
         parent=parent,
         education_group_type=education_group_type
@@ -99,13 +105,7 @@ def create_education_group(request, category, education_group_type_pk, parent_id
 
         return redirect(url)
 
-    templates_by_category = {
-        education_group_categories.GROUP: "education_group/create_groups.html",
-        education_group_categories.TRAINING: "education_group/create_trainings.html",
-        education_group_categories.MINI_TRAINING: "education_group/create_mini_trainings.html",
-    }
-
-    return layout.render(request, templates_by_category.get(category), {
+    return layout.render(request, TEMPLATES_BY_CATEGORY.get(category), {
         "form_education_group_year": form_education_group_year.forms[forms.ModelForm],
         "form_education_group": form_education_group_year.forms[EducationGroupModelForm],
         "parent": parent
