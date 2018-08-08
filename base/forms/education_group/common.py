@@ -25,16 +25,16 @@
 ##############################################################################
 from django import forms
 from django.core.exceptions import PermissionDenied, ImproperlyConfigured
-from django.core.validators import RegexValidator
+from django.utils.translation import ugettext_lazy as _
 
+from base.forms.common import ValidationRuleMixin
 from base.forms.learning_unit.entity_form import EntitiesVersionChoiceField
 from base.models import campus, group_element_year
 from base.models.campus import Campus
 from base.models.education_group import EducationGroup
-from base.models.education_group_type import find_authorized_types
+from base.models.education_group_type import find_authorized_types, EducationGroupType
 from base.models.education_group_year import EducationGroupYear
 from base.models.entity_version import find_main_entities_version, get_last_version
-from base.models.validation_rule import ValidationRule
 from reference.models.language import Language
 
 
@@ -48,47 +48,6 @@ class MainEntitiesVersionChoiceField(EntitiesVersionChoiceField):
     def __init__(self, queryset, *args, **kwargs):
         queryset = find_main_entities_version()
         super(MainEntitiesVersionChoiceField, self).__init__(queryset, *args, **kwargs)
-
-
-class ValidationRuleMixin:
-    """
-    Mixin for ModelForm
-
-    It appends additional rules from VadilationRule table on fields.
-    """
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.rules = self.get_rules()
-        self._set_rules_on_fields()
-
-    def get_rules(self):
-        result = {}
-
-        for name, field in self.fields.items():
-            qs = ValidationRule.objects.filter(field_reference=self.field_reference(name))
-            if qs:
-                result[name] = qs.get()
-
-        return result
-
-    def field_reference(self, name):
-        return '.'.join([self._meta.model._meta.db_table, name])
-
-    def _set_rules_on_fields(self):
-        for name, field in self.fields.items():
-            if name in self.rules:
-                rule = self.rules[name]
-
-                if not isinstance(field, forms.BooleanField):
-                    field.required = rule.required_field
-
-                field.disabled = rule.disabled_field
-                field.initial = rule.initial_value
-
-                field.validators.append(
-                    RegexValidator(rule.regex_rule, rule.regex_error_message or None)
-                )
 
 
 class ValidationRuleEducationGroupTypeMixin(ValidationRuleMixin):
@@ -161,9 +120,7 @@ class EducationGroupYearModelForm(ValidationRuleEducationGroupTypeMixin, forms.M
     def _init_and_disable_academic_year(self):
         if self.parent or self.instance.academic_year_id:
             academic_year = self.parent.academic_year if self.parent else self.instance.academic_year
-            self.fields["academic_year"].initial = academic_year.id
-            self.fields["academic_year"].disabled = True
-            self.fields["academic_year"].required = False
+            self._disable_field("academic_year", initial_value=academic_year.pk)
 
     def _preselect_entity_version_from_entity_value(self):
         if getattr(self.instance, 'management_entity', None):
@@ -179,14 +136,6 @@ class EducationGroupYearModelForm(ValidationRuleEducationGroupTypeMixin, forms.M
 
 
 class EducationGroupModelForm(forms.ModelForm):
-    def _disable_field(self, key, initial_value=None):
-        field = self.fields[key]
-        if initial_value:
-            self.fields[key].initial = initial_value
-
-        field.disabled = True
-        field.required = False
-
     class Meta:
         model = EducationGroup
         fields = ("start_year", "end_year")
@@ -238,3 +187,15 @@ class CommonBaseForm:
         for form in self.forms.values():
             errors.update(form.errors)
         return errors
+
+
+class EducationGroupTypeForm(forms.Form):
+    name = forms.ModelChoiceField(EducationGroupType.objects.none(), label=_("training_type"), required=True)
+
+    def __init__(self, parent, category, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields["name"].queryset = find_authorized_types(
+            category=category,
+            parents=parent
+        )
