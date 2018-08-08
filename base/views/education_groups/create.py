@@ -72,22 +72,20 @@ class SelectEducationGroupTypeView(FlagMixin, AjaxTemplateMixin, FormView):
         return kwargs
 
     def form_valid(self, form):
-        # Attach form to the object to use it in get_success_url
-        self.form = form
+        # Attach education_group_type to use it in get_success_url
+        self.kwargs["education_group_type_pk"] = form.cleaned_data["name"].pk
         return super().form_valid(form)
 
     def get_success_url(self):
-        return reverse(create_education_group, kwargs=self.kwargs) + \
-               "?education_group_type=" + \
-               str(self.form.cleaned_data["name"].pk)
+        return reverse(create_education_group, kwargs=self.kwargs)
 
 
 @login_required
 @waffle_flag("education_group_create")
 @can_create_education_group
-def create_education_group(request, category, parent_id=None):
+def create_education_group(request, category, education_group_type_pk, parent_id=None):
     parent = get_object_or_404(EducationGroupYear, id=parent_id) if parent_id is not None else None
-    education_group_type = get_object_or_404(EducationGroupType, pk=request.GET.get("education_group_type"))
+    education_group_type = get_object_or_404(EducationGroupType, pk=education_group_type_pk)
 
     forms_by_category = {
         education_group_categories.GROUP: GroupForm,

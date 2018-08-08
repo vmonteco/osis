@@ -155,15 +155,6 @@ class EducationGroupYearModelForm(ValidationRuleEducationGroupTypeMixin, forms.M
         elif self.instance.pk:
             self._disable_field("education_group_type", self.instance.education_group_type.pk)
 
-        # else:
-        #     # In case of update, we need to fetch all parents
-        #     queryset = find_authorized_types(
-        #         category=self.category,
-        #         parents=EducationGroupYear.objects.filter(groupelementyear__child_branch=self.instance.pk)
-        #         if self.instance.pk else self.parent
-        #     )
-        #     self.fields["education_group_type"].queryset = queryset
-
     def _init_and_disable_academic_year(self):
         if self.parent or self.instance.academic_year_id:
             academic_year = self.parent.academic_year if self.parent else self.instance.academic_year
@@ -185,12 +176,6 @@ class EducationGroupYearModelForm(ValidationRuleEducationGroupTypeMixin, forms.M
 
 
 class EducationGroupModelForm(forms.ModelForm):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # TODO For the moment the start_year value is set after the validation
-        # self.fields["start_year"].required = False
-        self._disable_field("start_year", initial_value=2000)
-
     def _disable_field(self, key, initial_value=None):
         field = self.fields[key]
         if initial_value:
