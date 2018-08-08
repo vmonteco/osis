@@ -3401,3 +3401,6 @@ msgstr "L'élément sélectionné a été attaché à \"%(acronym)s\""
 
 msgid "Selected element"
 msgstr "Élément sélectionné"
+
+msgid "Which type of %(category)s do you want to create ?"
+msgstr "Quel type de %(category)s voulez-vous créer ?"

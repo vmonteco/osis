@@ -30,7 +30,6 @@
 
 <form method="post" id="form_education_group_type" action="{{ request.path }}">
     {% csrf_token %}
-    <p>{% blocktrans %}Which education group type do you want to create ?{% endblocktrans %}</p>
     {% bootstrap_form form %}
     {% if not request.is_ajax %}
         <input type="submit" value="{% trans "i_confirm" %}" class="btn btn-primary"/>

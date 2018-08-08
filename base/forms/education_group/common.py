@@ -199,3 +199,7 @@ class EducationGroupTypeForm(forms.Form):
             category=category,
             parents=parent
         )
+
+        self.fields["name"].label = _("Which type of %(category)s do you want to create ?") % {
+            "category": _(category)
+        }
