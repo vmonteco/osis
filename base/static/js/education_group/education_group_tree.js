@@ -42,12 +42,15 @@ $(document).ready(function () {
                   "action" : function (data) {
                     var inst = $.jstree.reference(data.reference),
                         obj = inst.get_node(data.reference);
-                    var education_group_year_id = obj.li_attr.id.split('_').slice(-1)[0]
+                    var education_group_year_id = obj.li_attr.id.split('_').slice(-1)[0];
                     $.ajax({
                         url: '../select/',
+                        dataType: 'json',
                         data: {'child_to_cache_id' : education_group_year_id},
                         type: 'POST',
-                        dataType: 'json',
+                        success: function(jsonResponse) {
+                            displayInfoMessage(jsonResponse, 'message_info_container')
+                        }
                     });
                   },
                   "icon": "fa fa-check-square"

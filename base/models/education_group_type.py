@@ -47,7 +47,7 @@ class EducationGroupType(models.Model):
 
     objects = EducationGroupTypeManager()
 
-    external_id = models.CharField(max_length=100, blank=True, null=True)
+    external_id = models.CharField(max_length=100, blank=True, null=True, db_index=True)
     changed = models.DateTimeField(null=True, auto_now=True)
     category = models.CharField(max_length=25, choices=education_group_categories.CATEGORIES,
                                 default=education_group_categories.TRAINING, verbose_name=_('type'))

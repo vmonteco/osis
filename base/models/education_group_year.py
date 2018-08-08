@@ -48,7 +48,7 @@ class EducationGroupYearAdmin(OsisModelAdmin):
 
 
 class EducationGroupYear(models.Model):
-    external_id = models.CharField(max_length=100, blank=True, null=True)
+    external_id = models.CharField(max_length=100, blank=True, null=True, db_index=True)
     changed = models.DateTimeField(null=True, auto_now=True)
     acronym = models.CharField(max_length=40, db_index=True, verbose_name=_("acronym"))
     title = models.CharField(max_length=255, verbose_name=_("title_in_french"))

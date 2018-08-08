@@ -30,6 +30,7 @@ from django.test import TestCase
 from base.business.education_groups.perms import is_education_group_creation_period_opened, check_permission, \
     check_authorized_type
 from base.models.enums import academic_calendar_type
+from base.models.enums.education_group_categories import TRAINING
 from base.tests.factories.academic_calendar import AcademicCalendarFactory
 from base.tests.factories.authorized_relationship import AuthorizedRelationshipFactory
 from base.tests.factories.education_group_year import EducationGroupYearFactory
@@ -68,15 +69,15 @@ class TestPerms(TestCase):
 
     def test_check_unauthorized_type(self):
         education_group = EducationGroupYearFactory()
-        result = check_authorized_type(education_group)
+        result = check_authorized_type(education_group, TRAINING)
         self.assertFalse(result)
 
     def test_check_authorized_type(self):
         education_group = EducationGroupYearFactory()
         AuthorizedRelationshipFactory(parent_type=education_group.education_group_type)
-        result = check_authorized_type(education_group)
+        result = check_authorized_type(education_group, TRAINING)
         self.assertTrue(result)
 
     def test_check_authorized_type_without_parent(self):
-        result = check_authorized_type(None)
+        result = check_authorized_type(None, TRAINING)
         self.assertTrue(result)

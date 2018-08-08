@@ -34,7 +34,7 @@ class GradeTypeAdmin(SerializableModelAdmin):
 
 
 class GradeType(SerializableModel):
-    external_id = models.CharField(max_length=100, blank=True, null=True)
+    external_id = models.CharField(max_length=100, blank=True, null=True, db_index=True)
     name = models.CharField(max_length=255)
     coverage = models.CharField(max_length=30, choices=grade_type_coverage.COVERAGE_CHOICES, default=grade_type_coverage.UNKNOWN)
     adhoc = models.BooleanField(default=True)  # If False == Official/validated, if True == Not Official/not validated

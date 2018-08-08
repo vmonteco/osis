@@ -41,7 +41,7 @@ class TranslatedTextLabelAdmin(osis_model_admin.OsisModelAdmin):
 
 
 class TranslatedTextLabel(models.Model):
-    external_id = models.CharField(max_length=100, blank=True, null=True)
+    external_id = models.CharField(max_length=100, blank=True, null=True, db_index=True)
     changed = models.DateTimeField(null=True, auto_now=True)
     language = models.CharField(max_length=30, null=True, choices=settings.LANGUAGES, default=settings.LANGUAGE_CODE)
     text_label = models.ForeignKey(TextLabel)
