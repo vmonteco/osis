@@ -84,16 +84,6 @@
 
                 {% flag "pdf_content" %}
                     {% link_pdf_content_education_group %}
-                    <li>
-                        <a href="{% url 'pdf_content' root.pk education_group_year.pk "fr-be" %}" target="_blank">
-                            {% trans 'Group content' %}
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{% url 'pdf_content' root.pk education_group_year.pk "en" %}" target="_blank">
-                            {% trans 'English group content' %}
-                        </a>
-                    </li>
                 {% endflag %}
             </ul>
         </div>

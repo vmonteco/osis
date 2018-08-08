@@ -3415,3 +3415,9 @@ msgstr "Team management"
 
 msgid "Selected element"
 msgstr ""
+
+msgid "English"
+msgstr ""
+
+msgid "French"
+msgstr ""

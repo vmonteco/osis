@@ -27,9 +27,14 @@ import datetime
 
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
+from django.urls import reverse
 from django.utils import translation
+from django.utils.decorators import method_decorator
+from django.views.generic import FormView
 
+from base.forms.education_group.common import SelectLanguage
 from base.models.education_group_year import EducationGroupYear
+from base.views.common_classes import FlagMixin, AjaxTemplateMixin
 from osis_common.document.pdf_build import render_pdf
 
 
@@ -62,3 +67,16 @@ def get_verbose_children(parent):
             result.append(get_verbose_children(group_element_year.child_branch))
 
     return result
+
+
+class ReadEducationGroupTypeView(FlagMixin, AjaxTemplateMixin, FormView):
+    flag = "pdf_content"
+    template_name = "education_group/group_element_year/pdf_content.html"
+    form_class = SelectLanguage
+
+    def form_valid(self, form):
+        self.kwargs['language'] = form.cleaned_data['language']
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse(pdf_content, kwargs=self.kwargs)

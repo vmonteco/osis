@@ -3422,3 +3422,9 @@ msgstr "Gestion par équipe"
 
 msgid "Selected element"
 msgstr "Élément sélectionné"
+
+msgid "English"
+msgstr "Anglais"
+
+msgid "French"
+msgstr "Français"

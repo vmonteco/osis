@@ -114,8 +114,6 @@
             </div>
         </div>
     </div>
-    {% url 'delete_education_group' root.pk education_group_year.education_group.pk as delete_url %}
-    {% include "blocks/modal/modal_ajax.html" with modal_url=delete_url click_id="link_delete" form_id="form_delete_education_group" %}
 </div>
 {% endblock %}
 
@@ -125,10 +123,4 @@
         var url_resolver_match = "{% url_resolver_match %}";
     </script>
     <script src="{% static 'js/education_group/education_group_tree.js' %}"></script>
-{% endblock %}
-
-{% block modal %}
-    {% url_resolver_match as url_resolver_match %}
-    {% url 'group_element_year_management' root_id=parent.id education_group_year_id=education_group_year.id group_element_year_id=group_to_parent as detach_url %}
-    {% include "blocks/modal/modal_ajax.html" with modal_url=detach_url|addstr:"?action=detach&source="|add:url_resolver_match click_id="btn_operation_detach_"|addstr:group_to_parent form_id="form_detach_confirm" %}
 {% endblock %}

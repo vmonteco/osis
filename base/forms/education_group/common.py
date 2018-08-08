@@ -24,6 +24,7 @@
 #
 ##############################################################################
 from django import forms
+from django.utils.translation import ugettext_lazy as _
 
 from base.forms.learning_unit.entity_form import EntitiesVersionChoiceField
 from base.models import campus, education_group_type, group_element_year
@@ -147,3 +148,7 @@ class CommonBaseForm:
         for form in self.forms.values():
             errors.update(form.errors)
         return errors
+
+
+class SelectLanguage(forms.Form):
+    language = forms.ChoiceField(widget=forms.RadioSelect, choices=[("en", _("English")), ("fr-be", _("French"))])
