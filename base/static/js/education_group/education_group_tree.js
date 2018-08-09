@@ -107,22 +107,21 @@ $(document).ready(function () {
                     var inst = $.jstree.reference(data.reference),
                         obj = inst.get_node(data.reference);
                     var args = obj.li_attr.id.split('_');
-                    var group_element_year = args[1];
-                    if (group_element_year === '0') {
+                    var group_element_year_id = args[1];
+                    if (group_element_year_id === '0') {
                         return;
                     }
                     var education_group_year_id = args[2];
 
-                    var detach_url = "/educationgroups/"
-                       + root_id
-                       + "/"
-                       + education_group_year_id
-                       + "/content/"
-                       + group_element_year
-                       + "/management/?action=detach&source="
-                       + url_resolver_match;
+                    var detach_url = "/educationgroups/proxy_management/";
 
-                    $('#form-modal-content').load(detach_url, function () {
+                    var detach_data = 'root_id=' + root_id + "&"
+                     + 'education_group_year_id=' + education_group_year_id + "&"
+                     + 'group_element_year_id=' + group_element_year_id + "&"
+                     + 'action=' + 'detach' + "&"
+                     + 'source=' + url_resolver_match;
+
+                    $('#form-modal-content').load(detach_url, detach_data, function () {
                         $('#form-modal').modal('toggle');
                         formAjaxSubmit('#form-modal-body form', '#form-modal');
                     });

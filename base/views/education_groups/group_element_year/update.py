@@ -53,7 +53,7 @@ def management(request, root_id, education_group_year_id, group_element_year_id)
     group_element_year_id = int(group_element_year_id)
     group_element_year = get_group_element_year_by_id(group_element_year_id) if group_element_year_id else None
     action_method = _get_action_method(request)
-    source = _get_source(request)
+    source = _get_data(request, 'source')
     response = action_method(
         request,
         group_element_year,
@@ -67,8 +67,18 @@ def management(request, root_id, education_group_year_id, group_element_year_id)
     return redirect(request.META.get('HTTP_REFERER'))
 
 
-def _get_source(request):
-    return getattr(request, request.method, {}).get('source')
+def _get_data(request, name):
+    return getattr(request, request.method, {}).get(name)
+
+
+@login_required
+@waffle_flag("education_group_update")
+def proxy_management(request):
+    root_id = _get_data(request, 'root_id')
+    education_group_year_id = _get_data(request, 'education_group_year_id')
+    group_element_year_id = _get_data(request, 'group_element_year_id')
+
+    return management(request, root_id, education_group_year_id, group_element_year_id)
 
 
 @require_http_methods(['POST'])
