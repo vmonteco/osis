@@ -3422,3 +3422,30 @@ msgstr "Gestion par équipe"
 
 msgid "Selected element"
 msgstr "Élément sélectionné"
+
+msgid "VOLUME_Q1"
+msgstr "Vol. Q1"
+
+msgid "VOLUME_Q2"
+msgstr "Vol. Q2"
+
+msgid "VOLUME_TOTAL"
+msgstr "Vol. annuel"
+
+msgid "PLANNED_CLASSES"
+msgstr "Classes prévues"
+
+msgid "REAL_CLASSES"
+msgstr "Classes effectives"
+
+msgid "VOLUME_REQUIREMENT_ENTITY"
+msgstr "Entité resp. cahier de charges"
+
+msgid "VOLUME_ALLOCATION_ENTITY"
+msgstr "Entité resp. de l'attribution"
+
+msgid "VOLUME_ADDITIONAL_REQUIREMENT_ENTITY_1"
+msgstr "Entité resp. cahier de charges complémentaire 1"
+
+msgid "VOLUME_ADDITIONAL_REQUIREMENT_ENTITY_2"
+msgstr "Entité resp. cahier de charges complémentaire 2"

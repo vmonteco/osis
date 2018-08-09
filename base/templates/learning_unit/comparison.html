@@ -1,7 +1,5 @@
 {% extends "layout.html" %}
-{% load i18n %}
-{% load learning_unit %}
-{% load dictionnary model_field%}
+{% load i18n learning_unit dictionnary model_field index %}
 {% comment "License" %}
     * OSIS stands for Open Student Information System. It's an application
     * designed to manage the core business of higher education institutions,
@@ -38,7 +36,7 @@
             <div class="panel-body">
                 <table class="table">
                     <thead>
-                    <tr style="background-color: lightgray">
+                    <tr class="table_header">
                         <th>{{ learning_unit_year.acronym }}</th>
                         <th>{{ previous_academic_yr }}</th>
                         <th>{{ learning_unit_year.academic_year }}</th>
@@ -48,7 +46,7 @@
                     <tbody>
                         {% for key in fields %}
                             <tr>
-                                <td style="background-color: lightgray">{%  trans key %}</td>
+                                <td class="table_header">{%  trans key %}</td>
                                 <td>{% if previous_values|get_item:key %}<label style='color:#5CB85C;'>{{ previous_values|get_item:key }}</label>{% else %}{{ learning_unit_year|get_attribute:key | default_if_none:''}}{% endif %}</td>
                                 <td>{{ learning_unit_year|get_attribute:key | default_if_none:'' }}</td>
                                 <td>{% if next_values|get_item:key %}<label style='color:#5CB85C;'>{{ next_values|get_item:key}}</label>{% else %}{{ learning_unit_year|get_attribute:key | default_if_none:''}}{% endif %}</td>
@@ -57,7 +55,7 @@
                         {% if entity_changes %}
                             {% for k in entity_changes %}
                                 <tr {% if forloop.first%}style="border-top: groove"{% endif %}>
-                                    <td style="background-color: lightgray">{% trans k %}</td>
+                                    <td class="table_header">{% trans k %}</td>
                                     <td>{% value_label entity_changes key=k sub_key='prev' key_comp='current' %}</td>
                                     <td>{% value_label entity_changes key=k sub_key='current' key_comp='current' %}</td>
                                     <td>{% value_label  entity_changes key=k sub_key='next' key_comp='current'%}</td>
@@ -66,12 +64,13 @@
                         {% endif %}
                         {% for key in  fields_lcy %}
                             <tr {% if forloop.first%}style="border-top: groove"{% endif %}>
-                                <td style="background-color: lightgray">{%  trans key %}</td>
+                                <td class="table_header">{%  trans key %}</td>
                                 <td>{% if previous_lcy_values|get_item:key %}<label style='color:#5CB85C;'>{{ previous_lcy_values|get_item:key }}</label>{% else %}{{ learning_unit_year.learning_container_year|get_attribute:key | default_if_none:''}}{% endif %}</td>
                                 <td>{{ learning_unit_year.learning_container_year|get_attribute:key | default_if_none:'' }}</td>
                                 <td>{% if next_lcy_values|get_item:key %}<label style='color:#5CB85C;'>{{ next_lcy_values|get_item:key}}</label>{% else %}{{ learning_unit_year.learning_container_year|get_attribute:key | default_if_none:''}}{% endif %}</td>
                             </tr>
                         {% endfor%}
+                        {% include 'learning_unit/components_comparison.html' %}
                     </tbody>
                 </table>
             </div>
