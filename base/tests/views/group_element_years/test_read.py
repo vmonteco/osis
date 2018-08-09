@@ -39,6 +39,7 @@ from base.tests.factories.group_element_year import GroupElementYearFactory
 from base.tests.factories.person import CentralManagerFactory
 
 
+@override_flag('pdf_content', active=True)
 class TestRead(TestCase):
     @classmethod
     def setUpTestData(cls):
