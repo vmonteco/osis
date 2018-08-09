@@ -30,6 +30,7 @@ from django.utils import translation
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
+from backoffice.settings.base import LANGUAGE_CODE_EN
 from base.models import entity_version
 from base.models.entity import Entity
 from base.models.enums import academic_type, internship_presence, schedule_type, activity_presence, \
@@ -235,7 +236,8 @@ class EducationGroupYear(models.Model):
     @property
     def verbose_credit(self):
         return _("%(title)s (%(credits)s credits)") % {
-            "title": self.title_english if self.title_english and translation.get_language() == 'en' else self.title,
+            "title": self.title_english if self.title_english and translation.get_language() == LANGUAGE_CODE_EN
+            else self.title,
             "credits": self.credits or 0
         }
 
