@@ -28,32 +28,70 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
+from django.views.generic import FormView
 from waffle.decorators import waffle_flag
 
-from base.forms.education_group.common import EducationGroupModelForm
+from base.forms.education_group.common import EducationGroupModelForm, EducationGroupTypeForm
 from base.forms.education_group.group import GroupForm
 from base.forms.education_group.mini_training import MiniTrainingForm
 from base.forms.education_group.training import TrainingForm
+from base.models.education_group_type import EducationGroupType
 from base.models.education_group_year import EducationGroupYear
 from base.models.enums import education_group_categories
 from base.views import layout
 from base.views.common import display_success_messages
+from base.views.common_classes import FlagMixin, AjaxTemplateMixin
 from base.views.education_groups.perms import can_create_education_group
+
+FORMS_BY_CATEGORY = {
+    education_group_categories.GROUP: GroupForm,
+    education_group_categories.TRAINING: TrainingForm,
+    education_group_categories.MINI_TRAINING: MiniTrainingForm,
+}
+
+TEMPLATES_BY_CATEGORY = {
+    education_group_categories.GROUP: "education_group/create_groups.html",
+    education_group_categories.TRAINING: "education_group/create_trainings.html",
+    education_group_categories.MINI_TRAINING: "education_group/create_mini_trainings.html",
+}
+
+
+class SelectEducationGroupTypeView(FlagMixin, AjaxTemplateMixin, FormView):
+    flag = "education_group_create"
+    # rules = [can_create_education_group]
+    # raise_exception = True
+    template_name = "education_group/blocks/form/education_group_type.html"
+    form_class = EducationGroupTypeForm
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["category"] = self.kwargs["category"]
+        kwargs["parent"] = get_object_or_404(
+            EducationGroupYear, pk=self.kwargs["parent_id"]
+        ) if self.kwargs.get("parent_id") else None
+        return kwargs
+
+    def form_valid(self, form):
+        # Attach education_group_type to use it in get_success_url
+        self.kwargs["education_group_type_pk"] = form.cleaned_data["name"].pk
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse(create_education_group, kwargs=self.kwargs)
 
 
 @login_required
 @waffle_flag("education_group_create")
 @can_create_education_group
-def create_education_group(request, category=None, parent_id=None):
+def create_education_group(request, category, education_group_type_pk, parent_id=None):
     parent = get_object_or_404(EducationGroupYear, id=parent_id) if parent_id is not None else None
+    education_group_type = get_object_or_404(EducationGroupType, pk=education_group_type_pk)
 
-    forms_by_category = {
-        education_group_categories.GROUP: GroupForm(request.POST or None, parent=parent),
-        education_group_categories.TRAINING: TrainingForm(request.POST or None, parent=parent),
-        education_group_categories.MINI_TRAINING: MiniTrainingForm(request.POST or None, parent=parent),
-    }
-
-    form_education_group_year = forms_by_category.get(category)
+    form_education_group_year = FORMS_BY_CATEGORY[category](
+        request.POST or None,
+        parent=parent,
+        education_group_type=education_group_type
+    )
 
     if form_education_group_year.is_valid():
         education_group_year = form_education_group_year.save()
@@ -67,13 +105,7 @@ def create_education_group(request, category=None, parent_id=None):
 
         return redirect(url)
 
-    templates_by_category = {
-        education_group_categories.GROUP: "education_group/create_groups.html",
-        education_group_categories.TRAINING: "education_group/create_trainings.html",
-        education_group_categories.MINI_TRAINING: "education_group/create_mini_trainings.html",
-    }
-
-    return layout.render(request, templates_by_category.get(category), {
+    return layout.render(request, TEMPLATES_BY_CATEGORY.get(category), {
         "form_education_group_year": form_education_group_year.forms[forms.ModelForm],
         "form_education_group": form_education_group_year.forms[EducationGroupModelForm],
         "parent": parent

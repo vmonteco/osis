@@ -37,14 +37,9 @@
 
             <ul class="dropdown-menu dropdown-menu-large row text-right pull-right">
                 {% flag "education_group_create" %}
-                    {% url 'new_education_group' category=enums.GROUP parent_id=education_group_year.id as create_group_url %}
-                    {% li_with_create_perm_group create_group_url _('New Education Group') %}
-
-                    {% url 'new_education_group' category=enums.TRAINING parent_id=education_group_year.id as create_training_url %}
-                    {% li_with_create_perm_training create_training_url _('New Training') %}
-
-                    {% url 'new_education_group' category=enums.MINI_TRAINING parent_id=education_group_year.id as create_mini_training_url %}
-                    {% li_with_create_perm_mini_training create_mini_training_url _('New Mini-Training') %}
+                    {% li_with_create_perm_group "#" _('New Education Group') %}
+                    {% li_with_create_perm_training "#" _('New Training') %}
+                    {% li_with_create_perm_mini_training "#" _('New Mini-Training') %}
                 {% endflag %}
 
                 {% flag "education_group_update" %}
@@ -83,11 +78,7 @@
 
 
                 {% flag "pdf_content" %}
-                    <li>
-                        <a href="{% url 'pdf_content' root.pk education_group_year.pk %}" target="_blank">
-                            {% trans 'Group content' %}
-                        </a>
-                    </li>
+                    {% link_pdf_content_education_group %}
                 {% endflag %}
             </ul>
         </div>

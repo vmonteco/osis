@@ -23,7 +23,11 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from django import forms
+from django.core.validators import RegexValidator
 from django.utils.safestring import mark_safe
+
+from base.models.validation_rule import ValidationRule
 
 
 def get_clean_data(datas_to_clean):
@@ -44,3 +48,45 @@ def set_trans_txt(form, texts_list):
         text_label = trans_txt.text_label.label
         text = trans_txt.text if trans_txt.text else ""
         setattr(form, text_label, mark_safe(text))
+
+
+class ValidationRuleMixin:
+    """
+    Mixin for ModelForm
+
+    It appends additional rules from VadilationRule table on fields.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.rules = self.get_rules()
+        self._set_rules_on_fields()
+
+    def get_rules(self):
+        result = {}
+
+        for name, field in self.fields.items():
+            qs = ValidationRule.objects.filter(field_reference=self.field_reference(name))
+            if qs:
+                result[name] = qs.get()
+
+        return result
+
+    def field_reference(self, name):
+        return '.'.join([self._meta.model._meta.db_table, name])
+
+    def _set_rules_on_fields(self):
+        for name, field in self.fields.items():
+            if name in self.rules:
+                rule = self.rules[name]
+
+                if not isinstance(field, forms.BooleanField):
+                    field.required = rule.required_field
+
+                field.disabled = rule.disabled_field
+                field.initial = rule.initial_value
+
+                field.validators.append(
+                    RegexValidator(rule.regex_rule, rule.regex_error_message or None)
+                )

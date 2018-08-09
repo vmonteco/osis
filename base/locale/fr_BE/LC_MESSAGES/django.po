@@ -3310,8 +3310,8 @@ msgstr "Certificat compétence médecine "
 msgid "Group content"
 msgstr "Contenu du groupement"
 
-msgid "%(title)s (%(credits)s credits)"
-msgstr "%(title)s (%(credits)s crédits)"
+msgid "English group content"
+msgstr "Contenu du groupement en anglais"
 
 msgid "%(acronym)s %(title)s [%(volumes)s] (%(credits)s credits)"
 msgstr "%(acronym)s %(title)s [%(volumes)s] (%(credits)s crédits)"
@@ -3422,6 +3422,14 @@ msgstr "Gestion par équipe"
 
 msgid "Selected element"
 msgstr "Élément sélectionné"
+
+msgid "English"
+msgstr "Anglais"
+
+msgid "French"
+msgstr "Français"
+msgid "Which type of %(category)s do you want to create ?"
+msgstr "Quel type de %(category)s voulez-vous créer ?"
 
 msgid "VOLUME_Q1"
 msgstr "Vol. Q1"

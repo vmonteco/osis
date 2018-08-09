@@ -27,13 +27,14 @@
 
 
 {% block content %}
-    
+
+
     <div class="panel panel-default">
         <div class="panel-heading">
             <div class="row">
                 {% include "education_group/blocks/hamburger_button.html" %}
                 <div class="pull-right" style="margin-right: 15px;">
-                    {% include "education_group/blocks/dropdown/identification_actions_bar.html" with dropdirection="dropdown"%}
+                    {% include "education_group/blocks/dropdown/identification_actions_bar.html" with dropdirection="dropdown" %}
                 </div>
             </div>
         </div>
@@ -54,9 +55,8 @@
         </div>
         <div class="panel-footer text-right">
             {% include "education_group/blocks/dropdown/identification_actions_bar.html"  with dropdirection="dropup" %}
+
         </div>
-        {% url 'delete_education_group' root.pk education_group_year.education_group.pk as delete_url %}
-        {% include "blocks/modal/modal_ajax.html" with modal_url=delete_url click_id="link_delete" form_id="form_delete_education_group" %}
     </div>
 {% endblock %}
 {% block script %}
@@ -66,10 +66,4 @@
     </script>
     <script type="text/javascript" src="{% static 'js/education_group/education_group_tree.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/education_group/tbl_coorganization.js' %}"></script>
-{% endblock %}
-
-{% block modal %}
-    {% url_resolver_match as url_resolver_match %}
-    {% url 'group_element_year_management' root_id=parent.id education_group_year_id=education_group_year.id group_element_year_id=group_to_parent as detach_url %}
-    {% include "blocks/modal/modal_ajax.html" with modal_url=detach_url|addstr:"?action=detach&source="|add:url_resolver_match click_id="btn_operation_detach_"|addstr:group_to_parent form_id="form_detach_confirm" %}
 {% endblock %}

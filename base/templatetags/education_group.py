@@ -118,17 +118,17 @@ def li_with_update_perm(context, url, message, url_id="link_update"):
 
 
 @register.simple_tag(takes_context=True)
-def li_with_create_perm_training(context, url, message, url_id="link_create"):
+def li_with_create_perm_training(context, url, message, url_id="link_create_training"):
     return li_with_permission(context, is_eligible_to_add_training, url, message, url_id)
 
 
 @register.simple_tag(takes_context=True)
-def li_with_create_perm_mini_training(context, url, message, url_id="link_create"):
+def li_with_create_perm_mini_training(context, url, message, url_id="link_create_mini_training"):
     return li_with_permission(context, is_eligible_to_add_mini_training, url, message, url_id)
 
 
 @register.simple_tag(takes_context=True)
-def li_with_create_perm_group(context, url, message, url_id="link_create"):
+def li_with_create_perm_group(context, url, message, url_id="link_create_group"):
     return li_with_permission(context, is_eligible_to_add_group, url, message, url_id)
 
 
@@ -239,43 +239,23 @@ def list_formatter(item_list, tabs=1, depth=None):
 
 def append_output(item, output, padding, sublist):
     if item.child_leaf:
-        if item.is_mandatory:
-            output.append(
-                CHILD_LEAF.format(padding=padding,
-                                  width_main="80%",
-                                  icon_list_1=CASE_JPG,
-                                  icon_list_2=MANDATORY_PNG,
-                                  value=escaper(force_text(item.verbose)),
-                                  sublist=sublist,
-                                  width_an="15px",
-                                  an_1=check_block(item, "1"),
-                                  an_2=check_block(item, "2"),
-                                  an_3=check_block(item, "3")))
-        else:
-            output.append(
-                CHILD_LEAF.format(padding=padding,
-                                  width_main="80%",
-                                  icon_list_1=CASE_JPG,
-                                  icon_list_2=OPTIONAL_PNG,
-                                  value=escaper(force_text(item.verbose)),
-                                  sublist=sublist,
-                                  width_an="15px",
-                                  an_1=check_block(item, "1"),
-                                  an_2=check_block(item, "2"),
-                                  an_3=check_block(item, "3")))
+        output.append(
+            CHILD_LEAF.format(padding=padding,
+                              width_main="80%",
+                              icon_list_1=CASE_JPG,
+                              icon_list_2=MANDATORY_PNG if item.is_mandatory else OPTIONAL_PNG,
+                              value=escaper(force_text(item.verbose)),
+                              sublist=sublist,
+                              width_an="15px",
+                              an_1=check_block(item, "1"),
+                              an_2=check_block(item, "2"),
+                              an_3=check_block(item, "3")))
     else:
-        if item.is_mandatory:
-            output.append(
-                CHILD_BRANCH.format(padding=padding, width_main="80%",
-                                    icon_list_2=MANDATORY_PNG,
-                                    value=escaper(force_text(item.verbose)),
-                                    sublist=sublist))
-        else:
-            output.append(
-                CHILD_BRANCH.format(padding=padding, width_main="80%",
-                                    icon_list_2=OPTIONAL_PNG,
-                                    value=escaper(force_text(item.verbose)),
-                                    sublist=sublist))
+        output.append(
+            CHILD_BRANCH.format(padding=padding, width_main="80%",
+                                icon_list_2=MANDATORY_PNG if item.is_mandatory else OPTIONAL_PNG,
+                                value=escaper(force_text(item.verbose)),
+                                sublist=sublist))
 
 
 def check_block(item, value):
@@ -355,6 +335,11 @@ def link_detach_education_group(context):
     return _custom_link_education_group(context, action="Detach", onclick="")
 
 
+@register.simple_tag(takes_context=True)
+def link_pdf_content_education_group(context):
+    return _custom_link_pdf_content(context, action="Group content", onclick="")
+
+
 def _custom_link_education_group(context, action, onclick):
     if context['can_change_education_group'] and context['group_to_parent'] != '0':
         li_attributes = """ id="btn_operation_detach_{group_to_parent}" """.format(
@@ -370,6 +355,26 @@ def _custom_link_education_group(context, action, onclick):
             title += " " + _("It is not possible to {action} the root element.".format(action=str.lower(action)))
 
         a_attributes = """ title="{title}" """.format(title=title)
+    text = _(action)
+    html_template = """
+        <li {li_attributes}>
+            <a {a_attributes} data-toggle="tooltip">{text}</a>
+        </li>
+    """
+
+    return mark_safe(
+        html_template.format(
+            li_attributes=li_attributes,
+            a_attributes=a_attributes,
+            text=text,
+        )
+    )
+
+
+def _custom_link_pdf_content(context, action, onclick):
+    li_attributes = """ id="btn_operation_pdf_content" """
+    a_attributes = """ href="#" title="{title}" {onclick} """.format(title=_(action), onclick=onclick)
+
     text = _(action)
     html_template = """
         <li {li_attributes}>
