@@ -224,7 +224,6 @@ class EducationGroupYear(models.Model):
         'reference.Language',
         null=True,
         verbose_name=_('primary_language'),
-        # default='FR'
     )
 
     language_association = models.CharField(
