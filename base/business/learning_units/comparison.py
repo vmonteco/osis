@@ -96,12 +96,13 @@ def _decrypt_boolean_value(field_name, value):
 
 def compare_learning_component_year(obj_ref, obj_prev, obj_next):
     d = {}
-    if obj_ref.acronym != obj_prev.acronym or obj_ref.acronym != obj_next.acronym:
+
+    if ((obj_ref and obj_prev) and obj_ref.acronym != obj_prev.acronym) or ((obj_ref and obj_next) and obj_ref.acronym != obj_next.acronym):
         d = {'acronym': [obj_prev.acronym, obj_ref.acronym, obj_next.acronym]}
-    if obj_ref.real_classes != obj_prev.real_classes or obj_ref.real_classes != obj_next.real_classes:
-        d = {'real_classes': [obj_prev.real_classes, obj_ref.real_classes, obj_next.real_classes]}
-    if obj_ref.planned_classes != obj_prev.planned_classes or obj_ref.planned_classes != obj_next.planned_classes:
-        d = {'planned_classes': [obj_prev.planned_classes, obj_ref.planned_classes, obj_next.planned_classes]}
+    if ((obj_ref and obj_prev) and obj_ref.real_classes != obj_prev.real_classes) or ((obj_ref and obj_prev) and obj_ref.real_classes != obj_next.real_classes):
+        d.update({'real_classes': [obj_prev.real_classes, obj_ref.real_classes, obj_next.real_classes]})
+    if ((obj_ref and obj_prev) and obj_ref.planned_classes != obj_prev.planned_classes) or ((obj_ref and obj_prev) and obj_ref.planned_classes != obj_next.planned_classes):
+        d.update({'planned_classes': [obj_prev.planned_classes, obj_ref.planned_classes, obj_next.planned_classes]})
     return d
 
 
@@ -110,10 +111,11 @@ def compare_volumes(current_data, prev_data, next_data):
     prev_volumes = prev_data.get('volumes')
     next_volumes = next_data.get('volumes')
     vol = {}
-    for key, value in current_volumes.items():
-        if key != 'PLANNED_CLASSES' \
-                and (value != prev_volumes.get(key, None) or value != next_volumes.get(key, None)) and key not in vol:
-            vol.update({key: [prev_volumes.get(key), value, next_volumes.get(key)]})
+    if current_volumes:
+        for key, value in current_volumes.items():
+            if key != 'PLANNED_CLASSES' \
+                    and (value != prev_volumes.get(key, None) or value != next_volumes.get(key, None)) and key not in vol:
+                vol.update({key: [prev_volumes.get(key), value, next_volumes.get(key)]})
     return vol
 
 
@@ -126,9 +128,9 @@ def get_components_changes(previous_components, current_components, next_compone
         previous_learning_comp_yr = get_learning_component_yr_by_type(previous_components, a_component_type)
         next_learning_comp_yr = get_learning_component_yr_by_type(next_components, a_component_type)
         learning_component_yr_changes = compare_learning_component_year(
-            current_learning_comp_yr.get(LEARNING_COMPONENT_YEAR),
-            previous_learning_comp_yr.get(LEARNING_COMPONENT_YEAR),
-            next_learning_comp_yr.get(LEARNING_COMPONENT_YEAR))
+            current_learning_comp_yr.get(LEARNING_COMPONENT_YEAR, None),
+            previous_learning_comp_yr.get(LEARNING_COMPONENT_YEAR, None),
+            next_learning_comp_yr.get(LEARNING_COMPONENT_YEAR, None))
 
         volume_changes = compare_volumes(current_learning_comp_yr,
                                          previous_learning_comp_yr,
@@ -145,7 +147,7 @@ def get_learning_component_yr_by_type(data, learning_component_yr_type):
     for elt in data:
         if elt.get(LEARNING_COMPONENT_YEAR).type == learning_component_yr_type:
             return elt
-    return None
+    return {}
 
 
 def component_has_changed(learning_component_yr_changes, volume_changes):
