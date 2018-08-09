@@ -19,9 +19,9 @@ class Command(BaseCommand):
 
             for row in reader:
                 _, created = ValidationRule.objects.get_or_create(
-                    field_reference=row[1],
-                    status_field=row[2],
-                    initial_value=row[3],
-                    regex_rule=row[4],
-                    regex_error_message=row[5],
+                    field_reference=row[1].strip(),
+                    status_field=row[2].strip(),
+                    initial_value=row[3].strip(),
+                    regex_rule=row[4].strip(),
+                    regex_error_message=row[5].strip(),
                 )
