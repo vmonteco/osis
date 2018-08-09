@@ -95,21 +95,16 @@ def _decrypt_boolean_value(field_name, value):
 
 
 def compare_learning_component_year(obj_ref, obj_prev, obj_next):
+    data = {'ref': obj_ref, 'prev': obj_prev, 'next': obj_next}
     d = {}
-    if (can_compare(obj_prev, obj_ref) and obj_ref.acronym != obj_prev.acronym) or \
-            (can_compare(obj_ref, obj_next) and obj_ref.acronym != obj_next.acronym):
-        d = {'acronym': [obj_prev.acronym, obj_ref.acronym, obj_next.acronym]}
+    d = compare_l_component_yr_attribute(d, data, 'acronym')
+
+    d = compare_l_component_yr_attribute(d, data, 'planned_classes')
     if (can_compare(obj_ref, obj_prev) and obj_ref.real_classes != obj_prev.real_classes) or \
             (can_compare(obj_ref, obj_prev) and obj_ref.real_classes != obj_next.real_classes):
         d.update({'real_classes': [obj_prev.real_classes, obj_ref.real_classes, obj_next.real_classes]})
-    if (can_compare(obj_ref, obj_prev) and obj_ref.planned_classes != obj_prev.planned_classes) or \
-            (can_compare(obj_ref, obj_prev) and obj_ref.planned_classes != obj_next.planned_classes):
-        d.update({'planned_classes': [obj_prev.planned_classes, obj_ref.planned_classes, obj_next.planned_classes]})
+
     return d
-
-
-def can_compare(obj_prev, obj_ref):
-    return (obj_ref and obj_prev)
 
 
 def compare_volumes(current_data, prev_data, next_data):
@@ -159,3 +154,21 @@ def get_learning_component_yr_by_type(data, learning_component_yr_type):
 
 def component_has_changed(learning_component_yr_changes, volume_changes):
     return learning_component_yr_changes != {} or volume_changes != {}
+
+
+def compare_l_component_yr_attribute(d_param, data, attribute):
+    d = d_param
+    obj_ref = data.get('ref', None).__dict__
+    obj_prev = data.get('prev', None).__dict__
+    obj_next = data.get('next', None).__dict__
+
+    if (can_compare(obj_ref, obj_prev) and obj_ref.get(attribute, None) != obj_prev.get(attribute, None)) or \
+            (can_compare(obj_ref, obj_prev) and obj_ref.get(attribute, None) != obj_next.get(attribute, None)):
+        d.update({attribute: [obj_prev.get(attribute, None),
+                              obj_ref.get(attribute, None),
+                              obj_next.get(attribute, None)]})
+    return d
+
+
+def can_compare(obj_prev, obj_ref):
+    return obj_ref and obj_prev
