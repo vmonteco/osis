@@ -155,12 +155,10 @@ class CommonBaseForm:
             EducationGroupModelForm: education_group_form
         }
 
-        educ_group_form = self.forms[EducationGroupModelForm]
-
-        if not self._is_creation():
-            educ_group_form.fields["start_year"].initial = educ_group_form.instance.start_year
-        educ_group_form.fields["start_year"].disabled = True
-        educ_group_form.fields["start_year"].required = False
+        if not (self._is_creation()):
+            education_group_form.fields["start_year"].initial = self.forms[EducationGroupModelForm].instance.start_year
+        education_group_form.fields["start_year"].disabled = True
+        education_group_form.fields["start_year"].required = False
 
     def is_valid(self):
         return all([form.is_valid() for form in self.forms.values()])
