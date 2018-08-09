@@ -64,10 +64,10 @@ class ValidationRuleEducationGroupTypeMixin(ValidationRuleMixin):
     def get_type(self):
         # For creation
         if self.education_group_type:
-            return self.education_group_type.name
+            return self.education_group_type.external_id
         # For updating
         elif self.instance and self.instance.education_group_type:
-            return self.instance.education_group_type.name
+            return self.instance.education_group_type.external_id
 
         return ""
 

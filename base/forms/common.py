@@ -27,7 +27,7 @@ from django import forms
 from django.core.validators import RegexValidator
 from django.utils.safestring import mark_safe
 
-from base.models.enums.field_status import DISABLED, REQUIRED, ALERT
+from base.models.enums.field_status import DISABLED, REQUIRED, ALERT, NOT_REQUIRED
 from base.models.validation_rule import ValidationRule
 
 
@@ -129,3 +129,6 @@ class ValidationRuleMixin(WarningFormMixin):
 
         elif rule.status_field == ALERT:
             field.warning = True
+
+        elif rule.status_field == NOT_REQUIRED:
+            field.required = False
