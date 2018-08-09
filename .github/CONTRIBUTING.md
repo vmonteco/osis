@@ -1,3 +1,7 @@
+### Commits : 
+- Ajouter un message explicite à chaque commit
+- Commiter souvent = diff limité = facilité d'identification de commits amenant une régression = facilité de revert
+
 ### Lisibilité du code :
 - Séparation des classes: deux lignes vides
 - Séparation des methodes de class: une ligne vide
