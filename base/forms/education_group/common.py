@@ -27,7 +27,7 @@ from django import forms
 from django.core.exceptions import PermissionDenied, ImproperlyConfigured
 from django.utils.translation import ugettext_lazy as _
 
-from base.forms.common import ValidationRuleMixin, WarningFormMixin
+from base.forms.common import ValidationRuleMixin
 from base.forms.learning_unit.entity_form import EntitiesVersionChoiceField
 from base.models import campus, group_element_year
 from base.models.campus import Campus
@@ -50,7 +50,7 @@ class MainEntitiesVersionChoiceField(EntitiesVersionChoiceField):
         super(MainEntitiesVersionChoiceField, self).__init__(queryset, *args, **kwargs)
 
 
-class ValidationRuleEducationGroupTypeMixin(WarningFormMixin, ValidationRuleMixin):
+class ValidationRuleEducationGroupTypeMixin(ValidationRuleMixin):
     """
     ValidationRuleMixin For EducationGroupType
 
