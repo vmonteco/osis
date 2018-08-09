@@ -43,11 +43,11 @@ class TestRead(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.person = PersonFactory()
-        cls.education_group_year_1 = EducationGroupYearFactory()
-        cls.education_group_year_2 = EducationGroupYearFactory()
-        cls.education_group_year_3 = EducationGroupYearFactory()
-        cls.learning_unit_year_1 = LearningUnitYearFactory()
-        cls.learning_unit_year_2 = LearningUnitYearFactory()
+        cls.education_group_year_1 = EducationGroupYearFactory(title_english=None)
+        cls.education_group_year_2 = EducationGroupYearFactory(title_english=None)
+        cls.education_group_year_3 = EducationGroupYearFactory(title_english=None)
+        cls.learning_unit_year_1 = LearningUnitYearFactory(specific_title_english=None)
+        cls.learning_unit_year_2 = LearningUnitYearFactory(specific_title_english=None)
         cls.learning_component_year_1 = LearningComponentYearFactory(
             learning_container_year=cls.learning_unit_year_1.learning_container_year, hourly_volume_partial_q1=10,
             hourly_volume_partial_q2=10)
@@ -74,7 +74,7 @@ class TestRead(TestCase):
 
     def test_pdf_content(self):
         self.client.force_login(self.a_superuser)
-        url = reverse("pdf_content", args=[self.education_group_year_1.id, self.education_group_year_1.id])
+        url = reverse("pdf_content", args=[self.education_group_year_1.id, self.education_group_year_1.id, "fr-be"])
         response = self.client.get(url)
         self.assertTemplateUsed(response, 'education_group/pdf_content.html')
 

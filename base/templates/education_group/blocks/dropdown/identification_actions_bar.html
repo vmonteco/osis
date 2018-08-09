@@ -78,11 +78,7 @@
 
 
                 {% flag "pdf_content" %}
-                    <li>
-                        <a href="{% url 'pdf_content' root.pk education_group_year.pk %}" target="_blank">
-                            {% trans 'Group content' %}
-                        </a>
-                    </li>
+                    {% link_pdf_content_education_group %}
                 {% endflag %}
             </ul>
         </div>

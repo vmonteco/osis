@@ -25,9 +25,9 @@
 ##############################################################################
 import itertools
 
-from django.core.exceptions import ObjectDoesNotExist
 from django.db import models, IntegrityError
 from django.db.models import Q
+from django.utils import translation
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from ordered_model.models import OrderedModel
@@ -150,7 +150,9 @@ class GroupElementYear(OrderedModel):
 
             return _("%(acronym)s %(title)s [%(volumes)s] (%(credits)s credits)") % {
                 "acronym": self.child_leaf.acronym,
-                "title": self.child_leaf.specific_title,
+                "title": self.child.specific_title_english
+                if self.child.specific_title_english and translation.get_language() == 'en'
+                else self.child.specific_title,
                 "volumes": volume_total_verbose(components),
                 "credits": self.relative_credits or self.child_leaf.credits or 0
             }
