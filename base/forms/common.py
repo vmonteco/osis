@@ -90,3 +90,30 @@ class ValidationRuleMixin:
                 field.validators.append(
                     RegexValidator(rule.regex_rule, rule.regex_error_message or None)
                 )
+
+
+class WarningFormMixin:
+    """
+    Mixin for Form
+
+    Add error if the field has warning at True and the user has not confirmed it.
+    You must include confirmation_modal.html in the template
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.confirmed = self.data.get("confirmed", False)
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        for name, field in self.fields.items():
+            if getattr(field, "warning", False):
+                if not cleaned_data.get(name) and not self.confirmed:
+                    self.add_warning(name, field)
+
+        return cleaned_data
+
+    def add_warning(self, name, field):
+        self.add_error(name, "This field is empty")
+        field.widget.attrs['class'] = "has-warning"
