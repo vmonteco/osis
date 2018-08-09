@@ -25,7 +25,6 @@
 ##############################################################################
 from django import forms
 from django.core.exceptions import PermissionDenied, ImproperlyConfigured
-from django.core.validators import RegexValidator
 from django.utils.translation import ugettext_lazy as _
 
 from base.forms.common import ValidationRuleMixin, WarningFormMixin
@@ -108,9 +107,6 @@ class EducationGroupYearModelForm(ValidationRuleEducationGroupTypeMixin, forms.M
         self._filter_education_group_type()
         self._init_and_disable_academic_year()
         self._preselect_entity_version_from_entity_value()
-
-        self.fields["title_english"].warning = True
-        self.fields["acronym"].validators.append(RegexValidator("^(W)(.*)$"))
 
     def _filter_education_group_type(self):
         # When the type is already given, we need to disabled the field
