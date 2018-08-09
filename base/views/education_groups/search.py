@@ -37,8 +37,8 @@ from base.forms.education_groups import EducationGroupFilter
 from base.forms.search.search_form import get_research_criteria
 from base.models.enums import education_group_categories
 from base.models.person import Person
-from base.views import layout
 from base.views.common import paginate_queryset
+from base.views.layout import render
 
 
 @login_required
@@ -71,11 +71,11 @@ def education_groups(request):
         'object_list': paginate_queryset(object_list, request.GET),
         'object_list_count': len(object_list),
         'experimental_phase': True,
-        'education_group_cats': education_group_categories,
+        'enums': education_group_categories,
         'person': person
     }
 
-    return layout.render(request, "education_groups.html", context)
+    return render(request, "education_group/search.html", context)
 
 
 def _get_object_list(form, request):

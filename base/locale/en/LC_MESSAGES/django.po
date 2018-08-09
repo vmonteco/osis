@@ -3318,13 +3318,13 @@ msgid "CERTIFICATE_MEDECINE_COMPETENCE"
 msgstr "Certificate medecine competence"
 
 msgid "Group content"
-msgstr "Group content"
+msgstr ""
 
-msgid "%(title)s (%(credits)s credits)"
-msgstr "%(title)s (%(credits)s credits)"
+msgid "English group content"
+msgstr ""
 
 msgid "%(acronym)s %(title)s [%(volumes)s] (%(credits)s credits)"
-msgstr "%(acronym)s %(title)s [%(volumes)s] (%(credits)s crédits)"
+msgstr "%(acronym)s %(title)s [%(volumes)s] (%(credits)s credits)"
 
 msgid "Link type"
 msgstr ""
@@ -3414,4 +3414,13 @@ msgid "team"
 msgstr "Team management"
 
 msgid "Selected element"
+msgstr ""
+
+msgid "English"
+msgstr ""
+
+msgid "French"
+msgstr ""
+
+msgid "Which type of %(category)s do you want to create ?"
 msgstr ""

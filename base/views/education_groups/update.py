@@ -80,6 +80,7 @@ def _update_group(request, education_group_year, root):
     return layout.render(request, html_page, {
         "education_group_year": education_group_year,
         "form_education_group_year": form_education_group_year.forms[forms.ModelForm],
+        "form_education_group": form_education_group_year.forms[EducationGroupModelForm]
     })
 
 

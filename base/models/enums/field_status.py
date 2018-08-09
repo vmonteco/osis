@@ -23,31 +23,16 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from base.forms.education_group.common import CommonBaseForm, EducationGroupModelForm, EducationGroupYearModelForm
-from base.models.enums import education_group_categories
+from django.utils.translation import ugettext_lazy as _
 
+REQUIRED = "REQUIRED"
+ALERT = "ALERT"
+NOT_REQUIRED = "NOT_REQUIRED"
+DISABLED = "DISABLED"
 
-class GroupModelForm(EducationGroupYearModelForm):
-    category = education_group_categories.GROUP
-
-    class Meta(EducationGroupYearModelForm.Meta):
-        fields = ("acronym", "partial_acronym", "education_group_type", "title", "title_english", "credits",
-                  "main_teaching_campus", "academic_year", "remark", "remark_english", "min_credits", "max_credits",
-                  "management_entity")
-
-
-class GroupForm(CommonBaseForm):
-
-    def __init__(self, data, instance=None, parent=None, education_group_type=None):
-        educ_group_year_form = GroupModelForm(
-            data,
-            instance=instance,
-            parent=parent,
-            education_group_type=education_group_type
-        )
-
-        education_group = instance.education_group if instance else None
-
-        educ_group_model_form = EducationGroupModelForm({}, instance=education_group)
-
-        super(GroupForm, self).__init__(educ_group_year_form, educ_group_model_form)
+FIELD_STATUS = (
+    (REQUIRED, _(REQUIRED)),
+    (ALERT, _(ALERT)),
+    (NOT_REQUIRED, _(NOT_REQUIRED)),
+    (DISABLED, _(DISABLED)),
+)
