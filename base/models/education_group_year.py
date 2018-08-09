@@ -235,7 +235,7 @@ class EducationGroupYear(models.Model):
     @property
     def verbose_credit(self):
         return _("%(title)s (%(credits)s credits)") % {
-            "title": self.title_english if self.title_english and translation.get_language() == 'en' else self.verbose,
+            "title": self.title_english if self.title_english and translation.get_language() == 'en' else self.title,
             "credits": self.credits or 0
         }
 
