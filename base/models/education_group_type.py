@@ -23,6 +23,8 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+import collections
+
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
@@ -49,9 +51,18 @@ class EducationGroupType(models.Model):
 
     external_id = models.CharField(max_length=100, blank=True, null=True, db_index=True)
     changed = models.DateTimeField(null=True, auto_now=True)
-    category = models.CharField(max_length=25, choices=education_group_categories.CATEGORIES,
-                                default=education_group_categories.TRAINING, verbose_name=_('type'))
-    name = models.CharField(max_length=255, verbose_name=_('training_type'))
+
+    category = models.CharField(
+        max_length=25,
+        choices=education_group_categories.CATEGORIES,
+        default=education_group_categories.TRAINING,
+        verbose_name=_('type')
+    )
+
+    name = models.CharField(
+        max_length=255,
+        verbose_name=_('training_type')
+    )
 
     def __str__(self):
         return u"%s" % self.name
@@ -80,6 +91,9 @@ def find_authorized_types(category=None, parents=None):
         queryset = EducationGroupType.objects.all()
 
     if parents:
+        if not isinstance(parents, collections.Iterable):
+            parents = [parents]
+
         # Consecutive filters : we want to match all types not any types
         for parent in parents:
             queryset = queryset.filter(

@@ -485,9 +485,3 @@
     </script>
     {% endif %}
 {% endblock %}
-
-{% block modal %}
-    {% url_resolver_match as url_resolver_match %}
-    {% url 'group_element_year_management' root_id=parent.id education_group_year_id=education_group_year.id group_element_year_id=group_to_parent as detach_url %}
-    {% include "blocks/modal/modal_ajax.html" with modal_url=detach_url|addstr:"?action=detach&source="|add:url_resolver_match click_id="btn_operation_detach_"|addstr:group_to_parent form_id="form_detach_confirm" %}
-{% endblock %}

@@ -24,6 +24,7 @@
 #
 ##############################################################################
 from collections.__init__ import OrderedDict
+
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import PermissionRequiredMixin
@@ -87,6 +88,8 @@ class EducationGroupGenericDetailView(PermissionRequiredMixin, DetailView):
             person=self.get_person(),
             education_group=context['object'],
         )
+        context['enums'] = mdl.enums.education_group_categories
+
         return context
 
     def get(self, request, *args, **kwargs):
@@ -110,7 +113,6 @@ class EducationGroupRead(EducationGroupGenericDetailView):
             education_group_language.language.name for education_group_language in
             mdl.education_group_language.find_by_education_group_year(self.object)
         ]
-        context['enums'] = mdl.enums.education_group_categories
 
         return context
 
