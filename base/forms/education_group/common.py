@@ -57,6 +57,7 @@ class ValidationRuleEducationGroupTypeMixin(ValidationRuleMixin):
     The object reference must be structured like that:
         {db_table_name}.{col_name}.{education_group_type_name}
     """
+
     def field_reference(self, name):
         return super().field_reference(name) + '.' + self.get_type()
 
@@ -203,3 +204,7 @@ class EducationGroupTypeForm(forms.Form):
         self.fields["name"].label = _("Which type of %(category)s do you want to create ?") % {
             "category": _(category)
         }
+
+
+class SelectLanguage(forms.Form):
+    language = forms.ChoiceField(widget=forms.RadioSelect, choices=[("en", _("English")), ("fr-be", _("French"))])
