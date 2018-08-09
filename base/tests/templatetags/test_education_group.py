@@ -126,7 +126,7 @@ class TestEducationGroupTag(TestCase):
         relation.child_type.save()
 
         result = li_with_create_perm_training(self.context, self.url, "")
-        self.assertHTMLEqual(result, ENABLED_LI.format("link_create", self.url, ""))
+        self.assertHTMLEqual(result, ENABLED_LI.format("link_create_training", self.url, ""))
 
     def test_li_with_create_perm_mini_training(self):
         relation = AuthorizedRelationshipFactory(parent_type=self.education_group_year.education_group_type)
@@ -134,7 +134,7 @@ class TestEducationGroupTag(TestCase):
         relation.child_type.save()
 
         result = li_with_create_perm_mini_training(self.context, self.url, "")
-        self.assertHTMLEqual(result, ENABLED_LI.format("link_create", self.url, ""))
+        self.assertHTMLEqual(result, ENABLED_LI.format("link_create_mini_training", self.url, ""))
 
     def test_li_with_create_perm_group(self):
         relation = AuthorizedRelationshipFactory(parent_type=self.education_group_year.education_group_type)
@@ -142,7 +142,7 @@ class TestEducationGroupTag(TestCase):
         relation.child_type.save()
 
         result = li_with_create_perm_group(self.context, self.url, "")
-        self.assertHTMLEqual(result, ENABLED_LI.format("link_create", self.url, ""))
+        self.assertHTMLEqual(result, ENABLED_LI.format("link_create_group", self.url, ""))
 
     def test_li_with_create_perm_training_disabled(self):
         result = li_with_create_perm_training(self.context, self.url, "")
@@ -152,7 +152,7 @@ class TestEducationGroupTag(TestCase):
             "category": _(self.education_group_year.education_group_type.category),
             "type": self.education_group_year.education_group_type.name
         }
-        self.assertHTMLEqual(result, DISABLED_LI.format("link_create", msg, ""))
+        self.assertHTMLEqual(result, DISABLED_LI.format("link_create_training", msg, ""))
 
     def test_li_with_create_perm_mini_training_disabled(self):
         result = li_with_create_perm_mini_training(self.context, self.url, "")
@@ -161,7 +161,7 @@ class TestEducationGroupTag(TestCase):
             "category": _(self.education_group_year.education_group_type.category),
             "type": self.education_group_year.education_group_type.name
         }
-        self.assertHTMLEqual(result, DISABLED_LI.format("link_create", msg, ""))
+        self.assertHTMLEqual(result, DISABLED_LI.format("link_create_mini_training", msg, ""))
 
     def test_li_with_create_perm_group_disabled(self):
         result = li_with_create_perm_group(self.context, self.url, "")
@@ -170,7 +170,7 @@ class TestEducationGroupTag(TestCase):
             "category": _(self.education_group_year.education_group_type.category),
             "type": self.education_group_year.education_group_type.name
         }
-        self.assertHTMLEqual(result, DISABLED_LI.format("link_create", msg, ""))
+        self.assertHTMLEqual(result, DISABLED_LI.format("link_create_group", msg, ""))
 
     def test_tag_move_education_group_permitted_and_possible(self):
         self.context['can_change_education_group'] = True
