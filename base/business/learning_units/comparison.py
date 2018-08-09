@@ -96,14 +96,20 @@ def _decrypt_boolean_value(field_name, value):
 
 def compare_learning_component_year(obj_ref, obj_prev, obj_next):
     d = {}
-
-    if ((obj_ref and obj_prev) and obj_ref.acronym != obj_prev.acronym) or ((obj_ref and obj_next) and obj_ref.acronym != obj_next.acronym):
+    if (can_compare(obj_prev, obj_ref) and obj_ref.acronym != obj_prev.acronym) or \
+            (can_compare(obj_ref, obj_next) and obj_ref.acronym != obj_next.acronym):
         d = {'acronym': [obj_prev.acronym, obj_ref.acronym, obj_next.acronym]}
-    if ((obj_ref and obj_prev) and obj_ref.real_classes != obj_prev.real_classes) or ((obj_ref and obj_prev) and obj_ref.real_classes != obj_next.real_classes):
+    if (can_compare(obj_ref, obj_prev) and obj_ref.real_classes != obj_prev.real_classes) or \
+            (can_compare(obj_ref, obj_prev) and obj_ref.real_classes != obj_next.real_classes):
         d.update({'real_classes': [obj_prev.real_classes, obj_ref.real_classes, obj_next.real_classes]})
-    if ((obj_ref and obj_prev) and obj_ref.planned_classes != obj_prev.planned_classes) or ((obj_ref and obj_prev) and obj_ref.planned_classes != obj_next.planned_classes):
+    if (can_compare(obj_ref, obj_prev) and obj_ref.planned_classes != obj_prev.planned_classes) or \
+            (can_compare(obj_ref, obj_prev) and obj_ref.planned_classes != obj_next.planned_classes):
         d.update({'planned_classes': [obj_prev.planned_classes, obj_ref.planned_classes, obj_next.planned_classes]})
     return d
+
+
+def can_compare(obj_prev, obj_ref):
+    return (obj_ref and obj_prev)
 
 
 def compare_volumes(current_data, prev_data, next_data):
@@ -114,7 +120,8 @@ def compare_volumes(current_data, prev_data, next_data):
     if current_volumes:
         for key, value in current_volumes.items():
             if key != 'PLANNED_CLASSES' \
-                    and (value != prev_volumes.get(key, None) or value != next_volumes.get(key, None)) and key not in vol:
+                    and (value != prev_volumes.get(key, None) or value != next_volumes.get(key,
+                                                                                           None)) and key not in vol:
                 vol.update({key: [prev_volumes.get(key), value, next_volumes.get(key)]})
     return vol
 
