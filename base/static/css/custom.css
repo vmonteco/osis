@@ -156,3 +156,7 @@ table.volumes thead{
     color: black;
     content: "\f00d";
 }
+
+.table_header{
+    background-color: lightgray;
+}

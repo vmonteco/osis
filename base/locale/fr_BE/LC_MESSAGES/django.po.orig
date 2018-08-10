@@ -3435,6 +3435,10 @@ msgstr "Quel type de %(category)s voulez-vous créer ?"
 msgid "Select a language"
 msgstr "Sélectionnez une langue"
 
+<<<<<<< HEAD
+msgid "Education group year <a href='%(link)s'> %(acronym)s (%(academic_year)s) </a> successfuly updated."
+msgstr "Organisation de formation <a href='%(link)s'> %(acronym)s (%(academic_year)s) </a> mis à jour avec succès."
+=======
 msgid "VOLUME_Q1"
 msgstr "Vol. Q1"
 
@@ -3461,6 +3465,4 @@ msgstr "Entité resp. cahier de charges complémentaire 1"
 
 msgid "VOLUME_ADDITIONAL_REQUIREMENT_ENTITY_2"
 msgstr "Entité resp. cahier de charges complémentaire 2"
-
-msgid "Education group year <a href='%(link)s'> %(acronym)s (%(academic_year)s) </a> successfuly updated."
-msgstr "Organisation de formation <a href='%(link)s'> %(acronym)s (%(academic_year)s) </a> mis à jour avec succès."
+>>>>>>> 47f384ed74133f87a33a22a11e0e7c97d06d1edd

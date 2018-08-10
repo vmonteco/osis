@@ -3428,6 +3428,10 @@ msgstr ""
 msgid "Select a language"
 msgstr ""
 
+<<<<<<< HEAD
+msgid "Education group year <a href='%(link)s'> %(acronym)s (%(academic_year)s) </a> successfuly updated."
+msgstr ""
+=======
 msgid "VOLUME_Q1"
 msgstr "Volume partial"
 
@@ -3454,7 +3458,4 @@ msgstr "Additional requirement entity 1"
 
 msgid "VOLUME_ADDITIONAL_REQUIREMENT_ENTITY_2"
 msgstr "Additional requirement entity 2"
-
-msgid "Education group year <a href='%(link)s'> %(acronym)s (%(academic_year)s) </a> successfuly updated."
-msgstr ""
-
+>>>>>>> 47f384ed74133f87a33a22a11e0e7c97d06d1edd
