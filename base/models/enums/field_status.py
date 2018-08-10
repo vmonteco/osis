@@ -26,12 +26,14 @@
 from django.utils.translation import ugettext_lazy as _
 
 REQUIRED = "REQUIRED"
+FIXED = "FIXED"
 ALERT = "ALERT"
 NOT_REQUIRED = "NOT_REQUIRED"
 DISABLED = "DISABLED"
 
 FIELD_STATUS = (
     (REQUIRED, _(REQUIRED)),
+    (FIXED, _(FIXED)),
     (ALERT, _(ALERT)),
     (NOT_REQUIRED, _(NOT_REQUIRED)),
     (DISABLED, _(DISABLED)),
