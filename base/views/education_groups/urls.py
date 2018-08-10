@@ -56,6 +56,7 @@ urlpatterns = [
         create.SelectEducationGroupTypeView.as_view(),
         name='select_education_group_type'
     ),
+    url(r'^proxy_management/$', group_element_year.update.proxy_management, name='proxy_management'),
 
     url(r'^(?P<root_id>[0-9]+)/(?P<education_group_year_id>[0-9]+)/', include([
 

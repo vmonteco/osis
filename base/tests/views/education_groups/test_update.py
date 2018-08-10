@@ -29,7 +29,7 @@ from unittest import mock
 from unittest.mock import patch
 
 from django.contrib.auth.models import Permission
-from django.test import TestCase, Client
+from django.test import TestCase, Client, RequestFactory
 from django.urls import reverse
 from django.utils.translation import ugettext as _
 from waffle.testutils import override_flag
@@ -51,6 +51,7 @@ from base.tests.factories.group_element_year import GroupElementYearFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from base.tests.factories.person import PersonFactory
 from base.utils.cache import cache
+from base.views.education_groups.group_element_year.update import proxy_management
 from base.views.education_groups.update import update_education_group
 from reference.tests.factories.domain import DomainFactory
 from reference.tests.factories.language import LanguageFactory
@@ -316,7 +317,10 @@ class TestSelectDetachAttach(TestCase):
 
         self._assert_link_with_inital_parent_present()
 
-        self.client.post(self.url_select_education_group, data={'child_to_cache_id': self.child_education_group_year.id})
+        self.client.post(
+            self.url_select_education_group,
+            data={'child_to_cache_id': self.child_education_group_year.id}
+        )
         self.client.get(self.url_attach, HTTP_REFERER='http://foo/bar')
 
         expected_group_element_year_count = GroupElementYear.objects.filter(
@@ -374,3 +378,24 @@ class TestSelectDetachAttach(TestCase):
             child_branch=self.child_education_group_year
         )
         self.assertEqual(expected_initial_group_element_year, self.initial_group_element_year)
+
+    @mock.patch("base.views.education_groups.group_element_year.update.management")
+    def test_proxy_management_view_calls_management_view(self, mock_management_view):
+        request_factory = RequestFactory()
+        request = request_factory.post(
+            reverse("proxy_management"),
+            data={
+                'root_id': str(self.initial_parent_education_group_year.id),
+                'education_group_year_id': str(self.child_education_group_year.id),
+                'group_element_year_id': str(self.initial_group_element_year.id),
+            }
+        )
+        request.user = self.person.user
+        proxy_management(request)
+
+        mock_management_view.assert_called_with(
+            request,
+            root_id=str(self.initial_parent_education_group_year.id),
+            education_group_year_id=str(self.child_education_group_year.id),
+            group_element_year_id=str(self.initial_group_element_year.id),
+        )
