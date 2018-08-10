@@ -33,8 +33,8 @@ from base.models.enums.academic_calendar_type import EDUCATION_GROUP_EDITION
 from base.models.enums.education_group_categories import TRAINING, MINI_TRAINING, GROUP
 from base.templatetags.education_group import li_with_deletion_perm, button_with_permission, BUTTON_TEMPLATE, \
     button_order_with_permission, BUTTON_ORDER_TEMPLATE, li_with_create_perm_training, \
-    li_with_create_perm_mini_training, li_with_create_perm_group, link_move_education_group, \
-    link_detach_education_group, link_pdf_content_education_group
+    li_with_create_perm_mini_training, li_with_create_perm_group, link_detach_education_group, \
+    link_pdf_content_education_group
 from base.tests.factories.academic_calendar import AcademicCalendarFactory
 from base.tests.factories.authorized_relationship import AuthorizedRelationshipFactory
 from base.tests.factories.education_group_year import TrainingFactory
@@ -172,60 +172,13 @@ class TestEducationGroupTag(TestCase):
         }
         self.assertHTMLEqual(result, DISABLED_LI.format("link_create_group", msg, ""))
 
-    def test_tag_move_education_group_permitted_and_possible(self):
-        self.context['can_change_education_group'] = True
-        self.context['group_to_parent'] = '1'
-        result = link_move_education_group(self.context)
-        expected_result = CUSTOM_LI_TEMPLATE.format(
-            li_attributes="""id="btn_operation_detach_1" """,
-            a_attributes=""" href="#" title="{}" onclick="select()" """.format(_('Move')),
-            text=_('Move'),
-        )
-        self.assertHTMLEqual(result, expected_result)
-
-    def test_tag_move_education_group_not_permitted(self):
-        self.context['can_change_education_group'] = False
-        self.context['group_to_parent'] = '1'
-        result = link_move_education_group(self.context)
-        expected_result = CUSTOM_LI_TEMPLATE.format(
-            li_attributes=""" class="disabled" """,
-            a_attributes=""" title="{}" """.format(_("The user has not permission to change education groups.")),
-            text=_('Move'),
-        )
-        self.assertHTMLEqual(result, expected_result)
-
-    def test_tag_move_education_group_not_possible(self):
-        self.context['can_change_education_group'] = True
-        self.context['group_to_parent'] = '0'
-        result = link_move_education_group(self.context)
-        expected_result = CUSTOM_LI_TEMPLATE.format(
-            li_attributes=""" class="disabled" """,
-            a_attributes=""" title=" {}" """.format(_("It is not possible to move the root element.")),
-            text=_('Move'),
-        )
-        self.assertHTMLEqual(result, expected_result)
-
-    def test_tag_move_education_group_not_permitted_nor_possible(self):
-        self.context['can_change_education_group'] = False
-        self.context['group_to_parent'] = '0'
-        result = link_move_education_group(self.context)
-        expected_result = CUSTOM_LI_TEMPLATE.format(
-            li_attributes=""" class="disabled" """,
-            a_attributes=""" title="{} {}" """.format(
-                _("The user has not permission to change education groups."),
-                _("It is not possible to move the root element."),
-            ),
-            text=_('Move'),
-        )
-        self.assertHTMLEqual(result, expected_result)
-
     def test_tag_detach_education_group_permitted_and_possible(self):
         self.context['can_change_education_group'] = True
         self.context['group_to_parent'] = '1'
         result = link_detach_education_group(self.context)
         expected_result = CUSTOM_LI_TEMPLATE.format(
             li_attributes="""id="btn_operation_detach_1" """,
-            a_attributes=""" href="#" title="{}" """.format(_('Detach')),
+            a_attributes=""" href="#" title="{}" onclick="select()" """.format(_('Detach')),
             text=_('Detach'),
         )
         self.assertHTMLEqual(result, expected_result)

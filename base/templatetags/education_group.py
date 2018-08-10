@@ -326,13 +326,8 @@ def url_resolver_match(context):
 
 
 @register.simple_tag(takes_context=True)
-def link_move_education_group(context):
-    return _custom_link_education_group(context, action="Move", onclick="""onclick="select()" """)
-
-
-@register.simple_tag(takes_context=True)
 def link_detach_education_group(context):
-    return _custom_link_education_group(context, action="Detach", onclick="")
+    return _custom_link_education_group(context, action="Detach", onclick="""onclick="select()" """)
 
 
 @register.simple_tag(takes_context=True)

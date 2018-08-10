@@ -77,8 +77,26 @@ $(document).ready(function () {
                   "icon": "fa fa-check-square"
               },
 
-              "move" : {
-                 "label" : gettext("Move"),
+              "attach" : {
+                 "label" : gettext("Attach"),
+                 "separator_before": true,
+                 "action" : function (data) {
+                    var __ret = get_data_from_tree(data);
+                    var group_element_year_id = __ret.group_element_year_id;
+                    var education_group_year_id = __ret.education_group_year_id;
+                    if (group_element_year_id === '0') {
+                        return;
+                    }
+
+                    var attach_data = build_url_data(education_group_year_id, group_element_year_id, 'attach');
+
+                    window.location.href = proxy_management_url + "?" + attach_data;
+                  },
+                  "icon": "fa fa-paperclip"
+              },
+
+              "detach" : {
+                 "label" : gettext("Detach"),
                  "action" : function (data) {
                      var __ret = get_data_from_tree(data);
                      var group_element_year_id = __ret.group_element_year_id;
@@ -102,56 +120,13 @@ $(document).ready(function () {
                     });
 
                   },
-                  "icon": "fa fa-arrow-circle-o-right",
-                  "_disabled": function(data) {
-                      var __ret = get_data_from_tree(data);
-                      var group_element_year_id = __ret.group_element_year_id;
-                      return (group_element_year_id === '0');
-                  }
-              },
-
-              "detach" : {
-                 "label" : gettext("Detach"),
-                 "action" : function (data) {
-                    var __ret = get_data_from_tree(data);
-                    var group_element_year_id = __ret.group_element_year_id;
-                    var education_group_year_id = __ret.education_group_year_id;
-                    if (group_element_year_id === '0') {
-                        return;
-                    }
-
-                    var detach_data = build_url_data(education_group_year_id, group_element_year_id, 'detach');
-
-                    $('#form-modal-content').load(proxy_management_url, detach_data, function () {
-                        $('#form-modal').modal('toggle');
-                        formAjaxSubmit('#form-modal-body form', '#form-modal');
-                    });
-                  },
                   "icon": "fa fa-cut",
                   "_disabled": function(data) {
                       var __ret = get_data_from_tree(data);
                       var group_element_year_id = __ret.group_element_year_id;
                       return (group_element_year_id === '0');
                   }
-              },
-
-              "attach" : {
-                 "label" : gettext("Attach"),
-                 "separator_before": true,
-                 "action" : function (data) {
-                    var __ret = get_data_from_tree(data);
-                    var group_element_year_id = __ret.group_element_year_id;
-                    var education_group_year_id = __ret.education_group_year_id;
-                    if (group_element_year_id === '0') {
-                        return;
-                    }
-
-                    var attach_data = build_url_data(education_group_year_id, group_element_year_id, 'attach');
-
-                    window.location.href = proxy_management_url + "?" + attach_data;
-                  },
-                  "icon": "fa fa-paperclip"
-              },
+              }
             }
         }
     });
