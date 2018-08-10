@@ -23,6 +23,8 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from django.forms import model_to_dict
+
 from base import models as mdl_base
 from base.models.education_group_year import EducationGroupYear
 
@@ -37,7 +39,7 @@ def start(education_group, start_year):
     end_year = _compute_end_year(education_group)
 
     postpone_list = []
-    for academic_year in mdl_base.academic_year.find_academic_years(start_year=start_year, end_year=end_year):
+    for academic_year in mdl_base.academic_year.find_academic_years(start_year=start_year + 1, end_year=end_year):
         postponed_egy = _postpone_education_group_year(base_education_group_year, academic_year)
         postpone_list.append(postponed_egy)
     return postpone_list
@@ -67,41 +69,45 @@ def _postpone_education_group_year(education_group_year, academic_year):
     This function will postpone the education group year in the academic year given as params
     """
     # Postpone the education group year
-    egy_to_postpone = _education_group_year_to_dict(education_group_year)
+    field_to_exclude = ['id', 'external_id', 'academic_year', 'languages', 'secondary_domains']
+    egy_to_postpone = _model_to_dict(education_group_year, exclude=field_to_exclude)
     postponed_egy, created = EducationGroupYear.objects.update_or_create(
-        education_group=education_group_year,
+        education_group=education_group_year.education_group,
         academic_year=academic_year,
         defaults=egy_to_postpone
     )
     # Postpone the m2m [languages / secondary_domains]
-    _postpone_m2m(education_group_year, academic_year)
+    _postpone_m2m(education_group_year, postponed_egy)
     return postponed_egy
 
 
-def _education_group_year_to_dict(education_group_year):
+def _model_to_dict(instance, exclude=None):
     """
-    It allows to transform an education group year instance to a dict
+    It allows to transform an instance to a dict and for each FK, it add '_id'
     This function is based on model_to_dict implementation.
     """
-    fields_to_exclude = ['id', 'external_id', 'academic_year']
+    data = model_to_dict(instance, exclude=exclude)
 
-    opts = education_group_year._meta
-    data = {}
-    for f in opts.concrete_fields:
-        if f.name in fields_to_exclude:
-            continue
-        field_name = f.name
-        # Append '_id' to field name because value_from_object() return the ID of FK
-        if f.is_relation:
-            field_name += "_id"
-        data[field_name] = f.value_from_object(education_group_year)
+    opts = instance._meta
+    for fk_field in filter(lambda field: field.is_relation, opts.concrete_fields):
+        if fk_field.name in data:
+            data[fk_field.name + "_id"] = data.pop(fk_field.name)
     return data
 
 
-def _postpone_m2m(education_group_year, academic_year):
+def _postpone_m2m(education_group_year, postponed_egy):
     fields_to_exclude = []
 
     opts = education_group_year._meta
     for f in opts.many_to_many:
         if f.name in fields_to_exclude:
             continue
+        m2m_cls = f.rel.through
+
+        # Remove records of posptponed_egy
+        m2m_cls.objects.all().filter(education_group_year=postponed_egy).delete()
+
+        # Recreate records
+        for m2m_obj in m2m_cls.objects.all().filter(education_group_year_id=education_group_year):
+            m2m_data_to_postpone = _model_to_dict(m2m_obj, exclude=['id', 'external_id', 'education_group_year'])
+            m2m_cls(education_group_year=postponed_egy, **m2m_data_to_postpone).save()

@@ -23,6 +23,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from base.business.education_groups import postponement
 from base.forms.education_group.common import CommonBaseForm, EducationGroupModelForm, EducationGroupYearModelForm
 from base.models.education_group_year import EducationGroupYear
 from base.models.enums import education_group_categories
@@ -52,3 +53,10 @@ class MiniTrainingForm(CommonBaseForm):
         education_group_form = EducationGroupModelForm(data, instance=education_group)
 
         super().__init__(education_group_year_form, education_group_form)
+
+    def _postponed_list(self):
+        egy_postponed_list = postponement.start(
+            self.forms[EducationGroupModelForm].instance,
+            start_year=self.forms[EducationGroupModelForm].instance.academic_year.year
+        )
+        return egy_postponed_list

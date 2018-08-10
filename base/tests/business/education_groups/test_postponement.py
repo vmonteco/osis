@@ -27,13 +27,16 @@ from django.forms import model_to_dict
 from django.test import TestCase
 
 from base.business.education_groups.postponement import EDUCATION_GROUP_MAX_POSTPONE_YEARS, _compute_end_year, \
-    _education_group_year_to_dict
+    _model_to_dict, _postpone_education_group_year, start
 from base.models.education_group_year import EducationGroupYear
+from base.models.education_group_year_domain import EducationGroupYearDomain
 from base.models.enums import entity_type
 from base.models.enums import organization_type
 from base.tests.factories.academic_year import create_current_academic_year
 from base.tests.factories.business.learning_units import GenerateAcademicYear
+from base.tests.factories.education_group_language import EducationGroupLanguageFactory
 from base.tests.factories.education_group_year import EducationGroupYearFactory
+from base.tests.factories.education_group_year_domain import EducationGroupYearDomainFactory
 from base.tests.factories.entity import EntityFactory
 from base.tests.factories.entity_version import EntityVersionFactory
 
@@ -56,6 +59,35 @@ class EducationGroupPostponementContextMixin(TestCase):
             management_entity=self.entity,
             administration_entity=self.entity,
             academic_year=self.current_academic_year
+        )
+        # Create a group language
+        EducationGroupLanguageFactory(education_group_year=self.education_group_year)
+
+        # Create two secondary domains
+        EducationGroupYearDomainFactory(education_group_year=self.education_group_year)
+        EducationGroupYearDomainFactory(education_group_year=self.education_group_year)
+
+    def assertPostponementEquals(self, education_group_year, education_group_year_postponed):
+        # Check all attribute without m2m / unreleveant fields
+        fields_to_exclude = ['id', 'external_id', 'academic_year', 'languages', 'secondary_domains']
+        egy_dict = model_to_dict(
+            education_group_year,
+            exclude=fields_to_exclude
+        )
+        egy_postponed_dict = model_to_dict(
+            education_group_year_postponed,
+            exclude=fields_to_exclude
+        )
+        self.assertDictEqual(egy_dict, egy_postponed_dict)
+
+        # Check if m2m is the same
+        self.assertEqual(
+            self.education_group_year.secondary_domains.all().count(),
+            education_group_year_postponed.secondary_domains.all().count()
+        )
+        self.assertEqual(
+            self.education_group_year.languages.all().count(),
+            education_group_year_postponed.languages.all().count()
         )
 
 
@@ -92,7 +124,8 @@ class TestComputeEndPostponement(EducationGroupPostponementContextMixin):
 
         # Create data in future
         lastest_academic_year = self.generated_ac_years.academic_years[-1]
-        defaults = _education_group_year_to_dict(self.education_group_year)
+        field_to_exclude = ['id', 'external_id', 'academic_year', 'languages', 'secondary_domains']
+        defaults = _model_to_dict(self.education_group_year, exclude=field_to_exclude)
         EducationGroupYear.objects.update_or_create(
             education_group=self.education_group_year.education_group,
             academic_year=lastest_academic_year,
@@ -102,3 +135,54 @@ class TestComputeEndPostponement(EducationGroupPostponementContextMixin):
         result = _compute_end_year(self.education_group_year.education_group)
         self.assertEqual(result, lastest_academic_year.year)
 
+
+class TestPostponeEducationGroupYear(EducationGroupPostponementContextMixin):
+    def test_postpone_education_group_case_new_in_future(self):
+        ac_year_to_create = self.generated_ac_years.academic_years[0]
+        egy_postponed = _postpone_education_group_year(
+            self.education_group_year,
+            ac_year_to_create,
+        )
+
+        self.assertIsInstance(egy_postponed, EducationGroupYear)
+        self.assertEqual(egy_postponed.academic_year, ac_year_to_create)
+        self.assertPostponementEquals(self.education_group_year, egy_postponed)
+
+    def test_postpone_education_group_case_overide_existing_in_future(self):
+        ac_year_in_future = self.generated_ac_years.academic_years[0]
+        egy_future = EducationGroupYearFactory(
+            education_group=self.education_group_year.education_group,
+            academic_year=ac_year_in_future,
+            weighting=True,
+            default_learning_unit_enrollment=True
+        )
+        # Create one secondary domain
+        egy_domain = EducationGroupYearDomainFactory(education_group_year=egy_future)
+
+        # It will overide data of egy_future and keep data of self.educationgroupyear
+        egy_postponed = _postpone_education_group_year(
+            self.education_group_year,
+            ac_year_in_future,
+        )
+        self.assertIsInstance(egy_postponed, EducationGroupYear)
+        self.assertEqual(egy_postponed.academic_year, ac_year_in_future)
+        self.assertPostponementEquals(self.education_group_year, egy_postponed)
+
+        # Check that egy_domain is deleted
+        with self.assertRaises(EducationGroupYearDomain.DoesNotExist):
+            EducationGroupYearDomain.objects.get(id=egy_domain.id)
+
+
+class TestStartPostponementEducationGroupYear(EducationGroupPostponementContextMixin):
+    def test_start_postponement_case_multiple_creation(self):
+        # Set end date of education group to None
+        self.education_group_year.education_group.end_year = None
+        self.education_group_year.refresh_from_db()
+
+        start_year = self.education_group_year.academic_year.year
+        egy_postponed_list = start(self.education_group_year.education_group, start_year=start_year)
+        self.assertIsInstance(egy_postponed_list, list)
+        self.assertEqual(len(egy_postponed_list), 6)
+
+        for egy_postponed in egy_postponed_list:
+            self.assertPostponementEquals(self.education_group_year, egy_postponed)
