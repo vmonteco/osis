@@ -23,9 +23,10 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.utils.translation import ugettext_lazy, ugettext_lazy
+from django.utils.translation import ugettext_lazy
 from base.models.enums import learning_component_year_type
 from base.models.learning_unit_year import LearningUnitYear
+from base.models.learning_component_year import LearningComponentYear
 from django.utils.translation import ugettext_lazy as _
 
 FIELDS_FOR_LEARNING_UNIT_YR_COMPARISON = ['acronym', 'subtype', 'internship_subtype', 'credits', 'periodicity',
@@ -95,13 +96,14 @@ def _decrypt_boolean_value(field_name, value):
 
 
 def compare_learning_component_year(obj_ref, obj_prev, obj_next):
+    print(LearningComponentYear._meta.model_name)
     data = {'ref': obj_ref, 'prev': obj_prev, 'next': obj_next}
     d = {}
     d = compare_l_component_yr_attribute(d, data, 'acronym')
 
     d = compare_l_component_yr_attribute(d, data, 'planned_classes')
-    if (can_compare(obj_ref, obj_prev) and obj_ref.real_classes != obj_prev.real_classes) or \
-            (can_compare(obj_ref, obj_prev) and obj_ref.real_classes != obj_next.real_classes):
+    if _real_classes_is_different(obj_prev, obj_ref) or \
+            _real_classes_is_different(obj_next, obj_ref):
         d.update({'real_classes': [obj_prev.real_classes, obj_ref.real_classes, obj_next.real_classes]})
 
     return d
@@ -114,9 +116,9 @@ def compare_volumes(current_data, prev_data, next_data):
     vol = {}
     if current_volumes:
         for key, value in current_volumes.items():
-            if key != 'PLANNED_CLASSES' \
-                    and (value != prev_volumes.get(key, None) or value != next_volumes.get(key,
-                                                                                           None)) and key not in vol:
+            if key == 'PLANNED_CLASSES' or key in vol:
+                continue
+            if (value != prev_volumes.get(key) or value != next_volumes.get(key)):
                 vol.update({key: [prev_volumes.get(key), value, next_volumes.get(key)]})
     return vol
 
@@ -130,9 +132,9 @@ def get_components_changes(previous_components, current_components, next_compone
         previous_learning_comp_yr = get_learning_component_yr_by_type(previous_components, a_component_type)
         next_learning_comp_yr = get_learning_component_yr_by_type(next_components, a_component_type)
         learning_component_yr_changes = compare_learning_component_year(
-            current_learning_comp_yr.get(LEARNING_COMPONENT_YEAR, None),
-            previous_learning_comp_yr.get(LEARNING_COMPONENT_YEAR, None),
-            next_learning_comp_yr.get(LEARNING_COMPONENT_YEAR, None))
+            current_learning_comp_yr.get(LEARNING_COMPONENT_YEAR),
+            previous_learning_comp_yr.get(LEARNING_COMPONENT_YEAR),
+            next_learning_comp_yr.get(LEARNING_COMPONENT_YEAR))
 
         volume_changes = compare_volumes(current_learning_comp_yr,
                                          previous_learning_comp_yr,
@@ -162,11 +164,11 @@ def compare_l_component_yr_attribute(d_param, data, attribute):
     obj_prev = _get_model_dict(data, 'prev')
     obj_next = _get_model_dict(data, 'next')
 
-    if (can_compare(obj_ref, obj_prev) and obj_ref.get(attribute, None) != obj_prev.get(attribute, None)) or \
-            (can_compare(obj_ref, obj_prev) and obj_ref.get(attribute, None) != obj_next.get(attribute, None)):
-        d.update({attribute: [obj_prev.get(attribute, None),
-                              obj_ref.get(attribute, None),
-                              obj_next.get(attribute, None)]})
+    if _is_different(attribute, obj_prev, obj_ref) or \
+            _is_different(attribute, obj_next, obj_ref):
+        d.update({attribute: [obj_prev.get(attribute),
+                              obj_ref.get(attribute),
+                              obj_next.get(attribute)]})
     return d
 
 
@@ -179,3 +181,11 @@ def _get_model_dict(data, key):
     if object:
         return object.__dict__
     return {}
+
+
+def _is_different(attribute, obj_prev, obj_ref):
+    return can_compare(obj_ref, obj_prev) and obj_ref.get(attribute) != obj_prev.get(attribute)
+
+
+def _real_classes_is_different(obj_prev, obj_ref):
+    return can_compare(obj_ref, obj_prev) and obj_ref.real_classes != obj_prev.real_classes
