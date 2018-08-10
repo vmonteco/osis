@@ -78,7 +78,12 @@ def proxy_management(request):
     education_group_year_id = _get_data(request, 'education_group_year_id')
     group_element_year_id = _get_data(request, 'group_element_year_id')
 
-    return management(request, root_id, education_group_year_id, group_element_year_id)
+    return management(
+        request,
+        root_id=root_id,
+        education_group_year_id=education_group_year_id,
+        group_element_year_id=group_element_year_id,
+    )
 
 
 @require_http_methods(['POST'])
