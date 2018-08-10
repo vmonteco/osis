@@ -39,12 +39,14 @@ $(document).ready(function () {
     }
 
     function build_url_data(education_group_year_id, group_element_year_id, action) {
-        var data = 'root_id=' + root_id + "&"
-            + 'education_group_year_id=' + education_group_year_id + "&"
-            + 'group_element_year_id=' + group_element_year_id + "&"
-            + 'action=' + action + "&"
-            + 'source=' + url_resolver_match;
-        return data;
+        var data = {
+            'root_id': root_id,
+            'education_group_year_id': education_group_year_id,
+            'group_element_year_id': group_element_year_id,
+            'action': action,
+            'source': url_resolver_match
+        };
+        return jQuery.param(data);
     }
 
     var proxy_management_url = "/educationgroups/proxy_management/";
