@@ -65,7 +65,6 @@ class TrainingEducationGroupYearForm(EducationGroupYearModelForm):
             "active", "schedule_type", "enrollment_campus",
             "other_campus_activities", "funding", "funding_direction",
             "funding_cud", "funding_direction_cud",
-            "diploma_printing_title", "diploma_printing_orientation",
             "professional_title", "min_credits", "max_credits",
             "administration_entity", "management_entity",
             "main_domain", "secondary_domains", "decree_category", "rate_code"
