@@ -37,6 +37,7 @@ from base.models.education_group_year import EducationGroupYear
 from base.models.entity_version import find_main_entities_version, get_last_version
 from reference.models.language import Language
 from django.utils import translation
+from django.conf import settings
 
 
 class MainTeachingCampusChoiceField(forms.ModelChoiceField):
@@ -214,7 +215,7 @@ class EducationGroupTypeForm(forms.Form):
 
 class SelectLanguage(forms.Form):
     language = forms.ChoiceField(widget=forms.RadioSelect,
-                                 choices=[("en", _("English")), ("fr-be", _("French"))],
+                                 choices=settings.LANGUAGES,
                                  label=_('Select a language'))
 
     def __init__(self, *args, **kwargs):
