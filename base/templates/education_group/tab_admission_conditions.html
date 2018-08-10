@@ -47,6 +47,10 @@
                             <div class="row">
                                 {% if info.is_common and info.is_bachelor %}
                                     {% render_condition_text 'bachelor' _('Admission Conditions for Bachelors') admission_condition.text_bachelor can_edit_information %}
+                                    {% render_condition_text 'ca_bacs_cond_generales' _('General Conditions') admission_condition.text_ca_bacs_cond_generales can_edit_information %}
+                                    {% render_condition_text 'ca_bacs_cond_particuliers' _('Specific Conditions') admission_condition.text_ca_bacs_cond_particuliers can_edit_information %}
+                                    {% render_condition_text 'ca_bacs_examen_langue' _('Language Exam') admission_condition.text_ca_bacs_examen_langue can_edit_information %}
+                                    {% render_condition_text 'ca_bacs_cond_speciales' _('Special Conditions') admission_condition.text_ca_bacs_cond_speciales can_edit_information %}
                                 {% endif %}
                                 {% if info.is_common and info.is_master %}
                                     {% render_condition_text 'alert_message' _('Alert Message') admission_condition.text_alert_message can_edit_information %}

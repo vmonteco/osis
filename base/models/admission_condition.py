@@ -30,6 +30,16 @@ class AdmissionCondition(models.Model):
     text_personalized_access = models.TextField(default='')
     text_admission_enrollment_procedures = models.TextField(default='')
 
+    text_ca_bacs_cond_generales = models.TextField(default='')
+    text_ca_bacs_cond_particulieres = models.TextField(default='')
+    text_ca_bacs_examen_langue = models.TextField(default='')
+    text_ca_bacs_cond_speciales = models.TextField(default='')
+
+    text_ca_cond_generales = models.TextField(default='')
+    text_ca_maitrise_fr = models.TextField(default='')
+    text_ca_allegement = models.TextField(default='')
+    text_ca_ouv_adultes = models.TextField(default='')
+
     # English
     text_bachelor_en = models.TextField(default='')
 
@@ -47,6 +57,16 @@ class AdmissionCondition(models.Model):
     text_adults_taking_up_university_training_en = models.TextField(default='')
     text_personalized_access_en = models.TextField(default='')
     text_admission_enrollment_procedures_en = models.TextField(default='')
+
+    text_ca_bacs_cond_generales_en = models.TextField(default='')
+    text_ca_bacs_cond_particulieres_en = models.TextField(default='')
+    text_ca_bacs_examen_langue_en = models.TextField(default='')
+    text_ca_bacs_cond_speciales_en = models.TextField(default='')
+
+    text_ca_cond_generales_en = models.TextField(default='')
+    text_ca_maitrise_fr_en = models.TextField(default='')
+    text_ca_allegement_en = models.TextField(default='')
+    text_ca_ouv_adultes_en = models.TextField(default='')
 
     def __str__(self):
         return "Admission condition - {}".format(self.education_group_year)

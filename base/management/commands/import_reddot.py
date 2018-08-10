@@ -31,6 +31,7 @@ from itertools import chain
 from django.conf import settings
 from django.core.management import BaseCommand, CommandError
 from django.db.models import Q
+from django.db.transaction import atomic
 
 from base.models.academic_year import AcademicYear
 from base.models.admission_condition import AdmissionCondition, AdmissionConditionLine
@@ -156,6 +157,7 @@ class Command(BaseCommand):
         parser.add_argument('--common', action='store_true', dest='is_common',
                             help='Import the common terms for the conditions')
 
+    @atomic
     def handle(self, *args, **options):
         path = check_parameters(options['file'])
         self.stdout.write(self.style.SUCCESS('file: {}'.format(path)))
@@ -264,7 +266,7 @@ class Command(BaseCommand):
                          'adults_taking_up_university_training'):
                 self.set_admission_condition_value(admission_condition, key, value['text'])
             else:
-                raise Exception('This case is not handled')
+                raise Exception('This case is not handled %s' % key)
 
     def set_values_for_text_row_of_condition_admission(self, admission_condition, line):
         section = line['section']
@@ -272,7 +274,7 @@ class Command(BaseCommand):
                        'holders_second_university_degree'):
             self.set_admission_condition_value(admission_condition, section, line['text'])
         else:
-            raise Exception('This case is not handled')
+            raise Exception('This case is not handled %s' % section)
 
     def load_admission_conditions_for_bachelor(self, item, year):
         academic_year = AcademicYear.objects.get(year=year)
@@ -294,7 +296,12 @@ class Command(BaseCommand):
         )
         admission_condition, created = AdmissionCondition.objects.get_or_create(
             education_group_year=education_group_year)
-        self.set_admission_condition_value(admission_condition, 'bachelor', item['info']['text'])
+        from prettyprinter import cpprint
+        cpprint(item['info'])
+        for text_label in ('alert_message', 'ca_bacs_cond_generales', 'ca_bacs_cond_particulieres', 'ca_bacs_examen_langue', 'ca_bacs_cond_speciales'):
+            if text_label in item['info']:
+                self.set_admission_condition_value(admission_condition, text_label, item['info'][text_label]['text-common'])
+        # self.set_admission_condition_value(admission_condition, 'bachelor', item['info']['text'])
         admission_condition.save()
 
     def load_admission_conditions_common(self):
@@ -326,12 +333,13 @@ class Command(BaseCommand):
                 education_group_year=education_group_year)
 
             if text_label in ('alert_message', 'personalized_access', 'admission_enrollment_procedures',
-                              'adults_taking_up_university_training'):
+                              'adults_taking_up_university_training', 'ca_cond_generales', 'ca_maitrise_fr',
+                              'ca_allegement', 'ca_ouv_adultes'):
                 self.set_admission_condition_value(admission_condition, text_label, value)
             elif text_label == 'introduction':
                 self.set_admission_condition_value(admission_condition, 'standard', value)
             else:
-                raise Exception('This case is not handled')
+                raise Exception('This case is not handled %s' % text_label)
 
             admission_condition.save()
 
