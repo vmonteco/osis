@@ -128,7 +128,7 @@ class TrainingForm(CommonBaseForm):
     def _postponed_list(self):
         egy_postponed_list = postponement.start(
             self.forms[EducationGroupModelForm].instance,
-            start_year=self.forms[EducationGroupModelForm].instance.academic_year.year
+            start_year=self.forms[forms.ModelForm].instance.academic_year.year
         )
         return egy_postponed_list
 

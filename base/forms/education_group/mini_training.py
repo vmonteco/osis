@@ -23,6 +23,8 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from django import forms
+
 from base.business.education_groups import postponement
 from base.forms.education_group.common import CommonBaseForm, EducationGroupModelForm, EducationGroupYearModelForm
 from base.models.education_group_year import EducationGroupYear
@@ -57,6 +59,6 @@ class MiniTrainingForm(CommonBaseForm):
     def _postponed_list(self):
         egy_postponed_list = postponement.start(
             self.forms[EducationGroupModelForm].instance,
-            start_year=self.forms[EducationGroupModelForm].instance.academic_year.year
+            start_year=self.forms[forms.ModelForm].instance.academic_year.year
         )
         return egy_postponed_list
