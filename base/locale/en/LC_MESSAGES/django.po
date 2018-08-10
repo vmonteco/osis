@@ -3424,3 +3424,6 @@ msgstr ""
 
 msgid "Which type of %(category)s do you want to create ?"
 msgstr ""
+
+msgid "Select a language"
+msgstr ""
