@@ -179,4 +179,3 @@ def _get_model_dict(data, key):
     if object:
         return object.__dict__
     return {}
-
