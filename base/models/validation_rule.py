@@ -26,11 +26,12 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
+from base.models.enums.field_status import FIELD_STATUS, NOT_REQUIRED
 from osis_common.models.osis_model_admin import OsisModelAdmin
 
 
 class ValidationRuleAdmin(OsisModelAdmin):
-    list_display = ('field_reference', 'required_field', 'initial_value', 'regex_rule')
+    list_display = ('field_reference', 'status_field', 'initial_value', 'regex_rule')
     search_fields = ['field_reference']
 
 
@@ -41,19 +42,16 @@ class ValidationRule(models.Model):
         primary_key=True
     )
 
-    required_field = models.BooleanField(
-        default=False,
-        verbose_name=_("required field")
-    )
-
-    disabled_field = models.BooleanField(
-        default=False,
-        verbose_name=_("disabled field")
+    status_field = models.CharField(
+        max_length=20,
+        choices=FIELD_STATUS,
+        default=NOT_REQUIRED
     )
 
     initial_value = models.CharField(
         max_length=255,
-        verbose_name=_("initial value")
+        verbose_name=_("initial value"),
+        blank=True
     )
 
     regex_rule = models.CharField(
@@ -70,9 +68,3 @@ class ValidationRule(models.Model):
 
     class Meta:
         verbose_name = _("validation rule")
-
-    def save(self, *args, **kwargs):
-        if self.disabled_field:
-            self.required_field = False
-
-        return super().save(*args, **kwargs)

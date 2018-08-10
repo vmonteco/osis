@@ -32,6 +32,7 @@ from base.forms.education_group.group import GroupModelForm, GroupForm
 from base.models.education_group_type import EducationGroupType
 from base.models.education_group_year import EducationGroupYear
 from base.models.enums import education_group_categories
+from base.models.enums.field_status import NOT_REQUIRED
 from base.models.group_element_year import GroupElementYear
 from base.models.validation_rule import ValidationRule
 from base.tests.factories.authorized_relationship import AuthorizedRelationshipFactory
@@ -71,9 +72,9 @@ class TestGroupModelFormModelForm(EducationGroupYearModelFormMixin):
 
     def test_create_with_validation_rule(self):
         ValidationRule.objects.create(
-            field_reference=(EducationGroupYear._meta.db_table + ".acronym." + self.education_group_type.name),
+            field_reference=(EducationGroupYear._meta.db_table + ".acronym." + self.education_group_type.external_id),
             initial_value="yolo",
-            required_field=False,
+            status_field=NOT_REQUIRED,
             regex_rule="([A-Z]{2})(.*)"
         )
 

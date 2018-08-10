@@ -24,7 +24,7 @@
 {% endcomment %}
 
 <div class="modal fade" id="form-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog" id="modal_dialog_id">
       <div class="modal-content" id="form-modal-content">
 
      </div>
@@ -67,5 +67,8 @@
             $('#form-modal').modal('toggle');
             formAjaxSubmit('#form-modal-body form', '#form-modal');
         });
+    });
+    $(document).ready(function() {
+        $('#modal_dialog_id').addClass('{{ class_ref }}');
     });
 </script>

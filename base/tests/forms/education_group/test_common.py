@@ -167,7 +167,9 @@ class TestCommonBaseFormSave(TestCase):
     def test_update_without_parent(self):
         entity_version = MainEntityVersionFactory()
         initial_educ_group_year = EducationGroupYearFactory(academic_year=current_academic_year(),
-                                                            management_entity=entity_version.entity)
+                                                            management_entity=entity_version.entity,
+                                                            education_group__start_year=current_academic_year().year)
+
         initial_educ_group = initial_educ_group_year.education_group
 
         form = self.form_class(data=self.post_data, instance=initial_educ_group_year, parent=None)
@@ -214,7 +216,8 @@ class TestCommonBaseFormSave(TestCase):
 
         entity_version = MainEntityVersionFactory()
         initial_educ_group_year = EducationGroupYearFactory(management_entity=entity_version.entity,
-                                                            academic_year=self.expected_educ_group_year.academic_year)
+                                                            academic_year=self.expected_educ_group_year.academic_year,
+                                                            education_group__start_year=current_academic_year().year)
 
         GroupElementYearFactory(parent=parent, child_branch=initial_educ_group_year)
         initial_count = GroupElementYear.objects.all().count()

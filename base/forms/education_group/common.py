@@ -36,6 +36,8 @@ from base.models.education_group_type import find_authorized_types, EducationGro
 from base.models.education_group_year import EducationGroupYear
 from base.models.entity_version import find_main_entities_version, get_last_version
 from reference.models.language import Language
+from django.utils import translation
+from django.conf import settings
 
 
 class MainTeachingCampusChoiceField(forms.ModelChoiceField):
@@ -64,10 +66,10 @@ class ValidationRuleEducationGroupTypeMixin(ValidationRuleMixin):
     def get_type(self):
         # For creation
         if self.education_group_type:
-            return self.education_group_type.name
+            return self.education_group_type.external_id
         # For updating
         elif self.instance and self.instance.education_group_type:
-            return self.instance.education_group_type.name
+            return self.instance.education_group_type.external_id
 
         return ""
 
@@ -156,6 +158,11 @@ class CommonBaseForm:
             EducationGroupModelForm: education_group_form
         }
 
+        if not (self._is_creation()):
+            education_group_form.fields["start_year"].initial = self.forms[EducationGroupModelForm].instance.start_year
+        education_group_form.fields["start_year"].disabled = True
+        education_group_form.fields["start_year"].required = False
+
     def is_valid(self):
         return all([form.is_valid() for form in self.forms.values()])
 
@@ -207,4 +214,10 @@ class EducationGroupTypeForm(forms.Form):
 
 
 class SelectLanguage(forms.Form):
-    language = forms.ChoiceField(widget=forms.RadioSelect, choices=[("en", _("English")), ("fr-be", _("French"))])
+    language = forms.ChoiceField(widget=forms.RadioSelect,
+                                 choices=settings.LANGUAGES,
+                                 label=_('Select a language'))
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.initial['language'] = translation.get_language()

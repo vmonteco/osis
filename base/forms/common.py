@@ -27,6 +27,7 @@ from django import forms
 from django.core.validators import RegexValidator
 from django.utils.safestring import mark_safe
 
+from base.models.enums.field_status import DISABLED, REQUIRED, ALERT, NOT_REQUIRED, FIXED
 from base.models.validation_rule import ValidationRule
 
 
@@ -50,7 +51,34 @@ def set_trans_txt(form, texts_list):
         setattr(form, text_label, mark_safe(text))
 
 
-class ValidationRuleMixin:
+class WarningFormMixin:
+    """
+    Mixin for Form
+
+    Add error if the field has warning at True and the user has not confirmed it.
+    You must include confirmation_modal.html in the template
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.confirmed = self.data.get("confirmed", False)
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        for name, field in self.fields.items():
+            if getattr(field, "warning", False):
+                if not cleaned_data.get(name) and not self.confirmed:
+                    self.add_warning(name, field)
+
+        return cleaned_data
+
+    def add_warning(self, name, field):
+        self.add_error(name, "This field is empty")
+        field.widget.attrs['class'] = "has-warning"
+
+
+class ValidationRuleMixin(WarningFormMixin):
     """
     Mixin for ModelForm
 
@@ -81,12 +109,26 @@ class ValidationRuleMixin:
             if name in self.rules:
                 rule = self.rules[name]
 
-                if not isinstance(field, forms.BooleanField):
-                    field.required = rule.required_field
+                self.change_status(field, rule)
 
-                field.disabled = rule.disabled_field
                 field.initial = rule.initial_value
 
                 field.validators.append(
                     RegexValidator(rule.regex_rule, rule.regex_error_message or None)
                 )
+
+    @staticmethod
+    def change_status(field, rule):
+        if rule.status_field in (DISABLED, FIXED):
+            field.disabled = True
+            field.required = False
+
+        elif rule.status_field == REQUIRED:
+            if not isinstance(field, forms.BooleanField):
+                field.required = True
+
+        elif rule.status_field == ALERT:
+            field.warning = True
+
+        elif rule.status_field == NOT_REQUIRED:
+            field.required = False
