@@ -158,9 +158,9 @@ def component_has_changed(learning_component_yr_changes, volume_changes):
 
 def compare_l_component_yr_attribute(d_param, data, attribute):
     d = d_param
-    obj_ref = data.get('ref', None).__dict__
-    obj_prev = data.get('prev', None).__dict__
-    obj_next = data.get('next', None).__dict__
+    obj_ref = _get_model_dict(data, 'ref')
+    obj_prev = _get_model_dict(data, 'prev')
+    obj_next = _get_model_dict(data, 'next')
 
     if (can_compare(obj_ref, obj_prev) and obj_ref.get(attribute, None) != obj_prev.get(attribute, None)) or \
             (can_compare(obj_ref, obj_prev) and obj_ref.get(attribute, None) != obj_next.get(attribute, None)):
@@ -172,3 +172,11 @@ def compare_l_component_yr_attribute(d_param, data, attribute):
 
 def can_compare(obj_prev, obj_ref):
     return obj_ref and obj_prev
+
+
+def _get_model_dict(data, key):
+    object = data.get(key)
+    if object:
+        return object.__dict__
+    return {}
+
