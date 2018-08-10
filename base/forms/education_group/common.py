@@ -64,10 +64,10 @@ class ValidationRuleEducationGroupTypeMixin(ValidationRuleMixin):
     def get_type(self):
         # For creation
         if self.education_group_type:
-            return self.education_group_type.name
+            return self.education_group_type.external_id
         # For updating
         elif self.instance and self.instance.education_group_type:
-            return self.instance.education_group_type.name
+            return self.instance.education_group_type.external_id
 
         return ""
 
@@ -155,6 +155,11 @@ class CommonBaseForm:
             forms.ModelForm: education_group_year_form,
             EducationGroupModelForm: education_group_form
         }
+
+        if not (self._is_creation()):
+            education_group_form.fields["start_year"].initial = self.forms[EducationGroupModelForm].instance.start_year
+        education_group_form.fields["start_year"].disabled = True
+        education_group_form.fields["start_year"].required = False
 
     def is_valid(self):
         return all([form.is_valid() for form in self.forms.values()])

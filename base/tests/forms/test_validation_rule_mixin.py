@@ -28,28 +28,35 @@ from django.core.validators import RegexValidator
 from django.test import TestCase
 
 from base.forms.common import ValidationRuleMixin
+from base.models.enums.field_status import DISABLED, REQUIRED, ALERT
 from base.models.validation_rule import ValidationRule
-from reference.models.continent import Continent
+from reference.models.country import Country
 
 
 class TestForm(ValidationRuleMixin, forms.ModelForm):
     class Meta:
-        model = Continent
+        model = Country
         fields = "__all__"
 
 
 class TestValidationRuleMixin(TestCase):
     def setUp(self):
         ValidationRule.objects.create(
-            field_reference="reference_continent.name",
-            required_field=False,
-            disabled_field=True,
+            field_reference="reference_country.name",
+            status_field=DISABLED,
             initial_value="LalaLand",
         )
+
         ValidationRule.objects.create(
-            field_reference="reference_continent.code",
-            required_field=True,
-            disabled_field=False,
+            field_reference="reference_country.iso_code",
+            status_field=REQUIRED,
+            initial_value="LA",
+            regex_rule="^(LA|LB)$"
+        )
+
+        ValidationRule.objects.create(
+            field_reference="reference_country.cref_code",
+            status_field=ALERT,
             initial_value="LA",
             regex_rule="^(LA|LB)$"
         )
@@ -60,27 +67,34 @@ class TestValidationRuleMixin(TestCase):
         self.assertTrue(form.fields["name"].disabled)
         self.assertEqual(form.fields["name"].initial, "LalaLand")
 
-        self.assertTrue(form.fields["code"].required)
-        self.assertFalse(form.fields["code"].disabled)
-        self.assertEqual(form.fields["code"].initial, "LA")
-        self.assertIsInstance(form.fields["code"].validators[1], RegexValidator)
+        self.assertTrue(form.fields["iso_code"].required)
+        self.assertFalse(form.fields["iso_code"].disabled)
+        self.assertEqual(form.fields["iso_code"].initial, "LA")
+        self.assertIsInstance(form.fields["iso_code"].validators[1], RegexValidator)
+
+        self.assertFalse(form.fields["cref_code"].required)
+        self.assertFalse(form.fields["cref_code"].disabled)
+        self.assertTrue(form.fields["cref_code"].warning)
+        self.assertEqual(form.fields["cref_code"].initial, "LA")
+        self.assertIsInstance(form.fields["cref_code"].validators[1], RegexValidator)
 
     def test_is_valid(self):
         form = TestForm(
             data={
                 'name': "Zoubiland",
-                'code': 'LB'
+                'iso_code': 'LB',
+                'cref_code': 'LA'
             }
         )
         self.assertTrue(form.is_valid())
         self.assertEqual(form.cleaned_data["name"], "LalaLand")
-        self.assertEqual(form.cleaned_data["code"], "LB")
+        self.assertEqual(form.cleaned_data["iso_code"], "LB")
 
     def test_is_invalid(self):
         form = TestForm(
             data={
                 'name': "Zoubiland",
-                'code': 'LZ'
+                'iso_code': 'LZ'
             }
         )
         self.assertFalse(form.is_valid())

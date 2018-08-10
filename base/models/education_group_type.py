@@ -41,8 +41,8 @@ class EducationGroupTypeAdmin(OsisModelAdmin):
 
 
 class EducationGroupTypeManager(models.Manager):
-    def get_by_natural_key(self, category, name):
-        return self.get(category=category, name=name)
+    def get_by_natural_key(self, external_id):
+        return self.get(external_id=external_id)
 
 
 class EducationGroupType(models.Model):
@@ -68,7 +68,7 @@ class EducationGroupType(models.Model):
         return u"%s" % self.name
 
     def natural_key(self):
-        return self.category, self.name
+        return (self.external_id,)
 
 
 def search(**kwargs):

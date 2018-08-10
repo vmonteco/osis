@@ -1,1247 +1,1081 @@
 [
 {
     "model": "base.authorizedrelationship",
-    "pk": 1,
+    "pk": 87,
     "fields": {
         "parent_type": [
-            "TRAINING",
-            "Bachelier"
+            "osis.education_group_type_2A"
         ],
         "child_type": [
-            "GROUP",
-            "Partie de base (Tronc commun)"
+            "osis.education_group_type_commoncore"
         ],
-        "changed": "2018-07-04T13:35:31.852Z"
+        "changed": "2018-08-09T13:19:36.016Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 2,
+    "pk": 88,
     "fields": {
         "parent_type": [
-            "TRAINING",
-            "Bachelier"
+            "osis.education_group_type_2A"
         ],
         "child_type": [
-            "GROUP",
-            "Liste au choix Mineures"
+            "osis.education_group_type_optionlistchoice"
         ],
-        "changed": "2018-07-04T13:35:45.625Z"
+        "changed": "2018-08-09T13:20:07.478Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 3,
+    "pk": 89,
     "fields": {
         "parent_type": [
-            "TRAINING",
-            "Bachelier"
+            "osis.education_group_type_2A"
         ],
         "child_type": [
-            "GROUP",
-            "Liste au choix Majeures"
+            "osis.education_group_type_mobilitypartnershiplistchoice"
         ],
-        "changed": "2018-07-04T13:36:04.707Z"
+        "changed": "2018-08-09T13:20:30.656Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 4,
+    "pk": 90,
     "fields": {
         "parent_type": [
-            "TRAINING",
-            "Bachelier"
+            "osis.education_group_type_8FC"
         ],
         "child_type": [
-            "GROUP",
-            "Liste au choix Partenariat mobilit\u00e9"
+            "osis.education_group_type_commoncore"
         ],
-        "changed": "2018-07-04T13:36:19.097Z"
+        "changed": "2018-08-09T13:21:06.073Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 5,
+    "pk": 91,
     "fields": {
         "parent_type": [
-            "TRAINING",
-            "Programme de Master 120"
+            "osis.education_group_type_7FC"
         ],
         "child_type": [
-            "GROUP",
-            "Partie de base (Tronc commun)"
+            "osis.education_group_type_commoncore"
         ],
-        "changed": "2018-07-04T13:36:36.850Z"
+        "changed": "2018-08-09T13:21:46.211Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 6,
+    "pk": 92,
     "fields": {
         "parent_type": [
-            "TRAINING",
-            "Programme de Master 120"
+            "osis.education_group_type_9FC"
         ],
         "child_type": [
-            "GROUP",
-            "Liste au choix Options"
+            "osis.education_group_type_commoncore"
         ],
-        "changed": "2018-07-04T13:36:50.273Z"
+        "changed": "2018-08-09T13:22:05.892Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 8,
+    "pk": 93,
     "fields": {
         "parent_type": [
-            "TRAINING",
-            "Programme de Master 120"
+            "osis.education_group_type_1BA"
         ],
         "child_type": [
-            "GROUP",
-            "Liste au choix de Finalit\u00e9s (120)"
+            "osis.education_group_type_commoncore"
         ],
-        "changed": "2018-07-04T13:37:18.071Z"
+        "changed": "2018-08-09T13:23:22.662Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 9,
+    "pk": 94,
     "fields": {
         "parent_type": [
-            "TRAINING",
-            "Programme de Master 120"
+            "osis.education_group_type_1BA"
         ],
         "child_type": [
-            "GROUP",
-            "Module compl\u00e9ment"
+            "osis.education_group_type_minorlistchoice"
         ],
-        "changed": "2018-07-04T13:37:29.814Z"
+        "changed": "2018-08-09T13:23:43.118Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 10,
+    "pk": 95,
     "fields": {
         "parent_type": [
-            "TRAINING",
-            "Master approfondi 120"
+            "osis.education_group_type_1BA"
         ],
         "child_type": [
-            "GROUP",
-            "Partie de base (Tronc commun)"
+            "osis.education_group_type_majorlistchoice"
         ],
-        "changed": "2018-07-04T13:38:30.989Z"
+        "changed": "2018-08-09T13:23:58.050Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 11,
+    "pk": 96,
     "fields": {
         "parent_type": [
-            "TRAINING",
-            "Master approfondi 120"
+            "osis.education_group_type_1BA"
         ],
         "child_type": [
-            "GROUP",
-            "Liste au choix Options"
+            "osis.education_group_type_mobilitypartnershiplistchoice"
         ],
-        "changed": "2018-07-04T13:38:48.420Z"
+        "changed": "2018-08-09T13:24:27.937Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 12,
+    "pk": 97,
     "fields": {
         "parent_type": [
-            "TRAINING",
-            "Master approfondi 120"
+            "osis.education_group_type_CE"
         ],
         "child_type": [
-            "GROUP",
-            "Liste au choix Partenariat mobilit\u00e9"
+            "osis.education_group_type_commoncore"
         ],
-        "changed": "2018-07-04T13:39:09.569Z"
+        "changed": "2018-08-09T13:24:53.744Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 13,
+    "pk": 98,
     "fields": {
         "parent_type": [
-            "TRAINING",
-            "Master didactique 120"
+            "osis.education_group_type_2CE"
         ],
         "child_type": [
-            "GROUP",
-            "Partie de base (Tronc commun)"
+            "osis.education_group_type_commoncore"
         ],
-        "changed": "2018-07-04T13:39:30.518Z"
+        "changed": "2018-08-09T13:25:26.887Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 14,
+    "pk": 99,
     "fields": {
         "parent_type": [
-            "TRAINING",
-            "Master didactique 120"
+            "osis.education_group_type_3CE"
         ],
         "child_type": [
-            "GROUP",
-            "Liste au choix Options"
+            "osis.education_group_type_commoncore"
         ],
-        "changed": "2018-07-04T13:39:47.954Z"
+        "changed": "2018-08-09T13:25:48.063Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 15,
+    "pk": 100,
     "fields": {
         "parent_type": [
-            "TRAINING",
-            "Master didactique 120"
+            "osis.education_group_type_1FC"
         ],
         "child_type": [
-            "GROUP",
-            "Liste au choix Partenariat mobilit\u00e9"
+            "osis.education_group_type_commoncore"
         ],
-        "changed": "2018-07-04T13:39:57.804Z"
+        "changed": "2018-08-09T13:26:13.735Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 16,
+    "pk": 101,
     "fields": {
         "parent_type": [
-            "TRAINING",
-            "Master sp\u00e9cialis\u00e9 120"
+            "osis.education_group_type_2FC"
         ],
         "child_type": [
-            "GROUP",
-            "Partie de base (Tronc commun)"
+            "osis.education_group_type_commoncore"
         ],
-        "changed": "2018-07-04T13:40:10.093Z"
+        "changed": "2018-08-09T13:26:31.828Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 17,
+    "pk": 102,
     "fields": {
         "parent_type": [
-            "TRAINING",
-            "Master sp\u00e9cialis\u00e9 120"
+            "osis.education_group_type_CA"
         ],
         "child_type": [
-            "GROUP",
-            "Liste au choix Options"
+            "osis.education_group_type_commoncore"
         ],
-        "changed": "2018-07-04T13:40:21.589Z"
+        "changed": "2018-08-09T13:26:58.065Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 18,
+    "pk": 103,
     "fields": {
         "parent_type": [
-            "TRAINING",
-            "Master sp\u00e9cialis\u00e9 120"
+            "osis.education_group_type_LV"
         ],
         "child_type": [
-            "GROUP",
-            "Liste au choix Partenariat mobilit\u00e9"
+            "osis.education_group_type_commoncore"
         ],
-        "changed": "2018-07-04T13:40:31.635Z"
+        "changed": "2018-08-09T13:27:15.816Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 19,
+    "pk": 104,
     "fields": {
         "parent_type": [
-            "TRAINING",
-            "Programme de Master 180 ou 240"
+            "osis.education_group_type_IS"
         ],
         "child_type": [
-            "GROUP",
-            "Partie de base (Tronc commun)"
+            "osis.education_group_type_commoncore"
         ],
-        "changed": "2018-07-04T13:41:34.457Z"
+        "changed": "2018-08-09T13:27:37.753Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 20,
+    "pk": 105,
     "fields": {
         "parent_type": [
-            "TRAINING",
-            "Programme de Master 180 ou 240"
+            "osis.education_group_type_3DP"
         ],
         "child_type": [
-            "GROUP",
-            "Liste au choix Options"
+            "osis.education_group_type_commoncore"
         ],
-        "changed": "2018-07-04T13:41:47.942Z"
+        "changed": "2018-08-09T13:27:50.370Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 21,
+    "pk": 106,
     "fields": {
         "parent_type": [
-            "TRAINING",
-            "Programme de Master 180 ou 240"
+            "osis.education_group_type_3FP"
         ],
         "child_type": [
-            "GROUP",
-            "Liste au choix de Finalit\u00e9s (180)"
+            "osis.education_group_type_commoncore"
         ],
-        "changed": "2018-07-04T13:42:06.902Z"
+        "changed": "2018-08-09T13:28:01.574Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 22,
+    "pk": 107,
     "fields": {
         "parent_type": [
-            "TRAINING",
-            "Programme de Master 180 ou 240"
+            "osis.education_group_type_JY"
         ],
         "child_type": [
-            "GROUP",
-            "Module compl\u00e9ment"
+            "osis.education_group_type_commoncore"
         ],
-        "changed": "2018-07-04T13:42:16.755Z"
+        "changed": "2018-08-09T13:28:47.468Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 23,
+    "pk": 108,
     "fields": {
         "parent_type": [
-            "TRAINING",
-            "Master approfondi 180 ou 240"
+            "osis.education_group_type_2M120"
         ],
         "child_type": [
-            "GROUP",
-            "Partie de base (Tronc commun)"
+            "osis.education_group_type_commoncore"
         ],
-        "changed": "2018-07-04T13:42:34.930Z"
+        "changed": "2018-08-09T13:29:31.797Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 24,
+    "pk": 109,
     "fields": {
         "parent_type": [
-            "TRAINING",
-            "Master approfondi 180 ou 240"
+            "osis.education_group_type_2M120"
         ],
         "child_type": [
-            "GROUP",
-            "Liste au choix Options"
+            "osis.education_group_type_optionlistchoice"
         ],
-        "changed": "2018-07-04T13:42:44.223Z"
+        "changed": "2018-08-09T13:29:51.514Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 25,
+    "pk": 110,
     "fields": {
         "parent_type": [
-            "TRAINING",
-            "Master approfondi 180 ou 240"
+            "osis.education_group_type_2M120"
         ],
         "child_type": [
-            "GROUP",
-            "Liste au choix Partenariat mobilit\u00e9"
+            "osis.education_group_type_finality120listchoice"
         ],
-        "changed": "2018-07-04T13:42:58.085Z"
+        "changed": "2018-08-09T13:30:11.603Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 26,
+    "pk": 111,
     "fields": {
         "parent_type": [
-            "TRAINING",
-            "Master didactique 180 ou 240"
+            "osis.education_group_type_2M120"
         ],
         "child_type": [
-            "GROUP",
-            "Partie de base (Tronc commun)"
+            "osis.education_group_type_complementarymodule"
         ],
-        "changed": "2018-07-04T13:43:17.896Z"
+        "changed": "2018-08-09T13:30:31.185Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 27,
+    "pk": 112,
     "fields": {
         "parent_type": [
-            "TRAINING",
-            "Master didactique 180 ou 240"
+            "osis.education_group_type_2M120"
         ],
         "child_type": [
-            "GROUP",
-            "Liste au choix Options"
+            "osis.education_group_type_mobilitypartnershiplistchoice"
         ],
-        "changed": "2018-07-04T13:43:24.270Z"
+        "changed": "2018-08-09T13:31:06.514Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 28,
+    "pk": 113,
     "fields": {
         "parent_type": [
-            "TRAINING",
-            "Master didactique 180 ou 240"
+            "osis.education_group_type_2MA120"
         ],
         "child_type": [
-            "GROUP",
-            "Liste au choix Partenariat mobilit\u00e9"
+            "osis.education_group_type_commoncore"
         ],
-        "changed": "2018-07-04T13:43:28.757Z"
+        "changed": "2018-08-09T13:31:32.433Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 29,
+    "pk": 114,
     "fields": {
         "parent_type": [
-            "TRAINING",
-            "Master sp\u00e9cialis\u00e9 180 ou 240"
+            "osis.education_group_type_2MA120"
         ],
         "child_type": [
-            "GROUP",
-            "Partie de base (Tronc commun)"
+            "osis.education_group_type_optionlistchoice"
         ],
-        "changed": "2018-07-04T13:43:41.731Z"
+        "changed": "2018-08-09T13:32:02.943Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 31,
+    "pk": 115,
     "fields": {
         "parent_type": [
-            "TRAINING",
-            "Master sp\u00e9cialis\u00e9 180 ou 240"
+            "osis.education_group_type_2MA120"
         ],
         "child_type": [
-            "GROUP",
-            "Liste au choix Options"
+            "osis.education_group_type_mobilitypartnershiplistchoice"
         ],
-        "changed": "2018-07-04T13:44:05.330Z"
+        "changed": "2018-08-09T13:32:33.006Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 32,
+    "pk": 116,
     "fields": {
         "parent_type": [
-            "TRAINING",
-            "Master sp\u00e9cialis\u00e9 180 ou 240"
+            "osis.education_group_type_2MD120"
         ],
         "child_type": [
-            "GROUP",
-            "Liste au choix Partenariat mobilit\u00e9"
+            "osis.education_group_type_commoncore"
         ],
-        "changed": "2018-07-04T13:44:12.642Z"
+        "changed": "2018-08-09T13:33:06.115Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 33,
+    "pk": 117,
     "fields": {
         "parent_type": [
-            "TRAINING",
-            "Master en un an"
+            "osis.education_group_type_2MD120"
         ],
         "child_type": [
-            "GROUP",
-            "Partie de base (Tronc commun)"
+            "osis.education_group_type_optionlistchoice"
         ],
-        "changed": "2018-07-04T13:44:25.278Z"
+        "changed": "2018-08-09T13:33:22.602Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 34,
+    "pk": 118,
     "fields": {
         "parent_type": [
-            "TRAINING",
-            "Master en un an"
+            "osis.education_group_type_2MD120"
         ],
         "child_type": [
-            "GROUP",
-            "Liste au choix Options"
+            "osis.education_group_type_mobilitypartnershiplistchoice"
         ],
-        "changed": "2018-07-04T13:44:32.821Z"
+        "changed": "2018-08-09T13:33:38.614Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 35,
+    "pk": 119,
     "fields": {
         "parent_type": [
-            "TRAINING",
-            "Master en un an"
+            "osis.education_group_type_2MS120"
         ],
         "child_type": [
-            "GROUP",
-            "Liste au choix Partenariat mobilit\u00e9"
+            "osis.education_group_type_commoncore"
         ],
-        "changed": "2018-07-04T13:44:38.372Z"
+        "changed": "2018-08-09T13:34:18.852Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 36,
+    "pk": 120,
     "fields": {
         "parent_type": [
-            "TRAINING",
-            "Master en un an"
+            "osis.education_group_type_2MS120"
         ],
         "child_type": [
-            "GROUP",
-            "Module compl\u00e9ment"
+            "osis.education_group_type_optionlistchoice"
         ],
-        "changed": "2018-07-04T13:44:44.626Z"
+        "changed": "2018-08-09T13:34:33.715Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 37,
+    "pk": 121,
     "fields": {
         "parent_type": [
-            "TRAINING",
-            "Master de sp\u00e9cialisation"
+            "osis.education_group_type_2MS120"
         ],
         "child_type": [
-            "GROUP",
-            "Partie de base (Tronc commun)"
+            "osis.education_group_type_mobilitypartnershiplistchoice"
         ],
-        "changed": "2018-07-04T13:44:57.476Z"
+        "changed": "2018-08-09T13:34:45.425Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 38,
+    "pk": 122,
     "fields": {
         "parent_type": [
-            "TRAINING",
-            "Master de sp\u00e9cialisation"
+            "osis.education_group_type_2M180"
         ],
         "child_type": [
-            "GROUP",
-            "Liste au choix Options"
+            "osis.education_group_type_commoncore"
         ],
-        "changed": "2018-07-04T13:45:07.106Z"
+        "changed": "2018-08-09T13:35:27.430Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 39,
+    "pk": 123,
     "fields": {
         "parent_type": [
-            "TRAINING",
-            "Master de sp\u00e9cialisation"
+            "osis.education_group_type_2M180"
         ],
         "child_type": [
-            "GROUP",
-            "Liste au choix Partenariat mobilit\u00e9"
+            "osis.education_group_type_optionlistchoice"
         ],
-        "changed": "2018-07-04T13:45:11.514Z"
+        "changed": "2018-08-09T13:42:32.726Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 40,
+    "pk": 124,
     "fields": {
         "parent_type": [
-            "TRAINING",
-            "Master de sp\u00e9cialisation"
+            "osis.education_group_type_2M180"
         ],
         "child_type": [
-            "GROUP",
-            "Module compl\u00e9ment"
+            "osis.education_group_type_finality180listchoice"
         ],
-        "changed": "2018-07-04T13:45:18.933Z"
+        "changed": "2018-08-09T13:42:54.365Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 41,
+    "pk": 125,
     "fields": {
         "parent_type": [
-            "TRAINING",
-            "Agr\u00e9gation"
+            "osis.education_group_type_2M180"
         ],
         "child_type": [
-            "GROUP",
-            "Partie de base (Tronc commun)"
+            "osis.education_group_type_complementarymodule"
         ],
-        "changed": "2018-07-04T13:45:28.575Z"
+        "changed": "2018-08-09T13:43:15.846Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 42,
+    "pk": 126,
     "fields": {
         "parent_type": [
-            "TRAINING",
-            "Agr\u00e9gation"
+            "osis.education_group_type_2M180"
         ],
         "child_type": [
-            "GROUP",
-            "Liste au choix Options"
+            "osis.education_group_type_mobilitypartnershiplistchoice"
         ],
-        "changed": "2018-07-04T13:45:34.179Z"
+        "changed": "2018-08-09T13:43:35.468Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 43,
+    "pk": 127,
     "fields": {
         "parent_type": [
-            "TRAINING",
-            "Agr\u00e9gation"
+            "osis.education_group_type_2MA180"
         ],
         "child_type": [
-            "GROUP",
-            "Liste au choix Partenariat mobilit\u00e9"
+            "osis.education_group_type_commoncore"
         ],
-        "changed": "2018-07-04T13:45:39.549Z"
+        "changed": "2018-08-09T13:43:57.914Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 44,
+    "pk": 128,
     "fields": {
         "parent_type": [
-            "TRAINING",
-            "Agr\u00e9gation"
+            "osis.education_group_type_2MA180"
         ],
         "child_type": [
-            "GROUP",
-            "Module compl\u00e9ment"
+            "osis.education_group_type_optionlistchoice"
         ],
-        "changed": "2018-07-04T13:45:43.419Z"
+        "changed": "2018-08-09T13:44:16.555Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 45,
+    "pk": 129,
     "fields": {
         "parent_type": [
-            "TRAINING",
-            "Certificat de recherche"
+            "osis.education_group_type_2MA180"
         ],
         "child_type": [
-            "GROUP",
-            "Partie de base (Tronc commun)"
+            "osis.education_group_type_mobilitypartnershiplistchoice"
         ],
-        "changed": "2018-07-04T13:45:59.012Z"
+        "changed": "2018-08-09T13:44:37.821Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 46,
+    "pk": 130,
     "fields": {
         "parent_type": [
-            "TRAINING",
-            "Certificat de m\u00e9decine"
+            "osis.education_group_type_2MD180"
         ],
         "child_type": [
-            "GROUP",
-            "Partie de base (Tronc commun)"
+            "osis.education_group_type_commoncore"
         ],
-        "changed": "2018-07-04T13:46:03.441Z"
+        "changed": "2018-08-09T13:45:08Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 47,
+    "pk": 131,
     "fields": {
         "parent_type": [
-            "TRAINING",
-            "Certificat CAPAES"
+            "osis.education_group_type_2MD180"
         ],
         "child_type": [
-            "GROUP",
-            "Partie de base (Tronc commun)"
+            "osis.education_group_type_optionlistchoice"
         ],
-        "changed": "2018-07-04T13:46:09.012Z"
+        "changed": "2018-08-09T13:45:25.854Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 48,
+    "pk": 132,
     "fields": {
         "parent_type": [
-            "TRAINING",
-            "Certificat de formation continue"
+            "osis.education_group_type_2MD180"
         ],
         "child_type": [
-            "GROUP",
-            "Partie de base (Tronc commun)"
+            "osis.education_group_type_mobilitypartnershiplistchoice"
         ],
-        "changed": "2018-07-04T13:46:14.715Z"
+        "changed": "2018-08-09T13:45:58.461Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 49,
+    "pk": 133,
     "fields": {
         "parent_type": [
-            "TRAINING",
-            "Attestation de formation continue"
+            "osis.education_group_type_2MS180"
         ],
         "child_type": [
-            "GROUP",
-            "Partie de base (Tronc commun)"
+            "osis.education_group_type_commoncore"
         ],
-        "changed": "2018-07-04T13:46:57.891Z"
+        "changed": "2018-08-09T13:49:27.632Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 50,
+    "pk": 134,
     "fields": {
         "parent_type": [
-            "TRAINING",
-            "Cours de langue"
+            "osis.education_group_type_2MS180"
         ],
         "child_type": [
-            "GROUP",
-            "Partie de base (Tronc commun)"
+            "osis.education_group_type_optionlistchoice"
         ],
-        "changed": "2018-07-04T13:47:06.193Z"
+        "changed": "2018-08-09T13:49:43.158Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 51,
+    "pk": 135,
     "fields": {
         "parent_type": [
-            "TRAINING",
-            "Doctorat"
+            "osis.education_group_type_2MS180"
         ],
         "child_type": [
-            "GROUP",
-            "Partie de base (Tronc commun)"
+            "osis.education_group_type_mobilitypartnershiplistchoice"
         ],
-        "changed": "2018-07-04T13:47:17.636Z"
+        "changed": "2018-08-09T13:49:54.236Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 52,
+    "pk": 136,
     "fields": {
         "parent_type": [
-            "TRAINING",
-            "Formation doctorat"
+            "osis.education_group_type_2M1"
         ],
         "child_type": [
-            "GROUP",
-            "Partie de base (Tronc commun)"
+            "osis.education_group_type_commoncore"
         ],
-        "changed": "2018-07-04T13:47:21.538Z"
+        "changed": "2018-08-09T13:50:15.266Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 53,
+    "pk": 137,
     "fields": {
         "parent_type": [
-            "TRAINING",
-            "Concours d\u2019acc\u00e8s"
+            "osis.education_group_type_2M1"
         ],
         "child_type": [
-            "GROUP",
-            "Partie de base (Tronc commun)"
+            "osis.education_group_type_optionlistchoice"
         ],
-        "changed": "2018-07-04T13:47:28.989Z"
+        "changed": "2018-08-09T13:50:31.824Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 54,
+    "pk": 138,
     "fields": {
         "parent_type": [
-            "TRAINING",
-            "Cours isol\u00e9s"
+            "osis.education_group_type_2M1"
         ],
         "child_type": [
-            "GROUP",
-            "Partie de base (Tronc commun)"
+            "osis.education_group_type_complementarymodule"
         ],
-        "changed": "2018-07-04T13:47:35.112Z"
+        "changed": "2018-08-09T13:50:48.976Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 55,
+    "pk": 139,
     "fields": {
         "parent_type": [
-            "TRAINING",
-            "Stagiaire"
+            "osis.education_group_type_2M1"
         ],
         "child_type": [
-            "GROUP",
-            "Partie de base (Tronc commun)"
+            "osis.education_group_type_mobilitypartnershiplistchoice"
         ],
-        "changed": "2018-07-04T13:47:42.428Z"
+        "changed": "2018-08-09T13:51:10.851Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 56,
+    "pk": 140,
     "fields": {
         "parent_type": [
-            "TRAINING",
-            "Junior year"
+            "osis.education_group_type_2MC"
         ],
         "child_type": [
-            "GROUP",
-            "Partie de base (Tronc commun)"
+            "osis.education_group_type_commoncore"
         ],
-        "changed": "2018-07-04T13:47:55.320Z"
+        "changed": "2018-08-09T13:51:34.086Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 57,
+    "pk": 141,
     "fields": {
         "parent_type": [
-            "MINI_TRAINING",
-            "Approfondissement"
+            "osis.education_group_type_2MC"
         ],
         "child_type": [
-            "GROUP",
-            "Partie de base (Tronc commun)"
+            "osis.education_group_type_optionlistchoice"
         ],
-        "changed": "2018-07-04T13:48:03.131Z"
+        "changed": "2018-08-09T13:51:48.978Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 58,
+    "pk": 142,
     "fields": {
         "parent_type": [
-            "MINI_TRAINING",
-            "Mineure de soci\u00e9t\u00e9"
+            "osis.education_group_type_2MC"
         ],
         "child_type": [
-            "GROUP",
-            "Partie de base (Tronc commun)"
+            "osis.education_group_type_complementarymodule"
         ],
-        "changed": "2018-07-04T13:48:18.488Z"
+        "changed": "2018-08-09T13:52:01.477Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 59,
+    "pk": 143,
     "fields": {
         "parent_type": [
-            "MINI_TRAINING",
-            "Mineure de soci\u00e9t\u00e9"
+            "osis.education_group_type_2MC"
         ],
         "child_type": [
-            "GROUP",
-            "Sous-groupe"
+            "osis.education_group_type_mobilitypartnershiplistchoice"
         ],
-        "changed": "2018-07-04T13:48:36.842Z"
+        "changed": "2018-08-09T13:52:21.426Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 60,
+    "pk": 144,
     "fields": {
         "parent_type": [
-            "MINI_TRAINING",
-            "Mineure d'acc\u00e8s"
+            "osis.education_group_type_ST"
         ],
         "child_type": [
-            "GROUP",
-            "Partie de base (Tronc commun)"
+            "osis.education_group_type_commoncore"
         ],
-        "changed": "2018-07-04T13:48:48.031Z"
+        "changed": "2018-08-09T13:52:42.012Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 61,
+    "pk": 145,
     "fields": {
         "parent_type": [
-            "MINI_TRAINING",
-            "Mineure d'acc\u00e8s"
+            "osis.education_group_type_deepening"
         ],
         "child_type": [
-            "GROUP",
-            "Sous-groupe"
+            "osis.education_group_type_commoncore"
         ],
-        "changed": "2018-07-04T13:48:53.989Z"
+        "changed": "2018-08-09T13:52:58.856Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 62,
+    "pk": 146,
     "fields": {
         "parent_type": [
-            "MINI_TRAINING",
-            "Mineure d'ouverture"
+            "osis.education_group_type_sociatyminor"
         ],
         "child_type": [
-            "GROUP",
-            "Partie de base (Tronc commun)"
+            "osis.education_group_type_commoncore"
         ],
-        "changed": "2018-07-04T13:48:59.142Z"
+        "changed": "2018-08-09T13:53:19.286Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 63,
+    "pk": 147,
     "fields": {
         "parent_type": [
-            "MINI_TRAINING",
-            "Mineure d'ouverture"
+            "osis.education_group_type_accessminor"
         ],
         "child_type": [
-            "GROUP",
-            "Sous-groupe"
+            "osis.education_group_type_commoncore"
         ],
-        "changed": "2018-07-04T13:49:05.065Z"
+        "changed": "2018-08-09T13:53:34.284Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 64,
+    "pk": 148,
     "fields": {
         "parent_type": [
-            "MINI_TRAINING",
-            "Mineure compl\u00e9ment disciplinaire"
+            "osis.education_group_type_openminor"
         ],
         "child_type": [
-            "GROUP",
-            "Partie de base (Tronc commun)"
+            "osis.education_group_type_commoncore"
         ],
-        "changed": "2018-07-04T13:49:10.269Z"
+        "changed": "2018-08-09T13:53:47.019Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 65,
+    "pk": 149,
     "fields": {
         "parent_type": [
-            "MINI_TRAINING",
-            "Mineure compl\u00e9ment disciplinaire"
+            "osis.education_group_type_disciplinarycomplementminor"
         ],
         "child_type": [
-            "GROUP",
-            "Sous-groupe"
+            "osis.education_group_type_commoncore"
         ],
-        "changed": "2018-07-04T13:49:16.366Z"
+        "changed": "2018-08-09T13:54:01.445Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 66,
+    "pk": 150,
     "fields": {
         "parent_type": [
-            "MINI_TRAINING",
-            "Option"
+            "osis.education_group_type_fsaspeciality"
         ],
         "child_type": [
-            "GROUP",
-            "Partie de base (Tronc commun)"
+            "osis.education_group_type_commoncore"
         ],
-        "changed": "2018-07-04T13:49:53.793Z"
+        "changed": "2018-08-09T13:54:38.672Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 67,
+    "pk": 151,
     "fields": {
         "parent_type": [
-            "MINI_TRAINING",
-            "Option"
+            "osis.education_group_type_option"
         ],
         "child_type": [
-            "GROUP",
-            "Sous-groupe"
+            "osis.education_group_type_commoncore"
         ],
-        "changed": "2018-07-04T13:50:03.260Z"
+        "changed": "2018-08-09T13:54:52.819Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 68,
+    "pk": 152,
     "fields": {
         "parent_type": [
-            "MINI_TRAINING",
-            "Partenariat de mobilit\u00e9"
+            "osis.education_group_type_mobilitypartnership"
         ],
         "child_type": [
-            "GROUP",
-            "Partie de base (Tronc commun)"
+            "osis.education_group_type_commoncore"
         ],
-        "changed": "2018-07-04T13:50:12.721Z"
+        "changed": "2018-08-09T13:55:04.463Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 69,
+    "pk": 153,
     "fields": {
         "parent_type": [
-            "GROUP",
-            "Partie de base (Tronc commun)"
+            "osis.education_group_type_commoncore"
         ],
         "child_type": [
-            "GROUP",
-            "Sous-groupe"
+            "osis.education_group_type_subgroup"
         ],
-        "changed": "2018-07-04T13:50:28.900Z"
+        "changed": "2018-08-09T13:55:19.047Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 70,
+    "pk": 154,
     "fields": {
         "parent_type": [
-            "GROUP",
-            "Liste au choix Mineures"
+            "osis.education_group_type_complementarymodule"
         ],
         "child_type": [
-            "MINI_TRAINING",
-            "Approfondissement"
+            "osis.education_group_type_commoncore"
         ],
-        "changed": "2018-07-04T13:51:06.469Z"
+        "changed": "2018-08-09T13:56:10.130Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 71,
+    "pk": 155,
     "fields": {
         "parent_type": [
-            "GROUP",
-            "Liste au choix Mineures"
+            "osis.education_group_type_minorlistchoice"
         ],
         "child_type": [
-            "MINI_TRAINING",
-            "Mineure de soci\u00e9t\u00e9"
+            "osis.education_group_type_deepening"
         ],
-        "changed": "2018-07-04T13:51:35.345Z"
+        "changed": "2018-08-09T13:56:50.589Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 72,
+    "pk": 156,
     "fields": {
         "parent_type": [
-            "GROUP",
-            "Liste au choix Mineures"
+            "osis.education_group_type_minorlistchoice"
         ],
         "child_type": [
-            "MINI_TRAINING",
-            "Mineure d'acc\u00e8s"
+            "osis.education_group_type_disciplinarycomplementminor"
         ],
-        "changed": "2018-07-04T13:51:47.533Z"
+        "changed": "2018-08-09T13:57:31.245Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 73,
+    "pk": 157,
     "fields": {
         "parent_type": [
-            "GROUP",
-            "Liste au choix Mineures"
+            "osis.education_group_type_minorlistchoice"
         ],
         "child_type": [
-            "MINI_TRAINING",
-            "Mineure d'ouverture"
+            "osis.education_group_type_openminor"
         ],
-        "changed": "2018-07-04T13:51:58.390Z"
+        "changed": "2018-08-09T13:57:56.195Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 74,
+    "pk": 158,
     "fields": {
         "parent_type": [
-            "GROUP",
-            "Liste au choix Mineures"
+            "osis.education_group_type_minorlistchoice"
         ],
         "child_type": [
-            "MINI_TRAINING",
-            "Mineure compl\u00e9ment disciplinaire"
+            "osis.education_group_type_accessminor"
         ],
-        "changed": "2018-07-04T13:52:02.526Z"
+        "changed": "2018-08-09T13:58:13.221Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 75,
+    "pk": 159,
     "fields": {
         "parent_type": [
-            "GROUP",
-            "Liste au choix Majeures"
+            "osis.education_group_type_minorlistchoice"
         ],
         "child_type": [
-            "MINI_TRAINING",
-            "Sp\u00e9cialit\u00e9 FSA (Majeure)"
+            "osis.education_group_type_sociatyminor"
         ],
-        "changed": "2018-07-04T13:52:40.179Z"
+        "changed": "2018-08-09T13:58:30.128Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 76,
+    "pk": 160,
     "fields": {
         "parent_type": [
-            "GROUP",
-            "Liste au choix Options"
+            "osis.education_group_type_majorlistchoice"
         ],
         "child_type": [
-            "MINI_TRAINING",
-            "Option"
+            "osis.education_group_type_fsaspeciality"
         ],
-        "changed": "2018-07-04T13:53:08.075Z"
+        "changed": "2018-08-09T13:58:54.904Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 77,
+    "pk": 161,
     "fields": {
         "parent_type": [
-            "GROUP",
-            "Liste au choix de Finalit\u00e9s (120)"
+            "osis.education_group_type_optionlistchoice"
         ],
         "child_type": [
-            "TRAINING",
-            "Master approfondi 120"
+            "osis.education_group_type_option"
         ],
-        "changed": "2018-07-04T13:53:53.748Z"
+        "changed": "2018-08-09T13:59:19.519Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 78,
+    "pk": 162,
     "fields": {
         "parent_type": [
-            "GROUP",
-            "Liste au choix de Finalit\u00e9s (120)"
+            "osis.education_group_type_finality120listchoice"
         ],
         "child_type": [
-            "TRAINING",
-            "Master didactique 120"
+            "osis.education_group_type_2MA120"
         ],
-        "changed": "2018-07-04T13:53:58.763Z"
+        "changed": "2018-08-09T13:59:50.548Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 79,
+    "pk": 163,
     "fields": {
         "parent_type": [
-            "GROUP",
-            "Liste au choix de Finalit\u00e9s (120)"
+            "osis.education_group_type_finality120listchoice"
         ],
         "child_type": [
-            "TRAINING",
-            "Master sp\u00e9cialis\u00e9 120"
+            "osis.education_group_type_2MD120"
         ],
-        "changed": "2018-07-04T13:54:02.796Z"
+        "changed": "2018-08-09T14:00:03.255Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 80,
+    "pk": 164,
     "fields": {
         "parent_type": [
-            "GROUP",
-            "Liste au choix de Finalit\u00e9s (180)"
+            "osis.education_group_type_finality120listchoice"
         ],
         "child_type": [
-            "TRAINING",
-            "Master approfondi 180 ou 240"
+            "osis.education_group_type_2MS120"
         ],
-        "changed": "2018-07-04T13:54:25.511Z"
+        "changed": "2018-08-09T14:00:19.195Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 81,
+    "pk": 165,
     "fields": {
         "parent_type": [
-            "GROUP",
-            "Liste au choix de Finalit\u00e9s (180)"
+            "osis.education_group_type_finality180listchoice"
         ],
         "child_type": [
-            "TRAINING",
-            "Master didactique 180 ou 240"
+            "osis.education_group_type_2MA180"
         ],
-        "changed": "2018-07-04T13:54:52.906Z"
+        "changed": "2018-08-09T14:00:43.345Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 82,
+    "pk": 166,
     "fields": {
         "parent_type": [
-            "GROUP",
-            "Liste au choix de Finalit\u00e9s (180)"
+            "osis.education_group_type_finality180listchoice"
         ],
         "child_type": [
-            "TRAINING",
-            "Master sp\u00e9cialis\u00e9 180 ou 240"
+            "osis.education_group_type_2MD180"
         ],
-        "changed": "2018-07-04T13:54:59.653Z"
+        "changed": "2018-08-09T14:01:05.540Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 83,
+    "pk": 167,
     "fields": {
         "parent_type": [
-            "GROUP",
-            "Module compl\u00e9ment"
+            "osis.education_group_type_finality180listchoice"
         ],
         "child_type": [
-            "GROUP",
-            "Partie de base (Tronc commun)"
+            "osis.education_group_type_2MS180"
         ],
-        "changed": "2018-07-04T13:55:34.751Z"
+        "changed": "2018-08-09T14:10:58.042Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 84,
+    "pk": 168,
     "fields": {
         "parent_type": [
-            "GROUP",
-            "Liste au choix Partenariat mobilit\u00e9"
+            "osis.education_group_type_mobilitypartnershiplistchoice"
         ],
         "child_type": [
-            "MINI_TRAINING",
-            "Partenariat de mobilit\u00e9"
+            "osis.education_group_type_mobilitypartnershiplistchoice"
         ],
-        "changed": "2018-07-04T13:55:58.626Z"
+        "changed": "2018-08-09T14:11:40.888Z"
     }
 },
 {
     "model": "base.authorizedrelationship",
-    "pk": 85,
+    "pk": 169,
     "fields": {
         "parent_type": [
-            "GROUP",
-            "Sous-groupe"
+            "osis.education_group_type_subgroup"
         ],
         "child_type": [
-            "GROUP",
-            "Sous-groupe"
+            "osis.education_group_type_subgroup"
         ],
-        "changed": "2018-07-04T13:56:16.151Z"
+        "changed": "2018-08-09T14:11:55.324Z"
     }
 }
 ]
