@@ -192,4 +192,4 @@ def _real_classes_is_different(obj_prev, obj_ref):
 
 
 def _is_key_to_compare(key, vol):
-    return not( key == 'PLANNED_CLASSES' or key in vol)
+    return not(key == 'PLANNED_CLASSES' or key in vol)
