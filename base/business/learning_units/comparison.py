@@ -116,7 +116,7 @@ def compare_volumes(current_data, prev_data, next_data):
     vol = {}
     if current_volumes:
         for key, value in current_volumes.items():
-            if key == 'PLANNED_CLASSES' or key in vol:
+            if _invalid_key(key, vol):
                 continue
             if (value != prev_volumes.get(key) or value != next_volumes.get(key)):
                 vol.update({key: [prev_volumes.get(key), value, next_volumes.get(key)]})
@@ -189,3 +189,7 @@ def _is_different(attribute, obj_prev, obj_ref):
 
 def _real_classes_is_different(obj_prev, obj_ref):
     return can_compare(obj_ref, obj_prev) and obj_ref.real_classes != obj_prev.real_classes
+
+
+def _invalid_key(key, vol):
+    return key == 'PLANNED_CLASSES' or key in vol
