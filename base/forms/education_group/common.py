@@ -216,7 +216,8 @@ class EducationGroupTypeForm(forms.Form):
 class SelectLanguage(forms.Form):
     language = forms.ChoiceField(widget=forms.RadioSelect,
                                  choices=settings.LANGUAGES,
-                                 label=_('Select a language'))
+                                 label=_('Select a language'),
+                                 required=False)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

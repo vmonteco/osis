@@ -155,3 +155,12 @@ def _get_label(data, key_comp, val):
                          .format(DIFFERENCE_CSS, DEFAULT_VALUE_FOR_NONE if val is None else val))
     else:
         return mark_safe("{}".format(DEFAULT_VALUE_FOR_NONE if val is None else val))
+
+
+@register.simple_tag
+def changed_label(value, other1=None):
+    if value != other1:
+        return mark_safe(
+            "<label {}>{}</label>".format(DIFFERENCE_CSS, DEFAULT_VALUE_FOR_NONE if value is None else value))
+    else:
+        return mark_safe("{}".format(DEFAULT_VALUE_FOR_NONE if value is None else value))

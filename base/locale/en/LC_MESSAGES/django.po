@@ -3424,3 +3424,30 @@ msgstr ""
 
 msgid "Select a language"
 msgstr ""
+
+msgid "VOLUME_Q1"
+msgstr "Volume partial"
+
+msgid "VOLUME_Q2"
+msgstr "Volume remaining"
+
+msgid "VOLUME_TOTAL"
+msgstr "Vol. annual"
+
+msgid "PLANNED_CLASSES"
+msgstr "Planned classes"
+
+msgid "REAL_CLASSES"
+msgstr "Real classes"
+
+msgid "VOLUME_REQUIREMENT_ENTITY"
+msgstr "Requirement entity"
+
+msgid "VOLUME_ALLOCATION_ENTITY"
+msgstr "Allocation entity"
+
+msgid "VOLUME_ADDITIONAL_REQUIREMENT_ENTITY_1"
+msgstr "Additional requirement entity 1"
+
+msgid "VOLUME_ADDITIONAL_REQUIREMENT_ENTITY_2"
+msgstr "Additional requirement entity 2"

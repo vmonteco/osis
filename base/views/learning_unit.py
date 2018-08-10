@@ -32,6 +32,7 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_http_methods
+from django.utils.translation import ugettext_lazy as _
 
 from attribution.business import attribution_charge_new
 from base import models as mdl
@@ -40,7 +41,7 @@ from base.business.learning_unit import get_cms_label_data, \
     CMS_LABEL_SPECIFICATIONS, get_achievements_group_by_language
 from base.business.learning_units import perms as business_perms
 from base.business.learning_units.comparison import get_keys, compare_learning_unit_years, \
-    compare_learning_container_years
+    compare_learning_container_years, get_components_changes
 from base.business.learning_units.perms import can_update_learning_achievement
 from base.forms.learning_class import LearningClassEditForm
 from base.forms.learning_unit_component import LearningUnitComponentEditForm
@@ -52,7 +53,6 @@ from base.views.learning_units.common import get_learning_unit_identification_co
 from cms.models import text_label
 from . import layout
 from base.business.learning_unit import get_learning_unit_comparison_context
-from django.utils.translation import ugettext_lazy as _
 
 ORGANIZATION_KEYS = ['REQUIREMENT_ENTITY', 'ADDITIONAL_REQUIREMENT_ENTITY_1', 'ADDITIONAL_REQUIREMENT_ENTITY_2',
                      'campus', 'organization']
@@ -255,6 +255,8 @@ def learning_unit_comparison(request, learning_unit_year_id):
     next_values = compare_learning_unit_years(learning_unit_yr, next_lu)
     next_lcy_values = compare_learning_container_years(learning_unit_yr.learning_container_year,
                                                        next_lu.learning_container_year)
+    previous_context = get_learning_unit_comparison_context(previous_lu)
+    next_context = get_learning_unit_comparison_context(next_lu)
 
     context.update(
         {'previous_values': previous_values,
@@ -263,11 +265,14 @@ def learning_unit_comparison(request, learning_unit_year_id):
          'next_values': next_values,
          'fields': get_keys(list(previous_values.keys()), list(next_values.keys())),
          'entity_changes': _get_changed_organization(context,
-                                                     get_learning_unit_comparison_context(previous_lu),
-                                                     get_learning_unit_comparison_context(next_lu)),
+                                                     previous_context,
+                                                     next_context),
          'fields_lcy': get_keys(list(previous_lcy_values.keys()), list(next_lcy_values.keys())),
          'previous_lcy_values': previous_lcy_values,
-         'next_lcy_values': next_lcy_values
+         'next_lcy_values': next_lcy_values,
+         'components_comparison': get_components_changes(previous_context['components'],
+                                                         context['components'],
+                                                         next_context['components'])
          })
     return layout.render(request, "learning_unit/comparison.html", context)
 

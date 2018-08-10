@@ -24,7 +24,9 @@
 #
 ##############################################################################
 from django.utils.translation import ugettext_lazy
+from base.models.enums import learning_component_year_type
 from base.models.learning_unit_year import LearningUnitYear
+from base.models.learning_component_year import LearningComponentYear
 from django.utils.translation import ugettext_lazy as _
 
 FIELDS_FOR_LEARNING_UNIT_YR_COMPARISON = ['acronym', 'subtype', 'internship_subtype', 'credits', 'periodicity',
@@ -32,7 +34,9 @@ FIELDS_FOR_LEARNING_UNIT_YR_COMPARISON = ['acronym', 'subtype', 'internship_subt
                                           'specific_title_english', 'quadrimester',
                                           'session', 'attribution_procedure']
 FIELDS_FOR_LEARNING_CONTAINER_YR_COMPARISON = ['team', 'is_vacant', 'type_declaration_vacant']
+FIELDS_FOR_LEARNING_COMPONENT_COMPARISON = ['acronym', 'real_classes', 'planned_classes']
 DEFAULT_VALUE_FOR_NONE = '-'
+LEARNING_COMPONENT_YEAR = 'learning_component_year'
 
 
 def get_keys(list1, list2):
@@ -89,3 +93,103 @@ def _decrypt_boolean_value(field_name, value):
         return _get_status(value)
     else:
         return _get_boolean_translation(value)
+
+
+def compare_learning_component_year(obj_ref, obj_prev, obj_next):
+    print(LearningComponentYear._meta.model_name)
+    data = {'ref': obj_ref, 'prev': obj_prev, 'next': obj_next}
+    d = {}
+    d = compare_l_component_yr_attribute(d, data, 'acronym')
+
+    d = compare_l_component_yr_attribute(d, data, 'planned_classes')
+    if _real_classes_is_different(obj_prev, obj_ref) or \
+            _real_classes_is_different(obj_next, obj_ref):
+        d.update({'real_classes': [obj_prev.real_classes, obj_ref.real_classes, obj_next.real_classes]})
+
+    return d
+
+
+def compare_volumes(current_data, prev_data, next_data):
+    current_volumes = current_data.get('volumes')
+    prev_volumes = prev_data.get('volumes')
+    next_volumes = next_data.get('volumes')
+
+    vol = {}
+    if current_volumes:
+        vol = {key: [prev_volumes.get(key), value, next_volumes.get(key)]
+               for key, value in current_volumes.items()
+               if _is_key_to_compare(key, vol) and (value != prev_volumes.get(key) or value != next_volumes.get(key))
+               }
+    return vol
+
+
+def get_components_changes(previous_components, current_components, next_components):
+    component_types = [learning_component_year_type.PRACTICAL_EXERCISES, learning_component_year_type.LECTURING]
+
+    changed_values_by_component_type = []
+    for a_component_type in component_types:
+        current_learning_comp_yr = get_learning_component_yr_by_type(current_components, a_component_type)
+        previous_learning_comp_yr = get_learning_component_yr_by_type(previous_components, a_component_type)
+        next_learning_comp_yr = get_learning_component_yr_by_type(next_components, a_component_type)
+        learning_component_yr_changes = compare_learning_component_year(
+            current_learning_comp_yr.get(LEARNING_COMPONENT_YEAR),
+            previous_learning_comp_yr.get(LEARNING_COMPONENT_YEAR),
+            next_learning_comp_yr.get(LEARNING_COMPONENT_YEAR))
+
+        volume_changes = compare_volumes(current_learning_comp_yr,
+                                         previous_learning_comp_yr,
+                                         next_learning_comp_yr)
+
+        if component_has_changed(learning_component_yr_changes, volume_changes):
+            learning_component_yr_changes.update({'type': _(a_component_type).lower()})
+            changed_values_by_component_type.append(
+                dict(list(learning_component_yr_changes.items()) + list(volume_changes.items())))
+    return changed_values_by_component_type
+
+
+def get_learning_component_yr_by_type(data, learning_component_yr_type):
+    for elt in data:
+        if elt.get(LEARNING_COMPONENT_YEAR).type == learning_component_yr_type:
+            return elt
+    return {}
+
+
+def component_has_changed(learning_component_yr_changes, volume_changes):
+    return learning_component_yr_changes != {} or volume_changes != {}
+
+
+def compare_l_component_yr_attribute(d_param, data, attribute):
+    d = d_param
+    obj_ref = _get_model_dict(data, 'ref')
+    obj_prev = _get_model_dict(data, 'prev')
+    obj_next = _get_model_dict(data, 'next')
+
+    if _is_different(attribute, obj_prev, obj_ref) or \
+            _is_different(attribute, obj_next, obj_ref):
+        d.update({attribute: [obj_prev.get(attribute),
+                              obj_ref.get(attribute),
+                              obj_next.get(attribute)]})
+    return d
+
+
+def can_compare(obj_prev, obj_ref):
+    return obj_ref and obj_prev
+
+
+def _get_model_dict(data, key):
+    object = data.get(key)
+    if object:
+        return object.__dict__
+    return {}
+
+
+def _is_different(attribute, obj_prev, obj_ref):
+    return can_compare(obj_ref, obj_prev) and obj_ref.get(attribute) != obj_prev.get(attribute)
+
+
+def _real_classes_is_different(obj_prev, obj_ref):
+    return can_compare(obj_ref, obj_prev) and obj_ref.real_classes != obj_prev.real_classes
+
+
+def _is_key_to_compare(key, vol):
+    return not(key == 'PLANNED_CLASSES' or key in vol)

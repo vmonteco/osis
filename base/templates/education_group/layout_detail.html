@@ -35,7 +35,7 @@
     {% endif %}
 
     {% url 'group_content' education_group_year_id=education_group_year.id root_id=parent.id education_group_year_id=education_group_year.id as group_content %}
-    {% include "blocks/modal/modal_ajax.html" with modal_url=group_content click_id="btn_operation_pdf_content" form_id="form_pdf_content" class_ref="modal-sm" %}
+    {% include "blocks/modal/modal_ajax.html" with modal_url=group_content click_id="btn_operation_pdf_content" form_id="form_pdf_content" %}
 
     {% url 'delete_education_group' root.pk education_group_year.education_group.pk as delete_url %}
     {% include "blocks/modal/modal_ajax.html" with modal_url=delete_url click_id="link_delete" form_id="form_delete_education_group" %}
