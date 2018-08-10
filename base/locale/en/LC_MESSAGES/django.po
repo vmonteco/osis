@@ -3252,9 +3252,6 @@ msgstr ""
 msgid "Detach"
 msgstr ""
 
-msgid "Move"
-msgstr ""
-
 msgid "Select"
 msgstr ""
 
