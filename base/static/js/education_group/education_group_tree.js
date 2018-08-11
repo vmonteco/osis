@@ -84,12 +84,7 @@ $(document).ready(function () {
                     var __ret = get_data_from_tree(data);
                     var group_element_year_id = __ret.group_element_year_id;
                     var education_group_year_id = __ret.education_group_year_id;
-                    if (group_element_year_id === '0') {
-                        return;
-                    }
-
                     var attach_data = build_url_data(education_group_year_id, group_element_year_id, 'attach');
-
                     window.location.href = proxy_management_url + "?" + attach_data;
                   },
                   "icon": "fa fa-paperclip"
