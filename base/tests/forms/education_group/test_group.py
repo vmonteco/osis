@@ -85,8 +85,6 @@ class TestGroupModelFormModelForm(EducationGroupYearModelFormMixin):
         self.assertEqual(form.fields["acronym"].validators[1].regex, _lazy_re_compile("([A-Z]{2})(.*)"))
 
 
-
-
 class TestGroupForm(TestCase):
     def setUp(self):
         self.category = education_group_categories.GROUP
@@ -114,4 +112,3 @@ class TestGroupForm(TestCase):
         education_group_year = form.save()
 
         self.assertTrue(GroupElementYear.objects.get(child_branch=education_group_year, parent=parent))
-
