@@ -23,7 +23,6 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-
 from django.utils.translation import ugettext_lazy as _
 
 CREDITS = "CREDITS"
@@ -33,4 +32,3 @@ CONSTRAINT_TYPE = (
     (CREDITS, _("credits")),
     (LEARNING_UNIT_NUMBER, _("Number of learning units")),
 )
-
