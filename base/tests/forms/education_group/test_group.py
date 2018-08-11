@@ -55,7 +55,8 @@ class TestGroupModelFormModelForm(EducationGroupYearModelFormMixin):
             "acronym", "partial_acronym", "education_group_type",
             "title", "title_english", "credits",
             "main_teaching_campus", "academic_year",
-            "remark", "remark_english", "min_credits", "max_credits",
+            "remark", "remark_english",
+            "min_constraint", "max_constraint", "constraint_type",
             "management_entity"
         )
 

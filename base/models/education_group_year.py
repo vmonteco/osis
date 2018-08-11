@@ -38,6 +38,7 @@ from base.models.enums import academic_type, internship_presence, schedule_type,
     diploma_printing_orientation, active_status, duration_unit, decree_category, rate_code
 from base.models.enums import education_group_association
 from base.models.enums import education_group_categories
+from base.models.enums.constraint_type import CONSTRAINT_TYPE, CREDITS
 from base.models.exceptions import MaximumOneParentAllowedException
 from osis_common.models.osis_model_admin import OsisModelAdmin
 
@@ -291,14 +292,23 @@ class EducationGroupYear(models.Model):
         verbose_name=_("remark_english")
     )
 
-    min_credits = models.IntegerField(
+    min_constraint = models.IntegerField(
         blank=True, null=True,
-        verbose_name=_("minimum credits")
+        verbose_name=_("minimum constraint")
     )
 
-    max_credits = models.IntegerField(
+    max_constraint = models.IntegerField(
         blank=True, null=True,
-        verbose_name=_("maximum credits")
+        verbose_name=_("maximum constraint")
+    )
+
+    constraint_type = models.CharField(
+        max_length=20,
+        choices=CONSTRAINT_TYPE,
+        default=CREDITS,
+        blank=True,
+        null=True,
+        verbose_name=_("type of constraint")
     )
 
     main_domain = models.ForeignKey(

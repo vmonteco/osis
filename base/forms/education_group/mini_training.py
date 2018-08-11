@@ -38,8 +38,8 @@ class MiniTrainingModelForm(EducationGroupYearModelForm):
             "education_group_type", "title", "title_english",
             "credits", "active", "main_teaching_campus",
             "academic_year", "remark", "remark_english",
-            "min_credits", "max_credits", "schedule_type",
-            "management_entity", "keywords"
+            "min_constraint", "max_constraint", "constraint_type",
+            "schedule_type", "management_entity", "keywords"
         )
 
 

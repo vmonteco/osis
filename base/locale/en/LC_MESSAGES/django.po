@@ -3057,10 +3057,13 @@ msgstr ""
 msgid "Education group year <a href='%(link)s'> %(acronym)s (%(academic_year)s) </a> successfuly created."
 msgstr ""
 
-msgid "minimum credits"
+msgid "minimum constraint"
 msgstr ""
 
-msgid "maximum credits"
+msgid "maximum constraint"
+msgstr ""
+
+msgid "type of constraint"
 msgstr ""
 
 msgid "EDUCATION_GROUP_EDITION"
@@ -3459,4 +3462,7 @@ msgid "Are you sure to continue ?"
 msgstr ""
 
 msgid "There are warnings in the form."
+msgstr ""
+
+msgid "Number of learning units"
 msgstr ""

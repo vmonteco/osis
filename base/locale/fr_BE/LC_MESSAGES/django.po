@@ -3062,11 +3062,14 @@ msgstr "validité"
 msgid "Education group year <a href='%(link)s'> %(acronym)s (%(academic_year)s) </a> successfuly created."
 msgstr "Formation <a href='%(link)s'> %(acronym)s (%(academic_year)s) </a> créée avec succès."
 
-msgid "minimum credits"
-msgstr "crédits minimum"
+msgid "minimum constraint"
+msgstr "contrainte minimum"
 
-msgid "maximum credits"
-msgstr "crédits maximum"
+msgid "maximum constraint"
+msgstr "contrainte maximum"
+
+msgid "type of constraint"
+msgstr "type de contrainte"
 
 msgid "EDUCATION_GROUP_EDITION"
 msgstr "Edition programme"
@@ -3467,3 +3470,6 @@ msgstr "Êtes-vous sûr de continuer?"
 
 msgid "There are warnings in the form."
 msgstr "Il y a des avertissements dans le formulaire."
+
+msgid "Number of learning units"
+msgstr "Nombre d'unités d'enseignement"
