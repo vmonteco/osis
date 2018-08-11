@@ -3451,3 +3451,12 @@ msgstr "Additional requirement entity 1"
 
 msgid "VOLUME_ADDITIONAL_REQUIREMENT_ENTITY_2"
 msgstr "Additional requirement entity 2"
+
+msgid "This field is empty"
+msgstr ""
+
+msgid "Are you sure to continue ?"
+msgstr ""
+
+msgid "There are warnings in the form."
+msgstr ""
