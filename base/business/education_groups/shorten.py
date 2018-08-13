@@ -23,26 +23,20 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from unittest import mock
-
-from base.forms.education_group.training import TrainingForm
-from base.models.enums import education_group_categories
-from base.tests.factories.education_group_type import EducationGroupTypeFactory
-from base.tests.forms.education_group.test_common import EducationGroupYearModelFormMixin
+from base.models.education_group_year import EducationGroupYear
 
 
-class TestTrainingPostponedList(EducationGroupYearModelFormMixin):
-    """Unit tests to ensure that TRAINING have a method _postponed_list"""
-    def setUp(self):
-        self.education_group_type = EducationGroupTypeFactory(
-            category=education_group_categories.TRAINING
-        )
-        super(TestTrainingPostponedList, self).setUp(education_group_type=self.education_group_type)
+def start(education_group, until_year):
+    """
+    This function will delete all education group year
+    """
+    egy_deleted = []
 
-    @mock.patch('base.business.education_groups.postponement.start', side_effect=None)
-    def test_training_have_post_save_method(self, mock_postponement_start):
-        instance = self.parent_education_group_year
-        form = TrainingForm(data={}, instance=instance)
-        self.assertTrue(hasattr(form, '_post_save'))
-        form._post_save()
-        self.assertTrue(mock_postponement_start.called)
+    qs = EducationGroupYear.objects.filter(
+        education_group=education_group,
+        academic_year__year__gt=until_year
+    ).order_by('academic_year__year')
+    for education_group_year in qs:
+        egy_deleted.append(education_group_year)
+        education_group_year.delete()
+    return egy_deleted
