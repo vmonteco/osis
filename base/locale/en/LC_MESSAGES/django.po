@@ -3469,3 +3469,6 @@ msgstr ""
 
 msgid "Education group year <a href='%(link)s'> %(acronym)s (%(academic_year)s) </a> successfuly updated."
 msgstr ""
+
+msgid "%(max)s must be greater or equals than %(min)s"
+msgstr ""

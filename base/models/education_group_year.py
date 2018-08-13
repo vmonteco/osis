@@ -478,7 +478,7 @@ class EducationGroupYear(models.Model):
         if self.min_constraint and self.max_constraint:
             if self.min_constraint > self.max_constraint:
                 raise ValidationError({
-                    'max_constraint': _("%(max)s must be greater than %(min)s") % {
+                    'max_constraint': _("%(max)s must be greater or equals than %(min)s") % {
                         "max": _("maximum constraint").title(),
                         "min": _("minimum constraint").title(),
                     }
