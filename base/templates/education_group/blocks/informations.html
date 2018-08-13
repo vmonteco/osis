@@ -97,21 +97,21 @@
                 {% endif %}
             </div>
             <div class="col-md-4">
-                <label>{% trans 'minimum credits'|capfirst %}</label><br>
-                {% if education_group_year.min_credits %}
-                    {{ education_group_year.min_credits }}
-                {% elif parent.min_credits %}
-                    <strong class="text-primary">{{ parent.min_credits }}</strong><br>
+                <label>{% trans 'minimum constraint'|capfirst %}</label><br>
+                {% if education_group_year.min_constraint %}
+                    {{ education_group_year.min_constraint }}
+                {% elif parent.min_constraint %}
+                    <strong class="text-primary">{{ parent.min_constraint }}</strong><br>
                 {% else %}
                     <br>
                 {% endif %}
             </div>
             <div class="col-md-4">
-                <label>{% trans 'maximum credits'|capfirst %}</label><br>
-                {% if education_group_year.max_credits %}
-                    {{ education_group_year.max_credits }}
-                {% elif parent.max_credits %}
-                    <strong class="text-primary">{{ parent.max_credits }}</strong><br>
+                <label>{% trans 'maximum constraint'|capfirst %}</label><br>
+                {% if education_group_year.max_constraint %}
+                    {{ education_group_year.max_constraint }}
+                {% elif parent.max_constraint %}
+                    <strong class="text-primary">{{ parent.max_constraint }}</strong><br>
                 {% else %}
                     <br>
                 {% endif %}

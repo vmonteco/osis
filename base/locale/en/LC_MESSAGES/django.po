@@ -3057,10 +3057,13 @@ msgstr ""
 msgid "Education group year <a href='%(link)s'> %(acronym)s (%(academic_year)s) </a> successfuly created."
 msgstr ""
 
-msgid "minimum credits"
+msgid "minimum constraint"
 msgstr ""
 
-msgid "maximum credits"
+msgid "maximum constraint"
+msgstr ""
+
+msgid "type of constraint"
 msgstr ""
 
 msgid "EDUCATION_GROUP_EDITION"
@@ -3452,6 +3455,17 @@ msgstr "Additional requirement entity 1"
 msgid "VOLUME_ADDITIONAL_REQUIREMENT_ENTITY_2"
 msgstr "Additional requirement entity 2"
 
-msgid "Education group year <a href='%(link)s'> %(acronym)s (%(academic_year)s) </a> successfuly updated."
+msgid "This field is empty"
 msgstr ""
 
+msgid "Are you sure to continue ?"
+msgstr ""
+
+msgid "There are warnings in the form."
+msgstr ""
+
+msgid "Number of learning units"
+msgstr ""
+
+msgid "Education group year <a href='%(link)s'> %(acronym)s (%(academic_year)s) </a> successfuly updated."
+msgstr ""

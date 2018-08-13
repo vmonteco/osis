@@ -55,9 +55,10 @@
                             </div>
                             <br>
                             <div class="row">
-                                {% bootstrap_field form_education_group_year.credits form_group_class="col-md-4" %}
-                                {% bootstrap_field form_education_group_year.min_credits form_group_class="col-md-4" %}
-                                {% bootstrap_field form_education_group_year.max_credits form_group_class="col-md-4" %}
+                                {% bootstrap_field form_education_group_year.credits form_group_class="col-md-3" %}
+                                {% bootstrap_field form_education_group_year.constraint_type form_group_class="col-md-3" %}
+                                {% bootstrap_field form_education_group_year.min_constraint form_group_class="col-md-3" %}
+                                {% bootstrap_field form_education_group_year.max_constraint form_group_class="col-md-3" %}
                             </div>
                             <br>
                             {% bootstrap_field form_education_group_year.title %}
