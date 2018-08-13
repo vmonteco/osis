@@ -136,7 +136,6 @@ class TestCommonBaseFormIsValid(TestCase):
 
     def test_post_with_errors(self):
         expected_educ_group_year, wrong_post_data = _get_valid_post_data(self.category)
-        print(wrong_post_data)
         wrong_post_data['management_entity'] = None
         wrong_post_data['end_year'] = "some text"
         education_group_year_form = MiniTrainingModelForm(wrong_post_data, education_group_type=self.egt)
