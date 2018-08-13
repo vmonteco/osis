@@ -94,16 +94,7 @@ def create_education_group(request, category, education_group_type_pk, parent_id
     )
 
     if form_education_group_year.is_valid():
-        education_group_year = form_education_group_year.save()
-
-        parent_id = parent.pk if parent else education_group_year.pk
-
-        success_msg = create_success_message_for_creation_education_group_year(parent_id, education_group_year)
-        display_success_messages(request, success_msg, extra_tags='safe')
-
-        url = reverse("education_group_read", args=[parent_id, education_group_year.pk])
-
-        return redirect(url)
+        return _common_success_redirect(request, form_education_group_year, parent)
 
     return layout.render(request, TEMPLATES_BY_CATEGORY.get(category), {
         "form_education_group_year": form_education_group_year.forms[forms.ModelForm],
@@ -112,8 +103,28 @@ def create_education_group(request, category, education_group_type_pk, parent_id
     })
 
 
-def create_success_message_for_creation_education_group_year(parent_id, education_group_year):
+def _common_success_redirect(request, form, parent=None):
+    education_group_year = form.save()
+    parent_id = parent.pk if parent else education_group_year.pk
+
+    success_msg = [_get_success_message_for_creation_education_group_year(parent_id, education_group_year)]
+    if form.education_group_year_postponed:
+        success_msg += [
+            _get_success_message_for_creation_education_group_year(egy.id, egy)
+            for egy in form.education_group_year_postponed
+        ]
+    display_success_messages(request, success_msg, extra_tags='safe')
+
+    # Redirect
+    url = reverse("education_group_read", args=[parent_id, education_group_year.pk])
+    return redirect(url)
+
+
+def _get_success_message_for_creation_education_group_year(parent_id, education_group_year):
     MSG_KEY = "Education group year <a href='%(link)s'> %(acronym)s (%(academic_year)s) </a> successfuly created."
     link = reverse("education_group_read", args=[parent_id, education_group_year.id])
-    return _(MSG_KEY) % {"link": link, "acronym": education_group_year.acronym,
-                         "academic_year": education_group_year.academic_year}
+    return _(MSG_KEY) % {
+        "link": link,
+        "acronym": education_group_year.acronym,
+        "academic_year": education_group_year.academic_year,
+    }

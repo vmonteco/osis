@@ -60,6 +60,8 @@ from reference.tests.factories.language import LanguageFactory
 @override_flag('education_group_update', active=True)
 class TestUpdate(TestCase):
     def setUp(self):
+        self.current_academic_year = create_current_academic_year()
+
         self.education_group_year = GroupFactory()
 
         EntityVersionFactory(entity=self.education_group_year.management_entity,
@@ -86,6 +88,7 @@ class TestUpdate(TestCase):
         self.an_training_education_group_type = EducationGroupTypeFactory(category=education_group_categories.TRAINING)
 
         self.training_education_group_year = TrainingFactory(
+            academic_year=self.current_academic_year,
             education_group_type=self.an_training_education_group_type
         )
 

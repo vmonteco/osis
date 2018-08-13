@@ -61,11 +61,30 @@ def _get_view(category):
     }[category]
 
 
-def _common_success_redirect(request, education_group_year, root):
-    success_msg = _("{} successfully updated").format(_(education_group_year.education_group_type.category))
-    display_success_messages(request, success_msg)
+def _common_success_redirect(request, form, root):
+    education_group_year = form.save()
+
+    success_msgs = [_get_success_message_for_update_education_group_year(root.pk, education_group_year)]
+    if form.education_group_year_postponed:
+        success_msgs += [
+            _get_success_message_for_update_education_group_year(egy.id, egy)
+            for egy in form.education_group_year_postponed
+        ]
+    display_success_messages(request, success_msgs, extra_tags='safe')
+
+    # Redirect URL
     url = reverse("education_group_read", args=[root.pk, education_group_year.id])
     return redirect(url)
+
+
+def _get_success_message_for_update_education_group_year(root_id, education_group_year):
+    MSG_KEY = "Education group year <a href='%(link)s'> %(acronym)s (%(academic_year)s) </a> successfuly updated."
+    link = reverse("education_group_read", args=[root_id, education_group_year.id])
+    return _(MSG_KEY) % {
+        "link": link,
+        "acronym": education_group_year.acronym,
+        "academic_year": education_group_year.academic_year,
+    }
 
 
 def _update_group(request, education_group_year, root):
@@ -75,7 +94,7 @@ def _update_group(request, education_group_year, root):
     html_page = "education_group/update_groups.html"
 
     if form_education_group_year.is_valid():
-        return _common_success_redirect(request, form_education_group_year.save(), root)
+        return _common_success_redirect(request, form_education_group_year, root)
 
     return layout.render(request, html_page, {
         "education_group_year": education_group_year,
@@ -89,7 +108,7 @@ def _update_training(request, education_group_year, root):
     # TODO :: IMPORTANT :: Need to update form to filter on list of parents, not only on the first direct parent
     form_education_group_year = TrainingForm(request.POST or None, instance=education_group_year)
     if form_education_group_year.is_valid():
-        return _common_success_redirect(request, form_education_group_year.save(), root)
+        return _common_success_redirect(request, form_education_group_year, root)
 
     return layout.render(request, "education_group/update_trainings.html", {
         "education_group_year": education_group_year,
@@ -104,7 +123,7 @@ def _update_mini_training(request, education_group_year, root):
     form = MiniTrainingForm(request.POST or None, instance=education_group_year)
 
     if form.is_valid():
-        return _common_success_redirect(request, form.save(), root)
+        return _common_success_redirect(request, form, root)
 
     return layout.render(request, "education_group/update_minitrainings.html", {
         "form_education_group_year": form.forms[forms.ModelForm],

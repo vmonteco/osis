@@ -3467,5 +3467,5 @@ msgstr ""
 msgid "Number of learning units"
 msgstr ""
 
-msgid "%(max)s must be greater than %(min)s"
+msgid "Education group year <a href='%(link)s'> %(acronym)s (%(academic_year)s) </a> successfuly updated."
 msgstr ""
