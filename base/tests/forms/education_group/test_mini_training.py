@@ -73,10 +73,10 @@ class TestMiniTrainingPostponedList(EducationGroupYearModelFormMixin):
         super(TestMiniTrainingPostponedList, self).setUp(education_group_type=self.education_group_type)
 
     @mock.patch('base.business.education_groups.postponement.start', side_effect=None)
-    def test_mini_training_have_postponed_list_method(self, mock_postponement_start):
+    def test_mini_training_have_post_save_method(self, mock_postponement_start):
         instance = self.parent_education_group_year
         form = MiniTrainingForm(data={}, instance=instance)
-        self.assertTrue(hasattr(form, '_postponed_list'))
-        form._postponed_list()
+        self.assertTrue(hasattr(form, '_post_save'))
+        form._post_save()
         self.assertTrue(mock_postponement_start.called)
 

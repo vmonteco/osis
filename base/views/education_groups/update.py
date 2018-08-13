@@ -70,6 +70,11 @@ def _common_success_redirect(request, form, root):
             _get_success_message_for_update_education_group_year(egy.id, egy)
             for egy in form.education_group_year_postponed
         ]
+    if form.education_group_year_deleted:
+        success_msgs += [
+            _get_success_message_for_deleted_education_group_year(egy)
+            for egy in form.education_group_year_deleted
+        ]
     display_success_messages(request, success_msgs, extra_tags='safe')
 
     # Redirect URL
@@ -82,6 +87,14 @@ def _get_success_message_for_update_education_group_year(root_id, education_grou
     link = reverse("education_group_read", args=[root_id, education_group_year.id])
     return _(MSG_KEY) % {
         "link": link,
+        "acronym": education_group_year.acronym,
+        "academic_year": education_group_year.academic_year,
+    }
+
+
+def _get_success_message_for_deleted_education_group_year(education_group_year):
+    MSG_KEY = "Education group year %(acronym)s (%(academic_year)s) successfuly deleted."
+    return _(MSG_KEY) % {
         "acronym": education_group_year.acronym,
         "academic_year": education_group_year.academic_year,
     }
