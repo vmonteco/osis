@@ -3473,3 +3473,6 @@ msgstr "Il y a des avertissements dans le formulaire."
 
 msgid "Number of learning units"
 msgstr "Nombre d'unités d'enseignement"
+
+msgid "%(max)s must be greater than %(min)s"
+msgstr "%(max)s doit être plus grand que %(min)s"

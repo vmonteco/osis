@@ -55,7 +55,7 @@ class EducationGroupYearFactory(factory.django.DjangoModelFactory):
     main_teaching_campus = factory.SubFactory(CampusFactory)
     credits = factory.fuzzy.FuzzyInteger(MINIMUM_CREDITS, MAXIMUM_CREDITS)
     min_constraint = factory.fuzzy.FuzzyInteger(MINIMUM_CREDITS, MAXIMUM_CREDITS)
-    max_constraint = factory.fuzzy.FuzzyInteger(MAXIMUM_CREDITS)
+    max_constraint = factory.lazy_attribute(lambda a: a.min_constraint)
     remark = factory.fuzzy.FuzzyText(length=255)
     remark_english = factory.fuzzy.FuzzyText(length=255)
     active = active_status.ACTIVE

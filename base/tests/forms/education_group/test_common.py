@@ -138,11 +138,12 @@ class TestCommonBaseFormIsValid(TestCase):
         expected_educ_group_year, wrong_post_data = _get_valid_post_data(self.category)
         wrong_post_data['management_entity'] = None
         wrong_post_data['end_year'] = "some text"
+        wrong_post_data["max_constraint"] = expected_educ_group_year.min_constraint - 1
         education_group_year_form = MiniTrainingModelForm(wrong_post_data, education_group_type=self.egt)
         education_group_form = EducationGroupModelForm(wrong_post_data)
         form = CommonBaseForm(education_group_year_form, education_group_form)
         self.assertFalse(form.is_valid(), form.errors)
-        self.assertEqual(len(form.errors), 2, form.errors)
+        self.assertEqual(len(form.errors), 3, form.errors)
 
 
 class TestCommonBaseFormSave(TestCase):
