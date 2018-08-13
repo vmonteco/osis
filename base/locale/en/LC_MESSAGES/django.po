@@ -3451,3 +3451,7 @@ msgstr "Additional requirement entity 1"
 
 msgid "VOLUME_ADDITIONAL_REQUIREMENT_ENTITY_2"
 msgstr "Additional requirement entity 2"
+
+msgid "Education group year <a href='%(link)s'> %(acronym)s (%(academic_year)s) </a> successfuly updated."
+msgstr ""
+

@@ -29,6 +29,7 @@ from django import forms
 from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
 
+from base.business.education_groups import postponement
 from base.forms.education_group.common import CommonBaseForm, EducationGroupModelForm, \
     MainEntitiesVersionChoiceField, EducationGroupYearModelForm
 from base.models.education_group_year_domain import EducationGroupYearDomain
@@ -122,6 +123,13 @@ class TrainingForm(CommonBaseForm):
         education_group = instance.education_group if instance else None
         education_group_form = EducationGroupModelForm(data, instance=education_group)
         super().__init__(education_group_year_form, education_group_form)
+
+    def _postponed_list(self):
+        egy_postponed_list = postponement.start(
+            self.forms[EducationGroupModelForm].instance,
+            start_year=self.forms[forms.ModelForm].instance.academic_year.year
+        )
+        return egy_postponed_list
 
 
 @register('university_domains')

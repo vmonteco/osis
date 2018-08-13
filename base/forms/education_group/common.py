@@ -151,6 +151,7 @@ class EducationGroupModelForm(forms.ModelForm):
 
 class CommonBaseForm:
     forms = None
+    education_group_year_postponed = []
 
     def __init__(self, education_group_year_form, education_group_form):
         self.forms = {
@@ -178,6 +179,8 @@ class CommonBaseForm:
         educ_group_year_form.instance.education_group = education_group
         education_group_year = educ_group_year_form.save()
         self._save_group_element_year(educ_group_year_form.parent, education_group_year)
+        if hasattr(self, '_postponed_list'):
+            self.education_group_year_postponed = self._postponed_list()
         return education_group_year
 
     def _is_creation(self):
