@@ -23,6 +23,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.db import models
 from django.db.models import Count
@@ -472,6 +473,16 @@ class EducationGroupYear(models.Model):
         if self.offerenrollment_set.all().exists():
             return False
         return True
+
+    def clean(self):
+        if self.min_constraint and self.max_constraint:
+            if self.min_constraint > self.max_constraint:
+                raise ValidationError({
+                    'max_constraint': _("%(max)s must be greater or equals than %(min)s") % {
+                        "max": _("maximum constraint").title(),
+                        "min": _("minimum constraint").title(),
+                    }
+                })
 
 
 def find_by_id(an_id):
