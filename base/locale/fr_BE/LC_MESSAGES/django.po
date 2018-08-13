@@ -3428,5 +3428,15 @@ msgstr "Anglais"
 
 msgid "French"
 msgstr "Français"
+
 msgid "Which type of %(category)s do you want to create ?"
 msgstr "Quel type de %(category)s voulez-vous créer ?"
+
+msgid "Produce xls of comparison"
+msgstr "Produire une fiche comparative entre unités d'enseignement"
+
+msgid "List of learning_units with comparison"
+msgstr "Comparaison entre unités d'enseignemnt"
+
+msgid "Choose academic years"
+msgstr "Choisir les années"

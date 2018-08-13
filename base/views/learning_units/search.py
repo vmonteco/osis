@@ -38,6 +38,7 @@ from base.utils.cache import cache_filter
 from base.business.learning_unit import create_xls
 from base.business.proposal_xls import create_xls_proposal
 from base.forms.common import TooManyResultsException
+from base.forms.learning_unit.comparison import SelectComparisonYears
 from base.forms.learning_unit.search_form import LearningUnitYearForm, ExternalLearningUnitYearForm
 from base.forms.proposal.learning_unit_proposal import LearningUnitProposalForm, ProposalStateModelForm
 from base.models.academic_year import current_academic_year, get_last_academic_years
@@ -48,6 +49,7 @@ from base.views import layout
 from base.views.common import check_if_display_message, display_error_messages, display_messages_by_level
 from base.business import learning_unit_proposal as proposal_business
 from base.forms.search.search_form import get_research_criteria
+from base.business.learning_units.xls_comparison import create_xls
 
 SIMPLE_SEARCH = 1
 SERVICE_COURSES_SEARCH = 2
@@ -62,6 +64,7 @@ ACTION_FORCE_STATE = "force_state"
 
 
 def learning_units_search(request, search_type):
+    print('learning_units_search')
     service_course_search = search_type == SERVICE_COURSES_SEARCH
     borrowed_course_search = search_type == BORROWED_COURSE
 
@@ -81,13 +84,19 @@ def learning_units_search(request, search_type):
         return create_xls(request.user, found_learning_units, _get_filter(form, search_type))
     if request.POST.get('xls_status') == "xls_attribution":
         return create_xls_attribution(request.user, found_learning_units, _get_filter(form, search_type))
+    if request.POST.get('xls_status') == "xls_comparison":
+        return create_xls(request.user, found_learning_units,
+                          _get_filter(form, search_type),
+                          request.POST.get('comparison_year'))
 
     a_person = find_by_user(request.user)
+    form_comparison = SelectComparisonYears(academic_year=current_academic_year())
     context = {'form': form, 'academic_years': get_last_academic_years(),
                'container_types': learning_container_year_types.LEARNING_CONTAINER_YEAR_TYPES,
                'types': learning_unit_year_subtypes.LEARNING_UNIT_YEAR_SUBTYPES, 'learning_units': found_learning_units,
                'current_academic_year': current_academic_year(), 'experimental_phase': True, 'search_type': search_type,
-               'is_faculty_manager': a_person.is_faculty_manager()}
+               'is_faculty_manager': a_person.is_faculty_manager(),
+               'form_comparison': form_comparison}
     return layout.render(request, "learning_units.html", context)
 
 

@@ -101,7 +101,7 @@
 {% else %}
     {% include 'learning_unit/by_activity.html' %}
 {% endif %}
-
+{% include "learning_unit/blocks/modal/modal_comparison.html" %}
 {% endblock %}
 
 {% block script %}
@@ -139,20 +139,25 @@
     });
 
     $("#btn_produce_xls").click(function(e) {
-        e.preventDefault();
-        var status = $("#xls_status");
-        status.val('xls');
-        $("#download_xls").submit();
-        status.val('');
+        prepare_xls(e, 'xls');
     });
 
     $("#btn_produce_xls_attributions").click(function(e) {
+        prepare_xls(e, 'xls_attribution');
+    });
+
+    $("#comparison_xls").click(function(e) {
+        prepare_xls(e, 'xls_comparison');
+        comparison_year.val('');
+    });
+
+    function prepare_xls(e, action_value){
         e.preventDefault();
         var status = $("#xls_status");
-        status.val('xls_attribution');
+        status.val(action_value);
         $("#download_xls").submit();
         status.val('');
-    });
+    }
 
     $("#id_check_all").click(function(){
         $('input:checkbox').not(this).prop('checked', this.checked);
