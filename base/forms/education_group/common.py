@@ -24,7 +24,9 @@
 #
 ##############################################################################
 from django import forms
+from django.conf import settings
 from django.core.exceptions import PermissionDenied, ImproperlyConfigured
+from django.utils import translation
 from django.utils.translation import ugettext_lazy as _
 
 from base.forms.common import ValidationRuleMixin
@@ -36,8 +38,6 @@ from base.models.education_group_type import find_authorized_types, EducationGro
 from base.models.education_group_year import EducationGroupYear
 from base.models.entity_version import find_main_entities_version, get_last_version
 from reference.models.language import Language
-from django.utils import translation
-from django.conf import settings
 
 
 class MainTeachingCampusChoiceField(forms.ModelChoiceField):
@@ -159,10 +159,15 @@ class CommonBaseForm:
             EducationGroupModelForm: education_group_form
         }
 
+        start_year_field = education_group_form.fields["start_year"]
+
         if not (self._is_creation()):
-            education_group_form.fields["start_year"].initial = self.forms[EducationGroupModelForm].instance.start_year
-        education_group_form.fields["start_year"].disabled = True
-        education_group_form.fields["start_year"].required = False
+            start_year_field.initial = self.forms[EducationGroupModelForm].instance.start_year
+        else:
+            start_year_field.widget = forms.HiddenInput(attrs={})
+
+        start_year_field.disabled = True
+        start_year_field.required = False
 
     def is_valid(self):
         return all([form.is_valid() for form in self.forms.values()])
