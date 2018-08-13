@@ -3060,7 +3060,7 @@ msgid "validity"
 msgstr "validité"
 
 msgid "Education group year <a href='%(link)s'> %(acronym)s (%(academic_year)s) </a> successfuly created."
-msgstr "Formation <a href='%(link)s'> %(acronym)s (%(academic_year)s) </a> créée avec succès."
+msgstr "Organisation de formation <a href='%(link)s'> %(acronym)s (%(academic_year)s) </a> créée avec succès."
 
 msgid "minimum constraint"
 msgstr "contrainte minimum"
@@ -3473,3 +3473,6 @@ msgstr "Il y a des avertissements dans le formulaire."
 
 msgid "Number of learning units"
 msgstr "Nombre d'unités d'enseignement"
+
+msgid "Education group year <a href='%(link)s'> %(acronym)s (%(academic_year)s) </a> successfuly updated."
+msgstr "Organisation de formation <a href='%(link)s'> %(acronym)s (%(academic_year)s) </a> mis à jour avec succès."

@@ -36,6 +36,7 @@ from base.models.education_group_type import EducationGroupType
 from base.models.education_group_year import EducationGroupYear
 from base.models.entity_version import EntityVersion
 from base.models.enums import organization_type, education_group_categories
+from base.models.enums.education_group_categories import TRAINING
 from base.models.group_element_year import GroupElementYear
 from base.tests.factories.academic_year import AcademicYearFactory, create_current_academic_year
 from base.tests.factories.authorized_relationship import AuthorizedRelationshipFactory
@@ -69,7 +70,10 @@ class EducationGroupYearModelFormMixin(TestCase):
         }
 
         self.parent_education_group_year = EducationGroupYearFactory(academic_year=self.academic_year)
+        # Append version to management/administration entity
         self.entity_version = EntityVersionFactory(entity=self.parent_education_group_year.management_entity)
+        if self.education_group_type.category == TRAINING:
+            EntityVersionFactory(entity=self.parent_education_group_year.administration_entity)
 
     def _test_fields(self, form_class, fields):
         form = form_class(parent=None, education_group_type=self.education_group_type)
