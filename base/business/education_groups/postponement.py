@@ -61,7 +61,7 @@ def _compute_end_year(education_group):
                                            .select_related('academic_year') \
                                            .order_by('academic_year__year')\
                                            .last()
-    return max([max_postponement_end_year, latest_egy.academic_year.year])
+    return max(max_postponement_end_year, latest_egy.academic_year.year)
 
 
 def _postpone_education_group_year(education_group_year, academic_year):
