@@ -96,7 +96,6 @@ def _decrypt_boolean_value(field_name, value):
 
 
 def compare_learning_component_year(obj_ref, obj_prev, obj_next):
-    print(LearningComponentYear._meta.model_name)
     data = {'ref': obj_ref, 'prev': obj_prev, 'next': obj_next}
     d = {}
     d = compare_l_component_yr_attribute(d, data, 'acronym')
