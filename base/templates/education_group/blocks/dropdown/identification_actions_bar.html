@@ -50,7 +50,8 @@
                 {% flag "education_group_delete" %}
                     {% li_with_deletion_perm "#" _('Delete') %}
                 {% endflag %}
-                    <li class="divider"></li>
+
+                <li class="divider"></li>
 
                 {% flag "education_group_select" %}
                     <li {% if not can_change_education_group %} class="disabled" {% endif %}>
@@ -60,13 +61,7 @@
                     </li>
                 {% endflag %}
 
-                {% flag "education_group_move" %}
-                    {% link_move_education_group %}
-                {% endflag %}
-
-                {% flag "education_group_detach" %}
-                    {% link_detach_education_group %}
-                {% endflag %}
+                <li class="divider"></li>
 
                 {% flag "education_group_attach" %}
                     <li {% if not can_change_education_group %} class="disabled" {% endif %}>
@@ -76,8 +71,12 @@
                     </li>
                 {% endflag %}
 
+                {% flag "education_group_detach" %}
+                    {% link_detach_education_group %}
+                {% endflag %}
 
                 {% flag "pdf_content" %}
+                    <li class="divider"></li>
                     {% link_pdf_content_education_group %}
                 {% endflag %}
             </ul>
