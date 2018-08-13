@@ -23,33 +23,32 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import factory
-import factory.fuzzy
 import datetime
 import string
+
+import factory.fuzzy
+
 from base.tests.factories.academic_calendar import AcademicCalendarFactory
 from base.tests.factories.education_group_year import EducationGroupYearFactory
 from base.tests.factories.offer_year import OfferYearFactory
-from osis_common.utils.datetime import get_tzinfo
 
 
 def generate_start_date(abstract_calendar):
     if abstract_calendar.academic_calendar:
         return datetime.datetime(abstract_calendar.academic_calendar.start_date.year,
                                  abstract_calendar.academic_calendar.start_date.month,
-                                 abstract_calendar.academic_calendar.start_date.day, tzinfo=get_tzinfo())
+                                 abstract_calendar.academic_calendar.start_date.day)
     else:
-        return datetime.datetime(2000, 1, 1, tzinfo=get_tzinfo())
+        return datetime.datetime(2000, 1, 1)
 
 
 def generate_end_date(abstract_calendar):
     if abstract_calendar.academic_calendar:
         return datetime.datetime(abstract_calendar.academic_calendar.end_date.year,
                                  abstract_calendar.academic_calendar.end_date.month,
-                                 abstract_calendar.academic_calendar.end_date.day,
-                                 tzinfo=get_tzinfo())
+                                 abstract_calendar.academic_calendar.end_date.day)
     else:
-        return datetime.datetime(2099, 1, 1, tzinfo=get_tzinfo())
+        return datetime.datetime(2099, 1, 1)
 
 
 class OfferYearCalendarFactory(factory.django.DjangoModelFactory):
@@ -57,8 +56,8 @@ class OfferYearCalendarFactory(factory.django.DjangoModelFactory):
         model = "base.OfferYearCalendar"
 
     external_id = factory.fuzzy.FuzzyText(length=10, chars=string.digits)
-    changed = factory.fuzzy.FuzzyDateTime(datetime.datetime(2016, 1, 1, tzinfo=get_tzinfo()),
-                                          datetime.datetime(2017, 3, 1, tzinfo=get_tzinfo()))
+    changed = factory.fuzzy.FuzzyNaiveDateTime(datetime.datetime(2016, 1, 1),
+                                          datetime.datetime(2017, 3, 1))
     academic_calendar = factory.SubFactory(AcademicCalendarFactory)
     offer_year = factory.SubFactory(OfferYearFactory)
     start_date = factory.LazyAttribute(generate_start_date)

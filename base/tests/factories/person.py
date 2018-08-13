@@ -34,7 +34,6 @@ from django.contrib.auth.models import Group, Permission
 from base import models as mdl
 from base.models.person import FACULTY_MANAGER_GROUP, CENTRAL_MANAGER_GROUP
 from base.tests.factories.user import UserFactory
-from osis_common.utils.datetime import get_tzinfo
 
 
 def generate_person_email(person, domain=None):
@@ -51,7 +50,8 @@ class PersonFactory(factory.DjangoModelFactory):
                                        person.user.first_name if person.user else factory.Faker('first_name'))
     last_name = factory.LazyAttribute(lambda person:
                                       person.user.last_name if person.user else factory.Faker('last_name'))
-    changed = factory.fuzzy.FuzzyDateTime(datetime.datetime(2016, 1, 1, tzinfo=get_tzinfo()))
+
+    changed = factory.fuzzy.FuzzyNaiveDateTime(datetime.datetime(2016, 1, 1))
     email = factory.LazyAttribute(lambda person: person.user.email if person.user else None)
     phone = factory.Faker('phone_number')
     language = factory.Iterator(settings.LANGUAGES, getter=operator.itemgetter(0))

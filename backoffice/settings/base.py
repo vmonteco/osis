@@ -148,7 +148,7 @@ LANGUAGE_CODE_EN = 'en'
 # You can change default values for internalizations settings in your .env file
 USE_I18N = os.environ.get('USE_I18N', 'True').lower() == 'true'
 USE_L10N = os.environ.get('USE_L10N', 'True').lower() == 'true'
-USE_TZ = os.environ.get('USE_TZ', 'True').lower() == 'true'
+USE_TZ = False # os.environ.get('USE_TZ', 'True').lower() == 'true'
 TIME_ZONE = os.environ.get('TIME_ZONE', 'Europe/Brussels')
 
 # Static files (CSS, JavaScript, Images) and Media

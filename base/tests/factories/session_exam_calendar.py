@@ -23,14 +23,14 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import operator
 import datetime
-import factory
-import factory.fuzzy
+import operator
 import string
+
+import factory.fuzzy
+
 from base.models.enums import number_session, academic_calendar_type
 from .academic_calendar import AcademicCalendarFactory
-from osis_common.utils.datetime import get_tzinfo
 
 
 class SessionExamCalendarFactory(factory.DjangoModelFactory):
@@ -38,8 +38,8 @@ class SessionExamCalendarFactory(factory.DjangoModelFactory):
         model = "base.SessionExamCalendar"
 
     external_id = factory.fuzzy.FuzzyText(length=10, chars=string.digits)
-    changed = factory.fuzzy.FuzzyDateTime(datetime.datetime(2016, 1, 1, tzinfo=get_tzinfo()),
-                                          datetime.datetime(2017, 3, 1, tzinfo=get_tzinfo()))
+    changed = factory.fuzzy.FuzzyNaiveDateTime(datetime.datetime(2016, 1, 1),
+                                          datetime.datetime(2017, 3, 1))
     number_session = factory.Iterator(number_session.NUMBERS_SESSION, getter=operator.itemgetter(0))
     academic_calendar = factory.SubFactory(AcademicCalendarFactory,
                                            reference=academic_calendar_type.SCORES_EXAM_SUBMISSION)

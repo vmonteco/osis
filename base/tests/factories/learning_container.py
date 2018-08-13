@@ -24,9 +24,8 @@
 #
 ##############################################################################
 import datetime
-import factory
+
 import factory.fuzzy
-from osis_common.utils.datetime import get_tzinfo
 
 
 class LearningContainerFactory(factory.django.DjangoModelFactory):
@@ -34,5 +33,7 @@ class LearningContainerFactory(factory.django.DjangoModelFactory):
         model = "base.LearningContainer"
 
     external_id = factory.Sequence(lambda n: '10000000%02d' % n)
-    changed = factory.fuzzy.FuzzyDateTime(datetime.datetime(2016, 1, 1, tzinfo=get_tzinfo()),
-                                          datetime.datetime(2017, 3, 1, tzinfo=get_tzinfo()))
+    changed = factory.fuzzy.FuzzyNaiveDateTime(
+        datetime.datetime(2016, 1, 1),
+        datetime.datetime(2017, 3, 1)
+    )
