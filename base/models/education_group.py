@@ -23,6 +23,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
@@ -64,3 +65,14 @@ class EducationGroup(models.Model):
             ("can_access_education_group", "Can access education_group"),
             ("can_edit_educationgroup_pedagogy", "Can edit education group pedagogy")
         )
+
+    def clean(self):
+        # Check end_year should be greater of equals to start_year
+        if self.start_year and self.end_year:
+            if self.start_year > self.end_year:
+                raise ValidationError({
+                    'end_year': _("%(max)s must be greater or equals than %(min)s") % {
+                        "max": _("end").title(),
+                        "min": _("start").title(),
+                    }
+                })
