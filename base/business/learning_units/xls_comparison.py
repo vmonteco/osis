@@ -79,15 +79,26 @@ LEARNING_UNIT_TITLES = [str(_('code')), str(_('academic_year_small')), str(_('ty
                         ]
 
 
-def get_academic_years(luy, acadmic_yr_comparison):
-    return luy.academic_year.year, acadmic_yr_comparison
-
-
 def create_xls_comparison(user, learning_unit_years, filters, academic_yr_comparison):
+    working_sheets_data = []
+    parameters = {xls_build.DESCRIPTION: XLS_DESCRIPTION,
+                  xls_build.USER: get_name_or_username(user),
+                  xls_build.FILENAME: XLS_FILENAME,
+                  xls_build.HEADER_TITLES: LEARNING_UNIT_TITLES,
+                  xls_build.WS_TITLE: WORKSHEET_TITLE}
+
+    if learning_unit_years:
+        learning_unit_years = _get_learning_unit_years(academic_yr_comparison, learning_unit_years)
+        working_sheets_data = prepare_xls_content(learning_unit_years)
+
+    return xls_build.generate_xls(xls_build.prepare_xls_parameters_list(working_sheets_data, parameters), filters)
+
+
+def _get_learning_unit_years(academic_yr_comparison, learning_unit_years):
     learning_unit_years = LearningUnitYear.objects.filter(learning_unit__in=(_get_learning_units(learning_unit_years)),
                                                           academic_year__year__in=(
-                                                          get_academic_years(learning_unit_years[0],
-                                                                             academic_yr_comparison)))\
+                                                              learning_unit_years[0].academic_year.year,
+                                                              academic_yr_comparison)) \
         .select_related('academic_year', 'learning_container_year', 'learning_container_year__academic_year') \
         .prefetch_related(get_learning_component_prefetch()) \
         .prefetch_related(build_entity_container_prefetch([entity_types.ALLOCATION_ENTITY,
@@ -97,15 +108,7 @@ def create_xls_comparison(user, learning_unit_years, filters, academic_yr_compar
         .order_by('learning_unit', 'academic_year__year')
     [append_latest_entities(learning_unit, False) for learning_unit in learning_unit_years]
     [append_components(learning_unit) for learning_unit in learning_unit_years]
-    working_sheets_data = prepare_xls_content(learning_unit_years)
-
-    parameters = {xls_build.DESCRIPTION: XLS_DESCRIPTION,
-                  xls_build.USER: get_name_or_username(user),
-                  xls_build.FILENAME: XLS_FILENAME,
-                  xls_build.HEADER_TITLES: LEARNING_UNIT_TITLES,
-                  xls_build.WS_TITLE: WORKSHEET_TITLE}
-
-    return xls_build.generate_xls(xls_build.prepare_xls_parameters_list(working_sheets_data, parameters), filters)
+    return learning_unit_years
 
 
 def _get_learning_units(learning_unit_years):
@@ -116,25 +119,24 @@ def _get_learning_units(learning_unit_years):
     return distinct_learning_unit
 
 
-def prepare_xls_content(found_learning_unit_yrs):
+def prepare_xls_content(learning_unit_yrs):
     data = []
-    lu = None
+    learning_unit = None
 
-    for l_u_yr in found_learning_unit_yrs:
+    for l_u_yr in learning_unit_yrs:
 
-        if lu is None:
-            lu = l_u_yr.learning_unit
+        if learning_unit is None:
+            learning_unit = l_u_yr.learning_unit
             new_line = True
         else:
-            if lu == l_u_yr.learning_unit:
+            if learning_unit == l_u_yr.learning_unit:
                 new_line = False
             else:
-                lu = l_u_yr.learning_unit
+                learning_unit = l_u_yr.learning_unit
                 new_line = True
 
         data.append(extract_xls_data_from_learning_unit(l_u_yr, new_line))
     return data
-    # return [extract_xls_data_from_learning_unit(lu) for lu in found_learning_units]
 
 
 def extract_xls_data_from_learning_unit(learning_unit_yr, new_line):
@@ -156,8 +158,10 @@ def extract_xls_data_from_learning_unit(learning_unit_yr, new_line):
         learning_unit_yr.specific_title,
         learning_unit_yr.learning_container_year.common_title_english,
         learning_unit_yr.specific_title_english,
-        learning_unit_yr.entities.get(entity_types.REQUIREMENT_ENTITY).acronym,
-        learning_unit_yr.entities.get(entity_types.ALLOCATION_ENTITY).acronym,
+        learning_unit_yr.entities.get(entity_types.REQUIREMENT_ENTITY).acronym if learning_unit_yr.entities.get(
+            entity_types.REQUIREMENT_ENTITY) else '',
+        learning_unit_yr.entities.get(entity_types.ALLOCATION_ENTITY).acronym if learning_unit_yr.entities.get(
+            entity_types.ALLOCATION_ENTITY) else '',
         learning_unit_yr.entities.get(
             entity_types.ADDITIONAL_REQUIREMENT_ENTITY_1).acronym if learning_unit_yr.entities.get(
             entity_types.ADDITIONAL_REQUIREMENT_ENTITY_1) else '',
@@ -166,8 +170,8 @@ def extract_xls_data_from_learning_unit(learning_unit_yr, new_line):
             entity_types.ADDITIONAL_REQUIREMENT_ENTITY_2) else '',
         xls_build.translate(learning_unit_yr.professional_integration),
         organization.name if organization else '',
-        learning_unit_yr.campus,
-        get_partims_as_str(partims),
+        learning_unit_yr.campus if learning_unit_yr.campus else '',
+        get_partims_as_str(partims)
     ]
 
     data.extend(_component_data(learning_unit_yr.components, learning_component_year_type.LECTURING))
@@ -183,22 +187,20 @@ def _translate_status(value):
 
 
 def _component_data(components, learning_component_yr_type):
-    for component in components:
-        if component.type == learning_component_yr_type:
-            volumes = components[component]
-            return [
-                component.acronym if component.acronym else '',
-                volumes.get('VOLUME_Q1', ''),
-                volumes.get('VOLUME_Q2', ''),
-                volumes.get('VOLUME_TOTAL', ''),
-                component.real_classes if component.real_classes else '',
-                component.planned_classes if component.planned_classes else '',
-                volumes.get('VOLUME_GLOBAL', '0'),
-                volumes.get('VOLUME_REQUIREMENT_ENTITY', ''),
-                volumes.get('VOLUME_ADDITIONAL_REQUIREMENT_ENTITY_1', ''),
-                volumes.get('VOLUME_ADDITIONAL_REQUIREMENT_ENTITY_2', '')
-
-
-            ]
-
-
+    if components:
+        for component in components:
+            if component.type == learning_component_yr_type:
+                volumes = components[component]
+                return [
+                    component.acronym if component.acronym else '',
+                    volumes.get('VOLUME_Q1', ''),
+                    volumes.get('VOLUME_Q2', ''),
+                    volumes.get('VOLUME_TOTAL', ''),
+                    component.real_classes if component.real_classes else '',
+                    component.planned_classes if component.planned_classes else '',
+                    volumes.get('VOLUME_GLOBAL', '0'),
+                    volumes.get('VOLUME_REQUIREMENT_ENTITY', ''),
+                    volumes.get('VOLUME_ADDITIONAL_REQUIREMENT_ENTITY_1', ''),
+                    volumes.get('VOLUME_ADDITIONAL_REQUIREMENT_ENTITY_2', '')
+                ]
+    return ['', '', '', '', '', '', '', '', '', '']
