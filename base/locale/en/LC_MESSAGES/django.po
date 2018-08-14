@@ -3487,3 +3487,18 @@ msgstr ""
 
 msgid "Choose academic years"
 msgstr ""
+
+msgid "Produce Xls"
+msgstr ""
+
+msgid "Internship subtype"
+msgstr ""
+
+msgid "Add. requ. ent. 1"
+msgstr ""
+
+msgid "Add. requ. ent. 2"
+msgstr ""
+
+msgid "Profes. integration"
+msgstr ""

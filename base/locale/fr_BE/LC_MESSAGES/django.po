@@ -3494,3 +3494,18 @@ msgstr "Comparaison entre unités d'enseignement"
 
 msgid "Choose academic years"
 msgstr "Choisir les années"
+
+msgid "Produce Xls"
+msgstr "Produire Excel"
+
+msgid "Internship subtype"
+msgstr "Sous-type stage"
+
+msgid "Add. requ. ent. 1"
+msgstr "Ent.charge compl. 1"
+
+msgid "Add. requ. ent. 2"
+msgstr "Ent.charge compl. 2"
+
+msgid "Profes. integration"
+msgstr "Intégration prof."

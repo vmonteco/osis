@@ -34,6 +34,7 @@ from base.business.entity import build_entity_container_prefetch
 from base.models.enums import entity_container_year_link_type as entity_types
 from base.models.enums import learning_component_year_type
 from base.business.learning_unit import get_organization_from_learning_unit_year
+from base.business.learning_units.comparison import get_partims_as_str
 
 # List of key that a user can modify
 DATE_FORMAT = '%d-%m-%Y'
@@ -44,14 +45,14 @@ XLS_FILENAME = 'learning_units_comparison'
 XLS_DESCRIPTION = "list_learning_units_comparison"
 
 LEARNING_UNIT_TITLES = [str(_('code')), str(_('academic_year_small')), str(_('type')), str(_('active_title')),
-                        str(_('subtype')), str(_('internship_subtype')), str(_('credits')), str(_('language')),
+                        str(_('subtype')), str(_('Internship subtype')), str(_('credits')), str(_('language')),
                         str(_('periodicity')),
                         str(_('quadrimester')), str(_('session_title')), str(_('common_title')),
                         str(_('title_proper_to_UE')),
                         str(_('common_english_title')), str(_('english_title_proper_to_UE')),
                         str(_('requirement_entity_small')), str(_('allocation_entity_small')),
-                        str(_('additional_requirement_entity_1')), str(_('additional_requirement_entity_2')),
-                        str(_('professional_integration')),
+                        str(_('Add. requ. ent. 1')), str(_('Add. requ. ent. 2')),
+                        str(_('Profes. integration')),
                         str(_('institution')),
                         str(_('learning_location')),
                         str(_('partims')),
@@ -62,9 +63,9 @@ LEARNING_UNIT_TITLES = [str(_('code')), str(_('academic_year_small')), str(_('ty
                         "PM {}".format(_('real_classes')),
                         "PM {}".format(_('planned_classes')),
                         "PM {}".format(_('vol_global')),
-                        "PM {}".format(_('REQUIREMENT_ENTITY')),
-                        "PM {}".format(_('ADDITIONAL_REQUIREMENT_ENTITY_1')),
-                        "PM {}".format(_('ADDITIONAL_REQUIREMENT_ENTITY_2')),
+                        "PM {}".format(_('requirement_entity')),
+                        "PM {}".format(_('Add. requ. ent. 1')),
+                        "PM {}".format(_('Add. requ. ent. 2')),
                         "PP {}".format(_('code')),
                         "PP {}".format(_('volume_partial')),
                         "PP {}".format(_('volume_remaining')),
@@ -72,9 +73,9 @@ LEARNING_UNIT_TITLES = [str(_('code')), str(_('academic_year_small')), str(_('ty
                         "PM {}".format(_('real_classes')),
                         "PM {}".format(_('planned_classes')),
                         "PP {}".format(_('vol_global')),
-                        "PP {}".format(_('REQUIREMENT_ENTITY')),
-                        "PP {}".format(_('ADDITIONAL_REQUIREMENT_ENTITY_1')),
-                        "PP {}".format(_('ADDITIONAL_REQUIREMENT_ENTITY_2'))
+                        "PP {}".format(_('requirement_entity')),
+                        "PM {}".format(_('Add. requ. ent. 1')),
+                        "PM {}".format(_('Add. requ. ent. 2'))
                         ]
 
 
@@ -138,6 +139,7 @@ def prepare_xls_content(found_learning_unit_yrs):
 
 def extract_xls_data_from_learning_unit(learning_unit_yr, new_line):
     organization = get_organization_from_learning_unit_year(learning_unit_yr)
+    partims = learning_unit_yr.get_partims_related()
     data = [
         learning_unit_yr.acronym if new_line else '',
         learning_unit_yr.academic_year.name,
@@ -165,7 +167,7 @@ def extract_xls_data_from_learning_unit(learning_unit_yr, new_line):
         xls_build.translate(learning_unit_yr.professional_integration),
         organization.name if organization else '',
         learning_unit_yr.campus,
-        'partims',
+        get_partims_as_str(partims),
     ]
 
     data.extend(_component_data(learning_unit_yr.components, learning_component_year_type.LECTURING))
