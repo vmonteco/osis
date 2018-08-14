@@ -29,6 +29,7 @@ from base.models.enums import learning_component_year_type
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.learning_component_year import LearningComponentYear
 from django.utils.translation import ugettext_lazy as _
+from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 
 FIELDS_FOR_LEARNING_UNIT_YR_COMPARISON = ['acronym', 'subtype', 'internship_subtype', 'credits', 'periodicity',
                                           'status', 'language', 'professional_integration', 'specific_title',
@@ -204,6 +205,6 @@ def get_entity_by_type(luy, entity_type):
         entity_container_yr = mdl_entity_container_year.search(
             link_type=entity_type, learning_container_year=luy.learning_container_year
         ).get()
-        return entity_container_yr.entity if entity_container_yr else None
-    except:
+        return entity_container_yr.entity
+    except (MultipleObjectsReturned, ObjectDoesNotExist):
         return None
