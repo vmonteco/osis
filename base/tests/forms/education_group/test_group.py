@@ -125,7 +125,7 @@ class TestGroupPostponedList(EducationGroupYearModelFormMixin):
         )
         super(TestGroupPostponedList, self).setUp(education_group_type=self.education_group_type)
 
-    def test_group_doesnt_have_postponed_list_method(self):
+    def test_group_doesnt_have_post_save_method(self):
         instance = self.parent_education_group_year
         form = GroupForm(data={}, instance=instance)
-        self.assertFalse(hasattr(form, '_postponed_list'))
+        self.assertFalse(hasattr(form, '_post_save'))

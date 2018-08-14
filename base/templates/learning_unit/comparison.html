@@ -62,7 +62,7 @@
                         {% endif %}
                         {% if entity_changes %}
                             {% for k in entity_changes %}
-                                <tr {% if forloop.first%}style="border-top: groove"{% endif %}>
+                                <tr {% if forloop.first %}style="border-top: groove"{% endif %}>
                                     <td class="table_header">{% trans k %}</td>
                                     <td>{% value_label entity_changes key=k sub_key='prev' key_comp='current' %}</td>
                                     <td>{% value_label entity_changes key=k sub_key='current' key_comp='current' %}</td>

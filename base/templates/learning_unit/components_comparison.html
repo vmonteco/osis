@@ -25,9 +25,11 @@
 
 {% if components_comparison %}
     {% for component in components_comparison %}
-        <tr style="border-top: groove">
+        <tr class="table_header" style="border-top: groove">
             <td class="table_header">{% trans 'component' %} : {{ component|get_item:'type' }}</td>
-            <td colspan="3"></td>
+            <th>{{ previous_academic_yr }}</th>
+            <th>{{ learning_unit_year.academic_year }}</th>
+            <th>{{ next_academic_yr }}</th>
         </tr>
         {% for key, values in component.items %}
             {% if key != 'type' %}

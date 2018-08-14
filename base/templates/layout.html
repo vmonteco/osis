@@ -90,7 +90,7 @@
     {% analytical_body_top %}
     {% block layout_navbar_top %}
     <nav class="navbar navbar-default navbar-fixed-top">
-        <div class="container">
+        <div class="container-fluid p0-50">
             <!-- Brand and toggle get grouped for better mobile display -->
             <div class="navbar-header">
                 <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
@@ -239,12 +239,12 @@
         </div>
     </div>
     {% if subject %}
-        <div class="container">
+        <div class="container-fluid p0-50">
             <div class="alert alert-warning" role="alert"><b>{{ subject }}</b><br>{{ notice }}</div>
         </div>
     {% endif %}
 
-    <div class="container">
+    <div class="container-fluid p0-50">
         {% if request.user.is_authenticated %}
             {% block breadcrumbarea %}
                 <ol class="breadcrumb">
@@ -296,7 +296,7 @@
     </div>
 
     <nav class="navbar navbar-default navbar-fixed-bottom">
-        <div class="container">
+        <div class="container-fluid p0-50">
             <p class="navbar-text pull-left"><a
                     href="{{ user_manual.global }}"
                     target="_blank" id="lnk_user_manual">{% trans 'documentation' %}</a> |

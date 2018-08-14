@@ -3473,5 +3473,8 @@ msgstr ""
 msgid "%(max)s must be greater or equals than %(min)s"
 msgstr ""
 
+msgid "Education group year %(acronym)s (%(academic_year)s) successfuly deleted."
+msgstr ""
+
 msgid "VOLUME_GLOBAL"
 msgstr "Vol. global"
