@@ -3482,3 +3482,6 @@ msgstr "%(max)s doit être plus grand ou égal à %(min)s"
 
 msgid "Education group year %(acronym)s (%(academic_year)s) successfuly deleted."
 msgstr "Organisation de formation %(acronym)s (%(academic_year)s) a été supprimée avec succès."
+
+msgid "VOLUME_GLOBAL"
+msgstr "Vol. global"

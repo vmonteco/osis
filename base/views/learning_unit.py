@@ -41,7 +41,7 @@ from base.business.learning_unit import get_cms_label_data, \
     CMS_LABEL_SPECIFICATIONS, get_achievements_group_by_language
 from base.business.learning_units import perms as business_perms
 from base.business.learning_units.comparison import get_keys, compare_learning_unit_years, \
-    compare_learning_container_years, get_components_changes
+    compare_learning_container_years, get_components_changes, get_partims_as_str
 from base.business.learning_units.perms import can_update_learning_achievement
 from base.forms.learning_class import LearningClassEditForm
 from base.forms.learning_unit_component import LearningUnitComponentEditForm
@@ -257,6 +257,11 @@ def learning_unit_comparison(request, learning_unit_year_id):
                                                        next_lu.learning_container_year)
     previous_context = get_learning_unit_comparison_context(previous_lu)
     next_context = get_learning_unit_comparison_context(next_lu)
+
+    if _has_changed(context, next_context, previous_context, 'learning_container_year_partims'):
+        context.update({'partims': {'prev': get_partims_as_str(previous_context.get('learning_container_year_partims')),
+                                    'current': get_partims_as_str(context.get('learning_container_year_partims')),
+                                    'next': get_partims_as_str(next_context.get('learning_container_year_partims'))}})
 
     context.update(
         {'previous_values': previous_values,
