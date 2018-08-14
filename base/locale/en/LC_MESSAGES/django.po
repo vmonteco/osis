@@ -3476,6 +3476,9 @@ msgstr ""
 msgid "Education group year %(acronym)s (%(academic_year)s) successfuly deleted."
 msgstr ""
 
+msgid "VOLUME_GLOBAL"
+msgstr "Vol. global"
+
 msgid "Produce xls of comparison"
 msgstr ""
 

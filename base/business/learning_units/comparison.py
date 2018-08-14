@@ -24,10 +24,12 @@
 #
 ##############################################################################
 from django.utils.translation import ugettext_lazy
+from base.models import entity_container_year as mdl_entity_container_year
 from base.models.enums import learning_component_year_type
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.learning_component_year import LearningComponentYear
 from django.utils.translation import ugettext_lazy as _
+from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 
 FIELDS_FOR_LEARNING_UNIT_YR_COMPARISON = ['acronym', 'subtype', 'internship_subtype', 'credits', 'periodicity',
                                           'status', 'language', 'professional_integration', 'specific_title',
@@ -192,3 +194,17 @@ def _real_classes_is_different(obj_prev, obj_ref):
 
 def _is_key_to_compare(key, vol):
     return not(key == 'PLANNED_CLASSES' or key in vol)
+
+
+def get_partims_as_str(partim_list):
+    return ', '.join(sorted(str(partim.subdivision) for partim in partim_list))
+
+
+def get_entity_by_type(luy, entity_type):
+    try:
+        entity_container_yr = mdl_entity_container_year.search(
+            link_type=entity_type, learning_container_year=luy.learning_container_year
+        ).get()
+        return entity_container_yr.entity
+    except (MultipleObjectsReturned, ObjectDoesNotExist):
+        return None

@@ -29,12 +29,15 @@ from django.test.utils import override_settings
 
 from base.models.learning_unit_year import LearningUnitYear
 from base.business.learning_units.comparison import get_keys, _get_changed_values, get_value, \
-    compare_learning_unit_years, compare_learning_component_year, compare_volumes
+    compare_learning_unit_years, compare_learning_component_year, compare_volumes, get_entity_by_type
 from base.tests.factories.learning_unit_year import create_learning_unit_year
+from base.models.enums import entity_container_year_link_type
 from base.models.enums import quadrimesters, learning_unit_year_session, attribution_procedure
 from base.models.enums import learning_unit_year_periodicity
 from base.models.enums import learning_unit_year_subtypes
 from base.tests.factories.academic_year import create_current_academic_year, AcademicYearFactory
+from base.tests.factories.entity_container_year import EntityContainerYearFactory
+from base.tests.factories.learning_container_year import LearningContainerYearFactory
 from base.tests.factories.learning_unit import LearningUnitFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from base.tests.factories.learning_component_year import LearningComponentYearFactory
@@ -124,7 +127,7 @@ class LearningUnitYearComparaisonTest(TestCase):
                                                          planned_classes=1)
         LearningClassYearFactory(learning_component_year=l_comp_yr_current)
         l_comp_yr_previous = LearningComponentYearFactory(acronym=acronym_used_twice,
-                                                         planned_classes=1)
+                                                          planned_classes=1)
         l_comp_yr_next = LearningComponentYearFactory(acronym=acronym_used_once,
                                                       planned_classes=1)
 
@@ -161,3 +164,14 @@ class LearningUnitYearComparaisonTest(TestCase):
         self.assertEqual(data.get('VOLUME_GLOBAL'), [previous_volume_global, current_volume_global, 12.0])
         self.assertEqual(data.get('VOLUME_Q1'), [None, current_volume_q1, next_volume_q1])
         self.assertEqual(len(list(data.keys())), 2)
+
+    def test_get_entity_by_type(self):
+        learning_cont_yr = LearningContainerYearFactory(academic_year=self.academic_year)
+        entity_container_yr = EntityContainerYearFactory(
+            learning_container_year=learning_cont_yr,
+            type=entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1
+        )
+        luy = LearningUnitYear(academic_year=self.academic_year, learning_container_year=learning_cont_yr)
+        self.assertEqual(get_entity_by_type(luy, entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1),
+                         entity_container_yr.entity)
+        self.assertIsNone(get_entity_by_type(luy, entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2))
