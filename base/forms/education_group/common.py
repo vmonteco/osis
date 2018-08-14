@@ -181,7 +181,7 @@ class CommonBaseForm:
         educ_group_form = self.forms[EducationGroupModelForm]
 
         if self._is_creation() and not educ_group_form.instance.start_year:
-            # Specific case, because start_date is hidden when creation, we should test start_date [validite.year] > end_date
+            # Specific case, because start_date is hidden when creation, we should test start_date [validite] > end_date
             educ_group_form.instance.start_year = educ_group_year_form.cleaned_data['academic_year'].year
             try:
                 educ_group_form.instance.clean()
