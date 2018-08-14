@@ -34,6 +34,7 @@ from base.forms.education_group.common import EducationGroupModelForm
 from base.forms.education_group.group import GroupForm
 from base.forms.education_group.mini_training import MiniTrainingForm
 from base.forms.education_group.training import TrainingForm
+from base import models as mdl_base
 from base.models.education_group_year import EducationGroupYear
 from base.models.enums import education_group_categories
 from base.views import layout
@@ -64,7 +65,11 @@ def _get_view(category):
 def _common_success_redirect(request, form, root):
     education_group_year = form.save()
 
-    success_msgs = [_get_success_message_for_update_education_group_year(root.pk, education_group_year)]
+    success_msgs = []
+    if not education_group_year.education_group.end_year or \
+            education_group_year.education_group.end_year >= education_group_year.academic_year.year:
+        success_msgs = [_get_success_message_for_update_education_group_year(root.pk, education_group_year)]
+
     if form.education_group_year_postponed:
         success_msgs += [
             _get_success_message_for_update_education_group_year(egy.id, egy)
@@ -75,10 +80,9 @@ def _common_success_redirect(request, form, root):
             _get_success_message_for_deleted_education_group_year(egy)
             for egy in form.education_group_year_deleted
         ]
-    display_success_messages(request, success_msgs, extra_tags='safe')
 
-    # Redirect URL
-    url = reverse("education_group_read", args=[root.pk, education_group_year.id])
+    url = _get_success_redirect_url(root, education_group_year)
+    display_success_messages(request, success_msgs, extra_tags='safe')
     return redirect(url)
 
 
@@ -98,6 +102,19 @@ def _get_success_message_for_deleted_education_group_year(education_group_year):
         "acronym": education_group_year.acronym,
         "academic_year": education_group_year.academic_year,
     }
+
+
+def _get_success_redirect_url(root, education_group_year):
+    is_current_viewed_deleted = not mdl_base.education_group_year.search(id=education_group_year.id).exists()
+    if is_current_viewed_deleted:
+        # Case current updated is deleted, we will take the latest existing [At this stage, we always have lastest]
+        qs = mdl_base.education_group_year.search().filter(education_group=education_group_year.education_group)\
+                                                   .order_by('academic_year__year')\
+                                                   .last()
+        url = reverse("education_group_read", args=[qs.pk, qs.id])
+    else:
+        url = reverse("education_group_read", args=[root.pk, education_group_year.id])
+    return url
 
 
 def _update_group(request, education_group_year, root):

@@ -32,17 +32,27 @@ EDUCATION_GROUP_MAX_POSTPONE_YEARS = 6
 
 
 def start(education_group, start_year):
-    base_education_group_year = EducationGroupYear.objects.get(
-        education_group=education_group,
-        academic_year__year=start_year
-    )
-    end_year = _compute_end_year(education_group)
-
     postpone_list = []
+
+    base_education_group_year = _get_start_education_group_year(education_group, start_year)
+    if not base_education_group_year:
+        return postpone_list
+
+    end_year = _compute_end_year(education_group)
     for academic_year in mdl_base.academic_year.find_academic_years(start_year=start_year + 1, end_year=end_year):
         postponed_egy = _postpone_education_group_year(base_education_group_year, academic_year)
         postpone_list.append(postponed_egy)
     return postpone_list
+
+
+def _get_start_education_group_year(education_group, start_year):
+    try:
+        return EducationGroupYear.objects.get(
+            education_group=education_group,
+            academic_year__year=start_year
+        )
+    except EducationGroupYear.DoesNotExist:
+        return None
 
 
 def _compute_end_year(education_group):

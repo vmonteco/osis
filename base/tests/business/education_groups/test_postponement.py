@@ -27,13 +27,14 @@ from django.forms import model_to_dict
 from django.test import TestCase
 
 from base.business.education_groups.postponement import EDUCATION_GROUP_MAX_POSTPONE_YEARS, _compute_end_year, \
-    _model_to_dict, _postpone_education_group_year, start
+    _model_to_dict, _postpone_education_group_year, start, _get_start_education_group_year
 from base.models.education_group_year import EducationGroupYear
 from base.models.education_group_year_domain import EducationGroupYearDomain
 from base.models.enums import entity_type
 from base.models.enums import organization_type
 from base.tests.factories.academic_year import create_current_academic_year
 from base.tests.factories.business.learning_units import GenerateAcademicYear
+from base.tests.factories.education_group import EducationGroupFactory
 from base.tests.factories.education_group_language import EducationGroupLanguageFactory
 from base.tests.factories.education_group_year import EducationGroupYearFactory
 from base.tests.factories.education_group_year_domain import EducationGroupYearDomainFactory
@@ -186,3 +187,20 @@ class TestStartPostponementEducationGroupYear(EducationGroupPostponementContextM
 
         for egy_postponed in egy_postponed_list:
             self.assertPostponementEquals(self.education_group_year, egy_postponed)
+
+
+class TestGetStartEducationGroupYearPostponement(EducationGroupPostponementContextMixin):
+    def test_get_start_education_group_year_case_found_data(self):
+        result = _get_start_education_group_year(
+            education_group=self.education_group_year.education_group,
+            start_year=self.education_group_year.academic_year.year
+        )
+        self.assertEqual(result, self.education_group_year)
+
+    def test_get_start_education_group_year_case_not_found_return_none(self):
+        education_group = EducationGroupFactory()
+        result = _get_start_education_group_year(
+            education_group=education_group,
+            start_year=2000
+        )
+        self.assertIsNone(result)
