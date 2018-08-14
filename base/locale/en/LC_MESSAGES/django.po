@@ -3505,3 +3505,6 @@ msgstr ""
 
 msgid "Req. Entities"
 msgstr ""
+
+msgid "list_learning_units_comparison"
+msgstr "Comparison of learning units"

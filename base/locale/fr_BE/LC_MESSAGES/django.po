@@ -3512,3 +3512,6 @@ msgstr "Intégration prof."
 
 msgid "Req. Entities"
 msgstr "Ent. charges"
+
+msgid "list_learning_units_comparison"
+msgstr "Liste comparative d'unités d'enseignement"

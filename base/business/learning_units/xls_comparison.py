@@ -42,7 +42,7 @@ DATE_TIME_FORMAT = '%d-%m-%Y %H:%M'
 DESC = "desc"
 WORKSHEET_TITLE = 'learning_units_comparison'
 XLS_FILENAME = 'learning_units_comparison'
-XLS_DESCRIPTION = "list_learning_units_comparison"
+XLS_DESCRIPTION = _("list_learning_units_comparison")
 
 LEARNING_UNIT_TITLES = [str(_('code')), str(_('academic_year_small')), str(_('type')), str(_('active_title')),
                         str(_('subtype')), str(_('Internship subtype')), str(_('credits')), str(_('language')),
@@ -140,9 +140,32 @@ def prepare_xls_content(learning_unit_yrs):
 
 
 def extract_xls_data_from_learning_unit(learning_unit_yr, new_line):
+    data = _get_data(learning_unit_yr, new_line)
+    data.extend(_component_data(learning_unit_yr.components, learning_component_year_type.LECTURING))
+    data.extend(_component_data(learning_unit_yr.components, learning_component_year_type.PRACTICAL_EXERCISES))
+    return data
+
+
+def _translate_status(value):
+    if value:
+        return _('active').title()
+    else:
+        return _('inactive').title()
+
+
+def _component_data(components, learning_component_yr_type):
+    if components:
+        for component in components:
+            if component.type == learning_component_yr_type:
+                return _get_volumes(component, components)
+    return ['', '', '', '', '', '', '', '', '', '']
+
+
+def _get_data(learning_unit_yr, new_line):
     organization = get_organization_from_learning_unit_year(learning_unit_yr)
     partims = learning_unit_yr.get_partims_related()
-    data = [
+
+    return [
         learning_unit_yr.acronym if new_line else '',
         learning_unit_yr.academic_year.name,
         xls_build.translate(learning_unit_yr.learning_container_year.container_type),
@@ -174,33 +197,18 @@ def extract_xls_data_from_learning_unit(learning_unit_yr, new_line):
         get_partims_as_str(partims)
     ]
 
-    data.extend(_component_data(learning_unit_yr.components, learning_component_year_type.LECTURING))
-    data.extend(_component_data(learning_unit_yr.components, learning_component_year_type.PRACTICAL_EXERCISES))
-    return data
 
-
-def _translate_status(value):
-    if value:
-        return _('active').title()
-    else:
-        return _('inactive').title()
-
-
-def _component_data(components, learning_component_yr_type):
-    if components:
-        for component in components:
-            if component.type == learning_component_yr_type:
-                volumes = components[component]
-                return [
-                    component.acronym if component.acronym else '',
-                    volumes.get('VOLUME_Q1', ''),
-                    volumes.get('VOLUME_Q2', ''),
-                    volumes.get('VOLUME_TOTAL', ''),
-                    component.real_classes if component.real_classes else '',
-                    component.planned_classes if component.planned_classes else '',
-                    volumes.get('VOLUME_GLOBAL', '0'),
-                    volumes.get('VOLUME_REQUIREMENT_ENTITY', ''),
-                    volumes.get('VOLUME_ADDITIONAL_REQUIREMENT_ENTITY_1', ''),
-                    volumes.get('VOLUME_ADDITIONAL_REQUIREMENT_ENTITY_2', '')
-                ]
-    return ['', '', '', '', '', '', '', '', '', '']
+def _get_volumes(component, components):
+    volumes = components[component]
+    return [
+        component.acronym if component.acronym else '',
+        volumes.get('VOLUME_Q1', ''),
+        volumes.get('VOLUME_Q2', ''),
+        volumes.get('VOLUME_TOTAL', ''),
+        component.real_classes if component.real_classes else '',
+        component.planned_classes if component.planned_classes else '',
+        volumes.get('VOLUME_GLOBAL', '0'),
+        volumes.get('VOLUME_REQUIREMENT_ENTITY', ''),
+        volumes.get('VOLUME_ADDITIONAL_REQUIREMENT_ENTITY_1', ''),
+        volumes.get('VOLUME_ADDITIONAL_REQUIREMENT_ENTITY_2', '')
+    ]

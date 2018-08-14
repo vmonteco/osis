@@ -40,7 +40,8 @@ class SelectComparisonYears(forms.Form):
         super(SelectComparisonYears, self).__init__(*args, **kwargs)
 
         if academic_year:
-            years = AcademicYear.objects.filter(Q(year=academic_year.year + 1) | Q(year=academic_year.year - 1)).order_by('year')
+            years = AcademicYear.objects.filter(
+                Q(year=academic_year.year + 1) | Q(year=academic_year.year - 1)).order_by('year')
             choices = _get_choices(years, academic_year)
             initial_value = _get_initial(choices)
             self.fields['academic_years'] = forms.ChoiceField(widget=forms.RadioSelect,
