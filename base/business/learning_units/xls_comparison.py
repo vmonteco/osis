@@ -165,8 +165,6 @@ def _component_data(components, learning_component_yr_type):
 
 def _get_data(learning_unit_yr, new_line):
     organization = get_organization_from_learning_unit_year(learning_unit_yr)
-    partims = learning_unit_yr.get_partims_related()
-
     return [
         learning_unit_yr.acronym if new_line else EMPTY_VALUE,
         learning_unit_yr.academic_year.name,
@@ -190,7 +188,7 @@ def _get_data(learning_unit_yr, new_line):
         xls_build.translate(learning_unit_yr.professional_integration),
         organization.name if organization else EMPTY_VALUE,
         learning_unit_yr.campus if learning_unit_yr.campus else EMPTY_VALUE,
-        get_partims_as_str(partims)
+        get_partims_as_str(learning_unit_yr.get_partims_related())
     ]
 
 
