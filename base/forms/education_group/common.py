@@ -25,7 +25,7 @@
 ##############################################################################
 from django import forms
 from django.conf import settings
-from django.core.exceptions import PermissionDenied, ImproperlyConfigured
+from django.core.exceptions import PermissionDenied, ImproperlyConfigured, ValidationError
 from django.utils import translation
 from django.utils.translation import ugettext_lazy as _
 
@@ -171,7 +171,25 @@ class CommonBaseForm:
         start_year_field.required = False
 
     def is_valid(self):
-        return all([form.is_valid() for form in self.forms.values()])
+        result = all([form.is_valid() for form in self.forms.values()])
+        if result:
+            result = self._post_clean()
+        return result
+
+    def _post_clean(self):
+        educ_group_year_form = self.forms[forms.ModelForm]
+        educ_group_form = self.forms[EducationGroupModelForm]
+
+        if self._is_creation() and not educ_group_form.instance.start_year:
+            # Specific case, because start_date is hidden when creation, we should test start_date [validite.year] > end_date
+            educ_group_form.instance.start_year = educ_group_year_form.cleaned_data['academic_year'].year
+            try:
+                educ_group_form.instance.clean()
+            except ValidationError as error:
+                # Field is already contains in validation error
+                educ_group_form.add_error(field=None, error=error)
+                return False
+        return True
 
     def save(self):
         educ_group_year_form = self.forms[forms.ModelForm]
