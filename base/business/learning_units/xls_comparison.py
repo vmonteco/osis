@@ -37,6 +37,7 @@ from base.business.learning_unit import get_organization_from_learning_unit_year
 from base.business.learning_units.comparison import get_partims_as_str
 
 # List of key that a user can modify
+EMPTY_VALUE = ''
 DATE_FORMAT = '%d-%m-%Y'
 DATE_TIME_FORMAT = '%d-%m-%Y %H:%M'
 DESC = "desc"
@@ -158,7 +159,8 @@ def _component_data(components, learning_component_yr_type):
         for component in components:
             if component.type == learning_component_yr_type:
                 return _get_volumes(component, components)
-    return ['', '', '', '', '', '', '', '', '', '']
+    return [EMPTY_VALUE, EMPTY_VALUE, EMPTY_VALUE, EMPTY_VALUE, EMPTY_VALUE, EMPTY_VALUE, EMPTY_VALUE, EMPTY_VALUE,
+            EMPTY_VALUE, EMPTY_VALUE]
 
 
 def _get_data(learning_unit_yr, new_line):
@@ -166,34 +168,28 @@ def _get_data(learning_unit_yr, new_line):
     partims = learning_unit_yr.get_partims_related()
 
     return [
-        learning_unit_yr.acronym if new_line else '',
+        learning_unit_yr.acronym if new_line else EMPTY_VALUE,
         learning_unit_yr.academic_year.name,
         xls_build.translate(learning_unit_yr.learning_container_year.container_type),
         _translate_status(learning_unit_yr.status),
         xls_build.translate(learning_unit_yr.subtype),
-        str(_(learning_unit_yr.internship_subtype)) if learning_unit_yr.internship_subtype else '',
+        _get_translation(learning_unit_yr.internship_subtype),
         learning_unit_yr.credits,
-        learning_unit_yr.language.name if learning_unit_yr.language else '',
-        str(_(learning_unit_yr.periodicity)) if learning_unit_yr.periodicity else '',
-        str(_(learning_unit_yr.quadrimester)) if learning_unit_yr.quadrimester else '',
-        str(_(learning_unit_yr.session)) if learning_unit_yr.session else '',
+        learning_unit_yr.language.name if learning_unit_yr.language else EMPTY_VALUE,
+        _get_translation(learning_unit_yr.periodicity),
+        _get_translation(learning_unit_yr.quadrimester),
+        _get_translation(learning_unit_yr.session),
         learning_unit_yr.learning_container_year.common_title,
         learning_unit_yr.specific_title,
         learning_unit_yr.learning_container_year.common_title_english,
         learning_unit_yr.specific_title_english,
-        learning_unit_yr.entities.get(entity_types.REQUIREMENT_ENTITY).acronym if learning_unit_yr.entities.get(
-            entity_types.REQUIREMENT_ENTITY) else '',
-        learning_unit_yr.entities.get(entity_types.ALLOCATION_ENTITY).acronym if learning_unit_yr.entities.get(
-            entity_types.ALLOCATION_ENTITY) else '',
-        learning_unit_yr.entities.get(
-            entity_types.ADDITIONAL_REQUIREMENT_ENTITY_1).acronym if learning_unit_yr.entities.get(
-            entity_types.ADDITIONAL_REQUIREMENT_ENTITY_1) else '',
-        learning_unit_yr.entities.get(
-            entity_types.ADDITIONAL_REQUIREMENT_ENTITY_2).acronym if learning_unit_yr.entities.get(
-            entity_types.ADDITIONAL_REQUIREMENT_ENTITY_2) else '',
+        _get_entity_to_display(learning_unit_yr.entities.get(entity_types.REQUIREMENT_ENTITY)),
+        _get_entity_to_display(learning_unit_yr.entities.get(entity_types.ALLOCATION_ENTITY)),
+        _get_entity_to_display(learning_unit_yr.entities.get(entity_types.ADDITIONAL_REQUIREMENT_ENTITY_1)),
+        _get_entity_to_display(learning_unit_yr.entities.get(entity_types.ADDITIONAL_REQUIREMENT_ENTITY_2)),
         xls_build.translate(learning_unit_yr.professional_integration),
-        organization.name if organization else '',
-        learning_unit_yr.campus if learning_unit_yr.campus else '',
+        organization.name if organization else EMPTY_VALUE,
+        learning_unit_yr.campus if learning_unit_yr.campus else EMPTY_VALUE,
         get_partims_as_str(partims)
     ]
 
@@ -201,14 +197,22 @@ def _get_data(learning_unit_yr, new_line):
 def _get_volumes(component, components):
     volumes = components[component]
     return [
-        component.acronym if component.acronym else '',
-        volumes.get('VOLUME_Q1', ''),
-        volumes.get('VOLUME_Q2', ''),
-        volumes.get('VOLUME_TOTAL', ''),
-        component.real_classes if component.real_classes else '',
-        component.planned_classes if component.planned_classes else '',
+        component.acronym if component.acronym else EMPTY_VALUE,
+        volumes.get('VOLUME_Q1', EMPTY_VALUE),
+        volumes.get('VOLUME_Q2', EMPTY_VALUE),
+        volumes.get('VOLUME_TOTAL', EMPTY_VALUE),
+        component.real_classes if component.real_classes else EMPTY_VALUE,
+        component.planned_classes if component.planned_classes else EMPTY_VALUE,
         volumes.get('VOLUME_GLOBAL', '0'),
-        volumes.get('VOLUME_REQUIREMENT_ENTITY', ''),
-        volumes.get('VOLUME_ADDITIONAL_REQUIREMENT_ENTITY_1', ''),
-        volumes.get('VOLUME_ADDITIONAL_REQUIREMENT_ENTITY_2', '')
+        volumes.get('VOLUME_REQUIREMENT_ENTITY', EMPTY_VALUE),
+        volumes.get('VOLUME_ADDITIONAL_REQUIREMENT_ENTITY_1', EMPTY_VALUE),
+        volumes.get('VOLUME_ADDITIONAL_REQUIREMENT_ENTITY_2', EMPTY_VALUE)
     ]
+
+
+def _get_translation(value):
+    return str(_(value)) if value else EMPTY_VALUE
+
+
+def _get_entity_to_display(entity):
+    return entity.acronym if entity else EMPTY_VALUE
