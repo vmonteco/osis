@@ -34,12 +34,12 @@ from attribution.models.attribution import find_all_tutors_by_learning_unit_year
 from base import models as mdl_base
 from base.business.entity import get_entity_calendar
 from base.business.learning_unit_year_with_context import volume_learning_component_year
+from base.business.learning_units.comparison import get_entity_by_type
 from base.business.xls import get_name_or_username
 from base.models import entity_container_year, academic_calendar
 from base.models import learning_achievement
-from base.models.academic_year import find_academic_year_by_year
 from base.models.entity_component_year import EntityComponentYear
-from base.models.enums import entity_container_year_link_type, academic_calendar_type
+from base.models.enums import academic_calendar_type
 from base.models.enums.entity_container_year_link_type import REQUIREMENT_ENTITIES
 from cms import models as mdl_cms
 from cms.enums import entity_name
@@ -47,6 +47,8 @@ from cms.enums.entity_name import LEARNING_UNIT_YEAR
 from cms.models import translated_text
 from osis_common.document import xls_build
 from osis_common.utils.datetime import convert_date_to_datetime
+from base.models.enums import entity_container_year_link_type
+
 
 # List of key that a user can modify
 WORKSHEET_TITLE = 'learning_units'
@@ -298,6 +300,9 @@ def get_learning_unit_comparison_context(learning_unit_year):
     components = get_components_identification(learning_unit_year)
     context['components'] = components.get('components')
     context['REQUIREMENT_ENTITY'] = components.get('REQUIREMENT_ENTITY')
-    context['ADDITIONAL_REQUIREMENT_ENTITY_1'] = components.get('ADDITIONAL_REQUIREMENT_ENTITY_1')
-    context['ADDITIONAL_REQUIREMENT_ENTITY_2'] = components.get('ADDITIONAL_REQUIREMENT_ENTITY_2')
+    context['ADDITIONAL_REQUIREMENT_ENTITY_1'] = \
+        get_entity_by_type(learning_unit_year, entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1)
+    context['ADDITIONAL_REQUIREMENT_ENTITY_2'] = \
+        get_entity_by_type(learning_unit_year, entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2)
+    context['learning_container_year_partims'] = learning_unit_year.get_partims_related()
     return context

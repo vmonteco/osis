@@ -3472,3 +3472,6 @@ msgstr ""
 
 msgid "%(max)s must be greater or equals than %(min)s"
 msgstr ""
+
+msgid "VOLUME_GLOBAL"
+msgstr "Vol. global"

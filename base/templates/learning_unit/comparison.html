@@ -52,13 +52,21 @@
                                 <td>{% if next_values|get_item:key %}<label style='color:#5CB85C;'>{{ next_values|get_item:key}}</label>{% else %}{{ learning_unit_year|get_attribute:key | default_if_none:''}}{% endif %}</td>
                             </tr>
                         {% endfor %}
+                        {% if partims %}
+                            <tr>
+                                <td class="table_header">{%  trans 'partims' %}</td>
+                                <td>{% changed_label partims|get_item:'prev' other1=partims|get_item:'current' %}</td>
+                                <td>{{ partims|get_item:'current' }}</td>
+                                <td>{% changed_label partims|get_item:'next' other1=partims|get_item:'current' %}</td>
+                            </tr>
+                        {% endif %}
                         {% if entity_changes %}
                             {% for k in entity_changes %}
                                 <tr {% if forloop.first%}style="border-top: groove"{% endif %}>
                                     <td class="table_header">{% trans k %}</td>
                                     <td>{% value_label entity_changes key=k sub_key='prev' key_comp='current' %}</td>
                                     <td>{% value_label entity_changes key=k sub_key='current' key_comp='current' %}</td>
-                                    <td>{% value_label  entity_changes key=k sub_key='next' key_comp='current'%}</td>
+                                    <td>{% value_label entity_changes key=k sub_key='next' key_comp='current'%}</td>
                                 </tr>
                             {% endfor %}
                         {% endif %}

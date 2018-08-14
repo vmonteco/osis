@@ -3479,3 +3479,6 @@ msgstr "Organisation de formation <a href='%(link)s'> %(acronym)s (%(academic_ye
 
 msgid "%(max)s must be greater or equals than %(min)s"
 msgstr "%(max)s doit être plus grand ou égal à %(min)s"
+
+msgid "VOLUME_GLOBAL"
+msgstr "Vol. global"

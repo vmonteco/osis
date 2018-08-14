@@ -24,6 +24,7 @@
 #
 ##############################################################################
 from django.utils.translation import ugettext_lazy
+from base.models import entity_container_year as mdl_entity_container_year
 from base.models.enums import learning_component_year_type
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.learning_component_year import LearningComponentYear
@@ -96,7 +97,6 @@ def _decrypt_boolean_value(field_name, value):
 
 
 def compare_learning_component_year(obj_ref, obj_prev, obj_next):
-    print(LearningComponentYear._meta.model_name)
     data = {'ref': obj_ref, 'prev': obj_prev, 'next': obj_next}
     d = {}
     d = compare_l_component_yr_attribute(d, data, 'acronym')
@@ -177,9 +177,9 @@ def can_compare(obj_prev, obj_ref):
 
 
 def _get_model_dict(data, key):
-    object = data.get(key)
-    if object:
-        return object.__dict__
+    obj = data.get(key)
+    if obj:
+        return obj.__dict__
     return {}
 
 
@@ -193,3 +193,17 @@ def _real_classes_is_different(obj_prev, obj_ref):
 
 def _is_key_to_compare(key, vol):
     return not(key == 'PLANNED_CLASSES' or key in vol)
+
+
+def get_partims_as_str(partim_list):
+    return ', '.join(sorted(str(partim.subdivision) for partim in partim_list))
+
+
+def get_entity_by_type(luy, entity_type):
+    try:
+        entity_container_yr = mdl_entity_container_year.search(
+            link_type=entity_type, learning_container_year=luy.learning_container_year
+        ).get()
+        return entity_container_yr.entity if entity_container_yr else None
+    except:
+        return None
