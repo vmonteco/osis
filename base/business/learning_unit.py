@@ -299,7 +299,10 @@ def get_learning_unit_comparison_context(learning_unit_year):
     context['experimental_phase'] = True
     components = get_components_identification(learning_unit_year)
     context['components'] = components.get('components')
-    context['REQUIREMENT_ENTITY'] = components.get('REQUIREMENT_ENTITY')
+    context['REQUIREMENT_ENTITY'] = get_entity_by_type(learning_unit_year,
+                                                       entity_container_year_link_type.REQUIREMENT_ENTITY)
+    context['ALLOCATION_ENTITY'] = get_entity_by_type(learning_unit_year,
+                                                      entity_container_year_link_type.ALLOCATION_ENTITY)
     context['ADDITIONAL_REQUIREMENT_ENTITY_1'] = \
         get_entity_by_type(learning_unit_year, entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1)
     context['ADDITIONAL_REQUIREMENT_ENTITY_2'] = \

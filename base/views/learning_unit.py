@@ -54,7 +54,8 @@ from cms.models import text_label
 from . import layout
 from base.business.learning_unit import get_learning_unit_comparison_context
 
-ORGANIZATION_KEYS = ['REQUIREMENT_ENTITY', 'ADDITIONAL_REQUIREMENT_ENTITY_1', 'ADDITIONAL_REQUIREMENT_ENTITY_2',
+ORGANIZATION_KEYS = ['ALLOCATION_ENTITY', 'REQUIREMENT_ENTITY',
+                     'ADDITIONAL_REQUIREMENT_ENTITY_1', 'ADDITIONAL_REQUIREMENT_ENTITY_2',
                      'campus', 'organization']
 
 
