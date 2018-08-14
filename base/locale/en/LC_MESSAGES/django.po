@@ -3458,7 +3458,7 @@ msgstr "Additional requirement entity 2"
 msgid "This field is empty"
 msgstr ""
 
-msgid "Are you sure to continue ?"
+msgid "Do you want to continue ?"
 msgstr ""
 
 msgid "There are warnings in the form."

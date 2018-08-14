@@ -11,12 +11,12 @@
     <ul id="ul_warnings">
 
     </ul>
+    {% blocktrans %}Do you want to continue ?{% endblocktrans %}
 {% endblock %}
 
 {% block modal_footer %}
-    <p>{% blocktrans %}Are you sure to continue ?{% endblocktrans %}</p>
-    <button type="button" class="btn btn-default" data-dismiss="modal">{% trans "cancel" %}</button>
-    <button type="submit" class="btn btn-warning" name="confirmed" value="true">{% trans "confirm" %}</button>
+    <button type="button" class="btn btn-default" data-dismiss="modal">{% trans "no" %}</button>
+    <button type="submit" class="btn btn-warning" name="confirmed" value="true">{% trans "yes" %}</button>
 
     <script>
         $(function () {

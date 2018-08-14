@@ -123,16 +123,6 @@ $(document).ready(function () {
         }
     });
 
-    $("#tree_open_all").click(function(){
-        $documentTree.jstree("open_all");
-
-    });
-
-    $("#tree_close_all").click(function(){
-        $documentTree.jstree("close_all");
-
-    });
-
     showOrHideTree();
 
 });

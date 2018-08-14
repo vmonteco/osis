@@ -5,22 +5,9 @@
 <div id="panel-collapse" class="col-md-0">
     <div id="collapse" class="panel panel-default" style="display:none;overflow: auto;">
         <div class="panel-body">
-
-            {# Button to expand and close all nodes of the trees #}
-            <div class="row">
-                <a class="button pull-right col-md-1" id="tree_close_all">
-                    <span class="glyphicon glyphicon-minus" aria-hidden="true"></span>
-                </a>
-
-                <a class="button pull-right col-md-1" id="tree_open_all">
-                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
-                </a>
-            </div>
-
             <div class="row" id="panel_file_tree">
                 {% build_tree 0 education_group_year %}
             </div>
-
         </div>
     </div>
 </div>
