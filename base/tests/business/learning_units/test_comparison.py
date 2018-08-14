@@ -29,7 +29,7 @@ from django.test.utils import override_settings
 
 from base.models.learning_unit_year import LearningUnitYear
 from base.business.learning_units.comparison import get_keys, _get_changed_values, get_value, \
-    compare_learning_unit_years
+    compare_learning_unit_years, compare_learning_component_year, compare_volumes
 from base.tests.factories.learning_unit_year import create_learning_unit_year
 from base.models.enums import quadrimesters, learning_unit_year_session, attribution_procedure
 from base.models.enums import learning_unit_year_periodicity
@@ -37,6 +37,9 @@ from base.models.enums import learning_unit_year_subtypes
 from base.tests.factories.academic_year import create_current_academic_year, AcademicYearFactory
 from base.tests.factories.learning_unit import LearningUnitFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
+from base.tests.factories.learning_component_year import LearningComponentYearFactory
+from base.tests.factories.learning_class_year import LearningClassYearFactory
+from decimal import Decimal
 
 TITLE = 'Intitulé'
 OTHER_TITLE = 'title 1'
@@ -112,3 +115,49 @@ class LearningUnitYearComparaisonTest(TestCase):
         del data_obj2['acronym']
         with self.assertRaises(KeyError):
             _get_changed_values(data_obj1, data_obj2, ['acronym'], LearningUnitYear)
+
+    def test_compare_learning_component_year(self):
+        acronym_used_twice = 'PM1'
+        acronym_used_once = 'PM2'
+
+        l_comp_yr_current = LearningComponentYearFactory(acronym=acronym_used_twice,
+                                                         planned_classes=1)
+        LearningClassYearFactory(learning_component_year=l_comp_yr_current)
+        l_comp_yr_previous = LearningComponentYearFactory(acronym=acronym_used_twice,
+                                                         planned_classes=1)
+        l_comp_yr_next = LearningComponentYearFactory(acronym=acronym_used_once,
+                                                      planned_classes=1)
+
+        data = compare_learning_component_year(l_comp_yr_current, l_comp_yr_previous, l_comp_yr_next)
+        self.assertEqual(data.get('acronym'),
+                         [l_comp_yr_previous.acronym, l_comp_yr_current.acronym, l_comp_yr_next.acronym])
+        self.assertEqual(data.get('real_classes'),
+                         [l_comp_yr_previous.real_classes, l_comp_yr_current.real_classes, l_comp_yr_next.real_classes])
+
+    def test_compare_volumes(self):
+        previous_volume_global = 12.0
+        current_volume_global = 10
+
+        previous_planned_classes = 1
+        current_planned_classes = 2
+
+        current_volume_q1 = 20
+        next_volume_q1 = 10
+
+        data_volumes_previous = {'volumes': {'VOLUME_ADDITIONAL_REQUIREMENT_ENTITY_2': 0, 'VOLUME_TOTAL': Decimal('12.00'),
+                                    'VOLUME_GLOBAL': previous_volume_global, 'PLANNED_CLASSES': previous_planned_classes, 'VOLUME_Q1': None,
+                                    'VOLUME_ADDITIONAL_REQUIREMENT_ENTITY_1': 0.0, 'VOLUME_Q2': Decimal('30.00'),
+                                    'VOLUME_REQUIREMENT_ENTITY': 12.0}}
+        data_volumes_current = {'volumes': {'VOLUME_ADDITIONAL_REQUIREMENT_ENTITY_2': 0, 'VOLUME_TOTAL': Decimal('12.00'),
+                                            'VOLUME_GLOBAL': current_volume_global, 'PLANNED_CLASSES': current_planned_classes, 'VOLUME_Q1': current_volume_q1,
+                                            'VOLUME_ADDITIONAL_REQUIREMENT_ENTITY_1': 0.0, 'VOLUME_Q2': Decimal('30.00'),
+                                            'VOLUME_REQUIREMENT_ENTITY': 12.0}}
+        data_volumes_next = {'volumes': {'VOLUME_ADDITIONAL_REQUIREMENT_ENTITY_2': 0, 'VOLUME_TOTAL': Decimal('12.00'),
+                                            'VOLUME_GLOBAL': 12.0, 'PLANNED_CLASSES': 1, 'VOLUME_Q1': next_volume_q1,
+                                            'VOLUME_ADDITIONAL_REQUIREMENT_ENTITY_1': 0.0, 'VOLUME_Q2': Decimal('30.00'),
+                                            'VOLUME_REQUIREMENT_ENTITY': 12.0}}
+
+        data = compare_volumes(data_volumes_current, data_volumes_previous, data_volumes_next)
+        self.assertEqual(data.get('VOLUME_GLOBAL'), [previous_volume_global, current_volume_global, 12.0])
+        self.assertEqual(data.get('VOLUME_Q1'), [None, current_volume_q1, next_volume_q1])
+        self.assertEqual(len(list(data.keys())), 2)

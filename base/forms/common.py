@@ -26,8 +26,9 @@
 from django import forms
 from django.core.validators import RegexValidator
 from django.utils.safestring import mark_safe
+from django.utils.translation import ugettext_lazy as _
 
-from base.models.enums.field_status import DISABLED, REQUIRED, ALERT, NOT_REQUIRED
+from base.models.enums.field_status import DISABLED, REQUIRED, ALERT, NOT_REQUIRED, FIXED
 from base.models.validation_rule import ValidationRule
 
 
@@ -74,7 +75,7 @@ class WarningFormMixin:
         return cleaned_data
 
     def add_warning(self, name, field):
-        self.add_error(name, "This field is empty")
+        self.add_error(name, _("This field is empty"))
         field.widget.attrs['class'] = "has-warning"
 
 
@@ -119,7 +120,7 @@ class ValidationRuleMixin(WarningFormMixin):
 
     @staticmethod
     def change_status(field, rule):
-        if rule.status_field == DISABLED:
+        if rule.status_field in (DISABLED, FIXED):
             field.disabled = True
             field.required = False
 

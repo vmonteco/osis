@@ -58,6 +58,16 @@
                         {% endif %}
                     {% endflag %}
 
+                    {# This feature is used for managing tree in education group context #}
+                    {% flag "education_group_select" %}
+                        <li>
+                            <a href="#" onclick="javascript:select()">
+                                {% trans 'Select' %}
+                            </a>
+                        </li>
+                        <li class="divider"></li>
+                    {% endflag %}
+
                     {% flag "learning_unit_update" %}
                         {% if "base.can_edit_learningunit" in perms %}
                             <li {% if not can_edit %}class="disabled"{% endif %}>
@@ -128,14 +138,6 @@
                                 </a>
                             </li>
                         {% endif %}
-                    {% endflag %}
-                    {# This feature is used for managing tree in education group context #}
-                    {% flag "education_group_select" %}
-                        <li>
-                            <a href="#" onclick="javascript:select()">
-                                {% trans 'Select' %}
-                            </a>
-                        </li>
                     {% endflag %}
                     </ul>
                 </div>

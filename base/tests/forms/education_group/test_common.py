@@ -36,6 +36,7 @@ from base.models.education_group_type import EducationGroupType
 from base.models.education_group_year import EducationGroupYear
 from base.models.entity_version import EntityVersion
 from base.models.enums import organization_type, education_group_categories
+from base.models.enums.education_group_categories import TRAINING
 from base.models.group_element_year import GroupElementYear
 from base.tests.factories.academic_year import AcademicYearFactory, create_current_academic_year
 from base.tests.factories.authorized_relationship import AuthorizedRelationshipFactory
@@ -69,7 +70,10 @@ class EducationGroupYearModelFormMixin(TestCase):
         }
 
         self.parent_education_group_year = EducationGroupYearFactory(academic_year=self.academic_year)
+        # Append version to management/administration entity
         self.entity_version = EntityVersionFactory(entity=self.parent_education_group_year.management_entity)
+        if self.education_group_type.category == TRAINING:
+            EntityVersionFactory(entity=self.parent_education_group_year.administration_entity)
 
     def _test_fields(self, form_class, fields):
         form = form_class(parent=None, education_group_type=self.education_group_type)
@@ -138,11 +142,12 @@ class TestCommonBaseFormIsValid(TestCase):
         expected_educ_group_year, wrong_post_data = _get_valid_post_data(self.category)
         wrong_post_data['management_entity'] = None
         wrong_post_data['end_year'] = "some text"
+        wrong_post_data["max_constraint"] = expected_educ_group_year.min_constraint - 1
         education_group_year_form = MiniTrainingModelForm(wrong_post_data, education_group_type=self.egt)
         education_group_form = EducationGroupModelForm(wrong_post_data)
         form = CommonBaseForm(education_group_year_form, education_group_form)
         self.assertFalse(form.is_valid(), form.errors)
-        self.assertEqual(len(form.errors), 2, form.errors)
+        self.assertEqual(len(form.errors), 3, form.errors)
 
 
 class TestCommonBaseFormSave(TestCase):
@@ -266,8 +271,8 @@ def _get_valid_post_data(category):
         'title': str(fake_education_group_year.title),
         'credits': str(fake_education_group_year.credits),
         'academic_year': str(fake_education_group_year.academic_year.id),
-        'max_credits': str(fake_education_group_year.max_credits),
-        'min_credits': str(fake_education_group_year.min_credits),
+        'max_constraint': str(fake_education_group_year.max_constraint),
+        'min_constraint': str(fake_education_group_year.min_constraint),
         'remark': str(fake_education_group_year.remark),
         'acronym': str(fake_education_group_year.acronym),
         'active': str(fake_education_group_year.active),

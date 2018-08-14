@@ -29,6 +29,8 @@ from django import forms
 from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
 
+from base.business.education_groups import postponement
+from base.business.education_groups import shorten
 from base.forms.education_group.common import CommonBaseForm, EducationGroupModelForm, \
     MainEntitiesVersionChoiceField, EducationGroupYearModelForm
 from base.models.education_group_year_domain import EducationGroupYearDomain
@@ -52,23 +54,46 @@ class TrainingEducationGroupYearForm(EducationGroupYearModelForm):
 
     class Meta(EducationGroupYearModelForm.Meta):
         fields = [
-            "acronym", "partial_acronym", "education_group_type",
-            "title", "title_english",
-            "academic_year", "main_teaching_campus",
-            "remark", "remark_english",
-            "credits", "enrollment_enabled",
-            "partial_deliberation", "academic_type",
-            "admission_exam", "university_certificate",
-            "duration", "duration_unit", "dissertation",
-            "internship", "primary_language",
-            "other_language_activities", "keywords",
-            "active", "schedule_type", "enrollment_campus",
-            "other_campus_activities", "funding", "funding_direction",
-            "funding_cud", "funding_direction_cud",
-            "diploma_printing_title", "diploma_printing_orientation",
-            "professional_title", "min_credits", "max_credits",
-            "administration_entity", "management_entity",
-            "main_domain", "secondary_domains", "decree_category", "rate_code"
+            "acronym",
+            "partial_acronym",
+            "education_group_type",
+            "title",
+            "title_english",
+            "academic_year",
+            "main_teaching_campus",
+            "remark",
+            "remark_english",
+            "credits",
+            "enrollment_enabled",
+            "partial_deliberation",
+            "academic_type",
+            "admission_exam",
+            "university_certificate",
+            "duration",
+            "duration_unit",
+            "dissertation",
+            "internship",
+            "primary_language",
+            "other_language_activities",
+            "keywords",
+            "active",
+            "schedule_type",
+            "enrollment_campus",
+            "other_campus_activities",
+            "funding",
+            "funding_direction",
+            "funding_cud",
+            "funding_direction_cud",
+            "professional_title",
+            "min_constraint",
+            "max_constraint",
+            "constraint_type",
+            "administration_entity",
+            "management_entity",
+            "main_domain",
+            "secondary_domains",
+            "decree_category",
+            "rate_code"
         ]
 
         field_classes = {
@@ -123,6 +148,18 @@ class TrainingForm(CommonBaseForm):
         education_group = instance.education_group if instance else None
         education_group_form = EducationGroupModelForm(data, instance=education_group)
         super().__init__(education_group_year_form, education_group_form)
+
+    def _post_save(self):
+        education_group_instance = self.forms[EducationGroupModelForm].instance
+        egy_deleted = []
+        if education_group_instance.end_year:
+            egy_deleted = shorten.start(education_group_instance, education_group_instance.end_year)
+
+        egy_postponed_list = postponement.start(
+            education_group_instance,
+            start_year=self.forms[forms.ModelForm].instance.academic_year.year
+        )
+        return {'object_list_upserted': egy_postponed_list, 'object_list_deleted': egy_deleted}
 
 
 @register('university_domains')

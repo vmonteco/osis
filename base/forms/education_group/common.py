@@ -24,7 +24,9 @@
 #
 ##############################################################################
 from django import forms
+from django.conf import settings
 from django.core.exceptions import PermissionDenied, ImproperlyConfigured
+from django.utils import translation
 from django.utils.translation import ugettext_lazy as _
 
 from base.forms.common import ValidationRuleMixin
@@ -149,6 +151,8 @@ class EducationGroupModelForm(forms.ModelForm):
 
 class CommonBaseForm:
     forms = None
+    education_group_year_postponed = []
+    education_group_year_deleted = []
 
     def __init__(self, education_group_year_form, education_group_form):
         self.forms = {
@@ -156,10 +160,15 @@ class CommonBaseForm:
             EducationGroupModelForm: education_group_form
         }
 
+        start_year_field = education_group_form.fields["start_year"]
+
         if not (self._is_creation()):
-            education_group_form.fields["start_year"].initial = self.forms[EducationGroupModelForm].instance.start_year
-        education_group_form.fields["start_year"].disabled = True
-        education_group_form.fields["start_year"].required = False
+            start_year_field.initial = self.forms[EducationGroupModelForm].instance.start_year
+        else:
+            start_year_field.widget = forms.HiddenInput(attrs={})
+
+        start_year_field.disabled = True
+        start_year_field.required = False
 
     def is_valid(self):
         return all([form.is_valid() for form in self.forms.values()])
@@ -176,6 +185,10 @@ class CommonBaseForm:
         educ_group_year_form.instance.education_group = education_group
         education_group_year = educ_group_year_form.save()
         self._save_group_element_year(educ_group_year_form.parent, education_group_year)
+        if hasattr(self, '_post_save'):
+            post_save = self._post_save()
+            self.education_group_year_postponed = post_save.get('object_list_upserted', [])
+            self.education_group_year_deleted = post_save.get('object_list_deleted', [])
         return education_group_year
 
     def _is_creation(self):
@@ -212,4 +225,11 @@ class EducationGroupTypeForm(forms.Form):
 
 
 class SelectLanguage(forms.Form):
-    language = forms.ChoiceField(widget=forms.RadioSelect, choices=[("en", _("English")), ("fr-be", _("French"))])
+    language = forms.ChoiceField(widget=forms.RadioSelect,
+                                 choices=settings.LANGUAGES,
+                                 label=_('Select a language'),
+                                 required=False)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.initial['language'] = translation.get_language()

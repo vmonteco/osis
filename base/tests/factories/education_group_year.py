@@ -45,8 +45,8 @@ class EducationGroupYearFactory(factory.django.DjangoModelFactory):
 
     education_group = factory.SubFactory(EducationGroupFactory)
     academic_year = factory.SubFactory(AcademicYearFactory)
-    acronym = factory.Sequence(lambda n: 'Education%d' % n)
-    partial_acronym = factory.Sequence(lambda n: 'SCS%d' % n)
+    acronym = factory.Sequence(lambda n: 'ED%d' % n)
+    partial_acronym = factory.Sequence(lambda n: 'SCS%03dT' % n)
     title = factory.LazyAttribute(generate_title)
     title_english = factory.LazyAttribute(generate_title)
     education_group_type = factory.SubFactory(EducationGroupTypeFactory)
@@ -54,8 +54,8 @@ class EducationGroupYearFactory(factory.django.DjangoModelFactory):
     administration_entity = factory.SubFactory(EntityFactory)
     main_teaching_campus = factory.SubFactory(CampusFactory)
     credits = factory.fuzzy.FuzzyInteger(MINIMUM_CREDITS, MAXIMUM_CREDITS)
-    min_credits = factory.fuzzy.FuzzyInteger(MAXIMUM_CREDITS)
-    max_credits = factory.fuzzy.FuzzyInteger(MINIMUM_CREDITS)
+    min_constraint = factory.fuzzy.FuzzyInteger(MINIMUM_CREDITS, MAXIMUM_CREDITS)
+    max_constraint = factory.lazy_attribute(lambda a: a.min_constraint)
     remark = factory.fuzzy.FuzzyText(length=255)
     remark_english = factory.fuzzy.FuzzyText(length=255)
     active = active_status.ACTIVE

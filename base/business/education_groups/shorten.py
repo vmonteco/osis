@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -23,18 +23,20 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.utils.translation import ugettext_lazy as _
+from base.models.education_group_year import EducationGroupYear
 
-REQUIRED = "REQUIRED"
-FIXED = "FIXED"
-ALERT = "ALERT"
-NOT_REQUIRED = "NOT_REQUIRED"
-DISABLED = "DISABLED"
 
-FIELD_STATUS = (
-    (REQUIRED, _(REQUIRED)),
-    (FIXED, _(FIXED)),
-    (ALERT, _(ALERT)),
-    (NOT_REQUIRED, _(NOT_REQUIRED)),
-    (DISABLED, _(DISABLED)),
-)
+def start(education_group, until_year):
+    """
+    This function will delete all education group year
+    """
+    egy_deleted = []
+
+    qs = EducationGroupYear.objects.filter(
+        education_group=education_group,
+        academic_year__year__gt=until_year
+    ).order_by('academic_year__year')
+    for education_group_year in qs:
+        egy_deleted.append(education_group_year)
+        education_group_year.delete()
+    return egy_deleted

@@ -23,6 +23,8 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from django.core.exceptions import ValidationError
+from django.core.validators import RegexValidator
 from django.db import models
 from django.db.models import Count
 from django.urls import reverse
@@ -37,6 +39,7 @@ from base.models.enums import academic_type, internship_presence, schedule_type,
     diploma_printing_orientation, active_status, duration_unit, decree_category, rate_code
 from base.models.enums import education_group_association
 from base.models.enums import education_group_categories
+from base.models.enums.constraint_type import CONSTRAINT_TYPE, CREDITS
 from base.models.exceptions import MaximumOneParentAllowedException
 from osis_common.models.osis_model_admin import OsisModelAdmin
 
@@ -56,7 +59,8 @@ class EducationGroupYear(models.Model):
     acronym = models.CharField(
         max_length=40,
         db_index=True,
-        verbose_name=_("acronym")
+        verbose_name=_("acronym"),
+        validators=[RegexValidator(regex="^([A-Z]{2,4})([0-9]?)(.*)$")]
     )
 
     title = models.CharField(
@@ -266,7 +270,8 @@ class EducationGroupYear(models.Model):
         max_length=15,
         db_index=True,
         null=True,
-        verbose_name=_("code")
+        verbose_name=_("code"),
+        validators=[RegexValidator(regex="^([A-Z]{3,5})([0-9]{3})([A-Z])$")]
     )
 
     # TODO :: rename credits into expected_credits
@@ -288,14 +293,23 @@ class EducationGroupYear(models.Model):
         verbose_name=_("remark_english")
     )
 
-    min_credits = models.IntegerField(
+    min_constraint = models.IntegerField(
         blank=True, null=True,
-        verbose_name=_("minimum credits")
+        verbose_name=_("minimum constraint")
     )
 
-    max_credits = models.IntegerField(
+    max_constraint = models.IntegerField(
         blank=True, null=True,
-        verbose_name=_("maximum credits")
+        verbose_name=_("maximum constraint")
+    )
+
+    constraint_type = models.CharField(
+        max_length=20,
+        choices=CONSTRAINT_TYPE,
+        default=CREDITS,
+        blank=True,
+        null=True,
+        verbose_name=_("type of constraint")
     )
 
     main_domain = models.ForeignKey(
@@ -459,6 +473,16 @@ class EducationGroupYear(models.Model):
         if self.offerenrollment_set.all().exists():
             return False
         return True
+
+    def clean(self):
+        if self.min_constraint and self.max_constraint:
+            if self.min_constraint > self.max_constraint:
+                raise ValidationError({
+                    'max_constraint': _("%(max)s must be greater or equals than %(min)s") % {
+                        "max": _("maximum constraint").title(),
+                        "min": _("minimum constraint").title(),
+                    }
+                })
 
 
 def find_by_id(an_id):

@@ -18,10 +18,11 @@ class Command(BaseCommand):
             titles = next(reader)
 
             for row in reader:
-                _, created = ValidationRule.objects.get_or_create(
-                    field_reference=row[1].strip(),
-                    status_field=row[2].strip(),
-                    initial_value=row[3].strip(),
-                    regex_rule=row[4].strip(),
-                    regex_error_message=row[5].strip(),
+                obj, created = ValidationRule.objects.get_or_create(
+                    field_reference=row[1].strip()
                 )
+                obj.status_field = row[2].strip()
+                obj.initial_value = row[3].strip()
+                obj.regex_rule = row[4].strip()
+                obj.regex_error_message = row[5].strip()
+                obj.save()

@@ -23,6 +23,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from unittest import mock
 from unittest.mock import patch
 
 from django.core.validators import _lazy_re_compile
@@ -55,7 +56,8 @@ class TestGroupModelFormModelForm(EducationGroupYearModelFormMixin):
             "acronym", "partial_acronym", "education_group_type",
             "title", "title_english", "credits",
             "main_teaching_campus", "academic_year",
-            "remark", "remark_english", "min_credits", "max_credits",
+            "remark", "remark_english",
+            "min_constraint", "max_constraint", "constraint_type",
             "management_entity"
         )
 
@@ -83,8 +85,6 @@ class TestGroupModelFormModelForm(EducationGroupYearModelFormMixin):
         self.assertEqual(form.fields["acronym"].initial, "yolo")
         self.assertEqual(form.fields["acronym"].required, False)
         self.assertEqual(form.fields["acronym"].validators[1].regex, _lazy_re_compile("([A-Z]{2})(.*)"))
-
-
 
 
 class TestGroupForm(TestCase):
@@ -115,3 +115,17 @@ class TestGroupForm(TestCase):
 
         self.assertTrue(GroupElementYear.objects.get(child_branch=education_group_year, parent=parent))
 
+
+class TestGroupPostponedList(EducationGroupYearModelFormMixin):
+    """Unit tests to ensure that GROUPS DOESN'T HAVE a method _postponed_list"""
+
+    def setUp(self):
+        self.education_group_type = EducationGroupTypeFactory(
+            category=education_group_categories.GROUP
+        )
+        super(TestGroupPostponedList, self).setUp(education_group_type=self.education_group_type)
+
+    def test_group_doesnt_have_post_save_method(self):
+        instance = self.parent_education_group_year
+        form = GroupForm(data={}, instance=instance)
+        self.assertFalse(hasattr(form, '_post_save'))
