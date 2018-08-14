@@ -3502,3 +3502,6 @@ msgstr ""
 
 msgid "Profes. integration"
 msgstr ""
+
+msgid "Req. Entities"
+msgstr ""

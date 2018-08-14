@@ -50,7 +50,7 @@ LEARNING_UNIT_TITLES = [str(_('code')), str(_('academic_year_small')), str(_('ty
                         str(_('quadrimester')), str(_('session_title')), str(_('common_title')),
                         str(_('title_proper_to_UE')),
                         str(_('common_english_title')), str(_('english_title_proper_to_UE')),
-                        str(_('requirement_entity_small')), str(_('allocation_entity_small')),
+                        str(_('Req. Entities')), str(_('allocation_entity_small')),
                         str(_('Add. requ. ent. 1')), str(_('Add. requ. ent. 2')),
                         str(_('Profes. integration')),
                         str(_('institution')),
@@ -63,7 +63,7 @@ LEARNING_UNIT_TITLES = [str(_('code')), str(_('academic_year_small')), str(_('ty
                         "PM {}".format(_('real_classes')),
                         "PM {}".format(_('planned_classes')),
                         "PM {}".format(_('vol_global')),
-                        "PM {}".format(_('requirement_entity')),
+                        "PM {}".format(_('Req. Entities')),
                         "PM {}".format(_('Add. requ. ent. 1')),
                         "PM {}".format(_('Add. requ. ent. 2')),
                         "PP {}".format(_('code')),
@@ -73,7 +73,7 @@ LEARNING_UNIT_TITLES = [str(_('code')), str(_('academic_year_small')), str(_('ty
                         "PM {}".format(_('real_classes')),
                         "PM {}".format(_('planned_classes')),
                         "PP {}".format(_('vol_global')),
-                        "PP {}".format(_('requirement_entity')),
+                        "PP {}".format(_('Req. Entities')),
                         "PM {}".format(_('Add. requ. ent. 1')),
                         "PM {}".format(_('Add. requ. ent. 2'))
                         ]
