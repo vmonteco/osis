@@ -42,6 +42,7 @@ from base.models.enums.schedule_type import DAILY
 from base.models.group_element_year import GroupElementYear
 from base.tests.factories.academic_year import create_current_academic_year
 from base.tests.factories.authorized_relationship import AuthorizedRelationshipFactory
+from base.tests.factories.business.learning_units import GenerateAcademicYear
 from base.tests.factories.education_group_type import EducationGroupTypeFactory
 from base.tests.factories.education_group_year import EducationGroupYearFactory
 from base.tests.factories.education_group_year import GroupFactory, TrainingFactory
@@ -52,7 +53,7 @@ from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from base.tests.factories.person import PersonFactory
 from base.utils.cache import cache
 from base.views.education_groups.group_element_year.update import proxy_management
-from base.views.education_groups.update import update_education_group
+from base.views.education_groups.update import update_education_group, _get_success_redirect_url
 from reference.tests.factories.domain import DomainFactory
 from reference.tests.factories.language import LanguageFactory
 
@@ -214,6 +215,41 @@ class TestUpdate(TestCase):
             list_domains
         )
         self.assertNotIn(old_domain, self.education_group_year.secondary_domains.all())
+
+
+class TestGetSuccessRedirectUrl(TestCase):
+    def setUp(self):
+        self.current_academic_year = create_current_academic_year()
+        self.education_group_year = EducationGroupYearFactory(
+            academic_year=self.current_academic_year
+        )
+
+        self.ac_year_in_future = GenerateAcademicYear(
+            start_year=self.current_academic_year.year + 1,
+            end_year=self.current_academic_year.year + 5,
+        )
+
+        self.education_group_year_in_future = []
+        for ac_in_future in self.ac_year_in_future.academic_years:
+            self.education_group_year_in_future.append(EducationGroupYearFactory(
+                education_group=self.education_group_year.education_group,
+                academic_year=ac_in_future
+            ))
+
+    def test_get_redirect_success_url_when_exist(self):
+        expected_url = reverse("education_group_read", args=[self.education_group_year.pk,
+                                                             self.education_group_year.id])
+        result = _get_success_redirect_url(self.education_group_year, self.education_group_year)
+        self.assertEqual(result, expected_url)
+
+    def test_get_redirect_success_url_when_current_viewed_has_been_deleted(self):
+        current_viewed = self.education_group_year_in_future[-1]
+        current_viewed.delete()
+        # Expected URL is the latest existing [-2]
+        expected_url = reverse("education_group_read", args=[self.education_group_year_in_future[-2].pk,
+                                                             self.education_group_year_in_future[-2].pk])
+        result = _get_success_redirect_url(current_viewed, current_viewed)
+        self.assertEqual(result, expected_url)
 
 
 @override_flag('education_group_attach', active=True)

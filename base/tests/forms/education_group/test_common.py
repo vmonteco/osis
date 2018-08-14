@@ -134,8 +134,9 @@ class TestCommonBaseFormIsValid(TestCase):
         self.assertFalse(CommonBaseForm(self.education_group_year_form, self.education_group_form).is_valid())
 
     @patch('base.forms.education_group.mini_training.MiniTrainingModelForm.is_valid', return_value=True)
+    @patch('base.forms.education_group.common.CommonBaseForm._post_clean', return_value=True)
     @patch('base.forms.education_group.common.EducationGroupModelForm.is_valid', return_value=True)
-    def test_when_both_of_two_forms_are_valid(self, mock_is_valid, mock_mintraining_is_valid):
+    def test_when_both_of_two_forms_are_valid(self, mock_is_valid, mock_post_clean, mock_mintraining_is_valid):
         self.assertTrue(CommonBaseForm(self.education_group_year_form, self.education_group_form).is_valid())
 
     def test_post_with_errors(self):
