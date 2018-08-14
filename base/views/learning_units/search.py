@@ -49,7 +49,7 @@ from base.views import layout
 from base.views.common import check_if_display_message, display_error_messages, display_messages_by_level
 from base.business import learning_unit_proposal as proposal_business
 from base.forms.search.search_form import get_research_criteria
-from base.business.learning_units.xls_comparison import create_xls
+from base.business.learning_units.xls_comparison import create_xls_comparison
 
 SIMPLE_SEARCH = 1
 SERVICE_COURSES_SEARCH = 2
@@ -64,7 +64,6 @@ ACTION_FORCE_STATE = "force_state"
 
 
 def learning_units_search(request, search_type):
-    print('learning_units_search')
     service_course_search = search_type == SERVICE_COURSES_SEARCH
     borrowed_course_search = search_type == BORROWED_COURSE
 
@@ -85,9 +84,9 @@ def learning_units_search(request, search_type):
     if request.POST.get('xls_status') == "xls_attribution":
         return create_xls_attribution(request.user, found_learning_units, _get_filter(form, search_type))
     if request.POST.get('xls_status') == "xls_comparison":
-        return create_xls(request.user, found_learning_units,
-                          _get_filter(form, search_type),
-                          request.POST.get('comparison_year'))
+        return create_xls_comparison(request.user, found_learning_units,
+                                     _get_filter(form, search_type),
+                                     request.POST.get('comparison_year'))
 
     a_person = find_by_user(request.user)
     form_comparison = SelectComparisonYears(academic_year=current_academic_year())

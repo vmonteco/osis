@@ -28,7 +28,12 @@ from django.utils.translation import ugettext_lazy as _
 from base.models.learning_unit_year import LearningUnitYear
 from osis_common.document import xls_build
 from base.business.xls import get_name_or_username
-
+from base.business.learning_unit_year_with_context import append_latest_entities, append_components, \
+    get_learning_component_prefetch
+from base.business.entity import build_entity_container_prefetch
+from base.models.enums import entity_container_year_link_type as entity_types
+from base.models.enums import learning_component_year_type
+from base.business.learning_unit import get_organization_from_learning_unit_year
 
 # List of key that a user can modify
 DATE_FORMAT = '%d-%m-%Y'
@@ -48,20 +53,49 @@ LEARNING_UNIT_TITLES = [str(_('code')), str(_('academic_year_small')), str(_('ty
                         str(_('additional_requirement_entity_1')), str(_('additional_requirement_entity_2')),
                         str(_('professional_integration')),
                         str(_('institution')),
-                        str(_('learning_location'))]
+                        str(_('learning_location')),
+                        str(_('partims')),
+                        "PM {}".format(_('code')),
+                        "PM {}".format(_('volume_partial')),
+                        "PM {}".format(_('volume_remaining')),
+                        "PM {}".format(_('Vol. annual')),
+                        "PM {}".format(_('real_classes')),
+                        "PM {}".format(_('planned_classes')),
+                        "PM {}".format(_('vol_global')),
+                        "PM {}".format(_('REQUIREMENT_ENTITY')),
+                        "PM {}".format(_('ADDITIONAL_REQUIREMENT_ENTITY_1')),
+                        "PM {}".format(_('ADDITIONAL_REQUIREMENT_ENTITY_2')),
+                        "PP {}".format(_('code')),
+                        "PP {}".format(_('volume_partial')),
+                        "PP {}".format(_('volume_remaining')),
+                        "PP {}".format(_('Vol. annual')),
+                        "PM {}".format(_('real_classes')),
+                        "PM {}".format(_('planned_classes')),
+                        "PP {}".format(_('vol_global')),
+                        "PP {}".format(_('REQUIREMENT_ENTITY')),
+                        "PP {}".format(_('ADDITIONAL_REQUIREMENT_ENTITY_1')),
+                        "PP {}".format(_('ADDITIONAL_REQUIREMENT_ENTITY_2'))
+                        ]
 
 
 def get_academic_years(luy, acadmic_yr_comparison):
     return luy.academic_year.year, acadmic_yr_comparison
 
 
-def create_xls(user, learning_unit_years, filters, acadmic_yr_comparison):
-
+def create_xls_comparison(user, learning_unit_years, filters, academic_yr_comparison):
     learning_unit_years = LearningUnitYear.objects.filter(learning_unit__in=(_get_learning_units(learning_unit_years)),
                                                           academic_year__year__in=(
                                                           get_academic_years(learning_unit_years[0],
-                                                                             acadmic_yr_comparison))).order_by(
-        'learning_unit', 'academic_year__year')
+                                                                             academic_yr_comparison)))\
+        .select_related('academic_year', 'learning_container_year', 'learning_container_year__academic_year') \
+        .prefetch_related(get_learning_component_prefetch()) \
+        .prefetch_related(build_entity_container_prefetch([entity_types.ALLOCATION_ENTITY,
+                                                           entity_types.REQUIREMENT_ENTITY,
+                                                           entity_types.ADDITIONAL_REQUIREMENT_ENTITY_1,
+                                                           entity_types.ADDITIONAL_REQUIREMENT_ENTITY_2])) \
+        .order_by('learning_unit', 'academic_year__year')
+    [append_latest_entities(learning_unit, False) for learning_unit in learning_unit_years]
+    [append_components(learning_unit) for learning_unit in learning_unit_years]
     working_sheets_data = prepare_xls_content(learning_unit_years)
 
     parameters = {xls_build.DESCRIPTION: XLS_DESCRIPTION,
@@ -98,13 +132,13 @@ def prepare_xls_content(found_learning_unit_yrs):
                 new_line = True
 
         data.append(extract_xls_data_from_learning_unit(l_u_yr, new_line))
-    print(data)
     return data
     # return [extract_xls_data_from_learning_unit(lu) for lu in found_learning_units]
 
 
 def extract_xls_data_from_learning_unit(learning_unit_yr, new_line):
-    return [
+    organization = get_organization_from_learning_unit_year(learning_unit_yr)
+    data = [
         learning_unit_yr.acronym if new_line else '',
         learning_unit_yr.academic_year.name,
         xls_build.translate(learning_unit_yr.learning_container_year.container_type),
@@ -120,14 +154,23 @@ def extract_xls_data_from_learning_unit(learning_unit_yr, new_line):
         learning_unit_yr.specific_title,
         learning_unit_yr.learning_container_year.common_title_english,
         learning_unit_yr.specific_title_english,
-        'REQUIREMENT_ENTITY',
-        'ALLOCATION_ENTITY',
-        'comp1',
-        'comp2',
+        learning_unit_yr.entities.get(entity_types.REQUIREMENT_ENTITY).acronym,
+        learning_unit_yr.entities.get(entity_types.ALLOCATION_ENTITY).acronym,
+        learning_unit_yr.entities.get(
+            entity_types.ADDITIONAL_REQUIREMENT_ENTITY_1).acronym if learning_unit_yr.entities.get(
+            entity_types.ADDITIONAL_REQUIREMENT_ENTITY_1) else '',
+        learning_unit_yr.entities.get(
+            entity_types.ADDITIONAL_REQUIREMENT_ENTITY_2).acronym if learning_unit_yr.entities.get(
+            entity_types.ADDITIONAL_REQUIREMENT_ENTITY_2) else '',
         xls_build.translate(learning_unit_yr.professional_integration),
-        'institut',
-        learning_unit_yr.campus
+        organization.name if organization else '',
+        learning_unit_yr.campus,
+        'partims',
     ]
+
+    data.extend(_component_data(learning_unit_yr.components, learning_component_year_type.LECTURING))
+    data.extend(_component_data(learning_unit_yr.components, learning_component_year_type.PRACTICAL_EXERCISES))
+    return data
 
 
 def _translate_status(value):
@@ -135,3 +178,25 @@ def _translate_status(value):
         return _('active').title()
     else:
         return _('inactive').title()
+
+
+def _component_data(components, learning_component_yr_type):
+    for component in components:
+        if component.type == learning_component_yr_type:
+            volumes = components[component]
+            return [
+                component.acronym if component.acronym else '',
+                volumes.get('VOLUME_Q1', ''),
+                volumes.get('VOLUME_Q2', ''),
+                volumes.get('VOLUME_TOTAL', ''),
+                component.real_classes if component.real_classes else '',
+                component.planned_classes if component.planned_classes else '',
+                volumes.get('VOLUME_GLOBAL', '0'),
+                volumes.get('VOLUME_REQUIREMENT_ENTITY', ''),
+                volumes.get('VOLUME_ADDITIONAL_REQUIREMENT_ENTITY_1', ''),
+                volumes.get('VOLUME_ADDITIONAL_REQUIREMENT_ENTITY_2', '')
+
+
+            ]
+
+

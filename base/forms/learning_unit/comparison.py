@@ -25,10 +25,10 @@
 ##############################################################################
 from django import forms
 from django.utils.translation import ugettext_lazy as _
-
+from django.db.models import Q
 from base.models.academic_year import AcademicYear
 
-LIMIT_OF_CHOICES = 3
+LIMIT_OF_CHOICES = 2
 
 
 class SelectComparisonYears(forms.Form):
@@ -40,24 +40,26 @@ class SelectComparisonYears(forms.Form):
         super(SelectComparisonYears, self).__init__(*args, **kwargs)
 
         if academic_year:
-            years = AcademicYear.objects.filter(year__lte=academic_year.year + 1,
-                                                year__gte=academic_year.year - 1).order_by('year')
-            choices = _get_choices(years)
+            years = AcademicYear.objects.filter(Q(year=academic_year.year + 1) | Q(year=academic_year.year - 1)).order_by('year')
+            choices = _get_choices(years, academic_year)
+            initial_value = _get_initial(choices)
             self.fields['academic_years'] = forms.ChoiceField(widget=forms.RadioSelect,
                                                               choices=choices,
                                                               required=True,
                                                               label=_('Choose academic years'),
-                                                              initial=choices[0])
+                                                              initial=initial_value)
 
 
-def _get_choices(academic_years):
-    choices = []
-    nb_choice = 1
-    for academic_yr in academic_years:
-        choices.append((academic_yr.year, str(academic_yr) + ' / ' + str(academic_years[nb_choice])))
-        nb_choice += 1
-        if nb_choice == LIMIT_OF_CHOICES:
-            break
-    return choices
+def _get_choices(academic_years, current_academic_year):
+    if len(academic_years) == LIMIT_OF_CHOICES:
+        return [
+            (academic_years[0].year, str(academic_years[0]) + ' / ' + str(current_academic_year)),
+            (academic_years[1].year, str(current_academic_year) + ' / ' + str(academic_years[1]))
+        ]
+    return None
 
 
+def _get_initial(choices):
+    if choices:
+        return choices[0]
+    return None

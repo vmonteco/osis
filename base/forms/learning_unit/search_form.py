@@ -183,7 +183,8 @@ class LearningUnitYearForm(LearningUnitSearchForm):
 
         learning_units = mdl.learning_unit_year.search(**search_criterias) \
             .select_related('academic_year', 'learning_container_year', 'learning_container_year__academic_year') \
-            .prefetch_related(build_entity_container_prefetch()) \
+            .prefetch_related(build_entity_container_prefetch([entity_container_year_link_type.ALLOCATION_ENTITY,
+                                                               entity_container_year_link_type.REQUIREMENT_ENTITY])) \
             .order_by('academic_year__year', 'acronym')
 
         if self.borrowed_course_search:
