@@ -3487,7 +3487,7 @@ msgid "Produce xls of comparison"
 msgstr "Produire une fiche comparative entre unités d'enseignement"
 
 msgid "List of learning_units with comparison"
-msgstr "Comparaison entre unités d'enseignemnt"
+msgstr "Comparaison entre unités d'enseignement"
 
 msgid "Choose academic years"
 msgstr "Choisir les années"
