@@ -38,6 +38,7 @@ from base.models.enums import learning_component_year_type
 from base.business.learning_unit import get_organization_from_learning_unit_year
 from base.business.learning_units.comparison import get_partims_as_str
 from base.models.academic_year import current_academic_year
+from openpyxl.utils import get_column_letter
 
 # List of key that a user can modify
 EMPTY_VALUE = ''
@@ -93,10 +94,20 @@ LEARNING_UNIT_TITLES = [
     "PM {}".format(_('Add. requ. ent. 1')),
     "PM {}".format(_('Add. requ. ent. 2'))
 ]
+ACADEMIC_COL_NUMBER = 1
+CELLS_MODIFIED = 'modifications'
+DATA = 'data'
 
 
 def create_xls_comparison(user, learning_unit_years, filters, academic_yr_comparison):
     working_sheets_data = []
+    cells_to_color = []
+    if learning_unit_years:
+        luys_for_2_years = _get_learning_unit_yrs_on_2_different_years(academic_yr_comparison, learning_unit_years)
+        data = prepare_xls_content(luys_for_2_years)
+        working_sheets_data = data.get('data')
+        cells_to_color = data.get('modifications')
+
     parameters = {
         xls_build.DESCRIPTION: XLS_DESCRIPTION,
         xls_build.USER: get_name_or_username(user),
@@ -104,11 +115,8 @@ def create_xls_comparison(user, learning_unit_years, filters, academic_yr_compar
         xls_build.HEADER_TITLES: LEARNING_UNIT_TITLES,
         xls_build.WS_TITLE: WORKSHEET_TITLE,
     }
-
-    if learning_unit_years:
-        luys_for_2_years = _get_learning_unit_yrs_on_2_different_years(academic_yr_comparison, learning_unit_years)
-        working_sheets_data = prepare_xls_content(luys_for_2_years)
-
+    if cells_to_color:
+        parameters.update({xls_build.COLORED_CELLS: {xls_build.FONT_GREEN: cells_to_color}})
     return xls_build.generate_xls(xls_build.prepare_xls_parameters_list(working_sheets_data, parameters), filters)
 
 
@@ -144,9 +152,11 @@ def _get_learning_units(learning_unit_years):
 
 def prepare_xls_content(learning_unit_yrs):
     data = []
+    modified_cells = []
     learning_unit = None
+    first_data = None
 
-    for l_u_yr in learning_unit_yrs:
+    for line_index, l_u_yr in enumerate(learning_unit_yrs, start=1):
 
         if learning_unit is None:
             learning_unit = l_u_yr.learning_unit
@@ -157,9 +167,18 @@ def prepare_xls_content(learning_unit_yrs):
             else:
                 learning_unit = l_u_yr.learning_unit
                 new_line = True
+        luy_data = extract_xls_data_from_learning_unit(l_u_yr, new_line)
+        if new_line:
+            first_data = luy_data
+        else:
+            modified_cells.extend(_check_changes_other_than_code_and_year(first_data, luy_data, line_index))
+            first_data = None
+        data.append(luy_data)
 
-        data.append(extract_xls_data_from_learning_unit(l_u_yr, new_line))
-    return data
+    return {
+        DATA: data,
+        CELLS_MODIFIED: modified_cells if modified_cells else None
+    }
 
 
 def extract_xls_data_from_learning_unit(learning_unit_yr, new_line):
@@ -239,7 +258,8 @@ def _get_entity_to_display(entity):
 
 
 def get_academic_year_of_reference(objects):
-    # TODO : As to be improved because it's not optimum if the xls list is created from a search with a criteria : academic_year = 'ALL'
+    """ TODO : Has to be improved because it's not optimum if the xls list is created from a search with a
+    criteria : academic_year = 'ALL' """
     if objects:
         return _get_academic_year(objects[0])
     return current_academic_year()
@@ -250,3 +270,11 @@ def _get_academic_year(obj):
         return obj.academic_year
     if isinstance(obj, ProposalLearningUnit):
         return obj.learning_unit_year.academic_year
+
+
+def _check_changes_other_than_code_and_year(first_data, second_data, line_index):
+    modifications = []
+    for col_index, obj in enumerate(first_data):
+        if obj != second_data[col_index] and col_index > ACADEMIC_COL_NUMBER:
+            modifications.append('{}{}'.format(get_column_letter(col_index+1), line_index))
+    return modifications

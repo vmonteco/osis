@@ -609,7 +609,9 @@ class LearningUnitViewTestCase(TestCase):
     def test_external_learning_unit_read(self, mock_program_manager, mock_render):
         mock_program_manager.return_value = True
 
-        external_learning_unit_year = ExternalLearningUnitYearFactory(learning_unit_year__subtype=learning_unit_year_subtypes.FULL)
+        external_learning_unit_year = ExternalLearningUnitYearFactory(
+            learning_unit_year__subtype=learning_unit_year_subtypes.FULL,
+        )
         learning_unit_year = external_learning_unit_year.learning_unit_year
 
         request = self.create_learning_unit_request(learning_unit_year)
@@ -637,7 +639,8 @@ class LearningUnitViewTestCase(TestCase):
         self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
         self.assertTemplateUsed(response, "access_denied.html")
 
-        a_user_without_perms.user_permissions.add(Permission.objects.get(codename='can_access_externallearningunityear'))
+        a_user_without_perms.user_permissions.add(
+            Permission.objects.get(codename='can_access_externallearningunityear'))
 
         response = client.get(reverse(learning_unit_identification, args=[learning_unit_year.id]))
         self.assertEqual(response.status_code, 200)
@@ -891,10 +894,10 @@ class LearningUnitViewTestCase(TestCase):
 
         learning_component_yr = LearningComponentYearFactory(learning_container_year=learning_container_yr)
 
-        learning_unit_component = LearningUnitComponentFactory(learning_unit_year=learning_unit_yr_1,
+        learning_unit_compo = LearningUnitComponentFactory(learning_unit_year=learning_unit_yr_1,
                                                                learning_component_year=learning_component_yr)
         learning_class_year = LearningClassYearFactory(learning_component_year=learning_component_yr)
-        LearningUnitComponentClassFactory(learning_unit_component=learning_unit_component,
+        LearningUnitComponentClassFactory(learning_unit_component=learning_unit_compo,
                                           learning_class_year=learning_class_year)
         self.assertEqual(learning_unit_business._learning_unit_usage_by_class(learning_class_year), 'LBIOL')
 
@@ -1377,16 +1380,16 @@ class LearningUnitViewTestCase(TestCase):
         mock_program_manager.return_value = True
         learning_unit = LearningUnitFactory()
         learning_unit_year_1 = create_learning_unit_year(self.current_academic_year,
-                                                               'title', learning_unit)
+                                                         'title', learning_unit)
         previous_academic_yr = AcademicYearFactory(year=self.current_academic_year.year - 1)
         previous_learning_unit_year = create_learning_unit_year(previous_academic_yr,
-                                                                 'previous title',
-                                                                 learning_unit)
+                                                                'previous title',
+                                                                learning_unit)
         next_academic_yr = AcademicYearFactory(year=self.current_academic_year.year + 1)
 
         next_learning_unit_year = create_learning_unit_year(next_academic_yr,
-                                                             'next title',
-                                                             learning_unit)
+                                                            'next title',
+                                                            learning_unit)
 
         request = self.create_learning_unit_request(learning_unit_year_1)
 
@@ -1455,6 +1458,7 @@ def _generate_xls_build_parameter(xls_data, user):
                                           str(_('credits')),
                                           str(_('active_title'))],
             xls_build.WORKSHEET_TITLE_KEY: _(learning_unit_business.WORKSHEET_TITLE),
+            xls_build.COLORED_CELLS: None
         }]
     }
 

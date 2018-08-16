@@ -102,6 +102,7 @@ class TestProposalXls(TestCase):
         xls_data = [self._get_xls_data()]
 
         expected_argument = _generate_xls_build_parameter(xls_data, self.user)
+        print('expected_argument')
         mock_generate_xls.assert_called_with(expected_argument, None)
 
 
@@ -114,5 +115,6 @@ def _generate_xls_build_parameter(xls_data, user):
             xls_build.CONTENT_KEY: xls_data,
             xls_build.HEADER_TITLES_KEY: proposal_xls.PROPOSAL_TITLES,
             xls_build.WORKSHEET_TITLE_KEY: _(WORKSHEET_TITLE),
+            xls_build.COLORED_CELLS: None
         }]
     }

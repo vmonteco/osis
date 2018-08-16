@@ -28,8 +28,9 @@ from unittest import mock
 from django.test import TestCase
 from django.utils.translation import ugettext_lazy as _
 from base.tests.factories.user import UserFactory
-from base.business.learning_units.xls_comparison import prepare_xls_content, _get_learning_unit_yrs_on_2_different_years, \
-    _translate_status, create_xls_comparison, XLS_FILENAME, XLS_DESCRIPTION, LEARNING_UNIT_TITLES, WORKSHEET_TITLE
+from base.business.learning_units.xls_comparison import prepare_xls_content, \
+    _get_learning_unit_yrs_on_2_different_years, _translate_status, create_xls_comparison, \
+    XLS_FILENAME, XLS_DESCRIPTION, LEARNING_UNIT_TITLES, WORKSHEET_TITLE, CELLS_MODIFIED, DATA, _check_changes_other_than_code_and_year
 from osis_common.document import xls_build
 from base.tests.factories.business.learning_units import GenerateContainer
 
@@ -45,26 +46,31 @@ class TestComparisonXls(TestCase):
         self.previous_academic_year = self.previous_learning_unit_year.academic_year
 
     def test_prepare_xls_content_no_data(self):
-        self.assertEqual(prepare_xls_content([]), [])
+        self.assertEqual(prepare_xls_content([]), {'data': [], 'modifications': None})
 
     def test_prepare_xls_content_with_data(self):
-        learning_unit_years = _get_learning_unit_yrs_on_2_different_years(self.previous_academic_year.year,  [self.learning_unit_year_1])
-        data = prepare_xls_content(learning_unit_years)
+        learning_unit_years = _get_learning_unit_yrs_on_2_different_years(
+            self.previous_academic_year.year,
+            [self.learning_unit_year_1]
+        )
+        data_dict = prepare_xls_content(learning_unit_years)
+        data = data_dict.get(DATA)
         self.assertEqual(len(data), 2)
         learning_unit_yr = self.previous_learning_unit_year
         self.assertEqual(data[0][0], learning_unit_yr.acronym)
         self.assertEqual(data[0][1], learning_unit_yr.academic_year.name)
         self.assertEqual(data[0][2], xls_build.translate(learning_unit_yr.learning_container_year.container_type))
         self.assertEqual(data[0][3], _translate_status(learning_unit_yr.status))
-        self.assertEqual(data[0][4], xls_build.translate(learning_unit_yr.subtype) )
-        self.assertEqual(data[0][5], str(_(learning_unit_yr.internship_subtype)) if learning_unit_yr.internship_subtype else '')
+        self.assertEqual(data[0][4], xls_build.translate(learning_unit_yr.subtype))
+        self.assertEqual(data[0][5],
+                         str(_(learning_unit_yr.internship_subtype)) if learning_unit_yr.internship_subtype else '')
         self.assertEqual(data[0][6], learning_unit_yr.credits)
         self.assertEqual(data[0][7], learning_unit_yr.language.name if learning_unit_yr.language else '')
         self.assertEqual(data[0][8], str(_(learning_unit_yr.periodicity)) if learning_unit_yr.periodicity else '')
-        self.assertEqual(data[0][9], str(_(learning_unit_yr.quadrimester)) if learning_unit_yr.quadrimester else '' )
+        self.assertEqual(data[0][9], str(_(learning_unit_yr.quadrimester)) if learning_unit_yr.quadrimester else '')
         self.assertEqual(data[0][10], str(_(learning_unit_yr.session)) if learning_unit_yr.session else '')
         self.assertEqual(data[0][11], learning_unit_yr.learning_container_year.common_title)
-        self.assertEqual(data[0][12], learning_unit_yr.specific_title )
+        self.assertEqual(data[0][12], learning_unit_yr.specific_title)
         self.assertEqual(data[0][13], learning_unit_yr.learning_container_year.common_title_english)
         self.assertEqual(data[0][14], learning_unit_yr.specific_title_english)
 
@@ -73,6 +79,15 @@ class TestComparisonXls(TestCase):
         create_xls_comparison(self.user, [], None, self.previous_academic_year.year)
         expected_argument = _generate_xls_build_parameter([], self.user)
         mock_generate_xls.assert_called_with(expected_argument, None)
+
+    def test_check_for_changes(self):
+        learning_unit_yr_data = [
+            ['acronym', 'idem', 'credits'],
+            ['acronym 2', 'idem', 'other credits'],
+        ]
+        # C2 ('C' = third column, '2' = 2nd line)
+        self.assertEqual(_check_changes_other_than_code_and_year(learning_unit_yr_data[0], learning_unit_yr_data[1], 2)
+                         , ['C2'])
 
 
 def _generate_xls_build_parameter(xls_data, user):
@@ -84,5 +99,6 @@ def _generate_xls_build_parameter(xls_data, user):
             xls_build.CONTENT_KEY: xls_data,
             xls_build.HEADER_TITLES_KEY: LEARNING_UNIT_TITLES,
             xls_build.WORKSHEET_TITLE_KEY: _(WORKSHEET_TITLE),
+            xls_build.COLORED_CELLS: None,
         }]
     }
