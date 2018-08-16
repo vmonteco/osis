@@ -139,11 +139,7 @@ def _get_learning_unit_yrs_on_2_different_years(academic_yr_comparison, learning
 
 
 def _get_learning_units(learning_unit_years):
-    distinct_learning_unit = []
-    for l in learning_unit_years:
-        if l.learning_unit not in distinct_learning_unit:
-            distinct_learning_unit.append(l.learning_unit)
-    return distinct_learning_unit
+    return list(set([l.learning_unit for l in learning_unit_years]))
 
 
 def prepare_xls_content(learning_unit_yrs):
@@ -243,6 +239,7 @@ def _get_entity_to_display(entity):
 
 
 def get_academic_year_of_reference(objects):
+    # TODO : As to be improved because it's not optimum if the xls list is created from a search with a criteria : academic_year = 'ALL'
     if objects:
         return _get_academic_year(objects[0])
     return current_academic_year()

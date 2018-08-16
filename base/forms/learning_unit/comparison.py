@@ -40,11 +40,8 @@ class SelectComparisonYears(forms.Form):
 
         super(SelectComparisonYears, self).__init__(*args, **kwargs)
         if academic_year is None:
-            print('if')
             academic_year = current_academic_year()
-            print(academic_year)
-        else:
-            print('else')
+
         years = AcademicYear.objects.filter(
             Q(year=academic_year.year + 1) | Q(year=academic_year.year - 1)).order_by('year')
         choices = _get_choices(years, academic_year)
