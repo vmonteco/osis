@@ -101,9 +101,7 @@
 {% else %}
     {% include 'learning_unit/by_activity.html' %}
 {% endif %}
-{% if search_type == 1 %}
-    {% include "learning_unit/blocks/modal/modal_comparison.html" %}
-{% endif %}
+{% include "learning_unit/blocks/modal/modal_comparison.html" %}
 {% endblock %}
 
 {% block script %}

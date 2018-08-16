@@ -25,7 +25,9 @@
 ##############################################################################
 from django.utils.translation import ugettext_lazy as _
 
+from base.models.external_learning_unit_year import ExternalLearningUnitYear
 from base.models.learning_unit_year import LearningUnitYear
+from base.models.proposal_learning_unit import ProposalLearningUnit
 from osis_common.document import xls_build
 from base.business.xls import get_name_or_username
 from base.business.learning_unit_year_with_context import append_latest_entities, append_components, \
@@ -35,6 +37,7 @@ from base.models.enums import entity_container_year_link_type as entity_types
 from base.models.enums import learning_component_year_type
 from base.business.learning_unit import get_organization_from_learning_unit_year
 from base.business.learning_units.comparison import get_partims_as_str
+from base.models.academic_year import current_academic_year
 
 # List of key that a user can modify
 EMPTY_VALUE = ''
@@ -225,3 +228,16 @@ def _get_translation(value):
 
 def _get_entity_to_display(entity):
     return entity.acronym if entity else EMPTY_VALUE
+
+
+def get_academic_year_of_reference(objects):
+    if objects:
+        return _get_academic_year(objects.first())
+    return current_academic_year()
+
+
+def _get_academic_year(object):
+    if isinstance(object, LearningUnitYear) or isinstance(object, ExternalLearningUnitYear):
+        return object.academic_year
+    if isinstance(object, ProposalLearningUnit):
+        return object.learning_unit_year.academic_year

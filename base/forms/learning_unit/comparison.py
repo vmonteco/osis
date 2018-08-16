@@ -27,6 +27,7 @@ from django import forms
 from django.utils.translation import ugettext_lazy as _
 from django.db.models import Q
 from base.models.academic_year import AcademicYear
+from base.models.academic_year import current_academic_year
 
 LIMIT_OF_CHOICES = 2
 
@@ -38,22 +39,26 @@ class SelectComparisonYears(forms.Form):
         self.search_form = kwargs.pop('search_form', None)
 
         super(SelectComparisonYears, self).__init__(*args, **kwargs)
+        if academic_year is None:
+            print('if')
+            academic_year = current_academic_year()
+            print(academic_year)
+        else:
+            print('else')
+        years = AcademicYear.objects.filter(
+            Q(year=academic_year.year + 1) | Q(year=academic_year.year - 1)).order_by('year')
+        choices = _get_choices(years, academic_year)
+        initial_value = _get_initial(choices)
+        self.fields['academic_years'] = forms.ChoiceField(
+            widget=forms.RadioSelect,
+            required=True,
+            label=_('Choose academic years'),
+        )
+        if choices:
+            self.fields['academic_years'].choices = choices
 
-        if academic_year:
-            years = AcademicYear.objects.filter(
-                Q(year=academic_year.year + 1) | Q(year=academic_year.year - 1)).order_by('year')
-            choices = _get_choices(years, academic_year)
-            initial_value = _get_initial(choices)
-            self.fields['academic_years'] = forms.ChoiceField(
-                widget=forms.RadioSelect,
-                required=True,
-                label=_('Choose academic years'),
-            )
-            if choices:
-                self.fields['academic_years'].choices = choices
-
-            if initial_value:
-                self.fields['academic_years'].initial = initial_value
+        if initial_value:
+            self.fields['academic_years'].initial = initial_value
 
 
 def _get_choices(academic_years, current_academic_year):

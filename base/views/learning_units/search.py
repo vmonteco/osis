@@ -49,7 +49,7 @@ from base.views import layout
 from base.views.common import check_if_display_message, display_error_messages, display_messages_by_level
 from base.business import learning_unit_proposal as proposal_business
 from base.forms.search.search_form import get_research_criteria
-from base.business.learning_units.xls_comparison import create_xls_comparison
+from base.business.learning_units.xls_comparison import create_xls_comparison, get_academic_year_of_reference
 
 SIMPLE_SEARCH = 1
 SERVICE_COURSES_SEARCH = 2
@@ -92,6 +92,7 @@ def learning_units_search(request, search_type):
         )
 
     a_person = find_by_user(request.user)
+    form_comparison = SelectComparisonYears(academic_year=get_academic_year_of_reference(found_learning_units))
     context = {
         'form': form,
         'academic_years': get_last_academic_years(),
@@ -102,10 +103,8 @@ def learning_units_search(request, search_type):
         'experimental_phase': True,
         'search_type': search_type,
         'is_faculty_manager': a_person.is_faculty_manager(),
+        'form_comparison': form_comparison
     }
-    if search_type == SIMPLE_SEARCH:
-        form_comparison = SelectComparisonYears(academic_year=current_academic_year())
-        context.update({'form_comparison': form_comparison})
 
     return layout.render(request, "learning_units.html", context)
 
@@ -165,7 +164,8 @@ def learning_units_proposal_search(request):
         'experimental_phase': True,
         'search_type': PROPOSAL_SEARCH,
         'proposals': proposals,
-        'is_faculty_manager': user_person.is_faculty_manager()
+        'is_faculty_manager': user_person.is_faculty_manager(),
+        'form_comparison': SelectComparisonYears(academic_year=get_academic_year_of_reference(proposals)),
     }
     return layout.render(request, "learning_units.html", context)
 
@@ -227,6 +227,7 @@ def learning_units_external_search(request):
         'experimental_phase': True,
         'search_type': EXTERNAL_SEARCH,
         'learning_units': external_learning_units,
-        'is_faculty_manager': user_person.is_faculty_manager()
+        'is_faculty_manager': user_person.is_faculty_manager(),
+        'form_comparison': SelectComparisonYears(academic_year=get_academic_year_of_reference(external_learning_units)),
     }
     return layout.render(request, "learning_units.html", context)
