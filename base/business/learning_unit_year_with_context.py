@@ -55,55 +55,39 @@ def get_with_context(**learning_unit_year_data):
         to_attr='entity_containers_year'
     )
 
-    learning_component_prefetch = models.Prefetch(
-        'learningunitcomponent_set',
-        queryset=learning_unit_component.LearningUnitComponent.objects.all().order_by(
-            'learning_component_year__type', 'learning_component_year__acronym'
-        ).select_related(
-            'learning_component_year'
-        ).prefetch_related(
-            models.Prefetch('learning_component_year__entitycomponentyear_set',
-                            queryset=entity_component_year.EntityComponentYear.objects.all()
-                            .select_related('entity_container_year'),
-                            to_attr='entity_components_year'
-                            )
-        ),
-        to_attr='learning_unit_components'
-    )
-
     learning_unit_years = learning_unit_year.search(**learning_unit_year_data) \
         .select_related('academic_year', 'learning_container_year') \
         .prefetch_related(entity_container_prefetch) \
-        .prefetch_related(learning_component_prefetch) \
+        .prefetch_related(get_learning_component_prefetch()) \
         .order_by('academic_year__year', 'acronym')
 
     learning_unit_years = [append_latest_entities(luy) for luy in learning_unit_years]
-    learning_unit_years = [_append_components(luy) for luy in learning_unit_years]
+    learning_unit_years = [append_components(luy) for luy in learning_unit_years]
 
     return learning_unit_years
 
 
-def append_latest_entities(learning_unit_year, service_course_search=False):
-    learning_unit_year.entities = {}
-    learning_container_year = learning_unit_year.learning_container_year
+def append_latest_entities(learning_unit_yr, service_course_search=False):
+    learning_unit_yr.entities = {}
+    learning_container_year = learning_unit_yr.learning_container_year
 
     for entity_container_yr in getattr(learning_container_year, "entity_containers_year", []):
         link_type = entity_container_yr.type
-        learning_unit_year.entities[link_type] = entity_container_yr.get_latest_entity_version()
+        learning_unit_yr.entities[link_type] = entity_container_yr.get_latest_entity_version()
 
-    requirement_entity_version = learning_unit_year.entities.get(entity_types.REQUIREMENT_ENTITY)
-    allocation_entity_version = learning_unit_year.entities.get(entity_types.ALLOCATION_ENTITY)
+    requirement_entity_version = learning_unit_yr.entities.get(entity_types.REQUIREMENT_ENTITY)
+    allocation_entity_version = learning_unit_yr.entities.get(entity_types.ALLOCATION_ENTITY)
 
     if service_course_search:
-        learning_unit_year.entities[business_entity_version.SERVICE_COURSE] = is_service_course(
-            learning_unit_year.academic_year,
+        learning_unit_yr.entities[business_entity_version.SERVICE_COURSE] = is_service_course(
+            learning_unit_yr.academic_year,
             requirement_entity_version,
             allocation_entity_version)
 
-    return learning_unit_year
+    return learning_unit_yr
 
 
-def _append_components(learning_unit_year):
+def append_components(learning_unit_year):
     learning_unit_year.components = OrderedDict()
     if learning_unit_year.learning_unit_components:
         for learning_unit_component in learning_unit_year.learning_unit_components:
@@ -178,3 +162,22 @@ def is_service_course(academic_year, requirement_entity_version, allocation_enti
     if not allocation_parent_faculty:
         return False
     return requirement_parent_faculty != allocation_parent_faculty
+
+
+def get_learning_component_prefetch():
+    learning_component_prefetch = models.Prefetch(
+        'learningunitcomponent_set',
+        queryset=learning_unit_component.LearningUnitComponent.objects.all().order_by(
+            'learning_component_year__type', 'learning_component_year__acronym'
+        ).select_related(
+            'learning_component_year'
+        ).prefetch_related(
+            models.Prefetch('learning_component_year__entitycomponentyear_set',
+                            queryset=entity_component_year.EntityComponentYear.objects.all()
+                            .select_related('entity_container_year'),
+                            to_attr='entity_components_year'
+                            )
+        ),
+        to_attr='learning_unit_components'
+    )
+    return learning_component_prefetch

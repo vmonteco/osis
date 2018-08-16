@@ -3478,3 +3478,33 @@ msgstr ""
 
 msgid "VOLUME_GLOBAL"
 msgstr "Vol. global"
+
+msgid "Produce xls of comparison"
+msgstr ""
+
+msgid "List of learning_units with comparison"
+msgstr ""
+
+msgid "Choose academic years"
+msgstr ""
+
+msgid "Produce Xls"
+msgstr ""
+
+msgid "Internship subtype"
+msgstr ""
+
+msgid "Add. requ. ent. 1"
+msgstr ""
+
+msgid "Add. requ. ent. 2"
+msgstr ""
+
+msgid "Profes. integration"
+msgstr ""
+
+msgid "Req. Entities"
+msgstr ""
+
+msgid "list_learning_units_comparison"
+msgstr "Comparison of learning units"

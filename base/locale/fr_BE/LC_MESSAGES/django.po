@@ -3485,3 +3485,33 @@ msgstr "Organisation de formation %(acronym)s (%(academic_year)s) a été suppri
 
 msgid "VOLUME_GLOBAL"
 msgstr "Vol. global"
+
+msgid "Produce xls of comparison"
+msgstr "Produire une fiche comparative entre unités d'enseignement"
+
+msgid "List of learning_units with comparison"
+msgstr "Comparaison entre unités d'enseignement"
+
+msgid "Choose academic years"
+msgstr "Choisir les années"
+
+msgid "Produce Xls"
+msgstr "Produire Excel"
+
+msgid "Internship subtype"
+msgstr "Sous-type stage"
+
+msgid "Add. requ. ent. 1"
+msgstr "Ent.charges compl. 1"
+
+msgid "Add. requ. ent. 2"
+msgstr "Ent.charges compl. 2"
+
+msgid "Profes. integration"
+msgstr "Intégration prof."
+
+msgid "Req. Entities"
+msgstr "Ent. charges"
+
+msgid "list_learning_units_comparison"
+msgstr "Liste comparative d'unités d'enseignement"

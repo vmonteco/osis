@@ -79,7 +79,7 @@ def get_entity_calendar(an_entity_version, academic_yr):
         return None
 
 
-def build_entity_container_prefetch():
+def build_entity_container_prefetch(entity_container_year_link_types):
     parent_version_prefetch = Prefetch('parent__entityversion_set',
                                        queryset=mdl_entity_version.search(),
                                        to_attr='entity_versions')
@@ -89,8 +89,7 @@ def build_entity_container_prefetch():
                                        to_attr='entity_versions')
     entity_container_prefetch = Prefetch('learning_container_year__entitycontaineryear_set',
                                          queryset=mdl.entity_container_year.search(
-                                             link_type=[entity_container_year_link_type.ALLOCATION_ENTITY,
-                                                        entity_container_year_link_type.REQUIREMENT_ENTITY])
+                                             link_type=entity_container_year_link_types)
                                          .prefetch_related(entity_version_prefetch),
                                          to_attr='entity_containers_year')
     return entity_container_prefetch
