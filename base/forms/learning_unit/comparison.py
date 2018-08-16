@@ -44,11 +44,16 @@ class SelectComparisonYears(forms.Form):
                 Q(year=academic_year.year + 1) | Q(year=academic_year.year - 1)).order_by('year')
             choices = _get_choices(years, academic_year)
             initial_value = _get_initial(choices)
-            self.fields['academic_years'] = forms.ChoiceField(widget=forms.RadioSelect,
-                                                              choices=choices,
-                                                              required=True,
-                                                              label=_('Choose academic years'),
-                                                              initial=initial_value)
+            self.fields['academic_years'] = forms.ChoiceField(
+                widget=forms.RadioSelect,
+                required=True,
+                label=_('Choose academic years'),
+            )
+            if choices:
+                self.fields['academic_years'].choices = choices
+
+            if initial_value:
+                self.fields['academic_years'].initial = initial_value
 
 
 def _get_choices(academic_years, current_academic_year):

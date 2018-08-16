@@ -84,18 +84,29 @@ def learning_units_search(request, search_type):
     if request.POST.get('xls_status') == "xls_attribution":
         return create_xls_attribution(request.user, found_learning_units, _get_filter(form, search_type))
     if request.POST.get('xls_status') == "xls_comparison":
-        return create_xls_comparison(request.user, found_learning_units,
-                                     _get_filter(form, search_type),
-                                     request.POST.get('comparison_year'))
+        return create_xls_comparison(
+            request.user,
+            found_learning_units,
+            _get_filter(form, search_type),
+            request.POST.get('comparison_year')
+        )
 
     a_person = find_by_user(request.user)
-    form_comparison = SelectComparisonYears(academic_year=current_academic_year())
-    context = {'form': form, 'academic_years': get_last_academic_years(),
-               'container_types': learning_container_year_types.LEARNING_CONTAINER_YEAR_TYPES,
-               'types': learning_unit_year_subtypes.LEARNING_UNIT_YEAR_SUBTYPES, 'learning_units': found_learning_units,
-               'current_academic_year': current_academic_year(), 'experimental_phase': True, 'search_type': search_type,
-               'is_faculty_manager': a_person.is_faculty_manager(),
-               'form_comparison': form_comparison}
+    context = {
+        'form': form,
+        'academic_years': get_last_academic_years(),
+        'container_types': learning_container_year_types.LEARNING_CONTAINER_YEAR_TYPES,
+        'types': learning_unit_year_subtypes.LEARNING_UNIT_YEAR_SUBTYPES,
+        'learning_units': found_learning_units,
+        'current_academic_year': current_academic_year(),
+        'experimental_phase': True,
+        'search_type': search_type,
+        'is_faculty_manager': a_person.is_faculty_manager(),
+    }
+    if search_type == SIMPLE_SEARCH:
+        form_comparison = SelectComparisonYears(academic_year=current_academic_year())
+        context.update({'form_comparison': form_comparison})
+
     return layout.render(request, "learning_units.html", context)
 
 

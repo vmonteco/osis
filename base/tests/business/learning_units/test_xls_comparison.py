@@ -28,7 +28,7 @@ from unittest import mock
 from django.test import TestCase
 from django.utils.translation import ugettext_lazy as _
 from base.tests.factories.user import UserFactory
-from base.business.learning_units.xls_comparison import prepare_xls_content, _get_learning_unit_years, \
+from base.business.learning_units.xls_comparison import prepare_xls_content, _get_learning_unit_yrs_on_2_different_years, \
     _translate_status, create_xls_comparison, XLS_FILENAME, XLS_DESCRIPTION, LEARNING_UNIT_TITLES, WORKSHEET_TITLE
 from osis_common.document import xls_build
 from base.tests.factories.business.learning_units import GenerateContainer
@@ -48,7 +48,7 @@ class TestComparisonXls(TestCase):
         self.assertEqual(prepare_xls_content([]), [])
 
     def test_prepare_xls_content_with_data(self):
-        learning_unit_years = _get_learning_unit_years(self.previous_academic_year.year,  [self.learning_unit_year_1])
+        learning_unit_years = _get_learning_unit_yrs_on_2_different_years(self.previous_academic_year.year,  [self.learning_unit_year_1])
         data = prepare_xls_content(learning_unit_years)
         self.assertEqual(len(data), 2)
         learning_unit_yr = self.previous_learning_unit_year

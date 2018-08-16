@@ -54,9 +54,17 @@ from base.models.enums import entity_container_year_link_type
 WORKSHEET_TITLE = 'learning_units'
 XLS_FILENAME = 'learning_units_filename'
 XLS_DESCRIPTION = "List_activities"
-LEARNING_UNIT_TITLES = [str(_('academic_year_small')), str(_('code')), str(_('title')), str(_('type')),
-                        str(_('subtype')), str(_('requirement_entity_small')), str(_('allocation_entity_small')),
-                        str(_('credits')), str(_('active_title'))]
+LEARNING_UNIT_TITLES = [
+    str(_('academic_year_small')),
+    str(_('code')),
+    str(_('title')),
+    str(_('type')),
+    str(_('subtype')),
+    str(_('requirement_entity_small')),
+    str(_('allocation_entity_small')),
+    str(_('credits')),
+    str(_('active_title'))
+]
 CMS_LABEL_SPECIFICATIONS = ['themes_discussed', 'prerequisite']
 
 CMS_LABEL_PEDAGOGY_FR_AND_EN = ['resume', 'teaching_methods', 'evaluation_methods', 'other_informations',

@@ -82,31 +82,42 @@ LEARNING_UNIT_TITLES = [str(_('code')), str(_('academic_year_small')), str(_('ty
 
 def create_xls_comparison(user, learning_unit_years, filters, academic_yr_comparison):
     working_sheets_data = []
-    parameters = {xls_build.DESCRIPTION: XLS_DESCRIPTION,
-                  xls_build.USER: get_name_or_username(user),
-                  xls_build.FILENAME: XLS_FILENAME,
-                  xls_build.HEADER_TITLES: LEARNING_UNIT_TITLES,
-                  xls_build.WS_TITLE: WORKSHEET_TITLE}
+    parameters = {
+        xls_build.DESCRIPTION: XLS_DESCRIPTION,
+        xls_build.USER: get_name_or_username(user),
+        xls_build.FILENAME: XLS_FILENAME,
+        xls_build.HEADER_TITLES: LEARNING_UNIT_TITLES,
+        xls_build.WS_TITLE: WORKSHEET_TITLE,
+    }
 
     if learning_unit_years:
-        learning_unit_years = _get_learning_unit_years(academic_yr_comparison, learning_unit_years)
-        working_sheets_data = prepare_xls_content(learning_unit_years)
+        luys_for_2_years = _get_learning_unit_yrs_on_2_different_years(academic_yr_comparison, learning_unit_years)
+        working_sheets_data = prepare_xls_content(luys_for_2_years)
 
     return xls_build.generate_xls(xls_build.prepare_xls_parameters_list(working_sheets_data, parameters), filters)
 
 
-def _get_learning_unit_years(academic_yr_comparison, learning_unit_years):
-    learning_unit_years = LearningUnitYear.objects.filter(learning_unit__in=(_get_learning_units(learning_unit_years)),
-                                                          academic_year__year__in=(
-                                                              learning_unit_years[0].academic_year.year,
-                                                              academic_yr_comparison)) \
-        .select_related('academic_year', 'learning_container_year', 'learning_container_year__academic_year') \
-        .prefetch_related(get_learning_component_prefetch()) \
-        .prefetch_related(build_entity_container_prefetch([entity_types.ALLOCATION_ENTITY,
-                                                           entity_types.REQUIREMENT_ENTITY,
-                                                           entity_types.ADDITIONAL_REQUIREMENT_ENTITY_1,
-                                                           entity_types.ADDITIONAL_REQUIREMENT_ENTITY_2])) \
-        .order_by('learning_unit', 'academic_year__year')
+def _get_learning_unit_yrs_on_2_different_years(academic_yr_comparison, learning_unit_years):
+    learning_unit_years = \
+        LearningUnitYear.objects.filter(
+            learning_unit__in=(_get_learning_units(learning_unit_years)),
+            academic_year__year__in=(
+                learning_unit_years[0].academic_year.year,
+                academic_yr_comparison)
+        ).select_related(
+            'academic_year',
+            'learning_container_year',
+            'learning_container_year__academic_year'
+        ).prefetch_related(
+            get_learning_component_prefetch()
+        ).prefetch_related(
+            build_entity_container_prefetch([
+                entity_types.ALLOCATION_ENTITY,
+                entity_types.REQUIREMENT_ENTITY,
+                entity_types.ADDITIONAL_REQUIREMENT_ENTITY_1,
+                entity_types.ADDITIONAL_REQUIREMENT_ENTITY_2
+            ])
+        ).order_by('learning_unit', 'academic_year__year')
     [append_latest_entities(learning_unit, False) for learning_unit in learning_unit_years]
     [append_components(learning_unit) for learning_unit in learning_unit_years]
     return learning_unit_years
