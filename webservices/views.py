@@ -209,6 +209,10 @@ def admission_condition_line_to_dict(context, admission_condition_line):
     }
 
 
+def get_value_from_ac(admission_condition, field, context):
+    return getattr(admission_condition, 'text_{}_{}'.format(field, context.suffix_language))
+
+
 def response_for_bachelor(context):
     education_group_year = EducationGroupYear.objects.filter(acronym__iexact='common-bacs',
                                                              academic_year=context.academic_year).first()
@@ -223,30 +227,28 @@ def response_for_bachelor(context):
         admission_condition, created = AdmissionCondition.objects.get_or_create(
             education_group_year=education_group_year
         )
-        result['content'] = {
-            "alert_message": getattr(admission_condition, 'text_alert_message' + context.suffix_language),
-            "ca_bacs_cond_generales": getattr(admission_condition, 'text_ca_bacs_cond_generales' + context.suffix_language),
-            "ca_bacs_cond_particulieres": getattr(admission_condition, 'text_ca_bacs_cond_particulieres' + context.suffix_language),
-            "ca_bacs_examen_language": getattr(admission_condition, 'text_ca_bacs_examen_langue' + context.suffix_language),
-            "ca_bacs_cond_speciales": getattr(admission_condition, 'text_ca_bacs_cond_speciales' + context.suffix_language)
-        }
+        get_value = functools.partial(get_value_from_ac, admission_condition, context.suffix_language)
+
+        fields = ('alert_message', 'ca_bacs_cond_generales', 'ca_bacs_cond_particulieres',
+                  'ca_bacs_examen_language',
+                  'ca_bacs_cond_speciales')
+
+        result['content'] = {field: get_value(field) for field in fields}
 
     return result
 
 
 def build_content_response(context, admission_condition, admission_condition_common, acronym_suffix):
+    get_value = functools.partial(get_value_from_ac, admission_condition, context.suffix_language)
+
     response = {
         "free_text": getattr(admission_condition, 'text_free' + context.suffix_language),
     }
 
     if acronym_suffix in ('2a', '2mc'):
-        response.update({
-            "alert_message": getattr(admission_condition_common, 'text_alert_message' + context.suffix_language),
-            "ca_cond_generales": getattr(admission_condition_common, "text_ca_cond_generales" + context.suffix_language),
-            "ca_maitrise_fr": getattr(admission_condition_common, 'text_ca_maitrise_fr' + context.suffix_language),
-            "ca_allegement": getattr(admission_condition_common, 'text_ca_allegement' + context.suffix_language),
-            "ca_ouv_adultes": getattr(admission_condition_common, 'text_ca_ouv_adultes' + context.suffix_language),
-        })
+        fields = ('alert_message', 'ca_cond_generales', 'ca_maitrise_fr', 'ca_allegement', 'ca_ouv_adultes')
+
+        response.update({field: get_value(field) for field in fields})
 
     if acronym_suffix in ('2m', '2m1'):
         response.update(build_response_for_master(context, admission_condition, admission_condition_common))
