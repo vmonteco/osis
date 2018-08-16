@@ -296,8 +296,7 @@ class Command(BaseCommand):
         )
         admission_condition, created = AdmissionCondition.objects.get_or_create(
             education_group_year=education_group_year)
-        from prettyprinter import cpprint
-        cpprint(item['info'])
+
         for text_label in ('alert_message', 'ca_bacs_cond_generales', 'ca_bacs_cond_particulieres', 'ca_bacs_examen_langue', 'ca_bacs_cond_speciales'):
             if text_label in item['info']:
                 self.set_admission_condition_value(admission_condition, text_label, item['info'][text_label]['text-common'])

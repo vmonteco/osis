@@ -224,11 +224,12 @@ def response_for_bachelor(context):
             education_group_year=education_group_year
         )
         result['content'] = {
-            "bachelor_text": getattr(admission_condition, 'text_bachelor' + context.suffix_language),
-            "ca_bacs_cond_generales": getattr(admission_condition, 'ca_bacs_cond_generales' + context.suffix_language),
-            "ca_bacs_cond_particulieres": getattr(admission_condition, 'ca_bacs_cond_particulieres' + context.suffix_language),
-            "ca_bacs_examen_language": getattr(admission_condition, 'ca_bacs_examen_language' + context.suffix_language),
-            "ca_bacs_cond_speciales": getattr(admission_condition, 'ca_bacs_cond_speciales' + context.suffix_language)
+            # "bachelor_text": getattr(admission_condition, 'text_bachelor' + context.suffix_language),
+            "alert_message": getattr(admission_condition, 'text_alert_message' + context.suffix_language),
+            "ca_bacs_cond_generales": getattr(admission_condition, 'text_ca_bacs_cond_generales' + context.suffix_language),
+            "ca_bacs_cond_particulieres": getattr(admission_condition, 'text_ca_bacs_cond_particulieres' + context.suffix_language),
+            "ca_bacs_examen_language": getattr(admission_condition, 'text_ca_bacs_examen_langue' + context.suffix_language),
+            "ca_bacs_cond_speciales": getattr(admission_condition, 'text_ca_bacs_cond_speciales' + context.suffix_language)
         }
 
     return result
@@ -241,7 +242,7 @@ def build_content_response(context, admission_condition, admission_condition_com
 
     if acronym_suffix in ('2a', '2mc'):
         response.update({
-            "standard_text": getattr(admission_condition_common, 'text_standard' + context.suffix_language),
+            "alert_message": getattr(admission_condition_common, 'text_alert_message' + context.suffix_language),
             "ca_cond_generales": getattr(admission_condition_common, "text_ca_cond_generales" + context.suffix_language),
             "ca_maitrise_fr": getattr(admission_condition_common, 'text_ca_maitrise_fr' + context.suffix_language),
             "ca_allegement": getattr(admission_condition_common, 'text_ca_allegement' + context.suffix_language),

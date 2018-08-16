@@ -7,14 +7,8 @@ from osis_common.models import osis_model_admin
 class AdmissionCondition(models.Model):
     education_group_year = models.OneToOneField('base.EducationGroupYear', on_delete=models.CASCADE)
 
-    # texte pour les bacheliers (ba)
-    text_bachelor = models.TextField(default='')
-
     # texte alert (2m et 2m1)
     text_alert_message = models.TextField(default='')
-
-    # texte standard pour 2a et 2mc
-    text_standard = models.TextField(default='')
 
     # text libre pour 2eme partie
     text_free = models.TextField(default='')
@@ -41,10 +35,7 @@ class AdmissionCondition(models.Model):
     text_ca_ouv_adultes = models.TextField(default='')
 
     # English
-    text_bachelor_en = models.TextField(default='')
-
     text_alert_message_en = models.TextField(default='')
-    text_standard_en = models.TextField(default='')
     text_free_en = models.TextField(default='')
 
     text_university_bachelors_en = models.TextField(default='')

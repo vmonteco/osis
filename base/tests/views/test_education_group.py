@@ -35,6 +35,7 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponseForbidden, HttpResponseNotFound, HttpResponse
 from django.test import TestCase, RequestFactory
 from django.utils.translation import ugettext_lazy as _
+from prettyprinter import cpprint
 from waffle.testutils import override_flag
 
 from base.forms.education_group_general_informations import EducationGroupGeneralInformationsForm
@@ -1129,8 +1130,8 @@ class EducationGroupAdmissionConditionWSTest(TestCase):
         education_group_year = EducationGroupYearFactory(acronym='actu2m')
         admission_condition = AdmissionCondition.objects.create(
             education_group_year=education_group_year,
-            text_bachelor='ceci est un test',
-            text_bachelor_en='this is a test',
+            text_ca_bacs_cond_generales='ceci est un test',
+            text_ca_bacs_cond_generales_en='this is a test',
         )
 
         url = reverse('education_group_year_admission_condition_get_text', kwargs={
@@ -1139,7 +1140,7 @@ class EducationGroupAdmissionConditionWSTest(TestCase):
         })
 
         data = {
-            'section': 'bachelor',
+            'section': 'ca_bacs_cond_generales',
             'language': 'fr',
         }
         response = self.client.post(url, data=json.dumps(data), content_type='application/json', **kwargs)
@@ -1150,12 +1151,12 @@ class EducationGroupAdmissionConditionWSTest(TestCase):
 
         self.assertDictEqual(response_json, {
             'message': 'read',
-            'section': 'bachelor',
-            'text': admission_condition.text_bachelor,
+            'section': 'ca_bacs_cond_generales',
+            'text': admission_condition.text_ca_bacs_cond_generales,
         })
 
         data = {
-            'section': 'bachelor',
+            'section': 'ca_bacs_cond_generales',
             'language': 'en',
         }
         response = self.client.post(url, data=json.dumps(data), content_type='application/json', **kwargs)
@@ -1166,8 +1167,8 @@ class EducationGroupAdmissionConditionWSTest(TestCase):
 
         self.assertDictEqual(response_json, {
             'message': 'read',
-            'section': 'bachelor',
-            'text': admission_condition.text_bachelor_en,
+            'section': 'ca_bacs_cond_generales',
+            'text': admission_condition.text_ca_bacs_cond_generales_en,
         })
 
     def test_ws_modify_text(self):
@@ -1176,8 +1177,8 @@ class EducationGroupAdmissionConditionWSTest(TestCase):
         education_group_year = EducationGroupYearFactory(acronym='actu2m')
         admission_condition = AdmissionCondition.objects.create(
             education_group_year=education_group_year,
-            text_bachelor='ceci est un test',
-            text_bachelor_en='this is a test',
+            text_ca_bacs_cond_generales='ceci est un test',
+            text_ca_bacs_cond_generales_en='this is a test',
         )
 
         url = reverse('education_group_year_admission_condition_modify_text', kwargs={
@@ -1186,7 +1187,7 @@ class EducationGroupAdmissionConditionWSTest(TestCase):
         })
 
         data = {
-            'section': 'bachelor',
+            'section': 'ca_bacs_cond_generales',
             'language': 'fr',
             'text': 'ceci est un second test'
         }
@@ -1203,10 +1204,10 @@ class EducationGroupAdmissionConditionWSTest(TestCase):
 
         admission_condition.refresh_from_db()
 
-        self.assertEqual(admission_condition.text_bachelor, data['text'])
+        self.assertEqual(admission_condition.text_ca_bacs_cond_generales, data['text'])
 
         data = {
-            'section': 'bachelor',
+            'section': 'ca_bacs_cond_generales',
             'language': 'en',
             'text': 'this is a second test'
         }
@@ -1223,7 +1224,7 @@ class EducationGroupAdmissionConditionWSTest(TestCase):
 
         admission_condition.refresh_from_db()
 
-        self.assertEqual(admission_condition.text_bachelor_en, data['text'])
+        self.assertEqual(admission_condition.text_ca_bacs_cond_generales_en, data['text'])
 
     def test_ws_get_line(self):
         kwargs = {'HTTP_X_REQUESTED_WITH': 'XMLHttpRequest'}
