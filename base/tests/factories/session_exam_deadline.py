@@ -23,14 +23,14 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import operator
 import datetime
-import factory
-import factory.fuzzy
+import operator
 import string
+
+import factory.fuzzy
+
 from base.models.enums import number_session
 from .offer_enrollment import OfferEnrollmentFactory
-from osis_common.utils.datetime import get_tzinfo
 
 
 class SessionExamDeadlineFactory(factory.DjangoModelFactory):
@@ -38,14 +38,14 @@ class SessionExamDeadlineFactory(factory.DjangoModelFactory):
         model = "base.SessionExamDeadline"
 
     external_id = factory.fuzzy.FuzzyText(length=10, chars=string.digits)
-    changed = factory.fuzzy.FuzzyDateTime(datetime.datetime(2016, 1, 1, tzinfo=get_tzinfo()),
-                                          datetime.datetime(2017, 3, 1, tzinfo=get_tzinfo()))
+    changed = factory.fuzzy.FuzzyNaiveDateTime(datetime.datetime(2016, 1, 1),
+                                          datetime.datetime(2017, 3, 1))
 
-    deadline = factory.fuzzy.FuzzyDate(datetime.datetime(2016, 1, 1, tzinfo=get_tzinfo()),
-                                       datetime.datetime(2017, 3, 1, tzinfo=get_tzinfo()))
+    deadline = factory.fuzzy.FuzzyDate(datetime.datetime(2016, 1, 1),
+                                       datetime.datetime(2017, 3, 1))
 
-    deliberation_date = factory.fuzzy.FuzzyDate(datetime.datetime(2016, 1, 1, tzinfo=get_tzinfo()),
-                                       datetime.datetime(2017, 3, 1, tzinfo=get_tzinfo()))
+    deliberation_date = factory.fuzzy.FuzzyDate(datetime.datetime(2016, 1, 1),
+                                       datetime.datetime(2017, 3, 1))
 
     deadline_tutor = factory.fuzzy.FuzzyInteger(10) # max 10 days delta
     number_session = factory.Iterator(number_session.NUMBERS_SESSION, getter=operator.itemgetter(0))

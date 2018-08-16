@@ -53,8 +53,12 @@ class AcademicCalendarFactory(factory.DjangoModelFactory):
         model = 'base.AcademicCalendar'
 
     external_id = factory.fuzzy.FuzzyText(length=10, chars=string.digits)
-    changed = factory.fuzzy.FuzzyDateTime(datetime.datetime(2016, 1, 1, tzinfo=get_tzinfo()),
-                                          datetime.datetime(2017, 3, 1, tzinfo=get_tzinfo()))
+
+    changed = factory.fuzzy.FuzzyNaiveDateTime(
+        datetime.datetime(2016, 1, 1),
+        datetime.datetime(2017, 3, 1)
+    )
+
     academic_year = factory.SubFactory(AcademicYearFactory)
     title = factory.Sequence(lambda n: 'Academic Calendar - %d' % n)
     start_date = factory.LazyAttribute(generate_start_date)

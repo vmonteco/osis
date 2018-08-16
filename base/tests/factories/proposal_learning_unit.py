@@ -23,16 +23,15 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import factory
-import factory.fuzzy
-import string
 import datetime
 import operator
+import string
 
+import factory.fuzzy
+
+from base.models.enums import proposal_state, proposal_type
 from base.tests.factories.entity import EntityFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFakerFactory
-from base.models.enums import proposal_state, proposal_type
-from osis_common.utils.datetime import get_tzinfo
 
 
 class ProposalLearningUnitFactory(factory.django.DjangoModelFactory):
@@ -40,8 +39,8 @@ class ProposalLearningUnitFactory(factory.django.DjangoModelFactory):
         model = "base.ProposalLearningUnit"
 
     external_id = factory.fuzzy.FuzzyText(length=10, chars=string.digits)
-    changed = factory.fuzzy.FuzzyDateTime(datetime.datetime(2016, 1, 1, tzinfo=get_tzinfo()),
-                                          datetime.datetime(2017, 3, 1, tzinfo=get_tzinfo()))
+    changed = factory.fuzzy.FuzzyNaiveDateTime(datetime.datetime(2016, 1, 1),
+                                          datetime.datetime(2017, 3, 1))
     learning_unit_year = factory.SubFactory(LearningUnitYearFakerFactory)
     type = factory.Iterator(proposal_type.CHOICES, getter=operator.itemgetter(0))
     state = factory.Iterator(proposal_state.CHOICES, getter=operator.itemgetter(0))

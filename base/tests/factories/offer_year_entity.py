@@ -25,14 +25,14 @@
 ##############################################################################
 import datetime
 import operator
-import factory
-import factory.fuzzy
 import string
+
+import factory.fuzzy
+
 from base.models.enums import offer_year_entity_type
+from base.tests.factories.education_group_year import EducationGroupYearFactory
 from base.tests.factories.entity import EntityFactory
 from base.tests.factories.offer_year import OfferYearFactory
-from base.tests.factories.education_group_year import EducationGroupYearFactory
-from osis_common.utils.datetime import get_tzinfo
 
 
 class OfferYearEntityFactory(factory.DjangoModelFactory):
@@ -40,8 +40,8 @@ class OfferYearEntityFactory(factory.DjangoModelFactory):
         model = 'base.OfferYearEntity'
 
     external_id = factory.fuzzy.FuzzyText(length=10, chars=string.digits)
-    changed = factory.fuzzy.FuzzyDateTime(datetime.datetime(2016, 1, 1, tzinfo=get_tzinfo()),
-                                          datetime.datetime(2017, 3, 1, tzinfo=get_tzinfo()))
+    changed = factory.fuzzy.FuzzyNaiveDateTime(datetime.datetime(2016, 1, 1),
+                                          datetime.datetime(2017, 3, 1))
     offer_year = factory.SubFactory(OfferYearFactory)
     entity = factory.SubFactory(EntityFactory)
     type = factory.Iterator(offer_year_entity_type.TYPES, getter=operator.itemgetter(0))
