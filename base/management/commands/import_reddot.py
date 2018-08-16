@@ -300,7 +300,6 @@ class Command(BaseCommand):
         for text_label in ('alert_message', 'ca_bacs_cond_generales', 'ca_bacs_cond_particulieres', 'ca_bacs_examen_langue', 'ca_bacs_cond_speciales'):
             if text_label in item['info']:
                 self.set_admission_condition_value(admission_condition, text_label, item['info'][text_label]['text-common'])
-        # self.set_admission_condition_value(admission_condition, 'bachelor', item['info']['text'])
         admission_condition.save()
 
     def load_admission_conditions_common(self):

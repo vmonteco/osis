@@ -224,7 +224,6 @@ def response_for_bachelor(context):
             education_group_year=education_group_year
         )
         result['content'] = {
-            # "bachelor_text": getattr(admission_condition, 'text_bachelor' + context.suffix_language),
             "alert_message": getattr(admission_condition, 'text_alert_message' + context.suffix_language),
             "ca_bacs_cond_generales": getattr(admission_condition, 'text_ca_bacs_cond_generales' + context.suffix_language),
             "ca_bacs_cond_particulieres": getattr(admission_condition, 'text_ca_bacs_cond_particulieres' + context.suffix_language),

@@ -35,7 +35,6 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponseForbidden, HttpResponseNotFound, HttpResponse
 from django.test import TestCase, RequestFactory
 from django.utils.translation import ugettext_lazy as _
-from prettyprinter import cpprint
 from waffle.testutils import override_flag
 
 from base.forms.education_group_general_informations import EducationGroupGeneralInformationsForm
