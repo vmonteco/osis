@@ -48,39 +48,51 @@ WORKSHEET_TITLE = 'learning_units_comparison'
 XLS_FILENAME = 'learning_units_comparison'
 XLS_DESCRIPTION = _("list_learning_units_comparison")
 
-LEARNING_UNIT_TITLES = [str(_('code')), str(_('academic_year_small')), str(_('type')), str(_('active_title')),
-                        str(_('subtype')), str(_('Internship subtype')), str(_('credits')), str(_('language')),
-                        str(_('periodicity')),
-                        str(_('quadrimester')), str(_('session_title')), str(_('common_title')),
-                        str(_('title_proper_to_UE')),
-                        str(_('common_english_title')), str(_('english_title_proper_to_UE')),
-                        str(_('Req. Entities')), str(_('allocation_entity_small')),
-                        str(_('Add. requ. ent. 1')), str(_('Add. requ. ent. 2')),
-                        str(_('Profes. integration')),
-                        str(_('institution')),
-                        str(_('learning_location')),
-                        str(_('partims')),
-                        "PM {}".format(_('code')),
-                        "PM {}".format(_('volume_partial')),
-                        "PM {}".format(_('volume_remaining')),
-                        "PM {}".format(_('Vol. annual')),
-                        "PM {}".format(_('real_classes')),
-                        "PM {}".format(_('planned_classes')),
-                        "PM {}".format(_('vol_global')),
-                        "PM {}".format(_('Req. Entities')),
-                        "PM {}".format(_('Add. requ. ent. 1')),
-                        "PM {}".format(_('Add. requ. ent. 2')),
-                        "PP {}".format(_('code')),
-                        "PP {}".format(_('volume_partial')),
-                        "PP {}".format(_('volume_remaining')),
-                        "PP {}".format(_('Vol. annual')),
-                        "PM {}".format(_('real_classes')),
-                        "PM {}".format(_('planned_classes')),
-                        "PP {}".format(_('vol_global')),
-                        "PP {}".format(_('Req. Entities')),
-                        "PM {}".format(_('Add. requ. ent. 1')),
-                        "PM {}".format(_('Add. requ. ent. 2'))
-                        ]
+LEARNING_UNIT_TITLES = [
+    str(_('code')),
+    str(_('academic_year_small')),
+    str(_('type')),
+    str(_('active_title')),
+    str(_('subtype')),
+    str(_('Internship subtype')),
+    str(_('credits')),
+    str(_('language')),
+    str(_('periodicity')),
+    str(_('quadrimester')),
+    str(_('session_title')),
+    str(_('common_title')),
+    str(_('title_proper_to_UE')),
+    str(_('common_english_title')),
+    str(_('english_title_proper_to_UE')),
+    str(_('Req. Entities')),
+    str(_('allocation_entity_small')),
+    str(_('Add. requ. ent. 1')),
+    str(_('Add. requ. ent. 2')),
+    str(_('Profes. integration')),
+    str(_('institution')),
+    str(_('learning_location')),
+    str(_('partims')),
+    "PM {}".format(_('code')),
+    "PM {}".format(_('volume_partial')),
+    "PM {}".format(_('volume_remaining')),
+    "PM {}".format(_('Vol. annual')),
+    "PM {}".format(_('real_classes')),
+    "PM {}".format(_('planned_classes')),
+    "PM {}".format(_('vol_global')),
+    "PM {}".format(_('Req. Entities')),
+    "PM {}".format(_('Add. requ. ent. 1')),
+    "PM {}".format(_('Add. requ. ent. 2')),
+    "PP {}".format(_('code')),
+    "PP {}".format(_('volume_partial')),
+    "PP {}".format(_('volume_remaining')),
+    "PP {}".format(_('Vol. annual')),
+    "PM {}".format(_('real_classes')),
+    "PM {}".format(_('planned_classes')),
+    "PP {}".format(_('vol_global')),
+    "PP {}".format(_('Req. Entities')),
+    "PM {}".format(_('Add. requ. ent. 1')),
+    "PM {}".format(_('Add. requ. ent. 2'))
+]
 
 
 def create_xls_comparison(user, learning_unit_years, filters, academic_yr_comparison):
@@ -232,12 +244,12 @@ def _get_entity_to_display(entity):
 
 def get_academic_year_of_reference(objects):
     if objects:
-        return _get_academic_year(objects.first())
+        return _get_academic_year(objects[0])
     return current_academic_year()
 
 
-def _get_academic_year(object):
-    if isinstance(object, LearningUnitYear) or isinstance(object, ExternalLearningUnitYear):
-        return object.academic_year
-    if isinstance(object, ProposalLearningUnit):
-        return object.learning_unit_year.academic_year
+def _get_academic_year(obj):
+    if isinstance(obj, LearningUnitYear) or isinstance(obj, ExternalLearningUnitYear):
+        return obj.academic_year
+    if isinstance(obj, ProposalLearningUnit):
+        return obj.learning_unit_year.academic_year
