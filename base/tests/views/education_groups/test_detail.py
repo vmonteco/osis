@@ -24,20 +24,16 @@
 #
 ##############################################################################
 from django.contrib.auth.models import Permission
-from django.http import HttpResponseRedirect
 from django.test import TestCase
 from django.urls import reverse
-from django.utils.translation import ugettext_lazy as _
 
-from base.models.learning_component_year import LearningComponentYear, volume_total_verbose
 from base.tests.factories.education_group_year import EducationGroupYearFactory
 from base.tests.factories.group_element_year import GroupElementYearFactory
 from base.tests.factories.learning_component_year import LearningComponentYearFactory
 from base.tests.factories.learning_unit_component import LearningUnitComponentFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from base.tests.factories.person import PersonFactory
-from base.tests.factories.user import SuperUserFactory, UserFactory
-from base.views.education_groups.group_element_year.read import get_verbose_children
+from base.tests.factories.user import UserFactory
 
 
 class TestRead(TestCase):
