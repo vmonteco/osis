@@ -46,8 +46,8 @@
                         {% include "education_group/tabs.html" %}
                         <br>
                         <ul>
-                            {% for group_element in group_elements %}
-                                <li>{{ group_element.parent.verbose }}</li>
+                            {% for parent in parents %}
+                                <li>{{ parent }}</li>
                             {% endfor %}
                         </ul>
                     </div>
