@@ -55,7 +55,7 @@ class GroupElementYearTest(TestCase):
 
     def test_find_child_branch(self):
         self.assertCountEqual(group_element_year.find_by_child_branch(self.education_group_branch_2),
-                              [self.education_group_year_parent])
+                              [self.group_element_year_2])
 
     class TestFindBuildParentListByEducationGroupYearId(TestCase):
         """Unit tests for _build_parent_list_by_education_group_year_id() function"""
