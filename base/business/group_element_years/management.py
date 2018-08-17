@@ -24,12 +24,13 @@
 #
 ##############################################################################
 from django.core.exceptions import ObjectDoesNotExist
+from django.utils.translation import ugettext as _
 
-from base.models import group_element_year
+from base.models import group_element_year, authorized_relationship
 from base.models.education_group_year import EducationGroupYear
+from base.models.exceptions import IncompatiblesTypesException
 from base.models.learning_unit_year import LearningUnitYear
 from base.utils.cache import cache
-
 
 LEARNING_UNIT_YEAR = 'learningunityear'
 EDUCATION_GROUP_YEAR = 'educationgroupyear'
@@ -59,6 +60,16 @@ def attach_from_cache(parent):
             kwargs['child_leaf'] = luy
         elif selected_data['modelname'] == EDUCATION_GROUP_YEAR:
             egy = EducationGroupYear.objects.get(pk=selected_data['id'])
+            if not _types_are_compatible(parent, egy):
+                raise IncompatiblesTypesException(
+                    errors=_("You cannot attach \"%(child)s\" (type \"%(child_type)s\") "
+                             "to \"%(parent)s\" (type \"%(parent_type)s\")") % {
+                        'child': egy,
+                        'child_type': egy.education_group_type,
+                        'parent': parent,
+                        'parent_type': parent.education_group_type,
+                    }
+                )
             kwargs['child_branch'] = egy
         new_gey = group_element_year.get_or_create_group_element_year(**kwargs)
         _clear_cache()
@@ -68,3 +79,10 @@ def attach_from_cache(parent):
 
 def _clear_cache():
     cache.set(SELECT_CACHE_KEY, None, timeout=None)
+
+
+def _types_are_compatible(parent, child):
+    return authorized_relationship.find_by_parent_and_child_types(
+            parent_type=parent.education_group_type,
+            child_type=child.education_group_type,
+        ).exists()

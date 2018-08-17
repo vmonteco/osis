@@ -45,14 +45,27 @@
                             <br/>
 
                             <div class="row">
-                                {% if info.is_common and info.is_bachelor %}
-                                    {% render_condition_text 'bachelor' _('Admission Conditions for Bachelors') admission_condition.text_bachelor can_edit_information %}
-                                {% endif %}
-                                {% if info.is_common and info.is_master %}
+                                {% if info.is_common %}
                                     {% render_condition_text 'alert_message' _('Alert Message') admission_condition.text_alert_message can_edit_information %}
                                 {% endif %}
-                                {% if info.show_free_text %}
+
+                                {% if info.is_common and info.is_bachelor %}
+                                    {% render_condition_text 'ca_bacs_cond_generales' _('General Conditions') admission_condition.text_ca_bacs_cond_generales can_edit_information %}
+                                    {% render_condition_text 'ca_bacs_cond_particulieres' _('Specific Conditions') admission_condition.text_ca_bacs_cond_particulieres can_edit_information %}
+                                    {% render_condition_text 'ca_bacs_examen_langue' _('Language Exam') admission_condition.text_ca_bacs_examen_langue can_edit_information %}
+                                    {% render_condition_text 'ca_bacs_cond_speciales' _('Special Conditions') admission_condition.text_ca_bacs_cond_speciales can_edit_information %}
+                                {% endif %}
+
+                                {% if info.is_master and info.show_free_text %}
                                     {% render_condition_text 'free' _('Free Text') admission_condition.text_free can_edit_information %}
+                                {% endif %}
+
+                                {% if info.show_components_for_agreg_and_mc %}
+                                    {% render_condition_text 'ca_cond_generales' _('General Condition') admission_condition.text_ca_cond_generales can_edit_information %}
+                                    {% render_condition_text 'ca_maitrise_fr' _('French language proficiency examination') admission_condition.text_ca_maitrise can_edit_information %}
+                                    {% render_condition_text 'ca_allegement' _('Reduction') admission_condition.text_ca_allegement can_edit_information %}
+                                    {% render_condition_text 'ca_ouv_adultes' _('Opening to Adults') admission_condition.text_ca_ouv_adultes can_edit_information %}
+
                                 {% endif %}
                                 {% if info.is_specific and info.is_master %}
                                     <div id="university_bachelors">

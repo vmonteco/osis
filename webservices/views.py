@@ -209,6 +209,10 @@ def admission_condition_line_to_dict(context, admission_condition_line):
     }
 
 
+def get_value_from_ac(admission_condition, field, context):
+    return getattr(admission_condition, 'text_{}{}'.format(field, context.suffix_language))
+
+
 def response_for_bachelor(context):
     education_group_year = EducationGroupYear.objects.filter(acronym__iexact='common-bacs',
                                                              academic_year=context.academic_year).first()
@@ -223,22 +227,28 @@ def response_for_bachelor(context):
         admission_condition, created = AdmissionCondition.objects.get_or_create(
             education_group_year=education_group_year
         )
-        result['content'] = {
-            "bachelor_text": getattr(admission_condition, 'text_bachelor' + context.suffix_language),
-        }
+        get_value = functools.partial(get_value_from_ac, admission_condition=admission_condition, context=context)
+
+        fields = ('alert_message', 'ca_bacs_cond_generales', 'ca_bacs_cond_particulieres',
+                  'ca_bacs_examen_langue',
+                  'ca_bacs_cond_speciales')
+
+        result['content'] = {field: get_value(field=field) for field in fields}
 
     return result
 
 
 def build_content_response(context, admission_condition, admission_condition_common, acronym_suffix):
+    get_value = functools.partial(get_value_from_ac, admission_condition=admission_condition, context=context)
+
     response = {
         "free_text": getattr(admission_condition, 'text_free' + context.suffix_language),
     }
 
     if acronym_suffix in ('2a', '2mc'):
-        response.update({
-            "standard_text": getattr(admission_condition_common, 'text_standard' + context.suffix_language),
-        })
+        fields = ('alert_message', 'ca_cond_generales', 'ca_maitrise_fr', 'ca_allegement', 'ca_ouv_adultes')
+
+        response.update({field: get_value(field=field) for field in fields})
 
     if acronym_suffix in ('2m', '2m1'):
         response.update(build_response_for_master(context, admission_condition, admission_condition_common))
