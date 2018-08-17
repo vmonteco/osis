@@ -82,9 +82,7 @@ def _clear_cache():
 
 
 def _types_are_compatible(parent, child):
-    return bool(
-        authorized_relationship.find_by_parent_and_child_types(
+    return authorized_relationship.find_by_parent_and_child_types(
             parent_type=parent.education_group_type,
             child_type=child.education_group_type,
-        )
-    )
+        ).exists()
