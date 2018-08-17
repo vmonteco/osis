@@ -30,7 +30,8 @@ from django.utils.translation import ugettext_lazy as _
 from base.tests.factories.user import UserFactory
 from base.business.learning_units.xls_comparison import prepare_xls_content, \
     _get_learning_unit_yrs_on_2_different_years, _translate_status, create_xls_comparison, \
-    XLS_FILENAME, XLS_DESCRIPTION, LEARNING_UNIT_TITLES, WORKSHEET_TITLE, CELLS_MODIFIED, DATA, _check_changes_other_than_code_and_year
+    XLS_FILENAME, XLS_DESCRIPTION, LEARNING_UNIT_TITLES, WORKSHEET_TITLE, CELLS_MODIFIED, DATA, \
+    _check_changes_other_than_code_and_year
 from osis_common.document import xls_build
 from base.tests.factories.business.learning_units import GenerateContainer
 
@@ -39,7 +40,7 @@ class TestComparisonXls(TestCase):
     def setUp(self):
         self.user = UserFactory()
         generatorContainer = GenerateContainer(datetime.date.today().year-2, datetime.date.today().year)
-        self.previous_learning_unit_year =generatorContainer.generated_container_years[0].learning_unit_year_full
+        self.previous_learning_unit_year = generatorContainer.generated_container_years[0].learning_unit_year_full
         self.learning_unit_year_1 = generatorContainer.generated_container_years[1].learning_unit_year_full
 
         self.academic_year = self.learning_unit_year_1.academic_year
@@ -86,8 +87,12 @@ class TestComparisonXls(TestCase):
             ['acronym 2', 'idem', 'other credits'],
         ]
         # C2 ('C' = third column, '2' = 2nd line)
-        self.assertEqual(_check_changes_other_than_code_and_year(learning_unit_yr_data[0], learning_unit_yr_data[1], 2)
-                         , ['C2'])
+        self.assertEqual(
+            _check_changes_other_than_code_and_year(
+                learning_unit_yr_data[0],
+                learning_unit_yr_data[1],
+                2),
+            ['C2'])
 
 
 def _generate_xls_build_parameter(xls_data, user):

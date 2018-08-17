@@ -102,7 +102,6 @@ class TestProposalXls(TestCase):
         xls_data = [self._get_xls_data()]
 
         expected_argument = _generate_xls_build_parameter(xls_data, self.user)
-        print('expected_argument')
         mock_generate_xls.assert_called_with(expected_argument, None)
 
 

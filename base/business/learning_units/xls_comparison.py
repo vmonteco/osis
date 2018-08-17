@@ -106,7 +106,7 @@ def create_xls_comparison(user, learning_unit_years, filters, academic_yr_compar
         luys_for_2_years = _get_learning_unit_yrs_on_2_different_years(academic_yr_comparison, learning_unit_years)
         data = prepare_xls_content(luys_for_2_years)
         working_sheets_data = data.get('data')
-        cells_to_color = data.get('modifications')
+        cells_to_color = data.get(CELLS_MODIFIED)
 
     parameters = {
         xls_build.DESCRIPTION: XLS_DESCRIPTION,
@@ -177,7 +177,7 @@ def prepare_xls_content(learning_unit_yrs):
 
     return {
         DATA: data,
-        CELLS_MODIFIED: modified_cells if modified_cells else None
+        CELLS_MODIFIED: modified_cells or None
     }
 
 
