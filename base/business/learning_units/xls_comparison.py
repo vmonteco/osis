@@ -165,7 +165,7 @@ def prepare_xls_content(learning_unit_yrs):
     data = []
     learning_unit = None
     first_data = None
-    mod_n_b = []
+    modified_cells_no_border = []
     top_border = []
     for line_index, l_u_yr in enumerate(learning_unit_yrs, start=1):
 
@@ -183,14 +183,14 @@ def prepare_xls_content(learning_unit_yrs):
             first_data = luy_data
             top_border.extend(get_border_columns(line_index+1))
         else:
-            mod_n_b.extend(_check_changes_other_than_code_and_year(first_data, luy_data, line_index+1))
+            modified_cells_no_border.extend(_check_changes_other_than_code_and_year(first_data, luy_data, line_index+1))
             first_data = None
         data.append(luy_data)
 
     return {
         DATA: data,
         CELLS_TOP_BORDER: top_border or None,
-        CELLS_MODIFIED_NO_BORDER: mod_n_b or None,
+        CELLS_MODIFIED_NO_BORDER: modified_cells_no_border or None,
     }
 
 
