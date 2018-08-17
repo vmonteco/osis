@@ -69,7 +69,6 @@ urlpatterns = [
             name='education_group_general_informations'),
         url(r'^informations/edit/$', education_group.education_group_year_pedagogy_edit,
             name="education_group_pedagogy_edit"),
-
         url(r'^informations/remove$', education_group.education_group_year_pedagogy_remove_term,
             name="education_group_pedagogy_remove_term"),
         url(r'^informations/add$', education_group.education_group_year_pedagogy_add_term,
@@ -77,7 +76,6 @@ urlpatterns = [
         url(r'^informations/get_terms/(?P<language>[a-z\-]+)',
             education_group.education_group_year_pedagogy_get_terms,
             name="education_group_pedagogy_get_terms"),
-
         url(r'^administrative/', include([
             url(u'^$', detail.EducationGroupAdministrativeData.as_view(), name='education_group_administrative'),
             url(u'^edit/$', education_group.education_group_edit_administrative_data,
@@ -94,7 +92,7 @@ urlpatterns = [
                     name="group_element_year_management_comment")
             ]))
         ])),
-
+        url(r'^using/$', detail.EducationGroupUsing.as_view(), name='education_group_using'),
         url(r'^admission_conditions/$',
             education_group.education_group_year_admission_condition_edit,
             name='education_group_year_admission_condition_edit'),
