@@ -544,7 +544,7 @@ class WsOfferCatalogAdmissionsCondition(TestCase, Helper):
             'content': None,
         })
 
-    def test_admission_conditions_for_bacherlors_with_common(self):
+    def test_admission_conditions_for_bachelors_with_common(self):
         education_group_year = EducationGroupYearFactory(acronym='hist1ba')
 
         education_group_year_common = EducationGroupYearFactory(acronym='common-bacs',
@@ -552,7 +552,8 @@ class WsOfferCatalogAdmissionsCondition(TestCase, Helper):
 
         admission_condition_common = AdmissionCondition.objects.create(
             education_group_year=education_group_year_common,
-            text_bachelor='this is a test')
+            text_alert_message='alert',
+            text_ca_bacs_cond_generales='this is a test')
 
         iso_language, language = 'fr-be', 'fr'
 
@@ -578,7 +579,13 @@ class WsOfferCatalogAdmissionsCondition(TestCase, Helper):
         self.assertDictEqual(condition_admissions_section, {
             'id': 'conditions_admission',
             'label': 'conditions_admission',
-            'content': {'bachelor_text': 'this is a test'}
+            'content': {
+                'alert_message': 'alert',
+                'ca_bacs_cond_generales': 'this is a test',
+                'ca_bacs_cond_particulieres': '',
+                'ca_bacs_examen_langue': '',
+                'ca_bacs_cond_speciales': '',
+            }
         })
 
     def test_admission_conditions_for_master(self):

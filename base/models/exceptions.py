@@ -53,3 +53,9 @@ class MaximumOneParentAllowedException(Exception):
     def __init__(self, message=None, errors=None):
         super(MaximumOneParentAllowedException, self).__init__(message)
         self.errors = errors
+
+
+class IncompatiblesTypesException(Exception):
+    def __init__(self, message=None, errors=None):
+        super(IncompatiblesTypesException, self).__init__(message)
+        self.errors = errors

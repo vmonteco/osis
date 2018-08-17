@@ -39,6 +39,7 @@ from base.business import group_element_years
 from base.business.group_element_years.management import SELECT_CACHE_KEY
 from base.forms.education_group.group_element_year import UpdateGroupElementYearForm
 from base.models.education_group_year import EducationGroupYear
+from base.models.exceptions import IncompatiblesTypesException
 from base.models.group_element_year import GroupElementYear, get_group_element_year_by_id
 from base.views.common import display_success_messages, display_warning_messages
 from base.views.common_classes import AjaxTemplateMixin, FlagMixin, RulesRequiredMixin
@@ -119,6 +120,9 @@ def _attach(request, group_element_year, *args, **kwargs):
         display_success_messages(request, success_msg)
     except ObjectDoesNotExist:
         warning_msg = _("Please Select or Move an item before Attach it")
+        display_warning_messages(request, warning_msg)
+    except IncompatiblesTypesException as e:
+        warning_msg = e.errors
         display_warning_messages(request, warning_msg)
 
 
