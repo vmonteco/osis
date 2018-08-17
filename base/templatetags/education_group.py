@@ -97,7 +97,7 @@ ICONS = {
 BRANCH_TEMPLATE = """
 <ul>
     <li {data_jstree} id="node_{gey}_{egy}">
-        <a href="{url}" class="{a_class}">
+        <a href="{url}" class="{a_class}" title="{tooltip_msg}">
             {text}
         </a>
         {children}
@@ -288,6 +288,7 @@ def build_tree(context, current_group_element_year, selected_education_group_yea
     for child in education_group_year.group_element_year_branches:
         children_template += build_tree(context, child, selected_education_group_year)
 
+    # TODO Refactor code to extract method to generate branch html
     for child in education_group_year.group_element_year_leaves:
         luy = child.child_leaf
         children_template += mark_safe(BRANCH_TEMPLATE.format(
@@ -297,7 +298,8 @@ def build_tree(context, current_group_element_year, selected_education_group_yea
             url="#",
             text=luy.acronym,
             a_class=a_class,
-            children=""
+            children="",
+            tooltip_msg=luy.complete_title
         ))
 
     return mark_safe(BRANCH_TEMPLATE.format(
@@ -307,7 +309,8 @@ def build_tree(context, current_group_element_year, selected_education_group_yea
         url=_get_url(request, education_group_year, root, current_group_element_year),
         text=education_group_year.verbose,
         a_class=a_class,
-        children=children_template
+        children=children_template,
+        tooltip_msg=education_group_year.title
     ))
 
 
