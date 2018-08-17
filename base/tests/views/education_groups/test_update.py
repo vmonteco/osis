@@ -407,12 +407,13 @@ class TestSelectAttach(TestCase):
         self.assertEqual(len(messages), 2)
         self.assertEqual(
             str(messages[1]),
-            _("""You cannot attach "{}" (type "{}") to "{}" (type "{}")""").format(
-                self.child_education_group_year,
-                self.child_education_group_year.education_group_type,
-                self.new_parent_education_group_year,
-                self.new_parent_education_group_year.education_group_type,
-            )
+            _("You cannot attach \"%(child)s\" (type \"%(child_type)s\") "
+              "to \"%(parent)s\" (type \"%(parent_type)s\")") % {
+                'child': self.child_education_group_year,
+                'child_type': self.child_education_group_year.education_group_type,
+                'parent': self.new_parent_education_group_year,
+                'parent_type': self.new_parent_education_group_year.education_group_type,
+            }
         )
 
         expected_absent_group_element_year = GroupElementYear.objects.filter(

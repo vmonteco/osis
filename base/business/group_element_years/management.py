@@ -62,12 +62,13 @@ def attach_from_cache(parent):
             egy = EducationGroupYear.objects.get(pk=selected_data['id'])
             if not _types_are_compatible(parent, egy):
                 raise IncompatiblesTypesException(
-                    errors=_("""You cannot attach "{}" (type "{}") to "{}" (type "{}")""").format(
-                        egy,
-                        egy.education_group_type,
-                        parent,
-                        parent.education_group_type,
-                    )
+                    errors=_("You cannot attach \"%(child)s\" (type \"%(child_type)s\") "
+                             "to \"%(parent)s\" (type \"%(parent_type)s\")") % {
+                        'child': egy,
+                        'child_type': egy.education_group_type,
+                        'parent': parent,
+                        'parent_type': parent.education_group_type,
+                    }
                 )
             kwargs['child_branch'] = egy
         new_gey = group_element_year.get_or_create_group_element_year(**kwargs)
