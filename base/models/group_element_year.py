@@ -203,6 +203,11 @@ def find_by_parent(an_education_group_year):
     return GroupElementYear.objects.filter(parent=an_education_group_year)
 
 
+@deprecated
+def find_by_child_branch(an_education_group_year):
+    return GroupElementYear.objects.filter(child_branch=an_education_group_year)
+
+
 def find_learning_unit_formations(objects, parents_as_instances=False):
     root_ids_by_object_id = {}
     if objects:
@@ -211,7 +216,6 @@ def find_learning_unit_formations(objects, parents_as_instances=False):
         if parents_as_instances:
             root_ids_by_object_id = _convert_parent_ids_to_instances(root_ids_by_object_id)
     return root_ids_by_object_id
-
 
 def _get_root_filters():
     root_type_names = education_group_type.search(category=education_group_categories.MINI_TRAINING) \
