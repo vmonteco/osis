@@ -249,7 +249,6 @@ def education_group_year_admission_condition_edit(request, root_id, education_gr
     context = {
         'admission_condition_form': admission_condition_form,
         'education_group_year': education_group_year,
-        # TODO : same parameters
         'parent': parent,
         'root': parent,
         'root_id': parent.id,
@@ -260,6 +259,7 @@ def education_group_year_admission_condition_edit(request, root_id, education_gr
             'is_common': is_common,
             'is_bachelor': acronym == 'common-bacs',
             'is_master': is_master,
+            'show_components_for_agreg_and_mc': is_common and use_standard_text,
             'show_free_text': is_specific and (is_master or use_standard_text),
         },
         'admission_condition': admission_condition,
