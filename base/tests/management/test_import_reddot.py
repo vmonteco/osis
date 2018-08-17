@@ -1,3 +1,5 @@
+from unittest import mock
+
 from django.test import TestCase
 
 from base.management.commands import import_reddot
@@ -105,3 +107,86 @@ class ImportReddotTestCase(TestCase):
         self.assertEqual(admission_condition_line.conditions, line['conditions'])
         self.assertEqual(admission_condition_line.access, line['access'])
         self.assertEqual(admission_condition_line.remarks, line['remarks'])
+
+    @mock.patch('base.management.commands.import_reddot.Command.load_admission_conditions_for_bachelor')
+    @mock.patch('base.management.commands.import_reddot.Command.load_admission_conditions_generic')
+    def test_load_admission_conditions(self, mock_generic, mock_bachelor):
+        self.command.json_content = [{'year': 2018, 'acronym': 'bacs'}, {'year': 2018, 'acronym': 'actu2m'}]
+        self.command.load_admission_conditions()
+
+    def test_set_values_for_text_row_of_condition_admission_raise_exception(self):
+        with self.assertRaises(Exception):
+            line = {'section': 'demo'}
+            self.command.set_values_for_text_row_of_condition_admission(None, line)
+
+    def test_set_values_for_text_row_of_condition_admission(self):
+        line = {'section': 'non_university_bachelors', 'text': 'Text'}
+        with mock.patch('base.management.commands.import_reddot.Command.set_admission_condition_value'):
+            self.command.set_values_for_text_row_of_condition_admission(None, line)
+
+    @mock.patch('base.management.commands.import_reddot.Command.set_admission_condition_value')
+    def test_save_text_of_conditions(self, mock_set_admission):
+        item = {
+            'info': {
+                'texts': {
+                    'introduction': {'text': 'Introduction'},
+                }
+            }
+        }
+        education_group_year = EducationGroupYearFactory()
+        admission_condition = AdmissionCondition.objects.create(education_group_year=education_group_year)
+        self.command.save_text_of_conditions(admission_condition, item)
+
+        mock_set_admission.assert_called_with(admission_condition, 'free', 'Introduction')
+
+    @mock.patch('base.management.commands.import_reddot.Command.set_admission_condition_value')
+    def test_save_text_of_conditions_personalized_access(self, mock_set_admission):
+        item = {
+            'info': {
+                'texts': {
+                    'personalized_access': {'text': 'Personalized Access'}
+                }
+            }
+        }
+        education_group_year = EducationGroupYearFactory()
+        admission_condition = AdmissionCondition.objects.create(education_group_year=education_group_year)
+        self.command.save_text_of_conditions(admission_condition, item)
+
+        mock_set_admission.assert_called_with(admission_condition, 'personalized_access', 'Personalized Access')
+
+    @mock.patch('base.management.commands.import_reddot.Command.set_admission_condition_value')
+    def test_save_text_of_conditions_not_called(self, mock_set_admission):
+        item = {
+            'info': {
+                'texts': {
+                    'test': None,
+                }
+            }
+        }
+        education_group_year = EducationGroupYearFactory()
+        admission_condition = AdmissionCondition.objects.create(education_group_year=education_group_year)
+        self.command.save_text_of_conditions(admission_condition, item)
+
+        mock_set_admission.assert_not_called()
+
+    @mock.patch('base.management.commands.import_reddot.Command.set_admission_condition_value')
+    def test_save_text_of_conditions_raise_exception(self, mock_set_admission):
+        item = {
+            'info': {
+                'texts': {
+                    'test': 'something',
+                }
+            }
+        }
+        education_group_year = EducationGroupYearFactory()
+        admission_condition = AdmissionCondition.objects.create(education_group_year=education_group_year)
+        with self.assertRaises(Exception):
+            self.command.save_text_of_conditions(admission_condition, item)
+
+    @mock.patch('base.management.commands.import_reddot.Command.save_condition_line_of_row')
+    @mock.patch('base.management.commands.import_reddot.Command.set_values_for_text_row_of_condition_admission')
+    def test_save_diplomas(self, mock_set_values, mock_save_condition):
+        item = {'info': {'diplomas': [{'type': 'table'}, {'type': 'text'}]}}
+        self.command.save_diplomas(None, item)
+        mock_save_condition.assert_called_with(None, {'type': 'table'})
+        mock_set_values.assert_called_with(None, {'type': 'text'})
