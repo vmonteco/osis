@@ -39,7 +39,7 @@ class LearningComponentYearAdmin(SerializableModelAdmin):
 
 
 class LearningComponentYear(SerializableModel):
-    external_id = models.CharField(max_length=100, blank=True, null=True)
+    external_id = models.CharField(max_length=100, blank=True, null=True, db_index=True)
     changed = models.DateTimeField(null=True, auto_now=True)
     learning_container_year = models.ForeignKey('LearningContainerYear')
     acronym = models.CharField(max_length=4, blank=True, null=True)

@@ -44,7 +44,6 @@ from base.views.learning_units.common import get_common_context_learning_unit_ye
 @permission_required('base.can_access_learningunit', raise_exception=True)
 def learning_unit_pedagogy(request, learning_unit_year_id):
     context = {
-        'experimental_phase': True,
         'create_teaching_material_urlname': 'teaching_material_create',
         'update_teaching_material_urlname': 'teaching_material_edit',
         'delete_teaching_material_urlname': 'teaching_material_delete',
