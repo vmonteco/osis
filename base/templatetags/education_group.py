@@ -295,7 +295,7 @@ def build_tree(context, current_group_element_year, selected_education_group_yea
             data_jstree=_get_icon_jstree(luy),
             gey=_get_group_element_year_id(current_group_element_year),
             egy=luy.pk,
-            url="#",
+            url=reverse("learning_unit_utilization", args=[root.pk, luy.pk]),
             text=luy.acronym,
             a_class=a_class,
             children="",
