@@ -448,6 +448,10 @@ class EducationGroupYear(models.Model):
         return self.groupelementyear_set.filter(child_branch__isnull=False)
 
     @cached_property
+    def group_element_year_leaves(self):
+        return self.groupelementyear_set.filter(child_leaf__isnull=False)
+
+    @cached_property
     def coorganizations(self):
         return self.educationgrouporganization_set.all()
 
