@@ -30,8 +30,8 @@ from django.utils.translation import ugettext_lazy as _
 from base.tests.factories.user import UserFactory
 from base.business.learning_units.xls_comparison import prepare_xls_content, \
     _get_learning_unit_yrs_on_2_different_years, _translate_status, create_xls_comparison, \
-    XLS_FILENAME, XLS_DESCRIPTION, LEARNING_UNIT_TITLES, WORKSHEET_TITLE, CELLS_MODIFIED, DATA, \
-    _check_changes_other_than_code_and_year
+    XLS_FILENAME, XLS_DESCRIPTION, LEARNING_UNIT_TITLES, WORKSHEET_TITLE, CELLS_MODIFIED_NO_BORDER, DATA, \
+    _check_changes_other_than_code_and_year, CELLS_TOP_BORDER
 from osis_common.document import xls_build
 from base.tests.factories.business.learning_units import GenerateContainer
 
@@ -47,7 +47,7 @@ class TestComparisonXls(TestCase):
         self.previous_academic_year = self.previous_learning_unit_year.academic_year
 
     def test_prepare_xls_content_no_data(self):
-        self.assertEqual(prepare_xls_content([]), {'data': [], 'modifications': None})
+        self.assertEqual(prepare_xls_content([]), {'data': [], CELLS_MODIFIED_NO_BORDER: None, CELLS_TOP_BORDER: None})
 
     def test_prepare_xls_content_with_data(self):
         learning_unit_years = _get_learning_unit_yrs_on_2_different_years(
@@ -83,8 +83,8 @@ class TestComparisonXls(TestCase):
 
     def test_check_for_changes(self):
         learning_unit_yr_data = [
-            ['acronym', 'idem', 'credits'],
-            ['acronym 2', 'idem', 'other credits'],
+            ['acronym', '2016-17', 'credits', 'idem'],
+            ['acronym 2', '2017-18', 'other credits', 'idem'],
         ]
         # C2 ('C' = third column, '2' = 2nd line)
         self.assertEqual(
@@ -92,7 +92,7 @@ class TestComparisonXls(TestCase):
                 learning_unit_yr_data[0],
                 learning_unit_yr_data[1],
                 2),
-            ['C2'])
+            ['A2', 'C2'])
 
 
 def _generate_xls_build_parameter(xls_data, user):
@@ -104,6 +104,6 @@ def _generate_xls_build_parameter(xls_data, user):
             xls_build.CONTENT_KEY: xls_data,
             xls_build.HEADER_TITLES_KEY: LEARNING_UNIT_TITLES,
             xls_build.WORKSHEET_TITLE_KEY: _(WORKSHEET_TITLE),
-            xls_build.COLORED_CELLS: None,
+            xls_build.STYLED_CELLS: None,
         }]
     }

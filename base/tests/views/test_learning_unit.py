@@ -1458,7 +1458,7 @@ def _generate_xls_build_parameter(xls_data, user):
                                           str(_('credits')),
                                           str(_('active_title'))],
             xls_build.WORKSHEET_TITLE_KEY: _(learning_unit_business.WORKSHEET_TITLE),
-            xls_build.COLORED_CELLS: None
+            xls_build.STYLED_CELLS: None
         }]
     }
 
