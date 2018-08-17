@@ -46,8 +46,8 @@
                         {% include "education_group/tabs.html" %}
                         <br>
                         <ul>
-                            {% for parent in parents %}
-                                <li>{{ parent }}</li>
+                            {% for group_element_year in group_element_years %}
+                                <li>{{ group_element_year.parent }}</li>
                             {% endfor %}
                         </ul>
                     </div>
