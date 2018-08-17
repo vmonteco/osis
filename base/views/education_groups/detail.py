@@ -229,6 +229,14 @@ class EducationGroupContent(EducationGroupGenericDetailView):
         return context
 
 
+class EducationGroupUsing(EducationGroupGenericDetailView):
+    template_name = "education_group/tab_using.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+
 def _group_elements(education_group_yr):
     group_elements = mdl.group_element_year.find_by_parent(education_group_yr)
     if group_elements.exists():

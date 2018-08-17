@@ -3515,3 +3515,6 @@ msgstr "Ent. charges"
 
 msgid "list_learning_units_comparison"
 msgstr "Liste comparative d'unités d'enseignement"
+
+msgid "Using"
+msgstr "Utilisation"
