@@ -86,7 +86,7 @@
                                         <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
                                     </a>
                                 {% endif %}
-                                {{ form_french|getattr:label_key }}
+                                {{ form_french|getattr:label_key|truncatewords_html:40 }}
                             </div>
                             <div class="col-md-5">
                                 {% if can_edit_information %}
@@ -96,7 +96,7 @@
                                         <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
                                     </a>
                                 {% endif %}
-                                {{ form_english|getattr:label_key}}
+                                {{ form_english|getattr:label_key|truncatewords_html:40}}
                             </div>
                         </div>
                         <hr id="line_for_{{ label_key }}"/>
