@@ -219,9 +219,8 @@ def _component_data(components, learning_component_yr_type):
 
 def _get_data(learning_unit_yr, new_line, first_data):
     organization = get_organization_from_learning_unit_year(learning_unit_yr)
-    acronym = _get_acronym(learning_unit_yr, new_line, first_data)
     return [
-        acronym,
+        _get_acronym(learning_unit_yr, new_line, first_data),
         learning_unit_yr.academic_year.name,
         xls_build.translate(learning_unit_yr.learning_container_year.container_type),
         _translate_status(learning_unit_yr.status),
