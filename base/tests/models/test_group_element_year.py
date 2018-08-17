@@ -44,10 +44,13 @@ class GroupElementYearTest(TestCase):
         self.education_group_year_parent = EducationGroupYearFactory(academic_year=academic_year)
         education_group_branch_1 = EducationGroupYearFactory(academic_year=academic_year)
         self.education_group_branch_2 = EducationGroupYearFactory(academic_year=academic_year)
+        self.learning_unit_year = LearningUnitYearFactory(academic_year=academic_year)
         self.group_element_year_1 = GroupElementYearFactory(parent=self.education_group_year_parent,
                                                             child_branch=education_group_branch_1)
         self.group_element_year_2 = GroupElementYearFactory(parent=self.education_group_year_parent,
                                                             child_branch=self.education_group_branch_2)
+        self.group_element_year_3 = GroupElementYearFactory(parent=self.education_group_year_parent,
+                                                            child_leaf=self.learning_unit_year)
 
     def test_find_by_parent(self):
         self.assertCountEqual(group_element_year.find_by_parent(self.education_group_year_parent),
@@ -56,6 +59,10 @@ class GroupElementYearTest(TestCase):
     def test_find_child_branch(self):
         self.assertCountEqual(group_element_year.find_by_child_branch(self.education_group_branch_2),
                               [self.group_element_year_2])
+
+    def test_find_child_leaf(self):
+        self.assertCountEqual(group_element_year.find_by_child_leaf(self.learning_unit_year),
+                              [self.group_element_year_3])
 
     class TestFindBuildParentListByEducationGroupYearId(TestCase):
         """Unit tests for _build_parent_list_by_education_group_year_id() function"""
