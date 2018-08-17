@@ -221,7 +221,6 @@ def get_dates(an_academic_calendar_type, an_education_group_year):
 
 class EducationGroupContent(EducationGroupGenericDetailView):
     template_name = "education_group/tab_content.html"
-    limited_by_category = (education_group_categories.MINI_TRAINING, education_group_categories.GROUP)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
