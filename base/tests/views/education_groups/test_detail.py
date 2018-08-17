@@ -88,5 +88,5 @@ class TestRead(TestCase):
     def test_education_group_using_check_parent_list_with_group(self):
         self.client.force_login(self.user)
         response = self.client.get(self.url)
-        self.assertEqual(len(response.context_data['group_elements']), 1)
+        self.assertEqual(len(response.context_data['group_element_years']), 1)
         self.assertTemplateUsed(response, 'education_group/tab_using.html')
