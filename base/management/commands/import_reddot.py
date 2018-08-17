@@ -166,7 +166,7 @@ class Command(BaseCommand):
 
         self.iso_language = options['language']
         self.json_content = json.loads(path.read_text())
-        self.lang = '' if self.iso_language == 'fr-be' else '_en'
+        self.suffix_language = '' if self.iso_language == 'fr-be' else '_en'
 
         if options['is_conditions']:
             self.load_admission_conditions()
@@ -231,10 +231,10 @@ class Command(BaseCommand):
     def save_condition_line_of_row(self, admission_condition, line):
         diploma = '\n'.join(map(str.strip, line['diploma'].splitlines()))
         fields = {
-            'diploma' + self.lang: diploma,
-            'conditions' + self.lang: line['conditions'] or '',
-            'access' + self.lang: line['access'],
-            'remarks' + self.lang: line['remarks']
+            'diploma' + self.suffix_language: diploma,
+            'conditions' + self.suffix_language: line['conditions'] or '',
+            'access' + self.suffix_language: line['access'],
+            'remarks' + self.suffix_language: line['remarks']
         }
 
         queryset = AdmissionConditionLine.objects.filter(section=line['title'],
@@ -249,10 +249,10 @@ class Command(BaseCommand):
             )
         else:
             acl = queryset.first()
-            setattr(acl, 'diploma' + self.lang, diploma)
-            setattr(acl, 'conditions' + self.lang, line['conditions'] or '')
-            setattr(acl, 'access' + self.lang, line['access'])
-            setattr(acl, 'remarks' + self.lang, line['remarks'])
+            setattr(acl, 'diploma' + self.suffix_language, diploma)
+            setattr(acl, 'conditions' + self.suffix_language, line['conditions'] or '')
+            setattr(acl, 'access' + self.suffix_language, line['access'])
+            setattr(acl, 'remarks' + self.suffix_language, line['remarks'])
             acl.save()
 
     def save_text_of_conditions(self, admission_condition, item):
@@ -343,4 +343,4 @@ class Command(BaseCommand):
             admission_condition.save()
 
     def set_admission_condition_value(self, admission_condition, field, value):
-        setattr(admission_condition, 'text_' + field + self.lang, value)
+        setattr(admission_condition, 'text_' + field + self.suffix_language, value)
