@@ -114,6 +114,9 @@ class ImportReddotTestCase(TestCase):
         self.command.json_content = [{'year': 2018, 'acronym': 'bacs'}, {'year': 2018, 'acronym': 'actu2m'}]
         self.command.load_admission_conditions()
 
+        mock_bachelor.assert_called_with({'year': 2018, 'acronym': 'bacs'}, 2018)
+        mock_generic.assert_called_with('actu2m', {'year': 2018, 'acronym': 'actu2m'}, 2018)
+
     def test_set_values_for_text_row_of_condition_admission_raise_exception(self):
         with self.assertRaises(Exception):
             line = {'section': 'demo'}
