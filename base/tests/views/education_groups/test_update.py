@@ -29,6 +29,7 @@ from unittest import mock
 from unittest.mock import patch
 
 from django.contrib.auth.models import Permission
+from django.contrib.messages import get_messages
 from django.test import TestCase, Client, RequestFactory
 from django.urls import reverse
 from django.utils.translation import ugettext as _
@@ -255,7 +256,7 @@ class TestGetSuccessRedirectUrl(TestCase):
 @override_flag('education_group_attach', active=True)
 @override_flag('education_group_select', active=True)
 @override_flag('education_group_update', active=True)
-class TestSelectDetachAttach(TestCase):
+class TestSelectAttach(TestCase):
     def setUp(self):
         self.locmem_cache = cache
         self.locmem_cache.clear()
@@ -348,6 +349,11 @@ class TestSelectDetachAttach(TestCase):
         self.assertRedirects(response, redirected_url, fetch_redirect_response=False)
 
     def test_attach_case_child_education_group_year(self):
+        AuthorizedRelationshipFactory(
+            parent_type=self.new_parent_education_group_year.education_group_type,
+            child_type=self.child_education_group_year.education_group_type,
+        )
+
         expected_absent_group_element_year = GroupElementYear.objects.filter(
             parent=self.new_parent_education_group_year,
             child_branch=self.child_education_group_year
@@ -356,10 +362,13 @@ class TestSelectDetachAttach(TestCase):
 
         self._assert_link_with_inital_parent_present()
 
+        # Select :
         self.client.post(
             self.url_select_education_group,
             data={'child_to_cache_id': self.child_education_group_year.id}
         )
+
+        # Attach :
         self.client.get(self.url_attach, HTTP_REFERER='http://foo/bar')
 
         expected_group_element_year_count = GroupElementYear.objects.filter(
@@ -367,6 +376,50 @@ class TestSelectDetachAttach(TestCase):
             child_branch=self.child_education_group_year
         ).count()
         self.assertEqual(expected_group_element_year_count, 1)
+
+        self._assert_link_with_inital_parent_present()
+
+    def test_attach_case_child_education_group_year_without_authorized_relationship_fails(self):
+        expected_absent_group_element_year = GroupElementYear.objects.filter(
+            parent=self.new_parent_education_group_year,
+            child_branch=self.child_education_group_year
+        ).exists()
+        self.assertFalse(expected_absent_group_element_year)
+
+        self._assert_link_with_inital_parent_present()
+
+        # Select :
+        self.client.post(
+            self.url_select_education_group,
+            data={'child_to_cache_id': self.child_education_group_year.id}
+        )
+
+        # Attach :
+        http_referer = reverse(
+            "education_group_read",
+            args=[
+                self.initial_parent_education_group_year.id,
+                self.child_education_group_year.id
+            ]
+        )
+        response = self.client.get(self.url_attach, follow=True, HTTP_REFERER=http_referer)
+        messages = list(get_messages(response.wsgi_request))
+        self.assertEqual(len(messages), 2)
+        self.assertEqual(
+            str(messages[1]),
+            _("""You cannot attach "{}" (type "{}") to "{}" (type "{}")""").format(
+                self.child_education_group_year,
+                self.child_education_group_year.education_group_type,
+                self.new_parent_education_group_year,
+                self.new_parent_education_group_year.education_group_type,
+            )
+        )
+
+        expected_absent_group_element_year = GroupElementYear.objects.filter(
+            parent=self.new_parent_education_group_year,
+            child_branch=self.child_education_group_year
+        ).exists()
+        self.assertFalse(expected_absent_group_element_year)
 
         self._assert_link_with_inital_parent_present()
 
@@ -406,7 +459,6 @@ class TestSelectDetachAttach(TestCase):
         )
         response = self.client.get(self.url_attach, follow=True, HTTP_REFERER=http_referer)
 
-        from django.contrib.messages import get_messages
         messages = list(get_messages(response.wsgi_request))
         self.assertEqual(len(messages), 1)
         self.assertEqual(str(messages[0]), _("Please Select or Move an item before Attach it"))
