@@ -122,7 +122,10 @@ class EducationGroupTestCase(TestCase):
         self.assertFalse(can_user_edit_administrative_data(self.user, self.education_group_year))
 
     def test_can_user_edit_administartive_data_group_central_manager_no_entity_linked_but_program_manager(self):
-        """With permission + Group central manager + Linked to the parent entity (with_child FALSE) + IS program manager ==> Allowed """
+        """
+        With permission + Group central manager + Linked to the parent entity (with_child FALSE) + IS
+        program manager ==> Allowed
+        """
         _add_to_group(self.user, CENTRAL_MANAGER_GROUP)
         PersonEntityFactory(person=self.person, entity=self.root_entity, with_child=False)
         ProgramManagerFactory(person=self.person, education_group=self.education_group_year.education_group)
@@ -375,6 +378,7 @@ def _generate_xls_build_parameter(xls_data, user):
             xls_build.CONTENT_KEY: xls_data,
             xls_build.HEADER_TITLES_KEY: EDUCATION_GROUP_TITLES,
             xls_build.WORKSHEET_TITLE_KEY: _(WORKSHEET_TITLE),
+            xls_build.STYLED_CELLS: None,
         }]
     }
 
@@ -388,6 +392,7 @@ def _generate_xls_administrative_data_build_parameter(xls_data, user):
             xls_build.CONTENT_KEY: xls_data,
             xls_build.HEADER_TITLES_KEY: _get_translated_header_titles(),
             xls_build.WORKSHEET_TITLE_KEY: _(WORKSHEET_TITLE_ADMINISTRATIVE),
+            xls_build.STYLED_CELLS: None,
         }]
     }
 

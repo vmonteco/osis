@@ -38,6 +38,7 @@ from base.models.enums import learning_component_year_type
 from base.business.learning_unit import get_organization_from_learning_unit_year
 from base.business.learning_units.comparison import get_partims_as_str
 from base.models.academic_year import current_academic_year
+from openpyxl.utils import get_column_letter
 
 # List of key that a user can modify
 EMPTY_VALUE = ''
@@ -93,10 +94,25 @@ LEARNING_UNIT_TITLES = [
     "PM {}".format(_('Add. requ. ent. 1')),
     "PM {}".format(_('Add. requ. ent. 2'))
 ]
+ACRONYM_COL_NUMBER = 0
+ACADEMIC_COL_NUMBER = 1
+CELLS_MODIFIED_NO_BORDER = 'modifications'
+CELLS_TOP_BORDER = 'border_not_modified'
+DATA = 'data'
 
 
 def create_xls_comparison(user, learning_unit_years, filters, academic_yr_comparison):
     working_sheets_data = []
+    cells_modified_with_green_font = []
+    cells_with_top_border = []
+
+    if learning_unit_years:
+        luys_for_2_years = _get_learning_unit_yrs_on_2_different_years(academic_yr_comparison, learning_unit_years)
+        data = prepare_xls_content(luys_for_2_years)
+        working_sheets_data = data.get('data')
+        cells_modified_with_green_font = data.get(CELLS_MODIFIED_NO_BORDER)
+        cells_with_top_border = data.get(CELLS_TOP_BORDER)
+
     parameters = {
         xls_build.DESCRIPTION: XLS_DESCRIPTION,
         xls_build.USER: get_name_or_username(user),
@@ -104,11 +120,14 @@ def create_xls_comparison(user, learning_unit_years, filters, academic_yr_compar
         xls_build.HEADER_TITLES: LEARNING_UNIT_TITLES,
         xls_build.WS_TITLE: WORKSHEET_TITLE,
     }
+    dict_styled_cells = {}
+    if cells_modified_with_green_font:
+        dict_styled_cells.update({xls_build.STYLE_MODIFIED: cells_modified_with_green_font})
 
-    if learning_unit_years:
-        luys_for_2_years = _get_learning_unit_yrs_on_2_different_years(academic_yr_comparison, learning_unit_years)
-        working_sheets_data = prepare_xls_content(luys_for_2_years)
-
+    if cells_with_top_border:
+        dict_styled_cells.update({xls_build.STYLE_BORDER_TOP: cells_with_top_border})
+    if dict_styled_cells:
+        parameters.update({xls_build.STYLED_CELLS: dict_styled_cells})
     return xls_build.generate_xls(xls_build.prepare_xls_parameters_list(working_sheets_data, parameters), filters)
 
 
@@ -145,8 +164,10 @@ def _get_learning_units(learning_unit_years):
 def prepare_xls_content(learning_unit_yrs):
     data = []
     learning_unit = None
-
-    for l_u_yr in learning_unit_yrs:
+    first_data = None
+    modified_cells_no_border = []
+    top_border = []
+    for line_index, l_u_yr in enumerate(learning_unit_yrs, start=1):
 
         if learning_unit is None:
             learning_unit = l_u_yr.learning_unit
@@ -157,13 +178,24 @@ def prepare_xls_content(learning_unit_yrs):
             else:
                 learning_unit = l_u_yr.learning_unit
                 new_line = True
+        luy_data = extract_xls_data_from_learning_unit(l_u_yr, new_line, first_data)
+        if new_line:
+            first_data = luy_data
+            top_border.extend(get_border_columns(line_index+1))
+        else:
+            modified_cells_no_border.extend(_check_changes_other_than_code_and_year(first_data, luy_data, line_index+1))
+            first_data = None
+        data.append(luy_data)
 
-        data.append(extract_xls_data_from_learning_unit(l_u_yr, new_line))
-    return data
+    return {
+        DATA: data,
+        CELLS_TOP_BORDER: top_border or None,
+        CELLS_MODIFIED_NO_BORDER: modified_cells_no_border or None,
+    }
 
 
-def extract_xls_data_from_learning_unit(learning_unit_yr, new_line):
-    data = _get_data(learning_unit_yr, new_line)
+def extract_xls_data_from_learning_unit(learning_unit_yr, new_line, first_data):
+    data = _get_data(learning_unit_yr, new_line, first_data)
     data.extend(_component_data(learning_unit_yr.components, learning_component_year_type.LECTURING))
     data.extend(_component_data(learning_unit_yr.components, learning_component_year_type.PRACTICAL_EXERCISES))
     return data
@@ -185,10 +217,10 @@ def _component_data(components, learning_component_yr_type):
             EMPTY_VALUE, EMPTY_VALUE]
 
 
-def _get_data(learning_unit_yr, new_line):
+def _get_data(learning_unit_yr, new_line, first_data):
     organization = get_organization_from_learning_unit_year(learning_unit_yr)
     return [
-        learning_unit_yr.acronym if new_line else EMPTY_VALUE,
+        _get_acronym(learning_unit_yr, new_line, first_data),
         learning_unit_yr.academic_year.name,
         xls_build.translate(learning_unit_yr.learning_container_year.container_type),
         _translate_status(learning_unit_yr.status),
@@ -212,6 +244,16 @@ def _get_data(learning_unit_yr, new_line):
         learning_unit_yr.campus if learning_unit_yr.campus else EMPTY_VALUE,
         get_partims_as_str(learning_unit_yr.get_partims_related())
     ]
+
+
+def _get_acronym(learning_unit_yr, new_line, first_data):
+    acronym = EMPTY_VALUE
+    if new_line:
+        acronym = learning_unit_yr.acronym
+    else:
+        if learning_unit_yr.acronym != first_data[ACRONYM_COL_NUMBER]:
+            acronym = learning_unit_yr.acronym
+    return acronym
 
 
 def _get_volumes(component, components):
@@ -239,7 +281,8 @@ def _get_entity_to_display(entity):
 
 
 def get_academic_year_of_reference(objects):
-    # TODO : As to be improved because it's not optimum if the xls list is created from a search with a criteria : academic_year = 'ALL'
+    """ TODO : Has to be improved because it's not optimum if the xls list is created from a search with a
+    criteria : academic_year = 'ALL' """
     if objects:
         return _get_academic_year(objects[0])
     return current_academic_year()
@@ -250,3 +293,22 @@ def _get_academic_year(obj):
         return obj.academic_year
     if isinstance(obj, ProposalLearningUnit):
         return obj.learning_unit_year.academic_year
+
+
+def _check_changes_other_than_code_and_year(first_data, second_data, line_index):
+    modifications = []
+    for col_index, obj in enumerate(first_data):
+        if col_index == ACRONYM_COL_NUMBER and second_data[ACRONYM_COL_NUMBER] != EMPTY_VALUE:
+            modifications.append('{}{}'.format(get_column_letter(col_index+1), line_index))
+        else:
+            if obj != second_data[col_index] and col_index != ACADEMIC_COL_NUMBER:
+                modifications.append('{}{}'.format(get_column_letter(col_index+1), line_index))
+
+    return modifications
+
+
+def get_border_columns(line):
+    style = []
+    for col_index, obj in enumerate(LEARNING_UNIT_TITLES, start=1):
+        style.append('{}{}'.format(get_column_letter(col_index), line))
+    return style
