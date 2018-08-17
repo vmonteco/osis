@@ -37,6 +37,7 @@
             <div class="tab-content" id="tab_content">
                 <div role="tabpanel" class="tab-pane active" id="content">
                     <div class="row" style="display:flex;">
+                        {% include "education_group/training_tree.html" %}
                         <div id="panel-data" class="col-md-12" style="height: 100%;">
                             {% include "education_group/learning_unit/tabs.html" %}
                         </div>
@@ -45,5 +46,15 @@
             </div>
         </div>
     </div>
+
+{% endblock %}
+
+{% block script %}
+
+    <script>
+        var root_id = "{{ root_id }}";
+        var url_resolver_match = "{% url_resolver_match %}";
+    </script>
+    <script src="{% static 'js/education_group/education_group_tree.js' %}"></script>
 
 {% endblock %}
