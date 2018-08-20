@@ -38,3 +38,7 @@ class LearningUnitGenericDetailView(PermissionRequiredMixin, DetailView):
 
 class LearningUnitUtilization(LearningUnitGenericDetailView):
     template_name = "education_group/learning_unit/tab_utilization.html"
+
+
+class LearningUnitPrerequisite(LearningUnitGenericDetailView):
+    template_name = "education_group/learning_unit/tab_prerequisite.html"

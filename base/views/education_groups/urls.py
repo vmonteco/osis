@@ -129,5 +129,8 @@ urlpatterns = [
         url(r'^utilization/$',
             learning_unit_detail.LearningUnitUtilization.as_view(),
             name='learning_unit_utilization'),
+        url(r'^prerequisite/$',
+            learning_unit_detail.LearningUnitPrerequisite.as_view(),
+            name='learning_unit_prerequisite'),
     ])),
 ]
