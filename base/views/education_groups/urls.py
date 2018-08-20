@@ -93,7 +93,7 @@ urlpatterns = [
                     name="group_element_year_management_comment")
             ]))
         ])),
-        url(r'^using/$', detail.EducationGroupUsing.as_view(), name='education_group_using'),
+        url(r'^utilization/$', detail.EducationGroupUsing.as_view(), name='education_group_utilization'),
         url(r'^admission_conditions/$',
             education_group.education_group_year_admission_condition_edit,
             name='education_group_year_admission_condition_edit'),
