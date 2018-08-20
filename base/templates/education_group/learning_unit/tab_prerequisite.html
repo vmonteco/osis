@@ -1,6 +1,5 @@
 {% extends "education_group/learning_unit/layout_detail.html" %}
 {% load i18n %}
-{% load staticfiles getattr education_group format %}
 {% comment "License" %}
 * OSIS stands for Open Student Information System. It's an application
 * designed to manage the core business of higher education institutions,
@@ -25,60 +24,31 @@
 * see http://www.gnu.org/licenses/.
 {% endcomment %}
 
-{% block content %}
-
+{% block tab_content %}
     <div class="panel panel-default">
-        <div class="panel-heading">
-            <div class="row">
-                {% include "education_group/blocks/hamburger_button.html" %}
-            </div>
-        </div>
-        <div class="panel-body" id="tabs">
-            <div class="tab-content" id="tab_content">
-                <div role="tabpanel" class="tab-pane active" id="content">
-                    <div class="row" style="display:flex;">
-                        {% include "education_group/training_tree.html" %}
-                        <div id="panel-data" class="col-md-12" style="height: 100%;">
-                            {% include "education_group/learning_unit/tabs.html" %}
+        <div class="panel-body">
 
-                            <br>
+            <p>
+                <a href="{% url "learning_unit" learning_unit_year_id=learning_unit_year.id %}"><ins>{{ learning_unit_year.acronym }}</ins></a>
+                {% trans "has the following prerequisites" %}:
+            </p>
 
-                            <div class="panel panel-default">
-                                <div class="panel-body">
-                                    <table class="table table-hover">
-                                        <thead>
-                                            <tr>
-                                                <th>{% trans 'formations' %}</th>
-                                                <th>{% trans 'Prerequisites' %}</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {% for education_group_year in formations %}
-                                                <tr>
-                                                    <td>{{ education_group_year.acronym }}</td>
-                                                    <td>{{ education_group_year.prerequisites.0.prerequisite }}</td>
-                                                </tr>
-                                            {% endfor %}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>{% trans 'formations' %}</th>
+                        <th>{% trans 'Prerequisites' %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for education_group_year in formations %}
+                        <tr>
+                            <td>{{ education_group_year.acronym }}</td>
+                            <td>{{ education_group_year.prerequisites.0.prerequisite|default:"-"}}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
-
-{% endblock %}
-
-{% block script %}
-
-    <script>
-        var root_id = "{{ root_id }}";
-        var url_resolver_match = "{% url_resolver_match %}";
-    </script>
-    <script src="{% static 'js/education_group/education_group_tree.js' %}"></script>
-
 {% endblock %}
