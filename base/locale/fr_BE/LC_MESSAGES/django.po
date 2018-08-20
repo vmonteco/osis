@@ -3269,8 +3269,8 @@ msgstr "Abs. créd."
 msgid "Sess. derog."
 msgstr "Sess. dérog."
 
-msgid "%(count_enrollment)d student is  enrolled in the offer."
-msgid_plural "%(count_enrollment)d students are  enrolled in the offer."
+msgid "%(count_enrollment)d student is enrolled in the offer."
+msgid_plural "%(count_enrollment)d students are enrolled in the offer."
 msgstr[0] "%(count_enrollment)d étudiant est inscrit à l'offre."
 msgstr[1] "%(count_enrollment)d étudiants sont inscrits à l'offre."
 
@@ -3524,3 +3524,6 @@ msgstr "Vous ne pouvez pas attacher \"%(child)s\" (de type \"%(child_type)s\") �
 
 msgid "is using in"
 msgstr "est utilisée dans :"
+
+msgid "Cannot set end year to %(end_year)s :"
+msgstr "Impossible de mettre la fin à %(end_year)s :"
