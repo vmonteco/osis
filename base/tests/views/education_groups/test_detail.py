@@ -27,6 +27,7 @@ from django.contrib.auth.models import Permission
 from django.test import TestCase
 from django.urls import reverse
 
+from base.models.enums import education_group_categories
 from base.tests.factories.education_group_year import EducationGroupYearFactory
 from base.tests.factories.group_element_year import GroupElementYearFactory
 from base.tests.factories.learning_component_year import LearningComponentYearFactory
@@ -74,12 +75,18 @@ class TestRead(TestCase):
         cls.url = reverse(
             "education_group_using",
             args=[
-                cls.education_group_year_1.id,
-                cls.education_group_year_1.id,
+                cls.education_group_year_2.id,
+                cls.education_group_year_2.id,
             ]
         )
 
     def test_education_group_using_template_use(self):
         self.client.force_login(self.user)
         response = self.client.get(self.url)
+        self.assertTemplateUsed(response, 'education_group/tab_using.html')
+
+    def test_education_group_using_check_parent_list_with_group(self):
+        self.client.force_login(self.user)
+        response = self.client.get(self.url)
+        self.assertEqual(len(response.context_data['group_element_years']), 1)
         self.assertTemplateUsed(response, 'education_group/tab_using.html')

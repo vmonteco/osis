@@ -203,6 +203,12 @@ def find_by_parent(an_education_group_year):
     return GroupElementYear.objects.filter(parent=an_education_group_year)
 
 
+# TODO : education_group_yr.child_branch.all() instead
+@deprecated
+def find_by_child_branch(an_education_group_year):
+    return GroupElementYear.objects.filter(child_branch=an_education_group_year)
+
+
 def find_learning_unit_formations(objects, parents_as_instances=False):
     root_ids_by_object_id = {}
     if objects:
