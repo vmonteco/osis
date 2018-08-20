@@ -3517,3 +3517,12 @@ msgstr ""
 
 msgid "is using in"
 msgstr "is using in :"
+
+msgid "Prerequisite"
+msgstr ""
+
+msgid "Prerequisites"
+msgstr ""
+
+msgid "has the following prerequisites"
+msgstr ""
