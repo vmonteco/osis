@@ -27,6 +27,7 @@ from django.conf.urls import url, include
 
 from base.views import education_group
 from base.views.education_groups.group_element_year.read import pdf_content
+from base.views.education_groups.learning_unit import detail as learning_unit_detail
 from base.views.education_groups.select import education_group_select, learning_unit_select
 from . import search, create, detail, update, delete, group_element_year
 
@@ -92,7 +93,7 @@ urlpatterns = [
                     name="group_element_year_management_comment")
             ]))
         ])),
-        url(r'^using/$', detail.EducationGroupUsing.as_view(), name='education_group_using'),
+        url(r'^utilization/$', detail.EducationGroupUsing.as_view(), name='education_group_utilization'),
         url(r'^admission_conditions/$',
             education_group.education_group_year_admission_condition_edit,
             name='education_group_year_admission_condition_edit'),
@@ -123,5 +124,10 @@ urlpatterns = [
         url(r'^delete/$', delete.DeleteGroupEducationView.as_view(), name="delete_education_group"),
         url(r'^group_content/', group_element_year.read.ReadEducationGroupTypeView.as_view(), name="group_content"),
         url(r'^pdf_content/(?P<language>[a-z\-]+)', pdf_content, name="pdf_content"),
+    ])),
+    url(r'^(?P<root_id>[0-9]+)/(?P<learning_unit_year_id>[0-9]+)/learning_unit/', include([
+        url(r'^utilization/$',
+            learning_unit_detail.LearningUnitUtilization.as_view(),
+            name='learning_unit_utilization'),
     ])),
 ]

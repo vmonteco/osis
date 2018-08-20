@@ -27,6 +27,7 @@
 from base.models import academic_calendar
 from base.models import academic_year
 from base.models import admission_condition
+from base.models import authorized_relationship
 from base.models import campus
 from base.models import education_group
 from base.models import education_group_language
@@ -69,6 +70,7 @@ from base.models import organization_address
 from base.models import person
 from base.models import person_address
 from base.models import person_entity
+from base.models import prerequisite
 from base.models import program_manager
 from base.models import proposal_learning_unit
 from base.models import session_exam
@@ -80,4 +82,3 @@ from base.models import student
 from base.models import synchronization
 from base.models import teaching_material
 from base.models import tutor
-from base.models import authorized_relationship

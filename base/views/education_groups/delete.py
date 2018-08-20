@@ -24,13 +24,10 @@
 #
 ##############################################################################
 from django.urls import reverse_lazy
-from django.utils.translation import ngettext_lazy
-from django.utils.translation import ugettext_lazy as _
 
+from base.business.education_groups import shorten
 from base.models.education_group import EducationGroup
 from base.models.education_group_year import EducationGroupYear
-from base.models.group_element_year import GroupElementYear
-from base.models.offer_enrollment import OfferEnrollment
 from base.views.common_classes import DeleteViewWithDependencies
 from base.views.education_groups.perms import can_delete_all_education_group
 
@@ -81,34 +78,13 @@ class DeleteGroupEducationView(DeleteViewWithDependencies):
         """This function will return all protected message ordered by year"""
         protected_messages = []
         for education_group_year in sorted(self.education_group_years, key=lambda egy: egy.academic_year.year):
-            protected_message = self._get_protected_messages_by_education_group_year(education_group_year)
+            protected_message = shorten.get_protected_messages_by_education_group_year(
+                self.collector,
+                education_group_year
+            )
             if protected_message:
                 protected_messages.append({
                     'education_group_year': education_group_year,
                     'messages': protected_message
                 })
         return protected_messages
-
-    def _get_protected_messages_by_education_group_year(self, education_group_year):
-        protected_message = []
-
-        # Count the number of enrollment
-        count_enrollment = len([
-            enrollment for enrollment in self.collector.protected if
-            isinstance(enrollment, OfferEnrollment) and enrollment.education_group_year_id == education_group_year.id
-        ])
-        if count_enrollment:
-            protected_message.append(
-                ngettext_lazy(
-                    "%(count_enrollment)d student is  enrolled in the offer.",
-                    "%(count_enrollment)d students are  enrolled in the offer.",
-                    count_enrollment
-                ) % {"count_enrollment": count_enrollment}
-            )
-
-        # Check if content is not empty
-        if any(isinstance(gey, GroupElementYear) and gey.parent_id == education_group_year.id
-               for gey in self.collector.protected):
-            protected_message.append(_("The content of the education group is not empty."))
-
-        return protected_message

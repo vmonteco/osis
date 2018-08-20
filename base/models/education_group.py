@@ -27,6 +27,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
+from base.business.education_groups import shorten
 from osis_common.models.osis_model_admin import OsisModelAdmin
 
 
@@ -76,3 +77,6 @@ class EducationGroup(models.Model):
                         "min": _("start").title(),
                     }
                 })
+        # Check if end_year could be set according to protected data
+        if self.end_year:
+            shorten.check_education_group_end_date(self, self.end_year)

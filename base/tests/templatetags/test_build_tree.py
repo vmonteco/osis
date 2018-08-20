@@ -47,7 +47,7 @@ class TestBuildTree(TestCase):
         result = build_tree(
             context=self.context,
             current_group_element_year=self.group_element_year,
-            selected_education_group_year=self.group_element_year.child_branch
+            selected_node_obj=self.group_element_year.child_branch
         )
 
         self.assertHTMLEqual(result, self._expect_result(self.group_element_year))
@@ -61,7 +61,7 @@ class TestBuildTree(TestCase):
         result = build_tree(
             context=self.context,
             current_group_element_year=self.group_element_year,
-            selected_education_group_year=self.group_element_year.child_branch
+            selected_node_obj=self.group_element_year.child_branch
         )
 
         self.assertHTMLEqual(result, self._expect_result(self.group_element_year))
@@ -72,12 +72,13 @@ class TestBuildTree(TestCase):
             sub_templates += self._expect_result(el, False)
 
         return BRANCH_TEMPLATE.format(
-            data_jstree=ICON_JSTREE_FILE if not gey.child_branch.group_element_year_branches else "",
+            data_jstree="",
             gey=gey.pk,
-            egy=gey.child_branch.pk,
+            obj_pk=gey.child_branch.pk,
             url=reverse("education_group_read", args=[self.egy.pk, gey.child_branch.pk]) +
                 "?group_to_parent=" + str(gey.pk),
             text=gey.child_branch.verbose,
             a_class="jstree-wholerow-clicked" if root else "",
-            children=sub_templates
+            children=sub_templates,
+            tooltip_msg=gey.child_branch.acronym
         )

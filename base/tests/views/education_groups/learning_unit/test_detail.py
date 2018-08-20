@@ -72,20 +72,20 @@ class TestDetail(TestCase):
         cls.user.user_permissions.add(Permission.objects.get(codename="can_access_education_group"))
 
         cls.url = reverse(
-            "education_group_utilization",
+            "learning_unit_utilization",
             args=[
-                cls.education_group_year_2.id,
-                cls.education_group_year_2.id,
+                cls.education_group_year_1.id,
+                cls.learning_unit_year_1.id,
             ]
         )
 
     def test_education_group_using_template_use(self):
         self.client.force_login(self.user)
         response = self.client.get(self.url)
-        self.assertTemplateUsed(response, 'education_group/tab_utilization.html')
+        self.assertTemplateUsed(response, 'education_group/learning_unit/tab_utilization.html')
 
     def test_education_group_using_check_parent_list_with_group(self):
         self.client.force_login(self.user)
         response = self.client.get(self.url)
         self.assertEqual(len(response.context_data['group_element_years']), 1)
-        self.assertTemplateUsed(response, 'education_group/tab_utilization.html')
+        self.assertTemplateUsed(response, 'education_group/learning_unit/tab_utilization.html')
