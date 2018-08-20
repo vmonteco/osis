@@ -80,5 +80,5 @@ class TestBuildTree(TestCase):
             text=gey.child_branch.verbose,
             a_class="jstree-wholerow-clicked" if root else "",
             children=sub_templates,
-            tooltip_msg=gey.child_branch.title
+            tooltip_msg=gey.child_branch.acronym
         )

@@ -325,7 +325,7 @@ def _prepare_education_group_node_data(egy_obj, selected_node_obj, current_group
     text = egy_obj.verbose
     a_class = _get_a_class(egy_obj, selected_node_obj)
     children = children_template
-    tooltip_msg = egy_obj.title
+    tooltip_msg = egy_obj.acronym
     return locals()
 
 
