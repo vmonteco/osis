@@ -348,7 +348,7 @@ def _get_default_url_name(node_obj):
         LearningUnitYear: "learning_unit_utilization",
         EducationGroupYear: "education_group_read",
     }
-    return  DEFAULT_URL_BY_NODE_TYPE[type(node_obj)]
+    return DEFAULT_URL_BY_NODE_TYPE[type(node_obj)]
 
 
 def _get_icon_jstree(node_obj):
