@@ -40,6 +40,30 @@
                         {% include "education_group/training_tree.html" %}
                         <div id="panel-data" class="col-md-12" style="height: 100%;">
                             {% include "education_group/learning_unit/tabs.html" %}
+
+                            <br>
+
+                            <div class="panel panel-default">
+                                <div class="panel-body">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>{% trans 'formations' %}</th>
+                                                <th>{% trans 'Prerequisites' %}</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for education_group_year in formations %}
+                                                <tr>
+                                                    <td>{{ education_group_year.acronym }}</td>
+                                                    <td>{{ education_group_year.prerequisites.0.prerequisite }}</td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
                 </div>
