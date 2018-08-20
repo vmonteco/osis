@@ -23,20 +23,101 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from django.contrib.admin.utils import NestedObjects
+from django.core.exceptions import ValidationError, NON_FIELD_ERRORS
+from django.utils.safestring import mark_safe
+from django.utils.translation import ngettext_lazy, ugettext_lazy as _
+
 from base.models.education_group_year import EducationGroupYear
+from base.models.group_element_year import GroupElementYear
+from base.models.offer_enrollment import OfferEnrollment
 
 
 def start(education_group, until_year):
     """
     This function will delete all education group year
     """
+    education_group_years_to_delete = _get_education_group_years_to_delete(education_group, until_year)
     egy_deleted = []
-
-    qs = EducationGroupYear.objects.filter(
-        education_group=education_group,
-        academic_year__year__gt=until_year
-    ).order_by('academic_year__year')
-    for education_group_year in qs:
+    for education_group_year in education_group_years_to_delete:
         egy_deleted.append(education_group_year)
         education_group_year.delete()
     return egy_deleted
+
+
+def check_education_group_end_date(education_group, end_year):
+    education_group_years_to_delete = _get_education_group_years_to_delete(education_group, end_year)
+    protected_messages = _get_protected_messages(education_group_years_to_delete)
+    if protected_messages:
+        error_msg = _get_formated_error_msg(end_year, protected_messages)
+        raise ValidationError({
+            NON_FIELD_ERRORS: error_msg,
+            'end_year': ''
+        })
+    return True
+
+
+def _get_formated_error_msg(end_year, protected_messages):
+    error_msg = _("Cannot set end year to %(end_year)s :") % {'end_year': end_year}
+    error_msg += "<ul>"
+    for obj in protected_messages:
+        error_msg += "<li> {education_group_year} : {msg_str} </li>".format(
+            education_group_year=obj['education_group_year'],
+            msg_str=", ".join(obj['messages'])
+        )
+    error_msg += "</ul>"
+    return mark_safe(error_msg)
+
+
+def get_protected_messages_by_education_group_year(collector, education_group_year):
+    protected_message = []
+
+    # Count the number of enrollment
+    count_enrollment = len([
+        enrollment for enrollment in collector.protected if
+        isinstance(enrollment, OfferEnrollment) and enrollment.education_group_year_id == education_group_year.id
+    ])
+    if count_enrollment:
+        protected_message.append(
+            ngettext_lazy(
+                "%(count_enrollment)d student is  enrolled in the offer.",
+                "%(count_enrollment)d students are  enrolled in the offer.",
+                count_enrollment
+            ) % {"count_enrollment": count_enrollment}
+        )
+
+    # Check if content is not empty
+    if any(isinstance(gey, GroupElementYear) and gey.parent_id == education_group_year.id
+           for gey in collector.protected):
+        protected_message.append(_("The content of the education group is not empty."))
+
+    return protected_message
+
+
+def _get_education_group_years_to_delete(education_group, end_year):
+    return EducationGroupYear.objects.filter(
+        education_group=education_group,
+        academic_year__year__gt=end_year
+    ).order_by('academic_year__year')
+
+
+def _get_protected_messages(education_group_years):
+    protected_messages = []
+    collector = _get_collector(education_group_years)
+    if not collector.protected:
+        return protected_messages
+
+    for education_group_year in education_group_years:
+        protected_message = get_protected_messages_by_education_group_year(collector, education_group_year)
+        if protected_message:
+            protected_messages.append({
+                'education_group_year': education_group_year,
+                'messages': protected_message
+            })
+    return protected_messages
+
+
+def _get_collector(education_group_years):
+    collector = NestedObjects(using="default")
+    collector.collect(education_group_years)
+    return collector

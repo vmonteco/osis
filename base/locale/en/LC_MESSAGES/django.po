@@ -3517,3 +3517,6 @@ msgstr ""
 
 msgid "is using in"
 msgstr "is using in :"
+
+msgid "Cannot set end year to %(end_year)s :"
+msgstr ""

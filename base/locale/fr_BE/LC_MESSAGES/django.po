@@ -3524,3 +3524,6 @@ msgstr "Vous ne pouvez pas attacher \"%(child)s\" (de type \"%(child_type)s\") �
 
 msgid "is using in"
 msgstr "est utilisée dans :"
+
+msgid "Cannot set end year to %(end_year)s :"
+msgstr "Impossible de mettre la fin à %(end_year)s :"
