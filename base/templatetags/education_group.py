@@ -97,7 +97,7 @@ ICONS = {
 
 BRANCH_TEMPLATE = """
 <ul>
-    <li {data_jstree} id="node_{gey}_{egy}">
+    <li {data_jstree} id="node_{gey}_{obj_pk}">
         <a href="{url}" class="{a_class}" title="{tooltip_msg}">
             {text}
         </a>
@@ -269,40 +269,46 @@ def escaper(x):
 
 
 @register.simple_tag(takes_context=True)
-def build_tree(context, current_group_element_year, selected_education_group_year):
+def build_tree(context, current_group_element_year, selected_node_obj):
     request = context["request"]
     root = context["root"]
 
     # If it is the root, the group_element_year is not yet available.
-    if not current_group_element_year:
-        education_group_year = root
-    else:
-        education_group_year = current_group_element_year.child_branch
+    education_group_year = root if not current_group_element_year else current_group_element_year.child_branch
 
-    if not selected_education_group_year:
-        selected_education_group_year = education_group_year
-
-    data_jstree = _get_icon_jstree(education_group_year)
-    a_class = _get_a_class(education_group_year, selected_education_group_year)
+    if not selected_node_obj:
+        selected_node_obj = education_group_year
 
     children_template = ""
     for child in education_group_year.group_element_year_branches:
-        children_template += build_tree(context, child, selected_education_group_year)
+        children_template += build_tree(context, child, selected_node_obj)
 
     for child in education_group_year.group_element_year_leaves:
         luy = child.child_leaf
-        children_template += _generate_branch_html(luy, selected_education_group_year, current_group_element_year,
+        children_template += _generate_branch_html(luy, selected_node_obj, child,
                                                    root, request, "")
 
-    return _generate_branch_html(education_group_year, selected_education_group_year, current_group_element_year,
+    return _generate_branch_html(education_group_year, selected_node_obj, current_group_element_year,
                                  root, request, children_template)
 
 
-def _prepare_learning_unit_node_data(luy_obj, selected_node_obj, current_group_element_year, root):
+def _generate_branch_html(node_obj, selected_node_obj, current_group_element_year, root, request, children_template):
+    if isinstance(node_obj, EducationGroupYear):
+        format_data = _prepare_education_group_node_data(node_obj, selected_node_obj, current_group_element_year, root,
+                                                         children_template, request)
+    else:
+        format_data = _prepare_learning_unit_node_data(node_obj, selected_node_obj, current_group_element_year, root,
+                                                       request)
+    return mark_safe(BRANCH_TEMPLATE.format(
+        **format_data
+    ))
+
+
+def _prepare_learning_unit_node_data(luy_obj, selected_node_obj, current_group_element_year, root, request):
     data_jstree = _get_icon_jstree(luy_obj)
     gey = _get_group_element_year_id(current_group_element_year)
-    egy = luy_obj.pk
-    url = reverse("learning_unit_utilization", args=[root.pk, luy_obj.pk])
+    obj_pk = luy_obj.pk
+    url = _get_node_url(request, luy_obj, selected_node_obj, root, current_group_element_year)
     text = luy_obj.acronym
     a_class = _get_a_class(luy_obj, selected_node_obj)
     children = ""
@@ -310,45 +316,49 @@ def _prepare_learning_unit_node_data(luy_obj, selected_node_obj, current_group_e
     return locals()
 
 
-def _prepare_education_group_node_data(egy_obj, selected_node_obj, current_group_element_year, root, children_template):
+def _prepare_education_group_node_data(egy_obj, selected_node_obj, current_group_element_year, root, children_template,
+                                       request):
     data_jstree = _get_icon_jstree(egy_obj)
     gey = _get_group_element_year_id(current_group_element_year)
-    egy = egy_obj.pk
-    url = reverse("education_group_read", args=[root.pk, egy_obj.pk])
+    obj_pk = egy_obj.pk
+    url = _get_node_url(request, egy_obj, selected_node_obj, root, current_group_element_year)
     text = egy_obj.verbose
     a_class = _get_a_class(egy_obj, selected_node_obj)
     children = children_template
-    tooltip_msg = egy_obj.title
+    tooltip_msg = egy_obj.acronym
     return locals()
-
-
-def _generate_branch_html(node_obj, selected_node_obj, current_group_element_year, root, request, children_template):
-    if isinstance(node_obj, EducationGroupYear):
-        format_data = _prepare_education_group_node_data(node_obj, selected_node_obj, current_group_element_year, root,
-                                                         children_template)
-    else:
-        format_data = _prepare_learning_unit_node_data(node_obj, selected_node_obj, current_group_element_year, root)
-    return mark_safe(BRANCH_TEMPLATE.format(
-        **format_data
-    ))
 
 
 def _get_group_element_year_id(current_group_element_year):
     return current_group_element_year.pk if current_group_element_year else "0"
 
 
-def _get_url(request, egy, root, current_group_element_year):
-    url_name = request.resolver_match.url_name if request.resolver_match else "education_group_read"
-    return reverse(url_name, args=[root.pk, egy.pk]) + "?group_to_parent=" + (
+def _get_node_url(request, node_obj, selected_node_obj, root, current_group_element_year):
+    default_url_name = _get_default_url_name(node_obj)
+
+    url_name = request.resolver_match.url_name if request.resolver_match and type(node_obj) == type(selected_node_obj) \
+        else default_url_name
+
+    return reverse(url_name, args=[root.pk, node_obj.pk]) + "?group_to_parent=" + (
         str(current_group_element_year.id) if current_group_element_year else '0')
+
+
+def _get_default_url_name(node_obj):
+    DEFAULT_URL_BY_NODE_TYPE = {
+        LearningUnitYear: "learning_unit_utilization",
+        EducationGroupYear: "education_group_read",
+    }
+    return DEFAULT_URL_BY_NODE_TYPE[type(node_obj)]
 
 
 def _get_icon_jstree(node_obj):
     return ICON_JSTREE_FILE if isinstance(node_obj, LearningUnitYear) else ""
 
 
-def _get_a_class(education_group_year, selected_education_group_year):
-    return "jstree-wholerow-clicked" if education_group_year.pk == selected_education_group_year.pk else ""
+def _get_a_class(node_obj, selected_node_obj):
+    return "jstree-wholerow-clicked" \
+        if node_obj.pk == selected_node_obj.pk and type(node_obj) == type(selected_node_obj) \
+        else ""
 
 
 @register.simple_tag(takes_context=True)

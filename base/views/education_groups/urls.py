@@ -126,7 +126,8 @@ urlpatterns = [
         url(r'^pdf_content/(?P<language>[a-z\-]+)', pdf_content, name="pdf_content"),
     ])),
     url(r'^(?P<root_id>[0-9]+)/(?P<learning_unit_year_id>[0-9]+)/learning_unit/', include([
-        url(r'^utilization/$', learning_unit_detail.LearningUnitUtilization.as_view(),
+        url(r'^utilization/$',
+            learning_unit_detail.LearningUnitUtilization.as_view(),
             name='learning_unit_utilization'),
     ])),
 ]
