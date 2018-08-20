@@ -78,7 +78,10 @@ class DeleteGroupEducationView(DeleteViewWithDependencies):
         """This function will return all protected message ordered by year"""
         protected_messages = []
         for education_group_year in sorted(self.education_group_years, key=lambda egy: egy.academic_year.year):
-            protected_message = shorten.get_protected_messages_by_education_group_year(self.collector, education_group_year)
+            protected_message = shorten.get_protected_messages_by_education_group_year(
+                self.collector,
+                education_group_year
+            )
             if protected_message:
                 protected_messages.append({
                     'education_group_year': education_group_year,
