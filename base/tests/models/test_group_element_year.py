@@ -50,11 +50,12 @@ class GroupElementYearTest(TestCase):
         self.group_element_year_2 = GroupElementYearFactory(parent=self.education_group_year_parent,
                                                             child_branch=self.education_group_branch_2)
         self.group_element_year_3 = GroupElementYearFactory(parent=self.education_group_year_parent,
+                                                            child_branch=None,
                                                             child_leaf=self.learning_unit_year)
 
     def test_find_by_parent(self):
         self.assertCountEqual(group_element_year.find_by_parent(self.education_group_year_parent),
-                              [self.group_element_year_1, self.group_element_year_2])
+                              [self.group_element_year_1, self.group_element_year_2, self.group_element_year_3])
 
     def test_find_child_branch(self):
         self.assertCountEqual(group_element_year.find_by_child_branch(self.education_group_branch_2),
