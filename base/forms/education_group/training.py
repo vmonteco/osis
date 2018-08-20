@@ -29,8 +29,8 @@ from django import forms
 from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
 
-from base.business.education_groups import postponement
 from base.business.education_groups import shorten
+from base.business.education_groups.postponement import PostponementEducationGroupYearMixin
 from base.forms.education_group.common import CommonBaseForm, EducationGroupModelForm, \
     MainEntitiesVersionChoiceField, EducationGroupYearModelForm
 from base.models.education_group_year_domain import EducationGroupYearDomain
@@ -135,7 +135,7 @@ class TrainingEducationGroupYearForm(EducationGroupYearModelForm):
                 domain_id=domain_id)
 
 
-class TrainingForm(CommonBaseForm):
+class TrainingForm(PostponementEducationGroupYearMixin, CommonBaseForm):
 
     def __init__(self, data, instance=None, parent=None, education_group_type=None):
         education_group_year_form = TrainingEducationGroupYearForm(
@@ -155,11 +155,9 @@ class TrainingForm(CommonBaseForm):
         if education_group_instance.end_year:
             egy_deleted = shorten.start(education_group_instance, education_group_instance.end_year)
 
-        egy_postponed_list = postponement.start(
-            education_group_instance,
-            start_year=self.forms[forms.ModelForm].instance.academic_year.year
-        )
-        return {'object_list_upserted': egy_postponed_list, 'object_list_deleted': egy_deleted}
+        return {
+            'object_list_deleted': egy_deleted,
+        }
 
 
 @register('university_domains')
