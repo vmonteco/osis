@@ -97,7 +97,7 @@ ICONS = {
 
 BRANCH_TEMPLATE = """
 <ul>
-    <li {data_jstree} id="node_{gey}_{egy}">
+    <li {data_jstree} id="node_{gey}_{obj_pk}">
         <a href="{url}" class="{a_class}" title="{tooltip_msg}">
             {text}
         </a>
@@ -307,7 +307,7 @@ def _generate_branch_html(node_obj, selected_node_obj, current_group_element_yea
 def _prepare_learning_unit_node_data(luy_obj, selected_node_obj, current_group_element_year, root, request):
     data_jstree = _get_icon_jstree(luy_obj)
     gey = _get_group_element_year_id(current_group_element_year)
-    egy = luy_obj.pk
+    obj_pk = luy_obj.pk
     url = _get_node_url(request, luy_obj, selected_node_obj, root, current_group_element_year)
     text = luy_obj.acronym
     a_class = _get_a_class(luy_obj, selected_node_obj)
@@ -320,7 +320,7 @@ def _prepare_education_group_node_data(egy_obj, selected_node_obj, current_group
                                        request):
     data_jstree = _get_icon_jstree(egy_obj)
     gey = _get_group_element_year_id(current_group_element_year)
-    egy = egy_obj.pk
+    obj_pk = egy_obj.pk
     url = _get_node_url(request, egy_obj, selected_node_obj, root, current_group_element_year)
     text = egy_obj.verbose
     a_class = _get_a_class(egy_obj, selected_node_obj)
