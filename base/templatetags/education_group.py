@@ -269,32 +269,26 @@ def escaper(x):
 
 
 @register.simple_tag(takes_context=True)
-def build_tree(context, current_group_element_year, selected_education_group_year):
+def build_tree(context, current_group_element_year, selected_node_obj):
     request = context["request"]
     root = context["root"]
 
     # If it is the root, the group_element_year is not yet available.
-    if not current_group_element_year:
-        education_group_year = root
-    else:
-        education_group_year = current_group_element_year.child_branch
+    education_group_year = root if not current_group_element_year else current_group_element_year.child_branch
 
-    if not selected_education_group_year:
-        selected_education_group_year = education_group_year
-
-    data_jstree = _get_icon_jstree(education_group_year)
-    a_class = _get_a_class(education_group_year, selected_education_group_year)
+    if not selected_node_obj:
+        selected_node_obj = education_group_year
 
     children_template = ""
     for child in education_group_year.group_element_year_branches:
-        children_template += build_tree(context, child, selected_education_group_year)
+        children_template += build_tree(context, child, selected_node_obj)
 
     for child in education_group_year.group_element_year_leaves:
         luy = child.child_leaf
-        children_template += _generate_branch_html(luy, selected_education_group_year, current_group_element_year,
+        children_template += _generate_branch_html(luy, selected_node_obj, child,
                                                    root, request, "")
 
-    return _generate_branch_html(education_group_year, selected_education_group_year, current_group_element_year,
+    return _generate_branch_html(education_group_year, selected_node_obj, current_group_element_year,
                                  root, request, children_template)
 
 
@@ -347,8 +341,10 @@ def _get_icon_jstree(node_obj):
     return ICON_JSTREE_FILE if isinstance(node_obj, LearningUnitYear) else ""
 
 
-def _get_a_class(education_group_year, selected_education_group_year):
-    return "jstree-wholerow-clicked" if education_group_year.pk == selected_education_group_year.pk else ""
+def _get_a_class(node_obj, selected_node_obj):
+    return "jstree-wholerow-clicked" \
+        if node_obj.pk == selected_node_obj.pk and type(node_obj) == type(selected_node_obj) \
+        else ""
 
 
 @register.simple_tag(takes_context=True)
