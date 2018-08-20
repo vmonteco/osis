@@ -2939,7 +2939,7 @@ msgstr "Entité demandeuse"
 msgid "local_credits"
 msgstr "Crédits locaux"
 
-msgid "warnigns_detected"
+msgid "warnings_detected"
 msgstr "Nous avons détecté des incohérences dans les données suivantes :"
 
 msgid "Volumes are inconsistent"

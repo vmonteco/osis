@@ -23,8 +23,11 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from multiprocessing.sharedctypes import _new_value
+
 from django import forms
 from django.forms import model_to_dict
+from django.utils.translation import ugettext as _
 
 from base import models as mdl_base
 from base.models.academic_year import AcademicYear
@@ -184,7 +187,11 @@ class PostponementEducationGroupYearMixin:
             self.education_group_year_postponed.append(postponed_egy)
 
     def compare_objects(self, current_dict):
-        return {x: current_dict[x] for x in self.dict_initial_egy if self.dict_initial_egy[x] != current_dict[x]}
+        return {
+            name: (value, current_dict[name])
+            for name, value in self.dict_initial_egy.items()
+            if self.dict_initial_egy[name] != current_dict[name]
+        }
 
     @staticmethod
     def update_object(education_group_year, new_values):
@@ -193,7 +200,16 @@ class PostponementEducationGroupYearMixin:
         return education_group_year.save()
 
     def add_postponement_errors(self, postponed_education_group_year, differences):
-        self.warnings.append("Impossible to save {}. It has been already modify ({})".format(
-            str(postponed_education_group_year),
-            str(differences))
-        )
+        for name, difference in differences.items():
+            error = _("%(col_name)s has been already modified. ({%(new_value)s} instead of {%(current_value)s})") % {
+                "col_name": _(EducationGroupYear._meta.get_field(name).verbose_name).title(),
+                "new_value": difference[1],
+                "current_value": difference[0]
+
+            }
+
+            self.warnings.append(
+                _("Consistency error in %(academic_year)s : %(error)s") % {
+                    'academic_year': postponed_education_group_year.academic_year, 'error': error
+                }
+            )

@@ -97,8 +97,6 @@ class TestPostponementEducationGroupYearMixin(TestCase):
                 .count(), 7
         )
 
-
-
     def test_save_with_postponement_error(self):
         EducationGroupYearFactory(academic_year=self.list_acs[4],
                                   education_group=self.education_group_year.education_group)
@@ -114,4 +112,5 @@ class TestPostponementEducationGroupYearMixin(TestCase):
                 .filter(education_group=self.education_group_year.education_group)
                 .count(), 5
         )
-        self.assertEqual(len(form.warnings), 1)
+        self.assertEqual(len(form.warnings), 13)
+        print(form.warnings)
