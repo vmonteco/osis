@@ -113,4 +113,3 @@ class TestPostponementEducationGroupYearMixin(TestCase):
                 .count(), 5
         )
         self.assertEqual(len(form.warnings), 13)
-        print(form.warnings)
