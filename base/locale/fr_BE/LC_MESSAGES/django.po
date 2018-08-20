@@ -3516,7 +3516,7 @@ msgstr "Ent. charges"
 msgid "list_learning_units_comparison"
 msgstr "Liste comparative d'unités d'enseignement"
 
-msgid "Using"
+msgid "Utilization"
 msgstr "Utilisation"
 
 msgid "You cannot attach \"%(child)s\" (type \"%(child_type)s\") to \"%(parent)s\" (type \"%(parent_type)s\")"

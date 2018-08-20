@@ -93,7 +93,7 @@ urlpatterns = [
                     name="group_element_year_management_comment")
             ]))
         ])),
-        url(r'^using/$', detail.EducationGroupUsing.as_view(), name='education_group_using'),
+        url(r'^utilization/$', detail.EducationGroupUsing.as_view(), name='education_group_utilization'),
         url(r'^admission_conditions/$',
             education_group.education_group_year_admission_condition_edit,
             name='education_group_year_admission_condition_edit'),
@@ -126,6 +126,7 @@ urlpatterns = [
         url(r'^pdf_content/(?P<language>[a-z\-]+)', pdf_content, name="pdf_content"),
     ])),
     url(r'^(?P<root_id>[0-9]+)/(?P<learning_unit_year_id>[0-9]+)/learning_unit/', include([
-        url(r'^utilization/$', learning_unit_detail.LearningUnitUtilization.as_view(), name='learning_unit_utilization'),
+        url(r'^utilization/$', learning_unit_detail.LearningUnitUtilization.as_view(),
+            name='learning_unit_utilization'),
     ])),
 ]
