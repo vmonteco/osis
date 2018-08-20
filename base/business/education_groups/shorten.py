@@ -60,10 +60,10 @@ def check_education_group_end_date(education_group, end_year):
 def _get_formated_error_msg(end_year, protected_messages):
     error_msg = _("Cannot set end year to %(end_year)s :") % {'end_year': end_year}
     error_msg += "<ul>"
-    for obj in protected_messages:
+    for protected_message in protected_messages:
         error_msg += "<li> {education_group_year} : {msg_str} </li>".format(
-            education_group_year=obj['education_group_year'],
-            msg_str=", ".join(obj['messages'])
+            education_group_year=protected_message['education_group_year'],
+            msg_str=", ".join(protected_message['messages'])
         )
     error_msg += "</ul>"
     return mark_safe(error_msg)
@@ -80,8 +80,8 @@ def get_protected_messages_by_education_group_year(collector, education_group_ye
     if count_enrollment:
         protected_message.append(
             ngettext_lazy(
-                "%(count_enrollment)d student is  enrolled in the offer.",
-                "%(count_enrollment)d students are  enrolled in the offer.",
+                "%(count_enrollment)d student is enrolled in the offer.",
+                "%(count_enrollment)d students are enrolled in the offer.",
                 count_enrollment
             ) % {"count_enrollment": count_enrollment}
         )

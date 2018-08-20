@@ -132,8 +132,8 @@ class TestGetProtectedMessageEducationGroupYear(EducationGroupShortenContext):
         count_enrollment = 1
         msg_expected = [
             ngettext_lazy(
-                "%(count_enrollment)d student is  enrolled in the offer.",
-                "%(count_enrollment)d students are  enrolled in the offer.",
+                "%(count_enrollment)d student is enrolled in the offer.",
+                "%(count_enrollment)d students are enrolled in the offer.",
                 count_enrollment
             ) % {"count_enrollment": count_enrollment}
         ]
