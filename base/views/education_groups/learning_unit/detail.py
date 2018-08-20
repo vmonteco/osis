@@ -73,6 +73,7 @@ class LearningUnitUtilization(LearningUnitGenericDetailView):
         context["group_element_years"] = group_element_year.find_by_child_leaf(self.object).select_related("parent")
         return context
 
+
 class LearningUnitPrerequisite(LearningUnitGenericDetailView):
     template_name = "education_group/learning_unit/tab_prerequisite.html"
 
@@ -80,7 +81,8 @@ class LearningUnitPrerequisite(LearningUnitGenericDetailView):
         context = super().get_context_data()
 
         learning_unit_year = context["learning_unit_year"]
-        formations_id = group_element_year.find_learning_unit_formations([learning_unit_year]).get(learning_unit_year.id, [])
+        formations_id = group_element_year.find_learning_unit_formations([learning_unit_year]).\
+            get(learning_unit_year.id, [])
         prefetch_prerequisites = Prefetch("prerequisite_set",
                                           Prerequisite.objects.filter(learning_unit_year=learning_unit_year),
                                           to_attr="prerequisites")
