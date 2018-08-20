@@ -11,12 +11,10 @@ from base.models.person import Person
 
 @method_decorator(login_required, name='dispatch')
 class LearningUnitGenericDetailView(PermissionRequiredMixin, DetailView):
-    # DetailView
     model = LearningUnitYear
     context_object_name = "learning_unit_year"
     pk_url_kwarg = 'learning_unit_year_id'
 
-    # PermissionRequiredMixin
     permission_required = 'base.can_access_education_group'
     raise_exception = True
 
@@ -29,9 +27,7 @@ class LearningUnitGenericDetailView(PermissionRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        # This objects are mandatory for all education group views
         context['person'] = self.get_person()
-
         context['root'] = self.get_root()
         context['root_id'] = self.kwargs.get("root_id")
         context['parent'] = self.get_root()

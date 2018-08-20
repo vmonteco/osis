@@ -36,6 +36,7 @@ from backoffice.settings import base
 from base.business.education_groups.perms import is_eligible_to_delete_education_group, \
     is_eligible_to_change_education_group, is_eligible_to_add_training, \
     is_eligible_to_add_mini_training, is_eligible_to_add_group
+from base.models.education_group_year import EducationGroupYear
 from base.models.learning_unit_year import LearningUnitYear
 
 OPTIONAL_PNG = base.STATIC_URL + 'img/education_group_year/optional.png'
@@ -291,26 +292,51 @@ def build_tree(context, current_group_element_year, selected_education_group_yea
     # TODO Refactor code to extract method to generate branch html
     for child in education_group_year.group_element_year_leaves:
         luy = child.child_leaf
-        children_template += mark_safe(BRANCH_TEMPLATE.format(
-            data_jstree=_get_icon_jstree(luy),
-            gey=_get_group_element_year_id(current_group_element_year),
-            egy=luy.pk,
-            url=reverse("learning_unit_utilization", args=[root.pk, luy.pk]),
-            text=luy.acronym,
-            a_class=a_class,
-            children="",
-            tooltip_msg=luy.complete_title
-        ))
+        children_template += _generate_branch_html(
+            luy,
+            selected_education_group_year,
+            current_group_element_year,
+            root,
+            request,
+            "")
 
+    return _generate_branch_html(education_group_year, selected_education_group_year, current_group_element_year,
+                                 root, request, children_template)
+
+
+def _prepare_learning_unit_node_data(luy_obj, selected_node_obj, current_group_element_year, root):
+    data_jstree = _get_icon_jstree(luy_obj)
+    gey = _get_group_element_year_id(current_group_element_year)
+    egy = luy_obj.pk
+    url = reverse("learning_unit_utilization", args=[root.pk, luy_obj.pk])
+    text = luy_obj.acronym
+    a_class = _get_a_class(luy_obj, selected_node_obj)
+    children = ""
+    tooltip_msg = luy_obj.complete_title
+    return locals()
+
+
+def _prepare_education_group_node_data(egy_obj, selected_node_obj, current_group_element_year, root, children_template):
+    data_jstree = _get_icon_jstree(egy_obj)
+    gey = _get_group_element_year_id(current_group_element_year)
+    egy = egy_obj.pk
+    url = reverse("education_group_read", args=[root.pk, egy_obj.pk])
+    text = egy_obj.verbose
+    a_class = _get_a_class(egy_obj, selected_node_obj)
+    children = children_template
+    tooltip_msg = egy_obj.title
+    return locals()
+
+
+
+def _generate_branch_html(node_obj, selected_node_obj, current_group_element_year, root, request, children_template):
+    if isinstance(node_obj, EducationGroupYear):
+        return mark_safe(BRANCH_TEMPLATE.format(
+            **_prepare_education_group_node_data(node_obj, selected_node_obj, current_group_element_year, root,
+                                                 children_template)
+        ))
     return mark_safe(BRANCH_TEMPLATE.format(
-        data_jstree=data_jstree,
-        gey="0",
-        egy=education_group_year.pk,
-        url=_get_url(request, education_group_year, root, current_group_element_year),
-        text=education_group_year.verbose,
-        a_class=a_class,
-        children=children_template,
-        tooltip_msg=education_group_year.title
+        **_prepare_learning_unit_node_data(node_obj, selected_node_obj, current_group_element_year, root)
     ))
 
 
@@ -325,11 +351,7 @@ def _get_url(request, egy, root, current_group_element_year):
 
 
 def _get_icon_jstree(node_obj):
-    if isinstance(node_obj, LearningUnitYear):
-        data_jstree = ICON_JSTREE_FILE
-    else:
-        data_jstree = ""
-    return data_jstree
+    return ICON_JSTREE_FILE if isinstance(node_obj, LearningUnitYear) else ""
 
 
 def _get_a_class(education_group_year, selected_education_group_year):
