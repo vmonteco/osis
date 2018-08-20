@@ -289,16 +289,10 @@ def build_tree(context, current_group_element_year, selected_education_group_yea
     for child in education_group_year.group_element_year_branches:
         children_template += build_tree(context, child, selected_education_group_year)
 
-    # TODO Refactor code to extract method to generate branch html
     for child in education_group_year.group_element_year_leaves:
         luy = child.child_leaf
-        children_template += _generate_branch_html(
-            luy,
-            selected_education_group_year,
-            current_group_element_year,
-            root,
-            request,
-            "")
+        children_template += _generate_branch_html(luy, selected_education_group_year, current_group_element_year,
+                                                   root, request, "")
 
     return _generate_branch_html(education_group_year, selected_education_group_year, current_group_element_year,
                                  root, request, children_template)
@@ -328,15 +322,14 @@ def _prepare_education_group_node_data(egy_obj, selected_node_obj, current_group
     return locals()
 
 
-
 def _generate_branch_html(node_obj, selected_node_obj, current_group_element_year, root, request, children_template):
     if isinstance(node_obj, EducationGroupYear):
-        return mark_safe(BRANCH_TEMPLATE.format(
-            **_prepare_education_group_node_data(node_obj, selected_node_obj, current_group_element_year, root,
-                                                 children_template)
-        ))
+        format_data = _prepare_education_group_node_data(node_obj, selected_node_obj, current_group_element_year, root,
+                                                         children_template)
+    else:
+        format_data = _prepare_learning_unit_node_data(node_obj, selected_node_obj, current_group_element_year, root)
     return mark_safe(BRANCH_TEMPLATE.format(
-        **_prepare_learning_unit_node_data(node_obj, selected_node_obj, current_group_element_year, root)
+        **format_data
     ))
 
 
