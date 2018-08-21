@@ -3525,6 +3525,7 @@ msgid "Prerequisites"
 msgstr ""
 
 msgid "has the following prerequisites"
+msgstr ""
 
 msgid "Cannot set end year to %(end_year)s :"
 msgstr ""
