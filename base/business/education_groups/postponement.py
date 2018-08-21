@@ -23,8 +23,6 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from multiprocessing.sharedctypes import _new_value
-
 from django import forms
 from django.forms import model_to_dict
 from django.utils.translation import ugettext as _
@@ -34,30 +32,6 @@ from base.models.academic_year import AcademicYear
 from base.models.education_group_year import EducationGroupYear
 
 EDUCATION_GROUP_MAX_POSTPONE_YEARS = 6
-
-
-def start(education_group, start_year):
-    postpone_list = []
-
-    base_education_group_year = _get_start_education_group_year(education_group, start_year)
-    if not base_education_group_year:
-        return postpone_list
-
-    end_year = _compute_end_year(education_group)
-    for academic_year in mdl_base.academic_year.find_academic_years(start_year=start_year + 1, end_year=end_year):
-        postponed_egy = _postpone_education_group_year(base_education_group_year, academic_year)
-        postpone_list.append(postponed_egy)
-    return postpone_list
-
-
-def _get_start_education_group_year(education_group, start_year):
-    try:
-        return EducationGroupYear.objects.get(
-            education_group=education_group,
-            academic_year__year=start_year
-        )
-    except EducationGroupYear.DoesNotExist:
-        return None
 
 
 def _compute_end_year(education_group):
@@ -77,23 +51,6 @@ def _compute_end_year(education_group):
                                            .order_by('academic_year__year')\
                                            .last()
     return max(max_postponement_end_year, latest_egy.academic_year.year)
-
-
-def _postpone_education_group_year(education_group_year, academic_year):
-    """
-    This function will postpone the education group year in the academic year given as params
-    """
-    # Postpone the education group year
-    field_to_exclude = ['id', 'external_id', 'academic_year', 'languages', 'secondary_domains']
-    egy_to_postpone = _model_to_dict(education_group_year, exclude=field_to_exclude)
-    postponed_egy, created = EducationGroupYear.objects.update_or_create(
-        education_group=education_group_year.education_group,
-        academic_year=academic_year,
-        defaults=egy_to_postpone
-    )
-    # Postpone the m2m [languages / secondary_domains]
-    _postpone_m2m(education_group_year, postponed_egy)
-    return postponed_egy
 
 
 def _model_to_dict(instance, exclude=None):
@@ -135,7 +92,6 @@ class PostponementEducationGroupYearMixin:
     If one of the future year is already modified, it will stop the postponement and append a warning message
     """
 
-    # Postpone the education group year
     field_to_exclude = ['id', 'external_id', 'academic_year', 'languages', 'secondary_domains']
 
     def __init__(self, *args, **kwargs):
@@ -205,7 +161,6 @@ class PostponementEducationGroupYearMixin:
                 "col_name": _(EducationGroupYear._meta.get_field(name).verbose_name).title(),
                 "new_value": difference[1],
                 "current_value": difference[0]
-
             }
 
             self.warnings.append(
