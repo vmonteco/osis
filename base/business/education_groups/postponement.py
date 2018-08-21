@@ -66,9 +66,9 @@ def _model_to_dict(instance, exclude=None):
         if fk_field.name in data:
             data[fk_field.name + "_id"] = data.pop(fk_field.name)
 
-    for n, v in data.items():
-        if isinstance(v, SerializableQuerySet):
-            data[n] = list(v)
+    for key, value in data.items():
+        if isinstance(value, SerializableQuerySet):
+            data[key] = list(value)
     return data
 
 

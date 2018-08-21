@@ -23,7 +23,6 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from pprint import pprint
 
 from django.test import TestCase
 
