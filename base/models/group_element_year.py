@@ -62,6 +62,7 @@ class GroupElementYear(OrderedModel):
     parent = models.ForeignKey(
         EducationGroupYear,
         null=True,  # TODO: can not be null, dirty data
+        on_delete=models.PROTECT,
     )
 
     child_branch = models.ForeignKey(
