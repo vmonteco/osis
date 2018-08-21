@@ -3276,8 +3276,8 @@ msgstr ""
 msgid "Sess. derog."
 msgstr ""
 
-msgid "%(count_enrollment)d student is  enrolled in the offer."
-msgid_plural "%(count_enrollment)d students are  enrolled in the offer."
+msgid "%(count_enrollment)d student is enrolled in the offer."
+msgid_plural "%(count_enrollment)d students are enrolled in the offer."
 msgstr[0] ""
 msgstr[1] ""
 
@@ -3525,4 +3525,6 @@ msgid "Prerequisites"
 msgstr ""
 
 msgid "has the following prerequisites"
+
+msgid "Cannot set end year to %(end_year)s :"
 msgstr ""

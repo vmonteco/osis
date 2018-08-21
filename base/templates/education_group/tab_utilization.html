@@ -46,7 +46,7 @@
                             {% include "education_group/tabs.html" %}
                             <br>
                             <a href="{% url 'education_group_read' education_group_year.id education_group_year.id %}"
-                               id="lnk_offer_{education_group_year.id}}">{{ education_group_year.partial_acronym }}</a>
+                               id="lnk_offer_{education_group_year.id}}">{{ education_group_year.verbose }}</a>
                             {% trans 'is using in' %}
                             <br><br>
                             {% include "education_group/blocks/table_utilizations.html" %}
