@@ -23,6 +23,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from pprint import pprint
 
 from django.test import TestCase
 
@@ -36,6 +37,7 @@ from base.tests.factories.academic_year import create_current_academic_year, get
 from base.tests.factories.business.learning_units import GenerateAcademicYear
 from base.tests.factories.education_group_type import EducationGroupTypeFactory
 from base.tests.factories.education_group_year import TrainingFactory, EducationGroupYearFactory
+from base.tests.factories.education_group_year_domain import EducationGroupYearDomainFactory
 from base.tests.factories.entity_version import MainEntityVersionFactory, EntityVersionFactory
 from reference.tests.factories.domain import DomainFactory
 from reference.tests.factories.language import LanguageFactory
@@ -71,7 +73,6 @@ class TestPostponementEducationGroupYearMixin(TestCase):
             "start_year": 2010,
         }
 
-
     def test_init(self):
         # In case of creation
         form = TrainingForm({}, education_group_type=self.education_group_type)
@@ -82,10 +83,11 @@ class TestPostponementEducationGroupYearMixin(TestCase):
         dict_initial_egy = _model_to_dict(
             self.education_group_year, exclude=form.field_to_exclude
         )
-        self.assertEqual(form.dict_initial_egy, dict_initial_egy)
+
+        self.assertEqual(str(form.dict_initial_egy), str(dict_initial_egy))
 
     def test_save_with_postponement(self):
-
+        # Create postponed egy
         form = TrainingForm(self.data, instance=self.education_group_year)
         self.assertTrue(form.is_valid(), form.errors)
         form.save()
@@ -97,6 +99,22 @@ class TestPostponementEducationGroupYearMixin(TestCase):
                 .filter(education_group=self.education_group_year.education_group)
                 .count(), 7
         )
+        self.assertEqual(len(form.warnings), 0)
+
+        # Update egys
+        self.education_group_year.refresh_from_db()
+
+        self.data["title"] = "Defence Against the Dark Arts"
+        form = TrainingForm(self.data, instance=self.education_group_year)
+        self.assertTrue(form.is_valid(), form.errors)
+        form.save()
+
+        self.assertEqual(
+            EducationGroupYear.objects.filter(
+                education_group=self.education_group_year.education_group
+            ).count(), 7
+        )
+        self.assertEqual(len(form.warnings), 0, form.warnings)
 
     def test_save_with_postponement_error(self):
         EducationGroupYearFactory(academic_year=self.list_acs[4],
@@ -106,12 +124,11 @@ class TestPostponementEducationGroupYearMixin(TestCase):
         self.assertTrue(form.is_valid(), form.errors)
         form.save()
 
-        self.assertEqual(len(form.education_group_year_postponed), 3)
+        self.assertEqual(len(form.education_group_year_postponed), 5)
 
         self.assertEqual(
-            EducationGroupYear.objects
-                .filter(education_group=self.education_group_year.education_group)
-                .count(), 5
+            EducationGroupYear.objects.filter(
+                education_group=self.education_group_year.education_group).count(), 7
         )
         self.assertEqual(len(form.warnings), 13)
 
@@ -137,3 +154,30 @@ class TestPostponementEducationGroupYearMixin(TestCase):
         self.education_group_year.refresh_from_db()
         self.assertEqual(self.education_group_year.secondary_domains.count(), 2)
         self.assertEqual(last.secondary_domains.count(), 2)
+        self.assertEqual(len(form.warnings), 0)
+
+        # update with a conflict
+        dom3 = DomainFactory(name="Divination")
+        EducationGroupYearDomainFactory(domain=dom3, education_group_year=last)
+
+        domains = [DomainFactory(name="Care of Magical Creatures"), DomainFactory(name="Muggle Studies")]
+
+        self.data["secondary_domains"] = '|'.join([str(domain.pk) for domain in domains])
+
+        form = TrainingForm(self.data, instance=self.education_group_year)
+        self.assertTrue(form.is_valid(), form.errors)
+        form.save()
+
+        self.assertEqual(len(form.education_group_year_postponed), 5)
+
+        self.assertEqual(
+            EducationGroupYear.objects
+                .filter(education_group=self.education_group_year.education_group)
+                .count(), 7
+        )
+        last.refresh_from_db()
+        self.education_group_year.refresh_from_db()
+
+        self.assertEqual(self.education_group_year.secondary_domains.count(), 2)
+        self.assertEqual(last.secondary_domains.count(), 3)
+        self.assertEqual(len(form.warnings), 1)
