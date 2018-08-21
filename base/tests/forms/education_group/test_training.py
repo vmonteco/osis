@@ -37,6 +37,7 @@ from base.tests.factories.business.learning_units import GenerateAcademicYear
 from base.tests.factories.education_group_type import EducationGroupTypeFactory
 from base.tests.factories.education_group_year import TrainingFactory, EducationGroupYearFactory
 from base.tests.factories.entity_version import MainEntityVersionFactory, EntityVersionFactory
+from reference.tests.factories.domain import DomainFactory
 from reference.tests.factories.language import LanguageFactory
 
 
@@ -113,3 +114,26 @@ class TestPostponementEducationGroupYearMixin(TestCase):
                 .count(), 5
         )
         self.assertEqual(len(form.warnings), 13)
+
+    def test_save_with_postponement_m2m(self):
+        domains = [DomainFactory(name="Alchemy"), DomainFactory(name="Muggle Studies")]
+
+        self.data["secondary_domains"] = '|'.join([str(domain.pk) for domain in domains])
+
+        form = TrainingForm(self.data, instance=self.education_group_year)
+        self.assertTrue(form.is_valid(), form.errors)
+        form.save()
+
+        self.assertEqual(len(form.education_group_year_postponed), 6)
+
+        self.assertEqual(
+            EducationGroupYear.objects
+                .filter(education_group=self.education_group_year.education_group)
+                .count(), 7
+        )
+        last = EducationGroupYear.objects.filter(education_group=self.education_group_year.education_group
+                                                 ).order_by('academic_year').last()
+
+        self.education_group_year.refresh_from_db()
+        self.assertEqual(self.education_group_year.secondary_domains.count(), 2)
+        self.assertEqual(last.secondary_domains.count(), 2)
