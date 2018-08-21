@@ -24,9 +24,11 @@
 #
 ##############################################################################
 from django.contrib.auth.models import Permission
+from django.utils.translation import ugettext_lazy as _
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.translation import ngettext_lazy
 from waffle.testutils import override_flag
 
 from base.models.education_group import EducationGroup
@@ -70,11 +72,9 @@ class TestDeleteGroupEducationView(TestCase):
         self.assertEqual(response.status_code, 403)
 
     def test_delete_get(self):
-        GroupElementYearFactory(parent=self.education_group_year, child_leaf=None, child_branch=None)
-
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context["protected_objects"], set())
+        self.assertFalse(response.context["protected_messages"])
         self.assertTemplateUsed(response, "education_group/delete.html")
 
     def test_delete_post(self):
@@ -85,14 +85,29 @@ class TestDeleteGroupEducationView(TestCase):
         self.assertFalse(EducationGroup.objects.filter(pk=self.education_group.pk).exists())
 
     def test_delete_get_with_protected_objects(self):
-        protected_objects = {
-            OfferEnrollmentFactory(education_group_year=self.education_group_year),
-            GroupElementYearFactory(parent=self.education_group_year),
-            GroupElementYearFactory(parent=self.education_group_year),
-            self.education_group_year
-        }
+        # Create protected data
+        OfferEnrollmentFactory(education_group_year=self.education_group_year)
+        GroupElementYearFactory(parent=self.education_group_year)
+        GroupElementYearFactory(parent=self.education_group_year)
 
+        count_enrollment = 1
+        msg_offer_enrollment = ngettext_lazy(
+            "%(count_enrollment)d student is enrolled in the offer.",
+            "%(count_enrollment)d students are enrolled in the offer.",
+            count_enrollment
+        ) % {"count_enrollment": count_enrollment}
+        msg_pgrm_content = _("The content of the education group is not empty.")
+
+        protected_messages = [
+            {
+                'education_group_year': self.education_group_year,
+                'messages': [
+                    msg_offer_enrollment,
+                    msg_pgrm_content
+                ]
+            }
+        ]
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context["protected_objects"], protected_objects)
+        self.assertEqual(response.context["protected_messages"], protected_messages)
         self.assertTemplateUsed(response, "education_group/protect_delete.html")
