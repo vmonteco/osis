@@ -23,36 +23,16 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from django import forms
 from django.forms import model_to_dict
+from django.utils.translation import ugettext as _
 
 from base import models as mdl_base
+from base.models.academic_year import AcademicYear
 from base.models.education_group_year import EducationGroupYear
+from osis_common.models.serializable_model import SerializableQuerySet
 
 EDUCATION_GROUP_MAX_POSTPONE_YEARS = 6
-
-
-def start(education_group, start_year):
-    postpone_list = []
-
-    base_education_group_year = _get_start_education_group_year(education_group, start_year)
-    if not base_education_group_year:
-        return postpone_list
-
-    end_year = _compute_end_year(education_group)
-    for academic_year in mdl_base.academic_year.find_academic_years(start_year=start_year + 1, end_year=end_year):
-        postponed_egy = _postpone_education_group_year(base_education_group_year, academic_year)
-        postpone_list.append(postponed_egy)
-    return postpone_list
-
-
-def _get_start_education_group_year(education_group, start_year):
-    try:
-        return EducationGroupYear.objects.get(
-            education_group=education_group,
-            academic_year__year=start_year
-        )
-    except EducationGroupYear.DoesNotExist:
-        return None
 
 
 def _compute_end_year(education_group):
@@ -74,23 +54,6 @@ def _compute_end_year(education_group):
     return max(max_postponement_end_year, latest_egy.academic_year.year)
 
 
-def _postpone_education_group_year(education_group_year, academic_year):
-    """
-    This function will postpone the education group year in the academic year given as params
-    """
-    # Postpone the education group year
-    field_to_exclude = ['id', 'external_id', 'academic_year', 'languages', 'secondary_domains']
-    egy_to_postpone = _model_to_dict(education_group_year, exclude=field_to_exclude)
-    postponed_egy, created = EducationGroupYear.objects.update_or_create(
-        education_group=education_group_year.education_group,
-        academic_year=academic_year,
-        defaults=egy_to_postpone
-    )
-    # Postpone the m2m [languages / secondary_domains]
-    _postpone_m2m(education_group_year, postponed_egy)
-    return postponed_egy
-
-
 def _model_to_dict(instance, exclude=None):
     """
     It allows to transform an instance to a dict and for each FK, it add '_id'
@@ -102,6 +65,10 @@ def _model_to_dict(instance, exclude=None):
     for fk_field in filter(lambda field: field.is_relation, opts.concrete_fields):
         if fk_field.name in data:
             data[fk_field.name + "_id"] = data.pop(fk_field.name)
+
+    for key, value in data.items():
+        if isinstance(value, SerializableQuerySet):
+            data[key] = list(value)
     return data
 
 
@@ -121,3 +88,97 @@ def _postpone_m2m(education_group_year, postponed_egy):
         for m2m_obj in m2m_cls.objects.all().filter(education_group_year_id=education_group_year):
             m2m_data_to_postpone = _model_to_dict(m2m_obj, exclude=['id', 'external_id', 'education_group_year'])
             m2m_cls(education_group_year=postponed_egy, **m2m_data_to_postpone).save()
+
+
+class PostponementEducationGroupYearMixin:
+    """
+    This mixin will report the modification to the futures years.
+
+    If one of the future year is already modified, it will stop the postponement and append a warning message
+    """
+
+    field_to_exclude = ['id', 'external_id', 'academic_year']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.postpone_start_year = None
+        self.postpone_end_year = None
+        self.education_group_year_postponed = []
+        self.postponement_errors = {}
+        self.warnings = []
+
+        if not self._is_creation():
+            self.dict_initial_egy = _model_to_dict(
+                self.forms[forms.ModelForm].instance, exclude=self.field_to_exclude
+            )
+
+    def save(self):
+        education_group_year = super().save()
+
+        self.postpone_start_year = education_group_year.academic_year.year
+        self.postpone_end_year = _compute_end_year(education_group_year.education_group)
+        self._start_postponement(education_group_year)
+
+        return education_group_year
+
+    def _start_postponement(self, education_group_year):
+        dict_new_value = _model_to_dict(education_group_year, exclude=self.field_to_exclude)
+
+        for academic_year in AcademicYear.objects.filter(year__gt=self.postpone_start_year,
+                                                         year__lte=self.postpone_end_year):
+
+            postponed_egy, created = EducationGroupYear.objects.get_or_create(
+                education_group=education_group_year.education_group,
+                academic_year=academic_year,
+                # Create object without m2m relations
+                defaults={x: v for x, v in dict_new_value.items() if not isinstance(v, list)}
+            )
+
+            # During create of new postponed object, we need to update only the m2m relations
+            if created:
+                # Postpone the m2m [languages / secondary_domains]
+                _postpone_m2m(education_group_year, postponed_egy)
+                self.education_group_year_postponed.append(postponed_egy)
+
+            # During the update, we need to check if the postponed object has been modify
+            elif not self.warnings:
+                dict_postponed_egy = _model_to_dict(postponed_egy, exclude=self.field_to_exclude)
+                differences = self.compare_objects(dict_postponed_egy)
+
+                if differences:
+                    self.add_postponement_errors(postponed_egy, differences)
+                    continue
+
+                self.update_object(postponed_egy, dict_new_value)
+                # Postpone the m2m [languages / secondary_domains]
+                _postpone_m2m(education_group_year, postponed_egy)
+
+                self.education_group_year_postponed.append(postponed_egy)
+
+    def compare_objects(self, current_dict):
+        return {
+            name: (value, current_dict[name])
+            for name, value in self.dict_initial_egy.items()
+            if self.dict_initial_egy[name] != current_dict[name]
+        }
+
+    @staticmethod
+    def update_object(education_group_year, new_values):
+        for attr, value in new_values.items():
+            if not isinstance(value, list):
+                setattr(education_group_year, attr, value)
+        return education_group_year.save()
+
+    def add_postponement_errors(self, postponed_education_group_year, differences):
+        for name, difference in differences.items():
+            error = _("%(col_name)s has been already modified. ({%(new_value)s} instead of {%(current_value)s})") % {
+                "col_name": _(EducationGroupYear._meta.get_field(name).verbose_name).title(),
+                "new_value": difference[1],
+                "current_value": difference[0]
+            }
+
+            self.warnings.append(
+                _("Consistency error in %(academic_year)s : %(error)s") % {
+                    'academic_year': postponed_education_group_year.academic_year, 'error': error
+                }
+            )

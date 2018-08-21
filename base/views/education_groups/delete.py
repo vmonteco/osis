@@ -52,36 +52,12 @@ class DeleteGroupEducationView(DeleteViewWithDependencies):
     flag = 'education_group_delete'
     education_group_years = []
 
-    def post_collect(self):
-        for instance, list_objects in self.collector.model_objs.items():
-            self._append_protected_object(list_objects)
-
-            if instance is EducationGroupYear:
-                self.education_group_years = list_objects
-
-    def _append_protected_object(self, list_objects):
-        if not isinstance(list_objects, (list, set)):
-            list_objects = [list_objects]
-
-        for obj in list_objects:
-            if getattr(obj, 'is_deletable', False) and not obj.is_deletable():
-                self.collector.protected.add(obj)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        if self.collector.protected:
-            context["protected_messages"] = self.get_protected_messages()
-        return context
-
     def get_protected_messages(self):
         """This function will return all protected message ordered by year"""
+        self.education_group_years = self.get_object().educationgroupyear_set.all().order_by('academic_year__year')
         protected_messages = []
-        for education_group_year in sorted(self.education_group_years, key=lambda egy: egy.academic_year.year):
-            protected_message = shorten.get_protected_messages_by_education_group_year(
-                self.collector,
-                education_group_year
-            )
+        for education_group_year in self.education_group_years:
+            protected_message = shorten.get_protected_messages_by_education_group_year(education_group_year)
             if protected_message:
                 protected_messages.append({
                     'education_group_year': education_group_year,

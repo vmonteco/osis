@@ -38,7 +38,7 @@ from base import models as mdl_base
 from base.models.education_group_year import EducationGroupYear
 from base.models.enums import education_group_categories
 from base.views import layout
-from base.views.common import display_success_messages
+from base.views.common import display_success_messages, display_warning_messages
 from base.views.education_groups.perms import can_change_education_group
 from base.views.learning_units.perms import PermissionDecoratorWithUser
 
@@ -70,7 +70,7 @@ def _common_success_redirect(request, form, root):
             education_group_year.education_group.end_year >= education_group_year.academic_year.year:
         success_msgs = [_get_success_message_for_update_education_group_year(root.pk, education_group_year)]
 
-    if form.education_group_year_postponed:
+    if hasattr(form, 'education_group_year_postponed'):
         success_msgs += [
             _get_success_message_for_update_education_group_year(egy.id, egy)
             for egy in form.education_group_year_postponed
@@ -83,6 +83,10 @@ def _common_success_redirect(request, form, root):
 
     url = _get_success_redirect_url(root, education_group_year)
     display_success_messages(request, success_msgs, extra_tags='safe')
+
+    if hasattr(form, "warnings"):
+        display_warning_messages(request, form.warnings)
+
     return redirect(url)
 
 
