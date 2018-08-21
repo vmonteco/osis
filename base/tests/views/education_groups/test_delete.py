@@ -74,7 +74,7 @@ class TestDeleteGroupEducationView(TestCase):
     def test_delete_get(self):
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
-        self.assertFalse(response.context["protected_messages"])
+        self.assertEqual(response.context["protected_messages"], [])
         self.assertTemplateUsed(response, "education_group/delete.html")
 
     def test_delete_post(self):
