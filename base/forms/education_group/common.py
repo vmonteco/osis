@@ -151,7 +151,7 @@ class EducationGroupModelForm(forms.ModelForm):
 
 class CommonBaseForm:
     forms = None
-    education_group_year_postponed = []
+
     education_group_year_deleted = []
 
     def __init__(self, education_group_year_form, education_group_form):
@@ -205,7 +205,6 @@ class CommonBaseForm:
         self._save_group_element_year(educ_group_year_form.parent, education_group_year)
         if hasattr(self, '_post_save'):
             post_save = self._post_save()
-            self.education_group_year_postponed = post_save.get('object_list_upserted', [])
             self.education_group_year_deleted = post_save.get('object_list_deleted', [])
         return education_group_year
 
