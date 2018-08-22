@@ -26,14 +26,16 @@
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.db.models import Prefetch
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views.generic import DetailView
 
-from base import models as mdl
+from base.models import group_element_year
 from base.models.education_group_year import EducationGroupYear
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
+from base.models.prerequisite import Prerequisite
 
 
 @method_decorator(login_required, name='dispatch')
@@ -68,5 +70,23 @@ class LearningUnitUtilization(LearningUnitGenericDetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["group_element_years"] = mdl.group_element_year.find_by_child_leaf(self.object).select_related("parent")
+        context["group_element_years"] = group_element_year.find_by_child_leaf(self.object).select_related("parent")
+        return context
+
+
+class LearningUnitPrerequisite(LearningUnitGenericDetailView):
+    template_name = "education_group/learning_unit/tab_prerequisite.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data()
+
+        learning_unit_year = context["learning_unit_year"]
+        formations_id = group_element_year.find_learning_unit_formations([learning_unit_year]).\
+            get(learning_unit_year.id, [])
+        prefetch_prerequisites = Prefetch("prerequisite_set",
+                                          Prerequisite.objects.filter(learning_unit_year=learning_unit_year),
+                                          to_attr="prerequisites")
+        context["formations"] = EducationGroupYear.objects.filter(id__in=formations_id)\
+            .prefetch_related(prefetch_prerequisites)
+
         return context

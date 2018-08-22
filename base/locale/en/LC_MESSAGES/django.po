@@ -3518,5 +3518,13 @@ msgstr ""
 msgid "is using in"
 msgstr "is using in :"
 
+msgid "Prerequisite"
+msgid_plural "Prerequisites"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "has the following prerequisites"
+msgstr ""
+
 msgid "Cannot set end year to %(end_year)s :"
 msgstr ""
