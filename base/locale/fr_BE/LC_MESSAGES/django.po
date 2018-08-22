@@ -2894,6 +2894,9 @@ msgstr "Erreur de consistance en %(academic_year)s : %(error)s"
 msgid "%(col_name)s has been already modified. ({%(new_value)s} instead of {%(current_value)s})"
 msgstr "%(col_name)s a déjà été modifié. ({%(new_value)s} à la place de {%(current_value)s})"
 
+msgid "%(col_name)s has been already modified."
+msgstr "%(col_name)s a déjà été modifié."
+
 msgid "external_code"
 msgstr "Code local"
 
