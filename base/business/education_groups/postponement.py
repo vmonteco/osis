@@ -170,15 +170,14 @@ class PostponementEducationGroupYearMixin:
         return education_group_year.save()
 
     def add_postponement_errors(self, postponed_education_group_year, differences):
-        for name, difference in differences.items():
-            error = _("%(col_name)s has been already modified. ({%(new_value)s} instead of {%(current_value)s})") % {
-                "col_name": _(EducationGroupYear._meta.get_field(name).verbose_name).title(),
-                "new_value": difference[1],
-                "current_value": difference[0]
+        for difference in differences:
+            error = _("%(col_name)s has been already modified.") % {
+                "col_name": _(EducationGroupYear._meta.get_field(difference).verbose_name).title(),
             }
 
             self.warnings.append(
                 _("Consistency error in %(academic_year)s : %(error)s") % {
-                    'academic_year': postponed_education_group_year.academic_year, 'error': error
+                    'academic_year': postponed_education_group_year.academic_year,
+                    'error': error
                 }
             )
