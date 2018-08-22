@@ -28,6 +28,7 @@ from .base import *
 OPTIONAL_APPS = (
     'attribution',
     'assistant',
+    'continuing_education',
     'dissertation',
     'internship',
     'assessments',
