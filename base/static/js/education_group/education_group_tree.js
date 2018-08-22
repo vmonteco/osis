@@ -35,7 +35,12 @@ $(document).ready(function () {
         var args = obj.li_attr.id.split('_');
         var group_element_year_id = args[1];
         var education_group_year_id = args[2];
-        return {group_element_year_id: group_element_year_id, education_group_year_id: education_group_year_id};
+        var type = args[3];
+        return {
+            group_element_year_id: group_element_year_id,
+            education_group_year_id: education_group_year_id,
+            type:type
+        };
     }
 
     function build_url_data(education_group_year_id, group_element_year_id, action) {
@@ -85,6 +90,15 @@ $(document).ready(function () {
                     var education_group_year_id = __ret.education_group_year_id;
                     var attach_data = build_url_data(education_group_year_id, group_element_year_id, 'attach');
                     window.location.href = proxy_management_url + "?" + attach_data;
+                  },
+                  "_disabled" : function (data) {
+                     var __ret = get_data_from_tree(data);
+                     var type_element = __ret.type;
+                     if (type_element === "luy"){
+                         return true;
+                     }else{
+                         return false;
+                     }
                   }
               },
 

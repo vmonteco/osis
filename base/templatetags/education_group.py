@@ -97,7 +97,7 @@ ICONS = {
 
 BRANCH_TEMPLATE = """
 <ul>
-    <li {data_jstree} id="node_{gey}_{obj_pk}">
+    <li {data_jstree} id="node_{gey}_{obj_pk}_{obj_type}">
         <a href="{url}" class="{a_class}" title="{tooltip_msg}">
             {text}
         </a>
@@ -313,6 +313,7 @@ def _prepare_learning_unit_node_data(luy_obj, selected_node_obj, current_group_e
     a_class = _get_a_class(luy_obj, selected_node_obj)
     children = ""
     tooltip_msg = luy_obj.complete_title
+    obj_type = "luy"
     return locals()
 
 
@@ -326,6 +327,7 @@ def _prepare_education_group_node_data(egy_obj, selected_node_obj, current_group
     a_class = _get_a_class(egy_obj, selected_node_obj)
     children = children_template
     tooltip_msg = egy_obj.acronym
+    obj_type = "egy"
     return locals()
 
 
