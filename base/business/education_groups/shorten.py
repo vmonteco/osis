@@ -23,7 +23,6 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.contrib.admin.utils import NestedObjects
 from django.core.exceptions import ValidationError, NON_FIELD_ERRORS
 from django.utils.safestring import mark_safe
 from django.utils.translation import ngettext_lazy, ugettext_lazy as _
@@ -63,20 +62,17 @@ def _get_formated_error_msg(end_year, protected_messages):
     for protected_message in protected_messages:
         error_msg += "<li> {education_group_year} : {msg_str} </li>".format(
             education_group_year=protected_message['education_group_year'],
-            msg_str=", ".join(protected_message['messages'])
+            msg_str=", ".join([str(lazy_msg) for lazy_msg in protected_message['messages']])
         )
     error_msg += "</ul>"
     return mark_safe(error_msg)
 
 
-def get_protected_messages_by_education_group_year(collector, education_group_year):
+def get_protected_messages_by_education_group_year(education_group_year):
     protected_message = []
 
     # Count the number of enrollment
-    count_enrollment = len([
-        enrollment for enrollment in collector.protected if
-        isinstance(enrollment, OfferEnrollment) and enrollment.education_group_year_id == education_group_year.id
-    ])
+    count_enrollment = OfferEnrollment.objects.filter(education_group_year=education_group_year).count()
     if count_enrollment:
         protected_message.append(
             ngettext_lazy(
@@ -87,8 +83,8 @@ def get_protected_messages_by_education_group_year(collector, education_group_ye
         )
 
     # Check if content is not empty
-    if any(isinstance(gey, GroupElementYear) and gey.parent_id == education_group_year.id
-           for gey in collector.protected):
+    have_pgrm_content = GroupElementYear.objects.filter(parent=education_group_year).exists()
+    if have_pgrm_content:
         protected_message.append(_("The content of the education group is not empty."))
 
     return protected_message
@@ -103,21 +99,11 @@ def _get_education_group_years_to_delete(education_group, end_year):
 
 def _get_protected_messages(education_group_years):
     protected_messages = []
-    collector = _get_collector(education_group_years)
-    if not collector.protected:
-        return protected_messages
-
     for education_group_year in education_group_years:
-        protected_message = get_protected_messages_by_education_group_year(collector, education_group_year)
+        protected_message = get_protected_messages_by_education_group_year(education_group_year)
         if protected_message:
             protected_messages.append({
                 'education_group_year': education_group_year,
                 'messages': protected_message
             })
     return protected_messages
-
-
-def _get_collector(education_group_years):
-    collector = NestedObjects(using="default")
-    collector.collect(education_group_years)
-    return collector
