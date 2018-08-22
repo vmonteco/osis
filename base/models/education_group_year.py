@@ -71,7 +71,7 @@ class EducationGroupYear(models.Model):
     title_english = models.CharField(
         max_length=240,
         blank=True,
-        null=True,
+        default="",
         verbose_name=_("title_in_english")
     )
 
@@ -117,7 +117,7 @@ class EducationGroupYear(models.Model):
     funding_direction = models.CharField(
         max_length=1,
         blank=True,
-        null=True,
+        default="",
         verbose_name=_('funding_direction')
     )
 
@@ -129,7 +129,7 @@ class EducationGroupYear(models.Model):
     funding_direction_cud = models.CharField(
         max_length=1,
         blank=True,
-        null=True,
+        default="",
         verbose_name=_('cud_funding_direction')
     )
 
@@ -208,7 +208,7 @@ class EducationGroupYear(models.Model):
     professional_title = models.CharField(
         max_length=320,
         blank=True,
-        null=True
+        default="",
     )
 
     joint_diploma = models.BooleanField(default=False)
@@ -220,8 +220,18 @@ class EducationGroupYear(models.Model):
         null=True
     )
 
-    diploma_printing_title = models.CharField(max_length=140, blank=True, null=True)
-    inter_organization_information = models.CharField(max_length=320, blank=True, null=True)
+    diploma_printing_title = models.CharField(
+        max_length=140,
+        blank=True,
+        default="",
+    )
+
+    inter_organization_information = models.CharField(
+        max_length=320,
+        blank=True,
+        default="",
+    )
+
     inter_university_french_community = models.BooleanField(default=False)
     inter_university_belgium = models.BooleanField(default=False)
     inter_university_abroad = models.BooleanField(default=False)
@@ -242,7 +252,7 @@ class EducationGroupYear(models.Model):
     keywords = models.CharField(
         max_length=320,
         blank=True,
-        null=True,
+        default="",
         verbose_name=_('keywords')
     )
 
@@ -283,13 +293,13 @@ class EducationGroupYear(models.Model):
 
     remark = models.TextField(
         blank=True,
-        null=True,
+        default="",
         verbose_name=_("remark")
     )
 
     remark_english = models.TextField(
         blank=True,
-        null=True,
+        default="",
         verbose_name=_("remark_english")
     )
 
