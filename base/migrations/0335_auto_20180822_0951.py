@@ -23,7 +23,7 @@ def convert_none_to_empty(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('base', '0333_auto_20180820_1343'),
+        ('base', '0334_auto_20180821_0935'),
     ]
 
     operations = [
