@@ -67,6 +67,7 @@ CHILD_LEAF = """\
 
 NO_GIVEN_ROOT = "INVALID TREE : no given root"
 ICON_JSTREE_FILE = "data-jstree='{\"icon\":\"jstree-icon jstree-file\"}'"
+ICON_JSTREE_LEAF = "data-jstree='{\"icon\":\"glyphicon glyphicon-leaf\"}'"
 
 # TODO use inclusion tag
 LI_TEMPLATE = """
@@ -283,29 +284,32 @@ def build_tree(context, current_group_element_year, selected_node_obj):
     for child in education_group_year.group_element_year_branches:
         children_template += build_tree(context, child, selected_node_obj)
 
-    for child in education_group_year.group_element_year_leaves:
+    for child in education_group_year.group_element_year_leaves_with_number_prerequisites:
         luy = child.child_leaf
-        children_template += _generate_branch_html(luy, selected_node_obj, child,
-                                                   root, request, "")
+        has_prerequistes = child.num_prerequisites > 0
+        children_template += _generate_branch_html(luy, selected_node_obj, child, root, request, "",
+                                                   has_prerequistes=has_prerequistes)
 
     return _generate_branch_html(education_group_year, selected_node_obj, current_group_element_year,
                                  root, request, children_template)
 
 
-def _generate_branch_html(node_obj, selected_node_obj, current_group_element_year, root, request, children_template):
+def _generate_branch_html(node_obj, selected_node_obj, current_group_element_year, root, request, children_template,
+                          has_prerequistes=False):
     if isinstance(node_obj, EducationGroupYear):
         format_data = _prepare_education_group_node_data(node_obj, selected_node_obj, current_group_element_year, root,
                                                          children_template, request)
     else:
         format_data = _prepare_learning_unit_node_data(node_obj, selected_node_obj, current_group_element_year, root,
-                                                       request)
+                                                       request, has_prerequistes)
     return mark_safe(BRANCH_TEMPLATE.format(
         **format_data
     ))
 
 
-def _prepare_learning_unit_node_data(luy_obj, selected_node_obj, current_group_element_year, root, request):
-    data_jstree = _get_icon_jstree(luy_obj)
+def _prepare_learning_unit_node_data(luy_obj, selected_node_obj, current_group_element_year, root, request,
+                                     has_prerequisites):
+    data_jstree = _get_icon_jstree(luy_obj, has_prerequisites=has_prerequisites)
     gey = _get_group_element_year_id(current_group_element_year)
     obj_pk = luy_obj.pk
     url = _get_node_url(request, luy_obj, selected_node_obj, root, current_group_element_year)
@@ -351,8 +355,10 @@ def _get_default_url_name(node_obj):
     return DEFAULT_URL_BY_NODE_TYPE[type(node_obj)]
 
 
-def _get_icon_jstree(node_obj):
-    return ICON_JSTREE_FILE if isinstance(node_obj, LearningUnitYear) else ""
+def _get_icon_jstree(node_obj, has_prerequisites=False):
+    if isinstance(node_obj, EducationGroupYear):
+        return ""
+    return ICON_JSTREE_LEAF if has_prerequisites else ICON_JSTREE_FILE
 
 
 def _get_a_class(node_obj, selected_node_obj):

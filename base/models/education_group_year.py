@@ -462,6 +462,10 @@ class EducationGroupYear(models.Model):
         return self.groupelementyear_set.filter(child_leaf__isnull=False)
 
     @cached_property
+    def group_element_year_leaves_with_number_prerequisites(self):
+        return self.group_element_year_leaves.annotate(num_prerequisites=Count("child_leaf__prerequisite"))
+
+    @cached_property
     def coorganizations(self):
         return self.educationgrouporganization_set.all()
 
