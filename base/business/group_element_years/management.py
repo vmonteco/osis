@@ -52,6 +52,10 @@ def _set_selected_element_on_cache(id, modelname):
 
 
 def attach_from_cache(parent):
+    if isinstance(parent) == LearningUnitYear:
+        raise IncompatiblesTypesException(
+            errors=_("You cannot attach an element to a learning unit year")
+        )
     selected_data = cache.get(SELECT_CACHE_KEY)
     if selected_data:
         kwargs = {'parent': parent}
