@@ -84,7 +84,7 @@ def _is_eligible_education_group(person, education_group, raise_exception):
 
 def check_link_to_management_entity(education_group, person, raise_exception):
     if education_group:
-        eligible_entities = get_education_group_year_update_eligible_entities(education_group)
+        eligible_entities = get_education_group_year_eligible_management_entities(education_group)
         result = person.is_attached_entities(eligible_entities)
     else:
         result = True
@@ -130,12 +130,12 @@ def check_authorized_type(education_group, category, raise_exception=False):
     return result
 
 
-def get_education_group_year_update_eligible_entities(education_group):
+def get_education_group_year_eligible_management_entities(education_group):
     if education_group and education_group.management_entity:
         return [education_group.management_entity]
     else:
         eligible_entities = []
         for group in group_element_year.find_by_child_branch(education_group).select_related('parent'):
-            eligible_entities = eligible_entities + get_education_group_year_update_eligible_entities(group.parent)
+            eligible_entities = eligible_entities + get_education_group_year_eligible_management_entities(group.parent)
 
         return eligible_entities

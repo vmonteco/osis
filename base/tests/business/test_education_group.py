@@ -40,7 +40,7 @@ from base.business.education_group import can_user_edit_administrative_data, pre
     CHAIR_OF_THE_EXAM_BOARD_COL, EXAM_BOARD_SECRETARY_COL, EXAM_BOARD_SIGNATORY_COL, SIGNATORY_QUALIFICATION_COL, \
     START_EXAM_REGISTRATION_COL, END_EXAM_REGISTRATION_COL, MARKS_PRESENTATION_COL, DISSERTATION_PRESENTATION_COL, \
     DELIBERATION_COL, SCORES_DIFFUSION_COL, SESSION_HEADERS, _get_translated_header_titles
-from base.business.education_groups.perms import get_education_group_year_update_eligible_entities
+from base.business.education_groups.perms import get_education_group_year_eligible_management_entities
 from base.models.education_group_year import EducationGroupYear
 from base.models.enums import academic_calendar_type
 from base.models.enums import education_group_categories
@@ -400,14 +400,14 @@ def _generate_xls_administrative_data_build_parameter(xls_data, user):
 
 
 class EducationGroupGetEligibleEntities(TestCase):
-    def test_get_education_group_year_update_eligible_entities_one_egy(self):
+    def test_case_one_egy(self):
         education_group_year = EducationGroupYearFactory()
         self.assertEquals(
-            get_education_group_year_update_eligible_entities(education_group_year),
+            get_education_group_year_eligible_management_entities(education_group_year),
             [education_group_year.management_entity]
         )
 
-    def test_get_education_group_year_update_eligible_entities_one_egy_and_parent(self):
+    def test_case_one_egy_and_parent(self):
         education_group_year_child = EducationGroupYearFactory()
         education_group_year_parent = EducationGroupYearFactory()
         GroupElementYearFactory(
@@ -416,11 +416,11 @@ class EducationGroupGetEligibleEntities(TestCase):
         )
 
         self.assertEquals(
-            get_education_group_year_update_eligible_entities(education_group_year_child),
+            get_education_group_year_eligible_management_entities(education_group_year_child),
             [education_group_year_child.management_entity]
         )
 
-    def test_get_education_group_year_update_eligible_entities_one_egy_one_parent_no_entity_on_child(self):
+    def test_case_one_egy_one_parent_no_entity_on_child(self):
         education_group_year_child = EducationGroupYearFactory()
         education_group_year_parent = EducationGroupYearFactory()
         GroupElementYearFactory(
@@ -430,11 +430,11 @@ class EducationGroupGetEligibleEntities(TestCase):
         education_group_year_child.management_entity = None
 
         self.assertEquals(
-            get_education_group_year_update_eligible_entities(education_group_year_child),
+            get_education_group_year_eligible_management_entities(education_group_year_child),
             [education_group_year_parent.management_entity]
         )
 
-    def test_get_education_group_year_update_eligible_entities_one_egy_two_parent_no_entity_on_child(self):
+    def test_case_one_egy_two_parent_no_entity_on_child(self):
         education_group_year_child = EducationGroupYearFactory()
         education_group_year_parent1 = EducationGroupYearFactory()
         GroupElementYearFactory(
@@ -450,14 +450,14 @@ class EducationGroupGetEligibleEntities(TestCase):
         education_group_year_child.save()
 
         self.assertCountEqual(
-            get_education_group_year_update_eligible_entities(education_group_year_child),
+            get_education_group_year_eligible_management_entities(education_group_year_child),
             [
                 education_group_year_parent1.management_entity,
                 education_group_year_parent2.management_entity,
             ]
         )
 
-    def test_get_education_group_year_update_eligible_entities_complex_case(self):
+    def test_case_complex_hierarchy(self):
         education_group_year_child = EducationGroupYearFactory()
         EntityVersionFactory(entity=education_group_year_child.management_entity, acronym="CHILD")
 
@@ -515,7 +515,7 @@ class EducationGroupGetEligibleEntities(TestCase):
         education_group_year_parent5.save()
 
         self.assertCountEqual(
-            get_education_group_year_update_eligible_entities(education_group_year_child),
+            get_education_group_year_eligible_management_entities(education_group_year_child),
             [
                 education_group_year_parent2.management_entity,
                 education_group_year_parent3.management_entity,
