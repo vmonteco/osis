@@ -313,8 +313,17 @@ def _prepare_learning_unit_node_data(luy_obj, selected_node_obj, current_group_e
     a_class = _get_a_class(luy_obj, selected_node_obj)
     children = ""
     tooltip_msg = luy_obj.complete_title
-    obj_type = "luy"
-    return locals()
+    return {
+        'data_jstree': data_jstree,
+        'gey': gey,
+        'obj_pk': obj_pk,
+        'obj_type': "luy",
+        'url': url,
+        'a_class': a_class,
+        'tooltip_msg': tooltip_msg,
+        'text': text,
+        'children': children
+    }
 
 
 def _prepare_education_group_node_data(egy_obj, selected_node_obj, current_group_element_year, root, children_template,
@@ -327,8 +336,17 @@ def _prepare_education_group_node_data(egy_obj, selected_node_obj, current_group
     a_class = _get_a_class(egy_obj, selected_node_obj)
     children = children_template
     tooltip_msg = egy_obj.acronym
-    obj_type = "egy"
-    return locals()
+    return {
+        'data_jstree': data_jstree,
+        'gey': gey,
+        'obj_pk': obj_pk,
+        'obj_type': "egy",
+        'url': url,
+        'a_class': a_class,
+        'tooltip_msg': tooltip_msg,
+        'text': text,
+        'children': children
+    }
 
 
 def _get_group_element_year_id(current_group_element_year):

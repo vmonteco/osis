@@ -127,11 +127,10 @@ $(document).ready(function () {
                     });
 
                   },
-                  "_disabled": function(data) {
-                      var __ret = get_data_from_tree(data);
-                      var group_element_year_id = __ret.group_element_year_id;
-                      return (group_element_year_id === '0');
-                  }
+                  "_disabled" : function (data) {
+                     var __ret = get_data_from_tree(data);
+                     return __ret.type === "luy";
+                 }
               }
             }
         }
