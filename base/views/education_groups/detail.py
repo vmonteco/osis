@@ -24,10 +24,13 @@
 #
 ##############################################################################
 from collections.__init__ import OrderedDict
+from pprint import pprint
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.db.models import Value, F, Case, When
+from django.db.models.functions import Concat
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views.generic import DetailView
@@ -224,7 +227,19 @@ class EducationGroupContent(EducationGroupGenericDetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["group_elements"] = _group_elements(self.object)
+
+        context["group_element_years"] = self.object.groupelementyear_set.annotate(
+                code_scs=Case(
+                        When(child_leaf__isnull=False, then=F("child_leaf__acronym")),
+                        When(child_branch__isnull=False, then=F("child_branch__acronym")),
+                     ),
+
+                title=Case(
+                        When(child_leaf__isnull=False, then=F("child_leaf__specific_title")),
+                        When(child_branch__isnull=False, then=F("child_branch__title")),
+                     ),
+
+            ).order_by('order')
 
         return context
 
@@ -237,51 +252,3 @@ class EducationGroupUsing(EducationGroupGenericDetailView):
         context["group_element_years"] = mdl.group_element_year.find_by_child_branch(self.object) \
             .select_related("parent")
         return context
-
-
-def _group_elements(education_group_yr):
-    group_elements = mdl.group_element_year.find_by_parent(education_group_yr)
-    if group_elements.exists():
-        return _get_group_elements_data(group_elements)
-
-    return None
-
-
-def _get_education_group_detail(dict_param, group_element):
-    dict_param.update({CODE_SCS: group_element.child_branch.partial_acronym,
-                       TITLE: group_element.child_branch.title,
-                       CREDITS_MIN: group_element.min_credits,
-                       CREDITS_MAX: group_element.max_credits,
-                       BLOCK: None,
-                       QUADRIMESTER_DEROGATION: group_element.quadrimester_derogation,
-                       LINK_TYPE: group_element.link_type
-                       })
-    return dict_param
-
-
-def _get_learning_unit_detail(dict_param, group_element):
-    dict_param.update({CODE_SCS: group_element.child_leaf.acronym,
-                       TITLE: group_element.child_leaf.specific_title,
-                       CREDITS_MIN: None,
-                       CREDITS_MAX: None,
-                       BLOCK: group_element.block,
-                       QUADRIMESTER_DEROGATION: group_element.quadrimester_derogation,
-                       LINK_TYPE: group_element.link_type})
-    return dict_param
-
-
-# @TODO: Enhance research via queryset annotate
-def _get_group_elements_data(group_elements):
-    group_elements_data = []
-    for group_element in group_elements:
-        group_element_values = {'group_element': group_element}
-        if group_element.child_leaf:
-            _get_learning_unit_detail(group_element_values, group_element)
-        elif group_element.child_branch:
-            _get_education_group_detail(group_element_values, group_element)
-        group_elements_data.append(group_element_values)
-    return _sorting(group_elements_data)
-
-
-def _sorting(group_elements_data):
-    return sorted(group_elements_data, key=lambda k: k.get('group_element').order)
