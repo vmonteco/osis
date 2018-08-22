@@ -2937,7 +2937,7 @@ msgstr "List of activities"
 msgid "learning_units_filename"
 msgstr "learning_units"
 
-msgid "warnigns_detected"
+msgid "warnings_detected"
 msgstr "We detected inconsistencies in the following data :"
 
 msgid "Volumes are inconsistent"
@@ -3276,8 +3276,8 @@ msgstr ""
 msgid "Sess. derog."
 msgstr ""
 
-msgid "%(count_enrollment)d student is  enrolled in the offer."
-msgid_plural "%(count_enrollment)d students are  enrolled in the offer."
+msgid "%(count_enrollment)d student is enrolled in the offer."
+msgid_plural "%(count_enrollment)d students are enrolled in the offer."
 msgstr[0] ""
 msgstr[1] ""
 
@@ -3517,3 +3517,6 @@ msgstr ""
 
 msgid "is using in"
 msgstr "is using in :"
+
+msgid "Cannot set end year to %(end_year)s :"
+msgstr ""

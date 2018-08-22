@@ -24,7 +24,8 @@
     * at the root of the source code of this program.  If not,
     * see http://www.gnu.org/licenses/.
 {% endcomment %}
-
+{% bootstrap_form_errors form_education_group_year %}
+{% bootstrap_form_errors form_education_group %}
 
 <form method="post" id="UpdateTrainingForm">
     {% csrf_token %}
