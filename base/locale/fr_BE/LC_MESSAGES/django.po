@@ -2894,6 +2894,9 @@ msgstr "Erreur de consistance en %(academic_year)s : %(error)s"
 msgid "%(col_name)s has been already modified. ({%(new_value)s} instead of {%(current_value)s})"
 msgstr "%(col_name)s a déjà été modifié. ({%(new_value)s} à la place de {%(current_value)s})"
 
+msgid "%(col_name)s has been already modified."
+msgstr "%(col_name)s a déjà été modifié."
+
 msgid "external_code"
 msgstr "Code local"
 
@@ -3524,6 +3527,14 @@ msgstr "Vous ne pouvez pas attacher \"%(child)s\" (de type \"%(child_type)s\") �
 
 msgid "is using in"
 msgstr "est utilisée dans :"
+
+msgid "Prerequisite"
+msgid_plural "Prerequisites"
+msgstr[0] "Prérequis"
+msgstr[1] "Prérequis"
+
+msgid "has the following prerequisites"
+msgstr "dispose des prérequis suivants"
 
 msgid "Cannot set end year to %(end_year)s :"
 msgstr "Impossible de mettre la fin à %(end_year)s :"
