@@ -2916,6 +2916,9 @@ msgstr ""
 msgid "%(col_name)s has been already modified. ({%(new_value)s} instead of {%(current_value)s})"
 msgstr ""
 
+msgid "%(col_name)s has been already modified."
+msgstr ""
+
 msgid "external_code"
 msgstr "External code"
 
@@ -3517,6 +3520,14 @@ msgstr ""
 
 msgid "is using in"
 msgstr "is using in :"
+
+msgid "Prerequisite"
+msgid_plural "Prerequisites"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "has the following prerequisites"
+msgstr ""
 
 msgid "Cannot set end year to %(end_year)s :"
 msgstr ""

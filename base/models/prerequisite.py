@@ -37,9 +37,11 @@ class PrerequisiteAdmin(OsisModelAdmin):
 
 
 class Prerequisite(models.Model):
+    external_id = models.CharField(max_length=100, blank=True, null=True, db_index=True)
+    changed = models.DateTimeField(null=True, auto_now=True)
     learning_unit_year = models.ForeignKey("LearningUnitYear")
     education_group_year = models.ForeignKey("EducationGroupYear")
-    prerequisite = models.CharField(null=True, blank=True, max_length=240)
+    prerequisite = models.CharField(blank=True, max_length=240, default="")
 
     class Meta:
         unique_together = ('learning_unit_year', 'education_group_year')

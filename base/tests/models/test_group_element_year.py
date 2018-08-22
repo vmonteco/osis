@@ -30,6 +30,7 @@ from django.test import TestCase
 from base.models import group_element_year
 from base.models.education_group_year import EducationGroupYear
 from base.models.enums import education_group_categories
+from base.models.group_element_year import GroupElementYear
 from base.tests.factories.academic_year import AcademicYearFactory, create_current_academic_year
 from base.tests.factories.education_group_type import EducationGroupTypeFactory
 from base.tests.factories.education_group_year import EducationGroupYearFactory
@@ -401,3 +402,26 @@ class GroupElementYearTest(TestCase):
             with self.assertRaises(AttributeError):
                 group_element_year._raise_if_incorrect_instance(
                     [EducationGroupYearFactory(), LearningUnitYearFactory()])
+
+
+class TestManager(TestCase):
+    def setUp(self):
+        self.learning_unit_year_1 = LearningUnitYearFactory()
+
+        self.learning_unit_year_without_container = LearningUnitYearFactory(
+            learning_container_year=None
+        )
+
+        self.group_element_year_1 = GroupElementYearFactory(
+            child_branch=None,
+            child_leaf=self.learning_unit_year_1
+        )
+
+        self.group_element_year_without_container = GroupElementYearFactory(
+            child_branch=None,
+            child_leaf=self.learning_unit_year_without_container
+        )
+
+    def test_objects_without_container(self):
+        self.assertNotIn(self.group_element_year_without_container, GroupElementYear.objects.all())
+        self.assertIn(self.group_element_year_1, GroupElementYear.objects.all())

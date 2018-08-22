@@ -89,3 +89,78 @@ class TestDetail(TestCase):
         response = self.client.get(self.url)
         self.assertEqual(len(response.context_data['group_element_years']), 1)
         self.assertTemplateUsed(response, 'education_group/tab_utilization.html')
+
+
+class TestContent(TestCase):
+    def setUp(self):
+        self.person = PersonFactory()
+        self.education_group_year_1 = EducationGroupYearFactory()
+        self.education_group_year_2 = EducationGroupYearFactory()
+        self.education_group_year_3 = EducationGroupYearFactory()
+        self.learning_unit_year_1 = LearningUnitYearFactory()
+
+        self.learning_component_year_1 = LearningComponentYearFactory(
+            learning_container_year=self.learning_unit_year_1.learning_container_year,
+            hourly_volume_partial_q1=10,
+            hourly_volume_partial_q2=10
+        )
+
+        self.learning_component_year_2 = LearningComponentYearFactory(
+            learning_container_year=self.learning_unit_year_1.learning_container_year,
+            hourly_volume_partial_q1=10,
+            hourly_volume_partial_q2=10
+        )
+
+        self.learning_unit_component_1 = LearningUnitComponentFactory(
+            learning_component_year=self.learning_component_year_1,
+            learning_unit_year=self.learning_unit_year_1
+        )
+
+        self.learning_unit_component_2 = LearningUnitComponentFactory(
+            learning_component_year=self.learning_component_year_2,
+            learning_unit_year=self.learning_unit_year_1
+        )
+
+        self.learning_unit_year_without_container = LearningUnitYearFactory(
+            learning_container_year=None
+        )
+
+        self.group_element_year_1 = GroupElementYearFactory(parent=self.education_group_year_1,
+                                                            child_branch=self.education_group_year_2)
+
+        self.group_element_year_2 = GroupElementYearFactory(parent=self.education_group_year_1,
+                                                            child_branch=None,
+                                                            child_leaf=self.learning_unit_year_1)
+
+        self.group_element_year_3 = GroupElementYearFactory(parent=self.education_group_year_1,
+                                                            child_branch=self.education_group_year_3)
+
+        self.group_element_year_without_container = GroupElementYearFactory(
+            parent=self.education_group_year_1,
+            child_branch=None,
+            child_leaf=self.learning_unit_year_without_container
+        )
+
+        self.user = UserFactory()
+        self.person = PersonFactory(user=self.user)
+        self.user.user_permissions.add(Permission.objects.get(codename="can_access_education_group"))
+
+        self.url = reverse(
+            "education_group_content",
+            args=[
+                self.education_group_year_1.id,
+                self.education_group_year_1.id,
+            ]
+        )
+        self.client.force_login(self.user)
+
+    def test_context(self):
+        response = self.client.get(self.url)
+
+        self.assertTemplateUsed(response, "education_group/tab_content.html")
+
+        geys = response.context["group_element_years"]
+        self.assertIn(self.group_element_year_1, geys)
+        self.assertIn(self.group_element_year_2, geys)
+        self.assertIn(self.group_element_year_3, geys)
+        self.assertNotIn(self.group_element_year_without_container, geys)
