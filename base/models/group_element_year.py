@@ -55,6 +55,13 @@ class GroupElementYearAdmin(osis_model_admin.OsisModelAdmin):
     list_filter = ('is_mandatory', 'minor_access', 'quadrimester_derogation', 'parent__academic_year')
 
 
+class GroupElementYearManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(
+            Q(child_branch__isnull=False) | Q(child_leaf__learning_container_year__isnull=False)
+        )
+
+
 class GroupElementYear(OrderedModel):
     external_id = models.CharField(max_length=100, blank=True, null=True, db_index=True)
     changed = models.DateTimeField(null=True, auto_now=True)
@@ -133,6 +140,8 @@ class GroupElementYear(OrderedModel):
                                  blank=True, null=True, verbose_name=_('Link type'))
 
     order_with_respect_to = 'parent'
+
+    objects = GroupElementYearManager()
 
     def __str__(self):
         return "{} - {}".format(self.parent, self.child)
