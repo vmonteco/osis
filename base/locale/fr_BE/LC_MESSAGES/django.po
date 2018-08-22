@@ -3525,8 +3525,10 @@ msgstr "Vous ne pouvez pas attacher \"%(child)s\" (de type \"%(child_type)s\") �
 msgid "is using in"
 msgstr "est utilisée dans :"
 
-msgid "Prerequisites"
-msgstr "Prérequis"
+msgid "Prerequisite"
+msgid_plural "Prerequisites"
+msgstr[0] "Prérequis"
+msgstr[1] "Prérequis"
 
 msgid "has the following prerequisites"
 msgstr "dispose des prérequis suivants"

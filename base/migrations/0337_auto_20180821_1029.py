@@ -12,6 +12,11 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.AlterField(
+            model_name='prerequisite',
+            name='prerequisite',
+            field=models.CharField(blank=True, default='', max_length=240),
+        ),
         migrations.AddField(
             model_name='prerequisite',
             name='changed',
