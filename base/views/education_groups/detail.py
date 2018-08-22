@@ -28,7 +28,7 @@ from collections import OrderedDict
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import PermissionRequiredMixin
-from django.db.models import F, Case, When, Q
+from django.db.models import F, Case, When
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views.generic import DetailView
@@ -226,9 +226,7 @@ class EducationGroupContent(EducationGroupGenericDetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        context["group_element_years"] = self.object.groupelementyear_set.filter(
-            Q(child_branch__isnull=False) | Q(child_leaf__learning_container_year__isnull=False)
-        ).annotate(
+        context["group_element_years"] = self.object.groupelementyear_set.annotate(
                 code_scs=Case(
                         When(child_leaf__isnull=False, then=F("child_leaf__acronym")),
                         When(child_branch__isnull=False, then=F("child_branch__acronym")),
