@@ -420,6 +420,11 @@ class EducationGroupGetEligibleEntities(TestCase):
             [education_group_year_child.management_entity]
         )
 
+        self.assertEquals(
+            get_education_group_year_eligible_management_entities(education_group_year_parent),
+            [education_group_year_parent.management_entity]
+        )
+
     def test_case_one_egy_one_parent_no_entity_on_child(self):
         education_group_year_child = EducationGroupYearFactory()
         education_group_year_parent = EducationGroupYearFactory()
