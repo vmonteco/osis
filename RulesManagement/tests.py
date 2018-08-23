@@ -25,6 +25,7 @@
 ##############################################################################
 from django import forms
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ImproperlyConfigured
 from django.test import TestCase
 
 from RulesManagement.fatories import PermissionFactory, FieldReferenceFactory
@@ -34,6 +35,8 @@ from reference.models.country import Country
 
 
 class CountryForm(PermissionFieldMixin, forms.ModelForm):
+    context = "LalaLand"
+
     class Meta:
         model = Country
         fields = "__all__"
@@ -46,6 +49,14 @@ class TestPermissionFieldMixin(TestCase):
         FieldReferenceFactory(
             content_type=ContentType.objects.get(app_label="reference", model="country"),
             field_name="name",
+            context="LalaLand",
+            permissions=self.permissions,
+        )
+
+        FieldReferenceFactory(
+            content_type=ContentType.objects.get(app_label="reference", model="country"),
+            field_name="nationality",
+            context="",
             permissions=self.permissions,
         )
 
@@ -55,10 +66,19 @@ class TestPermissionFieldMixin(TestCase):
         self.user_without_perm = UserFactory()
         self.user_without_perm.user_permissions.add(PermissionFactory())
 
-    def test_init_user_with_perm(self):
+    def test_init_with_perm(self):
         form = CountryForm(user=self.user_with_perm)
         self.assertFalse(form.fields['name'].disabled)
 
-    def test_init_user_without_perm(self):
+    def test_init_without_perm(self):
         form = CountryForm(user=self.user_without_perm)
         self.assertTrue(form.fields['name'].disabled)
+
+    def test_init_without_user(self):
+        with self.assertRaises(ImproperlyConfigured):
+            CountryForm()
+
+    def test_init_with_context(self):
+        form = CountryForm(user=self.user_without_perm, context="HappyLand")
+        self.assertFalse(form.fields['name'].disabled)
+        self.assertTrue(form.fields['nationality'].disabled)

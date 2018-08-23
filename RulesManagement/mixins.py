@@ -41,25 +41,34 @@ class PermissionFieldMixin(ModelFormMixin):
     """
     Mixin to connect to form
 
-    It enables/disables fields according to permissions
+    It enables/disables fields according to permissions and the context
     """
     model_permission = FieldReference
+    context = ""
 
     def __init__(self, *args, user=None, **kwargs):
         if not user:
             raise ImproperlyConfigured("This form must receive the user to determine his permissions")
+
+        if "context" in kwargs:
+            self.context = kwargs.pop("context")
 
         self.user = user
         super().__init__(*args, **kwargs)
 
         self.user_permissions = Permission.objects.filter(user=self.user)
 
+        # Check permissions for all matching fields
         for field_ref in self.get_queryset():
             field_name = field_ref.field_name
             if field_name in self.fields and not self.check_user_permission(field_ref):
                 self.disable_field(field_name)
 
     def check_user_permission(self, field_reference):
+        # If a context has been set, it must match with the reference to check the permission
+        if field_reference.context and field_reference.context != self.get_context():
+            return True
+
         for perm in field_reference.permissions.all():
             if perm in self.user_permissions:
                 return True
@@ -70,3 +79,10 @@ class PermissionFieldMixin(ModelFormMixin):
             content_type__app_label=self._meta.model._meta.app_label,
             content_type__model=self._meta.model._meta.model_name
         )
+
+    def get_context(self):
+        """
+        Can be override to use a specific context according to business
+        :return: self.context
+        """
+        return self.context
