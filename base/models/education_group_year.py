@@ -456,17 +456,17 @@ class EducationGroupYear(models.Model):
 
     @cached_property
     def group_element_year_branches(self):
-        return self.groupelementyear_set.filter(child_branch__isnull=False)
+        return self.groupelementyear_set.filter(child_branch__isnull=False).select_related("child_branch")
 
     @cached_property
     def group_element_year_leaves(self):
-        return self.groupelementyear_set.filter(child_leaf__isnull=False)
+        return self.groupelementyear_set.filter(child_leaf__isnull=False).\
+            select_related("child_leaf", "child_leaf__learning_container_year")
 
     def group_element_year_leaves_with_annotate_on_prerequisites(self, root_id):
         has_prerequisite = Prerequisite.objects.filter(education_group_year__id=root_id,
                                                        learning_unit_year__id=OuterRef("child_leaf__id"))
-        qs =  self.group_element_year_leaves.annotate(has_prerequisites=Exists(has_prerequisite))
-        return qs
+        return self.group_element_year_leaves.annotate(has_prerequisites=Exists(has_prerequisite))
 
     @cached_property
     def coorganizations(self):
