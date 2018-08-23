@@ -13,7 +13,7 @@ function showOrHideTree() {
 }
 
 
-function modifyPanelAttribute(collapse_style_display, panel_collapse_class, panel_data_class){
+function modifyPanelAttribute(collapse_style_display, panel_collapse_class, panel_data_class) {
     document.getElementById('collapse').style.display = collapse_style_display;
     document.getElementById('panel-collapse').className = panel_collapse_class;
     document.getElementById('panel-data').className = panel_data_class;
@@ -35,7 +35,12 @@ $(document).ready(function () {
         var args = obj.li_attr.id.split('_');
         var group_element_year_id = args[1];
         var education_group_year_id = args[2];
-        return {group_element_year_id: group_element_year_id, education_group_year_id: education_group_year_id};
+        var type = args[3];
+        return {
+            group_element_year_id: group_element_year_id,
+            education_group_year_id: education_group_year_id,
+            type: type
+        };
     }
 
     function build_url_data(education_group_year_id, group_element_year_id, action) {
@@ -52,73 +57,71 @@ $(document).ready(function () {
     var proxy_management_url = "/educationgroups/proxy_management/";
 
     $documentTree.jstree({
-        "core" : {
-           "check_callback" : true
+        "core": {
+            "check_callback": true
         },
-        "plugins" : [ "contextmenu" ],
-        "contextmenu" : {
+        "plugins": ["contextmenu"],
+        "contextmenu": {
             "select_node": false,
-            "items" : {
-              "select" : {
-                  "label" : gettext("Select"),
-                  "action" : function (data) {
-                    var __ret = get_data_from_tree(data);
-                    var education_group_year_id = __ret.education_group_year_id;
-                    $.ajax({
-                        url: '../select/',
-                        dataType: 'json',
-                        data: {'child_to_cache_id' : education_group_year_id},
-                        type: 'POST',
-                        success: function(jsonResponse) {
-                            displayInfoMessage(jsonResponse, 'message_info_container')
-                        }
-                    });
-                  }
-              },
-
-              "attach" : {
-                 "label" : gettext("Attach"),
-                 "separator_before": true,
-                 "action" : function (data) {
-                    var __ret = get_data_from_tree(data);
-                    var group_element_year_id = __ret.group_element_year_id;
-                    var education_group_year_id = __ret.education_group_year_id;
-                    var attach_data = build_url_data(education_group_year_id, group_element_year_id, 'attach');
-                    window.location.href = proxy_management_url + "?" + attach_data;
-                  }
-              },
-
-              "detach" : {
-                 "label" : gettext("Detach"),
-                 "action" : function (data) {
-                     var __ret = get_data_from_tree(data);
-                     var group_element_year_id = __ret.group_element_year_id;
-                     var education_group_year_id = __ret.education_group_year_id;
-                     if (group_element_year_id === '0') {
-                        return;
+            "items": {
+                "select": {
+                    "label": gettext("Select"),
+                    "action": function (data) {
+                        var __ret = get_data_from_tree(data);
+                        var education_group_year_id = __ret.education_group_year_id;
+                        $.ajax({
+                            url: '../select/',
+                            dataType: 'json',
+                            data: {'child_to_cache_id': education_group_year_id},
+                            type: 'POST',
+                            success: function (jsonResponse) {
+                                displayInfoMessage(jsonResponse, 'message_info_container')
+                            }
+                        });
                     }
+                },
 
-                    var detach_data = build_url_data(education_group_year_id, group_element_year_id, 'detach');
+                "attach": {
+                    "label": gettext("Attach"),
+                    "separator_before": true,
+                    "action": function (data) {
+                        var __ret = get_data_from_tree(data);
+                        var group_element_year_id = __ret.group_element_year_id;
+                        var education_group_year_id = __ret.education_group_year_id;
+                        var attach_data = build_url_data(education_group_year_id, group_element_year_id, 'attach');
+                        window.location.href = proxy_management_url + "?" + attach_data;
+                    },
+                    "_disabled": function (data) {
+                        var __ret = get_data_from_tree(data);
+                        return __ret.type === "luy";
+                    }
+                },
 
-                    $('#form-modal-content').load(proxy_management_url, detach_data, function () {
-                        $('#form-modal').modal('toggle');
-                        formAjaxSubmit('#form-modal-body form', '#form-modal');
-                    });
+                "detach": {
+                    "label": gettext("Detach"),
+                    "action": function (data) {
+                        var __ret = get_data_from_tree(data);
+                        var group_element_year_id = __ret.group_element_year_id;
+                        var education_group_year_id = __ret.education_group_year_id;
+                        if (group_element_year_id === '0') {
+                            return;
+                        }
 
-                    $.ajax({
-                        url: '../select/',
-                        data: {'child_to_cache_id' : education_group_year_id},
-                        type: 'POST',
-                        dataType: 'json',
-                    });
+                        var detach_data = build_url_data(education_group_year_id, group_element_year_id, 'detach');
 
-                  },
-                  "_disabled": function(data) {
-                      var __ret = get_data_from_tree(data);
-                      var group_element_year_id = __ret.group_element_year_id;
-                      return (group_element_year_id === '0');
-                  }
-              }
+                        $('#form-modal-content').load(proxy_management_url, detach_data, function () {
+                            $('#form-modal').modal('toggle');
+                            formAjaxSubmit('#form-modal-body form', '#form-modal');
+                        });
+
+                        $.ajax({
+                            url: '../select/',
+                            data: {'child_to_cache_id': education_group_year_id},
+                            type: 'POST',
+                            dataType: 'json',
+                        });
+                    },
+                }
             }
         }
     });

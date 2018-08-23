@@ -3538,3 +3538,6 @@ msgstr "dispose des prérequis suivants"
 
 msgid "Cannot set end year to %(end_year)s :"
 msgstr "Impossible de mettre la fin à %(end_year)s :"
+
+msgid "You cannot attach an element to a learning unit year"
+msgstr "Vous ne pouvez pas attacher un élément à une unité d'enseignement"
