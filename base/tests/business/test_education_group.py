@@ -428,6 +428,7 @@ class EducationGroupGetEligibleEntities(TestCase):
             child_branch=education_group_year_child
         )
         education_group_year_child.management_entity = None
+        education_group_year_child.save()
 
         self.assertEquals(
             get_education_group_year_eligible_management_entities(education_group_year_child),
