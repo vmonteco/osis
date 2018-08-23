@@ -124,7 +124,7 @@ def _get_success_redirect_url(root, education_group_year):
 def _update_group(request, education_group_year, root):
     # TODO :: IMPORTANT :: Fix urls patterns to get the GroupElementYear_id and the root_id in the url path !
     # TODO :: IMPORTANT :: Need to update form to filter on list of parents, not only on the first direct parent
-    form_education_group_year = GroupForm(request.POST or None, instance=education_group_year)
+    form_education_group_year = GroupForm(request.POST or None, instance=education_group_year, user=request.user)
     html_page = "education_group/update_groups.html"
 
     if form_education_group_year.is_valid():
@@ -140,7 +140,7 @@ def _update_group(request, education_group_year, root):
 def _update_training(request, education_group_year, root):
     # TODO :: IMPORTANT :: Fix urls patterns to get the GroupElementYear_id and the root_id in the url path !
     # TODO :: IMPORTANT :: Need to update form to filter on list of parents, not only on the first direct parent
-    form_education_group_year = TrainingForm(request.POST or None, instance=education_group_year)
+    form_education_group_year = TrainingForm(request.POST or None, user=request.user, instance=education_group_year)
     if form_education_group_year.is_valid():
         return _common_success_redirect(request, form_education_group_year, root)
 
@@ -154,7 +154,7 @@ def _update_training(request, education_group_year, root):
 def _update_mini_training(request, education_group_year, root):
     # TODO :: IMPORTANT :: Fix urls patterns to get the GroupElementYear_id and the root_id in the url path !
     # TODO :: IMPORTANT :: Need to upodate form to filter on list of parents, not only on the first direct parent
-    form = MiniTrainingForm(request.POST or None, instance=education_group_year)
+    form = MiniTrainingForm(request.POST or None, instance=education_group_year, user=request.user)
 
     if form.is_valid():
         return _common_success_redirect(request, form, root)

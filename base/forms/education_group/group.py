@@ -51,11 +51,13 @@ class GroupModelForm(EducationGroupYearModelForm):
 
 class GroupForm(CommonBaseForm):
 
-    def __init__(self, data, instance=None, parent=None, education_group_type=None):
+    def __init__(self, data, instance=None, parent=None, user=None, education_group_type=None):
+
         educ_group_year_form = GroupModelForm(
             data,
             instance=instance,
             parent=parent,
+            user=user,
             education_group_type=education_group_type
         )
 
@@ -63,4 +65,4 @@ class GroupForm(CommonBaseForm):
 
         educ_group_model_form = EducationGroupModelForm({}, instance=education_group)
 
-        super(GroupForm, self).__init__(educ_group_year_form, educ_group_model_form)
+        super().__init__(educ_group_year_form, educ_group_model_form)

@@ -38,6 +38,7 @@ from base.models.education_group_type import find_authorized_types, EducationGro
 from base.models.education_group_year import EducationGroupYear
 from base.models.entity_version import find_main_entities_version, get_last_version
 from reference.models.language import Language
+from rules_management.mixins import PermissionFieldMixin
 
 
 class MainTeachingCampusChoiceField(forms.ModelChoiceField):
@@ -52,7 +53,7 @@ class MainEntitiesVersionChoiceField(EntitiesVersionChoiceField):
         super(MainEntitiesVersionChoiceField, self).__init__(queryset, *args, **kwargs)
 
 
-class ValidationRuleEducationGroupTypeMixin(ValidationRuleMixin):
+class ValidationRuleEducationGroupTypeMixin(ValidationRuleMixin, PermissionFieldMixin):
     """
     ValidationRuleMixin For EducationGroupType
 

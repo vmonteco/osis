@@ -39,6 +39,7 @@ from base.models.validation_rule import ValidationRule
 from base.tests.factories.authorized_relationship import AuthorizedRelationshipFactory
 from base.tests.factories.education_group_type import EducationGroupTypeFactory
 from base.tests.factories.education_group_year import GroupFactory
+from base.tests.factories.user import UserFactory
 from base.tests.forms.education_group.test_common import EducationGroupYearModelFormMixin, _get_valid_post_data
 
 
@@ -80,7 +81,7 @@ class TestGroupModelFormModelForm(EducationGroupYearModelFormMixin):
             regex_rule="([A-Z]{2})(.*)"
         )
 
-        form = GroupModelForm(education_group_type=self.education_group_type)
+        form = GroupModelForm(education_group_type=self.education_group_type, user=UserFactory())
 
         self.assertEqual(form.fields["acronym"].initial, "yolo")
         self.assertEqual(form.fields["acronym"].required, False)
@@ -94,7 +95,8 @@ class TestGroupForm(TestCase):
         self.egt = self.expected_educ_group_year.education_group_type
 
     def test_create(self):
-        form = GroupForm(data=self.post_data, parent=None, education_group_type=self.egt)
+        form = GroupForm(data=self.post_data, parent=None,
+                         user=UserFactory(), education_group_type=self.egt)
 
         self.assertTrue(form.is_valid(), form.errors)
 
@@ -107,7 +109,7 @@ class TestGroupForm(TestCase):
     @patch('base.forms.education_group.common.find_authorized_types', return_value=EducationGroupType.objects.all())
     def test_create_with_parent(self, mock_find_authorized_types):
         parent = GroupFactory()
-        form = GroupForm(data=self.post_data, parent=parent, education_group_type=self.egt)
+        form = GroupForm(data=self.post_data, parent=parent, user=UserFactory(), education_group_type=self.egt)
 
         self.assertTrue(form.is_valid(), form.errors)
 
@@ -127,5 +129,5 @@ class TestGroupPostponedList(EducationGroupYearModelFormMixin):
 
     def test_group_doesnt_have_post_save_method(self):
         instance = self.parent_education_group_year
-        form = GroupForm(data={}, instance=instance)
+        form = GroupForm(data={}, user=UserFactory(), instance=instance)
         self.assertFalse(hasattr(form, '_post_save'))

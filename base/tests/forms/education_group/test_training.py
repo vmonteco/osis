@@ -38,6 +38,7 @@ from base.tests.factories.education_group_type import EducationGroupTypeFactory
 from base.tests.factories.education_group_year import TrainingFactory, EducationGroupYearFactory
 from base.tests.factories.education_group_year_domain import EducationGroupYearDomainFactory
 from base.tests.factories.entity_version import MainEntityVersionFactory, EntityVersionFactory
+from base.tests.factories.user import UserFactory
 from reference.tests.factories.domain import DomainFactory
 from reference.tests.factories.language import LanguageFactory
 
@@ -74,11 +75,15 @@ class TestPostponementEducationGroupYearMixin(TestCase):
 
     def test_init(self):
         # In case of creation
-        form = TrainingForm({}, education_group_type=self.education_group_type)
+        form = TrainingForm({}, user=UserFactory(), education_group_type=self.education_group_type)
         self.assertFalse(hasattr(form, "dict_initial_egy"))
 
         # In case of update
-        form = TrainingForm({}, instance=self.education_group_year)
+        form = TrainingForm(
+            {},
+            user=UserFactory(),
+            instance=self.education_group_year
+        )
         dict_initial_egy = _model_to_dict(
             self.education_group_year, exclude=form.field_to_exclude
         )
@@ -87,7 +92,11 @@ class TestPostponementEducationGroupYearMixin(TestCase):
 
     def test_save_with_postponement(self):
         # Create postponed egy
-        form = TrainingForm(self.data, instance=self.education_group_year)
+        form = TrainingForm(
+            self.data,
+            instance=self.education_group_year,
+            user=UserFactory()
+        )
         self.assertTrue(form.is_valid(), form.errors)
         form.save()
 
@@ -104,7 +113,7 @@ class TestPostponementEducationGroupYearMixin(TestCase):
         self.education_group_year.refresh_from_db()
 
         self.data["title"] = "Defence Against the Dark Arts"
-        form = TrainingForm(self.data, instance=self.education_group_year)
+        form = TrainingForm(self.data, instance=self.education_group_year, user=UserFactory())
         self.assertTrue(form.is_valid(), form.errors)
         form.save()
 
@@ -119,7 +128,11 @@ class TestPostponementEducationGroupYearMixin(TestCase):
         EducationGroupYearFactory(academic_year=self.list_acs[4],
                                   education_group=self.education_group_year.education_group)
 
-        form = TrainingForm(self.data, instance=self.education_group_year)
+        form = TrainingForm(
+            self.data,
+            instance=self.education_group_year,
+            user=UserFactory()
+        )
         self.assertTrue(form.is_valid(), form.errors)
         form.save()
 
@@ -136,7 +149,11 @@ class TestPostponementEducationGroupYearMixin(TestCase):
 
         self.data["secondary_domains"] = '|'.join([str(domain.pk) for domain in domains])
 
-        form = TrainingForm(self.data, instance=self.education_group_year)
+        form = TrainingForm(
+            self.data,
+            instance=self.education_group_year,
+            user=UserFactory()
+        )
         self.assertTrue(form.is_valid(), form.errors)
         form.save()
 
@@ -163,7 +180,7 @@ class TestPostponementEducationGroupYearMixin(TestCase):
 
         self.data["secondary_domains"] = '|'.join([str(domain.pk) for domain in domains])
 
-        form = TrainingForm(self.data, instance=self.education_group_year)
+        form = TrainingForm(self.data, instance=self.education_group_year, user=UserFactory())
         self.assertTrue(form.is_valid(), form.errors)
         form.save()
 

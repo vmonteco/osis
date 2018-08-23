@@ -137,11 +137,12 @@ class TrainingEducationGroupYearForm(EducationGroupYearModelForm):
 
 class TrainingForm(PostponementEducationGroupYearMixin, CommonBaseForm):
 
-    def __init__(self, data, instance=None, parent=None, education_group_type=None):
+    def __init__(self, data, instance=None, parent=None, user=None, education_group_type=None):
         education_group_year_form = TrainingEducationGroupYearForm(
             data,
             instance=instance,
             parent=parent,
+            user=user,
             education_group_type=education_group_type
         )
 

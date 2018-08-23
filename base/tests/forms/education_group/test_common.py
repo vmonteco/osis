@@ -45,6 +45,7 @@ from base.tests.factories.education_group_type import EducationGroupTypeFactory
 from base.tests.factories.education_group_year import EducationGroupYearFactory
 from base.tests.factories.entity_version import MainEntityVersionFactory, EntityVersionFactory
 from base.tests.factories.group_element_year import GroupElementYearFactory
+from base.tests.factories.user import UserFactory
 
 
 class EducationGroupYearModelFormMixin(TestCase):
@@ -76,7 +77,7 @@ class EducationGroupYearModelFormMixin(TestCase):
             EntityVersionFactory(entity=self.parent_education_group_year.administration_entity)
 
     def _test_fields(self, form_class, fields):
-        form = form_class(parent=None, education_group_type=self.education_group_type)
+        form = form_class(parent=None, user=UserFactory(), education_group_type=self.education_group_type)
         self.assertCountEqual(tuple(form.fields.keys()), fields)
 
     @patch('base.forms.education_group.common.find_authorized_types')
@@ -84,7 +85,8 @@ class EducationGroupYearModelFormMixin(TestCase):
         mock_authorized_types.return_value = EducationGroupType.objects.all()
         form = form_class(
             parent=self.parent_education_group_year,
-            education_group_type=self.education_group_type
+            education_group_type=self.education_group_type,
+            user=UserFactory(),
         )
 
         academic_year_field = form.fields["academic_year"]
@@ -98,7 +100,8 @@ class EducationGroupYearModelFormMixin(TestCase):
 
         form_class(
             parent=self.parent_education_group_year,
-            education_group_type=self.education_group_type
+            education_group_type=self.education_group_type,
+            user=UserFactory()
         )
 
         self.assertTrue(mock_authorized_types.called)
@@ -109,7 +112,7 @@ class EducationGroupYearModelFormMixin(TestCase):
         mock_authorized_types.assert_called_with(*expected_args)
 
     def _test_preselect_entity_version_from_entity_value(self, form_class):
-        form = form_class(instance=self.parent_education_group_year)
+        form = form_class(instance=self.parent_education_group_year, user=UserFactory())
         educ_group_entity = self.parent_education_group_year.management_entity
         expected_entity_version = EntityVersion.objects.filter(entity=educ_group_entity).latest('start_date')
         self.assertEqual(form.initial['management_entity'], expected_entity_version.id)
@@ -122,7 +125,8 @@ class TestCommonBaseFormIsValid(TestCase):
         self.category = education_group_categories.MINI_TRAINING  # Could take GROUP or TRAINING, the result is the same
         fake_educ_group_year, post_data = _get_valid_post_data(self.category)
         self.egt = fake_educ_group_year.education_group_type
-        self.education_group_year_form = MiniTrainingModelForm(post_data, education_group_type=self.egt)
+        self.education_group_year_form = MiniTrainingModelForm(post_data, user=UserFactory(),
+                                                               education_group_type=self.egt)
         self.education_group_form = EducationGroupModelForm(post_data)
 
     @patch('base.forms.education_group.mini_training.MiniTrainingModelForm.is_valid', return_value=False)
@@ -144,7 +148,13 @@ class TestCommonBaseFormIsValid(TestCase):
         wrong_post_data['management_entity'] = None
         wrong_post_data['end_year'] = "some text"
         wrong_post_data["max_constraint"] = expected_educ_group_year.min_constraint - 1
-        education_group_year_form = MiniTrainingModelForm(wrong_post_data, education_group_type=self.egt)
+
+        education_group_year_form = MiniTrainingModelForm(
+            wrong_post_data,
+            user=UserFactory(),
+            education_group_type=self.egt
+        )
+
         education_group_form = EducationGroupModelForm(wrong_post_data)
         form = CommonBaseForm(education_group_year_form, education_group_form)
         self.assertFalse(form.is_valid(), form.errors)
@@ -178,7 +188,12 @@ class TestCommonBaseFormSave(TestCase):
 
         initial_educ_group = initial_educ_group_year.education_group
 
-        form = self.form_class(data=self.post_data, instance=initial_educ_group_year, parent=None)
+        form = self.form_class(
+            data=self.post_data,
+            instance=initial_educ_group_year,
+            parent=None,
+            user=UserFactory()
+        )
         self.assertTrue(form.is_valid(), form.errors)
         updated_educ_group_year = form.save()
 
@@ -191,7 +206,12 @@ class TestCommonBaseFormSave(TestCase):
     def test_create_without_parent(self):
         initial_count = GroupElementYear.objects.all().count()
 
-        form = self.form_class(data=self.post_data, parent=None, education_group_type=self.education_group_type)
+        form = self.form_class(
+            data=self.post_data,
+            parent=None,
+            education_group_type=self.education_group_type,
+            user=UserFactory()
+        )
         self.assertTrue(form.is_valid(), form.errors)
         created_education_group_year = form.save()
 
@@ -207,7 +227,13 @@ class TestCommonBaseFormSave(TestCase):
         parent = EducationGroupYearFactory(academic_year=self.expected_educ_group_year.academic_year)
         AuthorizedRelationshipFactory(child_type=self.education_group_type)
 
-        form = self.form_class(data=self.post_data, parent=parent, education_group_type=self.education_group_type)
+        form = self.form_class(
+            data=self.post_data,
+            parent=parent,
+            education_group_type=self.education_group_type,
+            user=UserFactory()
+        )
+
         self.assertTrue(form.is_valid(), form.errors)
         created_education_group_year = form.save()
 
@@ -228,7 +254,12 @@ class TestCommonBaseFormSave(TestCase):
         GroupElementYearFactory(parent=parent, child_branch=initial_educ_group_year)
         initial_count = GroupElementYear.objects.all().count()
 
-        form = self.form_class(data=self.post_data, instance=initial_educ_group_year, parent=parent)
+        form = self.form_class(
+            data=self.post_data,
+            instance=initial_educ_group_year,
+            parent=parent,
+            user=UserFactory()
+        )
         self.assertTrue(form.is_valid(), form.errors)
         updated_education_group_year = form.save()
 
@@ -240,7 +271,12 @@ class TestCommonBaseFormSave(TestCase):
     def test_create_when_no_start_year_is_posted(self):
         data = dict(self.post_data)
         data['start_year'] = None
-        form = self.form_class(data=self.post_data, parent=None, education_group_type=self.education_group_type)
+        form = self.form_class(
+            data=self.post_data,
+            parent=None,
+            education_group_type=self.education_group_type,
+            user=UserFactory()
+        )
         self.assertTrue(form.is_valid(), form.errors)
         created_education_group_year = form.save()
 
