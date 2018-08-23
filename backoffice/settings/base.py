@@ -65,6 +65,7 @@ INSTALLED_APPS = (
     'ckeditor',
     'osis_common',
     'reference',
+    'RulesManagement',
     'base',
     'statici18n',
     'rest_framework',
