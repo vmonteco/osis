@@ -26,7 +26,7 @@
 from django.contrib.auth.models import Permission
 from django.core.exceptions import ImproperlyConfigured
 
-from RulesManagement.models import FieldReference
+from rules_management.models import FieldReference
 
 
 class ModelFormMixin:
