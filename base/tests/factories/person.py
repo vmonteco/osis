@@ -69,7 +69,7 @@ class PersonWithoutUserFactory(PersonFactory):
 
 class PersonWithPermissionsFactory:
     def __init__(self, *permissions, **kwargs):
-        perms_obj = [Permission.objects.get_or_create(defaults={"name" :p}, codename=p)[0] for p in permissions]
+        perms_obj = [Permission.objects.get_or_create(defaults={"name": p}, codename=p)[0] for p in permissions]
         self.person = PersonFactory(**kwargs)
         self.person.user.user_permissions.add(*perms_obj)
 
