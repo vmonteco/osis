@@ -284,9 +284,9 @@ def build_tree(context, current_group_element_year, selected_node_obj):
     for child in education_group_year.group_element_year_branches:
         children_template += build_tree(context, child, selected_node_obj)
 
-    for child in education_group_year.group_element_year_leaves_with_number_prerequisites:
+    for child in education_group_year.group_element_year_leaves_with_annotate_on_prerequisites(root.id):
         luy = child.child_leaf
-        has_prerequistes = child.num_prerequisites > 0
+        has_prerequistes = child.has_prerequisites
         children_template += _generate_branch_html(luy, selected_node_obj, child, root, request, "",
                                                    has_prerequistes=has_prerequistes)
 

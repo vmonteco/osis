@@ -26,7 +26,7 @@
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.db import models
-from django.db.models import Count
+from django.db.models import Count, Q, OuterRef, Exists
 from django.urls import reverse
 from django.utils import translation
 from django.utils.functional import cached_property
@@ -41,6 +41,7 @@ from base.models.enums import education_group_association
 from base.models.enums import education_group_categories
 from base.models.enums.constraint_type import CONSTRAINT_TYPE, CREDITS
 from base.models.exceptions import MaximumOneParentAllowedException
+from base.models.prerequisite import Prerequisite
 from osis_common.models.osis_model_admin import OsisModelAdmin
 
 
@@ -461,9 +462,11 @@ class EducationGroupYear(models.Model):
     def group_element_year_leaves(self):
         return self.groupelementyear_set.filter(child_leaf__isnull=False)
 
-    @cached_property
-    def group_element_year_leaves_with_number_prerequisites(self):
-        return self.group_element_year_leaves.annotate(num_prerequisites=Count("child_leaf__prerequisite"))
+    def group_element_year_leaves_with_annotate_on_prerequisites(self, root_id):
+        has_prerequisite = Prerequisite.objects.filter(education_group_year__id=root_id,
+                                                       learning_unit_year__id=OuterRef("child_leaf__id"))
+        qs =  self.group_element_year_leaves.annotate(has_prerequisites=Exists(has_prerequisite))
+        return qs
 
     @cached_property
     def coorganizations(self):
