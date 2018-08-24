@@ -26,7 +26,7 @@
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.db import models
-from django.db.models import Count, Q, OuterRef, Exists
+from django.db.models import Count, OuterRef, Exists
 from django.urls import reverse
 from django.utils import translation
 from django.utils.functional import cached_property
@@ -494,18 +494,18 @@ class EducationGroupYear(models.Model):
         return self.education_group_type.category
 
     @property
-    def direct_parents(self):
+    def direct_parents_of_branch(self):
         return EducationGroupYear.objects.filter(
             groupelementyear__child_branch=self
         ).distinct()
 
     @property
-    def ascendants(self):
+    def ascendants_of_branch(self):
         ascendants = []
 
-        for parent in self.direct_parents:
+        for parent in self.direct_parents_of_branch:
             ascendants.append(parent)
-            ascendants += parent.ascendants
+            ascendants += parent.ascendants_of_branch
 
         return list(set(ascendants))
 

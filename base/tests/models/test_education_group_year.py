@@ -139,7 +139,7 @@ class EducationGroupYearTest(TestCase):
         children_group_element_years = self.education_group_year_1.children_group_element_years
         self.assertListEqual(list(children_group_element_years), [])
 
-    def test_direct_parents(self):
+    def test_direct_parents_of_branch(self):
         GroupElementYearFactory(
             parent=self.education_group_year_2,
             child_branch=self.education_group_year_1
@@ -154,7 +154,7 @@ class EducationGroupYearTest(TestCase):
         )
 
         self.assertCountEqual(
-            self.education_group_year_1.direct_parents,
+            self.education_group_year_1.direct_parents_of_branch,
             [
                 self.education_group_year_2,
                 self.education_group_year_3,
@@ -162,7 +162,7 @@ class EducationGroupYearTest(TestCase):
             ]
         )
 
-    def test_ascendants(self):
+    def test_ascendants_of_branch(self):
         GroupElementYearFactory(
             parent=self.education_group_year_2,
             child_branch=self.education_group_year_1
@@ -181,7 +181,7 @@ class EducationGroupYearTest(TestCase):
         )
 
         self.assertCountEqual(
-            self.education_group_year_1.ascendants,
+            self.education_group_year_1.ascendants_of_branch,
             [
                 self.education_group_year_2,
                 self.education_group_year_3,
