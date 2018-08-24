@@ -425,6 +425,54 @@ class TestSelectAttach(TestCase):
 
         self._assert_link_with_inital_parent_present()
 
+    def test_attach_child_education_group_year_to_one_of_its_descendants_creating_loop(self):
+        # We attempt to create a loop : child --> initial_parent --> new_parent --> child
+        GroupElementYearFactory(
+            parent=self.new_parent_education_group_year,
+            child_branch=self.initial_parent_education_group_year
+        )
+        AuthorizedRelationshipFactory(
+            parent_type=self.child_education_group_year.education_group_type,
+            child_type=self.new_parent_education_group_year.education_group_type,
+        )
+
+        # Select :
+        self.client.post(
+            self.url_select_education_group,
+            data={'child_to_cache_id': self.new_parent_education_group_year.id}
+        )
+
+        # Attach :
+        http_referer = reverse(
+            "education_group_read",
+            args=[
+                self.initial_parent_education_group_year.id,
+                self.child_education_group_year.id
+            ]
+        )
+        url_attach = reverse(
+            "group_element_year_management",
+            args=[
+                self.new_parent_education_group_year.id,
+                self.child_education_group_year.id,
+                self.initial_group_element_year.id,
+            ]
+        ) + "?action=attach"
+        response = self.client.get(url_attach, follow=True, HTTP_REFERER=http_referer)
+        messages = list(get_messages(response.wsgi_request))
+        self.assertEqual(len(messages), 2)
+        self.assertEqual(
+            str(messages[1]),
+            _("It is forbidden to attach an element to one of its included elements.")
+        )
+
+        expected_absent_group_element_year = GroupElementYear.objects.filter(
+            parent=self.child_education_group_year,
+            child_branch=self.new_parent_education_group_year
+        ).exists()
+        self.assertFalse(expected_absent_group_element_year)
+
+
     @mock.patch("base.business.education_groups.perms.is_eligible_to_change_education_group")
     def test_attach_case_child_education_group_year_without_person_entity_link_fails(self, mock_permission):
         mock_permission.return_value = False
