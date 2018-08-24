@@ -153,13 +153,13 @@ class EducationGroupModelForm(forms.ModelForm):
 class CommonBaseForm:
     forms = None
 
-    education_group_year_form_klass = EducationGroupYearModelForm
-    education_group_form_klass = EducationGroupModelForm
+    education_group_year_form_class = EducationGroupYearModelForm
+    education_group_form_class = EducationGroupModelForm
 
     education_group_year_deleted = []
 
     def __init__(self, data, instance=None, parent=None, user=None, education_group_type=None, **kwargs):
-        self.education_group_year_form = self.education_group_year_form_klass(
+        self.education_group_year_form = self.education_group_year_form_class(
             data,
             instance=instance,
             parent=parent,
@@ -169,7 +169,7 @@ class CommonBaseForm:
         )
 
         education_group = instance.education_group if instance else None
-        self.education_group_form = self.education_group_form_klass(data, instance=education_group)
+        self.education_group_form = self.education_group_form_class(data, instance=education_group)
 
         self.forms = {
             forms.ModelForm: self.education_group_year_form,

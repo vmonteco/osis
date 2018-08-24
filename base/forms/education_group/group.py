@@ -56,5 +56,5 @@ class GroupModelForm(EducationGroupModelForm):
 
 
 class GroupForm(CommonBaseForm):
-    education_group_year_form_klass = GroupYearModelForm
-    education_group_form_klass = GroupModelForm
+    education_group_year_form_class = GroupYearModelForm
+    education_group_form_class = GroupModelForm

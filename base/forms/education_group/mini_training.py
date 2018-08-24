@@ -47,7 +47,7 @@ class MiniTrainingModelForm(EducationGroupYearModelForm):
 
 
 class MiniTrainingForm(PostponementEducationGroupYearMixin, CommonBaseForm):
-    education_group_year_form_klass = MiniTrainingModelForm
+    education_group_year_form_class = MiniTrainingModelForm
 
     def _post_save(self):
         education_group_instance = self.forms[EducationGroupModelForm].instance
