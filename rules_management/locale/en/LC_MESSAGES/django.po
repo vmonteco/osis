@@ -18,29 +18,29 @@ msgstr ""
 "X-Generator: Poedit 2.0.4\n"
 
 
-msgid "TRAINING_DAILY_MANAGEMENT"
-msgstr "Training management day-to-day"
+msgid "Training management day-to-day"
+msgstr ""
 
-msgid "TRAINING_PROPOSAL_MANAGEMENT"
-msgstr "Training management during proposal stage"
+msgid "Training management during proposal stage"
+msgstr ""
 
-msgid "TRAINING_PGRM_ENCODING_PERIOD"
-msgstr "Training management during program type encoding period"
+msgid "Training management during program type encoding period"
+msgstr ""
 
-msgid "MINI_TRAINING_DAILY_MANAGEMENT"
-msgstr "Mini-training management day-to-day"
+msgid "Mini-training management day-to-day"
+msgstr ""
 
-msgid "MINI_TRAINING_PROPOSAL_MANAGEMENT"
-msgstr "Mini-training management during proposal stage"
+msgid "Mini-training management during proposal stage"
+msgstr ""
 
-msgid "MINI_TRAINING_PGRM_ENCODING_PERIOD"
-msgstr "Mini-training management during program type encoding period"
+msgid "Mini-training management during program type encoding period"
+msgstr ""
 
-msgid "GROUP_DAILY_MANAGEMENT"
-msgstr "Group management day-to-day"
+msgid "Group management day-to-day"
+msgstr ""
 
-msgid "GROUP_PROPOSAL_MANAGEMENT"
-msgstr "Group management during proposal stage"
+msgid "Group management during proposal stage"
+msgstr ""
 
-msgid "GROUP_PGRM_ENCODING_PERIOD"
-msgstr "Group management during program type encoding period"
+msgid "Group management during program type encoding period"
+msgstr ""
