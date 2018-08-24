@@ -24,13 +24,10 @@
 #
 ##############################################################################
 from django.db import models
-from django.db.models import QuerySet
 from django.utils.functional import cached_property
 
 from base.models import entity_version
-from base.models.entity import Entity
 from base.models.entity_version import EntityVersion
-from osis_common.decorators.deprecated import deprecated
 from osis_common.models.osis_model_admin import OsisModelAdmin
 
 
