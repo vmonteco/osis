@@ -40,9 +40,8 @@ from base.models.enums.proposal_state import ProposalState
 from base.models.enums.proposal_type import ProposalType
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import is_person_linked_to_entity_in_charge_of_learning_unit
-from base.models.person_entity import is_attached_entities
-from osis_common.utils.perms import conjunction, disjunction, negation, BasePerm
 from osis_common.utils.datetime import get_tzinfo, convert_date_to_datetime
+from osis_common.utils.perms import conjunction, disjunction, negation, BasePerm
 
 FACULTY_UPDATABLE_CONTAINER_TYPES = (learning_container_year_types.COURSE,
                                      learning_container_year_types.DISSERTATION,
@@ -225,6 +224,8 @@ def _can_delete_learning_unit_year_according_type(learning_unit_year, person):
 
 
 def _is_attached_to_initial_or_current_requirement_entity(proposal, person):
+    print(_is_attached_to_initial_entity(proposal, person))
+    print(person.is_linked_to_entity_in_charge_of_learning_unit_year(proposal.learning_unit_year))
     return _is_attached_to_initial_entity(proposal, person) or \
            person.is_linked_to_entity_in_charge_of_learning_unit_year(proposal.learning_unit_year)
 
@@ -233,8 +234,9 @@ def _is_attached_to_initial_entity(learning_unit_proposal, a_person):
     if not learning_unit_proposal.initial_data.get("entities") or \
             not learning_unit_proposal.initial_data["entities"].get(REQUIREMENT_ENTITY):
         return False
+    print("coucou")
     initial_entity_requirement_id = learning_unit_proposal.initial_data["entities"][REQUIREMENT_ENTITY]
-    return is_attached_entities(a_person, Entity.objects.filter(pk=initial_entity_requirement_id))
+    return a_person.is_attached_entities(Entity.objects.filter(pk=initial_entity_requirement_id))
 
 
 def _is_container_type_course_dissertation_or_internship(learning_unit_year, _):

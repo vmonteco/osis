@@ -27,6 +27,7 @@ from datetime import date
 
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 from django.db.models import Q
 from django.db.models import Value
@@ -38,8 +39,6 @@ from base.models.entity import Entity
 from base.models.entity_version import find_main_entities_version
 from base.models.enums import person_source_type
 from base.models.enums.entity_container_year_link_type import REQUIREMENT_ENTITY
-from base.models.person_entity import is_attached_entities
-from base.models.utils.person_entity_filter import filter_by_attached_entities
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
 
 CENTRAL_MANAGER_GROUP = "central_managers"
@@ -117,6 +116,15 @@ class Person(SerializableModel):
             self.middle_name or ""
         ]).strip()
 
+    @cached_property
+    def linked_entities(self):
+        entities_id = set()
+        for person_entity in self.personentity_set.all():
+            print(person_entity, person_entity.descendants)
+            entities_id |= person_entity.descendants
+        print("ààà", entities_id)
+        return entities_id
+
     class Meta:
         permissions = (
             ("is_administrator", "Is administrator"),
@@ -125,14 +133,29 @@ class Person(SerializableModel):
         )
 
     def is_linked_to_entity_in_charge_of_learning_unit_year(self, learning_unit_year):
-        return is_person_linked_to_entity_in_charge_of_learning_unit(learning_unit_year, self)
+        entities = Entity.objects.filter(
+            entitycontaineryear__learning_container_year=learning_unit_year.learning_container_year,
+            entitycontaineryear__type=REQUIREMENT_ENTITY
+        )
+        print("yololo", entities, self.linked_entities)
+
+        return self.is_attached_entities(entities)
 
     def is_attached_entities(self, entities):
-        return is_attached_entities(self, entities)
+        for entity in entities:
+            if self.is_attached_entity(entity):
+                return True
+        return False
+
+    def is_attached_entity(self, entity):
+        if not isinstance(entity, Entity):
+            raise ImproperlyConfigured("entity must be an instance of Entity.")
+
+        return entity.id in self.linked_entities
 
     @cached_property
     def find_main_entities_version(self):
-        return filter_by_attached_entities(self, find_main_entities_version())
+        return find_main_entities_version().filter(entity__in=self.linked_entities)
 
 
 def find_by_id(person_id):
@@ -180,7 +203,7 @@ def count_by_email(email):
 
 
 # FIXME Returns queryset.none() in place of None
-#       Also reuse search method and filter by employee then
+# Also reuse search method and filter by employee then
 def search_employee(full_name):
     queryset = annotate_with_first_last_names()
     if full_name:
@@ -221,8 +244,4 @@ def find_by_firstname_or_lastname(name):
 
 
 def is_person_linked_to_entity_in_charge_of_learning_unit(learning_unit_year, person):
-    entities = Entity.objects.filter(
-        entitycontaineryear__learning_container_year=learning_unit_year.learning_container_year,
-        entitycontaineryear__type=REQUIREMENT_ENTITY)
-
-    return is_attached_entities(person, entities)
+    return person.is_linked_to_entity_in_charge_of_learning_unit_year(learning_unit_year)
