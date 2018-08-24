@@ -61,15 +61,15 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for element in group_elements %}
+                                {% for element in group_element_years %}
                                     <tr>
-                                        <td width="10%">{{ element.code_scs | default_if_none:'' }}</td>
-                                        <td width="20%">{{ element.title | default_if_none:'' }}</td>
-                                        <td width="12%">{{ element.group_element.relative_credits | default_if_none:'-' }} / {% if element.group_element.child %}{{ element.group_element.child.credits | default_if_none:'-' }}{% else %}-{% endif %}</td>
-                                        <td width="6%">{{ element.group_element.min_credits | default_if_none:'-' }}</td>
-                                        <td width="6%">{{ element.group_element.max_credits | default_if_none:'-' }}</td>
-                                        <td width="6%">{% if element.group_element.is_mandatory %}{% trans 'yes'%} {% else %}{% trans 'no' %}{% endif %}</td>
-                                        <td width="6%">{{ element.group_element.block | default_if_none:'-' }}</td>
+                                        <td width="10%">{{ element.code_scs }}</td>
+                                        <td width="20%">{{ element.title }}</td>
+                                        <td width="12%">{{ element.relative_credits | default_if_none:'-' }} / {% if element.child %}{{ element.child.credits | default_if_none:'-' }}{% else %}-{% endif %}</td>
+                                        <td width="6%">{{ element.min_credits | default_if_none:'-' }}</td>
+                                        <td width="6%">{{ element.max_credits | default_if_none:'-' }}</td>
+                                        <td width="6%">{{  element.is_mandatory | yesno }}</td>
+                                        <td width="6%">{{ element.block | default_if_none:'-' }}</td>
                                         <td width="5%">{% if element.quadrimester_derogation %} {% trans element.quadrimester_derogation %} {% else %} - {% endif %} </td>
                                         <td width="14%">{% if element.link_type %}{% trans element.link_type %}{% else %}-{% endif %}</td>
                                         <td width="15%">
@@ -79,28 +79,28 @@
                                     {% with nb_col_spanned=10 %}
                                     <tr>
                                         <td colspan="{{ nb_col_spanned }}" style="border-top: none;border-bottom: none;">
-                                            {% if element.group_element.own_comment %}
+                                            {% if element.own_comment %}
                                                 <label>{% trans 'own_comment' %}</label> :&nbsp;
-                                                {{ element.group_element.own_comment }}
+                                                {{ element.own_comment }}
                                             {% endif %}
                                         </td>
                                     </tr>
-                                    {% if element.group_element.comment %}
+                                    {% if element.comment %}
                                         <tr style="border-spacing: 100px">
                                             <td colspan="{{ nb_col_spanned }}" style="border-top: none; border-bottom: none;">
-                                                {% if element.group_element.comment %}
+                                                {% if element.comment %}
                                                     <label>{% trans 'comment_title' %}</label> :&nbsp;
-                                                    {{ element.group_element.comment }}
+                                                    {{ element.comment }}
                                                 {% endif %}
                                             </td>
                                         </tr>
                                     {% endif %}
-                                    {% if element.group_element.comment_english %}
+                                    {% if element.comment_english %}
                                         <tr>
                                             <td colspan="{{ nb_col_spanned }}" style="border-top: none; border-bottom: none;">
-                                                {% if element.group_element.comment_english %}
+                                                {% if element.comment_english %}
                                                     <label>{% trans 'english comment'|capfirst %}</label> :&nbsp;
-                                                    {{ element.group_element.comment_english }}
+                                                    {{ element.comment_english }}
                                                 {% endif %}
                                             </td>
                                         </tr>
