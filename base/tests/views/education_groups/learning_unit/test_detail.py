@@ -29,7 +29,7 @@ from django.test import TestCase
 from django.urls import reverse
 
 from base.tests.factories.academic_year import AcademicYearFactory
-from base.tests.factories.education_group_year import EducationGroupYearFactory, TrainingFactory
+from base.tests.factories.education_group_year import EducationGroupYearFactory, TrainingFactory, GroupFactory
 from base.tests.factories.group_element_year import GroupElementYearFactory
 from base.tests.factories.learning_component_year import LearningComponentYearFactory
 from base.tests.factories.learning_unit_component import LearningUnitComponentFactory
@@ -97,10 +97,10 @@ class TestDetail(TestCase):
 class TestLearningUnitPrerequisite(TestCase):
     @classmethod
     def setUpTestData(cls):
-        academic_year = AcademicYearFactory()
-        cls.education_group_year_parents = [TrainingFactory(academic_year=academic_year) for _ in range(0,2)]
+        cls.academic_year = AcademicYearFactory()
+        cls.education_group_year_parents = [TrainingFactory(academic_year=cls.academic_year) for _ in range(0,2)]
         cls.learning_unit_year_child = LearningUnitYearFakerFactory(
-            learning_container_year__academic_year=academic_year
+            learning_container_year__academic_year=cls.academic_year
         )
         cls.group_element_years = [
             GroupElementYearFactory(parent=cls.education_group_year_parents[i],
@@ -133,10 +133,27 @@ class TestLearningUnitPrerequisite(TestCase):
 
     def test_context_data(self):
         response = self.client.get(self.url)
+        self.assertCountEqual(response.context_data["formations"], self.education_group_year_parents[:1])
+
+        actual_prerequisites = response.context_data["formations"][0].prerequisites
+        self.assertEqual(actual_prerequisites, [self.prerequisite])
+
+    def test_context_data_when_education_group_year_root_is_not_a_training(self):
+        education_group_year_group = GroupFactory(academic_year=self.academic_year)
+        GroupElementYearFactory(parent=self.education_group_year_parents[0],
+                                child_branch=education_group_year_group)
+        GroupElementYearFactory(parent=education_group_year_group,
+                                child_leaf=self.learning_unit_year_child,
+                                child_branch=None)
+
+        url = reverse("learning_unit_prerequisite",
+                      args=[education_group_year_group.id, self.learning_unit_year_child.id])
+
+        response = self.client.get(url)
         self.assertCountEqual(response.context_data["formations"], self.education_group_year_parents)
 
         actual_prerequisites = next(filter(lambda egy: egy.id == self.education_group_year_parents[0].id,
-                                     response.context_data["formations"])).prerequisites
+                                           response.context_data["formations"])).prerequisites
         self.assertEqual(actual_prerequisites, [self.prerequisite])
 
         actual_prerequisites = next(filter(lambda egy: egy.id == self.education_group_year_parents[1].id,
