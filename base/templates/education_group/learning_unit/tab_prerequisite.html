@@ -27,28 +27,33 @@
 {% block tab_content %}
     <div class="panel panel-default">
         <div class="panel-body">
-
             <p>
                 <a href="{% url "learning_unit" learning_unit_year_id=learning_unit_year.id %}"><ins>{{ learning_unit_year.acronym }}</ins></a>
                 {% trans "has the following prerequisites" %}:
             </p>
 
-            <table class="table table-hover">
-                <thead>
-                    <tr>
-                        <th>{% trans 'formations' %}</th>
-                        <th>{% blocktrans count counter=2 %}Prerequisite{% plural %}Prerequisites{% endblocktrans %}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for education_group_year in formations %}
+            {% if is_root_a_training %}
+                <p>{{ formations.0.prerequisites.0.prerequisite|default:"-"}}</p>
+            {% else %}
+                <table class="table table-hover">
+                    <thead>
                         <tr>
-                            <td>{{ education_group_year.acronym }}</td>
-                            <td>{{ education_group_year.prerequisites.0.prerequisite|default:"-"}}</td>
+                            <th>{% trans 'formations' %}</th>
+                            <th>{% blocktrans count counter=2 %}Prerequisite{% plural %}Prerequisites{% endblocktrans %}</th>
                         </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {% for education_group_year in formations %}
+                            <tr>
+                                <td>{{ education_group_year.acronym }}</td>
+                                <td>{{ education_group_year.prerequisites.0.prerequisite|default:"-"}}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
+
+
         </div>
     </div>
 {% endblock %}

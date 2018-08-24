@@ -83,11 +83,8 @@ class LearningUnitPrerequisite(LearningUnitGenericDetailView):
 
         learning_unit_year = context["learning_unit_year"]
         education_group_year_root_id = context["root_id"]
-        is_root_a_training = EducationGroupYear.objects.filter(
-            education_group_type__category__in=[education_group_categories.TRAINING,
-                                                education_group_categories.MINI_TRAINING],
-            id=education_group_year_root_id
-        ).exists()
+        is_root_a_training = context["root"].education_group_type.category in [education_group_categories.TRAINING,
+                                                                               education_group_categories.MINI_TRAINING]
 
         if is_root_a_training:
             qs = EducationGroupYear.objects.filter(id=education_group_year_root_id)
@@ -100,5 +97,6 @@ class LearningUnitPrerequisite(LearningUnitGenericDetailView):
                                           Prerequisite.objects.filter(learning_unit_year=learning_unit_year),
                                           to_attr="prerequisites")
         context["formations"] = qs.prefetch_related(prefetch_prerequisites)
+        context["is_root_a_training"] = is_root_a_training
 
         return context
