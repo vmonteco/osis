@@ -29,6 +29,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db import models
 
 from osis_common.models.osis_model_admin import OsisModelAdmin
+from rules_management import enums
 
 
 class AdminForm(forms.ModelForm):
@@ -39,11 +40,12 @@ class FieldReferenceAdmin(OsisModelAdmin):
     list_display = ('content_type', 'field_name', 'context')
     search_fields = ('content_type', 'field_name', 'context')
     filter_horizontal = ('permissions',)
+    list_filter = ('context',)
     form = AdminForm
 
 
 class FieldReference(models.Model):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     field_name = models.CharField(max_length=50)
-    context = models.CharField(max_length=50, blank=True)
+    context = models.CharField(max_length=50,  choices=enums.CONTEXT_CHOICES, blank=True)
     permissions = models.ManyToManyField(Permission)

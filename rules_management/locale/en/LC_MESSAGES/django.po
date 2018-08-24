@@ -1,0 +1,46 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-08-03 17:41+0200\n"
+"PO-Revision-Date: 2018-07-26 17:48+0200\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 2.0.4\n"
+
+
+msgid "TRAINING_DAILY_MANAGEMENT"
+msgstr ""
+
+msgid "TRAINING_PROPOSAL_MANAGEMENT"
+msgstr ""
+
+msgid "TRAINING_PGRM_ENCODING_PERIOD"
+msgstr ""
+
+msgid "MINI_TRAINING_DAILY_MANAGEMENT"
+msgstr ""
+
+msgid "MINI_TRAINING_PROPOSAL_MANAGEMENT"
+msgstr ""
+
+msgid "MINI_TRAINING_PGRM_ENCODING_PERIOD"
+msgstr ""
+
+msgid "GROUP_DAILY_MANAGEMENT"
+msgstr ""
+
+msgid "GROUP_PROPOSAL_MANAGEMENT"
+msgstr ""
+
+msgid "GROUP_PGRM_ENCODING_PERIOD"
+msgstr ""
