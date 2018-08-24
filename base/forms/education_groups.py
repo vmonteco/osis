@@ -25,7 +25,6 @@
 ##############################################################################
 from django import forms
 from django.forms import ModelChoiceField
-from django.utils.functional import lazy
 from django.utils.translation import ugettext_lazy as _
 
 from base.business.entity import get_entities_ids
@@ -58,7 +57,7 @@ class ModelChoiceFieldWithData(forms.ModelChoiceField):
     widget = SelectWithData
 
     def set_data_attrs(self):
-        # Lay load of the attrs
+        # Lazy load of the attrs
         self.widget.data_attrs = self.queryset.in_bulk()
 
 
