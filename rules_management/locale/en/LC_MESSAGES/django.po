@@ -19,28 +19,28 @@ msgstr ""
 
 
 msgid "TRAINING_DAILY_MANAGEMENT"
-msgstr ""
+msgstr "Training management day-to-day"
 
 msgid "TRAINING_PROPOSAL_MANAGEMENT"
-msgstr ""
+msgstr "Training management during proposal stage"
 
 msgid "TRAINING_PGRM_ENCODING_PERIOD"
-msgstr ""
+msgstr "Training management during program type encoding period"
 
 msgid "MINI_TRAINING_DAILY_MANAGEMENT"
-msgstr ""
+msgstr "Mini-training management day-to-day"
 
 msgid "MINI_TRAINING_PROPOSAL_MANAGEMENT"
-msgstr ""
+msgstr "Mini-training management during proposal stage"
 
 msgid "MINI_TRAINING_PGRM_ENCODING_PERIOD"
-msgstr ""
+msgstr "Mini-training management during program type encoding period"
 
 msgid "GROUP_DAILY_MANAGEMENT"
-msgstr ""
+msgstr "Group management day-to-day"
 
 msgid "GROUP_PROPOSAL_MANAGEMENT"
-msgstr ""
+msgstr "Group management during proposal stage"
 
 msgid "GROUP_PGRM_ENCODING_PERIOD"
-msgstr ""
+msgstr "Group management during program type encoding period"
