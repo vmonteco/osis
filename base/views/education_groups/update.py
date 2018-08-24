@@ -75,7 +75,7 @@ def _common_success_redirect(request, form, root):
             _get_success_message_for_update_education_group_year(egy.id, egy)
             for egy in form.education_group_year_postponed
         ]
-    if form.education_group_year_deleted:
+    if hasattr(form, 'education_group_year_deleted'):
         success_msgs += [
             _get_success_message_for_deleted_education_group_year(egy)
             for egy in form.education_group_year_deleted

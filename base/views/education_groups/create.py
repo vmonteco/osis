@@ -109,7 +109,7 @@ def _common_success_redirect(request, form, parent=None):
     parent_id = parent.pk if parent else education_group_year.pk
 
     success_msg = [_get_success_message_for_creation_education_group_year(parent_id, education_group_year)]
-    if form.education_group_year_postponed:
+    if hasattr(form, 'education_group_year_postponed'):
         success_msg += [
             _get_success_message_for_creation_education_group_year(egy.id, egy)
             for egy in form.education_group_year_postponed
