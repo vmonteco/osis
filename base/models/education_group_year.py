@@ -482,6 +482,22 @@ class EducationGroupYear(models.Model):
     def category(self):
         return self.education_group_type.category
 
+    @property
+    def direct_parents(self):
+        return EducationGroupYear.objects.filter(
+            groupelementyear__child_branch=self
+        ).distinct()
+
+    @property
+    def ascendants(self):
+        ascendants = []
+
+        for parent in self.direct_parents:
+            ascendants.append(parent)
+            ascendants += parent.ascendants
+
+        return list(set(ascendants))
+
     def is_deletable(self):
         """An education group year cannot be deleted if there are enrollment on it"""
         if self.offerenrollment_set.all().exists():

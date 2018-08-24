@@ -25,6 +25,7 @@
 ##############################################################################
 from unittest import mock
 
+from django.db import IntegrityError
 from django.test import TestCase
 
 from base.models import group_element_year
@@ -425,3 +426,47 @@ class TestManager(TestCase):
     def test_objects_without_container(self):
         self.assertNotIn(self.group_element_year_without_container, GroupElementYear.objects.all())
         self.assertIn(self.group_element_year_1, GroupElementYear.objects.all())
+
+
+class TestSaveGroupElementYear(TestCase):
+    def test_simple_saves_ok(self):
+        egy1 = EducationGroupYearFactory()
+        egy2 = EducationGroupYearFactory()
+        egy3 = EducationGroupYearFactory()
+
+        GroupElementYearFactory(
+            parent=egy2,
+            child_branch=egy1,
+        )
+        GroupElementYearFactory(
+            parent=egy3,
+            child_branch=egy2,
+        )
+
+    def test_loop_save_on_itself_ko(self):
+        egy = EducationGroupYearFactory()
+        with self.assertRaises(IntegrityError):
+            GroupElementYearFactory(
+                parent=egy,
+                child_branch=egy,
+            )
+
+    def test_loop_save_ko(self):
+        egy1 = EducationGroupYearFactory()
+        egy2 = EducationGroupYearFactory()
+        egy3 = EducationGroupYearFactory()
+
+        GroupElementYearFactory(
+            parent=egy2,
+            child_branch=egy1,
+        )
+        GroupElementYearFactory(
+            parent=egy3,
+            child_branch=egy2,
+        )
+
+        with self.assertRaises(IntegrityError):
+            GroupElementYearFactory(
+                parent=egy1,
+                child_branch=egy3,
+            )

@@ -139,6 +139,57 @@ class EducationGroupYearTest(TestCase):
         children_group_element_years = self.education_group_year_1.children_group_element_years
         self.assertListEqual(list(children_group_element_years), [])
 
+    def test_direct_parents(self):
+        GroupElementYearFactory(
+            parent=self.education_group_year_2,
+            child_branch=self.education_group_year_1
+        )
+        GroupElementYearFactory(
+            parent=self.education_group_year_4,
+            child_branch=self.education_group_year_1
+        )
+        GroupElementYearFactory(
+            parent=self.education_group_year_5,
+            child_branch=self.education_group_year_4
+        )
+
+        self.assertCountEqual(
+            self.education_group_year_1.direct_parents,
+            [
+                self.education_group_year_2,
+                self.education_group_year_3,
+                self.education_group_year_4,
+            ]
+        )
+
+    def test_ascendants(self):
+        GroupElementYearFactory(
+            parent=self.education_group_year_2,
+            child_branch=self.education_group_year_1
+        )
+        GroupElementYearFactory(
+            parent=self.education_group_year_4,
+            child_branch=self.education_group_year_1
+        )
+        GroupElementYearFactory(
+            parent=self.education_group_year_5,
+            child_branch=self.education_group_year_4
+        )
+        GroupElementYearFactory(
+            parent=self.education_group_year_5,
+            child_branch=self.education_group_year_1
+        )
+
+        self.assertCountEqual(
+            self.education_group_year_1.ascendants,
+            [
+                self.education_group_year_2,
+                self.education_group_year_3,
+                self.education_group_year_4,
+                self.education_group_year_5,
+            ]
+        )
+
 
 class TestFindWithEnrollmentsCount(TestCase):
     """Unit tests on find_with_enrollments_count()"""
