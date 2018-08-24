@@ -176,7 +176,7 @@ class GroupElementYear(OrderedModel):
         if self.child_branch == self.parent:
             raise IntegrityError("Can not save GroupElementYear when a child branch and a parent are identical.")
         if self.parent and self.child_branch in self.parent.ascendants:
-            raise IntegrityError("Can not save GroupElementYear when a child branch and a parent are identical.")
+            raise IntegrityError("Can not save GroupElementYear if the child branch is in the parent's ascendants")
 
         return super().save(force_insert, force_update, using, update_fields)
 
