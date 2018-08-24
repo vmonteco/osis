@@ -47,20 +47,7 @@ class MiniTrainingModelForm(EducationGroupYearModelForm):
 
 
 class MiniTrainingForm(PostponementEducationGroupYearMixin, CommonBaseForm):
-
-    def __init__(self, data, instance=None, parent=None, user=None, education_group_type=None):
-        education_group_year_form = MiniTrainingModelForm(
-            data,
-            instance=instance,
-            parent=parent,
-            user=user,
-            education_group_type=education_group_type
-        )
-
-        education_group = instance.education_group if instance else None
-        education_group_form = EducationGroupModelForm(data, instance=education_group)
-
-        super().__init__(education_group_year_form, education_group_form)
+    education_group_year_form_klass = MiniTrainingModelForm
 
     def _post_save(self):
         education_group_instance = self.forms[EducationGroupModelForm].instance

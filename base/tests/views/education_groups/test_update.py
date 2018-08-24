@@ -36,7 +36,7 @@ from django.utils.translation import ugettext as _
 from waffle.testutils import override_flag
 
 from base.business.group_element_years import management
-from base.forms.education_group.group import GroupModelForm
+from base.forms.education_group.group import GroupYearModelForm
 from base.models.enums import education_group_categories, internship_presence
 from base.models.enums.active_status import ACTIVE
 from base.models.enums.schedule_type import DAILY
@@ -141,7 +141,7 @@ class TestUpdate(TestCase):
 
         form_education_group_year = response.context["form_education_group_year"]
 
-        self.assertIsInstance(form_education_group_year, GroupModelForm)
+        self.assertIsInstance(form_education_group_year, GroupYearModelForm)
 
     def test_post(self):
         new_entity_version = MainEntityVersionFactory()

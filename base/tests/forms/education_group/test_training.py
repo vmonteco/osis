@@ -23,7 +23,8 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-
+from django import forms
+from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 
 from base.business.education_groups.postponement import _model_to_dict
@@ -41,6 +42,7 @@ from base.tests.factories.entity_version import MainEntityVersionFactory, Entity
 from base.tests.factories.user import UserFactory
 from reference.tests.factories.domain import DomainFactory
 from reference.tests.factories.language import LanguageFactory
+from rules_management.tests.fatories import PermissionFactory, FieldReferenceFactory
 
 
 class TestPostponementEducationGroupYearMixin(TestCase):
@@ -197,3 +199,49 @@ class TestPostponementEducationGroupYearMixin(TestCase):
         self.assertEqual(self.education_group_year.secondary_domains.count(), 2)
         self.assertEqual(last.secondary_domains.count(), 3)
         self.assertEqual(len(form.warnings), 1)
+
+
+class TestPermissionField(TestCase):
+    def setUp(self):
+        self.permissions = [PermissionFactory() for _ in range(10)]
+
+        FieldReferenceFactory(
+            content_type=ContentType.objects.get(app_label="base", model="educationgroupyear"),
+            field_name="main_teaching_campus",
+            context="LalaLand",
+            permissions=self.permissions,
+        )
+
+        FieldReferenceFactory(
+            content_type=ContentType.objects.get(app_label="base", model="educationgroupyear"),
+            field_name="partial_acronym",
+            context="",
+            permissions=self.permissions,
+        )
+
+        self.user_with_perm = UserFactory()
+        self.user_with_perm.user_permissions.add(self.permissions[2])
+
+        self.user_without_perm = UserFactory()
+        self.user_without_perm.user_permissions.add(PermissionFactory())
+
+        self.education_group_type = EducationGroupTypeFactory(
+            category=education_group_categories.TRAINING
+        )
+
+    def test_init(self):
+        form = TrainingForm({}, user=self.user_with_perm, education_group_type=self.education_group_type,
+                            context="LalaLand")
+        self.assertFalse(form.forms[forms.ModelForm].fields["main_teaching_campus"].disabled)
+        self.assertFalse(form.forms[forms.ModelForm].fields["partial_acronym"].disabled)
+
+        form = TrainingForm({}, user=self.user_without_perm, education_group_type=self.education_group_type,
+                            context="LalaLand")
+        self.assertTrue(form.forms[forms.ModelForm].fields["main_teaching_campus"].disabled)
+        self.assertTrue(form.forms[forms.ModelForm].fields["partial_acronym"].disabled)
+
+        form = TrainingForm({}, user=self.user_without_perm, education_group_type=self.education_group_type,
+                            context="YoupiLand")
+        self.assertFalse(form.forms[forms.ModelForm].fields["main_teaching_campus"].disabled)
+        self.assertTrue(form.forms[forms.ModelForm].fields["partial_acronym"].disabled)
+

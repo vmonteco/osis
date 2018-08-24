@@ -123,25 +123,43 @@ class TestCommonBaseFormIsValid(TestCase):
 
     def setUp(self):
         self.category = education_group_categories.MINI_TRAINING  # Could take GROUP or TRAINING, the result is the same
-        fake_educ_group_year, post_data = _get_valid_post_data(self.category)
+        fake_educ_group_year, self.post_data = _get_valid_post_data(self.category)
         self.egt = fake_educ_group_year.education_group_type
-        self.education_group_year_form = MiniTrainingModelForm(post_data, user=UserFactory(),
+        self.education_group_year_form = MiniTrainingModelForm(self.post_data, user=UserFactory(),
                                                                education_group_type=self.egt)
-        self.education_group_form = EducationGroupModelForm(post_data)
+        self.education_group_form = EducationGroupModelForm(self.post_data)
 
     @patch('base.forms.education_group.mini_training.MiniTrainingModelForm.is_valid', return_value=False)
     def _test_when_mini_training_form_is_not_valid(self, mock_is_valid):
-        self.assertFalse(CommonBaseForm(self.education_group_year_form, self.education_group_form).is_valid())
+        self.assertFalse(
+            CommonBaseForm(
+                self.post_data,
+                user=UserFactory(),
+                education_group_type=self.egt
+            ).is_valid()
+        )
 
     @patch('base.forms.education_group.common.EducationGroupModelForm.is_valid', return_value=False)
     def test_when_education_group_model_form_is_not_valid(self, mock_is_valid):
-        self.assertFalse(CommonBaseForm(self.education_group_year_form, self.education_group_form).is_valid())
+        self.assertFalse(
+            MiniTrainingForm(
+                self.post_data,
+                user=UserFactory(),
+                education_group_type=self.egt
+            ).is_valid()
+        )
 
     @patch('base.forms.education_group.mini_training.MiniTrainingModelForm.is_valid', return_value=True)
     @patch('base.forms.education_group.common.CommonBaseForm._post_clean', return_value=True)
     @patch('base.forms.education_group.common.EducationGroupModelForm.is_valid', return_value=True)
     def test_when_both_of_two_forms_are_valid(self, mock_is_valid, mock_post_clean, mock_mintraining_is_valid):
-        self.assertTrue(CommonBaseForm(self.education_group_year_form, self.education_group_form).is_valid())
+        self.assertTrue(
+            MiniTrainingForm(
+                self.post_data,
+                user=UserFactory(),
+                education_group_type=self.egt
+            ).is_valid()
+        )
 
     def test_post_with_errors(self):
         expected_educ_group_year, wrong_post_data = _get_valid_post_data(self.category)
@@ -149,14 +167,7 @@ class TestCommonBaseFormIsValid(TestCase):
         wrong_post_data['end_year'] = "some text"
         wrong_post_data["max_constraint"] = expected_educ_group_year.min_constraint - 1
 
-        education_group_year_form = MiniTrainingModelForm(
-            wrong_post_data,
-            user=UserFactory(),
-            education_group_type=self.egt
-        )
-
-        education_group_form = EducationGroupModelForm(wrong_post_data)
-        form = CommonBaseForm(education_group_year_form, education_group_form)
+        form = MiniTrainingForm(wrong_post_data, education_group_type=self.egt, user=UserFactory())
         self.assertFalse(form.is_valid(), form.errors)
         self.assertEqual(len(form.errors), 3, form.errors)
 
