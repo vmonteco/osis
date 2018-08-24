@@ -470,3 +470,13 @@ class TestSaveGroupElementYear(TestCase):
                 parent=egy1,
                 child_branch=egy3,
             )
+
+    def test_save_with_child_branch_and_child_leaf_ko(self):
+        egy = EducationGroupYearFactory()
+        luy = LearningUnitYearFactory()
+        with self.assertRaises(IntegrityError):
+            GroupElementYearFactory(
+                parent=egy,
+                child_branch=egy,
+                child_leaf=luy,
+            )
