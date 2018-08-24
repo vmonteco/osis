@@ -23,28 +23,10 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from .base import *
-
-OPTIONAL_APPS = (
-    'attribution',
-    'assistant',
-    # 'continuing_education',
-    'dissertation',
-    'internship',
-    'assessments',
-    'cms',
-    'webservices',
-)
-OPTIONAL_MIDDLEWARES = ()
-OPTIONAL_INTERNAL_IPS = ()
-
-if os.environ.get("ENABLE_DEBUG_TOOLBAR", "False").lower() == "true":
-    OPTIONAL_APPS += ('debug_toolbar',)
-    OPTIONAL_MIDDLEWARES += ('debug_toolbar.middleware.DebugToolbarMiddleware',)
-    OPTIONAL_INTERNAL_IPS += ('127.0.0.1',)
+from django.apps import AppConfig
+from django.utils.translation import gettext_lazy
 
 
-INSTALLED_APPS += OPTIONAL_APPS
-APPS_TO_TEST += OPTIONAL_APPS
-MIDDLEWARE += OPTIONAL_MIDDLEWARES
-INTERNAL_IPS += OPTIONAL_INTERNAL_IPS
+class RulesmanagementConfig(AppConfig):
+    name = 'rules_management'
+    verbose_name = gettext_lazy("Rules Management")

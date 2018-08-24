@@ -65,6 +65,7 @@ INSTALLED_APPS = (
     'ckeditor',
     'osis_common',
     'reference',
+    'rules_management',
     'base',
     'statici18n',
     'rest_framework',
@@ -98,6 +99,7 @@ if TESTING:
 APPS_TO_TEST = (
     'osis_common',
     'reference',
+    'rules_management',
     'base',
 )
 TEST_RUNNER = os.environ.get('TEST_RUNNER', 'osis_common.tests.runner.InstalledAppsTestRunner')

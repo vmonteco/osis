@@ -90,6 +90,7 @@ def create_education_group(request, category, education_group_type_pk, parent_id
     form_education_group_year = FORMS_BY_CATEGORY[category](
         request.POST or None,
         parent=parent,
+        user=request.user,
         education_group_type=education_group_type
     )
 

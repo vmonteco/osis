@@ -23,13 +23,12 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from unittest import mock
 from unittest.mock import patch
 
 from django.core.validators import _lazy_re_compile
 from django.test import TestCase
 
-from base.forms.education_group.group import GroupModelForm, GroupForm
+from base.forms.education_group.group import GroupYearModelForm, GroupForm
 from base.models.education_group_type import EducationGroupType
 from base.models.education_group_year import EducationGroupYear
 from base.models.enums import education_group_categories
@@ -39,6 +38,7 @@ from base.models.validation_rule import ValidationRule
 from base.tests.factories.authorized_relationship import AuthorizedRelationshipFactory
 from base.tests.factories.education_group_type import EducationGroupTypeFactory
 from base.tests.factories.education_group_year import GroupFactory
+from base.tests.factories.user import UserFactory
 from base.tests.forms.education_group.test_common import EducationGroupYearModelFormMixin, _get_valid_post_data
 
 
@@ -46,7 +46,7 @@ class TestGroupModelFormModelForm(EducationGroupYearModelFormMixin):
 
     def setUp(self):
         self.education_group_type = EducationGroupTypeFactory(category=education_group_categories.GROUP)
-        self.form_class = GroupModelForm
+        self.form_class = GroupYearModelForm
         AuthorizedRelationshipFactory(child_type=self.education_group_type)
 
         super(TestGroupModelFormModelForm, self).setUp(education_group_type=self.education_group_type)
@@ -80,7 +80,7 @@ class TestGroupModelFormModelForm(EducationGroupYearModelFormMixin):
             regex_rule="([A-Z]{2})(.*)"
         )
 
-        form = GroupModelForm(education_group_type=self.education_group_type)
+        form = GroupYearModelForm(education_group_type=self.education_group_type, user=UserFactory())
 
         self.assertEqual(form.fields["acronym"].initial, "yolo")
         self.assertEqual(form.fields["acronym"].required, False)
@@ -94,20 +94,28 @@ class TestGroupForm(TestCase):
         self.egt = self.expected_educ_group_year.education_group_type
 
     def test_create(self):
-        form = GroupForm(data=self.post_data, parent=None, education_group_type=self.egt)
+        form = GroupForm(
+            data=self.post_data,
+            parent=None,
+            user=UserFactory(),
+            education_group_type=self.egt
+        )
 
         self.assertTrue(form.is_valid(), form.errors)
 
         education_group_year = form.save()
 
-        self.assertEqual(education_group_year.education_group.start_year,
-                         self.expected_educ_group_year.academic_year.year)
+        self.assertEqual(
+            education_group_year.education_group.start_year,
+            self.expected_educ_group_year.academic_year.year
+        )
+
         self.assertIsNone(education_group_year.education_group.end_year)
 
     @patch('base.forms.education_group.common.find_authorized_types', return_value=EducationGroupType.objects.all())
     def test_create_with_parent(self, mock_find_authorized_types):
         parent = GroupFactory()
-        form = GroupForm(data=self.post_data, parent=parent, education_group_type=self.egt)
+        form = GroupForm(data=self.post_data, parent=parent, user=UserFactory(), education_group_type=self.egt)
 
         self.assertTrue(form.is_valid(), form.errors)
 
@@ -127,5 +135,5 @@ class TestGroupPostponedList(EducationGroupYearModelFormMixin):
 
     def test_group_doesnt_have_post_save_method(self):
         instance = self.parent_education_group_year
-        form = GroupForm(data={}, instance=instance)
+        form = GroupForm(data={}, user=UserFactory(), instance=instance)
         self.assertFalse(hasattr(form, '_post_save'))

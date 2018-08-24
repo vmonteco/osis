@@ -23,28 +23,35 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from .base import *
 
-OPTIONAL_APPS = (
-    'attribution',
-    'assistant',
-    # 'continuing_education',
-    'dissertation',
-    'internship',
-    'assessments',
-    'cms',
-    'webservices',
-)
-OPTIONAL_MIDDLEWARES = ()
-OPTIONAL_INTERNAL_IPS = ()
-
-if os.environ.get("ENABLE_DEBUG_TOOLBAR", "False").lower() == "true":
-    OPTIONAL_APPS += ('debug_toolbar',)
-    OPTIONAL_MIDDLEWARES += ('debug_toolbar.middleware.DebugToolbarMiddleware',)
-    OPTIONAL_INTERNAL_IPS += ('127.0.0.1',)
+import factory
+from django.contrib.auth.models import Permission
+from django.contrib.contenttypes.models import ContentType
 
 
-INSTALLED_APPS += OPTIONAL_APPS
-APPS_TO_TEST += OPTIONAL_APPS
-MIDDLEWARE += OPTIONAL_MIDDLEWARES
-INTERNAL_IPS += OPTIONAL_INTERNAL_IPS
+class PermissionFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = Permission
+
+    name = factory.Faker('text', max_nb_chars=255)
+    codename = factory.Faker('text', max_nb_chars=100)
+    content_type = factory.Iterator(ContentType.objects.all())
+
+
+class FieldReferenceFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = 'rules_management.FieldReference'
+
+    content_type = factory.Iterator(ContentType.objects.all())
+    field_name = "acronym"
+
+    @factory.post_generation
+    def permissions(self, create, extracted, **kwargs):
+        if not create:
+            # Simple build, do nothing.
+            return
+
+        if extracted:
+            # A list of permissions were passed in, use them
+            for permission in extracted:
+                self.permissions.add(permission)

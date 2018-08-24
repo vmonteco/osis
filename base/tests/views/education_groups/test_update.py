@@ -30,13 +30,14 @@ from unittest.mock import patch
 
 from django.contrib.auth.models import Permission
 from django.contrib.messages import get_messages
+from django.http import HttpResponseForbidden
 from django.test import TestCase, Client, RequestFactory
 from django.urls import reverse
 from django.utils.translation import ugettext as _
 from waffle.testutils import override_flag
 
 from base.business.group_element_years import management
-from base.forms.education_group.group import GroupModelForm
+from base.forms.education_group.group import GroupYearModelForm
 from base.models.enums import education_group_categories, internship_presence
 from base.models.enums.active_status import ACTIVE
 from base.models.enums.schedule_type import DAILY
@@ -141,7 +142,7 @@ class TestUpdate(TestCase):
 
         form_education_group_year = response.context["form_education_group_year"]
 
-        self.assertIsInstance(form_education_group_year, GroupModelForm)
+        self.assertIsInstance(form_education_group_year, GroupYearModelForm)
 
     def test_post(self):
         new_entity_version = MainEntityVersionFactory()
@@ -298,7 +299,7 @@ class TestSelectAttach(TestCase):
                 self.new_parent_education_group_year.id,
                 self.new_parent_education_group_year.id,
                 self.initial_group_element_year.id,
-        ]
+            ]
         ) + "?action=attach"
 
         cache.set('child_to_cache_id', None, timeout=None)
@@ -415,6 +416,48 @@ class TestSelectAttach(TestCase):
                 'parent_type': self.new_parent_education_group_year.education_group_type,
             }
         )
+
+        expected_absent_group_element_year = GroupElementYear.objects.filter(
+            parent=self.new_parent_education_group_year,
+            child_branch=self.child_education_group_year
+        ).exists()
+        self.assertFalse(expected_absent_group_element_year)
+
+        self._assert_link_with_inital_parent_present()
+
+    @mock.patch("base.business.education_groups.perms.is_eligible_to_change_education_group")
+    def test_attach_case_child_education_group_year_without_person_entity_link_fails(self, mock_permission):
+        mock_permission.return_value = False
+        AuthorizedRelationshipFactory(
+            parent_type=self.new_parent_education_group_year.education_group_type,
+            child_type=self.child_education_group_year.education_group_type,
+        )
+        expected_absent_group_element_year = GroupElementYear.objects.filter(
+            parent=self.new_parent_education_group_year,
+            child_branch=self.child_education_group_year
+        ).exists()
+        self.assertFalse(expected_absent_group_element_year)
+
+        self._assert_link_with_inital_parent_present()
+
+        # Select :
+        self.client.post(
+            self.url_select_education_group,
+            data={'child_to_cache_id': self.child_education_group_year.id}
+        )
+
+        # Attach :
+        http_referer = reverse(
+            "education_group_read",
+            args=[
+                self.initial_parent_education_group_year.id,
+                self.child_education_group_year.id
+            ]
+        )
+        response = self.client.get(self.url_attach, follow=True, HTTP_REFERER=http_referer)
+
+        self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
+        self.assertTemplateUsed(response, "access_denied.html")
 
         expected_absent_group_element_year = GroupElementYear.objects.filter(
             parent=self.new_parent_education_group_year,

@@ -38,6 +38,7 @@ from base.models.education_group_type import find_authorized_types, EducationGro
 from base.models.education_group_year import EducationGroupYear
 from base.models.entity_version import find_main_entities_version, get_last_version
 from reference.models.language import Language
+from rules_management.mixins import PermissionFieldMixin
 
 
 class MainTeachingCampusChoiceField(forms.ModelChoiceField):
@@ -52,7 +53,7 @@ class MainEntitiesVersionChoiceField(EntitiesVersionChoiceField):
         super(MainEntitiesVersionChoiceField, self).__init__(queryset, *args, **kwargs)
 
 
-class ValidationRuleEducationGroupTypeMixin(ValidationRuleMixin):
+class ValidationRuleEducationGroupTypeMixin(ValidationRuleMixin, PermissionFieldMixin):
     """
     ValidationRuleMixin For EducationGroupType
 
@@ -152,18 +153,33 @@ class EducationGroupModelForm(forms.ModelForm):
 class CommonBaseForm:
     forms = None
 
+    education_group_year_form_class = EducationGroupYearModelForm
+    education_group_form_class = EducationGroupModelForm
+
     education_group_year_deleted = []
 
-    def __init__(self, education_group_year_form, education_group_form):
+    def __init__(self, data, instance=None, parent=None, user=None, education_group_type=None, **kwargs):
+        self.education_group_year_form = self.education_group_year_form_class(
+            data,
+            instance=instance,
+            parent=parent,
+            user=user,
+            education_group_type=education_group_type,
+            **kwargs
+        )
+
+        education_group = instance.education_group if instance else None
+        self.education_group_form = self.education_group_form_class(data, instance=education_group)
+
         self.forms = {
-            forms.ModelForm: education_group_year_form,
-            EducationGroupModelForm: education_group_form
+            forms.ModelForm: self.education_group_year_form,
+            EducationGroupModelForm: self.education_group_form
         }
 
-        start_year_field = education_group_form.fields["start_year"]
+        start_year_field = self.education_group_form.fields["start_year"]
 
         if not (self._is_creation()):
-            start_year_field.initial = self.forms[EducationGroupModelForm].instance.start_year
+            start_year_field.initial = self.education_group_form.instance.start_year
         else:
             start_year_field.widget = forms.HiddenInput(attrs={})
 
@@ -177,12 +193,11 @@ class CommonBaseForm:
         return result
 
     def _post_clean(self):
-        educ_group_year_form = self.forms[forms.ModelForm]
-        educ_group_form = self.forms[EducationGroupModelForm]
+        educ_group_form = self.education_group_form
 
         if self._is_creation() and not educ_group_form.instance.start_year:
             # Specific case, because start_date is hidden when creation, we should test start_date [validite] > end_date
-            educ_group_form.instance.start_year = educ_group_year_form.cleaned_data['academic_year'].year
+            educ_group_form.instance.start_year = self.education_group_year_form.cleaned_data['academic_year'].year
             try:
                 educ_group_form.instance.clean()
             except ValidationError as error:
@@ -192,24 +207,23 @@ class CommonBaseForm:
         return True
 
     def save(self):
-        educ_group_year_form = self.forms[forms.ModelForm]
-        educ_group_form = self.forms[EducationGroupModelForm]
-
         start_year = None
-        if self._is_creation() and not educ_group_form.instance.start_year:
-            start_year = educ_group_year_form.cleaned_data['academic_year'].year
+        if self._is_creation() and not self.education_group_form.instance.start_year:
+            start_year = self.education_group_year_form.cleaned_data['academic_year'].year
 
-        education_group = educ_group_form.save(start_year=start_year)
-        educ_group_year_form.instance.education_group = education_group
-        education_group_year = educ_group_year_form.save()
-        self._save_group_element_year(educ_group_year_form.parent, education_group_year)
+        education_group = self.education_group_form.save(start_year=start_year)
+        self.education_group_year_form.instance.education_group = education_group
+        education_group_year = self.education_group_year_form.save()
+        self._save_group_element_year(self.education_group_year_form.parent, education_group_year)
+
         if hasattr(self, '_post_save'):
             post_save = self._post_save()
             self.education_group_year_deleted = post_save.get('object_list_deleted', [])
+
         return education_group_year
 
     def _is_creation(self):
-        return not self.forms[EducationGroupModelForm].instance.id
+        return not self.education_group_year_form.instance.id
 
     @staticmethod
     def _save_group_element_year(parent, child):

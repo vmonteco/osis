@@ -23,28 +23,27 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from .base import *
+from django import forms
+from django.contrib.auth.models import Permission
+from django.contrib.contenttypes.models import ContentType
+from django.db import models
 
-OPTIONAL_APPS = (
-    'attribution',
-    'assistant',
-    # 'continuing_education',
-    'dissertation',
-    'internship',
-    'assessments',
-    'cms',
-    'webservices',
-)
-OPTIONAL_MIDDLEWARES = ()
-OPTIONAL_INTERNAL_IPS = ()
-
-if os.environ.get("ENABLE_DEBUG_TOOLBAR", "False").lower() == "true":
-    OPTIONAL_APPS += ('debug_toolbar',)
-    OPTIONAL_MIDDLEWARES += ('debug_toolbar.middleware.DebugToolbarMiddleware',)
-    OPTIONAL_INTERNAL_IPS += ('127.0.0.1',)
+from osis_common.models.osis_model_admin import OsisModelAdmin
 
 
-INSTALLED_APPS += OPTIONAL_APPS
-APPS_TO_TEST += OPTIONAL_APPS
-MIDDLEWARE += OPTIONAL_MIDDLEWARES
-INTERNAL_IPS += OPTIONAL_INTERNAL_IPS
+class AdminForm(forms.ModelForm):
+    content_type = forms.ModelChoiceField(queryset=ContentType.objects.all().order_by('model'))
+
+
+class FieldReferenceAdmin(OsisModelAdmin):
+    list_display = ('content_type', 'field_name', 'context')
+    search_fields = ('content_type', 'field_name', 'context')
+    filter_horizontal = ('permissions',)
+    form = AdminForm
+
+
+class FieldReference(models.Model):
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    field_name = models.CharField(max_length=50)
+    context = models.CharField(max_length=50, blank=True)
+    permissions = models.ManyToManyField(Permission)

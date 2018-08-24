@@ -3531,3 +3531,6 @@ msgstr ""
 
 msgid "Cannot set end year to %(end_year)s :"
 msgstr ""
+
+msgid "You cannot attach an element to a learning unit year"
+msgstr ""

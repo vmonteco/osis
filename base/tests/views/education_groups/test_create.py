@@ -29,7 +29,7 @@ from django.test import TestCase
 from django.urls import reverse
 from waffle.testutils import override_flag
 
-from base.forms.education_group.group import GroupModelForm
+from base.forms.education_group.group import GroupYearModelForm
 from base.forms.education_group.mini_training import MiniTrainingModelForm
 from base.forms.education_group.training import TrainingEducationGroupYearForm
 from base.models.enums import education_group_categories
@@ -129,7 +129,7 @@ class TestCreate(TestCase):
 
     def test_response_context(self):
         expected_forms_by_category = {
-            education_group_categories.GROUP: GroupModelForm,
+            education_group_categories.GROUP: GroupYearModelForm,
             education_group_categories.TRAINING: TrainingEducationGroupYearForm,
             education_group_categories.MINI_TRAINING: MiniTrainingModelForm,
         }

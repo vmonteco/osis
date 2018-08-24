@@ -23,7 +23,8 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-
+from django import forms
+from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 
 from base.business.education_groups.postponement import _model_to_dict
@@ -38,8 +39,10 @@ from base.tests.factories.education_group_type import EducationGroupTypeFactory
 from base.tests.factories.education_group_year import TrainingFactory, EducationGroupYearFactory
 from base.tests.factories.education_group_year_domain import EducationGroupYearDomainFactory
 from base.tests.factories.entity_version import MainEntityVersionFactory, EntityVersionFactory
+from base.tests.factories.user import UserFactory
 from reference.tests.factories.domain import DomainFactory
 from reference.tests.factories.language import LanguageFactory
+from rules_management.tests.fatories import PermissionFactory, FieldReferenceFactory
 
 
 class TestPostponementEducationGroupYearMixin(TestCase):
@@ -74,11 +77,15 @@ class TestPostponementEducationGroupYearMixin(TestCase):
 
     def test_init(self):
         # In case of creation
-        form = TrainingForm({}, education_group_type=self.education_group_type)
+        form = TrainingForm({}, user=UserFactory(), education_group_type=self.education_group_type)
         self.assertFalse(hasattr(form, "dict_initial_egy"))
 
         # In case of update
-        form = TrainingForm({}, instance=self.education_group_year)
+        form = TrainingForm(
+            {},
+            user=UserFactory(),
+            instance=self.education_group_year
+        )
         dict_initial_egy = _model_to_dict(
             self.education_group_year, exclude=form.field_to_exclude
         )
@@ -87,7 +94,11 @@ class TestPostponementEducationGroupYearMixin(TestCase):
 
     def test_save_with_postponement(self):
         # Create postponed egy
-        form = TrainingForm(self.data, instance=self.education_group_year)
+        form = TrainingForm(
+            self.data,
+            instance=self.education_group_year,
+            user=UserFactory()
+        )
         self.assertTrue(form.is_valid(), form.errors)
         form.save()
 
@@ -104,7 +115,7 @@ class TestPostponementEducationGroupYearMixin(TestCase):
         self.education_group_year.refresh_from_db()
 
         self.data["title"] = "Defence Against the Dark Arts"
-        form = TrainingForm(self.data, instance=self.education_group_year)
+        form = TrainingForm(self.data, instance=self.education_group_year, user=UserFactory())
         self.assertTrue(form.is_valid(), form.errors)
         form.save()
 
@@ -119,7 +130,11 @@ class TestPostponementEducationGroupYearMixin(TestCase):
         EducationGroupYearFactory(academic_year=self.list_acs[4],
                                   education_group=self.education_group_year.education_group)
 
-        form = TrainingForm(self.data, instance=self.education_group_year)
+        form = TrainingForm(
+            self.data,
+            instance=self.education_group_year,
+            user=UserFactory()
+        )
         self.assertTrue(form.is_valid(), form.errors)
         form.save()
 
@@ -136,7 +151,11 @@ class TestPostponementEducationGroupYearMixin(TestCase):
 
         self.data["secondary_domains"] = '|'.join([str(domain.pk) for domain in domains])
 
-        form = TrainingForm(self.data, instance=self.education_group_year)
+        form = TrainingForm(
+            self.data,
+            instance=self.education_group_year,
+            user=UserFactory()
+        )
         self.assertTrue(form.is_valid(), form.errors)
         form.save()
 
@@ -163,7 +182,7 @@ class TestPostponementEducationGroupYearMixin(TestCase):
 
         self.data["secondary_domains"] = '|'.join([str(domain.pk) for domain in domains])
 
-        form = TrainingForm(self.data, instance=self.education_group_year)
+        form = TrainingForm(self.data, instance=self.education_group_year, user=UserFactory())
         self.assertTrue(form.is_valid(), form.errors)
         form.save()
 
@@ -180,3 +199,49 @@ class TestPostponementEducationGroupYearMixin(TestCase):
         self.assertEqual(self.education_group_year.secondary_domains.count(), 2)
         self.assertEqual(last.secondary_domains.count(), 3)
         self.assertEqual(len(form.warnings), 1)
+
+
+class TestPermissionField(TestCase):
+    def setUp(self):
+        self.permissions = [PermissionFactory() for _ in range(10)]
+
+        FieldReferenceFactory(
+            content_type=ContentType.objects.get(app_label="base", model="educationgroupyear"),
+            field_name="main_teaching_campus",
+            context="LalaLand",
+            permissions=self.permissions,
+        )
+
+        FieldReferenceFactory(
+            content_type=ContentType.objects.get(app_label="base", model="educationgroupyear"),
+            field_name="partial_acronym",
+            context="",
+            permissions=self.permissions,
+        )
+
+        self.user_with_perm = UserFactory()
+        self.user_with_perm.user_permissions.add(self.permissions[2])
+
+        self.user_without_perm = UserFactory()
+        self.user_without_perm.user_permissions.add(PermissionFactory())
+
+        self.education_group_type = EducationGroupTypeFactory(
+            category=education_group_categories.TRAINING
+        )
+
+    def test_init(self):
+        form = TrainingForm({}, user=self.user_with_perm, education_group_type=self.education_group_type,
+                            context="LalaLand")
+        self.assertFalse(form.forms[forms.ModelForm].fields["main_teaching_campus"].disabled)
+        self.assertFalse(form.forms[forms.ModelForm].fields["partial_acronym"].disabled)
+
+        form = TrainingForm({}, user=self.user_without_perm, education_group_type=self.education_group_type,
+                            context="LalaLand")
+        self.assertTrue(form.forms[forms.ModelForm].fields["main_teaching_campus"].disabled)
+        self.assertTrue(form.forms[forms.ModelForm].fields["partial_acronym"].disabled)
+
+        form = TrainingForm({}, user=self.user_without_perm, education_group_type=self.education_group_type,
+                            context="YoupiLand")
+        self.assertFalse(form.forms[forms.ModelForm].fields["main_teaching_campus"].disabled)
+        self.assertTrue(form.forms[forms.ModelForm].fields["partial_acronym"].disabled)
+
