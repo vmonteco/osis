@@ -3534,3 +3534,12 @@ msgstr ""
 
 msgid "You cannot attach an element to a learning unit year"
 msgstr ""
+
+msgid "It is forbidden to save a GroupElementYear with a child branch and a child leaf."
+msgstr ""
+
+msgid "It is forbidden to attach an element to itself."
+msgstr ""
+
+msgid "It is forbidden to attach an element to one of its included elements."
+msgstr ""

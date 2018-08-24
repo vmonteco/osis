@@ -3541,3 +3541,12 @@ msgstr "Impossible de mettre la fin à %(end_year)s :"
 
 msgid "You cannot attach an element to a learning unit year"
 msgstr "Vous ne pouvez pas attacher un élément à une unité d'enseignement"
+
+msgid "It is forbidden to save a GroupElementYear with a child branch and a child leaf."
+msgstr "Il est interdit de créer un GroupElementYear avec un child branch et un child leaf."
+
+msgid "It is forbidden to attach an element to itself."
+msgstr "Il est inderdit d'attacher un élement à lui-même."
+
+msgid "It is forbidden to attach an element to one of its included elements."
+msgstr "Il est inderdit d'attacher un élement à un autre élement y étant inclus."

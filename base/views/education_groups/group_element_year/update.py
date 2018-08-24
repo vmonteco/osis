@@ -26,6 +26,7 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import ObjectDoesNotExist
+from django.db import IntegrityError
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse, NoReverseMatch
 from django.utils.decorators import method_decorator
@@ -123,6 +124,9 @@ def _attach(request, group_element_year, *args, **kwargs):
         display_warning_messages(request, warning_msg)
     except IncompatiblesTypesException as e:
         warning_msg = e.errors
+        display_warning_messages(request, warning_msg)
+    except IntegrityError as e:
+        warning_msg = _(str(e))
         display_warning_messages(request, warning_msg)
 
 
