@@ -44,9 +44,11 @@ class SelectWithData(forms.Select):
     data_attrs = None
 
     def create_option(self, name, value, label, selected, index, subindex=None, attrs=None):
-        option_dict = super(forms.Select, self).create_option(name, value, label, selected, index,
-                                                              subindex=subindex, attrs=attrs)
-        group_type = self.data_attrs().get(value)
+        option_dict = super().create_option(name, value, label, selected, index,
+                                            subindex=subindex, attrs=attrs)
+
+        group_type = self.data_attrs.get(value)
+
         if group_type:
             option_dict['attrs']['data-category'] = group_type.category
         return option_dict
@@ -55,9 +57,9 @@ class SelectWithData(forms.Select):
 class ModelChoiceFieldWithData(forms.ModelChoiceField):
     widget = SelectWithData
 
-    def __init__(self, queryset, **kwargs):
-        super(ModelChoiceFieldWithData, self).__init__(queryset, **kwargs)
-        self.widget.data_attrs = lazy(queryset.in_bulk, dict)
+    def set_data_attrs(self):
+        # Lay load of the attrs
+        self.widget.data_attrs = self.queryset.in_bulk()
 
 
 class EducationGroupFilter(BootstrapForm):
@@ -87,6 +89,10 @@ class EducationGroupFilter(BootstrapForm):
     requirement_entity_acronym = forms.CharField(max_length=20, required=False, label=_('entity'))
     partial_acronym = forms.CharField(max_length=15, required=False, label=_('code'))
     with_entity_subordinated = forms.BooleanField(required=False)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["education_group_type"].set_data_attrs()
 
     def clean_category(self):
         data_cleaned = self.cleaned_data.get('category')
