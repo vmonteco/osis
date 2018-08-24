@@ -224,8 +224,6 @@ def _can_delete_learning_unit_year_according_type(learning_unit_year, person):
 
 
 def _is_attached_to_initial_or_current_requirement_entity(proposal, person):
-    print(_is_attached_to_initial_entity(proposal, person))
-    print(person.is_linked_to_entity_in_charge_of_learning_unit_year(proposal.learning_unit_year))
     return _is_attached_to_initial_entity(proposal, person) or \
            person.is_linked_to_entity_in_charge_of_learning_unit_year(proposal.learning_unit_year)
 
@@ -234,7 +232,6 @@ def _is_attached_to_initial_entity(learning_unit_proposal, a_person):
     if not learning_unit_proposal.initial_data.get("entities") or \
             not learning_unit_proposal.initial_data["entities"].get(REQUIREMENT_ENTITY):
         return False
-    print("coucou")
     initial_entity_requirement_id = learning_unit_proposal.initial_data["entities"][REQUIREMENT_ENTITY]
     return a_person.is_attached_entities(Entity.objects.filter(pk=initial_entity_requirement_id))
 

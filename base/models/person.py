@@ -120,9 +120,8 @@ class Person(SerializableModel):
     def linked_entities(self):
         entities_id = set()
         for person_entity in self.personentity_set.all():
-            print(person_entity, person_entity.descendants)
             entities_id |= person_entity.descendants
-        print("ààà", entities_id)
+
         return entities_id
 
     class Meta:
@@ -137,7 +136,6 @@ class Person(SerializableModel):
             entitycontaineryear__learning_container_year=learning_unit_year.learning_container_year,
             entitycontaineryear__type=REQUIREMENT_ENTITY
         )
-        print("yololo", entities, self.linked_entities)
 
         return self.is_attached_entities(entities)
 
