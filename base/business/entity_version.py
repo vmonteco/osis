@@ -82,21 +82,3 @@ def create_version(version, same_entity, parent):
     except AttributeError:
         new_version = None
     return new_version
-
-
-def find_entity_version_descendants(current_entity_version, date):
-    # get all entities to avoid recursive search on db
-    all_entity_versions = entity_version.EntityVersion.objects.current(date).values_list('id', 'entity__pk', 'parent')
-    return _find_entity_version_descendants(current_entity_version.entity.id, all_entity_versions,  None)
-
-
-def _find_entity_version_descendants(entity_id, all_entity_versions, result):
-    if not result:
-        result = []
-
-    for child_id, child_entity, child_parent in all_entity_versions:
-        if entity_id == child_parent:
-            result.append(child_id)
-            _find_entity_version_descendants(child_entity, all_entity_versions, result)
-
-    return result

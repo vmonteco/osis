@@ -93,8 +93,3 @@ def build_entity_container_prefetch(entity_container_year_link_types):
                                          .prefetch_related(entity_version_prefetch),
                                          to_attr='entity_containers_year')
     return entity_container_prefetch
-
-
-def get_entities_ids_by_acronyms(requirement_entity_acronym, with_entity_subordinated):
-    entity_versions = mdl.entity_version.search_by_acronyms(requirement_entity_acronym)
-    return _get_distinct_entity_ids(entity_versions, with_entity_subordinated)
