@@ -152,7 +152,7 @@ class EducationGroupYear(models.Model):
         related_name='enrollment',
         blank=True,
         null=True,
-        verbose_name=_("enrollment_campus")
+        verbose_name=_("enrollment_campus"),
     )
 
     main_teaching_campus = models.ForeignKey(

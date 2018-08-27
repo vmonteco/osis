@@ -121,9 +121,8 @@ class TrainingEducationGroupYearForm(EducationGroupYearModelForm):
     def save(self, commit=True):
         education_group_year = super().save(commit=False)
         education_group_year.save()
-
-        self.save_secondary_domains()
-
+        if not self.fields['secondary_domains'].disabled:
+            self.save_secondary_domains()
         return education_group_year
 
     def save_secondary_domains(self):
@@ -132,11 +131,17 @@ class TrainingEducationGroupYearForm(EducationGroupYearModelForm):
         for domain_id in self.cleaned_data["secondary_domains"]:
             EducationGroupYearDomain.objects.get_or_create(
                 education_group_year=self.instance,
-                domain_id=domain_id)
+                domain_id=domain_id,
+            )
+
+
+class TrainingModelForm(EducationGroupModelForm):
+    category = education_group_categories.TRAINING
 
 
 class TrainingForm(PostponementEducationGroupYearMixin, CommonBaseForm):
     education_group_year_form_class = TrainingEducationGroupYearForm
+    education_group_form_class = TrainingModelForm
 
     def _post_save(self):
         education_group_instance = self.forms[EducationGroupModelForm].instance
