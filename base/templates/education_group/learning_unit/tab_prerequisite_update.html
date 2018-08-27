@@ -1,5 +1,5 @@
 {% extends "education_group/learning_unit/layout_detail.html" %}
-{% load i18n %}
+{% load i18n bootstrap3 %}
 {% comment "License" %}
 * OSIS stands for Open Student Information System. It's an application
 * designed to manage the core business of higher education institutions,
@@ -27,32 +27,18 @@
 {% block tab_content %}
     <div class="panel panel-default">
         <div class="panel-body">
+            {% bootstrap_form_errors form %}
             <p>
                 <a href="{% url "learning_unit" learning_unit_year_id=learning_unit_year.id %}"><ins>{{ learning_unit_year.acronym }}</ins></a>
                 {% trans "has the following prerequisites" %}:
             </p>
 
-            {% if is_root_a_training %}
-                <p>{{ formations.0.prerequisites.0.prerequisite|default:"-"}}</p>
-                <a class="btn btn-default" href="{% url 'learning_unit_prerequisite_update' root_id=root_id learning_unit_year_id=learning_unit_year.id%}{% if group_to_parent %}?group_to_parent={{ group_to_parent }}{% endif %}" role="button">{% trans 'Modify prerequisites' %}</a>
-            {% else %}
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th>{% trans 'formations' %}</th>
-                            <th>{% blocktrans count counter=2 %}Prerequisite{% plural %}Prerequisites{% endblocktrans %}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for education_group_year in formations %}
-                            <tr>
-                                <td>{{ education_group_year.acronym }}</td>
-                                <td>{{ education_group_year.prerequisites.0.prerequisite|default:"-"}}</td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            {% endif %}
+
+            <form method="post" id="UpdatePrerequisite">
+                {% csrf_token %}
+                {% bootstrap_field form.prerequisite form_group_class="col-md-6" show_label=False %}
+                {% trans 'Save' as text_btn_submit %}
+                {% bootstrap_button text_btn_submit button_type="submit" button_class="btn-primary" %}
 
 
         </div>

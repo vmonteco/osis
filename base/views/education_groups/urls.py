@@ -27,7 +27,7 @@ from django.conf.urls import url, include
 
 from base.views import education_group
 from base.views.education_groups.group_element_year.read import pdf_content
-from base.views.education_groups.learning_unit import detail as learning_unit_detail
+from base.views.education_groups.learning_unit import detail as learning_unit_detail, update as learning_unit_update
 from base.views.education_groups.select import education_group_select, learning_unit_select
 from . import search, create, detail, update, delete, group_element_year
 
@@ -132,5 +132,8 @@ urlpatterns = [
         url(r'^prerequisite/$',
             learning_unit_detail.LearningUnitPrerequisite.as_view(),
             name='learning_unit_prerequisite'),
+        url(r'^prerequisite/update/$',
+            learning_unit_update.LearningUnitPrerequisite.as_view(),
+            name='learning_unit_prerequisite_update'),
     ])),
 ]
