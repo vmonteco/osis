@@ -28,10 +28,9 @@ from base.business.education_groups.postponement import PostponementEducationGro
 from base.forms.education_group.common import CommonBaseForm, EducationGroupModelForm, EducationGroupYearModelForm
 from base.models.education_group_year import EducationGroupYear
 from base.models.enums import education_group_categories
-from base.tests.factories.user import UserFactory
 
 
-class MiniTrainingModelForm(EducationGroupYearModelForm):
+class MiniTrainingYearModelForm(EducationGroupYearModelForm):
     category = education_group_categories.MINI_TRAINING
 
     class Meta(EducationGroupYearModelForm.Meta):
@@ -46,8 +45,13 @@ class MiniTrainingModelForm(EducationGroupYearModelForm):
         )
 
 
+class MiniTrainingModelForm(EducationGroupModelForm):
+    category = education_group_categories.MINI_TRAINING
+
+
 class MiniTrainingForm(PostponementEducationGroupYearMixin, CommonBaseForm):
-    education_group_year_form_class = MiniTrainingModelForm
+    education_group_year_form_class = MiniTrainingYearModelForm
+    education_group_form_class = MiniTrainingModelForm
 
     def _post_save(self):
         education_group_instance = self.forms[EducationGroupModelForm].instance

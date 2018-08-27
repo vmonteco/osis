@@ -29,7 +29,7 @@ from django.forms import ModelForm
 from django.test import TestCase
 
 from base.forms.education_group.common import EducationGroupModelForm, CommonBaseForm
-from base.forms.education_group.mini_training import MiniTrainingModelForm, MiniTrainingForm
+from base.forms.education_group.mini_training import MiniTrainingYearModelForm, MiniTrainingForm
 from base.models.academic_year import current_academic_year
 from base.models.education_group import EducationGroup
 from base.models.education_group_type import EducationGroupType
@@ -125,9 +125,16 @@ class TestCommonBaseFormIsValid(TestCase):
         self.category = education_group_categories.MINI_TRAINING  # Could take GROUP or TRAINING, the result is the same
         fake_educ_group_year, self.post_data = _get_valid_post_data(self.category)
         self.egt = fake_educ_group_year.education_group_type
-        self.education_group_year_form = MiniTrainingModelForm(self.post_data, user=UserFactory(),
-                                                               education_group_type=self.egt)
-        self.education_group_form = EducationGroupModelForm(self.post_data)
+        self.user = UserFactory()
+        self.education_group_year_form = MiniTrainingYearModelForm(
+            self.post_data,
+            user=self.user,
+            education_group_type=self.egt,
+        )
+        self.education_group_form = EducationGroupModelForm(
+            self.post_data,
+            user=self.user
+        )
 
     @patch('base.forms.education_group.mini_training.MiniTrainingModelForm.is_valid', return_value=False)
     def _test_when_mini_training_form_is_not_valid(self, mock_is_valid):

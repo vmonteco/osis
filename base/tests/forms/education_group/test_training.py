@@ -23,16 +23,21 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+import datetime
+from unittest.mock import patch
+
 from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 
 from base.business.education_groups.postponement import _model_to_dict
-from base.forms.education_group.training import TrainingForm
+from base.forms.education_group.training import TrainingForm, TrainingEducationGroupYearForm
+from base.models.education_group_type import EducationGroupType
 from base.models.education_group_year import EducationGroupYear
 from base.models.enums import education_group_categories, internship_presence
 from base.models.enums.active_status import ACTIVE
 from base.models.enums.schedule_type import DAILY
+from base.tests.factories.academic_calendar import AcademicCalendarEducationGroupEditionFactory
 from base.tests.factories.academic_year import create_current_academic_year, get_current_year
 from base.tests.factories.business.learning_units import GenerateAcademicYear
 from base.tests.factories.education_group_type import EducationGroupTypeFactory
@@ -40,9 +45,43 @@ from base.tests.factories.education_group_year import TrainingFactory, Education
 from base.tests.factories.education_group_year_domain import EducationGroupYearDomainFactory
 from base.tests.factories.entity_version import MainEntityVersionFactory, EntityVersionFactory
 from base.tests.factories.user import UserFactory
+from base.tests.forms.education_group.test_common import EducationGroupYearModelFormMixin
 from reference.tests.factories.domain import DomainFactory
 from reference.tests.factories.language import LanguageFactory
+from rules_management.enums import TRAINING_DAILY_MANAGEMENT, TRAINING_PGRM_ENCODING_PERIOD
 from rules_management.tests.fatories import PermissionFactory, FieldReferenceFactory
+
+
+class TestTrainingEducationGroupYearForm(EducationGroupYearModelFormMixin):
+    def setUp(self):
+        self.education_group_type = EducationGroupTypeFactory(category=education_group_categories.TRAINING)
+        self.form_class = TrainingEducationGroupYearForm
+        super(TestTrainingEducationGroupYearForm, self).setUp(education_group_type=self.education_group_type)
+
+    @patch('base.forms.education_group.common.find_authorized_types')
+    def test_get_context_for_field_references_case_not_in_editing_pgrm_period(self, mock_authorized_types):
+        mock_authorized_types.return_value = EducationGroupType.objects.all()
+        context = self.form_class(
+            parent=self.parent_education_group_year,
+            education_group_type=self.education_group_type,
+            user=UserFactory(),
+        ).get_context()
+        self.assertTrue(context, TRAINING_DAILY_MANAGEMENT)
+
+    @patch('base.forms.education_group.common.find_authorized_types')
+    def test_get_context_for_field_references_case_in_editing_pgrm_period(self, mock_authorized_types):
+        mock_authorized_types.return_value = EducationGroupType.objects.all()
+        # Create an academic calendar for event EDUCATION_GROUP_EDITION
+        AcademicCalendarEducationGroupEditionFactory(
+            start_date=datetime.date.today() - datetime.timedelta(days=5),
+            end_date=datetime.date.today() + datetime.timedelta(days=30),
+        )
+        context = self.form_class(
+            parent=self.parent_education_group_year,
+            education_group_type=self.education_group_type,
+            user=UserFactory(),
+        ).get_context()
+        self.assertTrue(context, TRAINING_PGRM_ENCODING_PERIOD)
 
 
 class TestPostponementEducationGroupYearMixin(TestCase):
@@ -208,7 +247,7 @@ class TestPermissionField(TestCase):
         FieldReferenceFactory(
             content_type=ContentType.objects.get(app_label="base", model="educationgroupyear"),
             field_name="main_teaching_campus",
-            context="LalaLand",
+            context=TRAINING_DAILY_MANAGEMENT,
             permissions=self.permissions,
         )
 
@@ -229,19 +268,34 @@ class TestPermissionField(TestCase):
             category=education_group_categories.TRAINING
         )
 
-    def test_init(self):
-        form = TrainingForm({}, user=self.user_with_perm, education_group_type=self.education_group_type,
-                            context="LalaLand")
+    def test_init_case_user_with_perms(self):
+        """
+        In this test, we ensure that field present in FieldReference and user have permission is NOT disabled
+         ==> [main_teaching_campus]
+        For field which are not present in FieldReference (same context), the field is not disabled by default
+         ==> [partial_acronym]
+        """
+        form = TrainingForm(
+            {},
+            user=self.user_with_perm,
+            education_group_type=self.education_group_type,
+            context=TRAINING_DAILY_MANAGEMENT,
+        )
         self.assertFalse(form.forms[forms.ModelForm].fields["main_teaching_campus"].disabled)
         self.assertFalse(form.forms[forms.ModelForm].fields["partial_acronym"].disabled)
 
-        form = TrainingForm({}, user=self.user_without_perm, education_group_type=self.education_group_type,
-                            context="LalaLand")
+    def test_init_case_user_without_perms(self):
+        """
+        In this test, we ensure that field present in FieldReference and user don't have permission is disabled
+         ==> [main_teaching_campus]
+        For field which are not present in FieldReference (same context), the field is not disabled by default
+         ==> [partial_acronym]
+        """
+        form = TrainingForm(
+            {},
+            user=self.user_without_perm,
+            education_group_type=self.education_group_type,
+            context=TRAINING_DAILY_MANAGEMENT,
+        )
         self.assertTrue(form.forms[forms.ModelForm].fields["main_teaching_campus"].disabled)
-        self.assertTrue(form.forms[forms.ModelForm].fields["partial_acronym"].disabled)
-
-        form = TrainingForm({}, user=self.user_without_perm, education_group_type=self.education_group_type,
-                            context="YoupiLand")
-        self.assertFalse(form.forms[forms.ModelForm].fields["main_teaching_campus"].disabled)
-        self.assertTrue(form.forms[forms.ModelForm].fields["partial_acronym"].disabled)
-
+        self.assertFalse(form.forms[forms.ModelForm].fields["partial_acronym"].disabled)

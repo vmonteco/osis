@@ -81,4 +81,4 @@ class TestPermissionFieldMixin(TestCase):
     def test_init_with_context(self):
         form = CountryForm(user=self.user_without_perm, context="HappyLand")
         self.assertFalse(form.fields['name'].disabled)
-        self.assertTrue(form.fields['nationality'].disabled)
+        self.assertFalse(form.fields['nationality'].disabled)

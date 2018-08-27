@@ -56,29 +56,26 @@ class PermissionFieldMixin(ModelFormMixin):
         self.user = user
         super().__init__(*args, **kwargs)
 
-        self.user_permissions = Permission.objects.filter(user=self.user)
-
-        # Check permissions for all matching fields
         for field_ref in self.get_queryset():
             field_name = field_ref.field_name
             if field_name in self.fields and not self.check_user_permission(field_ref):
                 self.disable_field(field_name)
 
     def check_user_permission(self, field_reference):
-        # If a context has been set, it must match with the reference to check the permission
-        if field_reference.context and field_reference.context != self.get_context():
-            return True
-
         for perm in field_reference.permissions.all():
-            if perm in self.user_permissions:
+            app_label = perm.content_type.app_label
+            codename = perm.codename
+            if self.user.has_perm('{}.{}'.format(app_label, codename)):
                 return True
         return False
 
     def get_queryset(self):
+        context = self.get_context()
         return self.model_permission.objects.filter(
             content_type__app_label=self._meta.model._meta.app_label,
-            content_type__model=self._meta.model._meta.model_name
-        )
+            content_type__model=self._meta.model._meta.model_name,
+            context=context
+        ).select_related('content_type')
 
     def get_context(self):
         """

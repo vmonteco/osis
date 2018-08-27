@@ -30,7 +30,7 @@ from django.urls import reverse
 from waffle.testutils import override_flag
 
 from base.forms.education_group.group import GroupYearModelForm
-from base.forms.education_group.mini_training import MiniTrainingModelForm
+from base.forms.education_group.mini_training import MiniTrainingYearModelForm
 from base.forms.education_group.training import TrainingEducationGroupYearForm
 from base.models.enums import education_group_categories
 from base.tests.factories.authorized_relationship import AuthorizedRelationshipFactory
@@ -131,7 +131,7 @@ class TestCreate(TestCase):
         expected_forms_by_category = {
             education_group_categories.GROUP: GroupYearModelForm,
             education_group_categories.TRAINING: TrainingEducationGroupYearForm,
-            education_group_categories.MINI_TRAINING: MiniTrainingModelForm,
+            education_group_categories.MINI_TRAINING: MiniTrainingYearModelForm,
         }
         for category in self.test_categories:
             with self.subTest(category=category):
