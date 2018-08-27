@@ -73,16 +73,6 @@ class LearningUnitPrerequisite(LearningUnitGenericUpdateView):
     template_name = "education_group/learning_unit/tab_prerequisite_update.html"
     form_class = LearningUnitPrerequisiteForm
 
-    def get_root(self):
-        root = super().get_root()
-        # TODO extract constances for type
-        if root.education_group_type.category not in [education_group_categories.TRAINING,
-                                                      education_group_categories.MINI_TRAINING]:
-            raise PermissionDenied(
-                "The prerequisite for a Learning Unit is defined only in the context of a training or mini-training"
-            )
-        return root
-
     def get_form_kwargs(self):
         form_kwargs = super().get_form_kwargs()
         instance = None
@@ -105,12 +95,6 @@ class LearningUnitPrerequisite(LearningUnitGenericUpdateView):
 
         if int(education_group_year_root_id) not in formations_id:
             raise PermissionDenied("The learning unit has to be part of the training or mini-training.")
-
-        qs = EducationGroupYear.objects.filter(id=education_group_year_root_id)
-        prefetch_prerequisites = Prefetch("prerequisite_set",
-                                          Prerequisite.objects.filter(learning_unit_year=learning_unit_year),
-                                          to_attr="prerequisites")
-        context["formations"] = qs.prefetch_related(prefetch_prerequisites)
 
         return context
 
