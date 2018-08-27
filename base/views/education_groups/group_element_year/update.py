@@ -23,6 +23,8 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+import abc
+
 from django.contrib.auth.decorators import login_required
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import ObjectDoesNotExist
@@ -51,7 +53,7 @@ from base.views.learning_units.perms import PermissionDecoratorWithUser
 @login_required
 @waffle_flag("education_group_update")
 @PermissionDecoratorWithUser(perms.can_change_education_group, "education_group_year_id", EducationGroupYear)
-def management(request, root_id, education_group_year_id, group_element_year_id):
+def management_education_group_year(request, root_id, education_group_year_id, group_element_year_id, element_type):
     group_element_year_id = int(group_element_year_id)
     group_element_year = get_group_element_year_by_id(group_element_year_id) if group_element_year_id else None
     action_method = _get_action_method(request)
@@ -62,6 +64,27 @@ def management(request, root_id, education_group_year_id, group_element_year_id)
         root_id=root_id,
         education_group_year_id=education_group_year_id,
         source=source,
+        element_type=element_type,
+    )
+    if response:
+        return response
+
+    return redirect(request.META.get('HTTP_REFERER'))
+
+
+@login_required
+def management_learning_unit_year(request, root_id, learning_unit_year_id, group_element_year_id, element_type):
+    group_element_year_id = int(group_element_year_id)
+    group_element_year = get_group_element_year_by_id(group_element_year_id) if group_element_year_id else None
+    action_method = _get_action_method(request)
+    source = _get_data(request, 'source')
+    response = action_method(
+        request,
+        group_element_year,
+        root_id=root_id,
+        learning_unit_year_id=learning_unit_year_id,
+        source=source,
+        element_type=element_type,
     )
     if response:
         return response
@@ -77,15 +100,25 @@ def _get_data(request, name):
 @waffle_flag("education_group_update")
 def proxy_management(request):
     root_id = _get_data(request, 'root_id')
-    education_group_year_id = _get_data(request, 'education_group_year_id')
+    element_id = _get_data(request, 'education_group_year_id')
     group_element_year_id = _get_data(request, 'group_element_year_id')
-
-    return management(
-        request,
-        root_id=root_id,
-        education_group_year_id=education_group_year_id,
-        group_element_year_id=group_element_year_id,
-    )
+    element_type = _get_data(request, 'element_type')
+    if element_type == "egy":
+        return management_education_group_year(
+            request,
+            root_id=root_id,
+            education_group_year_id=element_id,
+            group_element_year_id=group_element_year_id,
+            element_type=element_type,
+        )
+    else:
+        return management_learning_unit_year(
+            request,
+            root_id=root_id,
+            learning_unit_year_id=element_id,
+            group_element_year_id=group_element_year_id,
+            element_type=element_type,
+        )
 
 
 @require_http_methods(['POST'])
@@ -157,9 +190,9 @@ class GenericUpdateGroupElementYearMixin(FlagMixin, RulesRequiredMixin, SuccessM
     raise_exception = True
     rules = [perms.can_change_education_group]
 
+    @abc.abstractmethod
     def _call_rule(self, rule):
-        """ The permission is computed from the education_group_year """
-        return rule(self.request.user, self.education_group_year)
+        return False
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -169,15 +202,15 @@ class GenericUpdateGroupElementYearMixin(FlagMixin, RulesRequiredMixin, SuccessM
     def get_root(self):
         return get_object_or_404(EducationGroupYear, pk=self.kwargs.get("root_id"))
 
-    @property
-    def education_group_year(self):
-        return get_object_or_404(EducationGroupYear, pk=self.kwargs.get("education_group_year_id"))
-
 
 class UpdateGroupElementYearView(GenericUpdateGroupElementYearMixin, UpdateView):
     # UpdateView
     form_class = UpdateGroupElementYearForm
     template_name = "education_group/group_element_year_comment.html"
+
+    def _call_rule(self, rule):
+        """ The permission is computed from the education_group_year """
+        return rule(self.request.user, self.education_group_year)
 
     # SuccessMessageMixin
     def get_success_message(self, cleaned_data):
@@ -185,6 +218,10 @@ class UpdateGroupElementYearView(GenericUpdateGroupElementYearMixin, UpdateView)
 
     def get_success_url(self):
         return reverse("education_group_content", args=[self.kwargs["root_id"], self.education_group_year.pk])
+
+    @property
+    def education_group_year(self):
+        return get_object_or_404(EducationGroupYear, pk=self.kwargs.get("education_group_year_id"))
 
 
 class DetachGroupElementYearView(GenericUpdateGroupElementYearMixin, DeleteView):
@@ -199,8 +236,16 @@ class DetachGroupElementYearView(GenericUpdateGroupElementYearMixin, DeleteView)
         display_success_messages(request, success_msg)
         return super().delete(request, *args, **kwargs)
 
+    def _call_rule(self, rule):
+        """ The permission is computed from the education_group_year """
+        return rule(self.request.user, self.group_element_year.parent)
+
     def get_success_url(self):
         try:
-            return reverse(self.kwargs.get('source'), args=[self.kwargs["root_id"], self.education_group_year.pk])
+            return reverse(self.kwargs.get('source'), args=[self.kwargs["root_id"], self.kwargs["root_id"]])
         except NoReverseMatch:
             return reverse("education_group_read", args=[self.kwargs["root_id"], self.kwargs["root_id"]])
+
+    @property
+    def group_element_year(self):
+        return get_object_or_404(GroupElementYear, pk=self.kwargs.get("group_element_year_id"))
