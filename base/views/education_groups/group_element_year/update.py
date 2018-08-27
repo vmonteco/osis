@@ -100,7 +100,7 @@ def _get_data(request, name):
 @waffle_flag("education_group_update")
 def proxy_management(request):
     root_id = _get_data(request, 'root_id')
-    element_id = _get_data(request, 'education_group_year_id')
+    element_id = _get_data(request, 'element_id')
     group_element_year_id = _get_data(request, 'group_element_year_id')
     element_type = _get_data(request, 'element_type')
     if element_type == "egy":
@@ -147,7 +147,7 @@ def _detach(request, group_element_year, *args, **kwargs):
 
 @require_http_methods(['GET', 'POST'])
 def _attach(request, group_element_year, *args, **kwargs):
-    parent = get_object_or_404(EducationGroupYear, pk=kwargs['education_group_year_id'])
+    parent = get_object_or_404(EducationGroupYear, pk=kwargs['element_id'])
     try:
         group_element_years.management.attach_from_cache(parent)
         success_msg = _("Attached to \"%(acronym)s\"") % {'acronym': parent}
@@ -221,7 +221,7 @@ class UpdateGroupElementYearView(GenericUpdateGroupElementYearMixin, UpdateView)
 
     @property
     def education_group_year(self):
-        return get_object_or_404(EducationGroupYear, pk=self.kwargs.get("education_group_year_id"))
+        return get_object_or_404(EducationGroupYear, pk=self.kwargs.get("element_id"))
 
 
 class DetachGroupElementYearView(GenericUpdateGroupElementYearMixin, DeleteView):

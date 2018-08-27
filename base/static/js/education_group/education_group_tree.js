@@ -34,19 +34,19 @@ $(document).ready(function () {
             obj = inst.get_node(data.reference);
         var args = obj.li_attr.id.split('_');
         var group_element_year_id = args[1];
-        var education_group_year_id = args[2];
+        var element_id = args[2];
         var element_type = args[3];
         return {
             group_element_year_id: group_element_year_id,
-            education_group_year_id: education_group_year_id,
+            element_id: element_id,
             element_type: element_type
         };
     }
 
-    function build_url_data(education_group_year_id, group_element_year_id, action, element_type) {
+    function build_url_data(element_id, group_element_year_id, action, element_type) {
         var data = {
             'root_id': root_id,
-            'education_group_year_id': education_group_year_id,
+            'element_id': element_id,
             'group_element_year_id': group_element_year_id,
             'action': action,
             'source': url_resolver_match,
@@ -69,11 +69,11 @@ $(document).ready(function () {
                     "label": gettext("Select"),
                     "action": function (data) {
                         var __ret = get_data_from_tree(data);
-                        var education_group_year_id = __ret.education_group_year_id;
+                        var element_id = __ret.element_id;
                         $.ajax({
                             url: '../select/',
                             dataType: 'json',
-                            data: {'child_to_cache_id': education_group_year_id},
+                            data: {'child_to_cache_id': element_id},
                             type: 'POST',
                             success: function (jsonResponse) {
                                 displayInfoMessage(jsonResponse, 'message_info_container')
@@ -88,9 +88,9 @@ $(document).ready(function () {
                     "action": function (data) {
                         var __ret = get_data_from_tree(data);
                         var group_element_year_id = __ret.group_element_year_id;
-                        var education_group_year_id = __ret.education_group_year_id;
+                        var element_id = __ret.element_id;
                         var element_type = __ret.element_type;
-                        var attach_data = build_url_data(education_group_year_id, group_element_year_id, 'attach',
+                        var attach_data = build_url_data(element_id, group_element_year_id, 'attach',
                             element_type);
                         window.location.href = proxy_management_url + "?" + attach_data;
                     },
@@ -105,13 +105,13 @@ $(document).ready(function () {
                     "action": function (data) {
                         var __ret = get_data_from_tree(data);
                         var group_element_year_id = __ret.group_element_year_id;
-                        var education_group_year_id = __ret.education_group_year_id;
+                        var element_id = __ret.element_id;
                         var element_type = __ret.element_type;
                         if (group_element_year_id === '0') {
                             return;
                         }
 
-                        var detach_data = build_url_data(education_group_year_id, group_element_year_id, 'detach',
+                        var detach_data = build_url_data(element_id, group_element_year_id, 'detach',
                             element_type);
 
                         $('#form-modal-content').load(proxy_management_url, detach_data, function () {
@@ -121,7 +121,7 @@ $(document).ready(function () {
 
                         $.ajax({
                             url: '../select/',
-                            data: {'child_to_cache_id': education_group_year_id},
+                            data: {'child_to_cache_id': element_id},
                             type: 'POST',
                             dataType: 'json',
                         });
