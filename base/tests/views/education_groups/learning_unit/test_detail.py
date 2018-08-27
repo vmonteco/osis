@@ -94,6 +94,8 @@ class TestDetail(TestCase):
                          [self.group_element_year_2])
 
 
+
+
 class TestLearningUnitPrerequisite(TestCase):
     @classmethod
     def setUpTestData(cls):

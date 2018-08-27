@@ -33,8 +33,14 @@
             </p>
 
             {% if is_root_a_training %}
-                <p>{{ formations.0.prerequisites.0.prerequisite|default:"-"}}</p>
-                <a class="btn btn-default" href="{% url 'learning_unit_prerequisite_update' root_id=root_id learning_unit_year_id=learning_unit_year.id%}{% if group_to_parent %}?group_to_parent={{ group_to_parent }}{% endif %}" role="button">{% trans 'Modify prerequisites' %}</a>
+                <div class="row">
+                    <div class="col-md-7">
+                        <p>{{ formations.0.prerequisites.0.prerequisite|default:"-"}}</p>
+                    </div>
+                    <div class="col-md-5">
+                        <a class="btn btn-default" href="{% url 'learning_unit_prerequisite_update' root_id=root_id learning_unit_year_id=learning_unit_year.id%}{% if group_to_parent %}?group_to_parent={{ group_to_parent }}{% endif %}" role="button">{% trans 'Modify prerequisites' %}</a>
+                    </div>
+                </div>
             {% else %}
                 <table class="table table-hover">
                     <thead>

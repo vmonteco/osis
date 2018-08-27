@@ -48,7 +48,7 @@ class LearningUnitGenericUpdateView(PermissionRequiredMixin, UpdateView):
     context_object_name = "learning_unit_year"
     pk_url_kwarg = 'learning_unit_year_id'
 
-    permission_required = 'base.can_change_education_group'
+    permission_required = 'base.change_educationgroup'
     raise_exception = True
 
     def get_person(self):
@@ -75,12 +75,14 @@ class LearningUnitPrerequisite(LearningUnitGenericUpdateView):
 
     def get_form_kwargs(self):
         form_kwargs = super().get_form_kwargs()
-        instance = None
         try:
             instance = Prerequisite.objects.get(education_group_year=self.kwargs["root_id"],
                                                 learning_unit_year=self.kwargs["learning_unit_year_id"])
         except Prerequisite.DoesNotExist:
-            pass
+            instance = Prerequisite(
+                education_group_year=self.get_root(),
+                learning_unit_year=self.object
+            )
         form_kwargs["instance"] = instance
         return form_kwargs
 
