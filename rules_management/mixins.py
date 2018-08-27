@@ -25,6 +25,7 @@
 ##############################################################################
 from django.contrib.auth.models import Permission
 from django.core.exceptions import ImproperlyConfigured
+from django.db.models import Prefetch
 
 from rules_management.models import FieldReference
 
@@ -75,7 +76,9 @@ class PermissionFieldMixin(ModelFormMixin):
             content_type__app_label=self._meta.model._meta.app_label,
             content_type__model=self._meta.model._meta.model_name,
             context=context
-        ).select_related('content_type')
+        ).prefetch_related(
+            Prefetch('permissions', queryset=Permission.objects.select_related('content_type'))
+        )
 
     def get_context(self):
         """
