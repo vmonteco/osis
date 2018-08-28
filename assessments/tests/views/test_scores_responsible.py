@@ -27,14 +27,13 @@ import datetime
 
 from django.core.urlresolvers import reverse
 from django.test import TestCase
+
 from attribution.business.attribution import get_attributions_list
 from attribution.models import attribution
 from attribution.tests.models import test_attribution
 from base import models as mdl_base
 from base.models.entity import Entity
-from base.models.entity_container_year import EntityContainerYear
 from base.models.entity_version import EntityVersion
-
 from base.tests.factories import structure, user
 from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.business.entities import create_entities_hierarchy

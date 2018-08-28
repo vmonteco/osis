@@ -27,6 +27,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.db.models import Case, When, Q, F
 from django.utils import timezone
+from django.utils.functional import cached_property
 
 from base.models.enums import entity_type
 from base.models.utils.utils import get_object_or_none
@@ -52,11 +53,12 @@ class Entity(SerializableModel):
     fax = models.CharField(max_length=255, blank=True, null=True)
     website = models.CharField(max_length=255, blank=True, null=True)
 
-    @property
+    @cached_property
     def most_recent_acronym(self):
         try:
             most_recent_entity_version = self.entityversion_set.filter(entity_id=self.id).latest('start_date')
             return most_recent_entity_version.acronym
+
         except ObjectDoesNotExist:
             return None
 
@@ -74,14 +76,20 @@ def search(**kwargs):
     queryset = Entity.objects
 
     if 'acronym' in kwargs:
-        queryset = queryset.filter(entityversion__acronym__icontains=kwargs['acronym'])
+        queryset = queryset.filter(
+            entityversion__acronym__icontains=kwargs['acronym']
+        )
 
     if 'entity_type' in kwargs:
-        queryset = queryset.filter(entityversion__entity_type__icontains=kwargs['entity_type'])
+        queryset = queryset.filter(
+            entityversion__entity_type__icontains=kwargs['entity_type']
+        )
 
     if 'version_date' in kwargs:
-        queryset = queryset.filter(entityversion__start_date__lte=kwargs['version_date'],
-                                   entityversion__end_date__gte=kwargs['version_date'])
+        queryset = queryset.filter(
+            entityversion__start_date__lte=kwargs['version_date'],
+            entityversion__end_date__gte=kwargs['version_date']
+        )
 
     return queryset
 
