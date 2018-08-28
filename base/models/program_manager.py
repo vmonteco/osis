@@ -24,10 +24,9 @@
 #
 ##############################################################################
 from django.db import models
-from django.contrib import admin
 from .learning_unit_enrollment import LearningUnitEnrollment
 from django.core.exceptions import ObjectDoesNotExist
-from base.models.osis_model_admin import OsisModelAdmin
+from osis_common.models.osis_model_admin import OsisModelAdmin
 
 
 class ProgramManagerAdmin(OsisModelAdmin):
@@ -38,7 +37,7 @@ class ProgramManagerAdmin(OsisModelAdmin):
 
 
 class ProgramManager(models.Model):
-    external_id = models.CharField(max_length=100, blank=True, null=True)
+    external_id = models.CharField(max_length=100, blank=True, null=True, db_index=True)
     changed = models.DateTimeField(null=True, auto_now=True)
     person = models.ForeignKey('Person')
     offer_year = models.ForeignKey('OfferYear')

@@ -2,6 +2,10 @@ body {
   padding-top: 70px;
 }
 
+#table_learning_units a:visited {
+    color:purple;
+}
+
 .info {
   color:blue;
 }
@@ -82,7 +86,19 @@ tr.class_year_head{
     font-weight: bold;
 }
 
-table.volumes tr td{
+table.volumes tbody tr th{
+    text-align: center;
+}
+
+table.volumes tbody tr td{
+    text-align: center;
+}
+
+table.volumes_read tbody tr td,th{
+    text-align: left;
+}
+
+table.volumes tbody tr td input{
     text-align: center;
 }
 
@@ -91,13 +107,10 @@ table.volumes tbody{
     border-bottom: 2px solid #c0c0c0;
 }
 
-table.volumes tbody tr td{
-    background-color: #f3fcfc;
-}
-
 table.volumes tbody tr td:nth-child(1),
-table.volumes tbody tr td:nth-child(9),
-table.volumes tbody tr td:nth-child(11){
+table.volumes tbody tr td:nth-child(8),
+table.volumes tbody tr th:nth-child(1),
+table.volumes tbody tr th:nth-child(8){
     background-color: #f3f3f3;
 }
 
@@ -123,4 +136,23 @@ table.volumes thead{
 
 .no_label{
     font-weight: normal;
+}
+
+/* Override style for trash in ajax-multi-select*/
+.results_on_deck .ui-icon.ui-icon-trash {
+    display: inline-block;
+    font: normal normal normal 14px/1 FontAwesome;
+    text-rendering: auto;
+    -webkit-font-smoothing: antialiased;
+    text-indent: 0px;
+    float: none;
+    font-size: 16px;
+    background-image: none;
+    width: 14px;
+    color: transparent;
+}
+
+.results_on_deck .ui-icon.ui-icon-trash:before {
+    color: black;
+    content: "\f00d";
 }

@@ -2,6 +2,7 @@
 {% load staticfiles %}
 {% load i18n %}
 {% load bootstrap3 %}
+{% load waffle_tags %}
 
 {% comment "License" %}
 * OSIS stands for Open Student Information System. It's an application
@@ -34,11 +35,13 @@
 
 {% block content %}
 {% if request.GET.academic_year_id and request.GET.academic_year_id != '0' %}
-    {% url 'learning_unit_create' academic_year=request.GET.academic_year_id as create_learning_unit_url%}
+    {% url 'learning_unit_create' academic_year_id=request.GET.academic_year_id as create_learning_unit_url%}
     {% url 'proposal_learning_unit_creation_form' academic_year=request.GET.academic_year_id as create_proposal_url%}
+    {% url 'learning_unit_create_external' academic_year=request.GET.academic_year_id as create_external_url%}
 {% else %}
-    {% url 'learning_unit_create' academic_year=current_academic_year.id as create_learning_unit_url%}
+    {% url 'learning_unit_create' academic_year_id=current_academic_year.id as create_learning_unit_url%}
     {% url 'proposal_learning_unit_creation_form' academic_year=current_academic_year.id as create_proposal_url%}
+    {% url 'learning_unit_create_external' academic_year=current_academic_year.id as create_external_url%}
 {% endif %}
 
 <div class="page-header">
@@ -48,22 +51,7 @@
         </div>
         <div class="col-md-2" style="margin-top:20px;">
             <div class="btn-group pull-right">
-                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <span class="glyphicon glyphicon-cog" aria-hidden="true"></span> {% trans 'actions' %}
-                        <span class="caret"></span>
-                        </button>
-                <ul class="dropdown-menu dropdown-menu-large row text-right pull-right">
-                    {% if perms.base.can_edit_learningunit %}
-                        <li>
-                            <a href="{{ create_learning_unit_url }}" id="lnk_learning_unit_create">{% trans 'new_learning_unit' %}</a>
-                        </li>
-                    {% endif %}
-                    {% if perms.base.can_edit_learning_unit_proposal %}
-                        <li>
-                            <a href="{{ create_proposal_url }}" id="lnk_create_proposal_url">{% trans 'proposal_creation' %}</a>
-                        </li>
-                    {% endif %}
-                </ul>
+                {% include "blocks/button/learning_units_action_button.html" %}
             </div>
         </div>
     </div>
@@ -71,7 +59,7 @@
 
 <ul class="nav nav-tabs" role="tablist">
     <li role="presentation" {% if search_type == 1 %} class="active" {% endif %}>
-        <a href="{% url 'learning_units_activity'%}" role="tab" id="lnk_activity_search">
+        <a href="{% url 'learning_units'%}" role="tab" id="lnk_activity_search">
             {% trans 'activity_search'%}
         </a>
     </li>
@@ -80,9 +68,19 @@
             {% trans 'service_course_search'%}
         </a>
     </li>
+    <li role="presentation" {% if search_type == 5 %} class="active" {% endif %}>
+        <a href="{% url 'learning_units_borrowed_course'%}" role="tab" id="lnk_borrowed_course_search">
+            {% trans 'borrowed_course_search'%}
+        </a>
+    </li>
     <li role="presentation" {% if search_type == 3 %} class="active" {% endif %}>
         <a href="{% url 'learning_units_proposal'%}" role="tab" id="lnk_proposal_search">
             {% trans 'proposals_search'%}
+        </a>
+    </li>
+    <li role="presentation" {% if search_type == 6 %} class="active" {% endif %}>
+        <a href="{% url 'learning_units_external'%}" role="tab" id="lnk_external_search">
+            {% trans 'external_search'%}
         </a>
     </li>
     {% if is_faculty_manager %}
@@ -92,15 +90,16 @@
             </a>
         </li>
     {% endif %}
+
 </ul>
 {% if search_type == 3 %}
     {% include 'learning_unit/by_proposal.html' %}
-{% else %}
-    {% if search_type == 4 %}
+{% elif search_type == 4 %}
         {% include 'learning_unit/summary_list.html' %}
-    {% else %}
-        {% include 'learning_unit/by_activity.html' %}
-    {% endif %}
+{% elif search_type == 6 %}
+    {% include 'learning_unit/by_external.html' %}
+{% else %}
+    {% include 'learning_unit/by_activity.html' %}
 {% endif %}
 
 {% endblock %}
@@ -128,14 +127,30 @@
                         "sSortDescending": "{% trans 'datatable_sortdescending'%}"
                     }
                 }
-            })
-    ;});
+            });
+
+        // If needed could be generalized by giving the anchor a data-value-link attribute equal to the id of the input
+        // that needs to be populated. Then extract this code to a file.
+        $('.link_data_lookup').on("click", function(event){
+            event.preventDefault();
+            var link = $(this).prop("href");
+            w = window.open(link, "id_tutor", 'height=500,width=800,resizable=yes,scrollbars=yes');
+        });
+    });
 
     $("#btn_produce_xls").click(function(e) {
         e.preventDefault();
         var status = $("#xls_status");
         status.val('xls');
-        $("#search_form").submit();
+        $("#download_xls").submit();
+        status.val('');
+    });
+
+    $("#btn_produce_xls_attributions").click(function(e) {
+        e.preventDefault();
+        var status = $("#xls_status");
+        status.val('xls_attribution');
+        $("#download_xls").submit();
         status.val('');
     });
 

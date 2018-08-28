@@ -28,57 +28,86 @@
 
 
 <div role="tabpanel" class="tab-pane active" id="pedagogy">
-    <form method="post">
-        {% csrf_token %}
-        {% bootstrap_field summary_editable_form.summary_locked field_class="well"%}
-
-        <table class="table">
-            <thead >
-                <tr>
-                    <th class="col-md-2" style="padding: 20px;">{% trans 'language' %}</th>
-                    <th class="col-md-5" style="padding: 20px;">{{ form_french.language.1 }}</th>
-                    <th class="col-md-5" style="padding: 20px;">{{ form_english.language.1 }}</th>
-                </tr>
-            </thead>
-            <tbody>
-            {% for label_key, label_translated in cms_labels_translated.items %}
-                <tr>
-                    <td style="padding: 20px;">
-                    <label> {{ label_translated }} </label>
-                    </td>
-                    <td style="padding: 20px;">
-                    {% if can_edit_information %}
-                        <a class="pedagogy-edit-btn pull-right" href="#"
-                           data-form="{{post_url}}?language={{ form_french.language.0 }}&label={{ label_key }}"
-                           title="{% trans 'edit' %}">
-                            <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
-                        </a>
-                    {% endif %}
-                    {{ form_french|getattr:label_key }}
-                    </td>
-                    <td style="padding: 20px;">
-                    {% if can_edit_information %}
-                        <a class="pedagogy-edit-btn pull-right" href="#"
-                           data-form="{{post_url}}?language={{ form_english.language.0 }}&label={{ label_key }}"
-                           title="{% trans 'edit' %}">
-                            <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
-                        </a>
-                    {% endif %}
-                    {{ form_english|getattr:label_key}}
-                    </td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-
-        {% include "learning_unit/blocks/panel/bibliography.html" with formset=bibliography_formset %}
-        {% bootstrap_field summary_editable_form.mobility_modality %}
-        {% buttons %}
-            {% if perms.base.can_edit_learningunit_pedagogy %}
-                {% bootstrap_button _("save") button_type="submit" button_class="btn-primary pull-right" %}
+    <div class="row well">
+        <div class="col-md-6">
+            <label>{% trans 'Summary responsible(s)' %} : </label>
+            {%  if summary_responsibles %}
+                <ul>
+                    {% for summary_responsible in summary_responsibles %}
+                        <li>{{ summary_responsible }}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <ul>
+                    <li>{% trans 'None' %}</li>
+                </ul>
             {% endif %}
-        {% endbuttons %}
-    </form>
+            {% if other_teachers %}
+                <label>{% trans 'Other teacher(s)' %} : </label>
+                <a role="button" data-toggle="collapse" href="#CollapseTeachers" aria-expanded="false"
+                   aria-controls="collapse_classes" style="border:0;padding:0;">
+                <span id="expandButton" class="glyphicon glyphicon-collapse-down" aria-hidden="true"
+                      style="color:#8a6d3b"></span>
+                </a>
+                <br>
+                <div class="collapse" id="CollapseTeachers">
+                    <ul>
+                        {% for teacher in other_teachers %}
+                            <li>{{ teacher.person }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+        </div>
+        {% include "learning_unit/blocks/summary_locked.html" %}
+    </div>
+
+    <table class="table" style="border-bottom: 1px solid #ddd">
+        <thead>
+            <tr>
+                <th class="col-md-2" style="padding: 20px;">{% trans 'language' %}</th>
+                <th class="col-md-5" style="padding: 20px;">{{ form_french.language.1 }}</th>
+                <th class="col-md-5" style="padding: 20px;">{{ form_english.language.1 }}</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for label_key, label_translated in cms_labels_translated.items %}
+            {% if label_key != "mobility" %}
+                <tr>
+                    <td style="padding: 20px;">
+                        <label> {{ label_translated }} </label>
+                    </td>
+                    <td style="padding: 20px;" {% if label_key in cms_label_pedagogy_fr_only %}colspan="2"{% endif %}>
+                        {% if can_edit_information %}
+                            <a class="pedagogy-edit-btn pull-right" href="#"
+                               data-form="{{post_url}}?language={{ form_french.language.0 }}&label={{ label_key }}"
+                               title="{% trans 'edit' %}">
+                                <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+                            </a>
+                        {% endif %}
+                        {{ form_french|getattr:label_key }}
+                    </td>
+                    {% if label_key not in cms_label_pedagogy_fr_only %}
+                        <td style="padding: 20px;">
+                                {% if can_edit_information %}
+                                    <a class="pedagogy-edit-btn pull-right" href="#"
+                                       data-form="{{ post_url }}?language={{ form_english.language.0 }}&label={{ label_key }}"
+                                       title="{% trans 'edit' %}">
+                                        <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+                                    </a>
+                                {% endif %}
+                                {{ form_english|getattr:label_key }}
+                        </td>
+                    {% endif %}
+                </tr>
+            {% endif %}
+        {% endfor %}
+        </tbody>
+    </table>
+
+    {% include "learning_unit/blocks/panel/teaching_material.html" %}
+    {% include "learning_unit/blocks/panel/mobility.html" with form_value=form_french|getattr:"mobility" %}
+
 </div>
 
 <script src="{% static 'js/pedagogy_modal.js' %}"></script>
@@ -88,11 +117,11 @@
     <script src="{% static 'js/jquery.formset.js' %}"></script>
     <script>
     $('.link-formset').formset({
-        addText: gettext('add another'),
+        addText: gettext('Add another'),
         deleteText: gettext('remove'),
         addCssClass: 'btn btn-info btn-sm',
         deleteCssClass: 'btn btn-warning btn-sm',
-        prefix: 'bibliography_set'
+        prefix: 'teachingmaterial_set'
     });
     </script>
 {% endif %}

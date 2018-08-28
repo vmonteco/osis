@@ -25,8 +25,7 @@
 ##############################################################################
 from base.models.enums import mandate_type as mandate_types
 from django.db import models
-from django.contrib import admin
-from base.models.osis_model_admin import OsisModelAdmin
+from osis_common.models.osis_model_admin import OsisModelAdmin
 
 
 class MandateAdmin(OsisModelAdmin):
@@ -37,7 +36,7 @@ class MandateAdmin(OsisModelAdmin):
 
 
 class Mandate(models.Model):
-    external_id = models.CharField(max_length=100, blank=True, null=True)
+    external_id = models.CharField(max_length=100, blank=True, null=True, db_index=True)
     changed = models.DateTimeField(null=True, auto_now=True)
     education_group = models.ForeignKey('EducationGroup', blank=True, null=True)
     function = models.CharField(max_length=20, choices=mandate_types.MANDATE_TYPES)

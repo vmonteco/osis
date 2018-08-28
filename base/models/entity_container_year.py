@@ -27,28 +27,29 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.db.models import Prefetch
 
+from django.utils.translation import ugettext_lazy as _
 from base.models import entity_version
 from base.models.enums import entity_container_year_link_type
+from base.models.enums.entity_container_year_link_type import REQUIREMENT_ENTITIES
 from osis_common.models.serializable_model import SerializableModelAdmin, SerializableModel
 
 
 class EntityContainerYearAdmin(SerializableModelAdmin):
     list_display = ('external_id', 'learning_container_year', 'entity', 'type')
-    fieldsets = ((None, {'fields': ('entity', 'learning_container_year', 'type')}),)
     search_fields = ['learning_container_year__acronym', 'type']
     list_filter = ('learning_container_year__academic_year',)
-    raw_id_fields = ('entity', 'learning_container_year')
 
 
 class EntityContainerYear(SerializableModel):
-    external_id = models.CharField(max_length=255, blank=True, null=True)
+    external_id = models.CharField(max_length=255, blank=True, null=True, db_index=True)
     changed = models.DateTimeField(null=True, auto_now=True)
     entity = models.ForeignKey('Entity')
     learning_container_year = models.ForeignKey('LearningContainerYear')
     type = models.CharField(max_length=35, choices=entity_container_year_link_type.ENTITY_CONTAINER_YEAR_LINK_TYPES)
+    _warnings = None
 
     class Meta:
-        unique_together = ('entity', 'learning_container_year', 'type',)
+        unique_together = ('learning_container_year', 'type',)
 
     def __str__(self):
         return u"%s - %s - %s" % (self.entity, self.learning_container_year, self.type)
@@ -56,6 +57,16 @@ class EntityContainerYear(SerializableModel):
     def get_latest_entity_version(self):
         if self.entity.entity_versions:
             return self.entity.entity_versions[-1]
+
+    @property
+    def warnings(self):
+        if self._warnings is None:
+            self._warnings = []
+            if not entity_version.get_by_entity_and_date(self.entity,
+                                                         self.learning_container_year.academic_year.start_date):
+                self._warnings.append(_("The linked %(entity)s does not exist at the start date of the academic year"
+                                        " linked to this learning unit") % {'entity': _(self.type.lower())})
+        return self._warnings
 
 
 def find_last_entity_version_grouped_by_linktypes(learning_container_year, link_type=None):
@@ -116,9 +127,8 @@ def find_all_additional_requirement_entities(learning_container_year):
     return next(iter(results.values()), None)
 
 
-def find_by_learning_container_year(a_learning_container_year, a_entity_container_year_link_type):
-    return EntityContainerYear.objects.filter(learning_container_year=a_learning_container_year,
-                                              type=a_entity_container_year_link_type)
+def find_by_learning_container_year(a_learning_container_year):
+    return EntityContainerYear.objects.filter(learning_container_year=a_learning_container_year)
 
 
 def find_entities_grouped_by_linktype(a_learning_container_year):
@@ -133,10 +143,14 @@ def find_by_learning_container_year_and_linktype(a_learning_container_year, link
         return None
 
 
-def get_entity_container_year(an_entity_version, a_learning_container_year, a_type_entity_container_year):
+def get_entity_container_year(a_learning_container_year, a_type_entity_container_year):
     try:
-        return EntityContainerYear.objects.get(entity=an_entity_version,
-                                               learning_container_year=a_learning_container_year,
+        return EntityContainerYear.objects.get(learning_container_year=a_learning_container_year,
                                                type=a_type_entity_container_year)
     except ObjectDoesNotExist:
         return None
+
+
+def find_requirement_entities(learning_container_year):
+    return EntityContainerYear.objects.filter(learning_container_year=learning_container_year,
+                                              type__in=REQUIREMENT_ENTITIES)

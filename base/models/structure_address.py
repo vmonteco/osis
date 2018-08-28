@@ -24,8 +24,7 @@
 #
 ##############################################################################
 from django.db import models
-from django.contrib import admin
-from base.models.osis_model_admin import OsisModelAdmin
+from osis_common.models.osis_model_admin import OsisModelAdmin
 
 
 class StructureAddressAdmin(OsisModelAdmin):
@@ -34,7 +33,7 @@ class StructureAddressAdmin(OsisModelAdmin):
 
 
 class StructureAddress(models.Model):
-    external_id = models.CharField(max_length=100, blank=True, null=True)
+    external_id = models.CharField(max_length=100, blank=True, null=True, db_index=True)
     structure = models.ForeignKey('Structure')
     label = models.CharField(max_length=20)
     location = models.CharField(max_length=255)

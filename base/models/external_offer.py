@@ -29,13 +29,12 @@ from osis_common.models.serializable_model import SerializableModel, Serializabl
 
 class ExternalOfferAdmin(SerializableModelAdmin):
     list_display = ('name', 'adhoc', 'domain', 'grade_type', 'offer_year', 'changed')
-    fieldsets = ((None, {'fields': ('name', 'adhoc', 'domain', 'grade_type', 'offer_year')}),)
     ordering = ('name',)
     search_fields = ['name']
 
 
 class ExternalOffer(SerializableModel):
-    external_id = models.CharField(max_length=100, blank=True, null=True)
+    external_id = models.CharField(max_length=100, blank=True, null=True, db_index=True)
     changed = models.DateTimeField(null=True, auto_now=True)
     name = models.CharField(max_length=150, unique=True)
     adhoc = models.BooleanField(default=True)  # If False == Official/validated, if True == Not Official/not validated

@@ -24,26 +24,24 @@
 #
 ##############################################################################
 from django.db import models
-from django.contrib import admin
+from osis_common.models import osis_model_admin
 from django.conf import settings
 from .text_label import TextLabel
 
 
-class TranslatedTextLabelAdmin(admin.ModelAdmin):
+class TranslatedTextLabelAdmin(osis_model_admin.OsisModelAdmin):
     actions = None  # Remove ability to delete in Admin Interface
     list_display = ('label', 'language', 'text_label',)
     search_fields = ['label', 'text_label__label']
     ordering = ('label',)
-    raw_id_fields = ('text_label',)
     list_filter = ('language',)
-    fieldsets = ((None, {'fields': ('label', 'language', 'text_label',)}),)
 
     def has_delete_permission(self, request, obj=None):
         return False
 
 
 class TranslatedTextLabel(models.Model):
-    external_id = models.CharField(max_length=100, blank=True, null=True)
+    external_id = models.CharField(max_length=100, blank=True, null=True, db_index=True)
     changed = models.DateTimeField(null=True, auto_now=True)
     language = models.CharField(max_length=30, null=True, choices=settings.LANGUAGES, default=settings.LANGUAGE_CODE)
     text_label = models.ForeignKey(TextLabel)

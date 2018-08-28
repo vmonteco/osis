@@ -23,11 +23,10 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.contrib import admin
 from django.db import models
 from assessments.models.enums import score_sheet_address_choices
 from django.core.exceptions import ObjectDoesNotExist
-from base.models.osis_model_admin import OsisModelAdmin
+from osis_common.models.osis_model_admin import OsisModelAdmin
 
 
 class ScoreSheetAddressAdmin(OsisModelAdmin):
@@ -38,7 +37,7 @@ class ScoreSheetAddressAdmin(OsisModelAdmin):
 
 
 class ScoreSheetAddress(models.Model):
-    external_id = models.CharField(max_length=100, blank=True, null=True)
+    external_id = models.CharField(max_length=100, blank=True, null=True, db_index=True)
     changed = models.DateTimeField(null=True, auto_now=True)
     offer_year = models.OneToOneField('base.OfferYear')
     # Info to find the address

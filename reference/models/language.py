@@ -34,12 +34,11 @@ class LanguageAdmin(SerializableModelAdmin):
     list_filter = ('recognized',)
     ordering = ('code',)
     search_fields = ['code', 'name']
-    fieldsets = ((None, {'fields': ('code', 'name', 'recognized')}),)
 
 
 class Language(SerializableModel):
     code = models.CharField(max_length=4, unique=True)
-    external_id = models.CharField(max_length=100, blank=True, null=True)
+    external_id = models.CharField(max_length=100, blank=True, null=True, db_index=True)
     changed = models.DateTimeField(null=True, auto_now=True)
     name = models.CharField(max_length=80, unique=True)
     recognized = models.BooleanField(default=False)

@@ -67,7 +67,10 @@ INSTALLED_APPS = (
     'statici18n',
     'rest_framework',
     'rest_framework.authtoken',
-    'bootstrap3'
+    'bootstrap3',
+    'ordered_model',
+    'waffle',
+    'ajax_select',
 )
 
 MIDDLEWARE = (
@@ -80,9 +83,11 @@ MIDDLEWARE = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
-    'base.middlewares.extra_http_responses_midleware.ExtraHttpResponsesMiddleware'
+    'base.middlewares.extra_http_responses_midleware.ExtraHttpResponsesMiddleware',
+    'waffle.middleware.WaffleMiddleware',
 )
 
+INTERNAL_IPS = ()
 # check if we are testing right now
 TESTING = 'test' in sys.argv
 if TESTING:
@@ -111,6 +116,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'base.views.common.common_context_processor',
+                'base.context_processors.user_manual.user_manual_url'
             ],
         },
     },
@@ -124,7 +130,7 @@ DATABASES = {
         'PASSWORD': os.environ.get("POSTGRES_PASSWORD", 'osis'),
         'HOST': os.environ.get("POSTGRES_HOST", '127.0.0.1'),
         'PORT': os.environ.get("POSTGRES_PORT", '5432'),
-        'ATOMIC_REQUEST':  os.environ.get('DATABASE_ATOMIC_REQUEST', 'False').lower() == 'true'
+        'ATOMIC_REQUESTS':  os.environ.get('DATABASE_ATOMIC_REQUEST', 'True').lower() == 'true'
     },
 }
 
@@ -203,12 +209,52 @@ QUEUES = {}
 # Add local path in your environment settings (ex: dev.py)
 LOCALE_PATHS = ()
 
+
+def define_style_sheet(name, class_name):
+    return {'name': name, 'element': 'div', 'attributes': {'class': class_name}}
+
+
+REDDOT_STYLES = [
+    define_style_sheet('Intro', 'reddot_intro'),
+    define_style_sheet('Teaser', 'reddot_teaser'),
+    define_style_sheet('Collapse', 'reddot_collapse'),
+    define_style_sheet('Extra', 'reddot_extra'),
+    define_style_sheet('Body', 'reddot_body'),
+    define_style_sheet('Part1', 'reddot_part1'),
+    define_style_sheet('Part2', 'reddot_part2'),
+    define_style_sheet('Contact Responsible', 'contacts_responsible'),
+    define_style_sheet('Contact Other Responsibles', 'contacts_responsibles'),
+    define_style_sheet('Contact Jury', 'contacts_jury'),
+    define_style_sheet('Contact Contact', 'contacts_contact'),
+    define_style_sheet('Contact Introduction', 'contacts_introduction'),
+]
+
 # Apps Settings
 CKEDITOR_JQUERY_URL = os.path.join(STATIC_URL, "js/jquery-2.1.4.min.js")
 CKEDITOR_CONFIGS = {
-    'default': {
+    'reddot': {
+        "removePlugins": "stylesheetparser",
+        'allowedContent': True,
+        'extraAllowedContent': 'div(reddot_*,contacts_*)',
+        'extraPlugins': ','.join(['reddot', 'pastefromword']),
+        'stylesSet': REDDOT_STYLES,
         'toolbar': 'Custom',
         'toolbar_Custom': [
+            {'name': 'clipboard', 'items': ['PasteFromWord', '-', 'Undo', 'Redo']},
+            ['Bold', 'Italic', 'Underline'],
+            ['NumberedList', 'BulletedList'],
+            ['Link', 'Unlink'],
+            ['CreateDiv'],
+        ]
+    },
+    'default': {
+        "removePlugins": "stylesheetparser",
+        'allowedContent': True,
+        'extraAllowedContent': 'div(reddot_*,contacts_*)',
+        'extraPlugins': ','.join(['reddot', 'pastefromword']),
+        'toolbar': 'Custom',
+        'toolbar_Custom': [
+            {'name': 'clipboard', 'items': ['PasteFromWord', '-', 'Undo', 'Redo']},
             {'name': 'basicstyles', 'items': ['Bold', 'Italic', 'Underline', 'Strike', '-', 'RemoveFormat']},
             {'name': 'links', 'items': ['Link']},
             {'name': 'styles', 'items': ['Styles', 'Format', 'Font', 'FontSize', 'Source']},
@@ -223,10 +269,12 @@ CKEDITOR_CONFIGS = {
                        'HiddenField']},
             {'name': 'about', 'items': ['About']},
         ],
+        'stylesSet': REDDOT_STYLES,
     },
     'minimal': {
         'toolbar': 'Custom',
         'toolbar_Custom': [
+            {'name': 'clipboard', 'items': ['PasteFromWord', '-', 'Undo', 'Redo']},
             ['Bold', 'Italic', 'Underline'],
             ['NumberedList', 'BulletedList'],
             ['Link', 'Unlink']
@@ -235,6 +283,7 @@ CKEDITOR_CONFIGS = {
     'minimal_plus_headers': {
         'toolbar': 'Custom',
         'toolbar_Custom': [
+            {'name': 'clipboard', 'items': ['PasteFromWord', '-', 'Undo', 'Redo']},
             ['Format', 'Styles'],
             ['Bold', 'Italic', 'Underline'],
             ['Link', 'Unlink'],
@@ -303,8 +352,44 @@ ESB_STUDENT_API = os.environ.get('ESB_STUDENT_API')
 
 RELEASE_TAG = os.environ.get('RELEASE_TAG')
 
+# Selenium Testing
+SELENIUM_SETTINGS = {
+    'WEB_BROWSER': os.environ.get('SELENIUM_WEB_BROWSER', 'FIREFOX'),
+    'GECKO_DRIVER': os.environ.get('SELENIUM_GECKO_DRIVER', os.path.join(BASE_DIR, "selenium/geckodriver")),
+    'VIRTUAL_DISPLAY': os.environ.get('SELENIUM_VIRTUAL_DISPLAY', 'True').lower() == 'true',
+    'SCREEN_WIDTH': int(os.environ.get('SELENIUM_SCREEN_WIDTH', 1920)),
+    'SCREEN_HIGH': int(os.environ.get('SELENIUM_SCREEN_HIGH', 1080))
+}
+
 # BOOTSTRAP3 Configuration
 BOOTSTRAP3 = {
     'set_placeholder': False,
-    'success_css_class': ''
+    'success_css_class': '',
+    'required_css_class': "required_field",
 }
+
+# Ajax select is not allowed to load external js libs
+AJAX_SELECT_BOOTSTRAP = False
+
+
+CACHE_ENABLED = os.environ.get("CACHE_ENABLED", "False").lower() == 'true'
+if CACHE_ENABLED:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        },
+        "redis": {
+            "BACKEND": "django_redis.cache.RedisCache",
+            "LOCATION": os.environ.get("REDIS_LOCATIONS", "redis://127.0.0.1:6379").split(),
+            "OPTIONS": {
+                "CLIENT_CLASS": "django_redis.client.DefaultClient",
+                "SERIALIZER": "django_redis.serializers.json.JSONSerializer",
+                "SOCKET_CONNECT_TIMEOUT": 2,
+                "SOCKET_TIMEOUT": 2,
+                "PASSWORD": os.environ.get("REDIS_PASSWORD", "")
+            },
+            "KEY_PREFIX": os.environ.get("REDIS_PREFIX", 'osis')
+        }
+    }
+
+WAFFLE_FLAG_DEFAULT = os.environ.get("WAFFLE_FLAG_DEFAULT", "False").lower() == 'true'

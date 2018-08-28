@@ -24,7 +24,7 @@
 #
 ##############################################################################
 from django.db import models
-from base.models.osis_model_admin import OsisModelAdmin
+from osis_common.models.osis_model_admin import OsisModelAdmin
 from base.models.enums.person_address_type import PersonAddressType
 
 
@@ -36,7 +36,7 @@ class PersonAddressAdmin(OsisModelAdmin):
 
 
 class PersonAddress(models.Model):
-    external_id = models.CharField(max_length=100, blank=True, null=True)
+    external_id = models.CharField(max_length=100, blank=True, null=True, db_index=True)
     person = models.ForeignKey('Person')
     location = models.CharField(max_length=255, blank=True, null=True)
     postal_code = models.CharField(max_length=20, blank=True, null=True)

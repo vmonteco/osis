@@ -1,4 +1,4 @@
-{% extends "layout.html" %}
+{% extends "education_group/layout_detail.html" %}
 {% load i18n %}
 {% load form_field %}
 {% load static %}
@@ -29,7 +29,7 @@
 {% endcomment %}
 
 {% block breadcrumb %}
-    {% include "education_group/breadcrumb.html" %}
+    {{ block.super }}
     <li>{% trans "MODIFICATION" %}</li>
 {% endblock %}
 
@@ -39,7 +39,6 @@
 {% endblock style %}
 
 {% block content %}
-{% include "education_group/header.html" %}
 <div class="panel panel-default">
     <div class="panel-body" id="tabs">
         <div class="tab-content" id="tab_content">
@@ -79,7 +78,7 @@
                     </div>
                 </div>
                 <div class="pull-right">
-                    {% bootstrap_button _("Save") button_type="submit" button_class="btn-primary" %}
+                    {% bootstrap_button _("Save") button_type="submit" button_class="btn-primary" icon="glyphicon glyphicon-floppy-save" %}
                     {% bootstrap_button _("cancel") button_type="reset"  %}
                 </div>
             </form>

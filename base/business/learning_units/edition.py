@@ -29,32 +29,32 @@ from django.db.models import F
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
+from base import models as mdl_base
 from base.business import learning_unit_year_with_context
-from base.business.learning_unit import compute_max_academic_year_adjournment
+from base.business.learning_unit_year_with_context import ENTITY_TYPES_VOLUME
 from base.business.learning_units.simple.deletion import delete_from_given_learning_unit_year, \
     check_learning_unit_year_deletion
-from base.business.learning_unit_year_with_context import ENTITY_TYPES_VOLUME
 from base.business.utils.model import update_instance_model_from_data, update_related_object
-from base import models as mdl_base
 from base.models import entity_component_year
 from base.models import entity_container_year, learning_component_year, learning_class_year, learning_unit_component
-from base.models.academic_year import AcademicYear
+from base.models.academic_year import AcademicYear, compute_max_academic_year_adjournment
 from base.models.entity_component_year import EntityComponentYear
 from base.models.entity_container_year import EntityContainerYear
 from base.models.entity_version import EntityVersion
-from base.models.enums import learning_unit_periodicity, learning_unit_year_subtypes
+from base.models.enums import learning_unit_year_periodicity, learning_unit_year_subtypes
 from base.models.enums.entity_container_year_link_type import ENTITY_TYPE_LIST
 from base.models.learning_container_year import LearningContainerYear
 from base.models.learning_unit_year import LearningUnitYear
-from base.views.learning_units.common import create_learning_unit_year_creation_message
+from base.models.proposal_learning_unit import is_learning_unit_year_in_proposal
 from cms.models import translated_text
 
 FIELDS_TO_EXCLUDE_WITH_REPORT = ("is_vacant", "type_declaration_vacant", "attribution_procedure")
 
 
+# TODO :: Use LearningUnitPostponementForm to extend/shorten a LearningUnit and remove all this code
 def edit_learning_unit_end_date(learning_unit_to_edit, new_academic_year, propagate_end_date_to_luy=True):
     result = []
-    new_end_year = get_new_end_year(new_academic_year)
+    new_end_year = _get_new_end_year(new_academic_year)
 
     if propagate_end_date_to_luy:
         result.extend(_update_learning_unit_year_end_date(learning_unit_to_edit, new_academic_year, new_end_year))
@@ -72,6 +72,7 @@ def _update_learning_unit_year_end_date(learning_unit_to_edit, new_academic_year
     return []
 
 
+# TODO :: Use LearningUnitPostponementForm to extend/shorten a LearningUnit and remove all this code
 def shorten_learning_unit(learning_unit_to_edit, new_academic_year):
     _check_shorten_partims(learning_unit_to_edit, new_academic_year)
 
@@ -92,6 +93,7 @@ def shorten_learning_unit(learning_unit_to_edit, new_academic_year):
     return result
 
 
+# TODO :: Use LearningUnitPostponementForm to extend/shorten a LearningUnit and remove all this code
 def extend_learning_unit(learning_unit_to_edit, new_academic_year):
     result = []
     last_learning_unit_year = LearningUnitYear.objects.filter(learning_unit=learning_unit_to_edit
@@ -103,7 +105,7 @@ def extend_learning_unit(learning_unit_to_edit, new_academic_year):
         new_academic_year = AcademicYear.objects.get(year=compute_max_academic_year_adjournment())
 
     with transaction.atomic():
-        for ac_year in _get_next_academic_years(learning_unit_to_edit, new_academic_year.year):
+        for ac_year in get_next_academic_years(learning_unit_to_edit, new_academic_year.year):
             new_luy = _duplicate_learning_unit_year(last_learning_unit_year, ac_year)
             result.append(create_learning_unit_year_creation_message(new_luy, 'learning_unit_successfuly_created'))
 
@@ -133,7 +135,7 @@ def _duplicate_learning_unit_year(old_learn_unit_year, new_academic_year):
     duplicated_luy = update_related_object(old_learn_unit_year, 'academic_year', new_academic_year)
     duplicated_luy.attribution_procedure = None
     duplicated_luy.learning_container_year = _duplicate_learning_container_year(duplicated_luy, new_academic_year)
-    _duplicate_bibliography(duplicated_luy)
+    _duplicate_teaching_material(duplicated_luy)
     _duplicate_cms_data(duplicated_luy)
     duplicated_luy.save()
     return duplicated_luy
@@ -215,10 +217,10 @@ def _duplicate_learning_class_year(new_component):
         update_related_object(old_learning_class, 'learning_component_year', new_component)
 
 
-def _duplicate_bibliography(duplicated_luy):
-    previous_bibliography = mdl_base.bibliography.find_by_learning_unit_year(duplicated_luy.copied_from)
-    for bib in previous_bibliography:
-        update_related_object(bib, 'learning_unit_year', duplicated_luy)
+def _duplicate_teaching_material(duplicated_luy):
+    previous_teaching_material = mdl_base.teaching_material.find_by_learning_unit_year(duplicated_luy.copied_from)
+    for material in previous_teaching_material:
+        update_related_object(material, 'learning_unit_year', duplicated_luy)
 
 
 def _duplicate_cms_data(duplicated_luy):
@@ -252,23 +254,24 @@ def _get_actual_end_year(learning_unit_to_edit):
     return learning_unit_to_edit.end_year or compute_max_academic_year_adjournment() + 1
 
 
-def get_new_end_year(new_academic_year):
+def _get_new_end_year(new_academic_year):
     return new_academic_year.year if new_academic_year else None
 
 
-def _get_next_academic_years(learning_unit_to_edit, year):
+def get_next_academic_years(learning_unit_to_edit, year):
     range_years = list(range(learning_unit_to_edit.end_year + 1, year + 1))
     return AcademicYear.objects.filter(year__in=range_years).order_by('year')
 
 
 def filter_biennial(queryset, periodicity):
     result = queryset
-    if periodicity != learning_unit_periodicity.ANNUAL:
-        is_odd = periodicity == learning_unit_periodicity.BIENNIAL_ODD
+    if periodicity != learning_unit_year_periodicity.ANNUAL:
+        is_odd = periodicity == learning_unit_year_periodicity.BIENNIAL_ODD
         result = queryset.annotate(odd=F('year') % 2).filter(odd=is_odd)
     return result
 
 
+# TODO :: Use LearningUnitPostponementForm to extend/shorten a LearningUnit and remove all this code
 def update_learning_unit_year_with_report(luy_to_update, fields_to_update, entities_by_type_to_update, **kwargs):
     with_report = kwargs.get('with_report', True)
     override_postponement_consistency = kwargs.get('override_postponement_consistency', False)
@@ -292,6 +295,7 @@ def update_learning_unit_year_with_report(luy_to_update, fields_to_update, entit
     check_postponement_conflict_report_errors(conflict_report)
 
 
+# TODO :: Use LearningUnitPostponementForm to extend/shorten a LearningUnit and remove all this code
 def get_postponement_conflict_report(luy_start, override_postponement_consistency=False):
     """
     This function will return a list of learning unit year (luy_without_conflict) ( > luy_start)
@@ -299,7 +303,7 @@ def get_postponement_conflict_report(luy_start, override_postponement_consistenc
     """
     result = {'luy_without_conflict': [luy_start]}
     for luy in luy_start.find_gt_learning_units_year():
-        error_list = check_postponement_conflict(luy_start, luy)
+        error_list = _check_postponement_conflict(luy_start, luy)
         if error_list and not override_postponement_consistency:
             result['errors'] = error_list
             break
@@ -307,6 +311,7 @@ def get_postponement_conflict_report(luy_start, override_postponement_consistenc
     return result
 
 
+# TODO :: Use LearningUnitPostponementForm to extend/shorten a LearningUnit and remove all this code
 def check_postponement_conflict_report_errors(conflict_report):
     if conflict_report.get('errors'):
         last_instance_updated = conflict_report.get('luy_without_conflict', [])[-1]
@@ -317,14 +322,21 @@ def check_postponement_conflict_report_errors(conflict_report):
         )
 
 
+# FIXME should used include and not exclude
 def _update_learning_unit_year(luy_to_update, fields_to_update, with_report):
     fields_to_exclude = ()
     if with_report:
         fields_to_exclude = FIELDS_TO_EXCLUDE_WITH_REPORT
 
-    update_instance_model_from_data(luy_to_update.learning_unit, fields_to_update)
-    update_instance_model_from_data(luy_to_update.learning_container_year, fields_to_update, exclude=fields_to_exclude)
-    update_instance_model_from_data(luy_to_update, fields_to_update, exclude=fields_to_exclude)
+    update_instance_model_from_data(luy_to_update.learning_unit, fields_to_update, exclude=('acronym',))
+
+    # Only the subtype FULL can edit the container
+    if luy_to_update.subtype == learning_unit_year_subtypes.FULL:
+        update_instance_model_from_data(luy_to_update.learning_container_year, fields_to_update,
+                                        exclude=fields_to_exclude)
+
+    update_instance_model_from_data(luy_to_update, fields_to_update,
+                                    exclude=fields_to_exclude + ("in_charge",))
 
 
 def _update_learning_unit_year_entities(luy, entities_by_type_to_update):
@@ -374,7 +386,7 @@ def _delete_entity_component_year(learning_container_year, type_entity):
     ).delete()
 
 
-def check_postponement_conflict(luy, next_luy):
+def _check_postponement_conflict(luy, next_luy):
     error_list = []
     lcy = luy.learning_container_year
     next_lcy = next_luy.learning_container_year
@@ -389,14 +401,16 @@ def check_postponement_conflict(luy, next_luy):
 def _check_postponement_conflict_on_learning_unit_year(luy, next_luy):
     fields_to_compare = {
         'acronym': _('acronym'),
-        'specific_title': _('official_title_proper_to_UE'),
-        'specific_title_english': _('official_english_title_proper_to_UE'),
+        'specific_title': _('title_proper_to_UE'),
+        'specific_title_english': _('english_title_proper_to_UE'),
         'subtype': _('subtype'),
         'credits': _('credits'),
         'internship_subtype': _('internship_subtype'),
         'status': _('status'),
         'session': _('session_title'),
-        'quadrimester': _('quadrimester')
+        'quadrimester': _('quadrimester'),
+        'campus': _('campus'),
+        'language': _('language'),
     }
     return _get_differences(luy, next_luy, fields_to_compare)
 
@@ -404,11 +418,9 @@ def _check_postponement_conflict_on_learning_unit_year(luy, next_luy):
 def _check_postponement_conflict_on_learning_container_year(lcy, next_lcy):
     fields_to_compare = {
         'container_type': _('type'),
-        'common_title': _('common_official_title'),
-        'common_title_english': _('common_official_english_title'),
+        'common_title': _('common_title'),
+        'common_title_english': _('common_english_title'),
         'acronym': _('acronym'),
-        'language': _('language'),
-        'campus': _('campus'),
         'team': _('team_management')
     }
     return _get_differences(lcy, next_lcy, fields_to_compare)
@@ -442,7 +454,7 @@ def _get_translated_value(value):
 def _check_postponement_learning_unit_year_proposal_state(nex_luy):
     error_msg = _("learning_unit_in_proposal_cannot_save") % {'luy': nex_luy.acronym,
                                                               'academic_year': nex_luy.academic_year}
-    return [error_msg] if nex_luy.is_in_proposal() else []
+    return [error_msg] if is_learning_unit_year_in_proposal(nex_luy) else []
 
 
 def _check_postponement_conflict_on_entity_container_year(lcy, next_lcy):
@@ -599,3 +611,9 @@ class ConsistencyError(Error):
         self.last_instance_updated = last_instance_updated
         self.error_list = error_list
         super().__init__(*args, **kwargs)
+
+
+def create_learning_unit_year_creation_message(learning_unit_year_created, translation_key):
+    link = reverse("learning_unit", kwargs={'learning_unit_year_id': learning_unit_year_created.id})
+    return _(translation_key) % {'link': link, 'acronym': learning_unit_year_created.acronym,
+                                 'academic_year': learning_unit_year_created.academic_year}

@@ -24,8 +24,10 @@
 #
 ##############################################################################
 from django.db import models
+from django.utils.translation import ugettext_lazy as _
 
 from attribution.models.attribution_new import AttributionNew
+from base.business.learning_container_year import get_learning_container_year_warnings
 from base.models import learning_unit_year
 from base.models.enums import learning_unit_year_subtypes, learning_container_year_types
 from base.models.enums import vacant_declaration_type
@@ -34,31 +36,29 @@ from osis_common.models.serializable_model import SerializableModel, Serializabl
 
 class LearningContainerYearAdmin(SerializableModelAdmin):
     list_display = ('learning_container', 'academic_year', 'container_type', 'acronym', 'common_title')
-    fieldsets = ((None, {'fields': ('academic_year', 'learning_container',  'container_type', 'acronym', 'common_title',
-                                    'common_title_english', 'language', 'campus', 'is_vacant',
-                                    'type_declaration_vacant', 'team', 'in_charge')}),)
     search_fields = ['acronym']
-    raw_id_fields = ('learning_container', 'campus', )
     list_filter = ('academic_year', 'in_charge', 'is_vacant',)
 
 
 class LearningContainerYear(SerializableModel):
-    external_id = models.CharField(max_length=100, blank=True, null=True)
+    external_id = models.CharField(max_length=100, blank=True, null=True, db_index=True)
     academic_year = models.ForeignKey('AcademicYear')
     learning_container = models.ForeignKey('LearningContainer')
-    container_type = models.CharField(max_length=20, blank=True, null=True,
+    container_type = models.CharField(max_length=20, verbose_name=_('type'),
                                       choices=learning_container_year_types.LEARNING_CONTAINER_YEAR_TYPES)
-    common_title = models.CharField(max_length=255, blank=True, null=True)
-    common_title_english = models.CharField(max_length=250, blank=True, null=True)
+    common_title = models.CharField(max_length=255, blank=True, null=True, verbose_name=_('common_title'))
+    common_title_english = models.CharField(max_length=250, blank=True, null=True,
+                                            verbose_name=_('common_english_title'))
     acronym = models.CharField(max_length=10)
     changed = models.DateTimeField(null=True, auto_now=True)
-    language = models.ForeignKey('reference.Language', blank=True, null=True)
-    campus = models.ForeignKey('Campus', blank=True, null=True)
-    team = models.BooleanField(default=False)
-    is_vacant = models.BooleanField(default=False)
+    team = models.BooleanField(default=False, verbose_name=_('team_management'))
+    is_vacant = models.BooleanField(default=False,  verbose_name=_('vacant'))
     type_declaration_vacant = models.CharField(max_length=100, blank=True, null=True,
+                                               verbose_name=_('type_declaration_vacant'),
                                                choices=vacant_declaration_type.DECLARATION_TYPE)
     in_charge = models.BooleanField(default=False)
+
+    _warnings = None
 
     def __str__(self):
         return u"%s - %s" % (self.acronym, self.common_title)
@@ -68,6 +68,12 @@ class LearningContainerYear(SerializableModel):
         permissions = (
             ("can_access_learningcontaineryear", "Can access learning container year"),
         )
+
+    @property
+    def warnings(self):
+        if self._warnings is None:
+            self._warnings = get_learning_container_year_warnings(self)
+        return self._warnings
 
     def get_partims_related(self):
         return learning_unit_year.search(learning_container_year_id=self,

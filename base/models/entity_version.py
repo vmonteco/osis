@@ -24,17 +24,66 @@
 #
 ##############################################################################
 import datetime
+from collections import OrderedDict
 
-from django.db import models
+from django.db import models, connection
 from django.db.models import Q
 from django.utils import timezone
 from django.utils.functional import cached_property
+from django.utils.timezone import now
 
+from base.models.entity import Entity
 from base.models.enums import entity_type
 from base.models.enums.entity_type import MAIN_ENTITY_TYPE
 from base.models.enums.organization_type import MAIN
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
 from osis_common.utils.datetime import get_tzinfo
+
+SQL_RECURSIVE_QUERY = """\
+WITH RECURSIVE under_entity AS (
+
+    SELECT id, acronym, parent_id, entity_id, '{{}}'::int[] as parents, '{date}'::date as date, 0 as level
+    FROM base_entityversion where entity_id={entity}
+
+    UNION ALL
+
+    SELECT b.id,
+        b.acronym,
+        b.parent_id,
+        b.entity_id,
+        parents || b.parent_id,
+        u.date,
+        u.level + 1
+
+    FROM under_entity AS u, base_entityversion AS b
+    WHERE (u.entity_id=b.parent_id) AND (
+        (b.end_date >= date::date OR b.end_date IS NULL) AND
+        b.start_date <= date::date)
+    )
+
+SELECT * FROM under_entity ;
+"""
+
+
+class Node:
+    """ Node used to create an hierarchy between the entity_version """
+
+    def __init__(self, id, acronym, parent_id, level):
+        self.id = id
+        self.acronym = acronym
+        self.parent_id = parent_id
+        self.children = []
+        self.level = level
+
+    def append_child(self, node):
+        self.children.append(node)
+
+    def to_json(self, limit):
+        return {
+            'id': self.id,
+            'acronym': self.acronym,
+            'children': [child.to_json(limit) for child in self.children if child.level < limit]
+        }
 
 
 class EntityVersionAdmin(SerializableModelAdmin):
@@ -54,9 +103,25 @@ class EntityVersionQuerySet(models.QuerySet):
     def entity(self, entity):
         return self.filter(entity=entity)
 
+    def get_tree(self, entity, date=None):
+        if not date:
+            date = now()
+
+        if isinstance(entity, Entity):
+            entity = entity.pk
+
+        with connection.cursor() as cursor:
+            cursor.execute(SQL_RECURSIVE_QUERY.format(entity=entity, date=date))
+
+            return cursor.fetchall()
+
+    def descendants(self, entity, date=None):
+        tree = self.get_tree(entity.pk, date)
+        return self.filter(pk__in=[node[0] for node in tree[1:]]).order_by('acronym')
+
 
 class EntityVersion(SerializableModel):
-    external_id = models.CharField(max_length=100, blank=True, null=True)
+    external_id = models.CharField(max_length=100, blank=True, null=True, db_index=True)
     changed = models.DateTimeField(null=True, auto_now=True)
     entity = models.ForeignKey('Entity')
     title = models.CharField(db_index=True, max_length=255)
@@ -138,21 +203,14 @@ class EntityVersion(SerializableModel):
 
     @cached_property
     def descendants(self):
-        return self.find_descendants()
+        return EntityVersion.objects.descendants(self.entity)
 
     @cached_property
     def children(self):
         return self._direct_children()
 
     def find_descendants(self, date=None):
-        descendants = []
-        direct_children = self.find_direct_children(date)
-        if len(direct_children) > 0:
-            descendants.extend(direct_children)
-            for child in direct_children:
-                descendants.extend(child.find_descendants(date))
-
-        return sorted(descendants, key=lambda an_entity: an_entity.acronym)
+        return EntityVersion.objects.descendants(self.entity, date)
 
     def find_faculty_version(self, academic_yr):
         if self.entity_type == entity_type.FACULTY:
@@ -197,20 +255,18 @@ class EntityVersion(SerializableModel):
         else:
             return False
 
-    def get_organogram_data(self, level):
-        level += 1
-        if level < 3:
-            return {
-                'id': self.id,
-                'acronym': self.acronym,
-                'children': [child.get_organogram_data(level) for child in self.children]
-            }
-        else:
-            return {
-                'id': self.id,
-                'acronym': self.acronym,
-                'children': []
-            }
+    def get_organogram_data(self, limit=3):
+        tree = EntityVersion.objects.get_tree(self.entity_id)
+
+        nodes = OrderedDict()
+        for (id, acronym, parent_id, entity_id, parents, date, level) in tree:
+            node = Node(id, acronym, parent_id, level)
+            nodes[entity_id] = node
+
+            if parent_id in nodes:
+                nodes[parent_id].append_child(node)
+
+        return nodes[tree[0][3]].to_json(limit)
 
 
 def find(acronym, date=None):
@@ -228,7 +284,7 @@ def find(acronym, date=None):
 
 
 def find_latest_version(date):
-    return EntityVersion.objects.current(date).order_by('-start_date')
+    return EntityVersion.objects.current(date).select_related('entity').order_by('-start_date')
 
 
 def get_last_version(entity, date=None):
@@ -271,7 +327,7 @@ def search(**kwargs):
         queryset = queryset.filter(title__icontains=kwargs['title'])
 
     if 'acronym' in kwargs:
-        queryset = queryset.filter(acronym__icontains=kwargs['acronym'])
+        queryset = queryset.filter(acronym__iregex=kwargs['acronym'])
 
     if 'entity_type' in kwargs:
         queryset = queryset.filter(entity_type__exact=kwargs['entity_type'])
@@ -342,9 +398,60 @@ def _match_dates(osis_date, esb_date):
         return osis_date.strftime('%Y-%m-%d') == esb_date
 
 
-def find_main_entities_version():
+def find_all_current_entities_version():
     now = datetime.datetime.now(get_tzinfo())
-    return find_latest_version(date=now).filter(
+    return find_latest_version(date=now)
+
+
+# TODO Use recursive query instead
+def build_current_entity_version_structure_in_memory(date=None):
+    if date:
+        all_current_entities_version = find_latest_version(date=date)
+    else:
+        all_current_entities_version = find_all_current_entities_version()
+    entity_version_by_entity_id = _build_entity_version_by_entity_id(all_current_entities_version)
+    direct_children_by_entity_version_id = _build_direct_children_by_entity_version_id(entity_version_by_entity_id)
+    all_children_by_entity_version_id = _build_all_children_by_entity_version_id(direct_children_by_entity_version_id)
+
+    entity_versions = {}
+    for entity_version in all_current_entities_version:
+        entity_versions[entity_version.entity_id] = {
+            'entity_version_parent': entity_version_by_entity_id.get(entity_version.parent_id),
+            'direct_children': direct_children_by_entity_version_id.get(entity_version.id, []),
+            'all_children': all_children_by_entity_version_id.get(entity_version.id, []),
+            'entity_version': entity_version
+        }
+    return entity_versions
+
+
+def _build_entity_version_by_entity_id(versions):
+    return {version.entity_id: version for version in versions}
+
+
+def _build_direct_children_by_entity_version_id(entity_version_by_entity_id):
+    direct_children_by_entity_version_id = {}
+    for entity_version in entity_version_by_entity_id.values():
+        entity_version_parent = entity_version_by_entity_id.get(entity_version.parent_id)
+        entity_version_parent_id = entity_version_parent.id if entity_version_parent else None
+        direct_children_by_entity_version_id.setdefault(entity_version_parent_id, []).append(entity_version)
+    return direct_children_by_entity_version_id
+
+
+def _build_all_children_by_entity_version_id(direct_children_by_entity_version_id):
+    return {entity_version_id: _get_all_children(entity_version_id, direct_children_by_entity_version_id)
+            for entity_version_id in direct_children_by_entity_version_id.keys()}
+
+
+def _get_all_children(entity_version_id, direct_children_by_entity_version_id):
+    all_children = []
+    for entity_version in direct_children_by_entity_version_id.get(entity_version_id, []):
+        all_children.extend(_get_all_children(entity_version.id, direct_children_by_entity_version_id))
+        all_children.append(entity_version)
+    return all_children
+
+
+def find_main_entities_version():
+    return find_all_current_entities_version().filter(
         entity_type__in=MAIN_ENTITY_TYPE, entity__organization__type=MAIN).order_by('acronym')
 
 
@@ -352,11 +459,12 @@ def find_latest_version_by_entity(entity, date):
     return EntityVersion.objects.current(date).entity(entity).select_related('entity', 'parent').first()
 
 
-def find_last_entity_version_by_learning_unit_year_id(learning_unit_year_id):
+def find_last_entity_version_by_learning_unit_year_id(learning_unit_year_id, entity_type):
     now = datetime.datetime.now(get_tzinfo())
     try:
         return EntityVersion.objects.current(now).\
-            filter(entity__entitycontaineryear__learning_container_year__learningunityear__id=learning_unit_year_id). \
+            filter(entity__entitycontaineryear__learning_container_year__learningunityear__id=learning_unit_year_id,
+                   entity__entitycontaineryear__type=entity_type). \
             latest('start_date')
     except EntityVersion.DoesNotExist:
         return None
@@ -367,3 +475,10 @@ def search_by_acronyms(entities):
     for entity in entities:
         q |= Q(acronym__icontains=entity.acronym)
     return EntityVersion.objects.filter(q)
+
+
+def find_entity_version_according_academic_year(an_entity, an_academic_year):
+    return EntityVersion.objects.filter(
+        Q(entity=an_entity, start_date__lte=an_academic_year.end_date),
+        Q(end_date__isnull=True) | Q(end_date__gt=an_academic_year.end_date)
+    ).last()

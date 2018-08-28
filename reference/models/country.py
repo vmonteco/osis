@@ -31,15 +31,13 @@ from osis_common.models.serializable_model import SerializableModel, Serializabl
 class CountryAdmin(SerializableModelAdmin):
     list_display = ('uuid', 'name', 'iso_code', 'nationality', 'european_union', 'dialing_code', 'cref_code', 'currency',
                     'continent')
-    fieldsets = ((None, {'fields': ('iso_code', 'name', 'nationality', 'european_union', 'dialing_code', 'cref_code',
-                                    'currency', 'continent')}),)
     list_filter = ('european_union',)
     ordering = ('name',)
     search_fields = ['name']
 
 
 class Country(SerializableModel):
-    external_id = models.CharField(max_length=100, blank=True, null=True)
+    external_id = models.CharField(max_length=100, blank=True, null=True, db_index=True)
     iso_code = models.CharField(max_length=2, unique=True)
     name = models.CharField(max_length=80, unique=True)
     nationality = models.CharField(max_length=80, blank=True, null=True)

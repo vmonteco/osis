@@ -24,8 +24,7 @@
 #
 ##############################################################################
 from django.db import models
-from django.contrib import admin
-from base.models.osis_model_admin import OsisModelAdmin
+from osis_common.models.osis_model_admin import OsisModelAdmin
 
 
 class OfferTypeAdmin(OsisModelAdmin):
@@ -35,7 +34,7 @@ class OfferTypeAdmin(OsisModelAdmin):
 
 
 class OfferType(models.Model):
-    external_id = models.CharField(max_length=100, blank=True, null=True)
+    external_id = models.CharField(max_length=100, blank=True, null=True, db_index=True)
     name = models.CharField(max_length=255)
 
     def __str__(self):

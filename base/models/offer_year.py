@@ -31,14 +31,7 @@ from osis_common.models.serializable_model import SerializableModel, Serializabl
 
 class OfferYearAdmin(SerializableModelAdmin):
     list_display = ('acronym', 'title', 'academic_year', 'offer', 'parent', 'offer_type', 'changed')
-    fieldsets = ((None, {'fields': ('offer', 'academic_year', 'entity_administration', 'entity_administration_fac',
-                                    'entity_management', 'entity_management_fac', 'acronym', 'title', 'parent',
-                                    'title_international', 'title_short', 'title_printable', 'grade', 'grade_type',
-                                    'recipient', 'location', 'postal_code', 'city', 'country', 'phone', 'fax', 'email',
-                                    'campus', 'offer_type')}),)
     list_filter = ('academic_year', 'grade', 'offer_type', 'campus')
-    raw_id_fields = ('offer', 'parent', 'offer_type', 'grade_type','campus','country','entity_administration',
-                     'entity_administration_fac', 'entity_management', 'entity_management_fac', 'academic_year')
     search_fields = ['acronym']
 
 
@@ -49,7 +42,7 @@ GRADE_TYPES = (
 
 
 class OfferYear(SerializableModel):
-    external_id = models.CharField(max_length=100, blank=True, null=True)
+    external_id = models.CharField(max_length=100, blank=True, null=True, db_index=True)
     changed = models.DateTimeField(null=True, auto_now=True)
     offer = models.ForeignKey('Offer')
     academic_year = models.ForeignKey('AcademicYear')
@@ -188,6 +181,10 @@ def find_by_user(user, academic_yr=None):
 
 def find_by_offer(offers):
     return OfferYear.objects.filter(offer__in=offers)
+
+
+def find_by_offers_and_year(offers, ac_year):
+    return find_by_offer(offers).filter(academic_year=ac_year)
 
 
 def find_by_id_list(ids):

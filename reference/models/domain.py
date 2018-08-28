@@ -30,21 +30,21 @@ from osis_common.models.serializable_model import SerializableModel, Serializabl
 
 
 class DomainAdmin(SerializableModelAdmin):
-    list_display = ('name', 'parent', 'decree', 'type')
-    fieldsets = ((None, {'fields': ('name', 'parent', 'decree', 'type')}),)
+    list_display = ('code', 'name', 'parent', 'decree', 'type', )
+    fieldsets = ((None, {'fields': ('code', 'name', 'parent', 'decree', 'type')}),)
     list_filter = ('type', 'national', 'adhoc')
-    search_fields = ['name']
+    search_fields = ['code', 'name']
 
 
 class Domain(SerializableModel):
-    external_id = models.CharField(max_length=100, blank=True, null=True)
+    external_id = models.CharField(max_length=100, blank=True, null=True, db_index=True)
     name = models.CharField(max_length=255)
+    code = models.CharField(max_length=50)
     parent = models.ForeignKey('self', null=True, blank=True)
     decree = models.ForeignKey('Decree', null=True, blank=True)
     type = models.CharField(max_length=50, choices=domain_type.TYPES, default=domain_type.UNKNOWN)
     adhoc = models.BooleanField(default=True) # If False == Official/validated, if True == Not Official/not validated
     national = models.BooleanField(default=False) # True if is Belgian else False
-    reference = models.CharField(max_length=10, blank=True, null=True)
 
     def __str__(self):
         return self.name

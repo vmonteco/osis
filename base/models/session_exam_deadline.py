@@ -24,11 +24,11 @@
 #
 ##############################################################################
 import datetime
+
 from django.db import models
-from django.contrib import admin
 from base.models.enums import number_session
 from base.signals.publisher import compute_student_score_encoding_deadline
-from base.models.osis_model_admin import OsisModelAdmin
+from osis_common.models.osis_model_admin import OsisModelAdmin
 
 
 class SessionExamDeadlineAdmin(OsisModelAdmin):
@@ -40,7 +40,7 @@ class SessionExamDeadlineAdmin(OsisModelAdmin):
 
 
 class SessionExamDeadline(models.Model):
-    external_id = models.CharField(max_length=100, blank=True, null=True)
+    external_id = models.CharField(max_length=100, blank=True, null=True, db_index=True)
     changed = models.DateTimeField(null=True, auto_now=True)
     deadline = models.DateField()
     deliberation_date = models.DateField(blank=True, null=True)

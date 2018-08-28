@@ -1,0 +1,51 @@
+{% comment "License" %}
+* OSIS stands for Open Student Information System. It's an application
+* designed to manage the core business of higher education institutions,
+* such as universities, faculties, institutes and professional schools.
+* The core business involves the administration of students, teachers,
+* courses, programs and so on.
+*
+* Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* A copy of this license - GNU General Public License - is available
+* at the root of the source code of this program.  If not,
+* see http://www.gnu.org/licenses/.
+{% endcomment %}
+<tr id="{{ section_name }}">
+    <td colspan="5" class="info">
+        {{ header_text }} {% if condition %}<a class="button line-add-btn" data-section="{{ section_name }}" href="#">
+        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+    </a>{% endif %}
+    </td>
+</tr>
+{% for record in records %}
+<tr id="{{ section_name }}_{{ record.id }}">
+    <td id="{{ section_name }}_{{ record.id }}_diploma">{{ record.diploma }}</td>
+    <td id="{{ section_name }}_{{ record.id }}_conditions">{{record.conditions|safe }}</td>
+    <td id="{{ section_name }}_{{ record.id }}_access" class="text-right">{{ record.access|safe }}</td>
+    <td id="{{ section_name }}_{{ record.id }}_remarks">{{ record.remarks|safe }}</td>
+    {% if condition %}
+    <td class="text-right">
+        <a href="#" role="button" data-record-id="{{ record.id }}" data-section="{{ section_name }}" class="button line-remove-btn">
+            <span class="glyphicon glyphicon-remove-circle" style="font-size: 16px;" aria-hidden="true"></span>
+        </a>
+        <a href="#" role="button" class="button line-edit-btn" data-record-id="{{ record.id }}" data-section="{{ section_name }}" data-language="fr">
+            <span class="glyphicon glyphicon-edit" style="font-size: 16px;" aria-hidden="true"></span>
+        </a>
+        <a href="#" role="button" class="button line-edit-btn" data-record-id="{{ record.id }}" data-section="{{ section_name }}" data-language="en">
+            <span class="glyphicon glyphicon-flag" style="font-size: 16px;" aria-hidden="true"></span>
+        </a>
+    </td>
+    {% endif %}
+</tr>
+{% endfor %}

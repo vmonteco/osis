@@ -30,12 +30,11 @@ from osis_common.models.serializable_model import SerializableModel, Serializabl
 
 class LearningContainerAdmin(SerializableModelAdmin):
     list_display = ('external_id',)
-    fieldsets = ((None, {'fields': ('external_id',)}),)
     search_fields = ['external_id', 'learningcontaineryear__acronym']
 
 
 class LearningContainer(SerializableModel):
-    external_id = models.CharField(max_length=100, blank=True, null=True)
+    external_id = models.CharField(max_length=100, blank=True, null=True, db_index=True)
     changed = models.DateTimeField(null=True, auto_now=True)
 
     @property

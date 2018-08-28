@@ -29,12 +29,11 @@ from osis_common.models.serializable_model import SerializableModel, Serializabl
 
 class OfferAdmin(SerializableModelAdmin):
     list_display = ('id', 'title', 'changed')
-    fieldsets = ((None, {'fields': ['title']}),)
     search_fields = ['title']
 
 
 class Offer(SerializableModel):
-    external_id = models.CharField(max_length=100, blank=True, null=True)
+    external_id = models.CharField(max_length=100, blank=True, null=True, db_index=True)
     changed = models.DateTimeField(null=True, auto_now=True)
     title = models.CharField(max_length=255)
 

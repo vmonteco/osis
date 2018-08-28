@@ -23,44 +23,41 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.decorators import login_required
 from django.contrib.messages import ERROR
 from django.core.exceptions import PermissionDenied
 from django.db import IntegrityError
 from django.shortcuts import redirect, get_object_or_404
 from django.views.decorators.http import require_POST
+from waffle.decorators import waffle_flag
 
 from base.business import learning_unit_proposal as business_proposal
 from base.business.learning_units import perms
 from base.models.enums import proposal_type, proposal_state
 from base.models.person import Person
 from base.models.proposal_learning_unit import ProposalLearningUnit
-from base.views.common import display_error_messages, display_most_critical_messages
+from base.views.common import display_error_messages, display_messages_by_level
 
 
+@waffle_flag('learning_unit_proposal_delete')
 @login_required
 @require_POST
-@permission_required('base.can_consolidate_learningunit_proposal', raise_exception=True)
 def consolidate_proposal(request):
     learning_unit_year_id = request.POST.get("learning_unit_year_id")
     proposal = get_object_or_404(ProposalLearningUnit, learning_unit_year__id=learning_unit_year_id)
     user_person = get_object_or_404(Person, user=request.user)
 
-    if not perms.is_proposal_in_state_to_be_consolidated(proposal):
-        raise PermissionDenied("Proposal learning unit is neither accepted nor refused.")
+    if not perms.is_eligible_to_consolidate_proposal(proposal, user_person):
+        raise PermissionDenied("Proposal cannot be consolidated")
 
-    result = {}
+    messages_by_level = {}
     try:
-        result = business_proposal.consolidate_proposal(proposal, author=user_person, send_mail=True)
-        display_most_critical_messages(request, result)
+        messages_by_level = business_proposal.consolidate_proposals_and_send_report([proposal], user_person, {})
+        display_messages_by_level(request, messages_by_level)
     except IntegrityError as e:
         display_error_messages(request, e.args[0])
 
-    return _consolidate_proposal_redirection(proposal, result)
-
-
-def _consolidate_proposal_redirection(proposal, consolidation_result):
     if proposal.type == proposal_type.ProposalType.CREATION.name and \
-            proposal.state == proposal_state.ProposalState.REFUSED.name and not consolidation_result.get(ERROR, []):
+            proposal.state == proposal_state.ProposalState.REFUSED.name and not messages_by_level.get(ERROR, []):
         return redirect('learning_units')
     return redirect('learning_unit', learning_unit_year_id=proposal.learning_unit_year.id)

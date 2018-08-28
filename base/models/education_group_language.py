@@ -24,9 +24,9 @@
 #
 ##############################################################################
 from django.db import models
-from django.contrib import admin
+
 from base.models.enums import education_group_language
-from base.models.osis_model_admin import OsisModelAdmin
+from osis_common.models.osis_model_admin import OsisModelAdmin
 
 
 class EducationGroupLanguageAdmin(OsisModelAdmin):
@@ -35,7 +35,7 @@ class EducationGroupLanguageAdmin(OsisModelAdmin):
 
 
 class EducationGroupLanguage(models.Model):
-    external_id = models.CharField(max_length=100, blank=True, null=True)
+    external_id = models.CharField(max_length=100, blank=True, null=True, db_index=True)
     changed = models.DateTimeField(null=True, auto_now=True)
     type = models.CharField(max_length=255, choices=education_group_language.EducationGroupLanguages.choices())
     order = models.IntegerField()
@@ -43,7 +43,7 @@ class EducationGroupLanguage(models.Model):
     language = models.ForeignKey('reference.Language')
 
     def __str__(self):
-        return "{}".format(self.id)
+        return "{} - {}".format(self.education_group_year, self.language)
 
 
 def find_by_education_group_year(education_group_year):

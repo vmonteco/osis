@@ -26,8 +26,8 @@
 from django.test import TestCase
 from base.models import student
 from base.tests.models import test_person
+from base.tests.factories.person import PersonFactory, PersonWithoutUserFactory
 from base.tests.factories.academic_year import AcademicYearFactory
-from base.tests.factories.person import PersonFactory
 from base.tests.factories.student import StudentFactory
 from base.tests.factories.offer import OfferFactory
 from base.tests.factories.offer_year import OfferYearFactory
@@ -43,14 +43,14 @@ def create_student(first_name, last_name, registration_id):
 
 class StudentTest(TestCase):
     def test_find_by_with_person_first_name_case_insensitive(self):
-        a_person = PersonFactory.create(first_name="John", user=None)
+        a_person = PersonWithoutUserFactory.create(first_name="John")
         a_student = StudentFactory.create(person=a_person)
         found = list(student.find_by(person_first_name="john"))
         self.assertEqual(len(found), 1)
         self.assertEqual(found[0].id, a_student.id)
 
     def test_find_by_with_person_last_name_case_insensitive(self):
-        a_person = PersonFactory.create(last_name="Smith", user=None)
+        a_person = PersonWithoutUserFactory.create(last_name="Smith")
         a_student = StudentFactory.create(person=a_person)
         found = list(student.find_by(person_name="smith"))
         self.assertEqual(len(found), 1)
@@ -85,16 +85,6 @@ class StudentTest(TestCase):
         tmp_offer_year = OfferYearFactory()
         OfferEnrollmentFactory.create(offer_year=tmp_offer_year, student=tmp_student)
         db_student = list(student.find_by_offer([tmp_offer_year.offer]))[0]
-        self.assertIsNotNone(db_student)
-        self.assertEqual(db_student, tmp_student)
-
-    def test_find_by_offers_and_academic_year(self):
-        tmp_student = StudentFactory()
-        tmp_offer = OfferFactory()
-        tmp_academic_year = AcademicYearFactory()
-        tmp_offer_year = OfferYearFactory(offer=tmp_offer,academic_year=tmp_academic_year)
-        OfferEnrollmentFactory.create(offer_year=tmp_offer_year, student=tmp_student)
-        db_student = list(student.find_by_offers_and_academic_year([tmp_offer], tmp_academic_year))[0]
         self.assertIsNotNone(db_student)
         self.assertEqual(db_student, tmp_student)
 

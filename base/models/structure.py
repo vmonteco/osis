@@ -26,11 +26,8 @@
 from itertools import chain
 
 from django.db import models
-from django.contrib import admin
-
-from base.models.academic_year import current_academic_years
 from base.models.enums import structure_type
-from base.models.osis_model_admin import OsisModelAdmin
+from osis_common.models.osis_model_admin import OsisModelAdmin
 
 
 class StructureAdmin(OsisModelAdmin):
@@ -40,7 +37,7 @@ class StructureAdmin(OsisModelAdmin):
 
 
 class Structure(models.Model):
-    external_id = models.CharField(max_length=100, blank=True, null=True)
+    external_id = models.CharField(max_length=100, blank=True, null=True, db_index=True)
     changed = models.DateTimeField(null=True, auto_now=True)
     acronym = models.CharField(max_length=15)
     title = models.CharField(max_length=255)

@@ -27,7 +27,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 
 from base.models.enums import offer_year_entity_type
-from base.models.osis_model_admin import OsisModelAdmin
+from osis_common.models.osis_model_admin import OsisModelAdmin
 
 
 class OfferYearEntityAdmin(OsisModelAdmin):
@@ -38,7 +38,7 @@ class OfferYearEntityAdmin(OsisModelAdmin):
 
 
 class OfferYearEntity(models.Model):
-    external_id = models.CharField(max_length=100, blank=True, null=True)
+    external_id = models.CharField(max_length=100, blank=True, null=True, db_index=True)
     changed = models.DateTimeField(null=True, auto_now=True)
     offer_year = models.ForeignKey('OfferYear', blank=True, null=True)
     entity = models.ForeignKey('Entity')

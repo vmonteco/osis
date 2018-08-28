@@ -21,61 +21,61 @@
 {% with disabled_nav=True %}
   {% include "learning_unit/blocks/header.html" %}
 {% endwith %}
-
-<div class="panel panel-default" >
+<div class="page-header">
+    <h2>{% block h2_title %}{% trans 'modification'|capfirst %}{% endblock %}</h2>
+</div>
+<div class="panel panel-default">
+    <div class="panel-heading">
+    {% block submit_up %}
+        {% include "learning_unit/blocks/save_cancel_buttons.html" %}
+    {% endblock submit_up %}
+    </div>
     <div class="panel-body" id="tabs" >
-
         {% block tabs %}
         {% endblock tabs %}
-        <br>
         <div class="tab-content" id="tab_content">
             <div role="tabpanel" class="tab-pane active">
-
                 {% block form %}
-
                     <form method="post" id="LearningUnitYearForm"
-                          data-validate-url="{% url 'check_acronym' type=learning_unit_year.subtype %}">
+                          data-validate-url="{% url 'check_acronym' subtype=learning_unit_year.subtype %}">
+
                         {% csrf_token %}
+                        {% bootstrap_form_errors learning_unit_year_form %}
+                        {% bootstrap_form_errors learning_unit_form %}
+                        {% bootstrap_form_errors learning_container_year_form %}
+                        {% if form_proposal %}{% bootstrap_form_errors form_proposal %}{% endif %}
                         <div class="row">
                             <div class="col-md-8">
 
                                 {% block learning_unit_identification %}
                                     <div class="panel panel-default">
                                         <div class="panel-body">
-
                                             {% include "learning_unit/blocks/learning_unit_identification.html" %}
-
-                                            <div class="row">
-
-                                                {% block periodicity %}
-                                                {% endblock periodicity %}
-
-                                                {% block quadrimester %}
-                                                {% endblock quadrimester %}
-
-                                                {% block quadrimester_session_title %}
-                                                {% endblock quadrimester_session_title %}
-
-                                            </div>
-
                                             <br>
                                             {% block titles %}
                                                  {% include "learning_unit/blocks/titles.html" %}
                                             {% endblock titles %}
                                         </div>
                                     </div>
-
                                 {% endblock learning_unit_identification %}
 
+                                {% include "learning_unit/blocks/components.html" %}
+
                                 {% block remarks %}
+                                    {% include "learning_unit/blocks/remarks.html" %}
                                 {% endblock remarks %}
 
                                 {% block components %}
+                                    {% if components %}
+                                        {% include "learning_unit/components_identification.html" %}
+                                    {% endif %}
                                 {% endblock components %}
 
                                 {% block partim_attributes %}
+                                    {% if learning_unit_year.subtype != "PARTIM" %}
+                                        {% include "learning_unit/blocks/partim_attributes.html" %}
+                                    {% endif %}
                                 {% endblock partim_attributes %}
-
                             </div>
 
                             <div class="col-md-4">
@@ -87,30 +87,24 @@
                                 {% endblock proposal_management%}
                             </div>
                         </div>
-
-                        <div class="row">
-                            {% block submit %}
-                                {% include "learning_unit/blocks/save_cancel_buttons.html" %}
-                            {% endblock submit %}
-                        </div>
-
                         {% block modal %}
                         {% endblock modal %}
-
                     </form>
                 {% endblock form %}
             </div>
         </div>
     </div>
+    <div class="panel-footer">
+    {% block submit_down %}
+        {% include "learning_unit/blocks/save_cancel_buttons.html" %}
+    {% endblock submit_down %}
+    </div>
 </div>
+
 
 {% endblock content %}
 
 {% block script %}
-    <script type="text/javascript">
-        const form_acronym_regex = "{{ form.acronym_regex }}";
-        const currentAcronym = "{{ learning_unit_year.acronym }}";
-        const learning_unit_current_subtype = "{{ learning_unit_year.subtype }}";
-    </script>
+    <script type="text/javascript">const learning_unit_current_subtype = "{{ subtype }}";</script>
     <script type="text/javascript" src="{% static 'js/learning_unit_creation.js' %}"></script>
 {% endblock script %}

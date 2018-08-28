@@ -30,13 +30,12 @@ from osis_common.models.serializable_model import SerializableModel, Serializabl
 
 class DecreeAdmin(SerializableModelAdmin):
     list_display = ('name', 'start_date', 'end_date')
-    fieldsets = ((None, {'fields': ('name', 'start_date', 'end_date')}),)
     ordering = ('name',)
     search_fields = ['name']
 
 
 class Decree(SerializableModel):
-    external_id = models.CharField(max_length=100, blank=True, null=True)
+    external_id = models.CharField(max_length=100, blank=True, null=True, db_index=True)
     name = models.CharField(max_length=80, unique=True)
     start_date = models.DateField(blank=True, null=True)
     end_date = models.DateField(blank=True, null=True)

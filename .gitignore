@@ -24,4 +24,6 @@ htmlcov/
 dev.py
 ghostdriver.log
 .DS_Store
-.coveragerc
+/geckodriver.log
+/venv_3.6/
+/.gitignore

@@ -24,12 +24,10 @@
 #
 ##############################################################################
 from django.db import models
-from django.contrib import admin
 
 from base.models import organization_address
 from base.models.enums import diploma_coorganization
-from base.models.organization_address import OrganizationAddress
-from base.models.osis_model_admin import OsisModelAdmin
+from osis_common.models.osis_model_admin import OsisModelAdmin
 
 
 class EducationGroupOrganizationAdmin(OsisModelAdmin):
@@ -39,7 +37,7 @@ class EducationGroupOrganizationAdmin(OsisModelAdmin):
 
 
 class EducationGroupOrganization(models.Model):
-    external_id = models.CharField(max_length=100, blank=True, null=True)
+    external_id = models.CharField(max_length=100, blank=True, null=True, db_index=True)
     changed = models.DateTimeField(null=True, auto_now=True)
     education_group_year = models.ForeignKey('EducationGroupYear')
     organization = models.ForeignKey('Organization')

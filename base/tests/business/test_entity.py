@@ -23,16 +23,16 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+
 from django.test import TestCase
-from base.tests.factories.entity import EntityFactory
-from base.tests.factories.entity_version import EntityVersionFactory
 
 from base.business.entity import get_entity_calendar
-
-from base.tests.factories.entity_calendar import EntityCalendarFactory
-from base.tests.factories.academic_calendar import AcademicCalendarFactory
 from base.models.enums import academic_calendar_type
+from base.tests.factories.academic_calendar import AcademicCalendarFactory
 from base.tests.factories.academic_year import create_current_academic_year
+from base.tests.factories.entity import EntityFactory
+from base.tests.factories.entity_calendar import EntityCalendarFactory
+from base.tests.factories.entity_version import EntityVersionFactory
 
 
 class EntityTestCase(TestCase):

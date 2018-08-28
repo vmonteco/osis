@@ -24,8 +24,8 @@
 #
 ##############################################################################
 from django.db import models
-from django.contrib import admin
-from base.models.osis_model_admin import OsisModelAdmin
+
+from osis_common.models.osis_model_admin import OsisModelAdmin
 
 
 class OrganizationAddressAdmin(OsisModelAdmin):
@@ -33,7 +33,7 @@ class OrganizationAddressAdmin(OsisModelAdmin):
 
 
 class OrganizationAddress(models.Model):
-    external_id = models.CharField(max_length=100, blank=True, null=True)
+    external_id = models.CharField(max_length=100, blank=True, null=True, db_index=True)
     changed = models.DateTimeField(null=True, auto_now=True)
     organization = models.ForeignKey('Organization')
     label = models.CharField(max_length=20)
@@ -50,3 +50,6 @@ def find_by_organization(organization):
 def find_by_id(organization_address_id):
     return OrganizationAddress.objects.get(pk=organization_address_id)
 
+
+def find_distinct_by_country(a_country):
+    return OrganizationAddress.objects.filter(country=a_country).distinct('city').order_by('city').values('city')
