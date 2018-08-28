@@ -84,7 +84,7 @@ class LearningUnitPrerequisite(LearningUnitGenericDetailView):
         learning_unit_year = context["learning_unit_year"]
         education_group_year_root_id = context["root_id"]
         is_root_a_training = context["root"].education_group_type.category in \
-                             education_group_categories.TRAINING_CATEGORIES
+            education_group_categories.TRAINING_CATEGORIES
 
         if is_root_a_training:
             qs = EducationGroupYear.objects.filter(id=education_group_year_root_id)
