@@ -63,4 +63,4 @@ class PersonEntity(models.Model):
             return {self.entity.id}
 
         # Create a set of all entity under the parent
-        return set(row[3] for row in EntityVersion.objects.get_tree(self.entity))
+        return set(row['entity_id'] for row in EntityVersion.objects.get_tree(self.entity))
