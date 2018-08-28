@@ -231,14 +231,14 @@ class EntityVersion(SerializableModel):
 
     @cached_property
     def descendants(self):
-        return EntityVersion.objects.descendants(self.entity)
+        return EntityVersion.objects.descendants([self.entity])
 
     @cached_property
     def children(self):
         return self._direct_children()
 
     def find_descendants(self, date=None):
-        return EntityVersion.objects.descendants(self.entity, date)
+        return EntityVersion.objects.descendants([self.entity], date)
 
     def find_faculty_version(self, academic_yr):
         if self.entity_type == entity_type.FACULTY:

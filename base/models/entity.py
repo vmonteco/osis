@@ -101,26 +101,6 @@ def get_by_external_id(external_id):
         return None
 
 
-def find_descendants(entities, date=None, with_entities=True):
-    date = date or timezone.now().date()
-
-    entities_descendants = set()
-    entities_by_id = entity_version.build_current_entity_version_structure_in_memory(date=date)
-
-    for entity in entities:
-        _append_current_entity(entities_by_id, entities_descendants, entity, with_entities)
-        if entity.id in entities_by_id:
-            entities_descendants |= {
-                ent_version.entity for ent_version in entities_by_id[entity.id].get('all_children')
-            }
-    return list(entities_descendants)
-
-
-def _append_current_entity(entities_by_id, entities_descendants, entity, with_entities):
-    if with_entities and entities_by_id.get(entity.id):
-        entities_descendants.add(entity)
-
-
 def find_versions_from_entites(entities, date):
     if date is None:
         date = timezone.now()

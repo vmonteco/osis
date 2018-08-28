@@ -47,7 +47,7 @@ def get_entities_ids(requirement_entity_acronym, with_entity_subordinated):
 
 
 def get_entity_container_list(entity_ids, entity_container_yr_link_type):
-    entities_id_list = list(
+    return list(
         mdl.entity_container_year.search(
             link_type=entity_container_yr_link_type,
             entity_id=entity_ids
@@ -55,7 +55,6 @@ def get_entity_container_list(entity_ids, entity_container_yr_link_type):
             'learning_container_year', flat=True
         ).distinct()
     )
-    return entities_id_list
 
 
 def get_entity_calendar(an_entity_version, academic_yr):
