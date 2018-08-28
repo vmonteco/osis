@@ -57,7 +57,6 @@ class TestUp(TestCase):
                 "root_id": cls.education_group_year.id,
                 "element_id": cls.education_group_year.id,
                 "group_element_year_id": cls.group_element_year_3.id,
-                "element_type": "egy",
             }
         )
         cls.post_valid_data = {'action': 'up'}
@@ -142,8 +141,9 @@ class TestDown(TestCase):
         self.assertEqual(response.status_code, HttpResponseNotFound.status_code)
         self.assertTemplateUsed(response, "page_not_found.html")
 
-    @mock.patch("base.views.education_groups.perms.can_change_education_group", side_effect=lambda user: False)
+    @mock.patch("base.business.education_groups.perms.is_eligible_to_change_education_group")
     def test_down_case_user_not_have_access(self, mock_permission):
+        mock_permission.return_value = False
         response = self.client.post(self.url, self.post_valid_data)
         self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
         self.assertTemplateUsed(response, "access_denied.html")
