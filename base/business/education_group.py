@@ -27,19 +27,17 @@ from django.core.exceptions import PermissionDenied, MultipleObjectsReturned
 from django.db.models import Prefetch
 from django.utils.translation import ugettext_lazy as _
 
+from base.business.xls import get_name_or_username, convert_boolean
 from base.models.entity import Entity
 from base.models.enums import academic_calendar_type
 from base.models.enums import education_group_categories
+from base.models.enums import mandate_type as mandate_types
 from base.models.enums import offer_year_entity_type
 from base.models.mandate import Mandate
 from base.models.offer_year_calendar import OfferYearCalendar
 from base.models.person import Person
 from base.models.program_manager import is_program_manager
-from base.models import person_entity
 from osis_common.document import xls_build
-from base.business.xls import get_name_or_username, convert_boolean
-from base.models.enums import mandate_type as mandate_types
-
 
 # List of key that a user can modify
 DATE_FORMAT = '%d-%m-%Y'
@@ -130,7 +128,7 @@ def _is_management_entity_linked_to_user(person, an_education_group_year):
     entities = Entity.objects.filter(offeryearentity__education_group_year=an_education_group_year,
                                      offeryearentity__type=offer_year_entity_type.ENTITY_MANAGEMENT)
 
-    return person_entity.is_attached_entities(person, entities)
+    return person.is_attached_entities(entities)
 
 
 def assert_category_of_education_group_year(education_group_year, authorized_categories):
