@@ -61,7 +61,7 @@ def education_group_select(request, root_id=None, education_group_year_id=None):
 @login_required
 @waffle_flag("education_group_select")
 @require_http_methods(['POST'])
-def learning_unit_select(request, learning_unit_year_id):
+def learning_unit_select(request, learning_unit_year_id, root_id=None, education_group_year_id=None):
     learning_unit_year = get_object_or_404(LearningUnitYear, pk=learning_unit_year_id)
     group_element_years.management.select_learning_unit_year(learning_unit_year)
     success_message = _build_success_message(learning_unit_year)

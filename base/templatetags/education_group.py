@@ -36,6 +36,7 @@ from backoffice.settings import base
 from base.business.education_groups.perms import is_eligible_to_delete_education_group, \
     is_eligible_to_change_education_group, is_eligible_to_add_training, \
     is_eligible_to_add_mini_training, is_eligible_to_add_group
+from base.business.group_element_years.management import EDUCATION_GROUP_YEAR, LEARNING_UNIT_YEAR
 from base.models.education_group_year import EducationGroupYear
 from base.models.learning_unit_year import LearningUnitYear
 
@@ -321,7 +322,7 @@ def _prepare_learning_unit_node_data(luy_obj, selected_node_obj, current_group_e
         'data_jstree': data_jstree,
         'gey': gey,
         'obj_pk': obj_pk,
-        'obj_type': "luy",
+        'obj_type': LEARNING_UNIT_YEAR,
         'url': url,
         'a_class': a_class,
         'tooltip_msg': tooltip_msg,
@@ -344,7 +345,7 @@ def _prepare_education_group_node_data(egy_obj, selected_node_obj, current_group
         'data_jstree': data_jstree,
         'gey': gey,
         'obj_pk': obj_pk,
-        'obj_type': "egy",
+        'obj_type': EDUCATION_GROUP_YEAR,
         'url': url,
         'a_class': a_class,
         'tooltip_msg': tooltip_msg,

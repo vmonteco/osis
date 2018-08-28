@@ -70,8 +70,15 @@ $(document).ready(function () {
                     "action": function (data) {
                         var __ret = get_data_from_tree(data);
                         var element_id = __ret.element_id;
+                        var element_type = __ret.element_type;
+                        if(element_type === "learningunityear")
+                        {
+                            var url = '../select_lu/'+element_id;
+                        }else{
+                            var url = '../select/';
+                        }
                         $.ajax({
-                            url: '../select/',
+                            url: url,
                             dataType: 'json',
                             data: {'child_to_cache_id': element_id},
                             type: 'POST',
@@ -96,7 +103,7 @@ $(document).ready(function () {
                     },
                     "_disabled": function (data) {
                         var __ret = get_data_from_tree(data);
-                        return __ret.type === "luy";
+                        return __ret.element_type === "learningunityear";
                     }
                 },
 

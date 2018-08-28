@@ -29,6 +29,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError
+from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse, NoReverseMatch
 from django.utils.decorators import method_decorator
@@ -39,7 +40,7 @@ from django.views.generic import UpdateView
 from waffle.decorators import waffle_flag
 
 from base.business import group_element_years
-from base.business.group_element_years.management import SELECT_CACHE_KEY
+from base.business.group_element_years.management import SELECT_CACHE_KEY, LEARNING_UNIT_YEAR, EDUCATION_GROUP_YEAR
 from base.forms.education_group.group_element_year import UpdateGroupElementYearForm
 from base.models.education_group_year import EducationGroupYear
 from base.models.exceptions import IncompatiblesTypesException
@@ -52,8 +53,8 @@ from base.views.learning_units.perms import PermissionDecoratorWithUser
 
 @login_required
 @waffle_flag("education_group_update")
-@PermissionDecoratorWithUser(perms.can_change_education_group, "education_group_year_id", EducationGroupYear)
-def management_education_group_year(request, root_id, education_group_year_id, group_element_year_id, element_type):
+@PermissionDecoratorWithUser(perms.can_change_education_group, "element_id", EducationGroupYear)
+def management_education_group_year(request, root_id, element_id, group_element_year_id, element_type):
     group_element_year_id = int(group_element_year_id)
     group_element_year = get_group_element_year_by_id(group_element_year_id) if group_element_year_id else None
     action_method = _get_action_method(request)
@@ -62,7 +63,7 @@ def management_education_group_year(request, root_id, education_group_year_id, g
         request,
         group_element_year,
         root_id=root_id,
-        education_group_year_id=education_group_year_id,
+        element_id=element_id,
         source=source,
         element_type=element_type,
     )
@@ -73,7 +74,7 @@ def management_education_group_year(request, root_id, education_group_year_id, g
 
 
 @login_required
-def management_learning_unit_year(request, root_id, learning_unit_year_id, group_element_year_id, element_type):
+def management_learning_unit_year(request, root_id, element_id, group_element_year_id, element_type):
     group_element_year_id = int(group_element_year_id)
     group_element_year = get_group_element_year_by_id(group_element_year_id) if group_element_year_id else None
     action_method = _get_action_method(request)
@@ -82,7 +83,7 @@ def management_learning_unit_year(request, root_id, learning_unit_year_id, group
         request,
         group_element_year,
         root_id=root_id,
-        learning_unit_year_id=learning_unit_year_id,
+        element_id=element_id,
         source=source,
         element_type=element_type,
     )
@@ -103,22 +104,23 @@ def proxy_management(request):
     element_id = _get_data(request, 'element_id')
     group_element_year_id = _get_data(request, 'group_element_year_id')
     element_type = _get_data(request, 'element_type')
-    if element_type == "egy":
+    if element_type == EDUCATION_GROUP_YEAR:
         return management_education_group_year(
             request,
             root_id=root_id,
-            education_group_year_id=element_id,
+            element_id=element_id,
             group_element_year_id=group_element_year_id,
             element_type=element_type,
         )
-    else:
+    elif element_type == LEARNING_UNIT_YEAR:
         return management_learning_unit_year(
             request,
             root_id=root_id,
-            learning_unit_year_id=element_id,
+            element_id=element_id,
             group_element_year_id=group_element_year_id,
             element_type=element_type,
         )
+    raise Http404
 
 
 @require_http_methods(['POST'])
