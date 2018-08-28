@@ -28,7 +28,6 @@ from django.db import models
 from django.db.models import Case, When, Q, F
 from django.utils import timezone
 
-from base.models import entity_version
 from base.models.enums import entity_type
 from base.models.utils.utils import get_object_or_none
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
@@ -88,17 +87,11 @@ def search(**kwargs):
 
 
 def get_by_internal_id(internal_id):
-    try:
-        return Entity.objects.get(id__exact=internal_id)
-    except ObjectDoesNotExist:
-        return None
+    return get_object_or_none(Entity, id__exact=internal_id)
 
 
 def get_by_external_id(external_id):
-    try:
-        return Entity.objects.get(external_id__exact=external_id)
-    except ObjectDoesNotExist:
-        return None
+    return get_object_or_none(Entity, external_id__exact=external_id)
 
 
 def find_versions_from_entites(entities, date):
