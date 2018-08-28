@@ -23,18 +23,28 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from xml.dom.minidom import Entity
+
 from django.db.models import Prefetch
 from django.utils import timezone
 
 from base import models as mdl
 from base.models import entity_calendar, entity_version
 from base.models import entity_version as mdl_entity_version
+from base.models.entity_version import EntityVersion
 from base.models.enums import academic_calendar_type
 
 
 def get_entities_ids(requirement_entity_acronym, with_entity_subordinated):
     entity_versions = mdl.entity_version.search(acronym=requirement_entity_acronym)
-    return _get_distinct_entity_ids(entity_versions, with_entity_subordinated)
+    entities_ids = set(entity_versions.values_list('entity', flat=True).distinct())
+    if with_entity_subordinated:
+        list_descendants = EntityVersion.objects.get_tree(
+            Entity.objects.filter(entityversion__acronym__iregex=requirement_entity_acronym)
+        )
+        entities_ids |= {row["entity_id"] for row in list_descendants}
+
+    return list(entities_ids)
 
 
 def _get_distinct_entity_ids(entity_versions, with_entity_subordinated):

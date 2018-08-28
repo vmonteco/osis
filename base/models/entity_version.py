@@ -144,7 +144,7 @@ class EntityVersionQuerySet(models.QuerySet):
             ]
 
     def descendants(self, entity, date=None):
-        tree = self.get_tree(entity.pk, date)
+        tree = self.get_tree(entity, date)
         return self.filter(pk__in=[node['id'] for node in tree[1:]]).order_by('acronym')
 
 
@@ -284,7 +284,7 @@ class EntityVersion(SerializableModel):
             return False
 
     def get_organogram_data(self, limit=3):
-        tree = EntityVersion.objects.get_tree(self.entity_id)
+        tree = EntityVersion.objects.get_tree([self.entity_id])
 
         nodes = OrderedDict()
         for row in tree:
