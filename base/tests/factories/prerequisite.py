@@ -44,4 +44,4 @@ class PrerequisiteFactory(factory.django.DjangoModelFactory):
     changed = factory.fuzzy.FuzzyNaiveDateTime(datetime.datetime(2016, 1, 1), datetime.datetime(2017, 3, 1))
     learning_unit_year = factory.SubFactory(LearningUnitYearFakerFactory)
     education_group_year = factory.SubFactory(EducationGroupYearFactory)
-    prerequisite = ""
+    prerequisite = "LSINF1111 ET LBIR1203"

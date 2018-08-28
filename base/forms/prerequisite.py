@@ -23,19 +23,13 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from django import forms
 
-from django.utils.translation import ugettext_lazy as _
+from base.models.prerequisite import Prerequisite
 
-TRAINING = "TRAINING"
-MINI_TRAINING = "MINI_TRAINING"
-GROUP = "GROUP"
 
-CATEGORIES = (
-    (TRAINING, _(TRAINING)),
-    (MINI_TRAINING, _(MINI_TRAINING)),
-    (GROUP, _(GROUP)),
-)
+class LearningUnitPrerequisiteForm(forms.ModelForm):
 
-TRAINING_CATEGORIES = (
-    TRAINING, MINI_TRAINING
-)
+    class Meta:
+        model = Prerequisite
+        fields = ('prerequisite', )
