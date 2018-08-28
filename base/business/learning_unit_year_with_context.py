@@ -82,7 +82,8 @@ def append_latest_entities(learning_unit_yr, service_course_search=False):
         learning_unit_yr.entities[business_entity_version.SERVICE_COURSE] = is_service_course(
             learning_unit_yr.academic_year,
             requirement_entity_version,
-            allocation_entity_version)
+            allocation_entity_version
+        )
 
     return learning_unit_yr
 

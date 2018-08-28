@@ -168,25 +168,25 @@ class LearningUnitYearForm(LearningUnitSearchForm):
 
     def get_learning_units(self, service_course_search=None, requirement_entities=None, luy_status=None):
         service_course_search = service_course_search or self.service_course_search
-        search_criterias = self.cleaned_data.copy()
-        search_criterias['status'] = self._set_status(luy_status)
+        search_criteria = self.cleaned_data.copy()
+        search_criteria['status'] = self._set_status(luy_status)
 
         if requirement_entities:
-            search_criterias['requirement_entities'] = requirement_entities
+            search_criteria['requirement_entities'] = requirement_entities
 
         # TODO Use a queryset instead !!
-        search_criterias['learning_container_year_id'] = get_filter_learning_container_ids(search_criterias)
+        search_criteria['learning_container_year_id'] = get_filter_learning_container_ids(search_criteria)
 
         if not service_course_search \
-                and search_criterias \
-                and mdl.learning_unit_year.count_search_results(**search_criterias) > self.MAX_RECORDS:
+                and search_criteria \
+                and mdl.learning_unit_year.count_search_results(**search_criteria) > self.MAX_RECORDS:
             raise TooManyResultsException
 
         has_proposal = ProposalLearningUnit.objects.filter(
             learning_unit_year=OuterRef('pk'),
         )
 
-        learning_units = mdl.learning_unit_year.search(**search_criterias) \
+        learning_units = mdl.learning_unit_year.search(**search_criteria) \
             .select_related('academic_year', 'learning_container_year', 'learning_container_year__academic_year') \
             .prefetch_related(
                 build_entity_container_prefetch([

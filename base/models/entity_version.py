@@ -23,6 +23,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+import collections
 import datetime
 from collections import OrderedDict
 
@@ -42,18 +43,18 @@ from osis_common.utils.datetime import get_tzinfo
 SQL_RECURSIVE_QUERY = """\
 WITH RECURSIVE under_entity AS (
 
-    SELECT id, acronym, parent_id, entity_id, '{{}}'::int[] as parents, '{date}'::date as date, 0 as level
-    FROM base_entityversion where entity_id={entity}
+    SELECT id, acronym, parent_id, entity_id, '{{}}'::INT[] AS parents, '{date}'::DATE AS date, 0 AS level
+    FROM base_entityversion WHERE entity_id IN ({list_entities})
 
     UNION ALL
 
     SELECT b.id,
-        b.acronym,
-        b.parent_id,
-        b.entity_id,
-        parents || b.parent_id,
-        u.date,
-        u.level + 1
+           b.acronym,
+           b.parent_id,
+           b.entity_id,
+           parents || b.parent_id,
+           u.date,
+           u.level + 1
 
     FROM under_entity AS u, base_entityversion AS b
     WHERE (u.entity_id=b.parent_id) AND (
@@ -103,15 +104,32 @@ class EntityVersionQuerySet(models.QuerySet):
     def entity(self, entity):
         return self.filter(entity=entity)
 
-    def get_tree(self, entity, date=None):
+    def get_tree(self, entities, date=None):
+        """
+        Create a list of all descendants of given entities
+
+        :param entities: int, Entity, QuerysetEntity, [int], [Entity]
+        :param date: Date
+        :return: list(dict))
+        """
+        list_entities_id = []
+
         if not date:
             date = now()
 
-        if isinstance(entity, Entity):
-            entity = entity.pk
+        # Convert the entity in list
+        if not isinstance(entities, collections.Iterable):
+            entities = [entities]
+
+        # Extract from the list the ids
+        for entity in entities:
+            if isinstance(entity, Entity):
+                entity = entity.pk
+
+            list_entities_id.append(str(entity))
 
         with connection.cursor() as cursor:
-            cursor.execute(SQL_RECURSIVE_QUERY.format(entity=entity, date=date))
+            cursor.execute(SQL_RECURSIVE_QUERY.format(list_entities=','.join(list_entities_id), date=date))
 
             return [
                 {
