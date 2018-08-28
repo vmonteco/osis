@@ -23,6 +23,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+import datetime
 from unittest.mock import patch
 
 from django.core.validators import _lazy_re_compile
@@ -35,11 +36,13 @@ from base.models.enums import education_group_categories
 from base.models.enums.field_status import NOT_REQUIRED
 from base.models.group_element_year import GroupElementYear
 from base.models.validation_rule import ValidationRule
+from base.tests.factories.academic_calendar import AcademicCalendarEducationGroupEditionFactory
 from base.tests.factories.authorized_relationship import AuthorizedRelationshipFactory
 from base.tests.factories.education_group_type import EducationGroupTypeFactory
 from base.tests.factories.education_group_year import GroupFactory
 from base.tests.factories.user import UserFactory
 from base.tests.forms.education_group.test_common import EducationGroupYearModelFormMixin, _get_valid_post_data
+from rules_management.enums import GROUP_DAILY_MANAGEMENT, GROUP_PGRM_ENCODING_PERIOD
 
 
 class TestGroupModelFormModelForm(EducationGroupYearModelFormMixin):
@@ -85,6 +88,31 @@ class TestGroupModelFormModelForm(EducationGroupYearModelFormMixin):
         self.assertEqual(form.fields["acronym"].initial, "yolo")
         self.assertEqual(form.fields["acronym"].required, False)
         self.assertEqual(form.fields["acronym"].validators[1].regex, _lazy_re_compile("([A-Z]{2})(.*)"))
+
+    @patch('base.forms.education_group.common.find_authorized_types')
+    def test_get_context_for_field_references_case_not_in_editing_pgrm_period(self, mock_authorized_types):
+        mock_authorized_types.return_value = EducationGroupType.objects.all()
+        context = self.form_class(
+            parent=self.parent_education_group_year,
+            education_group_type=self.education_group_type,
+            user=UserFactory(),
+        ).get_context()
+        self.assertTrue(context, GROUP_DAILY_MANAGEMENT)
+
+    @patch('base.forms.education_group.common.find_authorized_types')
+    def test_get_context_for_field_references_case_in_editing_pgrm_period(self, mock_authorized_types):
+        mock_authorized_types.return_value = EducationGroupType.objects.all()
+        # Create an academic calendar for event EDUCATION_GROUP_EDITION
+        AcademicCalendarEducationGroupEditionFactory(
+            start_date=datetime.date.today() - datetime.timedelta(days=5),
+            end_date=datetime.date.today() + datetime.timedelta(days=30),
+        )
+        context = self.form_class(
+            parent=self.parent_education_group_year,
+            education_group_type=self.education_group_type,
+            user=UserFactory(),
+        ).get_context()
+        self.assertTrue(context, GROUP_PGRM_ENCODING_PERIOD)
 
 
 class TestGroupForm(TestCase):

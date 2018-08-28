@@ -139,6 +139,10 @@ table.volumes thead{
 }
 
 /* Override style for trash in ajax-multi-select*/
+input[type="text"].ui-autocomplete-input:disabled ~ .results_on_deck .ui-icon{
+    display: none!important;
+}
+
 .results_on_deck .ui-icon.ui-icon-trash {
     display: inline-block;
     font: normal normal normal 14px/1 FontAwesome;

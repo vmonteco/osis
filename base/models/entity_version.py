@@ -113,11 +113,21 @@ class EntityVersionQuerySet(models.QuerySet):
         with connection.cursor() as cursor:
             cursor.execute(SQL_RECURSIVE_QUERY.format(entity=entity, date=date))
 
-            return cursor.fetchall()
+            return [
+                {
+                    'id': row[0],
+                    'acronym': row[1],
+                    'parent_id': row[2],
+                    'entity_id': row[3],
+                    'parents': row[4],
+                    'date': row[5],
+                    'level': row[6],
+                } for row in cursor.fetchall()
+            ]
 
     def descendants(self, entity, date=None):
         tree = self.get_tree(entity.pk, date)
-        return self.filter(pk__in=[node[0] for node in tree[1:]]).order_by('acronym')
+        return self.filter(pk__in=[node['id'] for node in tree[1:]]).order_by('acronym')
 
 
 class EntityVersion(SerializableModel):
@@ -259,14 +269,14 @@ class EntityVersion(SerializableModel):
         tree = EntityVersion.objects.get_tree(self.entity_id)
 
         nodes = OrderedDict()
-        for (id, acronym, parent_id, entity_id, parents, date, level) in tree:
-            node = Node(id, acronym, parent_id, level)
-            nodes[entity_id] = node
+        for row in tree:
+            node = Node(row['id'], row['acronym'], row['parent_id'], row['level'])
+            nodes[row['entity_id']] = node
 
-            if parent_id in nodes:
-                nodes[parent_id].append_child(node)
+            if row['parent_id'] in nodes:
+                nodes[row['parent_id']].append_child(node)
 
-        return nodes[tree[0][3]].to_json(limit)
+        return nodes[tree[0]['entity_id']].to_json(limit)
 
 
 def find(acronym, date=None):

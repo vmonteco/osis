@@ -31,13 +31,17 @@ from django.utils.translation import ugettext_lazy as _
 
 from base.forms.common import ValidationRuleMixin
 from base.forms.learning_unit.entity_form import EntitiesVersionChoiceField
-from base.models import campus, group_element_year
+from base.models import campus, group_element_year, academic_calendar
 from base.models.campus import Campus
 from base.models.education_group import EducationGroup
 from base.models.education_group_type import find_authorized_types, EducationGroupType
 from base.models.education_group_year import EducationGroupYear
 from base.models.entity_version import find_main_entities_version, get_last_version
+from base.models.enums import academic_calendar_type, education_group_categories
 from reference.models.language import Language
+from rules_management.enums import TRAINING_PGRM_ENCODING_PERIOD, TRAINING_DAILY_MANAGEMENT, \
+    MINI_TRAINING_PGRM_ENCODING_PERIOD, MINI_TRAINING_DAILY_MANAGEMENT, GROUP_PGRM_ENCODING_PERIOD, \
+    GROUP_DAILY_MANAGEMENT
 from rules_management.mixins import PermissionFieldMixin
 
 
@@ -53,7 +57,7 @@ class MainEntitiesVersionChoiceField(EntitiesVersionChoiceField):
         super(MainEntitiesVersionChoiceField, self).__init__(queryset, *args, **kwargs)
 
 
-class ValidationRuleEducationGroupTypeMixin(ValidationRuleMixin, PermissionFieldMixin):
+class ValidationRuleEducationGroupTypeMixin(ValidationRuleMixin):
     """
     ValidationRuleMixin For EducationGroupType
 
@@ -71,11 +75,33 @@ class ValidationRuleEducationGroupTypeMixin(ValidationRuleMixin, PermissionField
         # For updating
         elif self.instance and self.instance.education_group_type:
             return self.instance.education_group_type.external_id
-
         return ""
 
 
-class EducationGroupYearModelForm(ValidationRuleEducationGroupTypeMixin, forms.ModelForm):
+class PermissionFieldEducationGroupMixin(PermissionFieldMixin):
+    """
+    Permission Field for educationgroup(year)
+
+    This mixin will get allowed field on reference_field model according to perm's
+    """
+    def get_context(self):
+        is_edition_period_egy_opened = academic_calendar.is_academic_calendar_opened(
+            academic_calendar_type.EDUCATION_GROUP_EDITION
+        )
+        if self.category == education_group_categories.TRAINING:
+            return TRAINING_PGRM_ENCODING_PERIOD if is_edition_period_egy_opened else \
+                TRAINING_DAILY_MANAGEMENT
+        elif self.category == education_group_categories.MINI_TRAINING:
+            return MINI_TRAINING_PGRM_ENCODING_PERIOD if is_edition_period_egy_opened else \
+                MINI_TRAINING_DAILY_MANAGEMENT
+        elif self.category == education_group_categories.GROUP:
+            return GROUP_PGRM_ENCODING_PERIOD if is_edition_period_egy_opened else \
+                GROUP_DAILY_MANAGEMENT
+        return super().get_context()
+
+
+class EducationGroupYearModelForm(ValidationRuleEducationGroupTypeMixin, PermissionFieldEducationGroupMixin,
+                                  forms.ModelForm):
     category = None
 
     class Meta:
@@ -97,20 +123,20 @@ class EducationGroupYearModelForm(ValidationRuleEducationGroupTypeMixin, forms.M
             if education_group_type not in find_authorized_types(self.category, self.parent):
                 raise PermissionDenied("Unauthorized type {} for {}".format(education_group_type, self.category))
 
-        if "initial" not in kwargs:
-            kwargs["initial"] = {}
-
-        # TODO use natural-key to select default value
-        # Default campus selected 'Louvain-la-Neuve' if exist
-        kwargs['initial']['main_teaching_campus'] = Campus.objects.filter(name='Louvain-la-Neuve').first()
-        kwargs['initial']['enrollment_campus'] = Campus.objects.filter(name='Louvain-la-Neuve').first()
-        kwargs['initial']['primary_language'] = Language.objects.filter(code='FR').first()
-
         super().__init__(*args, **kwargs)
-
+        self._set_initial_values()
         self._filter_education_group_type()
         self._init_and_disable_academic_year()
         self._preselect_entity_version_from_entity_value()
+
+    def _set_initial_values(self):
+        default_campus = Campus.objects.filter(name='Louvain-la-Neuve').first()
+        if 'main_teaching_campus' in self.fields:
+            self.fields['main_teaching_campus'].initial = default_campus
+        if 'enrollment_campus' in self.fields:
+            self.fields['enrollment_campus'].initial = default_campus
+        if 'primary_language' in self.fields:
+            self.fields['primary_language'].initial = Language.objects.filter(code='FR').first()
 
     def _filter_education_group_type(self):
         # When the type is already given, we need to disabled the field
@@ -137,9 +163,12 @@ class EducationGroupYearModelForm(ValidationRuleEducationGroupTypeMixin, forms.M
 
         field.disabled = True
         field.required = False
+        field.required = False
 
 
-class EducationGroupModelForm(forms.ModelForm):
+class EducationGroupModelForm(PermissionFieldEducationGroupMixin, forms.ModelForm):
+    category = None
+
     class Meta:
         model = EducationGroup
         fields = ("start_year", "end_year")
@@ -169,7 +198,11 @@ class CommonBaseForm:
         )
 
         education_group = instance.education_group if instance else None
-        self.education_group_form = self.education_group_form_class(data, instance=education_group)
+        self.education_group_form = self.education_group_form_class(
+            data,
+            user=user,
+            instance=education_group,
+        )
 
         self.forms = {
             forms.ModelForm: self.education_group_year_form,
