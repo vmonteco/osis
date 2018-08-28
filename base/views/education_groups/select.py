@@ -41,7 +41,7 @@ from base.models.learning_unit_year import LearningUnitYear
 
 @login_required
 @waffle_flag("education_group_select")
-def education_group_select(request, root_id=None, education_group_year_id=None):
+def education_group_select(request, root_id=None, element_id=None):
     education_group_year = get_object_or_404(EducationGroupYear, pk=request.POST['child_to_cache_id'])
     group_element_years.management.select_education_group_year(education_group_year)
     success_message = _build_success_message(education_group_year)
@@ -53,7 +53,7 @@ def education_group_select(request, root_id=None, education_group_year_id=None):
             'education_group_read',
             args=[
                 root_id,
-                education_group_year_id,
+                element_id,
             ]
         ))
 
@@ -61,7 +61,7 @@ def education_group_select(request, root_id=None, education_group_year_id=None):
 @login_required
 @waffle_flag("education_group_select")
 @require_http_methods(['POST'])
-def learning_unit_select(request, learning_unit_year_id, root_id=None, education_group_year_id=None):
+def learning_unit_select(request, learning_unit_year_id, root_id=None, element_id=None):
     learning_unit_year = get_object_or_404(LearningUnitYear, pk=learning_unit_year_id)
     group_element_years.management.select_learning_unit_year(learning_unit_year)
     success_message = _build_success_message(learning_unit_year)

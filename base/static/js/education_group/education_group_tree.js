@@ -43,14 +43,13 @@ $(document).ready(function () {
         };
     }
 
-    function build_url_data(element_id, group_element_year_id, action, element_type) {
+    function build_url_data(element_id, group_element_year_id, action) {
         var data = {
             'root_id': root_id,
             'element_id': element_id,
             'group_element_year_id': group_element_year_id,
             'action': action,
-            'source': url_resolver_match,
-            'element_type': element_type
+            'source': url_resolver_match
         };
         return jQuery.param(data);
     }
@@ -97,8 +96,7 @@ $(document).ready(function () {
                         var group_element_year_id = __ret.group_element_year_id;
                         var element_id = __ret.element_id;
                         var element_type = __ret.element_type;
-                        var attach_data = build_url_data(element_id, group_element_year_id, 'attach',
-                            element_type);
+                        var attach_data = build_url_data(element_id, group_element_year_id, 'attach');
                         window.location.href = proxy_management_url + "?" + attach_data;
                     },
                     "_disabled": function (data) {
@@ -118,8 +116,7 @@ $(document).ready(function () {
                             return;
                         }
 
-                        var detach_data = build_url_data(element_id, group_element_year_id, 'detach',
-                            element_type);
+                        var detach_data = build_url_data(element_id, group_element_year_id, 'detach');
 
                         $('#form-modal-content').load(proxy_management_url, detach_data, function () {
                             $('#form-modal').modal('toggle');

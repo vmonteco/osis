@@ -52,7 +52,7 @@ from base.views.learning_units.perms import PermissionDecoratorWithUser
 
 @login_required
 @waffle_flag("education_group_update")
-def management(request, root_id, element_id, group_element_year_id, element_type):
+def management(request, root_id, element_id, group_element_year_id):
     group_element_year_id = int(group_element_year_id)
     group_element_year = get_group_element_year_by_id(group_element_year_id) if group_element_year_id else None
     perms.can_change_education_group(request.user, group_element_year.parent)
@@ -64,7 +64,6 @@ def management(request, root_id, element_id, group_element_year_id, element_type
         root_id=root_id,
         element_id=element_id,
         source=source,
-        element_type=element_type,
     )
     if response:
         return response
@@ -82,13 +81,11 @@ def proxy_management(request):
     root_id = _get_data(request, 'root_id')
     element_id = _get_data(request, 'element_id')
     group_element_year_id = _get_data(request, 'group_element_year_id')
-    element_type = _get_data(request, 'element_type')
     return management(
         request,
         root_id=root_id,
         element_id=element_id,
         group_element_year_id=group_element_year_id,
-        element_type=element_type,
     )
 
 
@@ -192,7 +189,7 @@ class UpdateGroupElementYearView(GenericUpdateGroupElementYearMixin, UpdateView)
 
     @property
     def education_group_year(self):
-        return get_object_or_404(EducationGroupYear, pk=self.kwargs.get("education_group_year_id"))
+        return get_object_or_404(EducationGroupYear, pk=self.kwargs.get("element_id"))
 
 
 class DetachGroupElementYearView(GenericUpdateGroupElementYearMixin, DeleteView):

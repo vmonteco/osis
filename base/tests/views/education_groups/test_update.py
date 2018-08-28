@@ -569,7 +569,7 @@ class TestSelectAttach(TestCase):
             reverse("proxy_management"),
             data={
                 'root_id': str(self.initial_parent_education_group_year.id),
-                'education_group_year_id': str(self.child_education_group_year.id),
+                'element_id': str(self.child_education_group_year.id),
                 'group_element_year_id': str(self.initial_group_element_year.id),
             }
         )
@@ -579,6 +579,6 @@ class TestSelectAttach(TestCase):
         mock_management_view.assert_called_with(
             request,
             root_id=str(self.initial_parent_education_group_year.id),
-            education_group_year_id=str(self.child_education_group_year.id),
+            element_id=str(self.child_education_group_year.id),
             group_element_year_id=str(self.initial_group_element_year.id),
         )

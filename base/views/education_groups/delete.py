@@ -36,7 +36,7 @@ class DeleteGroupEducationView(DeleteViewWithDependencies):
     # DeleteView
     model = EducationGroup
     success_url = reverse_lazy('education_groups')
-    pk_url_kwarg = "education_group_year_id"
+    pk_url_kwarg = "element_id"
     template_name = "education_group/delete.html"
     context_object_name = "education_group"
 

@@ -85,7 +85,7 @@ def _postpone_m2m(education_group_year, postponed_egy):
         m2m_cls.objects.all().filter(education_group_year=postponed_egy).delete()
 
         # Recreate records
-        for m2m_obj in m2m_cls.objects.all().filter(education_group_year_id=education_group_year):
+        for m2m_obj in m2m_cls.objects.all().filter(element_id=education_group_year):
             m2m_data_to_postpone = _model_to_dict(m2m_obj, exclude=['id', 'external_id', 'education_group_year'])
             m2m_cls(education_group_year=postponed_egy, **m2m_data_to_postpone).save()
 

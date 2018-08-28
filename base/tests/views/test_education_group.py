@@ -663,7 +663,7 @@ class EducationGroupViewTestCase(TestCase):
         request_factory = RequestFactory()
         request = request_factory.get(reverse(education_group_edit_administrative_data, kwargs={
             'root_id': education_group_year.id,
-            'education_group_year_id': education_group_year.id
+            'element_id': education_group_year.id
         }))
         request.user = mock.Mock()
         mock_can_user_edit_administrative_data.return_value = True
@@ -901,7 +901,7 @@ class WebServiceForManagementTermsEducationGroupYear(TestCase):
 
         url = reverse('education_group_pedagogy_get_terms', kwargs={
             'root_id': education_group_year.pk,
-            'education_group_year_id': education_group_year.id,
+            'element_id': education_group_year.id,
             'language': 'fr-be'
         })
 
@@ -921,7 +921,7 @@ class WebServiceForManagementTermsEducationGroupYear(TestCase):
 
         url = reverse('education_group_pedagogy_get_terms', kwargs={
             'root_id': education_group_year.pk,
-            'education_group_year_id': education_group_year.id,
+            'element_id': education_group_year.id,
             'language': 'fr-be'
         })
 
@@ -947,7 +947,7 @@ class WebServiceForManagementTermsEducationGroupYear(TestCase):
 
         url = reverse('education_group_pedagogy_add_term', kwargs={
             'root_id': education_group_year.pk,
-            'education_group_year_id': education_group_year.id,
+            'element_id': education_group_year.id,
         })
 
         translated_texts = TranslatedText.objects.filter(reference=str(education_group_year.id),
@@ -996,7 +996,7 @@ class WebServiceForManagementTermsEducationGroupYear(TestCase):
 
         url = reverse('education_group_pedagogy_remove_term', kwargs={
             'root_id': education_group_year.id,
-            'education_group_year_id': education_group_year.id,
+            'element_id': education_group_year.id,
         })
 
         response = self.client.delete(url + "?label={}".format(text_label.label), **kwargs)
@@ -1068,7 +1068,7 @@ class EducationGroupAdmissionConditionWSTest(TestCase):
 
         url = reverse('education_group_year_admission_condition_remove_line', kwargs={
             'root_id': education_group_year.id,
-            'education_group_year_id': education_group_year.id,
+            'element_id': education_group_year.id,
         })
 
         response = self.client.post(url, data=json.dumps(data), content_type='application/json', **kwargs)
@@ -1106,7 +1106,7 @@ class EducationGroupAdmissionConditionWSTest(TestCase):
 
         url = reverse('education_group_year_admission_condition_update_line', kwargs={
             'root_id': education_group_year.id,
-            'education_group_year_id': education_group_year.id,
+            'element_id': education_group_year.id,
         })
 
         response = self.client.post(url, data=json.dumps(data), content_type='application/json', **kwargs)
@@ -1135,7 +1135,7 @@ class EducationGroupAdmissionConditionWSTest(TestCase):
 
         url = reverse('education_group_year_admission_condition_get_text', kwargs={
             'root_id': education_group_year.id,
-            'education_group_year_id': education_group_year.id,
+            'element_id': education_group_year.id,
         })
 
         data = {
@@ -1182,7 +1182,7 @@ class EducationGroupAdmissionConditionWSTest(TestCase):
 
         url = reverse('education_group_year_admission_condition_modify_text', kwargs={
             'root_id': education_group_year.id,
-            'education_group_year_id': education_group_year.id,
+            'element_id': education_group_year.id,
         })
 
         data = {
@@ -1240,7 +1240,7 @@ class EducationGroupAdmissionConditionWSTest(TestCase):
 
         url = reverse('education_group_year_admission_condition_get_line', kwargs={
             'root_id': education_group_year.id,
-            'education_group_year_id': education_group_year.id,
+            'element_id': education_group_year.id,
         })
 
         data = {

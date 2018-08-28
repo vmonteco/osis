@@ -55,7 +55,7 @@ class TestUp(TestCase):
             "group_element_year_management",
             kwargs={
                 "root_id": cls.education_group_year.id,
-                "education_group_year_id": cls.education_group_year.id,
+                "element_id": cls.education_group_year.id,
                 "group_element_year_id": cls.group_element_year_3.id,
                 "element_type": "egy",
             }
@@ -121,7 +121,7 @@ class TestDown(TestCase):
             "group_element_year_management",
             kwargs={
                 "root_id": cls.education_group_year.id,
-                "education_group_year_id": cls.education_group_year.id,
+                "element_id": cls.education_group_year.id,
                 "group_element_year_id": cls.group_element_year_1.id
             }
         )

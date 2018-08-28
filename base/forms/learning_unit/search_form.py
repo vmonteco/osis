@@ -287,7 +287,7 @@ def map_learning_unit_year_with_entities_of_education_groups(learning_unit_year_
     education_group_ids = list(itertools.chain.from_iterable(formations.values()))
     offer_year_entity = OfferYearEntity.objects.filter(education_group_year__in=education_group_ids).\
         values_list("education_group_year", "entity")
-    dict_entity_of_education_group = {education_group_year_id: entity_id for education_group_year_id, entity_id
+    dict_entity_of_education_group = {element_id: entity_id for element_id, entity_id
                                       in offer_year_entity}
 
     dict_education_group_year_entities_for_learning_unit_year = {}

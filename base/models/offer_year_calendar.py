@@ -117,8 +117,8 @@ def search(**kwargs):
 
     queryset = OfferYearCalendar.objects
 
-    if 'education_group_year_id' in kwargs:
-        queryset = queryset.filter(education_group_year=kwargs['education_group_year_id'])
+    if 'element_id' in kwargs:
+        queryset = queryset.filter(education_group_year=kwargs['element_id'])
 
     if 'academic_calendar_reference' in kwargs:
         queryset = queryset.filter(academic_calendar__reference=kwargs['academic_calendar_reference'])
