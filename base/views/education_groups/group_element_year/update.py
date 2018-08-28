@@ -192,7 +192,7 @@ class UpdateGroupElementYearView(GenericUpdateGroupElementYearMixin, UpdateView)
 
     @property
     def education_group_year(self):
-        return get_object_or_404(EducationGroupYear, pk=self.kwargs.get("element_id"))
+        return get_object_or_404(EducationGroupYear, pk=self.kwargs.get("education_group_year_id"))
 
 
 class DetachGroupElementYearView(GenericUpdateGroupElementYearMixin, DeleteView):
