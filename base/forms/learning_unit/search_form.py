@@ -28,7 +28,7 @@ import itertools
 
 from django import forms
 from django.core.exceptions import ValidationError
-from django.db.models import OuterRef, Subquery
+from django.db.models import OuterRef, Subquery, Exists
 from django.db.models.fields import BLANK_CHOICE_DASH
 from django.utils.translation import ugettext_lazy as _
 
@@ -51,6 +51,7 @@ from base.models.enums import entity_container_year_link_type, learning_containe
 from base.models.learning_unit_year import convert_status_bool
 from base.models.offer_year_entity import OfferYearEntity
 from base.models.organization_address import find_distinct_by_country
+from base.models.proposal_learning_unit import ProposalLearningUnit
 from reference.models.country import Country
 
 MAX_RECORDS = 1000
@@ -181,6 +182,10 @@ class LearningUnitYearForm(LearningUnitSearchForm):
                 and mdl.learning_unit_year.count_search_results(**search_criterias) > self.MAX_RECORDS:
             raise TooManyResultsException
 
+        has_proposal = ProposalLearningUnit.objects.filter(
+            learning_unit_year=OuterRef('pk'),
+        )
+
         learning_units = mdl.learning_unit_year.search(**search_criterias) \
             .select_related('academic_year', 'learning_container_year', 'learning_container_year__academic_year') \
             .prefetch_related(
@@ -188,7 +193,7 @@ class LearningUnitYearForm(LearningUnitSearchForm):
                     entity_container_year_link_type.ALLOCATION_ENTITY,
                     entity_container_year_link_type.REQUIREMENT_ENTITY
                 ])
-            ).order_by('academic_year__year', 'acronym')
+            ).order_by('academic_year__year', 'acronym').annotate(has_proposal=Exists(has_proposal))
 
         if self.borrowed_course_search:
             learning_units = self._filter_borrowed_learning_units(learning_units)

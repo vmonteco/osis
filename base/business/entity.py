@@ -29,7 +29,7 @@ from django.utils import timezone
 from base import models as mdl
 from base.models import entity_calendar, entity_version
 from base.models import entity_version as mdl_entity_version
-from base.models.enums import entity_container_year_link_type, academic_calendar_type
+from base.models.enums import academic_calendar_type
 
 
 def get_entities_ids(requirement_entity_acronym, with_entity_subordinated):
