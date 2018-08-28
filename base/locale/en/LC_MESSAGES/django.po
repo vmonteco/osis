@@ -3543,3 +3543,6 @@ msgstr ""
 
 msgid "It is forbidden to attach an element to one of its included elements."
 msgstr ""
+
+msgid "Modify prerequisites"
+msgstr ""
