@@ -83,8 +83,8 @@ def _get_data(request, name):
 def proxy_management(request):
     root_id = _get_data(request, 'root_id')
     group_element_year_id = _get_data(request, 'group_element_year_id')
-    element_type = _get_data(request, 'element_type')
     if _get_data(request, 'action') == "select":
+        element_type = _get_data(request, 'element_type')
         element_id = _get_data(request, 'element_id')
         return _select(request, element_type, element_id)
     else:
@@ -94,7 +94,6 @@ def proxy_management(request):
             root_id=root_id,
             education_group_year_id=education_group_year_id,
             group_element_year_id=group_element_year_id,
-            element_type=element_type,
         )
 
 

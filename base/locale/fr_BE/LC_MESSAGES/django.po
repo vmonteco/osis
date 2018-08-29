@@ -3549,7 +3549,7 @@ msgid "It is forbidden to attach an element to itself."
 msgstr "Il est inderdit d'attacher un élement à lui-même."
 
 msgid "It is forbidden to attach an element to one of its included elements."
-msgstr "Il est inderdit d'attacher un élement à un autre élement y étant inclus."
+msgstr "Il est interdit d'attacher un élement à un autre élement y étant inclus."
 
 msgid "Modify prerequisites"
 msgstr "Modifier les prérequis"

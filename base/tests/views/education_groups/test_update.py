@@ -437,9 +437,13 @@ class TestSelectAttach(TestCase):
         )
 
         # Select :
-        self.client.post(
-            self.url_select_education_group,
-            data={'education_group_year_id': self.new_parent_education_group_year.id}
+        self.client.get(
+            reverse("education_group_select",
+                    args=[
+                        self.initial_parent_education_group_year.id,
+                        self.new_parent_education_group_year.id
+                    ]
+            )
         )
 
         # Attach :
@@ -471,7 +475,6 @@ class TestSelectAttach(TestCase):
             child_branch=self.new_parent_education_group_year
         ).exists()
         self.assertFalse(expected_absent_group_element_year)
-
 
     @mock.patch("base.business.education_groups.perms.is_eligible_to_change_education_group")
     def test_attach_case_child_education_group_year_without_person_entity_link_fails(self, mock_permission):
@@ -571,6 +574,7 @@ class TestSelectAttach(TestCase):
                 'root_id': str(self.initial_parent_education_group_year.id),
                 'education_group_year_id': str(self.child_education_group_year.id),
                 'group_element_year_id': str(self.initial_group_element_year.id),
+                'element_type': None,
             }
         )
         request.user = self.person.user
