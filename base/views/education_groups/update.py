@@ -45,9 +45,9 @@ from base.views.learning_units.perms import PermissionDecoratorWithUser
 
 @login_required
 @waffle_flag("education_group_update")
-@PermissionDecoratorWithUser(can_change_education_group, "element_id", EducationGroupYear)
-def update_education_group(request, root_id, element_id):
-    education_group_year = get_object_or_404(EducationGroupYear, pk=element_id)
+@PermissionDecoratorWithUser(can_change_education_group, "education_group_year_id", EducationGroupYear)
+def update_education_group(request, root_id, education_group_year_id):
+    education_group_year = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
     root = get_object_or_404(EducationGroupYear, pk=root_id)
 
     view_function = _get_view(education_group_year.education_group_type.category)

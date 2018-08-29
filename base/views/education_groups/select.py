@@ -41,28 +41,19 @@ from base.models.learning_unit_year import LearningUnitYear
 
 @login_required
 @waffle_flag("education_group_select")
-def select_management(request, root_id=None, element_id=None):
-    if request.POST['element_type'] == LEARNING_UNIT_YEAR:
-        return learning_unit_select(request, request.POST['element_id'])
-    elif request.POST['element_type'] == EDUCATION_GROUP_YEAR:
-        return education_group_select(request)
-
-
-@login_required
-@waffle_flag("education_group_select")
-def education_group_select(request, root_id=None, element_id=None):
-    education_group_year = get_object_or_404(EducationGroupYear, pk=request.POST['element_id'])
+def education_group_select(request, root_id=None, education_group_year_id=None):
+    education_group_year = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
     group_element_years.management.select_education_group_year(education_group_year)
-    success_message = _build_success_message(education_group_year)
+    success_message = build_success_message(education_group_year)
     if request.is_ajax():
-        return _build_success_json_response(success_message)
+        return build_success_json_response(success_message)
     else:
         messages.add_message(request, messages.INFO, success_message)
         return redirect(reverse(
             'education_group_read',
             args=[
                 root_id,
-                element_id,
+                education_group_year_id,
             ]
         ))
 
@@ -73,9 +64,9 @@ def education_group_select(request, root_id=None, element_id=None):
 def learning_unit_select(request, learning_unit_year_id):
     learning_unit_year = get_object_or_404(LearningUnitYear, pk=learning_unit_year_id)
     group_element_years.management.select_learning_unit_year(learning_unit_year)
-    success_message = _build_success_message(learning_unit_year)
+    success_message = build_success_message(learning_unit_year)
     if request.is_ajax():
-        return _build_success_json_response(success_message)
+        return build_success_json_response(success_message)
     else:
         messages.add_message(request, messages.INFO, success_message)
         return redirect(reverse(
@@ -84,13 +75,13 @@ def learning_unit_select(request, learning_unit_year_id):
         ))
 
 
-def _build_success_message(obj):
+def build_success_message(obj):
     return """{} : "{}" """.format(
         _("Selected element"),
         str(obj)
     )
 
 
-def _build_success_json_response(success_message):
+def build_success_json_response(success_message):
     data = {'success_message': success_message}
     return JsonResponse(data)

@@ -313,7 +313,7 @@ class TestSelectAttach(TestCase):
     def test_select_case_education_group(self):
         response = self.client.post(
             self.url_select_education_group,
-            data={'element_id': self.child_education_group_year.id},
+            data={'education_group_year_id': self.child_education_group_year.id},
             HTTP_X_REQUESTED_WITH='XMLHttpRequest',
         )
         data_cached = cache.get(management.SELECT_CACHE_KEY)
@@ -366,7 +366,7 @@ class TestSelectAttach(TestCase):
         # Select :
         self.client.post(
             self.url_select_education_group,
-            data={'element_id': self.child_education_group_year.id}
+            data={'education_group_year_id': self.child_education_group_year.id}
         )
 
         # Attach :
@@ -392,7 +392,7 @@ class TestSelectAttach(TestCase):
         # Select :
         self.client.post(
             self.url_select_education_group,
-            data={'element_id': self.child_education_group_year.id}
+            data={'education_group_year_id': self.child_education_group_year.id}
         )
 
         # Attach :
@@ -439,7 +439,7 @@ class TestSelectAttach(TestCase):
         # Select :
         self.client.post(
             self.url_select_education_group,
-            data={'element_id': self.new_parent_education_group_year.id}
+            data={'education_group_year_id': self.new_parent_education_group_year.id}
         )
 
         # Attach :
@@ -491,7 +491,7 @@ class TestSelectAttach(TestCase):
         # Select :
         self.client.post(
             self.url_select_education_group,
-            data={'element_id': self.child_education_group_year.id}
+            data={'education_group_year_id': self.child_education_group_year.id}
         )
 
         # Attach :
@@ -569,7 +569,7 @@ class TestSelectAttach(TestCase):
             reverse("proxy_management"),
             data={
                 'root_id': str(self.initial_parent_education_group_year.id),
-                'element_id': str(self.child_education_group_year.id),
+                'education_group_year_id': str(self.child_education_group_year.id),
                 'group_element_year_id': str(self.initial_group_element_year.id),
             }
         )
@@ -579,6 +579,6 @@ class TestSelectAttach(TestCase):
         mock_management_view.assert_called_with(
             request,
             root_id=str(self.initial_parent_education_group_year.id),
-            element_id=str(self.child_education_group_year.id),
+            education_group_year_id=str(self.child_education_group_year.id),
             group_element_year_id=str(self.initial_group_element_year.id),
         )

@@ -28,7 +28,7 @@ from django.conf.urls import url, include
 from base.views import education_group
 from base.views.education_groups.group_element_year.read import pdf_content
 from base.views.education_groups.learning_unit import detail as learning_unit_detail, update as learning_unit_update
-from base.views.education_groups.select import education_group_select, learning_unit_select, select_management
+from base.views.education_groups.select import education_group_select, learning_unit_select
 from . import search, create, detail, update, delete, group_element_year
 
 urlpatterns = [
@@ -59,7 +59,7 @@ urlpatterns = [
     ),
     url(r'^proxy_management/$', group_element_year.update.proxy_management, name='proxy_management'),
 
-    url(r'^(?P<root_id>[0-9]+)/(?P<element_id>[0-9]+)/', include([
+    url(r'^(?P<root_id>[0-9]+)/(?P<education_group_year_id>[0-9]+)/', include([
 
         url(r'^identification/$', detail.EducationGroupRead.as_view(), name='education_group_read'),
         url(r'^update/$', update.update_education_group, name="update_education_group"),
@@ -82,7 +82,6 @@ urlpatterns = [
             url(u'^edit/$', education_group.education_group_edit_administrative_data,
                 name='education_group_edit_administrative')
         ])),
-        url(r'^select_management/$', select_management, name='select_management'),
         url(r'^select/$', education_group_select, name='education_group_select'),
         url(r'^select_luy/$', learning_unit_select, name='learning_unit_select'),
         url(r'^content/', include([

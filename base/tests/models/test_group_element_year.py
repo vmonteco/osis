@@ -68,7 +68,7 @@ class GroupElementYearTest(TestCase):
                               [self.group_element_year_3])
 
     class TestFindBuildParentListByEducationGroupYearId(TestCase):
-        """Unit tests for _build_parent_list_by_element_id() function"""
+        """Unit tests for _build_parent_list_by_education_group_year_id() function"""
 
         def setUp(self):
             current_academic_year = create_current_academic_year()

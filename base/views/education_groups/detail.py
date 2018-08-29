@@ -58,7 +58,7 @@ class EducationGroupGenericDetailView(PermissionRequiredMixin, DetailView):
     # DetailView
     model = EducationGroupYear
     context_object_name = "education_group_year"
-    pk_url_kwarg = 'element_id'
+    pk_url_kwarg = 'education_group_year_id'
 
     # PermissionRequiredMixin
     permission_required = 'base.can_access_education_group'

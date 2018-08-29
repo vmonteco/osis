@@ -25,7 +25,7 @@
 {% endcomment %}
 
 <form id="form_group_element_year_actions" method="POST" style="display:inline;"
-      action="{% url 'group_element_year_management' root_id=parent.id element_id=education_group_year.id group_element_year_id=element.id %}">
+      action="{% url 'group_element_year_management' root_id=parent.id education_group_year_id=education_group_year.id group_element_year_id=element.id %}">
     {% csrf_token %}
     {% button_order_with_permission _("up") "btn_operation_up_"|addstr:element.id  "up" %}
     {% button_order_with_permission _("down") "btn_operation_down_"|addstr:element.id  "down" %}
@@ -35,7 +35,7 @@
 {% with "btn_operation_detach_"|addstr:element.id as id_detach %}
     {% button_with_permission _("Detach") id_detach "detach" %}
     {% url_resolver_match as url_resolver_match %}
-    {% url 'group_element_year_management' root_id=parent.id element_id=education_group_year.id group_element_year_id=element.id as detach_url %}
+    {% url 'group_element_year_management' root_id=parent.id education_group_year_id=education_group_year.id group_element_year_id=element.id as detach_url %}
     {% include "blocks/modal/modal_ajax.html" with modal_url=detach_url|add:"?action=detach&source="|add:url_resolver_match click_id=id_detach form_id="form_detach_confirm" %}
 {% endwith %}
 
@@ -43,6 +43,6 @@
 {% with "btn_operation_edit_"|addstr:element.id as id_edit %}
     {% button_with_permission _("edit") id_edit "edit" %}
 
-    {% url 'group_element_year_management_comment' root_id=parent.id element_id=education_group_year.id group_element_year_id=element.id as update_comment_url %}
+    {% url 'group_element_year_management_comment' root_id=parent.id education_group_year_id=education_group_year.id group_element_year_id=element.id as update_comment_url %}
     {% include "blocks/modal/modal_ajax.html" with modal_url=update_comment_url click_id=id_edit form_id="form_comment_update" %}
 {% endwith %}
