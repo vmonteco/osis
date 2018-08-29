@@ -60,8 +60,8 @@ from . import layout
 @login_required
 @waffle_flag("education_group_update")
 @permission_required('base.can_edit_education_group_administrative_data', raise_exception=True)
-def education_group_edit_administrative_data(request, root_id, element_id):
-    education_group_year = get_object_or_404(EducationGroupYear, pk=element_id)
+def education_group_edit_administrative_data(request, root_id, education_group_year_id):
+    education_group_year = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
 
     assert_category_of_education_group_year(education_group_year, (education_group_categories.TRAINING,))
 
@@ -73,7 +73,7 @@ def education_group_edit_administrative_data(request, root_id, element_id):
                                                 form_kwargs={'education_group_year': education_group_year})
 
     offer_year_calendar = mdl.offer_year_calendar.search(
-        element_id=element_id,
+        education_group_year_id=education_group_year_id,
         academic_calendar_reference=academic_calendar_type.COURSE_ENROLLMENT).first()
 
     course_enrollment = CourseEnrollmentForm(request.POST or None, instance=offer_year_calendar)

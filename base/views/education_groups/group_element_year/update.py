@@ -47,7 +47,6 @@ from base.models.group_element_year import GroupElementYear, get_group_element_y
 from base.views.common import display_success_messages, display_warning_messages
 from base.views.common_classes import AjaxTemplateMixin, FlagMixin, RulesRequiredMixin
 from base.views.education_groups import perms
-from base.views.learning_units.perms import PermissionDecoratorWithUser
 
 
 @login_required
