@@ -25,12 +25,15 @@
 #############################################################################
 from django.core import validators
 from django.db import models
+from django.utils.functional import lazy
+from django.utils.safestring import mark_safe
+from django.utils.translation import ugettext_lazy as _
 
 from base.models import learning_unit
 from osis_common.models.osis_model_admin import OsisModelAdmin
 
 AND_OPERATOR = "ET"
-OR_OPERATOR= 'OU'
+OR_OPERATOR = 'OU'
 ACRONYM_REGEX = learning_unit.LEARNING_UNIT_ACRONYM_REGEX_ALL.lstrip('^').rstrip('$')
 NO_PREREQUISITE_REGEX = r''
 UNIQUE_PREREQUISITE_REGEX = r'{acronym_regex}'.format(acronym_regex=ACRONYM_REGEX)
@@ -48,12 +51,14 @@ PREREQUISITE_SYNTAX_REGEX = r'^({no_element_regex}|' \
                             r'{unique_element_regex}|' \
                             r'{multiple_elements_regex_and}|' \
                             r'{multiple_elements_regex_or})$'.format(
-    no_element_regex=NO_PREREQUISITE_REGEX,
-    unique_element_regex=UNIQUE_PREREQUISITE_REGEX,
-    multiple_elements_regex_and=MULTIPLE_PREREQUISITES_REGEX_AND,
-    multiple_elements_regex_or=MULTIPLE_PREREQUISITES_REGEX_OR
+                                no_element_regex=NO_PREREQUISITE_REGEX,
+                                unique_element_regex=UNIQUE_PREREQUISITE_REGEX,
+                                multiple_elements_regex_and=MULTIPLE_PREREQUISITES_REGEX_AND,
+                                multiple_elements_regex_or=MULTIPLE_PREREQUISITES_REGEX_OR
 )
-prerequisite_syntax_validator = validators.RegexValidator(regex=PREREQUISITE_SYNTAX_REGEX)
+mark_safe_lazy = lazy(mark_safe, str)
+prerequisite_syntax_validator = validators.RegexValidator(regex=PREREQUISITE_SYNTAX_REGEX,
+                                                          message=mark_safe_lazy(_("Prerequisites are invalid")))
 
 
 class PrerequisiteAdmin(OsisModelAdmin):
