@@ -29,18 +29,20 @@ from django.db import models
 from base.models import learning_unit
 from osis_common.models.osis_model_admin import OsisModelAdmin
 
+AND_OPERATOR = "ET"
+OR_OPERATOR= 'OU'
 ACRONYM_REGEX = learning_unit.LEARNING_UNIT_ACRONYM_REGEX_ALL.lstrip('^').rstrip('$')
 NO_PREREQUISITE_REGEX = r''
 UNIQUE_PREREQUISITE_REGEX = r'{acronym_regex}'.format(acronym_regex=ACRONYM_REGEX)
 ELEMENT_REGEX = r'({acronym_regex}|\({acronym_regex}( {secondary_operator} {acronym_regex})+\))'
 MULTIPLE_PREREQUISITES_REGEX = '{element_regex}( {main_operator} {element_regex})+'
-MULTIPLE_PREREQUISTES_REGEX_OR = MULTIPLE_PREREQUISITES_REGEX.format(
-    main_operator="OU",
-    element_regex=ELEMENT_REGEX.format(acronym_regex=ACRONYM_REGEX, secondary_operator="ET")
+MULTIPLE_PREREQUISITES_REGEX_OR = MULTIPLE_PREREQUISITES_REGEX.format(
+    main_operator=OR_OPERATOR,
+    element_regex=ELEMENT_REGEX.format(acronym_regex=ACRONYM_REGEX, secondary_operator=AND_OPERATOR)
 )
-MULTIPLE_PREREQUISTES_REGEX_AND = MULTIPLE_PREREQUISITES_REGEX.format(
-    main_operator="ET",
-    element_regex=ELEMENT_REGEX.format(acronym_regex=ACRONYM_REGEX, secondary_operator="OU")
+MULTIPLE_PREREQUISITES_REGEX_AND = MULTIPLE_PREREQUISITES_REGEX.format(
+    main_operator=AND_OPERATOR,
+    element_regex=ELEMENT_REGEX.format(acronym_regex=ACRONYM_REGEX, secondary_operator=OR_OPERATOR)
 )
 PREREQUISITE_SYNTAX_REGEX = r'^({no_element_regex}|' \
                             r'{unique_element_regex}|' \
@@ -48,8 +50,8 @@ PREREQUISITE_SYNTAX_REGEX = r'^({no_element_regex}|' \
                             r'{multiple_elements_regex_or})$'.format(
     no_element_regex=NO_PREREQUISITE_REGEX,
     unique_element_regex=UNIQUE_PREREQUISITE_REGEX,
-    multiple_elements_regex_and=MULTIPLE_PREREQUISTES_REGEX_AND,
-    multiple_elements_regex_or=MULTIPLE_PREREQUISTES_REGEX_OR
+    multiple_elements_regex_and=MULTIPLE_PREREQUISITES_REGEX_AND,
+    multiple_elements_regex_or=MULTIPLE_PREREQUISITES_REGEX_OR
 )
 prerequisite_syntax_validator = validators.RegexValidator(regex=PREREQUISITE_SYNTAX_REGEX)
 
