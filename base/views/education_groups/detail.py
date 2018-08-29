@@ -151,34 +151,37 @@ class EducationGroupGeneralInformation(EducationGroupGenericDetailView):
         user_language = mdl.person.get_user_interface_language(self.request.user)
         sections_with_translated_labels = []
         for section in settings.SECTION_LIST:
-            translated_labels = []
-
-            for label in section.labels:
-                translated_label = TranslatedTextLabel.objects.filter(text_label__entity=entity_name.OFFER_YEAR,
-                                                                      text_label__label=label,
-                                                                      language=user_language).first()
-
-                fr_translated_text = TranslatedText.objects.filter(entity=entity_name.OFFER_YEAR,
-                                                                   text_label__label=label,
-                                                                   reference=str(self.object.id),
-                                                                   language=fr_language[0]).first()
-
-                en_translated_text = TranslatedText.objects.filter(entity=entity_name.OFFER_YEAR,
-                                                                   text_label__label=label,
-                                                                   reference=str(self.object.id),
-                                                                   language=en_language[0]).first()
-
-                translations = {
-                    'label': label,
-                    'translation': translated_label.label if translated_label else (
-                                'This label %s does not exist' % label),
-                    fr_language[0]: fr_translated_text.text if fr_translated_text else None,
-                    en_language[0]: en_translated_text.text if en_translated_text else None,
-                }
-                translated_labels.append(translations)
+            translated_labels = self.get_translated_labels_and_content(en_language, fr_language, section, user_language)
 
             sections_with_translated_labels.append(Section(section.title, translated_labels))
         return sections_with_translated_labels
+
+    def get_translated_labels_and_content(self, en_language, fr_language, section, user_language):
+        translated_labels = []
+        for label in section.labels:
+            translated_label = TranslatedTextLabel.objects.filter(text_label__entity=entity_name.OFFER_YEAR,
+                                                                  text_label__label=label,
+                                                                  language=user_language).first()
+
+            fr_translated_text = TranslatedText.objects.filter(entity=entity_name.OFFER_YEAR,
+                                                               text_label__label=label,
+                                                               reference=str(self.object.id),
+                                                               language=fr_language[0]).first()
+
+            en_translated_text = TranslatedText.objects.filter(entity=entity_name.OFFER_YEAR,
+                                                               text_label__label=label,
+                                                               reference=str(self.object.id),
+                                                               language=en_language[0]).first()
+
+            translations = {
+                'label': label,
+                'translation': translated_label.label if translated_label else (
+                        'This label %s does not exist' % label),
+                fr_language[0]: fr_translated_text.text if fr_translated_text else None,
+                en_language[0]: en_translated_text.text if en_translated_text else None,
+            }
+            translated_labels.append(translations)
+        return translated_labels
 
 
 def _get_cms_label_data(cms_label, user_language):
