@@ -27,8 +27,8 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.db.models import Case, When, Q, F
 from django.utils import timezone
+from django.utils.functional import cached_property
 
-from base.models import entity_version
 from base.models.enums import entity_type
 from base.models.utils.utils import get_object_or_none
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
@@ -53,11 +53,12 @@ class Entity(SerializableModel):
     fax = models.CharField(max_length=255, blank=True, null=True)
     website = models.CharField(max_length=255, blank=True, null=True)
 
-    @property
+    @cached_property
     def most_recent_acronym(self):
         try:
             most_recent_entity_version = self.entityversion_set.filter(entity_id=self.id).latest('start_date')
             return most_recent_entity_version.acronym
+
         except ObjectDoesNotExist:
             return None
 
@@ -75,50 +76,30 @@ def search(**kwargs):
     queryset = Entity.objects
 
     if 'acronym' in kwargs:
-        queryset = queryset.filter(entityversion__acronym__icontains=kwargs['acronym'])
+        queryset = queryset.filter(
+            entityversion__acronym__icontains=kwargs['acronym']
+        )
 
     if 'entity_type' in kwargs:
-        queryset = queryset.filter(entityversion__entity_type__icontains=kwargs['entity_type'])
+        queryset = queryset.filter(
+            entityversion__entity_type__icontains=kwargs['entity_type']
+        )
 
     if 'version_date' in kwargs:
-        queryset = queryset.filter(entityversion__start_date__lte=kwargs['version_date'],
-                                   entityversion__end_date__gte=kwargs['version_date'])
+        queryset = queryset.filter(
+            entityversion__start_date__lte=kwargs['version_date'],
+            entityversion__end_date__gte=kwargs['version_date']
+        )
 
     return queryset
 
 
 def get_by_internal_id(internal_id):
-    try:
-        return Entity.objects.get(id__exact=internal_id)
-    except ObjectDoesNotExist:
-        return None
+    return get_object_or_none(Entity, id__exact=internal_id)
 
 
 def get_by_external_id(external_id):
-    try:
-        return Entity.objects.get(external_id__exact=external_id)
-    except ObjectDoesNotExist:
-        return None
-
-
-def find_descendants(entities, date=None, with_entities=True):
-    date = date or timezone.now().date()
-
-    entities_descendants = set()
-    entities_by_id = entity_version.build_current_entity_version_structure_in_memory(date=date)
-
-    for entity in entities:
-        _append_current_entity(entities_by_id, entities_descendants, entity, with_entities)
-        if entity.id in entities_by_id:
-            entities_descendants |= {
-                ent_version.entity for ent_version in entities_by_id[entity.id].get('all_children')
-            }
-    return list(entities_descendants)
-
-
-def _append_current_entity(entities_by_id, entities_descendants, entity, with_entities):
-    if with_entities and entities_by_id.get(entity.id):
-        entities_descendants.add(entity)
+    return get_object_or_none(Entity, external_id__exact=external_id)
 
 
 def find_versions_from_entites(entities, date):

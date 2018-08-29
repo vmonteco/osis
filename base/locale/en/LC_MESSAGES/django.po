@@ -1732,8 +1732,8 @@ msgstr "Composition"
 msgid "real_classes"
 msgstr "Real classes"
 
-msgid "lu_usage"
-msgstr "Learning units usage"
+msgid "LU"
+msgstr ""
 
 msgid "academic_years"
 msgstr "Academic years"

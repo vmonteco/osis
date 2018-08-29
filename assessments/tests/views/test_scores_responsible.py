@@ -27,12 +27,13 @@ import datetime
 
 from django.core.urlresolvers import reverse
 from django.test import TestCase
+
 from attribution.business.attribution import get_attributions_list
 from attribution.models import attribution
 from attribution.tests.models import test_attribution
 from base import models as mdl_base
-from base.models.entity_container_year import EntityContainerYear
-
+from base.models.entity import Entity
+from base.models.entity_version import EntityVersion
 from base.tests.factories import structure, user
 from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.business.entities import create_entities_hierarchy
@@ -126,12 +127,15 @@ class ScoresResponsibleViewTestCase(TestCase):
     def test_create_attributions_list(self):
         entities_manager = mdl_base.entity_manager.find_by_user(self.user)
         entities = [entity_manager.entity for entity_manager in entities_manager]
-        entities_with_descendants = mdl_base.entity.find_descendants(entities)
-        attributions_searched = attribution.search_scores_responsible(learning_unit_title=None,
-                                                                      course_code=None,
-                                                                      entities=entities_with_descendants,
-                                                                      tutor=None,
-                                                                      responsible=None)
+        entities_with_descendants = Entity.objects.filter(
+            pk__in=[row['entity_id'] for row in EntityVersion.objects.get_tree(entities)])
+        attributions_searched = attribution.search_scores_responsible(
+            learning_unit_title=None,
+            course_code=None,
+            entities=entities_with_descendants,
+            tutor=None,
+            responsible=None
+        )
         dictionary = get_attributions_list(attributions_searched, "-score_responsible")
         self.assertIsNotNone(dictionary)
 

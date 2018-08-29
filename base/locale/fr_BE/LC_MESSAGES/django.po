@@ -1736,8 +1736,8 @@ msgstr "Composition"
 msgid "real_classes"
 msgstr "Classes effectives"
 
-msgid "lu_usage"
-msgstr "Utilisation par les UE"
+msgid "LU"
+msgstr "UE"
 
 msgid "academic_years"
 msgstr "Années académiques"
