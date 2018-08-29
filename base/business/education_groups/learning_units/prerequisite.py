@@ -30,3 +30,7 @@ from base.models import prerequisite as mdl_prerequisite
 
 def extract_learning_units_acronym_from_prerequisite(prerequisite_string):
     return re.findall(mdl_prerequisite.ACRONYM_REGEX, prerequisite_string)
+
+
+def get_learning_units_which_are_outside_of_education_group(education_group_year_root, list_learning_unit_acronyms):
+    return []
