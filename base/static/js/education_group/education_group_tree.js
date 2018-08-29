@@ -120,7 +120,7 @@ $(document).ready(function () {
 
                         $.ajax({
                             url: '../select/',
-                            data: {'child_to_cache_id': element_id},
+                            data: {'element_id': element_id},
                             type: 'POST',
                             dataType: 'json',
                         });
