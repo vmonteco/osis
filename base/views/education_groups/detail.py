@@ -23,7 +23,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from collections import OrderedDict
+from collections import OrderedDict, namedtuple
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -32,6 +32,7 @@ from django.db.models import F, Case, When
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views.generic import DetailView
+from prettyprinter import cpprint
 
 from base import models as mdl
 from base.business.education_group import assert_category_of_education_group_year, can_user_edit_administrative_data
@@ -42,6 +43,8 @@ from base.models.enums import education_group_categories, academic_calendar_type
 from base.models.person import Person
 from cms import models as mdl_cms
 from cms.enums import entity_name
+from cms.models.translated_text import TranslatedText
+from cms.models.translated_text_label import TranslatedTextLabel
 
 CODE_SCS = 'code_scs'
 TITLE = 'title'
@@ -133,30 +136,49 @@ class EducationGroupGeneralInformation(EducationGroupGenericDetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        cms_label = mdl_cms.translated_text.find_labels_list_by_label_entity_and_reference(
-            entity_name.OFFER_YEAR, self.object.pk)
-
-        fr_language = next((lang for lang in settings.LANGUAGES if lang[0] == 'fr-be'), None)
-        en_language = next((lang for lang in settings.LANGUAGES if lang[0] == 'en'), None)
-
         context.update({
-            'paragraph_list': settings.PARAGRAPH_LIST,
+            'sections_with_translated_labels': self.get_sections_with_translated_labels(),
             'can_edit_information': self.request.user.has_perm('base.can_edit_educationgroup_pedagogy'),
-            'cms_labels_translated': _get_cms_label_data(
-                cms_label, mdl.person.get_user_interface_language(self.request.user)),
-            'form_french': EducationGroupGeneralInformationsForm(
-                education_group_year=self.object,
-                language=fr_language,
-                text_labels_name=cms_label
-            ),
-            'form_english': EducationGroupGeneralInformationsForm(
-                education_group_year=self.object,
-                language=en_language,
-                text_labels_name=cms_label
-            )
         })
 
         return context
+
+    def get_sections_with_translated_labels(self):
+        fr_language = next((lang for lang in settings.LANGUAGES if lang[0] == 'fr-be'), None)
+        en_language = next((lang for lang in settings.LANGUAGES if lang[0] == 'en'), None)
+
+        Section = namedtuple('Section', 'title labels')
+        user_language = mdl.person.get_user_interface_language(self.request.user)
+        sections_with_translated_labels = []
+        for section in settings.SECTION_LIST:
+            translated_labels = []
+
+            for label in section.labels:
+                translated_label = TranslatedTextLabel.objects.filter(text_label__entity=entity_name.OFFER_YEAR,
+                                                                      text_label__label=label,
+                                                                      language=user_language).first()
+
+                fr_translated_text = TranslatedText.objects.filter(entity=entity_name.OFFER_YEAR,
+                                                                   text_label__label=label,
+                                                                   reference=str(self.object.id),
+                                                                   language=fr_language[0]).first()
+
+                en_translated_text = TranslatedText.objects.filter(entity=entity_name.OFFER_YEAR,
+                                                                   text_label__label=label,
+                                                                   reference=str(self.object.id),
+                                                                   language=en_language[0]).first()
+
+                translations = {
+                    'label': label,
+                    'translation': translated_label.label if translated_label else (
+                                'This label %s does not exist' % label),
+                    fr_language[0]: fr_translated_text.text if fr_translated_text else None,
+                    en_language[0]: en_translated_text.text if en_translated_text else None,
+                }
+                translated_labels.append(translations)
+
+            sections_with_translated_labels.append(Section(section.title, translated_labels))
+        return sections_with_translated_labels
 
 
 def _get_cms_label_data(cms_label, user_language):

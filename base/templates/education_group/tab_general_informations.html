@@ -43,63 +43,47 @@
                     <div id="panel-data" class="col-md-12" style="height: 100%;">
                         {% include "education_group/tabs.html" %}
                         <br>
-                        <div class="row" style="margin-top:10px;">
-                            <div class="col-md-2">
-                                <label>{% trans 'language'%}</label>
-                                {% if can_edit_information %}
-                                <span>
-                                    <a class="pedagogy-add-btn" href="#" data-form="" title="{% trans 'add' %}">
-                                        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
-                                    </a>
-                                </span>
+                        {% for section_name, labels in sections_with_translated_labels %}
+                            <div class="row">
+                                <div class="col-md-12 text-center">
+                                    <h3>{{ section_name }}</h3>
+                                </div>
+                            </div>
+                            {% for label in labels %}
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <label>{{ label.translation }}</label>
+                                        {% if can_edit_information %}
+                                            <a class="pedagogy-edit-btn pull-right" href="#"
+                                               data-form="{{ post_url }}?label={{ label.label }}"
+                                               title="{% trans 'edit' %}">
+                                                <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+                                            </a>
+                                        {% endif %}
+
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        {% if label|get_item:'fr-be' %}
+                                            {{ label|get_item:'fr-be'|truncatewords_html:40|safe }}
+                                        {% else %}
+                                            <strong>{{ _('Add the French content of this paragraph') }}</strong>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-6">
+                                        {% if label|get_item:'en' %}
+                                            {{ label|get_item:'en'|truncatewords_html:40|safe }}
+                                        {% else %}
+                                            <strong>{{ _('Add the English content of this paragraph') }}</strong>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                {% if not forloop.last %}
+                                <hr/>
                                 {% endif %}
-                            </div>
-                            <div class="col-md-5">
-                                <label>{{ form_french.language.1 }}</label>
-                            </div>
-                            <div class="col-md-5">
-                                <label>{{ form_english.language.1 }}</label>
-                            </div>
-                        </div>
-                        <hr/>
-                        {% for label_key, label_translated in cms_labels_translated.items %}
-                        <div class="row" style="margin-top:10px;" id="translation_{{ label_key|urlencode }}">
-                            <div class="col-md-2">
-                                <label>{{ label_translated }}</label>
-                                {% if can_edit_information %}
-                                <span>
-                                    <a class="pedagogy-remove-btn" href="#"
-                                       data-identifier="{{  label_key|urlencode }}"
-                                       data-label="{{ label_translated }}"
-                                       data-form="{% url 'education_group_pedagogy_remove_term' parent.pk education_group_year.id %}?label={{ label_key|urlencode }}"
-                                       title="{% trans 'remove' %}">
-                                        <span class="glyphicon glyphicon-remove-circle" aria-hidden="true"/>
-                                    </a>
-                                </span>
-                                {% endif %}
-                            </div>
-                            <div class="col-md-5">
-                                {% if can_edit_information %}
-                                    <a class="pedagogy-edit-btn pull-right" href="#"
-                                       data-form="{{post_url}}?language={{ form_french.language.0 }}&label={{ label_key|urlencode }}"
-                                       title="{% trans 'edit' %}">
-                                        <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
-                                    </a>
-                                {% endif %}
-                                {{ form_french|getattr:label_key|truncatewords_html:40 }}
-                            </div>
-                            <div class="col-md-5">
-                                {% if can_edit_information %}
-                                    <a class="pedagogy-edit-btn pull-right" href="#"
-                                       data-form="{{post_url}}?language={{ form_english.language.0 }}&label={{ label_key|urlencode }}"
-                                       title="{% trans 'edit' %}">
-                                        <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
-                                    </a>
-                                {% endif %}
-                                {{ form_english|getattr:label_key|truncatewords_html:40}}
-                            </div>
-                        </div>
-                        <hr id="line_for_{{ label_key }}"/>
+                            {% endfor %}
+                            <hr/>
                         {% endfor %}
                     </div>
                 </div>
