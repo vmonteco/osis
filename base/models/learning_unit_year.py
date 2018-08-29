@@ -274,12 +274,11 @@ class LearningUnitYear(SerializableModel):
             self._warnings.extend(self._check_entity_container_year_warnings())
         return self._warnings
 
-    # TODO: Actually, we should warning user that the credits is not an integer
+    # TODO: Currently, we should warning user that the credits is not an integer
     def _check_credits_is_integer(self):
         warnings = []
-        if self.credits:
-            if self.credits % 1 != 0:
-                warnings.append(_('The credits value should be an integer'))
+        if self.credits and self.credits % 1 != 0:
+            warnings.append(_('The credits value should be an integer'))
         return warnings
 
     def _check_partim_parent_credits(self):
