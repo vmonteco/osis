@@ -38,7 +38,7 @@ from osis_common.document.pdf_build import render_pdf
 
 
 @login_required
-def pdf_content(request, root_id, element_id, language, education_group_year_id=None):
+def pdf_content(request, root_id, element_id, language):
     parent = get_object_or_404(EducationGroupYear, pk=element_id)
     tree = get_verbose_children(parent)
 
