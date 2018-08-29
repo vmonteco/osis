@@ -397,3 +397,28 @@ if CACHE_ENABLED:
     }
 
 WAFFLE_FLAG_DEFAULT = os.environ.get("WAFFLE_FLAG_DEFAULT", "False").lower() == 'true'
+
+PARAGRAPH_LIST = [
+    (_('Teaching profile'), [
+        (_('Learning outcomes'), 'comp_acquis'),
+        (_('Programme structure'), 'structure')
+    ]),
+    (_('Detailed programme'), [
+        (_('Options courses'), 'options'),
+        (_("The programme's courses and learning outcomes"), "caap")
+    ]),
+    (_('Admission'), [
+        # _('Admission'),
+        (_('Preparatory module'), 'module_complementaire'),
+    ]),
+    (_('Benefits and organization'), [
+        (_('Pedagogy'), 'encadrement'),
+        (_('Course evaluation methods'), 'evaluation'),
+        (_('Mobility and/or Internationalisation outlook'), 'mobilite'),
+        (_('Then after, Further degree programs'), 'formation_accessibles'),
+        (_('Certificates', 'certificats'))
+    ]),
+    (_('In practice'), [
+        (_('Curriculum Management and contacts'), 'contacts')
+    ])
+]

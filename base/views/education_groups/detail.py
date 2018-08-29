@@ -140,6 +140,7 @@ class EducationGroupGeneralInformation(EducationGroupGenericDetailView):
         en_language = next((lang for lang in settings.LANGUAGES if lang[0] == 'en'), None)
 
         context.update({
+            'paragraph_list': settings.PARAGRAPH_LIST,
             'can_edit_information': self.request.user.has_perm('base.can_edit_educationgroup_pedagogy'),
             'cms_labels_translated': _get_cms_label_data(
                 cms_label, mdl.person.get_user_interface_language(self.request.user)),
