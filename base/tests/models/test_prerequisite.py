@@ -31,9 +31,9 @@ from base.models.prerequisite import prerequisite_syntax_validator
 
 
 class TestPrerequisiteSyntaxValidator(TestCase):
-    @skip("Wait to see is validator is applied on empty string")
     def test_empty_string(self):
         self.assertIsNone(prerequisite_syntax_validator(""))
+
 
     def test_with_one_prerequisite_badly_encoded(self):
         test_values = (
@@ -49,3 +49,31 @@ class TestPrerequisiteSyntaxValidator(TestCase):
             with self.subTest(bad_prerequisite=test_value):
                 with self.assertRaises(ValidationError):
                     prerequisite_syntax_validator(test_value)
+
+    def test_with_multiple_learning_units_badly_encoded(self):
+        test_values = (
+            "LSINF1111 ET LINGI152 OU LINGI2356",
+            "LSINF1111 ET (LINGI1526 ET LINGI2356)",
+            "LSINF1111 OU (LINGI1526 OU LINGI2356)",
+            "LSINF1111 ET (LINGI152)",
+            "(LSINF1111 ET LINGI2315)",
+
+        )
+        for test_value in test_values:
+            with self.subTest(bad_prerequisite=test_value):
+                with self.assertRaises(ValidationError):
+                    prerequisite_syntax_validator(test_value)
+
+    def test_with_prerequisites_correctly_encoded(self):
+        test_values = (
+            "LSINF1111 ET LINGI1452 ET LINGI2356",
+            "LSINF1111 OU LINGI1452 OU LINGI2356",
+            "LSINF1111 ET (LINGI1526 OU LINGI2356)",
+            "LSINF1111 OU (LINGI1526 ET LINGI2356) OU (LINGI1552 ET LINGI2347)",
+            "LSINF1111 ET (LINGI1152 OU LINGI1526 OU LINGI2356)",
+            "(LINGI1526 ET LINGI2356) OU LINGI1552 OU LINGI2347",
+            "LINGI2145",
+        )
+        for test_value in test_values:
+            with self.subTest(good_prerequisite=test_value):
+                self.assertIsNone(prerequisite_syntax_validator(test_value))

@@ -28,8 +28,15 @@ from django.db import models
 
 from osis_common.models.osis_model_admin import OsisModelAdmin
 
-
-PREREQUISITE_SYNTAX_REGEX = r'\A[A-Z]{3,5}\d{4}\Z'
+ACRONYM_REGEX = r'[BLMWX][A-Z]{2,4}\d{4}'
+NO_PREREQUISITE_REGEX = r''
+UNIQUE_PREREQUISITE_REGEX = r'{acronym_regex}'.format(acronym_regex=ACRONYM_REGEX)
+ELEMENT_REGEX = r'({acronym_regex}|\({acronym_regex} (?(AND_OPERATOR)OU|ET) {acronym_regex}( (?(AND_OPERATOR)OU|ET) {acronym_regex})*\))'.format(acronym_regex=ACRONYM_REGEX)
+MULTIPLE_PREREQUISITES_REGEX = '{acronym_regex} ((?P<AND_OPERATOR>ET)|OU) {element_regex}( (?(AND_OPERATOR)ET|OU) {element_regex})*'.format(acronym_regex=ACRONYM_REGEX, element_regex=ELEMENT_REGEX)
+PREREQUISITE_SYNTAX_REGEX = r'^({no_element_regex}|{unique_element_regex}|{multiple_elements_regex})$'.format(
+    no_element_regex=NO_PREREQUISITE_REGEX,
+    unique_element_regex=UNIQUE_PREREQUISITE_REGEX,
+    multiple_elements_regex=MULTIPLE_PREREQUISITES_REGEX)
 prerequisite_syntax_validator = validators.RegexValidator(regex=PREREQUISITE_SYNTAX_REGEX)
 
 
