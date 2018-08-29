@@ -31,13 +31,12 @@ from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.db.models import F, Case, When
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
+from django.utils.translation import ugettext_lazy as _
 from django.views.generic import DetailView
-from prettyprinter import cpprint
 
 from base import models as mdl
 from base.business.education_group import assert_category_of_education_group_year, can_user_edit_administrative_data
 from base.business.education_groups import perms
-from base.forms.education_group_general_informations import EducationGroupGeneralInformationsForm
 from base.models.education_group_year import EducationGroupYear
 from base.models.enums import education_group_categories, academic_calendar_type
 from base.models.person import Person
@@ -175,8 +174,8 @@ class EducationGroupGeneralInformation(EducationGroupGenericDetailView):
 
             translations = {
                 'label': label,
-                'translation': translated_label.label if translated_label else (
-                        _('This label %s does not exist') % label),
+                'translation': translated_label.label if translated_label else
+                    (_('This label %s does not exist') % label),
                 fr_language[0]: fr_translated_text.text if fr_translated_text else None,
                 en_language[0]: en_translated_text.text if en_translated_text else None,
             }
