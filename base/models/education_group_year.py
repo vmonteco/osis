@@ -469,7 +469,8 @@ class EducationGroupYear(models.Model):
 
     def group_element_year_leaves_with_annotate_on_prerequisites(self, root_id):
         has_prerequisite = Prerequisite.objects.filter(education_group_year__id=root_id,
-                                                       learning_unit_year__id=OuterRef("child_leaf__id"))
+                                                       learning_unit_year__id=OuterRef("child_leaf__id"))\
+            .exclude(prerequisite__exact='')
         return self.group_element_year_leaves.annotate(has_prerequisites=Exists(has_prerequisite))
 
     @cached_property
