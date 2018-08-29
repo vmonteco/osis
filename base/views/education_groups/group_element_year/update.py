@@ -55,7 +55,7 @@ from base.views.education_groups.select import build_success_message, build_succ
 
 @login_required
 @waffle_flag("education_group_update")
-def management(request, root_id, education_group_year_id, group_element_year_id, element_type):
+def management(request, root_id, education_group_year_id, group_element_year_id):
     group_element_year_id = int(group_element_year_id)
     group_element_year = get_group_element_year_by_id(group_element_year_id) if group_element_year_id else None
     action_method = _get_action_method(request)
@@ -67,7 +67,6 @@ def management(request, root_id, education_group_year_id, group_element_year_id,
         root_id=root_id,
         education_group_year_id=education_group_year_id,
         source=source,
-        element_type=element_type,
     )
     if response:
         return response

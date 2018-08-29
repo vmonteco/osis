@@ -83,7 +83,6 @@ urlpatterns = [
                 name='education_group_edit_administrative')
         ])),
         url(r'^select/$', education_group_select, name='education_group_select'),
-        url(r'^select_luy/$', learning_unit_select, name='learning_unit_select'),
         url(r'^content/', include([
             url(u'^$', detail.EducationGroupContent.as_view(), name='education_group_content'),
             url(r'^(?P<group_element_year_id>[0-9]+)/', include([
