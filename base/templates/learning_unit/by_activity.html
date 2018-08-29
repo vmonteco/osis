@@ -121,7 +121,7 @@
                                   title="{% trans  'inactive' %}"></span>
                             <div style="display:none;">0</div>
                         {% endif %}
-                        {% if learning_unit|has_proposal %}
+                        {% if learning_unit.has_proposal %}
                             <i class="fa fa-flag warning" data-toggle="tooltip" data-placement="right" title="{% trans 'in_proposal' %}"></i>
                         {% endif %}
                     </td>
