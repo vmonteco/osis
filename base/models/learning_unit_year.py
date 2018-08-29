@@ -45,7 +45,7 @@ from osis_common.models.serializable_model import SerializableModel, Serializabl
 
 AUTHORIZED_REGEX_CHARS = "$*+.^"
 REGEX_ACRONYM_CHARSET = "[A-Z0-9" + AUTHORIZED_REGEX_CHARS + "]+"
-MINIMUM_CREDITS = 0
+MINIMUM_CREDITS = 0.0
 MAXIMUM_CREDITS = 500
 
 
@@ -84,7 +84,7 @@ class LearningUnitYear(SerializableModel):
                                               verbose_name=_('english_title_proper_to_UE'))
     subtype = models.CharField(max_length=50, choices=learning_unit_year_subtypes.LEARNING_UNIT_YEAR_SUBTYPES,
                                default=learning_unit_year_subtypes.FULL)
-    credits = models.IntegerField(null=True,
+    credits = models.DecimalField(null=True, max_digits=5, decimal_places=2,
                                   validators=[MinValueValidator(MINIMUM_CREDITS), MaxValueValidator(MAXIMUM_CREDITS)],
                                   verbose_name=_('credits'))
     decimal_scores = models.BooleanField(default=False)
@@ -264,6 +264,7 @@ class LearningUnitYear(SerializableModel):
     def warnings(self):
         if self._warnings is None:
             self._warnings = []
+            self._warnings.extend(self._check_credits_is_integer())
             self._warnings.extend(self._check_partim_parent_credits())
             self._warnings.extend(self._check_internship_subtype())
             self._warnings.extend(self._check_partim_parent_status())
@@ -272,6 +273,14 @@ class LearningUnitYear(SerializableModel):
             self._warnings.extend(self._check_learning_container_year_warnings())
             self._warnings.extend(self._check_entity_container_year_warnings())
         return self._warnings
+
+    # TODO: Actually, we should warning user that the credits is not an integer
+    def _check_credits_is_integer(self):
+        warnings = []
+        if self.credits:
+            if self.credits % 1 != 0:
+                warnings.append(_('The credits value should be an integer'))
+        return warnings
 
     def _check_partim_parent_credits(self):
         children = self.get_partims_related()

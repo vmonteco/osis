@@ -449,7 +449,7 @@ class TestFullFormIsValid(LearningUnitFullFormContextMixin):
 
     def test_update_case_credits_too_high_3_digits(self):
         post_data = dict(self.post_data)
-        post_data['credits'] = factory.fuzzy.FuzzyInteger(MAXIMUM_CREDITS + 1, 999, 2).fuzz()
+        post_data['credits'] = factory.fuzzy.FuzzyDecimal(MAXIMUM_CREDITS + 1, 999, 2).fuzz()
 
         form = _instanciate_form(self.learning_unit_year.academic_year, post_data=post_data, person=self.person,
                                  learning_unit_instance=self.learning_unit_year.learning_unit)
@@ -461,7 +461,7 @@ class TestFullFormIsValid(LearningUnitFullFormContextMixin):
 
     def test_update_case_credits_too_high_4_digits(self):
         post_data = dict(self.post_data)
-        post_data['credits'] = factory.fuzzy.FuzzyInteger(1000, 100000, 2).fuzz()
+        post_data['credits'] = factory.fuzzy.FuzzyDecimal(1000, 100000, 2).fuzz()
 
         form = _instanciate_form(self.learning_unit_year.academic_year, post_data=post_data, person=self.person,
                                  learning_unit_instance=self.learning_unit_year.learning_unit)

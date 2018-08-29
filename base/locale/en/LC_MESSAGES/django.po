@@ -3543,3 +3543,6 @@ msgstr ""
 
 msgid "It is forbidden to attach an element to one of its included elements."
 msgstr ""
+
+msgid "The credits value should be an integer"
+msgstr ""

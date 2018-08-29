@@ -3550,3 +3550,6 @@ msgstr "Il est inderdit d'attacher un élement à lui-même."
 
 msgid "It is forbidden to attach an element to one of its included elements."
 msgstr "Il est inderdit d'attacher un élement à un autre élement y étant inclus."
+
+msgid "The credits value should be an integer"
+msgstr "La valeur du champs crédits doit être un entier"
