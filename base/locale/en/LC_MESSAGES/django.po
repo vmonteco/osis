@@ -3562,3 +3562,6 @@ msgstr "<p>Prerequisites are invalid</p>"
        "<li>A ET (B OU C) OU (D OU E): not valid</li>"
        "<li>A ET (B ET C) ET (D ET E): not valid</li>"
        "<li>A ET (B OU C) ET (D ET E): not valid</li></ul></p>"
+
+msgid "Prerequisites saved."
+msgstr ""
