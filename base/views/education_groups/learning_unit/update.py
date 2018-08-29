@@ -26,24 +26,24 @@
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import PermissionDenied
-from django.db.models import Prefetch
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.decorators import method_decorator
+from django.utils.translation import ugettext_lazy as _
 from django.views.generic import UpdateView
 
 from base.forms.prerequisite import LearningUnitPrerequisiteForm
 from base.models import group_element_year
 from base.models.education_group_year import EducationGroupYear
-from base.models.enums import education_group_categories
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
 from base.models.prerequisite import Prerequisite
 
 
 @method_decorator(login_required, name='dispatch')
-class LearningUnitGenericUpdateView(PermissionRequiredMixin, UpdateView):
+class LearningUnitGenericUpdateView(PermissionRequiredMixin, SuccessMessageMixin, UpdateView):
     model = LearningUnitYear
     context_object_name = "learning_unit_year"
     pk_url_kwarg = 'learning_unit_year_id'
@@ -99,6 +99,9 @@ class LearningUnitPrerequisite(LearningUnitGenericUpdateView):
             raise PermissionDenied("The learning unit has to be part of the training or mini-training.")
 
         return context
+
+    def get_success_message(self, cleaned_data):
+        return _("Prerequisites saved.")
 
     def get_success_url(self):
         return reverse("learning_unit_prerequisite", args=[self.kwargs["root_id"],
