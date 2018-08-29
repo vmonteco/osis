@@ -44,9 +44,7 @@
         {% for form in simplified_volume_management_form %}
         <tr>
             <td>
-                {% blocktrans with prefix=forloop.counter title=_('component') %}
-                    <label class="inline-group">{{ title }} {{ prefix }}</label>
-                {% endblocktrans %}
+                <label class="inline-group"> {% trans form.component_type %}</label>
             </td>
             <td>{% bootstrap_field form.hourly_volume_total_annual show_label=False %}</td>
             <td>{{ form.equal_field.label }}</td>
