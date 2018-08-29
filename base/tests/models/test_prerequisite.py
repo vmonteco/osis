@@ -34,30 +34,49 @@ class TestPrerequisiteSyntaxValidator(TestCase):
     def test_empty_string(self):
         self.assertIsNone(prerequisite_syntax_validator(""))
 
-
-    def test_with_one_prerequisite_badly_encoded(self):
+    def test_acronym_cannot_include_space(self):
         test_values = (
             "LSINF 1111",
+            "LSINF 1256 B"
+        )
+        self.assert_raises_validation_error(test_values)
+
+    def test_acronym_syntax(self):
+        test_values = (
             "1452 LINGI",
             "LILKNLJLJFD48464",
             "LI12",
-            "LSINF 1256 BD",
             "lsinf1111a",
         )
-        for test_value in test_values:
-            with self.subTest(bad_prerequisite=test_value):
-                with self.assertRaises(ValidationError):
-                    prerequisite_syntax_validator(test_value)
+        self.assert_raises_validation_error(test_values)
 
-    def test_with_multiple_learning_units_badly_encoded(self):
+    def test_can_only_have_one_main_operator(self):
         test_values = (
             "LSINF1111 ET LINGI152 OU LINGI2356",
+            "LSINF1111B OU LINGI152 ET LINGI2356",
+        )
+        self.assert_raises_validation_error(test_values)
+
+    def test_main_and_secondary_operators_must_be_different(self):
+        test_values = (
             "LSINF1111 ET (LINGI1526 ET LINGI2356)",
             "LSINF1111 OU (LINGI1526 OU LINGI2356)",
-            "LSINF1111 ET (LINGI152)",
-            "(LSINF1111 ET LINGI2315)",
-
         )
+        self.assert_raises_validation_error(test_values)
+
+    def test_group_must_have_at_least_two_elements(self):
+        test_values = (
+            "LSINF1111 ET (LINGI152)",
+        )
+        self.assert_raises_validation_error(test_values)
+
+    def test_cannot_have_unique_element_as_a_group(self):
+        test_values = (
+            "(LSINF1111 ET LINGI2315)",
+        )
+        self.assert_raises_validation_error(test_values)
+
+    def assert_raises_validation_error(self, test_values):
         for test_value in test_values:
             with self.subTest(bad_prerequisite=test_value):
                 with self.assertRaises(ValidationError):
