@@ -26,17 +26,31 @@
 from django.core import validators
 from django.db import models
 
+from base.models import learning_unit
 from osis_common.models.osis_model_admin import OsisModelAdmin
 
-ACRONYM_REGEX = r'[BLMWX][A-Z]{2,4}\d{4}'
+ACRONYM_REGEX = learning_unit.LEARNING_UNIT_ACRONYM_REGEX_ALL.lstrip('^').rstrip('$')
 NO_PREREQUISITE_REGEX = r''
 UNIQUE_PREREQUISITE_REGEX = r'{acronym_regex}'.format(acronym_regex=ACRONYM_REGEX)
-ELEMENT_REGEX = r'({acronym_regex}|\({acronym_regex} (?(AND_OPERATOR)OU|ET) {acronym_regex}( (?(AND_OPERATOR)OU|ET) {acronym_regex})*\))'.format(acronym_regex=ACRONYM_REGEX)
-MULTIPLE_PREREQUISITES_REGEX = '{acronym_regex} ((?P<AND_OPERATOR>ET)|OU) {element_regex}( (?(AND_OPERATOR)ET|OU) {element_regex})*'.format(acronym_regex=ACRONYM_REGEX, element_regex=ELEMENT_REGEX)
-PREREQUISITE_SYNTAX_REGEX = r'^({no_element_regex}|{unique_element_regex}|{multiple_elements_regex})$'.format(
+ELEMENT_REGEX = r'({acronym_regex}|\({acronym_regex}( {secondary_operator} {acronym_regex})+\))'
+MULTIPLE_PREREQUISITES_REGEX = '{element_regex}( {main_operator} {element_regex})+'
+MULTIPLE_PREREQUISTES_REGEX_OR = MULTIPLE_PREREQUISITES_REGEX.format(
+    main_operator="OU",
+    element_regex=ELEMENT_REGEX.format(acronym_regex=ACRONYM_REGEX, secondary_operator="ET")
+)
+MULTIPLE_PREREQUISTES_REGEX_AND = MULTIPLE_PREREQUISITES_REGEX.format(
+    main_operator="ET",
+    element_regex=ELEMENT_REGEX.format(acronym_regex=ACRONYM_REGEX, secondary_operator="OU")
+)
+PREREQUISITE_SYNTAX_REGEX = r'^({no_element_regex}|' \
+                            r'{unique_element_regex}|' \
+                            r'{multiple_elements_regex_and}|' \
+                            r'{multiple_elements_regex_or})$'.format(
     no_element_regex=NO_PREREQUISITE_REGEX,
     unique_element_regex=UNIQUE_PREREQUISITE_REGEX,
-    multiple_elements_regex=MULTIPLE_PREREQUISITES_REGEX)
+    multiple_elements_regex_and=MULTIPLE_PREREQUISTES_REGEX_AND,
+    multiple_elements_regex_or=MULTIPLE_PREREQUISTES_REGEX_OR
+)
 prerequisite_syntax_validator = validators.RegexValidator(regex=PREREQUISITE_SYNTAX_REGEX)
 
 

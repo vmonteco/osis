@@ -43,7 +43,6 @@ class TestPrerequisiteSyntaxValidator(TestCase):
             "LI12",
             "LSINF 1256 BD",
             "lsinf1111a",
-            "LINGI2154B",
         )
         for test_value in test_values:
             with self.subTest(bad_prerequisite=test_value):
@@ -68,11 +67,12 @@ class TestPrerequisiteSyntaxValidator(TestCase):
         test_values = (
             "LSINF1111 ET LINGI1452 ET LINGI2356",
             "LSINF1111 OU LINGI1452 OU LINGI2356",
-            "LSINF1111 ET (LINGI1526 OU LINGI2356)",
+            "LSINF1111 ET (LINGI1526B OU LINGI2356)",
             "LSINF1111 OU (LINGI1526 ET LINGI2356) OU (LINGI1552 ET LINGI2347)",
             "LSINF1111 ET (LINGI1152 OU LINGI1526 OU LINGI2356)",
             "(LINGI1526 ET LINGI2356) OU LINGI1552 OU LINGI2347",
             "LINGI2145",
+            "LINGI2145A",
         )
         for test_value in test_values:
             with self.subTest(good_prerequisite=test_value):
