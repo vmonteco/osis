@@ -154,9 +154,9 @@ def education_group_year_pedagogy_edit(request, root_id, education_group_year_id
     initial_values = {'label': label_name}
 
     fr_text = TranslatedText.objects.filter(reference=str(education_group_year_id),
-                               text_label__label=label_name,
-                               entity=entity_name.OFFER_YEAR,
-                               language='fr-be').first()
+                                            text_label__label=label_name,
+                                            entity=entity_name.OFFER_YEAR,
+                                            language='fr-be').first()
 
     if fr_text:
         initial_values['text_french'] = fr_text.text

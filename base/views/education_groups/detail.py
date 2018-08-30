@@ -175,7 +175,7 @@ class EducationGroupGeneralInformation(EducationGroupGenericDetailView):
             translations = {
                 'label': label,
                 'translation': translated_label.label if translated_label else
-                    (_('This label %s does not exist') % label),
+                (_('This label %s does not exist') % label),
                 fr_language[0]: fr_translated_text.text if fr_translated_text else None,
                 en_language[0]: en_translated_text.text if en_translated_text else None,
             }
