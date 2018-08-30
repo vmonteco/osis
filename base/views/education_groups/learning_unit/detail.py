@@ -23,14 +23,17 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.db.models import Prefetch
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
+from django.utils.translation import ugettext_lazy as _
 from django.views.generic import DetailView
 
+from base.business.education_groups.learning_units.prerequisite import \
+    get_prerequisite_acronyms_which_are_outside_of_education_group
 from base.models import group_element_year
 from base.models.education_group_year import EducationGroupYear
 from base.models.enums import education_group_categories
@@ -98,5 +101,11 @@ class LearningUnitPrerequisite(LearningUnitGenericDetailView):
                                           to_attr="prerequisites")
         context["formations"] = qs.prefetch_related(prefetch_prerequisites)
         context["is_root_a_training"] = is_root_a_training
+
+        if is_root_a_training:
+            learning_unit_inconsistent = get_prerequisite_acronyms_which_are_outside_of_education_group(context["root"],
+                                                                                                        context["formations"][0].prerequisites[0])
+            if learning_unit_inconsistent:
+                messages.warning(self.request, _("The prerequisites %s for the learning unit %s are not inside the selected formation %s") % (", ".join(learning_unit_inconsistent), learning_unit_year, context["root"]))
 
         return context

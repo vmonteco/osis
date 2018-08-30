@@ -40,7 +40,12 @@ def get_learning_acronyms_inside_education_groups(education_group_years_id):
            get_learning_acronyms_inside_education_groups([gey["child_branch"] for gey in geys if gey["child_branch"]])
 
 
-
 def get_learning_units_which_are_outside_of_education_group(education_group_year_root, list_learning_unit_acronyms):
     list_acronyms_inside_education_group = get_learning_acronyms_inside_education_groups([education_group_year_root.id])
     return list(set(list_learning_unit_acronyms) - set(list_acronyms_inside_education_group))
+
+
+def get_prerequisite_acronyms_which_are_outside_of_education_group(education_group_year_root, prerequisite_obj):
+    list_prerequisites_acronyms = extract_learning_units_acronym_from_prerequisite(prerequisite_obj.prerequisite)
+    return get_learning_units_which_are_outside_of_education_group(education_group_year_root,
+                                                                   list_prerequisites_acronyms)

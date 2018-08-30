@@ -3575,3 +3575,6 @@ msgstr "Prérequis enregistrés."
 
 msgid "The credits value should be an integer"
 msgstr "La valeur du champs crédits doit être un entier"
+
+msgid "The prerequisites %s for the learning unit %s are not inside the selected formation %s"
+msgstr "Les prérequis %s pour l'unité d'enseignement %s ne sont pas dans la formation sélectionnée %s"
