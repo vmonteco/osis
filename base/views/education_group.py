@@ -25,23 +25,25 @@
 ##############################################################################
 import json
 
+from ckeditor.fields import RichTextFormField
 from ckeditor.widgets import CKEditorWidget
 from django import forms
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core.exceptions import PermissionDenied
 from django.db.models import Prefetch
+from django.forms import HiddenInput
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_http_methods
+from prettyprinter import cpprint
 from waffle.decorators import waffle_flag
 
 from base import models as mdl
 from base.business import education_group as education_group_business
 from base.business.education_group import assert_category_of_education_group_year
-from base.business.learning_unit import find_language_in_settings
 from base.forms.education_group_pedagogy_edit import EducationGroupPedagogyEditForm
 from base.forms.education_groups_administrative_data import CourseEnrollmentForm, AdministrativeDataFormset
 from base.models.admission_condition import AdmissionConditionLine, AdmissionCondition
@@ -106,12 +108,40 @@ def education_group_year_pedagogy_edit_post(request, root_id, education_group_ye
     return redirect(redirect_url)
 
 
+class EducationGroupPedagogyEditForm2(forms.Form):
+    label = forms.CharField(widget=HiddenInput())
+    text_english = RichTextFormField(required=False, config_name='minimal')
+    text_french = RichTextFormField(required=False, config_name='minimal')
+
+
 @login_required
 @permission_required('base.can_edit_educationgroup_pedagogy', raise_exception=True)
 @require_http_methods(['GET', 'POST'])
 def education_group_year_pedagogy_edit(request, root_id, education_group_year_id):
     if request.method == 'POST':
-        return education_group_year_pedagogy_edit_post(request, root_id, education_group_year_id)
+        form = EducationGroupPedagogyEditForm2(request.POST or None)
+
+        if form.is_valid():
+            label = form.cleaned_data['label']
+
+            text_label = TextLabel.objects.filter(label=label).first()
+
+            record, created = TranslatedText.objects.get_or_create(reference=str(education_group_year_id),
+                                                                   entity='offer_year',
+                                                                   text_label=text_label,
+                                                                   language='fr-be')
+            record.text = form.cleaned_data['text_french']
+            record.save()
+
+            record, created = TranslatedText.objects.get_or_create(reference=str(education_group_year_id),
+                                                                   entity='offer_year',
+                                                                   text_label=text_label,
+                                                                   language='en')
+            record.text = form.cleaned_data['text_english']
+            record.save()
+
+        redirect_url = reverse('education_group_general_informations', args=[root_id, education_group_year_id])
+        return redirect(redirect_url)
 
     education_group_year = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
 
@@ -120,22 +150,32 @@ def education_group_year_pedagogy_edit(request, root_id, education_group_year_id
     }
 
     label_name = request.GET.get('label')
-    language = request.GET.get('language')
-
     text_lb = find_root_by_name(label_name)
-    form = EducationGroupPedagogyEditForm(**{
-        'education_group_year': context['education_group_year'],
-        'language': language,
-        'text_label': text_lb,
-    })
 
-    form.load_initial()
+    initial_values = {'label': label_name}
+
+    fr_text = TranslatedText.objects.filter(reference=str(education_group_year_id),
+                               text_label__label=label_name,
+                               entity=entity_name.OFFER_YEAR,
+                               language='fr-be').first()
+
+    if fr_text:
+        initial_values['text_french'] = fr_text.text
+
+    en_text = TranslatedText.objects.filter(reference=str(education_group_year_id),
+                               text_label__label=label_name,
+                               entity=entity_name.OFFER_YEAR,
+                               language='en').first()
+
+    if en_text:
+        initial_values['text_english'] = en_text.text
+
+    form = EducationGroupPedagogyEditForm2(initial=initial_values)
+
     context['form'] = form
     user_language = mdl.person.get_user_interface_language(request.user)
     context['text_label_translated'] = get_text_label_translated(text_lb, user_language)
-    context['language_translated'] = find_language_in_settings(language)
     context['group_to_parent'] = request.GET.get("group_to_parent") or '0'
-
     return layout.render(request, 'education_group/pedagogy_edit.html', context)
 
 
