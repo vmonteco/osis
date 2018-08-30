@@ -25,12 +25,10 @@
 ##############################################################################
 import datetime
 import json
-import unittest
 from http import HTTPStatus
 from unittest import mock
 
 import bs4
-from django.conf import settings
 from django.contrib.auth.models import Permission, Group
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseForbidden, HttpResponseNotFound, HttpResponse
@@ -38,7 +36,6 @@ from django.test import TestCase, RequestFactory
 from django.utils.translation import ugettext_lazy as _
 from waffle.testutils import override_flag
 
-from base.forms.education_group_general_informations import EducationGroupGeneralInformationsForm
 from base.forms.education_groups import EducationGroupFilter
 from base.models.admission_condition import AdmissionCondition, AdmissionConditionLine
 from base.models.enums import education_group_categories, academic_calendar_type
