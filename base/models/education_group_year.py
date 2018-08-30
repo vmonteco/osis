@@ -403,10 +403,6 @@ class EducationGroupYear(models.Model):
 
     class Meta:
         verbose_name = _("education group year")
-        permissions = (
-            ("can_change_as_central_manager", "Can change as central manager"),
-            ("can_change_as_faculty_manager", "Can change as faculty manager"),
-        )
 
     def get_absolute_url(self):
         return reverse("education_group_read", args=[self.pk])

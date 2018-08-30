@@ -63,12 +63,25 @@ class PermissionFieldMixin(ModelFormMixin):
                 self.disable_field(field_name)
 
     def check_user_permission(self, field_reference):
+        if self._check_at_groups_level(field_reference):
+            # Check at group level
+            return True
+        elif self._check_at_permissions_level(field_reference):
+            # Check at permission level
+            return True
+        return False
+
+    def _check_at_permissions_level(self, field_reference):
         for perm in field_reference.permissions.all():
             app_label = perm.content_type.app_label
             codename = perm.codename
             if self.user.has_perm('{}.{}'.format(app_label, codename)):
                 return True
         return False
+
+    def _check_at_groups_level(self, field_reference):
+        group_names = field_reference.groups.all().values_list('name', flat=True)
+        return self.user.groups.filter(name__in=group_names).exists()
 
     def get_queryset(self):
         context = self.get_context()
@@ -77,7 +90,8 @@ class PermissionFieldMixin(ModelFormMixin):
             content_type__model=self._meta.model._meta.model_name,
             context=context
         ).prefetch_related(
-            Prefetch('permissions', queryset=Permission.objects.select_related('content_type'))
+            Prefetch('permissions', queryset=Permission.objects.select_related('content_type')),
+            Prefetch('groups')
         )
 
     def get_context(self):
