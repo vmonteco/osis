@@ -42,7 +42,7 @@ from base.models.learning_unit_year import LearningUnitYear
 @login_required
 @waffle_flag("education_group_select")
 def education_group_select(request, root_id=None, education_group_year_id=None):
-    education_group_year = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
+    education_group_year = get_object_or_404(EducationGroupYear, pk=request.POST['element_id'])
     group_element_years.management.select_education_group_year(education_group_year)
     success_message = build_success_message(education_group_year)
     if request.is_ajax():

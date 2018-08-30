@@ -37,6 +37,7 @@ from django.utils.translation import ugettext as _
 from waffle.testutils import override_flag
 
 from base.business.group_element_years import management
+from base.business.group_element_years.management import EDUCATION_GROUP_YEAR
 from base.forms.education_group.group import GroupYearModelForm
 from base.models.enums import education_group_categories, internship_presence
 from base.models.enums.active_status import ACTIVE
@@ -437,13 +438,9 @@ class TestSelectAttach(TestCase):
         )
 
         # Select :
-        self.client.get(
-            reverse("education_group_select",
-                    args=[
-                        self.initial_parent_education_group_year.id,
-                        self.new_parent_education_group_year.id
-                    ]
-            )
+        self.client.post(
+            self.url_select_education_group,
+            data={'element_id': self.new_parent_education_group_year.id}
         )
 
         # Attach :
@@ -575,6 +572,29 @@ class TestSelectAttach(TestCase):
                 'education_group_year_id': str(self.child_education_group_year.id),
                 'group_element_year_id': str(self.initial_group_element_year.id),
                 'element_type': None,
+            }
+        )
+        request.user = self.person.user
+        proxy_management(request)
+
+        mock_management_view.assert_called_with(
+            request,
+            root_id=str(self.initial_parent_education_group_year.id),
+            education_group_year_id=str(self.child_education_group_year.id),
+            group_element_year_id=str(self.initial_group_element_year.id),
+        )
+
+    @mock.patch("base.views.education_groups.group_element_year.update.management")
+    def test_proxy_management_view_calls_select_action(self, mock_management_view):
+        request_factory = RequestFactory()
+        request = request_factory.post(
+            reverse("proxy_management"),
+            data={
+                'root_id': self.initial_parent_education_group_year.id,
+                'element_id': self.child_education_group_year.id,
+                'group_element_year_id': self.initial_group_element_year.id,
+                'element_type': EDUCATION_GROUP_YEAR,
+                'action': 'select',
             }
         )
         request.user = self.person.user

@@ -89,7 +89,7 @@
         function select() {
             $.ajax({
                 url: '../select/',
-                data: {'child_to_cache_id' : {{ education_group_year.id }} },
+                data: {'element_id' : {{ education_group_year.id }} },
                 type: 'POST',
                 dataType: 'json',
                 success: function(jsonResponse) {
