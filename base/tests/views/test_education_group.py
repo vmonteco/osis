@@ -369,6 +369,32 @@ class EducationGroupGeneralInformations(TestCase):
 
         mock_edit_get.assert_called_once_with(request, education_group_year_id)
 
+    @mock.patch('base.views.layout.render')
+    def test_education_group_year_pedagogy_edit_get(self, mock_render):
+        request = RequestFactory().get('/')
+
+        from base.views.education_group import education_group_year_pedagogy_edit_get
+        education_group_year_pedagogy_edit_get(request, self.education_group_child.id)
+
+        request, template, context = mock_render.call_args[0]
+
+        self.assertEqual(context['education_group_year'], self.education_group_child)
+
+    def test_education_group_year_pedagogy_edit_post(self):
+        form = {
+            'label': 'welcome_introduction',
+            'text_french': 'Salut',
+            'text_english': 'Hello'
+        }
+        request = RequestFactory().post('/', form)
+
+        from base.views.education_group import education_group_year_pedagogy_edit_post
+
+        response = education_group_year_pedagogy_edit_post(request,
+                                                           self.education_group_child.id,
+                                                           self.education_group_parent.id)
+
+        self.assertEqual(response.status_code, 302)
 
 @override_flag('education_group_update', active=True)
 class EducationGroupViewTestCase(TestCase):

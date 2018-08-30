@@ -99,6 +99,7 @@ def find_root_by_name(text_label_name):
 
 def education_group_year_pedagogy_edit_post(request, education_group_year_id, root_id):
     form = EducationGroupPedagogyEditForm(request.POST or None)
+
     if form.is_valid():
         label = form.cleaned_data['label']
 
@@ -117,6 +118,7 @@ def education_group_year_pedagogy_edit_post(request, education_group_year_id, ro
                                                                language='en')
         record.text = form.cleaned_data['text_english']
         record.save()
+
     redirect_url = reverse('education_group_general_informations', args=[root_id, education_group_year_id])
     return redirect(redirect_url)
 
@@ -127,7 +129,6 @@ def education_group_year_pedagogy_edit_get(request, education_group_year_id):
         'education_group_year': education_group_year,
     }
     label_name = request.GET.get('label')
-    text_lb = find_root_by_name(label_name)
     initial_values = {'label': label_name}
     fr_text = TranslatedText.objects.filter(reference=str(education_group_year_id),
                                             text_label__label=label_name,
@@ -143,8 +144,6 @@ def education_group_year_pedagogy_edit_get(request, education_group_year_id):
         initial_values['text_english'] = en_text.text
     form = EducationGroupPedagogyEditForm(initial=initial_values)
     context['form'] = form
-    user_language = mdl.person.get_user_interface_language(request.user)
-    context['text_label_translated'] = get_text_label_translated(text_lb, user_language)
     context['group_to_parent'] = request.GET.get("group_to_parent") or '0'
     return layout.render(request, 'education_group/pedagogy_edit.html', context)
 
