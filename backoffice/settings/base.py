@@ -27,7 +27,6 @@ import os
 import sys
 from collections import namedtuple
 
-
 from django.core.urlresolvers import reverse_lazy
 from django.utils.translation import ugettext_lazy as _
 
@@ -418,4 +417,12 @@ SECTION_LIST = [
              'formations_accessibles',
              'certificats']),
     Section(_('In practice'), ['contacts']),
+]
+
+COMMON_SECTIONS = [
+    'finalites_didactiques',
+    'agregations',
+    'module_complementaire',
+    'caap',
+    'prerequis'
 ]
