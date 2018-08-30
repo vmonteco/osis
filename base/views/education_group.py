@@ -25,14 +25,12 @@
 ##############################################################################
 import json
 
-from ckeditor.fields import RichTextFormField
 from ckeditor.widgets import CKEditorWidget
 from django import forms
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core.exceptions import PermissionDenied
 from django.db.models import Prefetch
-from django.forms import HiddenInput
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
@@ -99,14 +97,8 @@ def find_root_by_name(text_label_name):
     ).get(label=text_label_name, parent__isnull=True)
 
 
-class EducationGroupPedagogyEditForm2(forms.Form):
-    label = forms.CharField(widget=HiddenInput())
-    text_english = RichTextFormField(required=False, config_name='minimal')
-    text_french = RichTextFormField(required=False, config_name='minimal')
-
-
 def education_group_year_pedagogy_edit_post(education_group_year_id, request, root_id):
-    form = EducationGroupPedagogyEditForm2(request.POST or None)
+    form = EducationGroupPedagogyEditForm(request.POST or None)
     if form.is_valid():
         label = form.cleaned_data['label']
 
@@ -149,7 +141,7 @@ def education_group_year_pedagogy_edit_get(education_group_year_id, request):
                                             language='en').first()
     if en_text:
         initial_values['text_english'] = en_text.text
-    form = EducationGroupPedagogyEditForm2(initial=initial_values)
+    form = EducationGroupPedagogyEditForm(initial=initial_values)
     context['form'] = form
     user_language = mdl.person.get_user_interface_language(request.user)
     context['text_label_translated'] = get_text_label_translated(text_lb, user_language)
