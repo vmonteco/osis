@@ -111,14 +111,14 @@ class TestGetLearningUnitsWhichAreNotInsideTraining(TestCase):
     def test_should_return_acronym_of_learnings_units_not_present_in_education_group_year(self):
         luy_outside = LearningUnitYearFakerFactory(learning_container_year__academic_year=self.academic_year)
         luy_outside_2 = LearningUnitYearFakerFactory(learning_container_year__academic_year=self.academic_year)
-        learning_units_acronym = [luy_outside.acronym].append(self.all_learning_units_acronym)
+        learning_units_acronym = [luy_outside.acronym] + self.all_learning_units_acronym
         self.assertEqual(get_learning_units_which_are_outside_of_education_group(self.education_group_year_root,
                                                                                  learning_units_acronym),
                          [luy_outside.acronym])
 
-        learning_units_acronym = [luy_outside.acronym, luy_outside_2.acronym].append(self.all_learning_units_acronym)
+        learning_units_acronym = [luy_outside.acronym, luy_outside_2.acronym] + self.all_learning_units_acronym
         self.assertCountEqual(get_learning_units_which_are_outside_of_education_group(self.education_group_year_root,
-                                                                                 learning_units_acronym),
+                                                                                      learning_units_acronym),
                          [luy_outside.acronym, luy_outside_2.acronym])
 
 
