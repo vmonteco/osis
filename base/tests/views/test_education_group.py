@@ -329,25 +329,6 @@ class EducationGroupGeneralInformations(TestCase):
         self.assertEqual(context["parent"], self.education_group_parent)
         self.assertEqual(context["education_group_year"], self.education_group_child)
 
-    @unittest.skip('Refactoring')
-    def test_form_initialization(self):
-        response = self.client.get(self.url)
-
-        self.assertTemplateUsed(response, "education_group/tab_general_informations.html")
-
-        context = response.context
-        form_french = context["form_french"]
-        form_english = context["form_english"]
-
-        self.assertEqual(form_french.education_group_year, self.education_group_child)
-        self.assertEqual(form_english.education_group_year, self.education_group_child)
-
-        self.assertEqual(form_french.language, settings.LANGUAGES[0])
-        self.assertEqual(form_english.language, settings.LANGUAGES[1])
-
-        self.assertEqual(list(form_french.text_labels_name), [self.cms_label_for_child.text_label.label])
-        self.assertEqual(list(form_english.text_labels_name), [self.cms_label_for_child.text_label.label])
-
     def test_user_has_link_to_edit_pedagogy(self):
         self.user.user_permissions.add(Permission.objects.get(codename='can_edit_educationgroup_pedagogy'))
 
