@@ -97,7 +97,7 @@ def find_root_by_name(text_label_name):
     ).get(label=text_label_name, parent__isnull=True)
 
 
-def education_group_year_pedagogy_edit_post(education_group_year_id, request, root_id):
+def education_group_year_pedagogy_edit_post(request, education_group_year_id, root_id):
     form = EducationGroupPedagogyEditForm(request.POST or None)
     if form.is_valid():
         label = form.cleaned_data['label']
@@ -121,7 +121,7 @@ def education_group_year_pedagogy_edit_post(education_group_year_id, request, ro
     return redirect(redirect_url)
 
 
-def education_group_year_pedagogy_edit_get(education_group_year_id, request):
+def education_group_year_pedagogy_edit_get(request, education_group_year_id):
     education_group_year = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
     context = {
         'education_group_year': education_group_year,
@@ -154,9 +154,9 @@ def education_group_year_pedagogy_edit_get(education_group_year_id, request):
 @require_http_methods(['GET', 'POST'])
 def education_group_year_pedagogy_edit(request, root_id, education_group_year_id):
     if request.method == 'POST':
-        return education_group_year_pedagogy_edit_post(education_group_year_id, request, root_id)
+        return education_group_year_pedagogy_edit_post(request, education_group_year_id, root_id)
 
-    return education_group_year_pedagogy_edit_get(education_group_year_id, request)
+    return education_group_year_pedagogy_edit_get(request, education_group_year_id)
 
 
 @login_required
