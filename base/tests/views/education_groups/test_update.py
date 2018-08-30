@@ -314,7 +314,7 @@ class TestSelectAttach(TestCase):
     def test_select_case_education_group(self):
         response = self.client.post(
             self.url_select_education_group,
-            data={'education_group_year_id': self.child_education_group_year.id},
+            data={'element_id': self.child_education_group_year.id},
             HTTP_X_REQUESTED_WITH='XMLHttpRequest',
         )
         data_cached = cache.get(management.SELECT_CACHE_KEY)
@@ -367,7 +367,7 @@ class TestSelectAttach(TestCase):
         # Select :
         self.client.post(
             self.url_select_education_group,
-            data={'education_group_year_id': self.child_education_group_year.id}
+            data={'element_id': self.child_education_group_year.id}
         )
 
         # Attach :
@@ -393,7 +393,7 @@ class TestSelectAttach(TestCase):
         # Select :
         self.client.post(
             self.url_select_education_group,
-            data={'education_group_year_id': self.child_education_group_year.id}
+            data={'element_id': self.child_education_group_year.id}
         )
 
         # Attach :
@@ -491,7 +491,7 @@ class TestSelectAttach(TestCase):
         # Select :
         self.client.post(
             self.url_select_education_group,
-            data={'education_group_year_id': self.child_education_group_year.id}
+            data={'element_id': self.child_education_group_year.id}
         )
 
         # Attach :
@@ -584,15 +584,15 @@ class TestSelectAttach(TestCase):
             group_element_year_id=str(self.initial_group_element_year.id),
         )
 
-    @mock.patch("base.views.education_groups.group_element_year.update.management")
+    @mock.patch("base.business.group_element_years.management._set_selected_element_on_cache")
     def test_proxy_management_view_calls_select_action(self, mock_management_view):
         request_factory = RequestFactory()
         request = request_factory.post(
             reverse("proxy_management"),
             data={
-                'root_id': self.initial_parent_education_group_year.id,
-                'element_id': self.child_education_group_year.id,
-                'group_element_year_id': self.initial_group_element_year.id,
+                'root_id': str(self.initial_parent_education_group_year.id),
+                'element_id': str(self.child_education_group_year.id),
+                'group_element_year_id': str(self.initial_group_element_year.id),
                 'element_type': EDUCATION_GROUP_YEAR,
                 'action': 'select',
             }
@@ -601,8 +601,6 @@ class TestSelectAttach(TestCase):
         proxy_management(request)
 
         mock_management_view.assert_called_with(
-            request,
-            root_id=str(self.initial_parent_education_group_year.id),
-            education_group_year_id=str(self.child_education_group_year.id),
-            group_element_year_id=str(self.initial_group_element_year.id),
+            self.child_education_group_year.id,
+            EDUCATION_GROUP_YEAR
         )
