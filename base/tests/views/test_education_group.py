@@ -348,6 +348,29 @@ class EducationGroupGeneralInformations(TestCase):
         soup = bs4.BeautifulSoup(response.content, 'html.parser')
         self.assertEqual(len(soup.select('a.pedagogy-edit-btn')), 0)
 
+    @mock.patch('base.views.education_group.education_group_year_pedagogy_edit_post')
+    @mock.patch('base.views.education_group.education_group_year_pedagogy_edit_get')
+    @mock.patch('django.contrib.auth.decorators')
+    def test_education_group_year_pedagogy_edit(self, mock_decorators, mock_edit_get, mock_edit_post):
+        from base.views.education_group import education_group_year_pedagogy_edit
+        mock_decorators.login_required = lambda x: x
+        mock_decorators.permission_required = lambda *args, **kwargs: lambda func: func
+
+        root_id = 1
+        education_group_year_id = 2
+        factory = RequestFactory()
+        request = factory.post('/{}/{}/informations/edit/'.format(root_id, education_group_year_id))
+        request.user = mock.Mock()
+        response = education_group_year_pedagogy_edit(request, root_id, education_group_year_id)
+
+        mock_edit_post.assert_called_once_with(request, education_group_year_id, root_id)
+
+        request = factory.get('/1/2/informations/edit/')
+        request.user = mock.Mock()
+        response = education_group_year_pedagogy_edit(request, root_id, education_group_year_id)
+
+        mock_edit_get.assert_called_once_with(request, education_group_year_id)
+
 
 @override_flag('education_group_update', active=True)
 class EducationGroupViewTestCase(TestCase):
