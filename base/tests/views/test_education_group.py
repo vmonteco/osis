@@ -356,8 +356,9 @@ class EducationGroupGeneralInformations(TestCase):
         mock_decorators.login_required = lambda x: x
         mock_decorators.permission_required = lambda *args, **kwargs: lambda func: func
 
-        root_id = 1
-        education_group_year_id = 2
+        root_id = self.education_group_parent.id
+        education_group_year_id = self.education_group_child.id
+
         factory = RequestFactory()
         request = factory.post('/{}/{}/informations/edit/'.format(root_id, education_group_year_id))
         request.user = mock.Mock()
