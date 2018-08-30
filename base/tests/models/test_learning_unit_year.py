@@ -23,6 +23,8 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from decimal import Decimal
+
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.utils.translation import ugettext_lazy as _
@@ -516,4 +518,19 @@ class LearningUnitYearWarningsTest(TestCase):
         result = luy_partim._check_partim_parent_periodicity()
         self.assertFalse(result)
 
+    def test_warning_when_credits_is_not_an_interger(self):
+        """In this test, we ensure that the warning of credits is not interger"""
+        self.luy_full.credits = Decimal(5.5)
+        self.luy_full.save()
+        expected_result = [
+            _("The credits value should be an integer")
+        ]
+        result = self.luy_full._check_credits_is_integer()
+        self.assertEqual(result, expected_result)
 
+    def test_no_warning_when_credits_is_an_interger(self):
+        """In this test, we ensure that the warning is not displayed when of credits is an interger"""
+        self.luy_full.credits = Decimal(5)
+        self.luy_full.save()
+        result = self.luy_full._check_credits_is_integer()
+        self.assertFalse(self.luy_full._check_credits_is_integer())

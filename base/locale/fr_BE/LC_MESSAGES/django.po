@@ -3572,3 +3572,6 @@ msgstr "<p>Prérequis invalides</p>"
 
 msgid "Prerequisites saved."
 msgstr "Prérequis enregistrés."
+
+msgid "The credits value should be an integer"
+msgstr "La valeur du champs crédits doit être un entier"
