@@ -320,7 +320,6 @@ class EducationGroupGeneralInformations(TestCase):
         self.assertTemplateUsed(response, "access_denied.html")
         self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
 
-    @unittest.skip('Refactoring')
     def test_without_get_data(self):
         response = self.client.get(self.url)
 
@@ -329,9 +328,6 @@ class EducationGroupGeneralInformations(TestCase):
         context = response.context
         self.assertEqual(context["parent"], self.education_group_parent)
         self.assertEqual(context["education_group_year"], self.education_group_child)
-        self.assertDictEqual(context["cms_labels_translated"], {self.cms_label_for_child.text_label.label: None})
-        self.assertIsInstance(context["form_french"], EducationGroupGeneralInformationsForm)
-        self.assertIsInstance(context["form_english"], EducationGroupGeneralInformationsForm)
 
     @unittest.skip('Refactoring')
     def test_form_initialization(self):
