@@ -131,14 +131,27 @@ class TestLearningUnitPrerequisite(TestCase):
 
     def test_template_used(self):
         response = self.client.get(self.url)
-        self.assertTemplateUsed(response, "education_group/learning_unit/tab_prerequisite.html")
+        self.assertTemplateUsed(response, "education_group/learning_unit/tab_prerequisite_training.html")
+
+    def test_template_used_when_root_is_not_a_training(self):
+        education_group_year_group = GroupFactory(academic_year=self.academic_year)
+        GroupElementYearFactory(parent=self.education_group_year_parents[0],
+                                child_branch=education_group_year_group)
+        GroupElementYearFactory(parent=education_group_year_group,
+                                child_leaf=self.learning_unit_year_child,
+                                child_branch=None)
+
+        url = reverse("learning_unit_prerequisite",
+                      args=[education_group_year_group.id, self.learning_unit_year_child.id])
+
+        response = self.client.get(url)
+        self.assertTemplateUsed(response, "education_group/learning_unit/tab_prerequisite_group.html")
 
     def test_context_data(self):
         response = self.client.get(self.url)
-        self.assertCountEqual(response.context_data["formations"], self.education_group_year_parents[:1])
 
-        actual_prerequisites = response.context_data["formations"][0].prerequisites
-        self.assertEqual(actual_prerequisites, [self.prerequisite])
+        actual_prerequisites = response.context_data["prerequisite"]
+        self.assertEqual(actual_prerequisites, self.prerequisite)
 
     def test_context_data_when_education_group_year_root_is_not_a_training(self):
         education_group_year_group = GroupFactory(academic_year=self.academic_year)
