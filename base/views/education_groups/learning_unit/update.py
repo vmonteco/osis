@@ -40,16 +40,21 @@ from base.models.education_group_year import EducationGroupYear
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
 from base.models.prerequisite import Prerequisite
+from base.views.common_classes import RulesRequiredMixin
+from base.views.education_groups import perms
 
 
 @method_decorator(login_required, name='dispatch')
-class LearningUnitGenericUpdateView(PermissionRequiredMixin, SuccessMessageMixin, UpdateView):
+class LearningUnitGenericUpdateView(RulesRequiredMixin, SuccessMessageMixin, UpdateView):
     model = LearningUnitYear
     context_object_name = "learning_unit_year"
     pk_url_kwarg = 'learning_unit_year_id'
 
-    permission_required = 'base.change_educationgroup'
     raise_exception = True
+    rules = [perms.can_change_education_group]
+
+    def _call_rule(self, rule):
+        return rule(self.request.user, self.get_root())
 
     def get_person(self):
         return get_object_or_404(Person, user=self.request.user)

@@ -32,6 +32,7 @@ from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import DetailView
 
+from base.business.education_groups import perms
 from base.business.education_groups.learning_units.prerequisite import \
     get_prerequisite_acronyms_which_are_outside_of_education_group
 from base.models import group_element_year
@@ -102,6 +103,8 @@ class LearningUnitPrerequisite(LearningUnitGenericDetailView):
                                           to_attr="prerequisites")
         context["formations"] = qs.prefetch_related(prefetch_prerequisites)
         context["is_root_a_training"] = is_root_a_training
+        context["can_modify_prerequisite"] = perms.is_eligible_to_change_education_group(context['person'],
+                                                                                         context["root"])
 
         return context
 
