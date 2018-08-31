@@ -409,6 +409,7 @@ SECTION_LIST = [
                 'welcome_profil',
                 'welcome_job',
                 'welcome_programme',
+                'welcome_parcours',
                 'comp_acquis',
                 'structure'
             ],
