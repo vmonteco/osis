@@ -144,9 +144,6 @@ class EducationGroupGeneralInformation(EducationGroupGenericDetailView):
         return context
 
     def get_sections_with_translated_labels(self):
-        fr_language = next((lang for lang in settings.LANGUAGES if lang[0] == 'fr-be'), None)
-        en_language = next((lang for lang in settings.LANGUAGES if lang[0] == 'en'), None)
-
         # Load the info from the common education group year
         common_education_group_year = EducationGroupYear.objects.filter(
             acronym__iexact='common',
