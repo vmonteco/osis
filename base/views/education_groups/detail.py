@@ -168,9 +168,14 @@ class EducationGroupGeneralInformation(EducationGroupGenericDetailView):
 
     def get_translated_labels_and_content(self, section, user_language, common_education_group_year):
         iterable = [
-            (self.object, section.labels, 'specific'),
-            (common_education_group_year, section.common_labels, 'common')
+            (self.object, section.labels, 'specific')
         ]
+
+        if common_education_group_year is not None:
+            iterable.append(
+                (common_education_group_year, section.common_labels, 'common')
+            )
+
         return [
             self.get_content_translations_for_label(education_group_year, label, user_language, type)
             for education_group_year, labels, type in iterable
