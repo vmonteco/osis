@@ -27,6 +27,7 @@
 from django.test import TestCase, RequestFactory
 from django.urls import reverse
 
+from base.business.group_element_years.management import EDUCATION_GROUP_YEAR
 from base.templatetags.education_group import build_tree, BRANCH_TEMPLATE, ICON_JSTREE_FILE
 from base.tests.factories.group_element_year import GroupElementYearFactory
 
@@ -81,5 +82,5 @@ class TestBuildTree(TestCase):
             a_class="jstree-wholerow-clicked" if root else "",
             children=sub_templates,
             tooltip_msg=gey.child_branch.acronym,
-            obj_type="egy"
+            obj_type=EDUCATION_GROUP_YEAR
         )

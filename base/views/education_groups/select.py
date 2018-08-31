@@ -34,7 +34,7 @@ from django.views.decorators.http import require_http_methods
 from waffle.decorators import waffle_flag
 
 from base.business import group_element_years
-from base.business.group_element_years.management import LEARNING_UNIT_YEAR
+from base.business.group_element_years.management import LEARNING_UNIT_YEAR, EDUCATION_GROUP_YEAR
 from base.models.education_group_year import EducationGroupYear
 from base.models.learning_unit_year import LearningUnitYear
 
@@ -42,11 +42,11 @@ from base.models.learning_unit_year import LearningUnitYear
 @login_required
 @waffle_flag("education_group_select")
 def education_group_select(request, root_id=None, education_group_year_id=None):
-    education_group_year = get_object_or_404(EducationGroupYear, pk=request.POST['child_to_cache_id'])
+    education_group_year = get_object_or_404(EducationGroupYear, pk=request.POST['element_id'])
     group_element_years.management.select_education_group_year(education_group_year)
-    success_message = _build_success_message(education_group_year)
+    success_message = build_success_message(education_group_year)
     if request.is_ajax():
-        return _build_success_json_response(success_message)
+        return build_success_json_response(success_message)
     else:
         messages.add_message(request, messages.INFO, success_message)
         return redirect(reverse(
@@ -64,9 +64,9 @@ def education_group_select(request, root_id=None, education_group_year_id=None):
 def learning_unit_select(request, learning_unit_year_id):
     learning_unit_year = get_object_or_404(LearningUnitYear, pk=learning_unit_year_id)
     group_element_years.management.select_learning_unit_year(learning_unit_year)
-    success_message = _build_success_message(learning_unit_year)
+    success_message = build_success_message(learning_unit_year)
     if request.is_ajax():
-        return _build_success_json_response(success_message)
+        return build_success_json_response(success_message)
     else:
         messages.add_message(request, messages.INFO, success_message)
         return redirect(reverse(
@@ -75,13 +75,13 @@ def learning_unit_select(request, learning_unit_year_id):
         ))
 
 
-def _build_success_message(obj):
+def build_success_message(obj):
     return """{} : "{}" """.format(
         _("Selected element"),
         str(obj)
     )
 
 
-def _build_success_json_response(success_message):
+def build_success_json_response(success_message):
     data = {'success_message': success_message}
     return JsonResponse(data)
