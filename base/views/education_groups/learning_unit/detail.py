@@ -113,7 +113,7 @@ class LearningUnitPrerequisite(LearningUnitGenericDetailView):
         return super().render_to_response(context, **response_kwargs)
 
     def add_warning_messages(self, context):
-        if context["is_root_a_training"]:
+        if context["is_root_a_training"] and context["formations"][0].prerequisites:
             learning_unit_inconsistent = get_prerequisite_acronyms_which_are_outside_of_education_group(
                     context["root"],
                     context["formations"][0].prerequisites[0]
