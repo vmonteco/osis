@@ -380,6 +380,31 @@ class EducationGroupGeneralInformations(TestCase):
 
         self.assertEqual(context['education_group_year'], self.education_group_child)
 
+    @mock.patch('base.views.layout.render')
+    def test_education_group_year_pedagogy_edit_get_with_translated_texts(self, mock_render):
+        text_label = TextLabelFactory(label='label_abc')
+        fr_translated_text = TranslatedTextRandomFactory(reference=str(self.education_group_child.id),
+                                                         entity=entity_name.OFFER_YEAR,
+                                                         text_label=text_label,
+                                                         language='fr-be')
+        en_translated_text = TranslatedTextRandomFactory(reference=str(self.education_group_child.id),
+                                                         entity=entity_name.OFFER_YEAR,
+                                                         text_label=fr_translated_text.text_label,
+                                                         language='en')
+
+        request = RequestFactory().get('/?label={}'.format(fr_translated_text.text_label.label))
+
+        from base.views.education_group import education_group_year_pedagogy_edit_get
+        education_group_year_pedagogy_edit_get(request, self.education_group_child.id)
+
+        request, template, context = mock_render.call_args[0]
+
+        form = context['form']
+        self.assertEqual(form.initial['label'], text_label.label)
+        self.assertEqual(form.initial['text_french'], fr_translated_text.text)
+        self.assertEqual(form.initial['text_english'], en_translated_text.text)
+
+
     def test_education_group_year_pedagogy_edit_post(self):
         form = {
             'label': 'welcome_introduction',
