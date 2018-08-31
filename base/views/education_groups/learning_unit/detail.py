@@ -40,6 +40,7 @@ from base.models.enums import education_group_categories
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
 from base.models.prerequisite import Prerequisite
+from base.views.common import display_warning_messages
 
 
 @method_decorator(login_required, name='dispatch')
@@ -102,10 +103,22 @@ class LearningUnitPrerequisite(LearningUnitGenericDetailView):
         context["formations"] = qs.prefetch_related(prefetch_prerequisites)
         context["is_root_a_training"] = is_root_a_training
 
-        if is_root_a_training:
-            learning_unit_inconsistent = get_prerequisite_acronyms_which_are_outside_of_education_group(context["root"],
-                                                                                                        context["formations"][0].prerequisites[0])
-            if learning_unit_inconsistent:
-                messages.warning(self.request, _("The prerequisites %s for the learning unit %s are not inside the selected formation %s") % (", ".join(learning_unit_inconsistent), learning_unit_year, context["root"]))
-
         return context
+
+
+    def render_to_response(self, context, **response_kwargs):
+        self.add_warning_messages(context)
+        return super().render_to_response(context, **response_kwargs)
+
+
+    def add_warning_messages(self, context):
+        if context["is_root_a_training"]:
+            learning_unit_inconsistent = get_prerequisite_acronyms_which_are_outside_of_education_group(
+                    context["root"],
+                    context["formations"][0].prerequisites[0]
+                )
+            if learning_unit_inconsistent:
+                display_warning_messages(
+                    self.request,
+                    _("The prerequisites %s for the learning unit %s are not inside the selected formation %s") %
+                    (", ".join(learning_unit_inconsistent), context["learning_unit_year"], context["root"]))
