@@ -3320,10 +3320,7 @@ msgstr "University certificate 30 credits"
 msgid "CERTIFICATE_MEDECINE_COMPETENCE"
 msgstr "Certificate medecine competence"
 
-msgid "Group content"
-msgstr ""
-
-msgid "English group content"
+msgid "Generate pdf"
 msgstr ""
 
 msgid "%(acronym)s %(title)s [%(volumes)s] (%(credits)s credits)"
