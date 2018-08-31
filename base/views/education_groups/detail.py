@@ -137,7 +137,6 @@ class EducationGroupGeneralInformation(EducationGroupGenericDetailView):
 
         context.update({
             'sections_with_translated_labels': self.get_sections_with_translated_labels(),
-            'common_section_list': settings.COMMON_SECTION_LIST,
             'can_edit_information': self.request.user.has_perm('base.can_edit_educationgroup_pedagogy'),
         })
 
@@ -151,7 +150,6 @@ class EducationGroupGeneralInformation(EducationGroupGenericDetailView):
         ).first()
 
         # Load the labels
-
         Section = namedtuple('Section', 'title labels')
         user_language = mdl.person.get_user_interface_language(self.request.user)
         sections_with_translated_labels = []
