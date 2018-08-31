@@ -81,3 +81,11 @@ class Prerequisite(models.Model):
 
     def __str__(self):
         return "{}{} : {}".format(self.education_group_year, self.learning_unit_year, self.prerequisite)
+
+
+def get_prerequisite_or_none(learning_unit_year, education_group_year_root):
+    try:
+        return Prerequisite.objects.get(learning_unit_year=learning_unit_year,
+                                        education_group_year=education_group_year_root)
+    except Prerequisite.DoesNotExist:
+        return None
