@@ -3051,11 +3051,6 @@
                 "delete_proposallearningunit",
                 "base",
                 "proposallearningunit"
-            ],
-            [
-                "can_change_as_central_manager",
-                "base",
-                "educationgroupyear"
             ]
         ]
     }
@@ -3224,11 +3219,6 @@
                 "add_externallearningunityear",
                 "base",
                 "externallearningunityear"
-            ],
-            [
-                "can_change_as_faculty_manager",
-                "base",
-                "educationgroupyear"
             ]
         ]
     }

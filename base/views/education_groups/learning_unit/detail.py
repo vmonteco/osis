@@ -23,20 +23,25 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.db.models import Prefetch
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
+from django.utils.translation import ugettext_lazy as _
 from django.views.generic import DetailView
 
+from base.business.education_groups import perms
+from base.business.education_groups.learning_units.prerequisite import \
+    get_prerequisite_acronyms_which_are_outside_of_education_group
 from base.models import group_element_year
 from base.models.education_group_year import EducationGroupYear
 from base.models.enums import education_group_categories
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
 from base.models.prerequisite import Prerequisite
+from base.views.common import display_warning_messages
 
 
 @method_decorator(login_required, name='dispatch')
@@ -98,5 +103,23 @@ class LearningUnitPrerequisite(LearningUnitGenericDetailView):
                                           to_attr="prerequisites")
         context["formations"] = qs.prefetch_related(prefetch_prerequisites)
         context["is_root_a_training"] = is_root_a_training
+        context["can_modify_prerequisite"] = perms.is_eligible_to_change_education_group(context['person'],
+                                                                                         context["root"])
 
         return context
+
+    def render_to_response(self, context, **response_kwargs):
+        self.add_warning_messages(context)
+        return super().render_to_response(context, **response_kwargs)
+
+    def add_warning_messages(self, context):
+        if context["is_root_a_training"]:
+            learning_unit_inconsistent = get_prerequisite_acronyms_which_are_outside_of_education_group(
+                    context["root"],
+                    context["formations"][0].prerequisites[0]
+                )
+            if learning_unit_inconsistent:
+                display_warning_messages(
+                    self.request,
+                    _("The prerequisites %s for the learning unit %s are not inside the selected formation %s") %
+                    (", ".join(learning_unit_inconsistent), context["learning_unit_year"], context["root"]))

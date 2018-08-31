@@ -38,7 +38,15 @@
                         <p>{{ formations.0.prerequisites.0.prerequisite|default:"-"}}</p>
                     </div>
                     <div class="col-md-5">
-                        <a class="btn btn-default" href="{% url 'learning_unit_prerequisite_update' root_id=root_id learning_unit_year_id=learning_unit_year.id%}{% if group_to_parent %}?group_to_parent={{ group_to_parent }}{% endif %}" role="button">{% trans 'Modify prerequisites' %}</a>
+                        {% if can_modify_prerequisite %}
+                            <a class="btn btn-default"
+                               href="{% url 'learning_unit_prerequisite_update' root_id=root_id learning_unit_year_id=learning_unit_year.id%}{% if group_to_parent %}?group_to_parent={{ group_to_parent }}{% endif %}"
+                               role="button">
+                                {% trans 'Modify prerequisites' %}
+                            </a>
+                            {% else %}
+                            <button class="btn btn-default" disabled>{% trans 'Modify prerequisites' %}</button>
+                        {% endif %}
                     </div>
                 </div>
             {% else %}

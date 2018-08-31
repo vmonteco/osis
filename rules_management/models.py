@@ -24,7 +24,7 @@
 #
 ##############################################################################
 from django import forms
-from django.contrib.auth.models import Permission
+from django.contrib.auth.models import Permission, Group
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 
@@ -38,8 +38,8 @@ class AdminForm(forms.ModelForm):
 
 class FieldReferenceAdmin(OsisModelAdmin):
     list_display = ('content_type', 'field_name', 'context')
-    search_fields = ('content_type', 'field_name', 'context')
-    filter_horizontal = ('permissions',)
+    search_fields = ('content_type', 'field_name', 'context',)
+    filter_horizontal = ('permissions', 'groups',)
     list_filter = ('context',)
     form = AdminForm
 
@@ -48,4 +48,5 @@ class FieldReference(models.Model):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     field_name = models.CharField(max_length=50)
     context = models.CharField(max_length=50,  choices=enums.CONTEXT_CHOICES, blank=True)
-    permissions = models.ManyToManyField(Permission)
+    permissions = models.ManyToManyField(Permission, blank=True)
+    groups = models.ManyToManyField(Group, blank=True)

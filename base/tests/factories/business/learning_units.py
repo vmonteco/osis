@@ -403,7 +403,7 @@ def _get_default_common_value_learning_unit_year(learning_container_year, subtyp
         'acronym': learning_container_year.acronym,
         'specific_title': 'Title Specific',
         'specific_title_english': 'Title Specific English',
-        'credits': 5,
+        'credits': Decimal(5),
         'session': learning_unit_year_session.SESSION_1X3,
         'quadrimester': quadrimesters.Q1,
         'internship_subtype': None,

@@ -26,3 +26,4 @@ dev.py
 ghostdriver.log
 .DS_Store
 /geckodriver.log
+**/*.orig

@@ -3565,3 +3565,9 @@ msgstr "<p>Prerequisites are invalid</p>"
 
 msgid "Prerequisites saved."
 msgstr ""
+
+msgid "The credits value should be an integer"
+msgstr ""
+
+msgid "The prerequisites %s for the learning unit %s are not inside the selected formation %s"
+msgstr ""
