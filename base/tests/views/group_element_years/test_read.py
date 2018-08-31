@@ -54,7 +54,7 @@ class TestRead(TestCase):
                 "education_group_year_id": cls.education_group_year.id
             }
         )
-        cls.post_valid_data = {'action': 'Group content', 'language': LANGUAGE_CODE_EN}
+        cls.post_valid_data = {'action': 'Generate pdf', 'language': LANGUAGE_CODE_EN}
 
     def setUp(self):
         self.client.force_login(self.person.user)
