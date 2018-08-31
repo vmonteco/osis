@@ -73,7 +73,26 @@
         <div class="container" style="font-size: 11px;">
             <div>{% trans "Formulaire d'inscription au contenu de" %} {{ parent.title }}</div>
             <br>
-            <div>{{ parent.verbose_informations }}</div>
+            <div>
+                {% if parent.education_group_type.name == "test" %}
+                    {% trans "This form must be submitted to the secretariat of your faculty" %}
+                {% else %}
+                    {% trans "The registration form is available at the Secretariat of" %}
+                    {{ parent.administration_entity_version.acronym }}
+                    <br>
+                    {% trans "This form must be signed by the designated authority and delivered to the secretariat of your faculty." %}
+                {% endif %}
+            </div>
+            <table style="margin-left: 100px;">
+                <tbody>
+                    <tr>
+                        <td>Formations:</td>
+                        <td style="width:175px;padding: 10px;">.....</td>
+                        <td>Formations:</td>
+                        <td style="width:175px;padding: 10px;">.....</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
         <table>
             <thead>

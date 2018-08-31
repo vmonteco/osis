@@ -403,7 +403,12 @@ class EducationGroupYear(models.Model):
 
     @property
     def verbose_informations(self):
-        return _("This form must be submitted to the secretariat of your faculty")
+        if self.education_group_type.name == "test":
+            return _("This form must be submitted to the secretariat of your faculty")
+        else:
+            return _("The registration form is available at the Secretariat of %(entity)s.This form must be signed by the designated authority and delivered to the secretariat of your faculty.") % {
+                "entity": self.administration_entity_version.acronym
+            }
 
     class Meta:
         verbose_name = _("education group year")

@@ -3581,3 +3581,9 @@ msgstr "Les prérequis %s pour l'unité d'enseignement %s ne sont pas dans la fo
 
 msgid "This form must be submitted to the secretariat of your faculty"
 msgstr "Ce formulaire doit être remis au secrétariat de votre faculté"
+
+msgid "This form must be signed by the designated authority and delivered to the secretariat of your faculty."
+msgstr "Ce formulaire doit être revêtu de la signature de l'autorité désignée et remis au secrétariat de votre faculté."
+
+msgid "The registration form is available at the Secretariat of"
+msgstr "Le formulaire d'inscription est disponible au Secrétariat de"
