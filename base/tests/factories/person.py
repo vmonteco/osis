@@ -68,35 +68,25 @@ class PersonWithoutUserFactory(PersonFactory):
 
 
 class PersonWithPermissionsFactory:
-    def __init__(self, *permissions, **kwargs):
+    def __init__(self, *permissions, groups=None, **kwargs):
         perms_obj = [Permission.objects.get_or_create(defaults={"name": p}, codename=p)[0] for p in permissions]
         self.person = PersonFactory(**kwargs)
         self.person.user.user_permissions.add(*perms_obj)
+
+        if groups:
+            groups_obj = [Group.objects.get_or_create(name=name)[0] for name in groups]
+            self.person.user.groups.add(*groups_obj)
 
     def __new__(cls, *permissions, **kwargs):
         obj = super().__new__(cls)
         obj.__init__(*permissions, **kwargs)
         return obj.person
 
-
-class PersonWithGroupsFactory:
-    groups_name = ()
-
-    def __init__(self, **kwargs):
-        groups_obj = [Group.objects.get_or_create(name=name)[0] for name in self.groups_name]
-
-        self.person = PersonFactory(**kwargs)
-        self.person.user.groups.add(*groups_obj)
-
-    def __new__(cls, **kwargs):
-        obj = super().__new__(cls)
-        obj.__init__(**kwargs)
-        return obj.person
+class FacultyManagerFactory(PersonWithPermissionsFactory):
+    def __init__(self, *permissions, **kwargs):
+        super().__init__(*permissions, groups=(FACULTY_MANAGER_GROUP, ), **kwargs)
 
 
-class FacultyManagerFactory(PersonWithGroupsFactory):
-    groups_name = (FACULTY_MANAGER_GROUP, )
-
-
-class CentralManagerFactory(PersonWithGroupsFactory):
-    groups_name = (CENTRAL_MANAGER_GROUP, )
+class CentralManagerFactory(PersonWithPermissionsFactory):
+    def __init__(self, *permissions, **kwargs):
+        super().__init__(*permissions, groups=(CENTRAL_MANAGER_GROUP, ), **kwargs)
