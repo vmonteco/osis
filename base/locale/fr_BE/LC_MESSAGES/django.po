@@ -3578,3 +3578,6 @@ msgstr "La valeur du champs crédits doit être un entier"
 
 msgid "The prerequisites %s for the learning unit %s are not inside the selected formation %s"
 msgstr "Les prérequis %s pour l'unité d'enseignement %s ne sont pas dans la formation sélectionnée %s"
+
+msgid "This form must be submitted to the secretariat of your faculty"
+msgstr "Ce formulaire doit être remis au secrétariat de votre faculté"

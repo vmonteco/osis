@@ -31,7 +31,7 @@
                 padding-top: 65px;
                 font-size: 9px;
                 text-align: center;
-                content: string(title);
+                content: "Université catholique de Louvain;
             }
 
             @bottom-left {
@@ -68,9 +68,13 @@
     </style>
 </head>
 <body>
-<header><img src='{% static 'img/logo_uclouvain.png' %}' no-repeat>Université catholique de Louvain</header>
 <div class="container">
     <div class="list-group">
+        <div class="container" style="font-size: 11px;">
+            <div>{% trans "Formulaire d'inscription au contenu de" %} {{ parent.title }}</div>
+            <br>
+            <div>{{ parent.verbose_informations }}</div>
+        </div>
         <table>
             <thead>
             <tr>

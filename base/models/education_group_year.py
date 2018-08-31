@@ -401,6 +401,10 @@ class EducationGroupYear(models.Model):
             "credits": self.credits or 0
         }
 
+    @property
+    def verbose_informations(self):
+        return _("This form must be submitted to the secretariat of your faculty")
+
     class Meta:
         verbose_name = _("education group year")
 
