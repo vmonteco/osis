@@ -52,8 +52,8 @@
                             {% for label in labels %}
                                 <div class="row">
                                     <div class="col-md-12">
-                                        <label>{{ label.translation }}</label>
-                                        {% if can_edit_information %}
+                                        <label {% if label.type == 'common' %}class="education_group_year-common italic"{% endif %}>{{ label.translation }}</label>
+                                        {% if label.type == 'specific' and can_edit_information %}
                                             <a class="pedagogy-edit-btn pull-right" href="#"
                                                data-form="{{ post_url }}?label={{ label.label }}"
                                                title="{% trans 'edit' %}">
@@ -66,16 +66,16 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         {% if label|get_item:'fr-be' %}
-                                            {{ label|get_item:'fr-be'|truncatewords_html:40|safe }}
+                                            <span {% if label.type == 'common' %}class="education_group_year-common italic"{% endif %}>{{ label|get_item:'fr-be'|truncatewords_html:40|safe }}</span>
                                         {% else %}
-                                            <strong>{{ _('Add the French content of this paragraph') }}</strong>
+                                            <span class="italic">{{ _('Add the French content of this paragraph') }}</span>
                                         {% endif %}
                                     </div>
                                     <div class="col-md-6">
                                         {% if label|get_item:'en' %}
-                                            {{ label|get_item:'en'|truncatewords_html:40|safe }}
+                                            <span {% if label.type == 'common' %}class="education_group_year-common italic"{% endif %}>{{ label|get_item:'en'|truncatewords_html:40|safe }}</span>
                                         {% else %}
-                                            <strong>{{ _('Add the English content of this paragraph') }}</strong>
+                                            <span class="italic">{{ _('Add the English content of this paragraph') }}</span>
                                         {% endif %}
                                     </div>
                                 </div>

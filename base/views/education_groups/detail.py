@@ -137,6 +137,7 @@ class EducationGroupGeneralInformation(EducationGroupGenericDetailView):
 
         context.update({
             'sections_with_translated_labels': self.get_sections_with_translated_labels(),
+            'common_section_list': settings.COMMON_SECTION_LIST,
             'can_edit_information': self.request.user.has_perm('base.can_edit_educationgroup_pedagogy'),
         })
 
@@ -146,41 +147,59 @@ class EducationGroupGeneralInformation(EducationGroupGenericDetailView):
         fr_language = next((lang for lang in settings.LANGUAGES if lang[0] == 'fr-be'), None)
         en_language = next((lang for lang in settings.LANGUAGES if lang[0] == 'en'), None)
 
+        # Load the info from the common education group year
+        common_education_group_year = EducationGroupYear.objects.filter(
+            acronym__iexact='common',
+            academic_year=self.object.academic_year
+        ).first()
+
+        # Load the labels
+
         Section = namedtuple('Section', 'title labels')
         user_language = mdl.person.get_user_interface_language(self.request.user)
         sections_with_translated_labels = []
         for section in settings.SECTION_LIST:
-            translated_labels = self.get_translated_labels_and_content(en_language, fr_language, section, user_language)
+            translated_labels = self.get_translated_labels_and_content(section,
+                                                                       user_language,
+                                                                       common_education_group_year)
 
             sections_with_translated_labels.append(Section(section.title, translated_labels))
         return sections_with_translated_labels
 
-    def get_translated_labels_and_content(self, en_language, fr_language, section, user_language):
+    def get_translated_labels_and_content(self, section, user_language, common_education_group_year):
+        iterable = [
+            (self.object, section.labels, 'specific'),
+            (common_education_group_year, section.common_labels, 'common')
+        ]
         return [
-            self.get_content_translations_for_label(en_language, fr_language, label, user_language)
-            for label in section.labels
+            self.get_content_translations_for_label(education_group_year, label, user_language, type)
+            for education_group_year, labels, type in iterable
+            for label in labels
         ]
 
-    def get_content_translations_for_label(self, en_language, fr_language, label, user_language):
+    def get_content_translations_for_label(self, education_group_year, label, user_language, type):
+        # fetch the translation for the current user
         translated_label = TranslatedTextLabel.objects.filter(text_label__entity=entity_name.OFFER_YEAR,
                                                               text_label__label=label,
                                                               language=user_language).first()
+        # fetch the translations for the both languages
+        french, english = 'fr-be', 'en'
         fr_translated_text = TranslatedText.objects.filter(entity=entity_name.OFFER_YEAR,
                                                            text_label__label=label,
-                                                           reference=str(self.object.id),
-                                                           language=fr_language[0]).first()
+                                                           reference=str(education_group_year.id),
+                                                           language=french).first()
         en_translated_text = TranslatedText.objects.filter(entity=entity_name.OFFER_YEAR,
                                                            text_label__label=label,
-                                                           reference=str(self.object.id),
-                                                           language=en_language[0]).first()
-        translations = {
+                                                           reference=str(education_group_year.id),
+                                                           language=english).first()
+        return {
             'label': label,
+            'type': type,
             'translation': translated_label.label if translated_label else
             (_('This label %s does not exist') % label),
-            fr_language[0]: fr_translated_text.text if fr_translated_text else None,
-            en_language[0]: en_translated_text.text if en_translated_text else None,
+            french: fr_translated_text.text if fr_translated_text else None,
+            english: en_translated_text.text if en_translated_text else None,
         }
-        return translations
 
 
 def _get_cms_label_data(cms_label, user_language):

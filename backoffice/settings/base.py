@@ -400,29 +400,39 @@ if CACHE_ENABLED:
 WAFFLE_FLAG_DEFAULT = os.environ.get("WAFFLE_FLAG_DEFAULT", "False").lower() == 'true'
 
 
-Section = namedtuple('Section', 'title labels')
+Section = namedtuple('Section', 'title labels common_labels')
 
 SECTION_LIST = [
-    Section(_('Teaching profile'),
-            ['welcome_introduction', 'welcome_profil', 'welcome_job', 'welcome_programme',
-             'comp_acquis', 'structure']),
-    Section(_('Detailed programme'),
-            ['options', 'caap']),
-    Section(_('Admission'),
-            ['module_complementaire']),
-    Section(_('Benefits and organization'),
-            ['pedagogie',
+    Section(title=_('Teaching profile'),
+            labels=['welcome_introduction',
+             'welcome_profil',
+             'welcome_job',
+             'welcome_programme',
+             'comp_acquis',
+             'structure'],
+            common_labels=[]),
+    Section(title=_('Detailed programme'),
+            labels=['options', 'caap'],
+            common_labels=['caap']),
+    Section(title=_('Admission'),
+            labels=['module_complementaire'],
+            common_labels=['module_complementaire']),
+    Section(title=_('Benefits and organization'),
+            labels=['pedagogie',
              'evaluation',
              'mobilite',
              'formations_accessibles',
-             'certificats']),
-    Section(_('In practice'), ['contacts']),
+             'certificats'],
+            common_labels=[]),
+    Section(title=_('In practice'),
+            labels=['contacts'],
+            common_labels=[]),
 ]
 
-COMMON_SECTIONS = [
-    'finalites_didactiques',
+COMMON_SECTION_LIST = [
     'agregations',
-    'module_complementaire',
     'caap',
+    'finalites_didactiques',
+    'module_complementaire',
     'prerequis'
 ]
