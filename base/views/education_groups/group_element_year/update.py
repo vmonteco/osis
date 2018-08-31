@@ -40,7 +40,7 @@ from waffle.decorators import waffle_flag
 
 from base.business import group_element_years
 from base.business.group_element_years.management import SELECT_CACHE_KEY, select_education_group_year, \
-    LEARNING_UNIT_YEAR, EDUCATION_GROUP_YEAR
+    LEARNING_UNIT_YEAR, EDUCATION_GROUP_YEAR, select_learning_unit_year
 from base.forms.education_group.group_element_year import UpdateGroupElementYearForm
 from base.models.education_group_year import EducationGroupYear
 from base.models.exceptions import IncompatiblesTypesException
@@ -143,7 +143,7 @@ def _attach(request, group_element_year, *args, **kwargs):
 def _select(request, element_type, element_id):
     if element_type == LEARNING_UNIT_YEAR:
         learning_unit_year = get_object_or_404(LearningUnitYear, pk=element_id)
-        learning_unit_select(request, learning_unit_year.id)
+        select_learning_unit_year(learning_unit_year)
         success_msg = build_success_message(learning_unit_year)
     elif element_type == EDUCATION_GROUP_YEAR:
         education_group_year = get_object_or_404(EducationGroupYear, pk=element_id)
