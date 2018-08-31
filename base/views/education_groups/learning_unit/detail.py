@@ -39,7 +39,8 @@ from base.models.education_group_year import EducationGroupYear
 from base.models.enums import education_group_categories
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
-from base.models.prerequisite import Prerequisite, get_prerequisite_or_none
+from base.models.prerequisite import Prerequisite
+from base.models.utils.utils import get_object_or_none
 from base.views.common import display_warning_messages
 
 
@@ -96,7 +97,9 @@ class LearningUnitPrerequisiteTraining(LearningUnitGenericDetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data()
 
-        context["prerequisite"] = get_prerequisite_or_none(context["learning_unit_year"], context["root"])
+        context["prerequisite"] = get_object_or_none(Prerequisite,
+                                                     learning_unit_year=context["learning_unit_year"],
+                                                     education_group_year=context["root"])
         context["can_modify_prerequisite"] = perms.is_eligible_to_change_education_group(context['person'],
                                                                                          context["root"])
         return context
