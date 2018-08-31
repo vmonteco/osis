@@ -23,7 +23,6 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.db.models import Prefetch
@@ -41,6 +40,7 @@ from base.models.enums import education_group_categories
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
 from base.models.prerequisite import Prerequisite
+from base.models.utils.utils import get_object_or_none
 from base.views.common import display_warning_messages
 
 
@@ -81,31 +81,27 @@ class LearningUnitUtilization(LearningUnitGenericDetailView):
 
 
 class LearningUnitPrerequisite(LearningUnitGenericDetailView):
-    template_name = "education_group/learning_unit/tab_prerequisite.html"
+    def dispatch(self, request, *args, **kwargs):
+        is_root_a_training = EducationGroupYear.objects.filter(
+            id=kwargs["root_id"],
+            education_group_type__category__in=education_group_categories.TRAINING_CATEGORIES
+        ).exists()
+        if is_root_a_training:
+            return LearningUnitPrerequisiteTraining.as_view()(request, *args, **kwargs)
+        return LearningUnitPrerequisiteGroup.as_view()(request, *args, **kwargs)
+
+
+class LearningUnitPrerequisiteTraining(LearningUnitGenericDetailView):
+    template_name = "education_group/learning_unit/tab_prerequisite_training.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data()
 
-        learning_unit_year = context["learning_unit_year"]
-        education_group_year_root_id = context["root_id"]
-        is_root_a_training = context["root"].education_group_type.category in \
-            education_group_categories.TRAINING_CATEGORIES
-
-        if is_root_a_training:
-            qs = EducationGroupYear.objects.filter(id=education_group_year_root_id)
-        else:
-            formations_id = group_element_year.find_learning_unit_formations([learning_unit_year]).\
-                get(learning_unit_year.id, [])
-            qs = EducationGroupYear.objects.filter(id__in=formations_id)
-
-        prefetch_prerequisites = Prefetch("prerequisite_set",
-                                          Prerequisite.objects.filter(learning_unit_year=learning_unit_year),
-                                          to_attr="prerequisites")
-        context["formations"] = qs.prefetch_related(prefetch_prerequisites)
-        context["is_root_a_training"] = is_root_a_training
+        context["prerequisite"] = get_object_or_none(Prerequisite,
+                                                     learning_unit_year=context["learning_unit_year"],
+                                                     education_group_year=context["root"])
         context["can_modify_prerequisite"] = perms.is_eligible_to_change_education_group(context['person'],
                                                                                          context["root"])
-
         return context
 
     def render_to_response(self, context, **response_kwargs):
@@ -113,13 +109,32 @@ class LearningUnitPrerequisite(LearningUnitGenericDetailView):
         return super().render_to_response(context, **response_kwargs)
 
     def add_warning_messages(self, context):
-        if context["is_root_a_training"]:
-            learning_unit_inconsistent = get_prerequisite_acronyms_which_are_outside_of_education_group(
-                    context["root"],
-                    context["formations"][0].prerequisites[0]
-                )
-            if learning_unit_inconsistent:
-                display_warning_messages(
-                    self.request,
-                    _("The prerequisites %s for the learning unit %s are not inside the selected formation %s") %
-                    (", ".join(learning_unit_inconsistent), context["learning_unit_year"], context["root"]))
+        root = context["root"]
+        prerequisite = context["prerequisite"]
+        learning_unit_year = context["learning_unit_year"]
+        learning_unit_inconsistent = get_prerequisite_acronyms_which_are_outside_of_education_group(root, prerequisite)\
+            if prerequisite else []
+        if learning_unit_inconsistent:
+            display_warning_messages(
+                self.request,
+                _("The prerequisites %s for the learning unit %s are not inside the selected formation %s") %
+                (", ".join(learning_unit_inconsistent), learning_unit_year, root))
+
+
+class LearningUnitPrerequisiteGroup(LearningUnitGenericDetailView):
+    template_name = "education_group/learning_unit/tab_prerequisite_group.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data()
+
+        learning_unit_year = context["learning_unit_year"]
+        formations_id = group_element_year.find_learning_unit_formations([learning_unit_year]).\
+            get(learning_unit_year.id, [])
+        qs = EducationGroupYear.objects.filter(id__in=formations_id)
+        prefetch_prerequisites = Prefetch("prerequisite_set",
+                                          Prerequisite.objects.filter(learning_unit_year=learning_unit_year),
+                                          to_attr="prerequisites")
+
+        context["formations"] = qs.prefetch_related(prefetch_prerequisites)
+
+        return context
