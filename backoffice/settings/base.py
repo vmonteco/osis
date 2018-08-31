@@ -404,12 +404,14 @@ Section = namedtuple('Section', 'title labels common_labels')
 
 SECTION_LIST = [
     Section(title=_('Teaching profile'),
-            labels=['welcome_introduction',
-             'welcome_profil',
-             'welcome_job',
-             'welcome_programme',
-             'comp_acquis',
-             'structure'],
+            labels=[
+                'welcome_introduction',
+                'welcome_profil',
+                'welcome_job',
+                'welcome_programme',
+                'comp_acquis',
+                'structure'
+            ],
             common_labels=[]),
     Section(title=_('Detailed programme'),
             labels=['options', 'caap'],
@@ -418,11 +420,13 @@ SECTION_LIST = [
             labels=['module_complementaire'],
             common_labels=['module_complementaire']),
     Section(title=_('Benefits and organization'),
-            labels=['pedagogie',
-             'evaluation',
-             'mobilite',
-             'formations_accessibles',
-             'certificats'],
+            labels=[
+                'pedagogie',
+                'evaluation',
+                'mobilite',
+                'formations_accessibles',
+                'certificats'
+            ],
             common_labels=[]),
     Section(title=_('In practice'),
             labels=['contacts'],
