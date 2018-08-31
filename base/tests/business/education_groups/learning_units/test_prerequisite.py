@@ -120,10 +120,3 @@ class TestGetLearningUnitsWhichAreNotInsideTraining(TestCase):
         self.assertCountEqual(get_learning_units_which_are_outside_of_education_group(self.education_group_year_root,
                                                                                       learning_units_acronym),
                          [luy_outside.acronym, luy_outside_2.acronym])
-
-
-
-
-
-
-
