@@ -224,8 +224,8 @@ class TestEducationGroupTag(TestCase):
         expected_result = CUSTOM_LI_TEMPLATE.format(
             li_attributes=""" id="btn_operation_pdf_content" """,
             a_attributes=""" href="#" title="{}" {} """.format(
-                _("Group content"),
+                _("Generate pdf"),
                 _(""), ),
-            text=_('Group content'),
+            text=_('Generate pdf'),
         )
         self.assertHTMLEqual(result, expected_result)

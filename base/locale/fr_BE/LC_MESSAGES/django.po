@@ -3313,11 +3313,8 @@ msgstr "Certificat universitaire 30 crédits "
 msgid "CERTIFICATE_MEDECINE_COMPETENCE"
 msgstr "Certificat compétence médecine "
 
-msgid "Group content"
-msgstr "Contenu du groupement"
-
-msgid "English group content"
-msgstr "Contenu du groupement en anglais"
+msgid "Generate pdf"
+msgstr "Générer le pdf"
 
 msgid "%(acronym)s %(title)s [%(volumes)s] (%(credits)s credits)"
 msgstr "%(acronym)s %(title)s [%(volumes)s] (%(credits)s crédits)"

@@ -400,7 +400,7 @@ def link_detach_education_group(context):
 
 @register.simple_tag(takes_context=True)
 def link_pdf_content_education_group(context):
-    return _custom_link_pdf_content(context, action="Group content", onclick="")
+    return _custom_link_pdf_content(context, action="Generate pdf", onclick="")
 
 
 def _custom_link_education_group(context, action, onclick):
