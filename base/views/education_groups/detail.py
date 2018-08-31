@@ -135,19 +135,24 @@ class EducationGroupGeneralInformation(EducationGroupGenericDetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
+        is_common_education_group_year = self.object.acronym == 'common'
+
         context.update({
-            'sections_with_translated_labels': self.get_sections_with_translated_labels(),
+            'is_common_education_group_year': is_common_education_group_year,
+            'sections_with_translated_labels': self.get_sections_with_translated_labels(is_common_education_group_year),
             'can_edit_information': self.request.user.has_perm('base.can_edit_educationgroup_pedagogy'),
         })
 
         return context
 
-    def get_sections_with_translated_labels(self):
+    def get_sections_with_translated_labels(self, is_common_education_group_year):
         # Load the info from the common education group year
-        common_education_group_year = EducationGroupYear.objects.filter(
-            acronym__iexact='common',
-            academic_year=self.object.academic_year
-        ).first()
+        common_education_group_year = None
+        if not is_common_education_group_year:
+            common_education_group_year = EducationGroupYear.objects.filter(
+                acronym__iexact='common',
+                academic_year=self.object.academic_year
+            ).first()
 
         # Load the labels
         Section = namedtuple('Section', 'title labels')
