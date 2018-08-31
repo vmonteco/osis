@@ -37,12 +37,14 @@ from base.forms.education_groups import EducationGroupFilter
 from base.forms.search.search_form import get_research_criteria
 from base.models.enums import education_group_categories
 from base.models.person import Person
+from base.utils.cache import cache_filter
 from base.views.common import paginate_queryset
-from base.views.layout import render
+from base.views import layout
 
 
 @login_required
 @permission_required('base.can_access_education_group', raise_exception=True)
+@cache_filter(exclude_params=['xls_status', 'xls_order_col'])
 def education_groups(request):
     person = get_object_or_404(Person, user=request.user)
     if request.GET:
@@ -75,7 +77,7 @@ def education_groups(request):
         'person': person
     }
 
-    return render(request, "education_group/search.html", context)
+    return layout.render(request, "education_group/search.html", context)
 
 
 def _get_object_list(form, request):
