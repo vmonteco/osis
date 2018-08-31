@@ -9,9 +9,14 @@
         {{ parent.verbose_credit }}
     </title>
     <style type="text/css">
+        header {
+            visibility: hidden;
+            string-set: title content();
+        }
+
         @page {
             size: A4 portrait;
-            margin: 2cm 1cm 2.5cm 1cm;
+            margin: 2cm 1cm 2cm 1cm;
 
             @top-left {
                 content: "{% trans 'academic_year' %} {{ parent.academic_year }} \A {{ parent.verbose_credit }} ";
@@ -23,7 +28,10 @@
                 background: url("{% static 'img/logo_uclouvain.png' %}") no-repeat;
                 display: inline-block;
                 width: 92mm;
-                content: "";
+                padding-top: 65px;
+                font-size: 9px;
+                text-align: center;
+                content: string(title);
             }
 
             @bottom-left {
@@ -36,7 +44,7 @@
                 font-size: 11px;
             }
 
-            @bottom-center{
+            @bottom-center {
                 background: url("{% static 'img/education_group_year/legend.png' %}") no-repeat;
                 display: inline-block;
                 width: 125mm;
@@ -60,6 +68,7 @@
     </style>
 </head>
 <body>
+<header><img src='{% static 'img/logo_uclouvain.png' %}' no-repeat>Université catholique de Louvain</header>
 <div class="container">
     <div class="list-group">
         <table>
