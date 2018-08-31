@@ -105,11 +105,9 @@ class LearningUnitPrerequisite(LearningUnitGenericDetailView):
 
         return context
 
-
     def render_to_response(self, context, **response_kwargs):
         self.add_warning_messages(context)
         return super().render_to_response(context, **response_kwargs)
-
 
     def add_warning_messages(self, context):
         if context["is_root_a_training"]:
