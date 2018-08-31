@@ -37,8 +37,9 @@ def get_learning_acronyms_inside_education_groups(education_group_years_id):
         return []
     geys = mdl_group_element_year.GroupElementYear.objects.filter(parent__in=education_group_years_id).\
         values("child_branch", "child_leaf__acronym")
-    return [gey["child_leaf__acronym"] for gey in geys if gey["child_leaf__acronym"]] + \
-            get_learning_acronyms_inside_education_groups([gey["child_branch"] for gey in geys if gey["child_branch"]])
+    child_leafs_acronyms = [gey["child_leaf__acronym"] for gey in geys if gey["child_leaf__acronym"]]
+    child_branches = [gey["child_branch"] for gey in geys if gey["child_branch"]]
+    return child_leafs_acronyms + get_learning_acronyms_inside_education_groups(child_branches)
 
 
 def get_learning_units_which_are_outside_of_education_group(education_group_year_root, list_learning_unit_acronyms):
