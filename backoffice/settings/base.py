@@ -432,11 +432,3 @@ SECTION_LIST = [
             labels=['contacts'],
             common_labels=[]),
 ]
-
-COMMON_SECTION_LIST = [
-    'agregations',
-    'caap',
-    'finalites_didactiques',
-    'module_complementaire',
-    'prerequis'
-]
