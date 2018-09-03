@@ -3464,7 +3464,7 @@ msgstr ""
 msgid "There are warnings in the form."
 msgstr ""
 
-msgid "Number of learning units"
+msgid "Number of elements"
 msgstr ""
 
 msgid "Education group year <a href='%(link)s'> %(acronym)s (%(academic_year)s) </a> successfuly updated."
