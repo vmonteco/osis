@@ -128,6 +128,9 @@ class LearningUnitYearModelForm(forms.ModelForm):
                     max_value=MAXIMUM_CREDITS)
             }
         }
+        widgets = {
+            'credits': forms.NumberInput(attrs={'step': '0.5'}),
+        }
 
     def post_clean(self, container_type):
         if container_type != INTERNSHIP and self.instance.internship_subtype:
