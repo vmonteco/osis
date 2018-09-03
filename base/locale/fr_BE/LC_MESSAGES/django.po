@@ -3586,7 +3586,7 @@ msgid "The registration form is available at the Secretariat of"
 msgstr "Le formulaire d'inscription est disponible au Secrétariat de"
 
 msgid "training"
-msgstr "Formation"
+msgstr "formation"
 
 msgid "faculty number"
 msgstr "N° facultaire"
