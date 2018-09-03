@@ -40,7 +40,7 @@ from base.models.enums.organization_type import MAIN
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
 from osis_common.utils.datetime import get_tzinfo
 
-PEDAGOGICAL_ENTITY_EXCEPTIONS = [
+PEDAGOGICAL_ENTITY_ADDED_EXCEPTIONS = [
     "ILV",
     "IUFC",
 ]
@@ -487,7 +487,7 @@ def _get_all_children(entity_version_id, direct_children_by_entity_version_id):
 def find_pedagogical_entities_version():
     return find_all_current_entities_version().filter(
         Q(entity__organization__type=MAIN),
-        Q(entity_type__in=PEDAGOGICAL_ENTITY_TYPES) | Q(acronym__in=PEDAGOGICAL_ENTITY_EXCEPTIONS),
+        Q(entity_type__in=PEDAGOGICAL_ENTITY_TYPES) | Q(acronym__in=PEDAGOGICAL_ENTITY_ADDED_EXCEPTIONS),
     ).order_by(
         'acronym'
     )
