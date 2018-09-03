@@ -123,7 +123,7 @@ def volume_total_verbose(learning_component_years):
     return "%(q1)gh + %(q2)gh" % {
         "q1": learning_component_years[0].hourly_volume_total_annual or 0,
         "q2": learning_component_years[1].hourly_volume_total_annual or 0,
-}
+    }
 
 
 def find_by_id(learning_component_year_id):
