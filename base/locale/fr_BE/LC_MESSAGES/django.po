@@ -1653,7 +1653,7 @@ msgid "PLATFORM"
 msgstr "Plateforme"
 
 msgid "LOGISTICS_ENTITY"
-msgstr "Entitée logistique"
+msgstr "Entité logistique"
 
 msgid "organogram"
 msgstr "Organigramme"
