@@ -23,7 +23,6 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.contrib.auth.models import Permission
 from django.test import TestCase, RequestFactory
 from django.urls import reverse
 from django.utils import timezone
@@ -37,8 +36,8 @@ from base.templatetags.education_group import li_with_deletion_perm, button_with
     link_pdf_content_education_group
 from base.tests.factories.academic_calendar import AcademicCalendarFactory
 from base.tests.factories.authorized_relationship import AuthorizedRelationshipFactory
-from base.tests.factories.education_group_year import TrainingFactory
-from base.tests.factories.person import PersonFactory
+from base.tests.factories.education_group_year import TrainingFactory, MiniTrainingFactory, GroupFactory
+from base.tests.factories.person import FacultyManagerFactory, CentralManagerFactory
 from base.tests.factories.person_entity import PersonEntityFactory
 
 DELETE_MSG = _("delete education group")
@@ -64,25 +63,15 @@ CUSTOM_LI_TEMPLATE = """
 """
 
 
-class TestEducationGroupTag(TestCase):
+class TestEducationGroupAsCentralManagerTag(TestCase):
+    """ This class will test the tag as central manager """
     def setUp(self):
         self.education_group_year = TrainingFactory()
-        self.person = PersonFactory()
+        self.person = CentralManagerFactory("delete_educationgroup", "change_educationgroup", "add_educationgroup")
         PersonEntityFactory(person=self.person, entity=self.education_group_year.management_entity)
+
         self.url = reverse('delete_education_group', args=[self.education_group_year.id, self.education_group_year.id])
-
-        self.person.user.user_permissions.add(Permission.objects.get(codename="delete_educationgroup"))
-        self.person.user.user_permissions.add(Permission.objects.get(codename="change_educationgroup"))
-        self.person.user.user_permissions.add(Permission.objects.get(codename="add_educationgroup"))
-
         self.client.force_login(user=self.person.user)
-
-        self.academic_calendar = AcademicCalendarFactory(
-            reference=EDUCATION_GROUP_EDITION,
-            start_date=timezone.now(),
-            end_date=timezone.now()
-        )
-
         self.context = {
             "person": self.person,
             "education_group_year": self.education_group_year,
@@ -93,32 +82,13 @@ class TestEducationGroupTag(TestCase):
         result = li_with_deletion_perm(self.context, self.url, DELETE_MSG)
         self.assertEqual(result, ENABLED_LI.format("link_delete", self.url, DELETE_MSG))
 
-    def test_li_without_deletion_perm(self):
-        self.academic_calendar.delete()
-
-        result = li_with_deletion_perm(self.context, self.url, DELETE_MSG)
-        self.assertEqual(result, DISABLED_LI.format("link_delete", PERMISSION_DENIED_MSG, DELETE_MSG))
-
     def test_button_with_permission(self):
         result = button_with_permission(self.context, "title", "id", "edit")
         self.assertEqual(result, BUTTON_TEMPLATE.format("title", "id", "", "fa-edit"))
 
-    def test_a_without_permission(self):
-        self.academic_calendar.delete()
-
-        result = button_with_permission(self.context, "title", "id", "edit")
-        self.assertEqual(result, BUTTON_TEMPLATE.format(PERMISSION_DENIED_MSG, "id", "disabled", "fa-edit"))
-
     def test_button_order_with_permission(self):
         result = button_order_with_permission(self.context, "title", "id", "edit")
         self.assertEqual(result, BUTTON_ORDER_TEMPLATE.format("title", "id", "edit", "", "fa-edit"))
-
-    def test__without_permission(self):
-        self.academic_calendar.delete()
-
-        result = button_order_with_permission(self.context, "title", "id", "edit")
-        self.assertEqual(result,
-                         BUTTON_ORDER_TEMPLATE.format(PERMISSION_DENIED_MSG, "id", "edit", "disabled", "fa-edit"))
 
     def test_li_with_create_perm_training(self):
         relation = AuthorizedRelationshipFactory(parent_type=self.education_group_year.education_group_type)
@@ -229,3 +199,68 @@ class TestEducationGroupTag(TestCase):
             text=_('Generate pdf'),
         )
         self.assertHTMLEqual(result, expected_result)
+
+
+class TestEducationGroupAsFacultyManagerTag(TestCase):
+    """ This class will test the tag as faculty manager """
+    def setUp(self):
+        self.education_group_year = TrainingFactory()
+        self.person = FacultyManagerFactory("delete_educationgroup", "change_educationgroup", "add_educationgroup")
+        PersonEntityFactory(person=self.person, entity=self.education_group_year.management_entity)
+
+        # Create an academic calendar in order to check permission [Faculty can modify when period is opened]
+        self.academic_calendar = AcademicCalendarFactory(
+            reference=EDUCATION_GROUP_EDITION,
+            start_date=timezone.now(),
+            end_date=timezone.now()
+        )
+
+        self.client.force_login(user=self.person.user)
+        self.url = reverse('delete_education_group', args=[self.education_group_year.id, self.education_group_year.id])
+        self.context = {
+            "person": self.person,
+            "education_group_year": self.education_group_year,
+            "request": RequestFactory().get("")
+        }
+
+    def test_button_tag_case_not_in_education_group_edition_period(self):
+        """ This test ensure that as faculty manager, the button tag is disabled when outside of encoding period"""
+        self.academic_calendar.delete()
+
+        result = button_with_permission(self.context, "title", "id", "edit")
+        self.assertEqual(result, BUTTON_TEMPLATE.format(PERMISSION_DENIED_MSG, "id", "disabled", "fa-edit"))
+
+    def test_button_tag_case_inside_education_group_edition_period(self):
+        result = button_with_permission(self.context, "title", "id", "edit")
+        self.assertEqual(result, BUTTON_TEMPLATE.format("title", "id", "", "fa-edit"))
+
+    def test_li_tag_case_not_in_education_group_edition_period(self):
+        """ This test ensure that as faculty manager, the li tag is disabled when outside of encoding period"""
+        self.academic_calendar.delete()
+
+        result = li_with_deletion_perm(self.context, self.url, DELETE_MSG)
+        self.assertEqual(result, DISABLED_LI.format("link_delete", PERMISSION_DENIED_MSG, DELETE_MSG))
+
+    def test_li_tag_case_inside_education_group_edition_period(self):
+        result = li_with_deletion_perm(self.context, self.url, DELETE_MSG)
+        self.assertEqual(result, ENABLED_LI.format("link_delete", self.url, DELETE_MSG))
+
+    def test_li_tag_case_mini_training_disabled(self):
+        """
+        This test ensure that as faculty manager, the li tag is disabled for mini training
+        Faculty manager must enter in proposition mode for mini training
+        """
+        self.context['education_group_year'] = MiniTrainingFactory()
+        result = li_with_create_perm_mini_training(self.context, self.url, "")
+        msg = _("The user has not permission to create a %(category)s.") % {"category": _(MINI_TRAINING)}
+        self.assertHTMLEqual(result, DISABLED_LI.format("link_create_mini_training", msg, ""))
+
+    def test_li_tag_case_training_disabled(self):
+        """
+        This test ensure that as faculty manager, the li tag is disabled for training
+        Faculty manager must enter in proposition mode for training
+        """
+        self.context['education_group_year'] = TrainingFactory()
+        result = li_with_create_perm_training(self.context, self.url, "")
+        msg = _("The user has not permission to create a %(category)s.") % {"category": _(TRAINING)}
+        self.assertHTMLEqual(result, DISABLED_LI.format("link_create_training", msg, ""))

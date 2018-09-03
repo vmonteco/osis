@@ -104,10 +104,10 @@ class TestCreate(TestCase):
                 self.assertRedirects(response, '/login/?next={}'.format(url))
 
     def test_permission_required(self):
-        for url in self.urls_without_parent_by_category.values():
+        for category, url in self.urls_without_parent_by_category.items():
             with self.subTest(url=url):
                 self.client.get(url)
-                self.mocked_perm.assert_called_with(self.person, None, None, raise_exception=True)
+                self.mocked_perm.assert_called_with(self.person, None, category, raise_exception=True)
 
     def test_template_used(self):
         for category in self.test_categories:
