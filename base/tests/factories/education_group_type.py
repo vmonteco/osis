@@ -23,11 +23,14 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+import operator
+
 import factory
 
 from factory.django import DjangoModelFactory
 
-from base.models.enums import education_group_categories
+from base.models.enums import education_group_categories, education_group_types
+
 
 class EducationGroupTypeFactory(DjangoModelFactory):
     class Meta:
@@ -35,5 +38,5 @@ class EducationGroupTypeFactory(DjangoModelFactory):
 
     external_id = factory.Sequence(lambda n: '10000000%02d' % n)
     category = education_group_categories.TRAINING
-    name = factory.Sequence(lambda n: 'Type of category - %d' % n)
+    name = factory.Iterator(education_group_types.TYPES, getter=operator.itemgetter(0))
 
