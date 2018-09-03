@@ -28,7 +28,7 @@ import collections
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
-from base.models.enums import education_group_categories
+from base.models.enums import education_group_categories, education_group_types
 from osis_common.models.osis_model_admin import OsisModelAdmin
 
 GROUP_TYPE_OPTION = 'Option'
@@ -56,12 +56,13 @@ class EducationGroupType(models.Model):
         max_length=25,
         choices=education_group_categories.CATEGORIES,
         default=education_group_categories.TRAINING,
-        verbose_name=_('type')
+        verbose_name=_('type'),
     )
 
     name = models.CharField(
         max_length=255,
-        verbose_name=_('training_type')
+        choices=education_group_types.TYPES,
+        verbose_name=_('training_type'),
     )
 
     def __str__(self):

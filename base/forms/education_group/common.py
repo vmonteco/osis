@@ -57,6 +57,11 @@ class MainEntitiesVersionChoiceField(EntitiesVersionChoiceField):
         super(MainEntitiesVersionChoiceField, self).__init__(queryset, *args, **kwargs)
 
 
+class EducationGroupTypeModelChoiceField(forms.ModelChoiceField):
+    def label_from_instance(self, obj):
+        return _(obj.name)
+
+
 class ValidationRuleEducationGroupTypeMixin(ValidationRuleMixin):
     """
     ValidationRuleMixin For EducationGroupType
@@ -108,7 +113,8 @@ class EducationGroupYearModelForm(ValidationRuleEducationGroupTypeMixin, Permiss
         model = EducationGroupYear
         field_classes = {
             "management_entity": MainEntitiesVersionChoiceField,
-            "main_teaching_campus": MainTeachingCampusChoiceField
+            "main_teaching_campus": MainTeachingCampusChoiceField,
+            "education_group_type": EducationGroupTypeModelChoiceField,
         }
         fields = []
 
@@ -273,7 +279,11 @@ class CommonBaseForm:
 
 
 class EducationGroupTypeForm(forms.Form):
-    name = forms.ModelChoiceField(EducationGroupType.objects.none(), label=_("training_type"), required=True)
+    name = EducationGroupTypeModelChoiceField(
+        EducationGroupType.objects.none(),
+        label=_("training_type"),
+        required=True,
+    )
 
     def __init__(self, parent, category, *args, **kwargs):
         super().__init__(*args, **kwargs)
