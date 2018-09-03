@@ -3571,6 +3571,24 @@ msgstr ""
 msgid "The prerequisites %s for the learning unit %s are not inside the selected formation %s"
 msgstr ""
 
+msgid "This form must be submitted to the secretariat of your faculty"
+msgstr ""
+
+msgid "This form must be signed by the designated authority and delivered to the secretariat of your faculty."
+msgstr ""
+
+msgid "The registration form is available at the Secretariat of"
+msgstr ""
+
+msgid "training"
+msgstr ""
+
+msgid "faculty number"
+msgstr ""
+
+msgid "(optional)"
+msgstr ""
+
 msgid "Agregation"
 msgstr ""
 
@@ -3698,4 +3716,7 @@ msgid "Complementary module"
 msgstr ""
 
 msgid "Sub group"
+msgstr ""
+
+msgid "The user has not permission to create a %(category)s."
 msgstr ""
