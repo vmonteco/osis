@@ -2,8 +2,6 @@
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "acronym",
-            "context": "TRAINING_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -12,28 +10,28 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_DAILY_MANAGEMENT",
+            "field_name": "acronym"
         },
         "pk": 1
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "acronym",
-            "context": "TRAINING_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PROPOSAL_MANAGEMENT",
+            "field_name": "acronym"
         },
         "pk": 2
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "acronym",
-            "context": "TRAINING_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -42,15 +40,15 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PGRM_ENCODING_PERIOD",
+            "field_name": "acronym"
         },
         "pk": 3
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "partial_acronym",
-            "context": "TRAINING_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -59,28 +57,28 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_DAILY_MANAGEMENT",
+            "field_name": "partial_acronym"
         },
         "pk": 4
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "partial_acronym",
-            "context": "TRAINING_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PROPOSAL_MANAGEMENT",
+            "field_name": "partial_acronym"
         },
         "pk": 5
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "partial_acronym",
-            "context": "TRAINING_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -92,15 +90,15 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PGRM_ENCODING_PERIOD",
+            "field_name": "partial_acronym"
         },
         "pk": 6
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "education_group_type",
-            "context": "TRAINING_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -109,28 +107,28 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_DAILY_MANAGEMENT",
+            "field_name": "education_group_type"
         },
         "pk": 7
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "education_group_type",
-            "context": "TRAINING_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PROPOSAL_MANAGEMENT",
+            "field_name": "education_group_type"
         },
         "pk": 8
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "education_group_type",
-            "context": "TRAINING_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -139,15 +137,15 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PGRM_ENCODING_PERIOD",
+            "field_name": "education_group_type"
         },
         "pk": 9
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "title",
-            "context": "TRAINING_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -156,28 +154,28 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_DAILY_MANAGEMENT",
+            "field_name": "title"
         },
         "pk": 10
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "title",
-            "context": "TRAINING_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PROPOSAL_MANAGEMENT",
+            "field_name": "title"
         },
         "pk": 11
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "title",
-            "context": "TRAINING_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -186,15 +184,15 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PGRM_ENCODING_PERIOD",
+            "field_name": "title"
         },
         "pk": 12
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "title_english",
-            "context": "TRAINING_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -203,28 +201,28 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_DAILY_MANAGEMENT",
+            "field_name": "title_english"
         },
         "pk": 13
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "title_english",
-            "context": "TRAINING_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PROPOSAL_MANAGEMENT",
+            "field_name": "title_english"
         },
         "pk": 14
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "title_english",
-            "context": "TRAINING_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -233,15 +231,15 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PGRM_ENCODING_PERIOD",
+            "field_name": "title_english"
         },
         "pk": 15
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "enrollment_enabled",
-            "context": "TRAINING_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -250,28 +248,28 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_DAILY_MANAGEMENT",
+            "field_name": "enrollment_enabled"
         },
         "pk": 16
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "enrollment_enabled",
-            "context": "TRAINING_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PROPOSAL_MANAGEMENT",
+            "field_name": "enrollment_enabled"
         },
         "pk": 17
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "enrollment_enabled",
-            "context": "TRAINING_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -280,15 +278,15 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PGRM_ENCODING_PERIOD",
+            "field_name": "enrollment_enabled"
         },
         "pk": 18
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "partial_deliberation",
-            "context": "TRAINING_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -297,28 +295,28 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_DAILY_MANAGEMENT",
+            "field_name": "partial_deliberation"
         },
         "pk": 19
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "partial_deliberation",
-            "context": "TRAINING_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PROPOSAL_MANAGEMENT",
+            "field_name": "partial_deliberation"
         },
         "pk": 20
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "partial_deliberation",
-            "context": "TRAINING_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -327,15 +325,15 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PGRM_ENCODING_PERIOD",
+            "field_name": "partial_deliberation"
         },
         "pk": 21
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "default_learning_unit_enrollment",
-            "context": "TRAINING_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -347,28 +345,28 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_DAILY_MANAGEMENT",
+            "field_name": "default_learning_unit_enrollment"
         },
         "pk": 22
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "default_learning_unit_enrollment",
-            "context": "TRAINING_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PROPOSAL_MANAGEMENT",
+            "field_name": "default_learning_unit_enrollment"
         },
         "pk": 23
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "default_learning_unit_enrollment",
-            "context": "TRAINING_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -380,15 +378,15 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PGRM_ENCODING_PERIOD",
+            "field_name": "default_learning_unit_enrollment"
         },
         "pk": 24
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "academic_year",
-            "context": "TRAINING_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -397,28 +395,28 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_DAILY_MANAGEMENT",
+            "field_name": "academic_year"
         },
         "pk": 25
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "academic_year",
-            "context": "TRAINING_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PROPOSAL_MANAGEMENT",
+            "field_name": "academic_year"
         },
         "pk": 26
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "academic_year",
-            "context": "TRAINING_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -427,15 +425,15 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PGRM_ENCODING_PERIOD",
+            "field_name": "academic_year"
         },
         "pk": 27
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "academic_type",
-            "context": "TRAINING_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -444,28 +442,28 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_DAILY_MANAGEMENT",
+            "field_name": "academic_type"
         },
         "pk": 28
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "academic_type",
-            "context": "TRAINING_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PROPOSAL_MANAGEMENT",
+            "field_name": "academic_type"
         },
         "pk": 29
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "academic_type",
-            "context": "TRAINING_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -474,15 +472,15 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PGRM_ENCODING_PERIOD",
+            "field_name": "academic_type"
         },
         "pk": 30
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "active",
-            "context": "TRAINING_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -491,28 +489,28 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_DAILY_MANAGEMENT",
+            "field_name": "active"
         },
         "pk": 31
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "active",
-            "context": "TRAINING_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PROPOSAL_MANAGEMENT",
+            "field_name": "active"
         },
         "pk": 32
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "active",
-            "context": "TRAINING_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -521,15 +519,15 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PGRM_ENCODING_PERIOD",
+            "field_name": "active"
         },
         "pk": 33
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "admission_exam",
-            "context": "TRAINING_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -538,28 +536,28 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_DAILY_MANAGEMENT",
+            "field_name": "admission_exam"
         },
         "pk": 34
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "admission_exam",
-            "context": "TRAINING_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PROPOSAL_MANAGEMENT",
+            "field_name": "admission_exam"
         },
         "pk": 35
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "admission_exam",
-            "context": "TRAINING_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -568,15 +566,15 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PGRM_ENCODING_PERIOD",
+            "field_name": "admission_exam"
         },
         "pk": 36
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "diploma_printing_orientation",
-            "context": "TRAINING_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -585,28 +583,28 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_DAILY_MANAGEMENT",
+            "field_name": "diploma_printing_orientation"
         },
         "pk": 37
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "diploma_printing_orientation",
-            "context": "TRAINING_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PROPOSAL_MANAGEMENT",
+            "field_name": "diploma_printing_orientation"
         },
         "pk": 38
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "diploma_printing_orientation",
-            "context": "TRAINING_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -615,15 +613,15 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PGRM_ENCODING_PERIOD",
+            "field_name": "diploma_printing_orientation"
         },
         "pk": 39
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "diploma_printing_title",
-            "context": "TRAINING_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -632,28 +630,28 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_DAILY_MANAGEMENT",
+            "field_name": "diploma_printing_title"
         },
         "pk": 40
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "diploma_printing_title",
-            "context": "TRAINING_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PROPOSAL_MANAGEMENT",
+            "field_name": "diploma_printing_title"
         },
         "pk": 41
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "diploma_printing_title",
-            "context": "TRAINING_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -662,15 +660,15 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PGRM_ENCODING_PERIOD",
+            "field_name": "diploma_printing_title"
         },
         "pk": 42
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "dissertation",
-            "context": "TRAINING_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -679,28 +677,28 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_DAILY_MANAGEMENT",
+            "field_name": "dissertation"
         },
         "pk": 43
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "dissertation",
-            "context": "TRAINING_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PROPOSAL_MANAGEMENT",
+            "field_name": "dissertation"
         },
         "pk": 44
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "dissertation",
-            "context": "TRAINING_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -709,15 +707,15 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PGRM_ENCODING_PERIOD",
+            "field_name": "dissertation"
         },
         "pk": 45
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "english_activities",
-            "context": "TRAINING_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -726,28 +724,28 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_DAILY_MANAGEMENT",
+            "field_name": "english_activities"
         },
         "pk": 46
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "english_activities",
-            "context": "TRAINING_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PROPOSAL_MANAGEMENT",
+            "field_name": "english_activities"
         },
         "pk": 47
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "english_activities",
-            "context": "TRAINING_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -756,15 +754,15 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PGRM_ENCODING_PERIOD",
+            "field_name": "english_activities"
         },
         "pk": 48
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "enrollment_campus",
-            "context": "TRAINING_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -773,28 +771,28 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_DAILY_MANAGEMENT",
+            "field_name": "enrollment_campus"
         },
         "pk": 49
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "enrollment_campus",
-            "context": "TRAINING_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PROPOSAL_MANAGEMENT",
+            "field_name": "enrollment_campus"
         },
         "pk": 50
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "enrollment_campus",
-            "context": "TRAINING_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -803,15 +801,15 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PGRM_ENCODING_PERIOD",
+            "field_name": "enrollment_campus"
         },
         "pk": 51
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "funding",
-            "context": "TRAINING_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -820,28 +818,28 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_DAILY_MANAGEMENT",
+            "field_name": "funding"
         },
         "pk": 52
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "funding",
-            "context": "TRAINING_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PROPOSAL_MANAGEMENT",
+            "field_name": "funding"
         },
         "pk": 53
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "funding",
-            "context": "TRAINING_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -850,15 +848,15 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PGRM_ENCODING_PERIOD",
+            "field_name": "funding"
         },
         "pk": 54
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "funding_cud",
-            "context": "TRAINING_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -867,28 +865,28 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_DAILY_MANAGEMENT",
+            "field_name": "funding_cud"
         },
         "pk": 55
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "funding_cud",
-            "context": "TRAINING_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PROPOSAL_MANAGEMENT",
+            "field_name": "funding_cud"
         },
         "pk": 56
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "funding_cud",
-            "context": "TRAINING_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -897,15 +895,15 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PGRM_ENCODING_PERIOD",
+            "field_name": "funding_cud"
         },
         "pk": 57
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "funding_direction",
-            "context": "TRAINING_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -914,28 +912,28 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_DAILY_MANAGEMENT",
+            "field_name": "funding_direction"
         },
         "pk": 58
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "funding_direction",
-            "context": "TRAINING_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PROPOSAL_MANAGEMENT",
+            "field_name": "funding_direction"
         },
         "pk": 59
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "funding_direction",
-            "context": "TRAINING_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -944,15 +942,15 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PGRM_ENCODING_PERIOD",
+            "field_name": "funding_direction"
         },
         "pk": 60
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "funding_direction_cud",
-            "context": "TRAINING_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -961,28 +959,28 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_DAILY_MANAGEMENT",
+            "field_name": "funding_direction_cud"
         },
         "pk": 61
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "funding_direction_cud",
-            "context": "TRAINING_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PROPOSAL_MANAGEMENT",
+            "field_name": "funding_direction_cud"
         },
         "pk": 62
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "funding_direction_cud",
-            "context": "TRAINING_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -991,15 +989,15 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PGRM_ENCODING_PERIOD",
+            "field_name": "funding_direction_cud"
         },
         "pk": 63
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "inter_organization_information",
-            "context": "TRAINING_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -1008,28 +1006,28 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_DAILY_MANAGEMENT",
+            "field_name": "inter_organization_information"
         },
         "pk": 64
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "inter_organization_information",
-            "context": "TRAINING_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PROPOSAL_MANAGEMENT",
+            "field_name": "inter_organization_information"
         },
         "pk": 65
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "inter_organization_information",
-            "context": "TRAINING_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -1038,15 +1036,15 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PGRM_ENCODING_PERIOD",
+            "field_name": "inter_organization_information"
         },
         "pk": 66
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "internship",
-            "context": "TRAINING_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -1055,28 +1053,28 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_DAILY_MANAGEMENT",
+            "field_name": "internship"
         },
         "pk": 67
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "internship",
-            "context": "TRAINING_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PROPOSAL_MANAGEMENT",
+            "field_name": "internship"
         },
         "pk": 68
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "internship",
-            "context": "TRAINING_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -1085,15 +1083,15 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PGRM_ENCODING_PERIOD",
+            "field_name": "internship"
         },
         "pk": 69
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "joint_diploma",
-            "context": "TRAINING_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -1102,28 +1100,28 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_DAILY_MANAGEMENT",
+            "field_name": "joint_diploma"
         },
         "pk": 70
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "joint_diploma",
-            "context": "TRAINING_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PROPOSAL_MANAGEMENT",
+            "field_name": "joint_diploma"
         },
         "pk": 71
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "joint_diploma",
-            "context": "TRAINING_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -1132,15 +1130,15 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PGRM_ENCODING_PERIOD",
+            "field_name": "joint_diploma"
         },
         "pk": 72
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "main_teaching_campus",
-            "context": "TRAINING_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -1149,28 +1147,28 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_DAILY_MANAGEMENT",
+            "field_name": "main_teaching_campus"
         },
         "pk": 73
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "main_teaching_campus",
-            "context": "TRAINING_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PROPOSAL_MANAGEMENT",
+            "field_name": "main_teaching_campus"
         },
         "pk": 74
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "main_teaching_campus",
-            "context": "TRAINING_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -1179,15 +1177,15 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PGRM_ENCODING_PERIOD",
+            "field_name": "main_teaching_campus"
         },
         "pk": 75
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "other_campus_activities",
-            "context": "TRAINING_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -1196,28 +1194,28 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_DAILY_MANAGEMENT",
+            "field_name": "other_campus_activities"
         },
         "pk": 76
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "other_campus_activities",
-            "context": "TRAINING_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PROPOSAL_MANAGEMENT",
+            "field_name": "other_campus_activities"
         },
         "pk": 77
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "other_campus_activities",
-            "context": "TRAINING_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -1226,15 +1224,15 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PGRM_ENCODING_PERIOD",
+            "field_name": "other_campus_activities"
         },
         "pk": 78
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "other_language_activities",
-            "context": "TRAINING_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -1243,28 +1241,28 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_DAILY_MANAGEMENT",
+            "field_name": "other_language_activities"
         },
         "pk": 79
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "other_language_activities",
-            "context": "TRAINING_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PROPOSAL_MANAGEMENT",
+            "field_name": "other_language_activities"
         },
         "pk": 80
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "other_language_activities",
-            "context": "TRAINING_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -1273,15 +1271,15 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PGRM_ENCODING_PERIOD",
+            "field_name": "other_language_activities"
         },
         "pk": 81
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "professional_title",
-            "context": "TRAINING_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -1290,28 +1288,28 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_DAILY_MANAGEMENT",
+            "field_name": "professional_title"
         },
         "pk": 82
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "professional_title",
-            "context": "TRAINING_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PROPOSAL_MANAGEMENT",
+            "field_name": "professional_title"
         },
         "pk": 83
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "professional_title",
-            "context": "TRAINING_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -1320,15 +1318,15 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PGRM_ENCODING_PERIOD",
+            "field_name": "professional_title"
         },
         "pk": 84
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "schedule_type",
-            "context": "TRAINING_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -1337,28 +1335,28 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_DAILY_MANAGEMENT",
+            "field_name": "schedule_type"
         },
         "pk": 85
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "schedule_type",
-            "context": "TRAINING_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PROPOSAL_MANAGEMENT",
+            "field_name": "schedule_type"
         },
         "pk": 86
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "schedule_type",
-            "context": "TRAINING_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -1367,15 +1365,15 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PGRM_ENCODING_PERIOD",
+            "field_name": "schedule_type"
         },
         "pk": 87
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "university_certificate",
-            "context": "TRAINING_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -1384,28 +1382,28 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_DAILY_MANAGEMENT",
+            "field_name": "university_certificate"
         },
         "pk": 88
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "university_certificate",
-            "context": "TRAINING_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PROPOSAL_MANAGEMENT",
+            "field_name": "university_certificate"
         },
         "pk": 89
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "university_certificate",
-            "context": "TRAINING_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -1414,15 +1412,15 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PGRM_ENCODING_PERIOD",
+            "field_name": "university_certificate"
         },
         "pk": 90
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "inter_university_abroad",
-            "context": "TRAINING_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -1431,28 +1429,28 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_DAILY_MANAGEMENT",
+            "field_name": "inter_university_abroad"
         },
         "pk": 91
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "inter_university_abroad",
-            "context": "TRAINING_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PROPOSAL_MANAGEMENT",
+            "field_name": "inter_university_abroad"
         },
         "pk": 92
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "inter_university_abroad",
-            "context": "TRAINING_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -1461,15 +1459,15 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PGRM_ENCODING_PERIOD",
+            "field_name": "inter_university_abroad"
         },
         "pk": 93
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "inter_university_belgium",
-            "context": "TRAINING_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -1478,28 +1476,28 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_DAILY_MANAGEMENT",
+            "field_name": "inter_university_belgium"
         },
         "pk": 94
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "inter_university_belgium",
-            "context": "TRAINING_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PROPOSAL_MANAGEMENT",
+            "field_name": "inter_university_belgium"
         },
         "pk": 95
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "inter_university_belgium",
-            "context": "TRAINING_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -1508,15 +1506,15 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PGRM_ENCODING_PERIOD",
+            "field_name": "inter_university_belgium"
         },
         "pk": 96
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "inter_university_french_community",
-            "context": "TRAINING_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -1525,28 +1523,28 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_DAILY_MANAGEMENT",
+            "field_name": "inter_university_french_community"
         },
         "pk": 97
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "inter_university_french_community",
-            "context": "TRAINING_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PROPOSAL_MANAGEMENT",
+            "field_name": "inter_university_french_community"
         },
         "pk": 98
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "inter_university_french_community",
-            "context": "TRAINING_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -1555,15 +1553,15 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PGRM_ENCODING_PERIOD",
+            "field_name": "inter_university_french_community"
         },
         "pk": 99
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "primary_language",
-            "context": "TRAINING_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -1572,28 +1570,28 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_DAILY_MANAGEMENT",
+            "field_name": "primary_language"
         },
         "pk": 100
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "primary_language",
-            "context": "TRAINING_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PROPOSAL_MANAGEMENT",
+            "field_name": "primary_language"
         },
         "pk": 101
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "primary_language",
-            "context": "TRAINING_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -1602,15 +1600,15 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PGRM_ENCODING_PERIOD",
+            "field_name": "primary_language"
         },
         "pk": 102
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "duration",
-            "context": "TRAINING_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -1619,28 +1617,28 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_DAILY_MANAGEMENT",
+            "field_name": "duration"
         },
         "pk": 103
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "duration",
-            "context": "TRAINING_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PROPOSAL_MANAGEMENT",
+            "field_name": "duration"
         },
         "pk": 104
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "duration",
-            "context": "TRAINING_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -1649,15 +1647,15 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PGRM_ENCODING_PERIOD",
+            "field_name": "duration"
         },
         "pk": 105
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "duration_unit",
-            "context": "TRAINING_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -1666,28 +1664,28 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_DAILY_MANAGEMENT",
+            "field_name": "duration_unit"
         },
         "pk": 106
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "duration_unit",
-            "context": "TRAINING_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PROPOSAL_MANAGEMENT",
+            "field_name": "duration_unit"
         },
         "pk": 107
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "duration_unit",
-            "context": "TRAINING_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -1696,15 +1694,15 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PGRM_ENCODING_PERIOD",
+            "field_name": "duration_unit"
         },
         "pk": 108
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "keywords",
-            "context": "TRAINING_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -1713,28 +1711,28 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_DAILY_MANAGEMENT",
+            "field_name": "keywords"
         },
         "pk": 109
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "keywords",
-            "context": "TRAINING_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PROPOSAL_MANAGEMENT",
+            "field_name": "keywords"
         },
         "pk": 110
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "keywords",
-            "context": "TRAINING_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -1743,15 +1741,15 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PGRM_ENCODING_PERIOD",
+            "field_name": "keywords"
         },
         "pk": 111
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "language_association",
-            "context": "TRAINING_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -1760,28 +1758,28 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_DAILY_MANAGEMENT",
+            "field_name": "language_association"
         },
         "pk": 112
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "language_association",
-            "context": "TRAINING_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PROPOSAL_MANAGEMENT",
+            "field_name": "language_association"
         },
         "pk": 113
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "language_association",
-            "context": "TRAINING_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -1790,15 +1788,15 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PGRM_ENCODING_PERIOD",
+            "field_name": "language_association"
         },
         "pk": 114
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "remark",
-            "context": "TRAINING_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -1807,28 +1805,28 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_DAILY_MANAGEMENT",
+            "field_name": "remark"
         },
         "pk": 115
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "remark",
-            "context": "TRAINING_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PROPOSAL_MANAGEMENT",
+            "field_name": "remark"
         },
         "pk": 116
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "remark",
-            "context": "TRAINING_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -1840,15 +1838,15 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PGRM_ENCODING_PERIOD",
+            "field_name": "remark"
         },
         "pk": 117
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "remark_english",
-            "context": "TRAINING_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -1857,28 +1855,28 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_DAILY_MANAGEMENT",
+            "field_name": "remark_english"
         },
         "pk": 118
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "remark_english",
-            "context": "TRAINING_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PROPOSAL_MANAGEMENT",
+            "field_name": "remark_english"
         },
         "pk": 119
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "remark_english",
-            "context": "TRAINING_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -1890,15 +1888,15 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PGRM_ENCODING_PERIOD",
+            "field_name": "remark_english"
         },
         "pk": 120
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "credits",
-            "context": "TRAINING_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -1907,28 +1905,28 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_DAILY_MANAGEMENT",
+            "field_name": "credits"
         },
         "pk": 121
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "credits",
-            "context": "TRAINING_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PROPOSAL_MANAGEMENT",
+            "field_name": "credits"
         },
         "pk": 122
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "credits",
-            "context": "TRAINING_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -1940,15 +1938,15 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PGRM_ENCODING_PERIOD",
+            "field_name": "credits"
         },
         "pk": 123
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "administration_entity",
-            "context": "TRAINING_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -1957,28 +1955,28 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_DAILY_MANAGEMENT",
+            "field_name": "administration_entity"
         },
         "pk": 124
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "administration_entity",
-            "context": "TRAINING_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PROPOSAL_MANAGEMENT",
+            "field_name": "administration_entity"
         },
         "pk": 125
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "administration_entity",
-            "context": "TRAINING_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -1987,15 +1985,15 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PGRM_ENCODING_PERIOD",
+            "field_name": "administration_entity"
         },
         "pk": 126
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "management_entity",
-            "context": "TRAINING_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -2004,28 +2002,28 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_DAILY_MANAGEMENT",
+            "field_name": "management_entity"
         },
         "pk": 127
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "management_entity",
-            "context": "TRAINING_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PROPOSAL_MANAGEMENT",
+            "field_name": "management_entity"
         },
         "pk": 128
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "management_entity",
-            "context": "TRAINING_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -2034,15 +2032,15 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PGRM_ENCODING_PERIOD",
+            "field_name": "management_entity"
         },
         "pk": 129
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "weighting",
-            "context": "TRAINING_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -2051,28 +2049,28 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_DAILY_MANAGEMENT",
+            "field_name": "weighting"
         },
         "pk": 130
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "weighting",
-            "context": "TRAINING_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PROPOSAL_MANAGEMENT",
+            "field_name": "weighting"
         },
         "pk": 131
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "weighting",
-            "context": "TRAINING_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -2081,15 +2079,15 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PGRM_ENCODING_PERIOD",
+            "field_name": "weighting"
         },
         "pk": 132
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "decree_category",
-            "context": "TRAINING_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -2098,28 +2096,28 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_DAILY_MANAGEMENT",
+            "field_name": "decree_category"
         },
         "pk": 133
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "decree_category",
-            "context": "TRAINING_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PROPOSAL_MANAGEMENT",
+            "field_name": "decree_category"
         },
         "pk": 134
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "decree_category",
-            "context": "TRAINING_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -2128,15 +2126,15 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PGRM_ENCODING_PERIOD",
+            "field_name": "decree_category"
         },
         "pk": 135
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "rate_code",
-            "context": "TRAINING_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -2145,28 +2143,28 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_DAILY_MANAGEMENT",
+            "field_name": "rate_code"
         },
         "pk": 136
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "rate_code",
-            "context": "TRAINING_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PROPOSAL_MANAGEMENT",
+            "field_name": "rate_code"
         },
         "pk": 137
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "rate_code",
-            "context": "TRAINING_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -2175,15 +2173,15 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PGRM_ENCODING_PERIOD",
+            "field_name": "rate_code"
         },
         "pk": 138
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "main_domain",
-            "context": "TRAINING_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -2192,28 +2190,28 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_DAILY_MANAGEMENT",
+            "field_name": "main_domain"
         },
         "pk": 139
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "main_domain",
-            "context": "TRAINING_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PROPOSAL_MANAGEMENT",
+            "field_name": "main_domain"
         },
         "pk": 140
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "main_domain",
-            "context": "TRAINING_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -2222,15 +2220,15 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PGRM_ENCODING_PERIOD",
+            "field_name": "main_domain"
         },
         "pk": 141
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "secondary_domains",
-            "context": "TRAINING_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -2239,28 +2237,28 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_DAILY_MANAGEMENT",
+            "field_name": "secondary_domains"
         },
         "pk": 142
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "secondary_domains",
-            "context": "TRAINING_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PROPOSAL_MANAGEMENT",
+            "field_name": "secondary_domains"
         },
         "pk": 143
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "secondary_domains",
-            "context": "TRAINING_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -2269,15 +2267,15 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PGRM_ENCODING_PERIOD",
+            "field_name": "secondary_domains"
         },
         "pk": 144
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "constraint_type",
-            "context": "TRAINING_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -2286,28 +2284,28 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_DAILY_MANAGEMENT",
+            "field_name": "constraint_type"
         },
         "pk": 145
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "constraint_type",
-            "context": "TRAINING_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PROPOSAL_MANAGEMENT",
+            "field_name": "constraint_type"
         },
         "pk": 146
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "constraint_type",
-            "context": "TRAINING_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -2319,15 +2317,15 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PGRM_ENCODING_PERIOD",
+            "field_name": "constraint_type"
         },
         "pk": 147
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "max_constraint",
-            "context": "TRAINING_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -2336,28 +2334,28 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_DAILY_MANAGEMENT",
+            "field_name": "max_constraint"
         },
         "pk": 148
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "max_constraint",
-            "context": "TRAINING_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PROPOSAL_MANAGEMENT",
+            "field_name": "max_constraint"
         },
         "pk": 149
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "max_constraint",
-            "context": "TRAINING_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -2369,15 +2367,15 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PGRM_ENCODING_PERIOD",
+            "field_name": "max_constraint"
         },
         "pk": 150
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "min_constraint",
-            "context": "TRAINING_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -2386,28 +2384,28 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_DAILY_MANAGEMENT",
+            "field_name": "min_constraint"
         },
         "pk": 151
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "min_constraint",
-            "context": "TRAINING_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PROPOSAL_MANAGEMENT",
+            "field_name": "min_constraint"
         },
         "pk": 152
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "min_constraint",
-            "context": "TRAINING_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -2419,15 +2417,15 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "TRAINING_PGRM_ENCODING_PERIOD",
+            "field_name": "min_constraint"
         },
         "pk": 153
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "end_year",
-            "context": "TRAINING_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -2436,28 +2434,28 @@
             "content_type": [
                 "base",
                 "educationgroup"
-            ]
+            ],
+            "context": "TRAINING_DAILY_MANAGEMENT",
+            "field_name": "end_year"
         },
         "pk": 154
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "end_year",
-            "context": "TRAINING_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroup"
-            ]
+            ],
+            "context": "TRAINING_PROPOSAL_MANAGEMENT",
+            "field_name": "end_year"
         },
         "pk": 155
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "end_year",
-            "context": "TRAINING_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -2466,15 +2464,15 @@
             "content_type": [
                 "base",
                 "educationgroup"
-            ]
+            ],
+            "context": "TRAINING_PGRM_ENCODING_PERIOD",
+            "field_name": "end_year"
         },
         "pk": 156
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "start_year",
-            "context": "TRAINING_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -2483,28 +2481,28 @@
             "content_type": [
                 "base",
                 "educationgroup"
-            ]
+            ],
+            "context": "TRAINING_DAILY_MANAGEMENT",
+            "field_name": "start_year"
         },
         "pk": 157
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "start_year",
-            "context": "TRAINING_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroup"
-            ]
+            ],
+            "context": "TRAINING_PROPOSAL_MANAGEMENT",
+            "field_name": "start_year"
         },
         "pk": 158
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "start_year",
-            "context": "TRAINING_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -2513,15 +2511,15 @@
             "content_type": [
                 "base",
                 "educationgroup"
-            ]
+            ],
+            "context": "TRAINING_PGRM_ENCODING_PERIOD",
+            "field_name": "start_year"
         },
         "pk": 159
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "acronym",
-            "context": "MINI_TRAINING_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -2530,28 +2528,28 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "MINI_TRAINING_DAILY_MANAGEMENT",
+            "field_name": "acronym"
         },
         "pk": 160
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "acronym",
-            "context": "MINI_TRAINING_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "MINI_TRAINING_PROPOSAL_MANAGEMENT",
+            "field_name": "acronym"
         },
         "pk": 161
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "acronym",
-            "context": "MINI_TRAINING_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -2560,15 +2558,15 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "MINI_TRAINING_PGRM_ENCODING_PERIOD",
+            "field_name": "acronym"
         },
         "pk": 162
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "partial_acronym",
-            "context": "MINI_TRAINING_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -2577,28 +2575,28 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "MINI_TRAINING_DAILY_MANAGEMENT",
+            "field_name": "partial_acronym"
         },
         "pk": 163
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "partial_acronym",
-            "context": "MINI_TRAINING_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "MINI_TRAINING_PROPOSAL_MANAGEMENT",
+            "field_name": "partial_acronym"
         },
         "pk": 164
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "partial_acronym",
-            "context": "MINI_TRAINING_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -2610,15 +2608,15 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "MINI_TRAINING_PGRM_ENCODING_PERIOD",
+            "field_name": "partial_acronym"
         },
         "pk": 165
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "education_group_type",
-            "context": "MINI_TRAINING_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -2627,28 +2625,28 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "MINI_TRAINING_DAILY_MANAGEMENT",
+            "field_name": "education_group_type"
         },
         "pk": 166
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "education_group_type",
-            "context": "MINI_TRAINING_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "MINI_TRAINING_PROPOSAL_MANAGEMENT",
+            "field_name": "education_group_type"
         },
         "pk": 167
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "education_group_type",
-            "context": "MINI_TRAINING_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -2657,15 +2655,15 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "MINI_TRAINING_PGRM_ENCODING_PERIOD",
+            "field_name": "education_group_type"
         },
         "pk": 168
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "title",
-            "context": "MINI_TRAINING_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -2674,28 +2672,28 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "MINI_TRAINING_DAILY_MANAGEMENT",
+            "field_name": "title"
         },
         "pk": 169
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "title",
-            "context": "MINI_TRAINING_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "MINI_TRAINING_PROPOSAL_MANAGEMENT",
+            "field_name": "title"
         },
         "pk": 170
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "title",
-            "context": "MINI_TRAINING_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -2704,15 +2702,15 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "MINI_TRAINING_PGRM_ENCODING_PERIOD",
+            "field_name": "title"
         },
         "pk": 171
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "title_english",
-            "context": "MINI_TRAINING_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -2721,28 +2719,28 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "MINI_TRAINING_DAILY_MANAGEMENT",
+            "field_name": "title_english"
         },
         "pk": 172
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "title_english",
-            "context": "MINI_TRAINING_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "MINI_TRAINING_PROPOSAL_MANAGEMENT",
+            "field_name": "title_english"
         },
         "pk": 173
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "title_english",
-            "context": "MINI_TRAINING_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -2751,15 +2749,15 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "MINI_TRAINING_PGRM_ENCODING_PERIOD",
+            "field_name": "title_english"
         },
         "pk": 174
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "credits",
-            "context": "MINI_TRAINING_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -2768,28 +2766,28 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "MINI_TRAINING_DAILY_MANAGEMENT",
+            "field_name": "credits"
         },
         "pk": 175
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "credits",
-            "context": "MINI_TRAINING_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "MINI_TRAINING_PROPOSAL_MANAGEMENT",
+            "field_name": "credits"
         },
         "pk": 176
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "credits",
-            "context": "MINI_TRAINING_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -2801,15 +2799,15 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "MINI_TRAINING_PGRM_ENCODING_PERIOD",
+            "field_name": "credits"
         },
         "pk": 177
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "management_entity",
-            "context": "MINI_TRAINING_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -2818,28 +2816,28 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "MINI_TRAINING_DAILY_MANAGEMENT",
+            "field_name": "management_entity"
         },
         "pk": 178
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "management_entity",
-            "context": "MINI_TRAINING_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "MINI_TRAINING_PROPOSAL_MANAGEMENT",
+            "field_name": "management_entity"
         },
         "pk": 179
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "management_entity",
-            "context": "MINI_TRAINING_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -2848,15 +2846,15 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "MINI_TRAINING_PGRM_ENCODING_PERIOD",
+            "field_name": "management_entity"
         },
         "pk": 180
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "academic_year",
-            "context": "MINI_TRAINING_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -2865,28 +2863,28 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "MINI_TRAINING_DAILY_MANAGEMENT",
+            "field_name": "academic_year"
         },
         "pk": 181
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "academic_year",
-            "context": "MINI_TRAINING_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "MINI_TRAINING_PROPOSAL_MANAGEMENT",
+            "field_name": "academic_year"
         },
         "pk": 182
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "academic_year",
-            "context": "MINI_TRAINING_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -2895,15 +2893,15 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "MINI_TRAINING_PGRM_ENCODING_PERIOD",
+            "field_name": "academic_year"
         },
         "pk": 183
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "end_year",
-            "context": "MINI_TRAINING_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -2912,28 +2910,28 @@
             "content_type": [
                 "base",
                 "educationgroup"
-            ]
+            ],
+            "context": "MINI_TRAINING_DAILY_MANAGEMENT",
+            "field_name": "end_year"
         },
         "pk": 184
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "end_year",
-            "context": "MINI_TRAINING_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroup"
-            ]
+            ],
+            "context": "MINI_TRAINING_PROPOSAL_MANAGEMENT",
+            "field_name": "end_year"
         },
         "pk": 185
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "end_year",
-            "context": "MINI_TRAINING_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -2942,15 +2940,15 @@
             "content_type": [
                 "base",
                 "educationgroup"
-            ]
+            ],
+            "context": "MINI_TRAINING_PGRM_ENCODING_PERIOD",
+            "field_name": "end_year"
         },
         "pk": 186
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "start_year",
-            "context": "MINI_TRAINING_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -2959,28 +2957,28 @@
             "content_type": [
                 "base",
                 "educationgroup"
-            ]
+            ],
+            "context": "MINI_TRAINING_DAILY_MANAGEMENT",
+            "field_name": "start_year"
         },
         "pk": 187
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "start_year",
-            "context": "MINI_TRAINING_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroup"
-            ]
+            ],
+            "context": "MINI_TRAINING_PROPOSAL_MANAGEMENT",
+            "field_name": "start_year"
         },
         "pk": 188
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "start_year",
-            "context": "MINI_TRAINING_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -2989,15 +2987,15 @@
             "content_type": [
                 "base",
                 "educationgroup"
-            ]
+            ],
+            "context": "MINI_TRAINING_PGRM_ENCODING_PERIOD",
+            "field_name": "start_year"
         },
         "pk": 189
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "main_teaching_campus",
-            "context": "MINI_TRAINING_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -3006,28 +3004,28 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "MINI_TRAINING_DAILY_MANAGEMENT",
+            "field_name": "main_teaching_campus"
         },
         "pk": 190
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "main_teaching_campus",
-            "context": "MINI_TRAINING_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "MINI_TRAINING_PROPOSAL_MANAGEMENT",
+            "field_name": "main_teaching_campus"
         },
         "pk": 191
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "main_teaching_campus",
-            "context": "MINI_TRAINING_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -3036,15 +3034,15 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "MINI_TRAINING_PGRM_ENCODING_PERIOD",
+            "field_name": "main_teaching_campus"
         },
         "pk": 192
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "remark",
-            "context": "MINI_TRAINING_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -3053,28 +3051,28 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "MINI_TRAINING_DAILY_MANAGEMENT",
+            "field_name": "remark"
         },
         "pk": 193
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "remark",
-            "context": "MINI_TRAINING_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "MINI_TRAINING_PROPOSAL_MANAGEMENT",
+            "field_name": "remark"
         },
         "pk": 194
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "remark",
-            "context": "MINI_TRAINING_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -3086,15 +3084,15 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "MINI_TRAINING_PGRM_ENCODING_PERIOD",
+            "field_name": "remark"
         },
         "pk": 195
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "remark_english",
-            "context": "MINI_TRAINING_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -3103,28 +3101,28 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "MINI_TRAINING_DAILY_MANAGEMENT",
+            "field_name": "remark_english"
         },
         "pk": 196
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "remark_english",
-            "context": "MINI_TRAINING_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "MINI_TRAINING_PROPOSAL_MANAGEMENT",
+            "field_name": "remark_english"
         },
         "pk": 197
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "remark_english",
-            "context": "MINI_TRAINING_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -3136,15 +3134,15 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "MINI_TRAINING_PGRM_ENCODING_PERIOD",
+            "field_name": "remark_english"
         },
         "pk": 198
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "constraint_type",
-            "context": "MINI_TRAINING_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -3153,28 +3151,28 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "MINI_TRAINING_DAILY_MANAGEMENT",
+            "field_name": "constraint_type"
         },
         "pk": 199
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "constraint_type",
-            "context": "MINI_TRAINING_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "MINI_TRAINING_PROPOSAL_MANAGEMENT",
+            "field_name": "constraint_type"
         },
         "pk": 200
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "constraint_type",
-            "context": "MINI_TRAINING_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -3186,15 +3184,15 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "MINI_TRAINING_PGRM_ENCODING_PERIOD",
+            "field_name": "constraint_type"
         },
         "pk": 201
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "max_constraint",
-            "context": "MINI_TRAINING_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -3203,28 +3201,28 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "MINI_TRAINING_DAILY_MANAGEMENT",
+            "field_name": "max_constraint"
         },
         "pk": 202
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "max_constraint",
-            "context": "MINI_TRAINING_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "MINI_TRAINING_PROPOSAL_MANAGEMENT",
+            "field_name": "max_constraint"
         },
         "pk": 203
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "max_constraint",
-            "context": "MINI_TRAINING_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -3236,15 +3234,15 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "MINI_TRAINING_PGRM_ENCODING_PERIOD",
+            "field_name": "max_constraint"
         },
         "pk": 204
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "min_constraint",
-            "context": "MINI_TRAINING_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -3253,28 +3251,28 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "MINI_TRAINING_DAILY_MANAGEMENT",
+            "field_name": "min_constraint"
         },
         "pk": 205
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "min_constraint",
-            "context": "MINI_TRAINING_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "MINI_TRAINING_PROPOSAL_MANAGEMENT",
+            "field_name": "min_constraint"
         },
         "pk": 206
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "min_constraint",
-            "context": "MINI_TRAINING_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -3286,15 +3284,15 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "MINI_TRAINING_PGRM_ENCODING_PERIOD",
+            "field_name": "min_constraint"
         },
         "pk": 207
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "acronym",
-            "context": "GROUP_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -3303,48 +3301,45 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "MINI_TRAINING_DAILY_MANAGEMENT",
+            "field_name": "keywords"
         },
         "pk": 208
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "acronym",
-            "context": "GROUP_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "MINI_TRAINING_PROPOSAL_MANAGEMENT",
+            "field_name": "keywords"
         },
         "pk": 209
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "acronym",
-            "context": "GROUP_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
-                ],
-                [
-                    "faculty_managers"
                 ]
             ],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "MINI_TRAINING_PGRM_ENCODING_PERIOD",
+            "field_name": "keywords"
         },
         "pk": 210
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "partial_acronym",
-            "context": "GROUP_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -3353,48 +3348,45 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "MINI_TRAINING_DAILY_MANAGEMENT",
+            "field_name": "active"
         },
         "pk": 211
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "partial_acronym",
-            "context": "GROUP_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "MINI_TRAINING_PROPOSAL_MANAGEMENT",
+            "field_name": "active"
         },
         "pk": 212
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "partial_acronym",
-            "context": "GROUP_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
-                ],
-                [
-                    "faculty_managers"
                 ]
             ],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "MINI_TRAINING_PGRM_ENCODING_PERIOD",
+            "field_name": "active"
         },
         "pk": 213
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "education_group_type",
-            "context": "GROUP_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -3403,48 +3395,45 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "MINI_TRAINING_DAILY_MANAGEMENT",
+            "field_name": "schedule_type"
         },
         "pk": 214
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "education_group_type",
-            "context": "GROUP_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "MINI_TRAINING_PROPOSAL_MANAGEMENT",
+            "field_name": "schedule_type"
         },
         "pk": 215
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "education_group_type",
-            "context": "GROUP_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
-                ],
-                [
-                    "faculty_managers"
                 ]
             ],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "MINI_TRAINING_PGRM_ENCODING_PERIOD",
+            "field_name": "schedule_type"
         },
         "pk": 216
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "title",
-            "context": "GROUP_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -3453,28 +3442,28 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "GROUP_DAILY_MANAGEMENT",
+            "field_name": "acronym"
         },
         "pk": 217
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "title",
-            "context": "GROUP_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "GROUP_PROPOSAL_MANAGEMENT",
+            "field_name": "acronym"
         },
         "pk": 218
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "title",
-            "context": "GROUP_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -3486,15 +3475,15 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "GROUP_PGRM_ENCODING_PERIOD",
+            "field_name": "acronym"
         },
         "pk": 219
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "title_english",
-            "context": "GROUP_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -3503,28 +3492,28 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "GROUP_DAILY_MANAGEMENT",
+            "field_name": "partial_acronym"
         },
         "pk": 220
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "title_english",
-            "context": "GROUP_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "GROUP_PROPOSAL_MANAGEMENT",
+            "field_name": "partial_acronym"
         },
         "pk": 221
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "title_english",
-            "context": "GROUP_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -3536,15 +3525,15 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "GROUP_PGRM_ENCODING_PERIOD",
+            "field_name": "partial_acronym"
         },
         "pk": 222
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "credits",
-            "context": "GROUP_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -3553,28 +3542,28 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "GROUP_DAILY_MANAGEMENT",
+            "field_name": "education_group_type"
         },
         "pk": 223
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "credits",
-            "context": "GROUP_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "GROUP_PROPOSAL_MANAGEMENT",
+            "field_name": "education_group_type"
         },
         "pk": 224
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "credits",
-            "context": "GROUP_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -3586,15 +3575,15 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "GROUP_PGRM_ENCODING_PERIOD",
+            "field_name": "education_group_type"
         },
         "pk": 225
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "management_entity",
-            "context": "GROUP_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -3603,28 +3592,28 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "GROUP_DAILY_MANAGEMENT",
+            "field_name": "title"
         },
         "pk": 226
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "management_entity",
-            "context": "GROUP_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "GROUP_PROPOSAL_MANAGEMENT",
+            "field_name": "title"
         },
         "pk": 227
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "management_entity",
-            "context": "GROUP_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -3636,15 +3625,15 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "GROUP_PGRM_ENCODING_PERIOD",
+            "field_name": "title"
         },
         "pk": 228
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "academic_year",
-            "context": "GROUP_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -3653,28 +3642,28 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "GROUP_DAILY_MANAGEMENT",
+            "field_name": "title_english"
         },
         "pk": 229
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "academic_year",
-            "context": "GROUP_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "GROUP_PROPOSAL_MANAGEMENT",
+            "field_name": "title_english"
         },
         "pk": 230
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "academic_year",
-            "context": "GROUP_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -3686,15 +3675,15 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "GROUP_PGRM_ENCODING_PERIOD",
+            "field_name": "title_english"
         },
         "pk": 231
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "main_teaching_campus",
-            "context": "GROUP_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -3703,28 +3692,28 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "GROUP_DAILY_MANAGEMENT",
+            "field_name": "credits"
         },
         "pk": 232
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "main_teaching_campus",
-            "context": "GROUP_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "GROUP_PROPOSAL_MANAGEMENT",
+            "field_name": "credits"
         },
         "pk": 233
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "main_teaching_campus",
-            "context": "GROUP_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -3736,15 +3725,15 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "GROUP_PGRM_ENCODING_PERIOD",
+            "field_name": "credits"
         },
         "pk": 234
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "remark",
-            "context": "GROUP_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -3753,28 +3742,28 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "GROUP_DAILY_MANAGEMENT",
+            "field_name": "management_entity"
         },
         "pk": 235
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "remark",
-            "context": "GROUP_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "GROUP_PROPOSAL_MANAGEMENT",
+            "field_name": "management_entity"
         },
         "pk": 236
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "remark",
-            "context": "GROUP_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -3786,15 +3775,15 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "GROUP_PGRM_ENCODING_PERIOD",
+            "field_name": "management_entity"
         },
         "pk": 237
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "remark_english",
-            "context": "GROUP_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -3803,28 +3792,28 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "GROUP_DAILY_MANAGEMENT",
+            "field_name": "academic_year"
         },
         "pk": 238
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "remark_english",
-            "context": "GROUP_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "GROUP_PROPOSAL_MANAGEMENT",
+            "field_name": "academic_year"
         },
         "pk": 239
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "remark_english",
-            "context": "GROUP_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -3836,15 +3825,15 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "GROUP_PGRM_ENCODING_PERIOD",
+            "field_name": "academic_year"
         },
         "pk": 240
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "constraint_type",
-            "context": "GROUP_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -3853,28 +3842,28 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "GROUP_DAILY_MANAGEMENT",
+            "field_name": "main_teaching_campus"
         },
         "pk": 241
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "constraint_type",
-            "context": "GROUP_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "GROUP_PROPOSAL_MANAGEMENT",
+            "field_name": "main_teaching_campus"
         },
         "pk": 242
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "constraint_type",
-            "context": "GROUP_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -3886,15 +3875,15 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "GROUP_PGRM_ENCODING_PERIOD",
+            "field_name": "main_teaching_campus"
         },
         "pk": 243
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "max_constraint",
-            "context": "GROUP_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -3903,28 +3892,28 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "GROUP_DAILY_MANAGEMENT",
+            "field_name": "remark"
         },
         "pk": 244
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "max_constraint",
-            "context": "GROUP_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "GROUP_PROPOSAL_MANAGEMENT",
+            "field_name": "remark"
         },
         "pk": 245
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "max_constraint",
-            "context": "GROUP_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -3936,15 +3925,15 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "GROUP_PGRM_ENCODING_PERIOD",
+            "field_name": "remark"
         },
         "pk": 246
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "min_constraint",
-            "context": "GROUP_DAILY_MANAGEMENT",
             "groups": [
                 [
                     "central_managers"
@@ -3953,28 +3942,28 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "GROUP_DAILY_MANAGEMENT",
+            "field_name": "remark_english"
         },
         "pk": 247
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "min_constraint",
-            "context": "GROUP_PROPOSAL_MANAGEMENT",
             "groups": [],
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "GROUP_PROPOSAL_MANAGEMENT",
+            "field_name": "remark_english"
         },
         "pk": 248
     },
     {
         "model": "rules_management.fieldreference",
         "fields": {
-            "field_name": "min_constraint",
-            "context": "GROUP_PGRM_ENCODING_PERIOD",
             "groups": [
                 [
                     "central_managers"
@@ -3986,8 +3975,160 @@
             "content_type": [
                 "base",
                 "educationgroupyear"
-            ]
+            ],
+            "context": "GROUP_PGRM_ENCODING_PERIOD",
+            "field_name": "remark_english"
         },
         "pk": 249
+    },
+    {
+        "model": "rules_management.fieldreference",
+        "fields": {
+            "groups": [
+                [
+                    "central_managers"
+                ]
+            ],
+            "content_type": [
+                "base",
+                "educationgroupyear"
+            ],
+            "context": "GROUP_DAILY_MANAGEMENT",
+            "field_name": "constraint_type"
+        },
+        "pk": 250
+    },
+    {
+        "model": "rules_management.fieldreference",
+        "fields": {
+            "groups": [],
+            "content_type": [
+                "base",
+                "educationgroupyear"
+            ],
+            "context": "GROUP_PROPOSAL_MANAGEMENT",
+            "field_name": "constraint_type"
+        },
+        "pk": 251
+    },
+    {
+        "model": "rules_management.fieldreference",
+        "fields": {
+            "groups": [
+                [
+                    "central_managers"
+                ],
+                [
+                    "faculty_managers"
+                ]
+            ],
+            "content_type": [
+                "base",
+                "educationgroupyear"
+            ],
+            "context": "GROUP_PGRM_ENCODING_PERIOD",
+            "field_name": "constraint_type"
+        },
+        "pk": 252
+    },
+    {
+        "model": "rules_management.fieldreference",
+        "fields": {
+            "groups": [
+                [
+                    "central_managers"
+                ]
+            ],
+            "content_type": [
+                "base",
+                "educationgroupyear"
+            ],
+            "context": "GROUP_DAILY_MANAGEMENT",
+            "field_name": "max_constraint"
+        },
+        "pk": 253
+    },
+    {
+        "model": "rules_management.fieldreference",
+        "fields": {
+            "groups": [],
+            "content_type": [
+                "base",
+                "educationgroupyear"
+            ],
+            "context": "GROUP_PROPOSAL_MANAGEMENT",
+            "field_name": "max_constraint"
+        },
+        "pk": 254
+    },
+    {
+        "model": "rules_management.fieldreference",
+        "fields": {
+            "groups": [
+                [
+                    "central_managers"
+                ],
+                [
+                    "faculty_managers"
+                ]
+            ],
+            "content_type": [
+                "base",
+                "educationgroupyear"
+            ],
+            "context": "GROUP_PGRM_ENCODING_PERIOD",
+            "field_name": "max_constraint"
+        },
+        "pk": 255
+    },
+    {
+        "model": "rules_management.fieldreference",
+        "fields": {
+            "groups": [
+                [
+                    "central_managers"
+                ]
+            ],
+            "content_type": [
+                "base",
+                "educationgroupyear"
+            ],
+            "context": "GROUP_DAILY_MANAGEMENT",
+            "field_name": "min_constraint"
+        },
+        "pk": 256
+    },
+    {
+        "model": "rules_management.fieldreference",
+        "fields": {
+            "groups": [],
+            "content_type": [
+                "base",
+                "educationgroupyear"
+            ],
+            "context": "GROUP_PROPOSAL_MANAGEMENT",
+            "field_name": "min_constraint"
+        },
+        "pk": 257
+    },
+    {
+        "model": "rules_management.fieldreference",
+        "fields": {
+            "groups": [
+                [
+                    "central_managers"
+                ],
+                [
+                    "faculty_managers"
+                ]
+            ],
+            "content_type": [
+                "base",
+                "educationgroupyear"
+            ],
+            "context": "GROUP_PGRM_ENCODING_PERIOD",
+            "field_name": "min_constraint"
+        },
+        "pk": 258
     }
 ]
