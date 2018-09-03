@@ -400,36 +400,46 @@ if CACHE_ENABLED:
 WAFFLE_FLAG_DEFAULT = os.environ.get("WAFFLE_FLAG_DEFAULT", "False").lower() == 'true'
 
 
-Section = namedtuple('Section', 'title labels common_labels')
+# the parameter labels is a list of string and tuple
+# labels=['welcome_introduction',
+#         ('caap', 'specific,custom')]
+# second parameter can have few values:
+# specific
+# common
+# specific,common
+Section = namedtuple('Section', 'title labels')
 
 SECTION_LIST = [
     Section(title=_('Teaching profile'),
             labels=[
-                'welcome_introduction',
-                'welcome_profil',
-                'welcome_job',
-                'welcome_programme',
-                'welcome_parcours',
-                'comp_acquis',
-                'structure'
-            ],
-            common_labels=[]),
+                ('welcome_introduction', 'specific'),
+                ('welcome_profil', 'specific'),
+                ('welcome_job', 'specific'),
+                ('welcome_programme', 'specific'),
+                ('welcome_parcours', 'specific'),
+                ('comp_acquis', 'specific'),
+                ('structure', 'specific')
+            ]),
     Section(title=_('Detailed programme'),
-            labels=['options', 'caap'],
-            common_labels=['finalites_didactiques', 'caap']),
+            labels=[
+                ('options', 'specific'),
+                ('finalites_didactiques', 'common'),
+                ('caap', 'specific,common'),
+             ]),
     Section(title=_('Admission'),
-            labels=['module_complementaire'],
-            common_labels=['module_complementaire']),
+            labels=[
+                ('module_complementaire', 'specific,custom')
+            ]),
     Section(title=_('Benefits and organization'),
             labels=[
-                'pedagogie',
-                'evaluation',
-                'mobilite',
-                'formations_accessibles',
-                'certificats'
-            ],
-            common_labels=[]),
+                ('pedagogie', 'specific'),
+                ('evaluation', 'specific'),
+                ('mobilite', 'specific'),
+                ('formations_accessibles', 'specific'),
+                ('certificats', 'specific')
+            ]),
     Section(title=_('In practice'),
-            labels=['contacts'],
-            common_labels=[]),
+            labels=[
+                ('contacts', 'specific')
+            ]),
 ]

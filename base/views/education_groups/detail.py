@@ -23,6 +23,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+import functools
 from collections import OrderedDict, namedtuple
 
 from django.conf import settings
@@ -167,20 +168,19 @@ class EducationGroupGeneralInformation(EducationGroupGenericDetailView):
         return sections_with_translated_labels
 
     def get_translated_labels_and_content(self, section, user_language, common_education_group_year):
-        iterable = [
-            (self.object, section.labels, 'specific')
-        ]
+        records = []
+        for label, selectors in section.labels:
+            selectors = set(selectors.split(','))
+            if 'specific' in selectors:
+                translations = self.get_content_translations_for_label(
+                    self.object, label, user_language, 'specific')
+                records.append(translations)
 
-        if common_education_group_year is not None:
-            iterable.append(
-                (common_education_group_year, section.common_labels, 'common')
-            )
-
-        return [
-            self.get_content_translations_for_label(education_group_year, label, user_language, type)
-            for education_group_year, labels, type in iterable
-            for label in labels
-        ]
+            if 'common' in selectors and common_education_group_year is not None:
+                translations = self.get_content_translations_for_label(
+                    common_education_group_year, label, user_language, 'common')
+                records.append(translations)
+        return records
 
     def get_content_translations_for_label(self, education_group_year, label, user_language, type):
         # fetch the translation for the current user
