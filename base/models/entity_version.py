@@ -35,10 +35,16 @@ from django.utils.timezone import now
 
 from base.models.entity import Entity
 from base.models.enums import entity_type
-from base.models.enums.entity_type import MAIN_ENTITY_TYPE
+from base.models.enums.entity_type import PEDAGOGICAL_ENTITY_TYPES
 from base.models.enums.organization_type import MAIN
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
 from osis_common.utils.datetime import get_tzinfo
+
+PEDAGOGICAL_ENTITY_EXCEPTIONS = [
+    "ILV",
+    "IUFC",
+]
+
 
 SQL_RECURSIVE_QUERY = """\
 WITH RECURSIVE under_entity AS (
@@ -478,9 +484,13 @@ def _get_all_children(entity_version_id, direct_children_by_entity_version_id):
     return all_children
 
 
-def find_main_entities_version():
+def find_pedagogical_entities_version():
     return find_all_current_entities_version().filter(
-        entity_type__in=MAIN_ENTITY_TYPE, entity__organization__type=MAIN).order_by('acronym')
+        Q(entity__organization__type=MAIN),
+        Q(entity_type__in=PEDAGOGICAL_ENTITY_TYPES) | Q(acronym__in=PEDAGOGICAL_ENTITY_EXCEPTIONS),
+    ).order_by(
+        'acronym'
+    )
 
 
 def find_latest_version_by_entity(entity, date):

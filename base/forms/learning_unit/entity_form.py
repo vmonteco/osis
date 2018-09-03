@@ -28,9 +28,8 @@ from collections.__init__ import OrderedDict
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 
-from base.models import entity_version
 from base.models.entity_container_year import EntityContainerYear
-from base.models.entity_version import find_main_entities_version, get_last_version
+from base.models.entity_version import find_pedagogical_entities_version, get_last_version
 from base.models.enums.entity_container_year_link_type import REQUIREMENT_ENTITY, ALLOCATION_ENTITY, \
     ADDITIONAL_REQUIREMENT_ENTITY_1, ADDITIONAL_REQUIREMENT_ENTITY_2, ENTITY_TYPE_LIST
 from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES_MUST_HAVE_SAME_ENTITIES
@@ -49,7 +48,7 @@ class EntitiesVersionChoiceField(forms.ModelChoiceField):
 
 
 class EntityContainerYearModelForm(forms.ModelForm):
-    entity = EntitiesVersionChoiceField(find_main_entities_version())
+    entity = EntitiesVersionChoiceField(queryset=find_pedagogical_entities_version())
     entity_type = ''
 
     def __init__(self, *args, **kwargs):
