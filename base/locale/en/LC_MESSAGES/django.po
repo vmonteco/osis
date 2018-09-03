@@ -3697,3 +3697,6 @@ msgstr ""
 
 msgid "Sub group"
 msgstr ""
+
+msgid "The user has not permission to create a %(category)s."
+msgstr ""

@@ -3704,3 +3704,6 @@ msgstr "Module complémentaire"
 
 msgid "Sub group"
 msgstr "Sous-groupe"
+
+msgid "The user has not permission to create a %(category)s."
+msgstr "L'utilisateur n'a pas la permission de créer une %(category)s."
