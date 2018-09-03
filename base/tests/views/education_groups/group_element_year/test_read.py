@@ -74,7 +74,7 @@ class TestRead(TestCase):
 
     def test_pdf_content(self):
         self.client.force_login(self.a_superuser)
-        url = reverse("pdf_content", args=[self.education_group_year_1.id, self.education_group_year_1.id, "fr-be"])
+        url = reverse("pdf_content", args=[self.education_group_year_1.id, self.education_group_year_2.id, "fr-be"])
         response = self.client.get(url)
         self.assertTemplateUsed(response, 'education_group/pdf_content.html')
 
