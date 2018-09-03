@@ -9,11 +9,6 @@
         {{ parent.verbose_credit }}
     </title>
     <style type="text/css">
-        header {
-            visibility: hidden;
-            string-set: title content();
-        }
-
         @page {
             size: A4 portrait;
             margin: 2cm 1cm 2cm 1cm;
@@ -31,7 +26,7 @@
                 padding-top: 65px;
                 font-size: 9px;
                 text-align: center;
-                content: "Université catholique de Louvain;
+                content: "Université catholique de Louvain";
             }
 
             @bottom-left {
@@ -58,13 +53,6 @@
         td, th, tr {
             font-size: 11px;
         }
-
-        footer {
-            width: 0;
-            height: 0;
-            visibility: hidden;
-            string-set: title content();
-        }
     </style>
 </head>
 <body>
@@ -74,22 +62,41 @@
             <div>{% trans "Formulaire d'inscription au contenu de" %} {{ parent.title }}</div>
             <br>
             <div>
-                {% if parent.education_group_type.name == "test" %}
+                {% if not parent.is_minor %}
                     {% trans "This form must be submitted to the secretariat of your faculty" %}
                 {% else %}
                     {% trans "The registration form is available at the Secretariat of" %}
                     {{ parent.administration_entity_version.acronym }}
                     <br>
-                    {% trans "This form must be signed by the designated authority and delivered to the secretariat of your faculty." %}
+                    {% trans "This form must be signed by the designated authority and delivered to the secretariat of
+                    your faculty." %}
                 {% endif %}
             </div>
+            <br>
             <table style="margin-left: 100px;">
                 <tbody>
                     <tr>
-                        <td>Formations:</td>
-                        <td style="width:175px;padding: 10px;">.....</td>
-                        <td>Formations:</td>
-                        <td style="width:175px;padding: 10px;">.....</td>
+                        <td>{% trans "training" %}</td>
+                        <td style="width:170px;"> .....</td>
+                        <td>{% trans "mobile_phone" %}</td>
+                        <td style="width:170px;"> .....</td>
+                    </tr>
+                    <tr>
+                        <td>{% trans "first_name" %}</td>
+                        <td style="width:170px;"> .....</td>
+                        <td>{% trans "email" %}</td>
+                        <td style="width:170px;"> .....</td>
+                    </tr>
+                    <tr>
+                        <td>{% trans "last_name" %}</td>
+                        <td style="width:170px;"> .....</td>
+                        <td>{% trans "faculty_number" %}</td>
+                        <td style="width:170px;"> .....</td>
+                    </tr>
+                    <tr>
+                        <td>{% trans "registration_id" %}</td>
+                        <td style="width:170px;"> .....</td>
+                        <td>{% trans "(optional)" %}</td>
                     </tr>
                 </tbody>
             </table>

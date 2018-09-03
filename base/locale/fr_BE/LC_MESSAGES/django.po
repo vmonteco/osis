@@ -3584,3 +3584,12 @@ msgstr "Ce formulaire doit être revêtu de la signature de l'autorité désign�
 
 msgid "The registration form is available at the Secretariat of"
 msgstr "Le formulaire d'inscription est disponible au Secrétariat de"
+
+msgid "training"
+msgstr "Formation"
+
+msgid "faculty_number"
+msgstr "N° facultaire"
+
+msgid "(optional)"
+msgstr "(optionnel)"
