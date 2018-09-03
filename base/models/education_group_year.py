@@ -401,6 +401,13 @@ class EducationGroupYear(models.Model):
             "credits": self.credits or 0
         }
 
+    @property
+    def verbose_remark(self):
+        return _("%(remark)s") % {
+            "remark": self.remark_english if self.remark_english and translation.get_language() == LANGUAGE_CODE_EN
+            else self.remark
+        }
+
     class Meta:
         verbose_name = _("education group year")
 
