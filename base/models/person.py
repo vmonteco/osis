@@ -36,7 +36,7 @@ from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
 from base.models.entity import Entity
-from base.models.entity_version import find_main_entities_version
+from base.models.entity_version import find_pedagogical_entities_version
 from base.models.enums import person_source_type
 from base.models.enums.entity_container_year_link_type import REQUIREMENT_ENTITY
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
@@ -153,7 +153,7 @@ class Person(SerializableModel):
 
     @cached_property
     def find_main_entities_version(self):
-        return find_main_entities_version().filter(entity__in=self.linked_entities)
+        return find_pedagogical_entities_version().filter(entity__in=self.linked_entities)
 
 
 def find_by_id(person_id):
