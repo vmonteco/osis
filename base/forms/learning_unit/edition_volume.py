@@ -34,6 +34,7 @@ from django.utils.translation import ugettext_lazy as _
 from base.business.learning_unit_year_with_context import ENTITY_TYPES_VOLUME
 from base.business.learning_units import edition
 from base.business.learning_units.edition import check_postponement_conflict_report_errors
+from base.forms.common import STEP_HALF_INTEGER
 from base.forms.learning_unit.learning_unit_create import DEFAULT_ACRONYM_COMPONENT
 from base.forms.utils.emptyfield import EmptyField
 from base.models.entity_component_year import EntityComponentYear
@@ -57,12 +58,22 @@ class VolumeEditionForm(forms.Form):
     additional_requirement_entity_2_key = 'volume_' + entity_types.ADDITIONAL_REQUIREMENT_ENTITY_2.lower()
 
     opening_parenthesis_field = EmptyField(label='(')
-    volume_q1 = VolumeField(label=_('partial_volume_1Q'), help_text=_('partial_volume_1'))
+    volume_q1 = VolumeField(label=_('partial_volume_1Q'),
+                            help_text=_('partial_volume_1'),
+                            widget=forms.NumberInput(attrs={'step': STEP_HALF_INTEGER}),
+                            )
     add_field = EmptyField(label='+')
-    volume_q2 = VolumeField(label=_('partial_volume_2Q'), help_text=_('partial_volume_2'))
+    volume_q2 = VolumeField(
+        label=_('partial_volume_2Q'),
+        help_text=_('partial_volume_2'),
+        widget=forms.NumberInput(attrs={'step': STEP_HALF_INTEGER}),
+    )
     equal_field_1 = EmptyField(label='=')
-    volume_total = VolumeField(label=_('Vol. annual'),
-                               help_text=_('The annual volume must be equal to the sum of the volumes Q1 and Q2'))
+    volume_total = VolumeField(
+        label=_('Vol. annual'),
+        help_text=_('The annual volume must be equal to the sum of the volumes Q1 and Q2'),
+        widget=forms.NumberInput(attrs={'step': STEP_HALF_INTEGER}),
+    )
     help_volume_total = "{} = {} + {}".format(_('Volume total annual'), _('partial_volume_1'), _('partial_volume_2'))
     closing_parenthesis_field = EmptyField(label=')')
     mult_field = EmptyField(label='*')
@@ -90,7 +101,11 @@ class VolumeEditionForm(forms.Form):
         entities_to_add = [entity for entity in ENTITY_TYPES_VOLUME if entity in self.entities]
         for i, key in enumerate(entities_to_add):
             entity = self.entities[key]
-            self.fields["volume_" + key.lower()] = VolumeField(label=entity.acronym, help_text=entity.title)
+            self.fields["volume_" + key.lower()] = VolumeField(
+                label=entity.acronym,
+                help_text=entity.title,
+                widget=forms.NumberInput(attrs={'step': STEP_HALF_INTEGER}),
+            )
             if i != len(entities_to_add) - 1:
                 self.fields["add" + key.lower()] = EmptyField(label='+')
 
@@ -263,6 +278,12 @@ class SimplifiedVolumeForm(forms.ModelForm):
         model = LearningComponentYear
         fields = ('planned_classes', 'hourly_volume_total_annual', 'hourly_volume_partial_q1',
                   'hourly_volume_partial_q2')
+        widgets = {
+            'hourly_volume_total_annual': forms.NumberInput(attrs={'step': STEP_HALF_INTEGER}),
+            'hourly_volume_partial_q1': forms.NumberInput(attrs={'step': STEP_HALF_INTEGER}),
+            'hourly_volume_partial_q2': forms.NumberInput(attrs={'step': STEP_HALF_INTEGER}),
+            'volume_declared_vacant': forms.NumberInput(attrs={'step': STEP_HALF_INTEGER}),
+        }
 
     def save(self, commit=True):
         if self.need_to_create_untyped_component():
