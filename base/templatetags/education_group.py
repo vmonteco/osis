@@ -51,6 +51,11 @@ CHILD_BRANCH = """\
         {value}{sublist}
     </td>
 </tr>
+<tr>
+    <td style="padding-left:{padding}em;width:{width_main};float:left;">
+        Commentaire
+    </td>
+</tr>
 """
 
 CHILD_LEAF = """\
@@ -63,6 +68,11 @@ CHILD_LEAF = """\
     <td style="width:{width_an};text-align: center;">{an_1}</td>
     <td style="width:{width_an};text-align: center;">{an_2}</td>
     <td style="width:{width_an};text-align: center;">{an_3}</td>
+</tr>
+<tr>
+    <td style="padding-left:{padding}em;width:{width_main};float:left;">
+        Commentaire
+    </td>
 </tr>
 """
 
