@@ -3588,7 +3588,7 @@ msgstr "Le formulaire d'inscription est disponible au Secrétariat de"
 msgid "training"
 msgstr "Formation"
 
-msgid "faculty_number"
+msgid "faculty number"
 msgstr "N° facultaire"
 
 msgid "(optional)"

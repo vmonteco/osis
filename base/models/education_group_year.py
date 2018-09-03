@@ -401,15 +401,6 @@ class EducationGroupYear(models.Model):
             "credits": self.credits or 0
         }
 
-    @property
-    def verbose_informations(self):
-        if self.education_group_type.name == "test":
-            return _("This form must be submitted to the secretariat of your faculty")
-        else:
-            return _("The registration form is available at the Secretariat of %(entity)s.This form must be signed by the designated authority and delivered to the secretariat of your faculty.") % {
-                "entity": self.administration_entity_version.acronym
-            }
-
     class Meta:
         verbose_name = _("education group year")
 

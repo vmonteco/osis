@@ -3579,10 +3579,10 @@ msgid "The registration form is available at the Secretariat of"
 msgstr ""
 
 msgid "training"
-msgstr "Training"
+msgstr ""
 
-msgid "faculty_number"
-msgstr "Faculty number"
+msgid "faculty number"
+msgstr ""
 
 msgid "(optional)"
-msgstr "(optional)"
+msgstr ""
