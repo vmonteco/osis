@@ -3589,7 +3589,7 @@ msgid "training"
 msgstr "formation"
 
 msgid "faculty number"
-msgstr "N° facultaire"
+msgstr "n° facultaire"
 
 msgid "(optional)"
 msgstr "(optionnel)"
