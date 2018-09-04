@@ -53,12 +53,46 @@ CHILD_BRANCH = """\
 </tr>
 """
 
+CHILD_BRANCH_WITH_COMMENT = """\
+<tr>
+    <td style="padding-left:{padding}em;width:{width_main};float:left;">
+        <img src="{icon_list_2}" height="10" width="10">
+        {value}
+        <div>
+            <img style="visibility:hidden;" src="{icon_list_2}" height="10" width="10">
+            ({comment})
+        </div>
+        {sublist}
+    </td>
+</tr>
+"""
+
 CHILD_LEAF = """\
 <tr>
     <td style="padding-left:{padding}em;width:{width_main};float:left;">
         <img src="{icon_list_1}" height="14" width="17">
         <img src="{icon_list_2}" height="10" width="10">
         {value}{sublist}
+    </td>
+    <td style="width:{width_an};text-align: center;">{an_1}</td>
+    <td style="width:{width_an};text-align: center;">{an_2}</td>
+    <td style="width:{width_an};text-align: center;">{an_3}</td>
+</tr>
+"""
+
+CHILD_LEAF_WITH_COMMENT = """\
+<tr>
+    <td style="padding-left:{padding}em;width:{width_main};float:left;">
+        <img src="{icon_list_1}" height="14" width="17">
+        <img src="{icon_list_2}" height="10" width="10">
+        {value}
+        <br>
+        <div>
+            <img style="visibility:hidden;" src="{icon_list_1}" height="14" width="17">
+            <img style="visibility:hidden;" src="{icon_list_2}" height="10" width="10">
+            ({comment})
+        </div>
+        {sublist}
     </td>
     <td style="width:{width_an};text-align: center;">{an_1}</td>
     <td style="width:{width_an};text-align: center;">{an_2}</td>
@@ -243,23 +277,46 @@ def list_formatter(item_list, tabs=1, depth=None):
 
 def append_output(item, output, padding, sublist):
     if item.child_leaf:
-        output.append(
-            CHILD_LEAF.format(padding=padding,
-                              width_main="80%",
-                              icon_list_1=CASE_JPG,
-                              icon_list_2=MANDATORY_PNG if item.is_mandatory else OPTIONAL_PNG,
-                              value=escaper(force_text(item.verbose)),
-                              sublist=sublist,
-                              width_an="15px",
-                              an_1=check_block(item, "1"),
-                              an_2=check_block(item, "2"),
-                              an_3=check_block(item, "3")))
+        if item.comment:
+            output.append(
+                CHILD_LEAF_WITH_COMMENT.format(padding=padding,
+                                               width_main="80%",
+                                               icon_list_1=CASE_JPG,
+                                               icon_list_2=MANDATORY_PNG if item.is_mandatory else OPTIONAL_PNG,
+                                               value=escaper(force_text(item.verbose)),
+                                               sublist=sublist,
+                                               width_an="15px",
+                                               an_1=check_block(item, "1"),
+                                               an_2=check_block(item, "2"),
+                                               an_3=check_block(item, "3"),
+                                               comment=item.verbose_comment))
+        else:
+            output.append(
+                CHILD_LEAF.format(padding=padding,
+                                  width_main="80%",
+                                  icon_list_1=CASE_JPG,
+                                  icon_list_2=MANDATORY_PNG if item.is_mandatory else OPTIONAL_PNG,
+                                  value=escaper(force_text(item.verbose)),
+                                  sublist=sublist,
+                                  width_an="15px",
+                                  an_1=check_block(item, "1"),
+                                  an_2=check_block(item, "2"),
+                                  an_3=check_block(item, "3")))
+
     else:
-        output.append(
-            CHILD_BRANCH.format(padding=padding, width_main="80%",
-                                icon_list_2=MANDATORY_PNG if item.is_mandatory else OPTIONAL_PNG,
-                                value=escaper(force_text(item.verbose)),
-                                sublist=sublist))
+        if item.comment:
+            output.append(
+                CHILD_BRANCH_WITH_COMMENT.format(padding=padding, width_main="80%",
+                                                 icon_list_2=MANDATORY_PNG if item.is_mandatory else OPTIONAL_PNG,
+                                                 value=escaper(force_text(item.verbose)),
+                                                 sublist=sublist,
+                                                 comment=item.verbose_comment))
+        else:
+            output.append(
+                CHILD_BRANCH.format(padding=padding, width_main="80%",
+                                    icon_list_2=MANDATORY_PNG if item.is_mandatory else OPTIONAL_PNG,
+                                    value=escaper(force_text(item.verbose)),
+                                    sublist=sublist))
 
 
 def check_block(item, value):
