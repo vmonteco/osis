@@ -85,7 +85,7 @@ class TestRead(TestCase):
         url = reverse("pdf_content", args=[self.education_group_year_1.id, self.education_group_year_2.id, "fr-be"])
         response = self.client.get(url)
         self.assertTemplateUsed(response, 'education_group/pdf_content.html')
-        url = reverse("pdf_content", args=[self.education_group_year_1.id, self.education_group_year_1.id, "en"])
+        url = reverse("pdf_content", args=[self.education_group_year_1.id, self.education_group_year_2.id, "en"])
         response = self.client.get(url)
         self.assertTemplateUsed(response, 'education_group/pdf_content.html')
 
