@@ -94,9 +94,6 @@ def delete_filter_from_cache():
             except Exception:
                 logger.exception('An error occurred with cache system')
             return func(request, *args, **kwargs)
-
-
-
         return inner
     return decorator
 
