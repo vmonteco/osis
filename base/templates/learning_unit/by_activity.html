@@ -28,6 +28,21 @@
 
 {% block content %}
 <div class="panel panel-default">
+    {% with activity_search_type=1 %}
+        {% if search_type == activity_search_type %}
+            {% url 'reset_filter_by_activity' as url_search_reset %}
+        {% endif %}
+    {% endwith %}
+    {% with service_course_search_type=2 %}
+        {% if search_type == service_course_search_type %}
+            {% url 'reset_filter_by_service_course' as url_search_reset %}
+        {% endif %}
+    {% endwith %}
+    {% with borrowed_search_type=5 %}
+        {% if search_type == borrowed_search_type %}
+            {% url 'reset_filter_by_borrowed_course' as url_search_reset %}
+        {% endif %}
+    {% endwith %}
 
     {% include "learning_unit/blocks/form/search_form_learning_unit.html" %}
 

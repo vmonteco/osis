@@ -37,7 +37,7 @@ from base.forms.education_groups import EducationGroupFilter
 from base.forms.search.search_form import get_research_criteria
 from base.models.enums import education_group_categories
 from base.models.person import Person
-from base.utils.cache import cache_filter
+from base.utils.cache import cache_filter, delete_filter_from_cache
 from base.views.common import paginate_queryset
 from base.views import layout
 

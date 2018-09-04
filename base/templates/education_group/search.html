@@ -35,6 +35,7 @@
 {% endblock %}
 
 {% block content %}
+{% url 'reset_education_group_filter' as url_search_reset %}
 <div class="page-header">
     <div class="row">
         <div class="col-md-10">
@@ -93,11 +94,15 @@
                         <label>{% trans 'with_entity_subordinated_small' %}</label>
                     </div>
                 </div>
-                <div class="col-md-2 text-right" style="line-height:55px;">
-                    <button type="submit" id="bt_submit_education_groups_search"
-                            class="btn btn-primary" role="button" style="vertical-align:bottom;">
-                            <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
-                    </button>
+                <div class="col-md-2" >
+                    <br>
+                    <div class="btn-toolbar pull-right">
+                        <button type="submit" id="bt_submit_education_groups_search"
+                                class="btn btn-primary" role="button" >
+                                <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+                        </button>
+                        {% include 'learning_unit/blocks/form/init_search_fields_button.html' %}
+                    </div>
                 </div>
             </div>
             <input type="hidden" id="xls_status" name="xls_status">

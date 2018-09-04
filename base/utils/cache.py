@@ -24,6 +24,7 @@
 #
 ##############################################################################
 import logging
+import re
 
 from django.conf import settings
 from django.core.cache import caches, InvalidCacheBackendError
@@ -82,3 +83,27 @@ def _get_filter_key(request):
     user = request.user
     path = request.path
     return "_".join([PREFIX_CACHE_KEY, str(user.id), path])
+
+
+def delete_filter_from_cache():
+    def decorator(func):
+        @wraps(func)
+        def inner(request, *args, **kwargs):
+            try:
+                _clear_key(request)
+            except Exception:
+                logger.exception('An error occurred with cache system')
+            return func(request, *args, **kwargs)
+
+
+
+        return inner
+    return decorator
+
+
+def _clear_key(request):
+    cache.delete("_".join([
+        PREFIX_CACHE_KEY,
+        str(request.user.id),
+        request.path.replace("reset/", "")
+    ]))

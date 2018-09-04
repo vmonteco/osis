@@ -44,6 +44,9 @@ from base.tests.factories.entity_version import EntityVersionFactory
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.user import UserFactory
 from base.views.education_groups import search
+from base.views.search import reset_education_group_filter
+
+FILTER_DATA = {"acronym": "LBIR", "title": "dummy filter"}
 
 
 class TestEducationGroupSearchView(TestCase):
@@ -87,7 +90,7 @@ class TestEducationGroupSearchView(TestCase):
         request_factory = RequestFactory()
         request = request_factory.get(
             self.url,
-            data={"acronym": "LBIR", "title": "dummy filter"}
+            data=FILTER_DATA
         )
         request.user = self.person.user
         search.education_groups(request)
@@ -95,6 +98,20 @@ class TestEducationGroupSearchView(TestCase):
         self.assertTrue(mock_save_filter_to_cache.called)
         # Ensure that we don't cache field related to xls
         mock_save_filter_to_cache.assert_called_once_with(request, exclude_params=['xls_status', 'xls_order_col'])
+
+    @mock.patch('base.views.layout.render')
+    @mock.patch("base.views.education_groups.search._check_if_display_message", side_effect=lambda *args,**kwargs: True)
+    @mock.patch("base.utils.cache._clear_key", side_effect=lambda *args,**kwargs: True)
+    def test_reset_criteria_parameters(self, mock_reset_filter_from_cache, mock_display_msg, mock_layout_render):
+        request_factory = RequestFactory()
+        request = request_factory.get(
+            self.url,
+            data=FILTER_DATA
+        )
+        request.user = self.person.user
+        search.education_groups(request)
+        reset_education_group_filter(request)
+        self.assertTrue(mock_reset_filter_from_cache.called)
 
 
 class TestEducationGroupDataSearchFilter(TestCase):

@@ -24,11 +24,14 @@
 #
 ##############################################################################
 from django.contrib.auth.decorators import login_required, permission_required
+from django.shortcuts import redirect
+from django.urls import reverse
 
 from base.forms.search.search_tutor import TutorSearchForm
 from base.models.tutor import Tutor
 from base.views import layout
 from base.views.common import paginate_queryset
+from base.utils.cache import delete_filter_from_cache
 
 
 @login_required
@@ -46,3 +49,52 @@ def search_tutors(request):
         "form": form,
         "tutors": tutors
     })
+
+
+@login_required
+@permission_required('base.can_access_learningunit', raise_exception=True)
+@delete_filter_from_cache()
+def reset_filter_by_activity(request):
+    return redirect(reverse("learning_units"))
+
+
+@login_required
+@permission_required('base.can_access_learningunit', raise_exception=True)
+@delete_filter_from_cache()
+def reset_filter_by_service_course(request):
+    return redirect(reverse("learning_units_service_course"))
+
+
+@login_required
+@permission_required('base.can_access_learningunit', raise_exception=True)
+@delete_filter_from_cache()
+def reset_filter_by_proposal(request):
+    return redirect(reverse("learning_units_proposal"))
+
+
+@login_required
+@permission_required('base.can_access_learningunit', raise_exception=True)
+@delete_filter_from_cache()
+def reset_filter_by_borrowed_course(request):
+    return redirect(reverse("learning_units_borrowed_course"))
+
+
+@login_required
+@permission_required('base.can_access_learningunit', raise_exception=True)
+@delete_filter_from_cache()
+def reset_filter_by_external(request):
+    return redirect(reverse("learning_units_external"))
+
+
+@login_required
+@permission_required('base.can_access_learningunit', raise_exception=True)
+@delete_filter_from_cache()
+def reset_filter_by_summary(request):
+    return redirect(reverse("learning_units_summary"))
+
+
+@login_required
+@permission_required('base.can_access_education_group', raise_exception=True)
+@delete_filter_from_cache()
+def reset_education_group_filter(request):
+    return redirect(reverse("education_groups"))
