@@ -60,8 +60,10 @@ CHILD_BRANCH_COMMENT = """\
 
 CHILD_BRANCH_START = """\
 <tr>
-    <td style="padding-left:{padding}em;width:{width_main};float:left;">
+    <td style="padding-left:{padding}em;float:left;">
         <img src="{icon_list_2}" height="10" width="10">
+    </td>
+    <td style="float:left;">
         {value}
 """
 
@@ -81,18 +83,20 @@ CHILD_LEAF_COMMENT = """\
 
 CHILD_LEAF_START = """\
 <tr>
-    <td style="padding-left:{padding}em;width:{width_main};float:left;">
+    <td style="padding-left:{padding}em;float:left;">
         <img src="{icon_list_1}" height="14" width="17">
         <img src="{icon_list_2}" height="10" width="10">
+    </td>
+    <td style="float:left;">
         {value}
 """
 
 CHILD_LEAF_END = """\
         {sublist}
     </td>
-    <td style="width:{width_an};text-align: center;">{an_1}</td>
-    <td style="width:{width_an};text-align: center;">{an_2}</td>
-    <td style="width:{width_an};text-align: center;">{an_3}</td>
+    <td style="text-align: center;">{an_1}</td>
+    <td style="text-align: center;">{an_2}</td>
+    <td style="text-align: center;">{an_3}</td>
 </tr>
 """
 
@@ -276,7 +280,6 @@ def append_output(item, output, padding, sublist):
         output.append(
             CHILD_LEAF_START.format(
                 padding=padding,
-                width_main="80%",
                 icon_list_1=CASE_JPG,
                 icon_list_2=MANDATORY_PNG if item.is_mandatory else OPTIONAL_PNG,
                 value=escaper(force_text(item.verbose)))
@@ -301,7 +304,6 @@ def append_output(item, output, padding, sublist):
         output.append(
             CHILD_BRANCH_START.format(
                 padding=padding,
-                width_main="80%",
                 icon_list_2=MANDATORY_PNG if item.is_mandatory else OPTIONAL_PNG,
                 value=escaper(force_text(item.verbose)))
         )
