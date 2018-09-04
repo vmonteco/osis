@@ -62,6 +62,7 @@ urlpatterns = [
     url(r'^(?P<root_id>[0-9]+)/(?P<education_group_year_id>[0-9]+)/', include([
 
         url(r'^identification/$', detail.EducationGroupRead.as_view(), name='education_group_read'),
+        url(r'^tree/$', detail.EducationGroupTree.as_view(), name='education_group_tree'),
         url(r'^update/$', update.update_education_group, name="update_education_group"),
 
         url(r'^diplomas/$', detail.EducationGroupDiplomas.as_view(),
@@ -135,5 +136,8 @@ urlpatterns = [
         url(r'^prerequisite/update/$',
             learning_unit_update.LearningUnitPrerequisite.as_view(),
             name='learning_unit_prerequisite_update'),
+
+        url(r'^tree/$', detail.EducationGroupTree.as_view(), name='education_group_tree'),
+
     ])),
 ]

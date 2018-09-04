@@ -30,6 +30,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.db.models import F, Case, When
 from django.shortcuts import get_object_or_404
+from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.generic import DetailView
 
@@ -40,6 +41,7 @@ from base.forms.education_group_general_informations import EducationGroupGenera
 from base.models.education_group_year import EducationGroupYear
 from base.models.enums import education_group_categories, academic_calendar_type
 from base.models.person import Person
+from base.views.common_classes import JSONResponseMixin
 from cms import models as mdl_cms
 from cms.enums import entity_name
 
@@ -248,3 +250,90 @@ class EducationGroupUsing(EducationGroupGenericDetailView):
         context["group_element_years"] = mdl.group_element_year.find_by_child_branch(self.object) \
             .select_related("parent")
         return context
+
+
+class NodeBranchJsTree:
+    """ Use to generate json from a list of education group years compatible with jstree """
+
+    def __init__(self, root, group_element_year=None):
+        self.root = root
+        self.group_element_year = group_element_year
+        self.children = self.generate_children()
+
+    def generate_children(self):
+        result = []
+
+        for group_element_year in self.education_group_year.groupelementyear_set.all():
+            if group_element_year.child_branch:
+                result.append(NodeBranchJsTree(self.root, group_element_year))
+            else:
+                result.append(NodeLeafJsTree(self.root, group_element_year))
+
+        return result
+
+    def to_json(self):
+        return {
+            'text': self.education_group_year.verbose,
+            'children': [child.to_json() for child in self.children],
+            'a_attr': {
+                'href': self.get_url(),
+                'root': self.root.pk,
+                'group_element_year': self.group_element_year and self.group_element_year.pk,
+                'education_group_year': self.education_group_year.pk
+            }
+        }
+
+    @property
+    def education_group_year(self):
+        return self.root if not self.group_element_year else self.group_element_year.child_branch
+
+    def get_url(self):
+        return reverse('education_group_read', args=[self.root.pk, self.education_group_year.pk])
+
+
+class NodeLeafJsTree(NodeBranchJsTree):
+    """ The leaf has no child """
+
+    @property
+    def learning_unit_year(self):
+        if self.group_element_year:
+            return self.group_element_year.child_leaf
+
+    @property
+    def education_group_year(self):
+        return
+
+    def to_json(self):
+        return {
+            'text': self.learning_unit_year.acronym,
+            'icon': "jstree-file",
+            'a_attr': {
+                'href': self.get_url(),
+                'root': self.root.pk,
+                'group_element_year': self.group_element_year and self.group_element_year.pk,
+                'learning_unit_year': self.learning_unit_year.pk
+            }
+        }
+
+    def get_url(self):
+        return reverse('learning_unit_utilization', args=[self.root.pk, self.learning_unit_year.pk])
+
+    def generate_children(self):
+        return []
+
+
+class EducationGroupTree(JSONResponseMixin, PermissionRequiredMixin, DetailView):
+
+    # DetailView
+    model = EducationGroupYear
+    context_object_name = "root"
+    pk_url_kwarg = 'root_id'
+    http_method_names = ["get"]
+
+    # PermissionRequiredMixin
+    permission_required = 'base.can_access_education_group'
+    raise_exception = True
+
+    def get_context_data(self, **kwargs):
+        root = NodeBranchJsTree(self.get_object())
+        return root.to_json()

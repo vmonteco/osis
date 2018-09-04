@@ -1,3 +1,6 @@
+const proxy_management_url = "/educationgroups/proxy_management/";
+
+
 function switchTreeVisibility() {
     var newTreeVisibility = (sessionStorage.getItem('treeVisibility') === '0') ? '1' : '0';
     sessionStorage.setItem('treeVisibility', newTreeVisibility);
@@ -23,10 +26,12 @@ function modifyPanelAttribute(collapse_style_display, panel_collapse_class, pane
 $(document).ready(function () {
     var $documentTree = $('#panel_file_tree');
     $documentTree.bind("loaded.jstree", function (event, data) {
-        data.instance.open_all();
+        // data.instance.open_all();
     });
-    $documentTree.bind("changed.jstree", function (event, data) {
-        document.location.href = data.node.a_attr.href;
+    $documentTree.bind("state_ready.jstree", function () {
+        $documentTree.bind("select_node.jstree", function (event, data) {
+            document.location.href = data.node.a_attr.href;
+        });
     });
 
     function get_data_from_tree(data) {
@@ -55,82 +60,102 @@ $(document).ready(function () {
         return jQuery.param(data);
     }
 
-    var proxy_management_url = "/educationgroups/proxy_management/";
-
     $documentTree.jstree({
-        "core": {
-            "check_callback": true
-        },
-        "plugins": ["contextmenu"],
-        "contextmenu": {
-            "select_node": false,
-            "items": {
-                "select": {
-                    "label": gettext("Select"),
-                    "action": function (data) {
-                        var __ret = get_data_from_tree(data);
-                        var element_id = __ret.education_group_year_id;
-                        var element_type = __ret.element_type;
-                        $.ajax({
-                            url: proxy_management_url,
-                            dataType: 'json',
-                            data: {'element_id': element_id, 'element_type': element_type, 'action': 'select'},
-                            type: 'POST',
-                            success: function (jsonResponse) {
-                                displayInfoMessage(jsonResponse, 'message_info_container')
-                            }
-                        });
+            "core": {
+                "check_callback": true,
+                "data": {
+                    'url': '../tree/',
+                    'success': function () {
+                        $(".jstree-anchor").click(function (e) {
+                            // Fetch the selected node
+                            let selected_node = $(this);
+                            console.log(selected_node);
+                            document.location.href = selected_node.attr("href");
+});
                     }
-                },
-
-                "attach": {
-                    "label": gettext("Attach"),
-                    "separator_before": true,
-                    "action": function (data) {
-                        var __ret = get_data_from_tree(data);
-                        var group_element_year_id = __ret.group_element_year_id;
-                        var education_group_year_id = __ret.education_group_year_id;
-                        var element_type = __ret.element_type;
-                        var attach_data = build_url_data(education_group_year_id, group_element_year_id, 'attach',
-                            element_type);
-                        window.location.href = proxy_management_url + "?" + attach_data;
-                    },
-                    "_disabled": function (data) {
-                        var __ret = get_data_from_tree(data);
-                        return __ret.element_type === "learningunityear";
-                    }
-                },
-
-                "detach": {
-                    "label": gettext("Detach"),
-                    "action": function (data) {
-                        var __ret = get_data_from_tree(data);
-                        var group_element_year_id = __ret.group_element_year_id;
-                        var education_group_year_id = __ret.education_group_year_id;
-                        var element_type = __ret.element_type;
-                        if (group_element_year_id === '0') {
-                            return;
+                }
+            },
+            "plugins": [
+                "contextmenu",
+                // Plugin to save the state of the node (collapsed or not)
+                "state",
+            ],
+            "state": {
+                // the key is important if you have multiple trees in the same domain
+                "key": "education_groups",
+                "opened":true,
+                "selected": false,
+            },
+            "contextmenu": {
+                "select_node": false,
+                "items": {
+                    "select": {
+                        "label": gettext("Select"),
+                        "action": function (data) {
+                            var __ret = get_data_from_tree(data);
+                            var element_id = __ret.education_group_year_id;
+                            var element_type = __ret.element_type;
+                            $.ajax({
+                                url: proxy_management_url,
+                                dataType: 'json',
+                                data: {'element_id': element_id, 'element_type': element_type, 'action': 'select'},
+                                type: 'POST',
+                                success: function (jsonResponse) {
+                                    displayInfoMessage(jsonResponse, 'message_info_container')
+                                }
+                            });
                         }
-
-                        var detach_data = build_url_data(education_group_year_id, group_element_year_id, 'detach',
-                            element_type);
-
-                        $('#form-modal-content').load(proxy_management_url, detach_data, function () {
-                            $('#form-modal').modal('toggle');
-                            formAjaxSubmit('#form-modal-body form', '#form-modal');
-                        });
-
-                        $.ajax({
-                            url: '../select/',
-                            data: {'child_to_cache_id': education_group_year_id},
-                            type: 'POST',
-                            dataType: 'json',
-                        });
                     },
+
+                    "attach": {
+                        "label": gettext("Attach"),
+                        "separator_before": true,
+                        "action": function (data) {
+                            var __ret = get_data_from_tree(data);
+                            var group_element_year_id = __ret.group_element_year_id;
+                            var education_group_year_id = __ret.education_group_year_id;
+                            var element_type = __ret.element_type;
+                            var attach_data = build_url_data(education_group_year_id, group_element_year_id, 'attach',
+                                element_type);
+                            window.location.href = proxy_management_url + "?" + attach_data;
+                        },
+                        "_disabled": function (data) {
+                            var __ret = get_data_from_tree(data);
+                            return __ret.element_type === "learningunityear";
+                        }
+                    },
+
+                    "detach": {
+                        "label": gettext("Detach"),
+                        "action": function (data) {
+                            var __ret = get_data_from_tree(data);
+                            var group_element_year_id = __ret.group_element_year_id;
+                            var education_group_year_id = __ret.education_group_year_id;
+                            var element_type = __ret.element_type;
+                            if (group_element_year_id === '0') {
+                                return;
+                            }
+
+                            var detach_data = build_url_data(education_group_year_id, group_element_year_id, 'detach',
+                                element_type);
+
+                            $('#form-modal-content').load(proxy_management_url, detach_data, function () {
+                                $('#form-modal').modal('toggle');
+                                formAjaxSubmit('#form-modal-body form', '#form-modal');
+                            });
+
+                            $.ajax({
+                                url: '../select/',
+                                data: {'child_to_cache_id': education_group_year_id},
+                                type: 'POST',
+                                dataType: 'json',
+                            });
+                        },
+                    }
                 }
             }
-        }
-    });
+        }, 'open_all'
+    );
 
     showOrHideTree();
 
