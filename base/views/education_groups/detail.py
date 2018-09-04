@@ -28,7 +28,7 @@ from collections import OrderedDict
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import PermissionRequiredMixin
-from django.db.models import F, Case, When
+from django.db.models import F, Case, When, OuterRef, Exists
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.decorators import method_decorator
@@ -41,6 +41,8 @@ from base.forms.education_group_general_informations import EducationGroupGenera
 from base.models.education_group_year import EducationGroupYear
 from base.models.enums import education_group_categories, academic_calendar_type
 from base.models.person import Person
+from base.models.prerequisite import Prerequisite
+from base.templatetags.education_group import ICON_JSTREE_LEAF
 from base.views.common_classes import JSONResponseMixin
 from cms import models as mdl_cms
 from cms.enums import entity_name
@@ -262,8 +264,13 @@ class NodeBranchJsTree:
 
     def generate_children(self):
         result = []
+        has_prerequisite = Prerequisite.objects.filter(
+            education_group_year__id=self.root.id,
+            learning_unit_year__id=OuterRef("child_leaf__id"),
+        ).exclude(prerequisite__exact='')
 
-        for group_element_year in self.education_group_year.groupelementyear_set.all():
+        for group_element_year in self.education_group_year.groupelementyear_set.all()\
+                .annotate(has_prerequisites=Exists(has_prerequisite)):
             if group_element_year.child_branch:
                 result.append(NodeBranchJsTree(self.root, group_element_year))
             else:
@@ -306,7 +313,7 @@ class NodeLeafJsTree(NodeBranchJsTree):
     def to_json(self):
         return {
             'text': self.learning_unit_year.acronym,
-            'icon': "jstree-file",
+            'icon': "glyphicon glyphicon-leaf" if self.group_element_year.has_prerequisites else "jstree-file",
             'a_attr': {
                 'href': self.get_url(),
                 'root': self.root.pk,

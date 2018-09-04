@@ -64,15 +64,7 @@ $(document).ready(function () {
             "core": {
                 "check_callback": true,
                 "data": {
-                    'url': '../tree/',
-                    'success': function () {
-                        $(".jstree-anchor").click(function (e) {
-                            // Fetch the selected node
-                            let selected_node = $(this);
-                            console.log(selected_node);
-                            document.location.href = selected_node.attr("href");
-});
-                    }
+                    'url': location.pathname.split('/', 4).join('/') + '/tree',
                 }
             },
             "plugins": [

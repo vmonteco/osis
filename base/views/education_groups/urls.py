@@ -136,8 +136,5 @@ urlpatterns = [
         url(r'^prerequisite/update/$',
             learning_unit_update.LearningUnitPrerequisite.as_view(),
             name='learning_unit_prerequisite_update'),
-
-        url(r'^tree/$', detail.EducationGroupTree.as_view(), name='education_group_tree'),
-
     ])),
 ]
