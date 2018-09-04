@@ -170,10 +170,9 @@ class GroupElementYear(OrderedModel):
 
     @property
     def verbose_comment(self):
-        return _("%(comment)s") % {
-            "comment": self.comment_english if self.comment_english and translation.get_language() == LANGUAGE_CODE_EN
-            else self.comment
-        }
+        if self.comment_english and translation.get_language() == LANGUAGE_CODE_EN:
+            return self.comment_english
+        return self.comment
 
     class Meta:
         ordering = ('order',)
