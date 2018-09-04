@@ -25,7 +25,6 @@
 ##############################################################################
 import os
 import sys
-from collections import namedtuple
 
 from django.core.urlresolvers import reverse_lazy
 from django.utils.translation import ugettext_lazy as _
@@ -399,47 +398,5 @@ if CACHE_ENABLED:
 
 WAFFLE_FLAG_DEFAULT = os.environ.get("WAFFLE_FLAG_DEFAULT", "False").lower() == 'true'
 
-
-# the parameter labels is a list of string and tuple
-# labels=['welcome_introduction',
-#         ('caap', 'specific,custom')]
-# second parameter can have few values:
-# specific
-# common
-# specific,common
-Section = namedtuple('Section', 'title labels')
-
-SECTION_LIST = [
-    Section(title=_('Teaching profile'),
-            labels=[
-                ('welcome_introduction', 'specific'),
-                ('welcome_profil', 'specific'),
-                ('welcome_job', 'specific'),
-                ('welcome_programme', 'specific'),
-                ('welcome_parcours', 'specific'),
-                ('comp_acquis', 'specific'),
-                ('structure', 'specific')
-            ]),
-    Section(title=_('Detailed programme'),
-            labels=[
-                ('options', 'specific'),
-                ('finalites_didactiques', 'common'),
-                ('caap', 'specific,common'),
-             ]),
-    Section(title=_('Admission'),
-            labels=[
-                ('module_complementaire', 'specific,custom')
-            ]),
-    Section(title=_('Benefits and organization'),
-            labels=[
-                ('pedagogie', 'specific'),
-                ('evaluation', 'specific'),
-                ('mobilite', 'specific'),
-                ('formations_accessibles', 'specific'),
-                ('certificats', 'specific')
-            ]),
-    Section(title=_('In practice'),
-            labels=[
-                ('contacts', 'specific')
-            ]),
-]
+# Used in base.views.education_groups.detail.EducationGroupGeneralInformation#get_sections_with_translated_labels
+from .portal_conf import SECTION_LIST
