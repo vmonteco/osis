@@ -45,15 +45,13 @@ MANDATORY_PNG = base.STATIC_URL + 'img/education_group_year/mandatory.png'
 CASE_JPG = base.STATIC_URL + 'img/education_group_year/case.jpg'
 
 CHILD_BRANCH_REMARK = """\
-        <div>
-            <img style="visibility:hidden;" src="{icon_list_2}" height="10" width="10">
+        <div style="word-break: keep-all;margin-left: 14px;">
             {remark}
         </div>
 """
 
 CHILD_BRANCH_COMMENT = """\
-        <div>
-            <img style="visibility:hidden;" src="{icon_list_2}" height="10" width="10">
+        <div style="word-break: keep-all;margin-left: 14px;">
             ({comment})
         </div>
 """
@@ -61,22 +59,20 @@ CHILD_BRANCH_COMMENT = """\
 CHILD_BRANCH_START = """\
 <tr>
     <td style="padding-left:{padding}em;float:left;">
-        <img src="{icon_list_2}" height="10" width="10">
-    </td>
-    <td style="float:left;">
-        {value}
+        <div style="word-break: keep-all;">
+            <img src="{icon_list_2}" height="10" width="10">
+            {value}
 """
 
 CHILD_BRANCH_END = """\
-        {sublist}
+            {sublist}
+        </div>
     </td>
 </tr>
 """
 
 CHILD_LEAF_COMMENT = """\
-        <div>
-            <img style="visibility:hidden;" src="{icon_list_1}" height="14" width="17">
-            <img style="visibility:hidden;" src="{icon_list_2}" height="10" width="10">
+        <div style="word-break: keep-all;margin-left:27px;">
             ({comment})
         </div>
 """
