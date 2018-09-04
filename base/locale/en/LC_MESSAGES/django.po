@@ -3464,7 +3464,7 @@ msgstr ""
 msgid "There are warnings in the form."
 msgstr ""
 
-msgid "Number of learning units"
+msgid "Number of elements"
 msgstr ""
 
 msgid "Education group year <a href='%(link)s'> %(acronym)s (%(academic_year)s) </a> successfuly updated."
@@ -3546,7 +3546,9 @@ msgstr ""
 
 msgid "Prerequisites are invalid"
 msgstr "<p>Prerequisites are invalid</p>"
-       "<p><b>Syntax rules</b>:"
+
+msgid "prerequisites_syntax_rules"
+msgstr "<b>Syntax rules</b>:"
        "<ul><li>No double parentheses.</li>"
        "<li>Valid operators are OU or ET.</li>"
        "<li>The operator must be the same inside all parentheses (groups).</li>"
@@ -3558,7 +3560,7 @@ msgstr "<p>Prerequisites are invalid</p>"
        "<li>A ET (B OU C) ET (D OU E): valid</li>"
        "<li>A ET (B OU C) OU (D OU E): not valid</li>"
        "<li>A ET (B ET C) ET (D ET E): not valid</li>"
-       "<li>A ET (B OU C) ET (D ET E): not valid</li></ul></p>"
+       "<li>A ET (B OU C) ET (D ET E): not valid</li></ul>"
 
 msgid "Prerequisites saved."
 msgstr ""
