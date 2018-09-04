@@ -25,9 +25,7 @@ function modifyPanelAttribute(collapse_style_display, panel_collapse_class, pane
 
 $(document).ready(function () {
     var $documentTree = $('#panel_file_tree');
-    $documentTree.bind("loaded.jstree", function (event, data) {
-        // data.instance.open_all();
-    });
+
     $documentTree.bind("state_ready.jstree", function () {
         $documentTree.bind("select_node.jstree", function (event, data) {
             document.location.href = data.node.a_attr.href;
@@ -37,14 +35,11 @@ $(document).ready(function () {
     function get_data_from_tree(data) {
         var inst = $.jstree.reference(data.reference),
             obj = inst.get_node(data.reference);
-        var args = obj.li_attr.id.split('_');
-        var group_element_year_id = args[1];
-        var education_group_year_id = args[2];
-        var element_type = args[3];
+
         return {
-            group_element_year_id: group_element_year_id,
-            education_group_year_id: education_group_year_id,
-            element_type: element_type
+            group_element_year_id: obj.a_attr.group_element_year,
+            education_group_year_id: obj.a_attr.education_group_year,
+            element_type: obj.a_attr.element_type
         };
     }
 
@@ -74,7 +69,8 @@ $(document).ready(function () {
             ],
             "state": {
                 // the key is important if you have multiple trees in the same domain
-                "key": "education_groups",
+                // The key includes the root_id
+                "key": location.pathname.split('/', 3).join('/'),
                 "opened":true,
                 "selected": false,
             },

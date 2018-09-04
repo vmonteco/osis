@@ -37,12 +37,12 @@ from django.views.generic import DetailView
 from base import models as mdl
 from base.business.education_group import assert_category_of_education_group_year, can_user_edit_administrative_data
 from base.business.education_groups import perms
+from base.business.group_element_years.management import EDUCATION_GROUP_YEAR, LEARNING_UNIT_YEAR
 from base.forms.education_group_general_informations import EducationGroupGeneralInformationsForm
 from base.models.education_group_year import EducationGroupYear
 from base.models.enums import education_group_categories, academic_calendar_type
 from base.models.person import Person
 from base.models.prerequisite import Prerequisite
-from base.templatetags.education_group import ICON_JSTREE_LEAF
 from base.views.common_classes import JSONResponseMixin
 from cms import models as mdl_cms
 from cms.enums import entity_name
@@ -256,6 +256,7 @@ class EducationGroupUsing(EducationGroupGenericDetailView):
 
 class NodeBranchJsTree:
     """ Use to generate json from a list of education group years compatible with jstree """
+    element_type = EDUCATION_GROUP_YEAR
 
     def __init__(self, root, group_element_year=None):
         self.root = root
@@ -286,7 +287,8 @@ class NodeBranchJsTree:
                 'href': self.get_url(),
                 'root': self.root.pk,
                 'group_element_year': self.group_element_year and self.group_element_year.pk,
-                'education_group_year': self.education_group_year.pk
+                'education_group_year': self.education_group_year.pk,
+                'element_type': self.element_type
             }
         }
 
@@ -300,6 +302,7 @@ class NodeBranchJsTree:
 
 class NodeLeafJsTree(NodeBranchJsTree):
     """ The leaf has no child """
+    element_type = LEARNING_UNIT_YEAR
 
     @property
     def learning_unit_year(self):
@@ -318,7 +321,8 @@ class NodeLeafJsTree(NodeBranchJsTree):
                 'href': self.get_url(),
                 'root': self.root.pk,
                 'group_element_year': self.group_element_year and self.group_element_year.pk,
-                'learning_unit_year': self.learning_unit_year.pk
+                'learning_unit_year': self.learning_unit_year.pk,
+                'element_type': self.element_type
             }
         }
 
