@@ -98,7 +98,7 @@ def find_root_by_name(text_label_name):
 
 
 def education_group_year_pedagogy_edit_post(request, education_group_year_id, root_id):
-    form = EducationGroupPedagogyEditForm(request.POST or None)
+    form = EducationGroupPedagogyEditForm(request.POST)
 
     if form.is_valid():
         label = form.cleaned_data['label']
