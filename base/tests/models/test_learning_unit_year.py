@@ -288,6 +288,19 @@ class LearningUnitYearFindLearningUnitYearByAcademicYearTutorAttributionsTest(Te
         self.assertIsInstance(result, QuerySet)
         self.assertEqual(result.count(), 1)
 
+    def test_find_learning_unit_years_by_academic_year_tutor_attributions_case_distinct_occurrence_found(self):
+        """In this test, we ensure that user see one line per learning unit year despite multiple attribution"""
+        AttributionFactory(learning_unit_year=self.learning_unit_year, tutor=self.tutor)
+        AttributionFactory(learning_unit_year=self.learning_unit_year, tutor=self.tutor)
+        AttributionFactory(learning_unit_year=self.learning_unit_year, tutor=self.tutor)
+
+        result = find_learning_unit_years_by_academic_year_tutor_attributions(
+            academic_year=self.current_academic_year,
+            tutor=self.tutor
+        )
+        self.assertIsInstance(result, QuerySet)
+        self.assertEqual(result.count(), 1)
+
     def test_find_learning_unit_years_by_academic_year_tutor_attributions_case_no_occurrence_found(self):
         """In this test, we ensure that if the learning unit year as no learning container, it is not taking account"""
         self.learning_unit_year.learning_container_year = None
