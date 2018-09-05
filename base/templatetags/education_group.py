@@ -85,7 +85,7 @@ CHILD_COMMENT = """\
 # margin-left is there to align the value with the remark.
 # We use 14px which is the size of the image before the value
 BRANCH_CONSTRAINT = """\
-        <div margin-left:-27px;">
+        <div style="font-style: italic;">
             {constraint}
         </div>
 """
