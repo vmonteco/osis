@@ -69,7 +69,15 @@ class LearningUnitYearWithContainerManager(models.Manager):
         return super().get_queryset().filter(learning_container_year__isnull=False)
 
 
-class LearningUnitYear(SerializableModel):
+class ExtraManagerLearningUnitYear(models.Model):
+    # This class ensure that the default manager (from serializable model) is not override by this manager
+    objects_with_container = LearningUnitYearWithContainerManager()
+
+    class Meta:
+        abstract = True
+
+
+class LearningUnitYear(SerializableModel, ExtraManagerLearningUnitYear):
     external_id = models.CharField(max_length=100, blank=True, null=True, db_index=True)
     academic_year = models.ForeignKey(AcademicYear,  verbose_name=_('academic_year'),
                                       validators=[academic_year_validator])
@@ -110,8 +118,6 @@ class LearningUnitYear(SerializableModel):
 
     periodicity = models.CharField(max_length=20, choices=PERIODICITY_TYPES, default=ANNUAL,
                                    verbose_name=_('periodicity'))
-
-    objects_with_container = LearningUnitYearWithContainerManager()
     _warnings = None
 
     class Meta:
@@ -241,10 +247,15 @@ class LearningUnitYear(SerializableModel):
         return self.subtype == learning_unit_year_subtypes.PARTIM
 
     def get_entity(self, entity_type):
-        entity_container_yr = mdl_entity_container_year.search(
-            link_type=entity_type, learning_container_year=self.learning_container_year
-        ).get()
-        return entity_container_yr.entity if entity_container_yr else None
+        entity = None
+        # @TODO: Remove this condition when classes will be removed from learning unit year
+        if self.learning_container_year:
+            entity_container_yr = mdl_entity_container_year.search(
+                link_type=entity_type,
+                learning_container_year=self.learning_container_year,
+            ).get()
+            entity = entity_container_yr.entity if entity_container_yr else None
+        return entity
 
     def clean(self):
         learning_unit_years = find_gte_year_acronym(self.academic_year, self.acronym)
@@ -479,10 +490,11 @@ def find_lt_learning_unit_year_with_different_acronym(a_learning_unit_yr):
 
 
 def find_learning_unit_years_by_academic_year_tutor_attributions(academic_year, tutor):
-    qs = LearningUnitYear.objects.filter(
+    """ In this function, only learning unit year with containers is visible! [no classes] """
+    qs = LearningUnitYear.objects_with_container.filter(
             academic_year=academic_year,
-            attribution__tutor=tutor)\
-        .order_by('academic_year__year', 'acronym')
+            attribution__tutor=tutor,
+         ).order_by('academic_year__year', 'acronym')
     return qs
 
 
