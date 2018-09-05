@@ -38,7 +38,7 @@ $(document).ready(function () {
 
         return {
             group_element_year_id: obj.a_attr.group_element_year,
-            education_group_year_id: obj.a_attr.education_group_year,
+            element_id: obj.a_attr.education_group_year,
             element_type: obj.a_attr.element_type
         };
     }
@@ -78,7 +78,7 @@ $(document).ready(function () {
                         "label": gettext("Select"),
                         "action": function (data) {
                             var __ret = get_data_from_tree(data);
-                            var element_id = __ret.education_group_year_id;
+                            var element_id = __ret.element_id;
                             var group_element_year_id = __ret.group_element_year_id;
                             $.ajax({
                                 url: proxy_management_url,
@@ -98,7 +98,7 @@ $(document).ready(function () {
                         "action": function (data) {
                             var __ret = get_data_from_tree(data);
                             var group_element_year_id = __ret.group_element_year_id;
-                            var element_id = __ret.education_group_year_id;
+                            var element_id = __ret.element_id;
                             var attach_data = build_url_data(element_id, group_element_year_id, 'attach');
                             window.location.href = proxy_management_url + "?" + attach_data;
                         },
@@ -113,7 +113,7 @@ $(document).ready(function () {
                         "action": function (data) {
                             var __ret = get_data_from_tree(data);
                             var group_element_year_id = __ret.group_element_year_id;
-                            var element_id = __ret.education_group_year_id;
+                            var element_id = __ret.element_id;
                             if (group_element_year_id === '0') {
                                 return;
                             }
