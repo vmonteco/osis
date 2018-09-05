@@ -252,6 +252,7 @@ class EducationGroupUsing(EducationGroupGenericDetailView):
         context = super().get_context_data(**kwargs)
         context["group_element_years"] = mdl.group_element_year.find_by_child_branch(self.object) \
             .select_related("parent")
+
         return context
 
 
