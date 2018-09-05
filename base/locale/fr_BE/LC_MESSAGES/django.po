@@ -3791,3 +3791,12 @@ msgstr "En pratique"
 #: backoffice/settings/base.py:422
 msgid "Curriculum Management and contacts"
 msgstr "Gestion et contacts"
+
+msgid "Welcome"
+msgstr "Page d'accueil"
+
+msgid "Add the French content of this paragraph"
+msgstr "Ajouter le contenu Français de ce paragraphe"
+
+msgid "Add the English content of this paragraph"
+msgstr "Ajouter le contenu Anglais de ce paragraphe"
