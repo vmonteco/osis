@@ -13,25 +13,34 @@ from django.utils.translation import ugettext_lazy as _
 Section = namedtuple('Section', 'title labels')
 
 SECTION_LIST = [
-    Section(title=_('Teaching profile'),
+    Section(title=_('Welcome'),
             labels=[
                 ('welcome_introduction', 'specific'),
                 ('welcome_profil', 'specific'),
                 ('welcome_job', 'specific'),
                 ('welcome_programme', 'specific'),
                 ('welcome_parcours', 'specific'),
+            ]),
+    Section(title=_('Teaching profile'),
+            labels=[
                 ('comp_acquis', 'specific'),
                 ('structure', 'specific')
             ]),
     Section(title=_('Detailed programme'),
             labels=[
+                ('mineures', 'specific'),
+                ('majeures', 'specific'),
+                ('programme_detaille', 'specific'),
+                ('finalites', 'specific'),
                 ('options', 'specific'),
                 ('finalites_didactiques', 'common'),
                 ('caap', 'specific,common'),
-             ]),
+            ]),
     Section(title=_('Admission'),
             labels=[
-                ('module_complementaire', 'specific,custom')
+                ('acces_professions', 'specific'),
+                ('bacheliers_concernes', 'specific'),
+                ('module_complementaire', 'specific,common')
             ]),
     Section(title=_('Benefits and organization'),
             labels=[
@@ -39,7 +48,8 @@ SECTION_LIST = [
                 ('evaluation', 'specific'),
                 ('mobilite', 'specific'),
                 ('formations_accessibles', 'specific'),
-                ('certificats', 'specific')
+                ('certificats', 'specific'),
+                ('infos_pratiques', 'specific'),
             ]),
     Section(title=_('In practice'),
             labels=[
