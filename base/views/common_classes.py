@@ -26,7 +26,8 @@
 import waffle
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
-from django.http import Http404, JsonResponse
+from django.http import Http404
+from django.http import JsonResponse
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import DeleteView
 

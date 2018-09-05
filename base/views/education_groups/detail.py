@@ -23,9 +23,11 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import functools
+import json
 from collections import OrderedDict, namedtuple
 
+from ckeditor.widgets import CKEditorWidget
+from django import forms
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import PermissionRequiredMixin
@@ -38,6 +40,8 @@ from django.views.generic import DetailView
 from base import models as mdl
 from base.business.education_group import assert_category_of_education_group_year, can_user_edit_administrative_data
 from base.business.education_groups import perms
+from base.business.education_groups.group_element_year_tree import NodeBranchJsTree
+from base.models.admission_condition import AdmissionCondition, AdmissionConditionLine
 from base.models.education_group_year import EducationGroupYear
 from base.models.enums import education_group_categories, academic_calendar_type
 from base.models.person import Person
@@ -81,12 +85,13 @@ class EducationGroupGenericDetailView(PermissionRequiredMixin, DetailView):
         # This objects are mandatory for all education group views
         context['person'] = self.get_person()
 
+        root = self.get_root()
         # TODO same param
-        context['root'] = self.get_root()
-        context['root_id'] = self.kwargs.get("root_id")
-        context['parent'] = self.get_root()
+        context['root'] = root
+        context['root_id'] = root.pk
+        context['parent'] = root
+        context['tree'] = json.dumps(NodeBranchJsTree(root).to_json())
 
-        context["education_group_year"] = self.get_object()
         context['group_to_parent'] = self.request.GET.get("group_to_parent") or '0'
         context['can_change_education_group'] = perms.is_eligible_to_change_education_group(
             person=self.get_person(),
@@ -296,4 +301,48 @@ class EducationGroupUsing(EducationGroupGenericDetailView):
         context = super().get_context_data(**kwargs)
         context["group_element_years"] = mdl.group_element_year.find_by_child_branch(self.object) \
             .select_related("parent")
+        return context
+
+
+class EducationGroupYearAdmissionCondition(EducationGroupGenericDetailView):
+    template_name = "education_group/tab_admission_conditions.html"
+    permission_required = 'base.can_edit_educationgroup_pedagogy'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        acronym = self.object.acronym.lower()
+        is_common = acronym.startswith('common-')
+        is_specific = not is_common
+
+        is_master = acronym.endswith(('2m', '2m1'))
+        use_standard_text = acronym.endswith(('2a', '2mc'))
+
+        class AdmissionConditionForm(forms.Form):
+            text_field = forms.CharField(widget=CKEditorWidget(config_name='minimal'))
+
+        admission_condition_form = AdmissionConditionForm()
+        admission_condition, created = AdmissionCondition.objects.get_or_create(education_group_year=self.object)
+
+        record = {}
+        for section in ('ucl_bachelors', 'others_bachelors_french', 'bachelors_dutch', 'foreign_bachelors',
+                        'graduates', 'masters'):
+            record[section] = AdmissionConditionLine.objects.filter(admission_condition=admission_condition,
+                                                                    section=section)
+
+        context.update({
+            'admission_condition_form': admission_condition_form,
+            'can_edit_information': self.request.user.has_perm('base.can_edit_educationgroup_pedagogy'),
+            'info': {
+                'is_specific': is_specific,
+                'is_common': is_common,
+                'is_bachelor': acronym == 'common-bacs',
+                'is_master': is_master,
+                'show_components_for_agreg_and_mc': is_common and use_standard_text,
+                'show_free_text': is_specific and (is_master or use_standard_text),
+            },
+            'admission_condition': admission_condition,
+            'record': record,
+        })
+
         return context

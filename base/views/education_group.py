@@ -25,8 +25,6 @@
 ##############################################################################
 import json
 
-from ckeditor.widgets import CKEditorWidget
-from django import forms
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core.exceptions import PermissionDenied
@@ -47,7 +45,6 @@ from base.models.admission_condition import AdmissionConditionLine, AdmissionCon
 from base.models.education_group_year import EducationGroupYear
 from base.models.enums import academic_calendar_type
 from base.models.enums import education_group_categories
-from base.views.learning_units.common import get_text_label_translated
 from cms.enums import entity_name
 from cms.models.text_label import TextLabel
 from cms.models.translated_text import TranslatedText
@@ -234,59 +231,6 @@ def translated_text_labels2dict(translated_text_label):
         'label': translated_text_label.text_label.label,
         'translation': translated_text_label.label
     }
-
-
-@login_required
-@permission_required('base.can_edit_educationgroup_pedagogy', raise_exception=True)
-def education_group_year_admission_condition_edit(request, root_id, education_group_year_id):
-    education_group_year = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
-
-    parent = get_object_or_404(EducationGroupYear, pk=root_id)
-
-    acronym = education_group_year.acronym.lower()
-
-    is_common = acronym.startswith('common-')
-    is_specific = not is_common
-
-    is_master = acronym.endswith(('2m', '2m1'))
-    use_standard_text = acronym.endswith(('2a', '2mc'))
-
-    class AdmissionConditionForm(forms.Form):
-        text_field = forms.CharField(widget=CKEditorWidget(config_name='minimal'))
-
-    admission_condition_form = AdmissionConditionForm()
-
-    admission_condition, created = AdmissionCondition.objects.get_or_create(
-        education_group_year=education_group_year)
-
-    record = {}
-    for section in ('ucl_bachelors', 'others_bachelors_french', 'bachelors_dutch', 'foreign_bachelors',
-                    'graduates', 'masters'):
-        record[section] = AdmissionConditionLine.objects.filter(admission_condition=admission_condition,
-                                                                section=section)
-
-    context = {
-        'admission_condition_form': admission_condition_form,
-        'education_group_year': education_group_year,
-        'parent': parent,
-        'root': parent,
-        'root_id': parent.id,
-
-        'can_edit_information': request.user.has_perm('base.can_edit_educationgroup_pedagogy'),
-        'info': {
-            'is_specific': is_specific,
-            'is_common': is_common,
-            'is_bachelor': acronym == 'common-bacs',
-            'is_master': is_master,
-            'show_components_for_agreg_and_mc': is_common and use_standard_text,
-            'show_free_text': is_specific and (is_master or use_standard_text),
-        },
-        'admission_condition': admission_condition,
-        'record': record,
-        'group_to_parent': request.GET.get("group_to_parent"),
-    }
-
-    return layout.render(request, 'education_group/tab_admission_conditions.html', context)
 
 
 @login_required
