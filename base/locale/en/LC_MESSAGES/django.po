@@ -3726,3 +3726,77 @@ msgstr ""
 
 msgid "from %(min)s to %(max)s credits among"
 msgstr ""
+
+#: backoffice/settings/base.py:402
+msgid "Teaching profile"
+msgstr ""
+
+#: backoffice/settings/base.py:403
+msgid "Learning outcomes"
+msgstr ""
+
+#: backoffice/settings/base.py:404
+msgid "Programme structure"
+msgstr ""
+
+#: backoffice/settings/base.py:406
+msgid "Detailed programme"
+msgstr ""
+
+#: backoffice/settings/base.py:407
+msgid "Options courses"
+msgstr ""
+
+#: backoffice/settings/base.py:408
+msgid "The programme's courses and learning outcomes"
+msgstr ""
+
+#: backoffice/settings/base.py:410
+msgid "Admission"
+msgstr ""
+
+#: backoffice/settings/base.py:412
+msgid "Preparatory module"
+msgstr ""
+
+#: backoffice/settings/base.py:414
+msgid "Benefits and organization"
+msgstr ""
+
+#: backoffice/settings/base.py:415
+msgid "Pedagogy"
+msgstr ""
+
+#: backoffice/settings/base.py:416
+msgid "Course evaluation methods"
+msgstr ""
+
+#: backoffice/settings/base.py:417
+msgid "Mobility and/or Internationalisation outlook"
+msgstr ""
+
+#: backoffice/settings/base.py:418
+msgid "Then after, Further degree programs"
+msgstr ""
+
+#: backoffice/settings/base.py:419
+msgid "Certificates"
+msgstr ""
+
+#: backoffice/settings/base.py:421
+msgid "In practice"
+msgstr ""
+
+#: backoffice/settings/base.py:422
+msgid "Curriculum Management and contacts"
+msgstr ""
+
+msgid "Welcome"
+msgstr ""
+
+msgid "Add the French content of this paragraph"
+msgstr ""
+
+msgid "Add the English content of this paragraph"
+msgstr ""
+>>>>>>> c0f54a3ed554c650461f87847c60bfedb9d10ac8

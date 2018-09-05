@@ -29,7 +29,6 @@ from http import HTTPStatus
 from unittest import mock
 
 import bs4
-from django.conf import settings
 from django.contrib.auth.models import Permission, Group
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseForbidden, HttpResponseNotFound, HttpResponse
@@ -37,7 +36,6 @@ from django.test import TestCase, RequestFactory
 from django.utils.translation import ugettext_lazy as _
 from waffle.testutils import override_flag
 
-from base.forms.education_group_general_informations import EducationGroupGeneralInformationsForm
 from base.forms.education_groups import EducationGroupFilter
 from base.models.admission_condition import AdmissionCondition, AdmissionConditionLine
 from base.models.enums import education_group_categories, academic_calendar_type
@@ -327,27 +325,6 @@ class EducationGroupGeneralInformations(TestCase):
         context = response.context
         self.assertEqual(context["parent"], self.education_group_parent)
         self.assertEqual(context["education_group_year"], self.education_group_child)
-        self.assertDictEqual(context["cms_labels_translated"], {self.cms_label_for_child.text_label.label: None})
-        self.assertIsInstance(context["form_french"], EducationGroupGeneralInformationsForm)
-        self.assertIsInstance(context["form_english"], EducationGroupGeneralInformationsForm)
-
-    def test_form_initialization(self):
-        response = self.client.get(self.url)
-
-        self.assertTemplateUsed(response, "education_group/tab_general_informations.html")
-
-        context = response.context
-        form_french = context["form_french"]
-        form_english = context["form_english"]
-
-        self.assertEqual(form_french.education_group_year, self.education_group_child)
-        self.assertEqual(form_english.education_group_year, self.education_group_child)
-
-        self.assertEqual(form_french.language, settings.LANGUAGES[0])
-        self.assertEqual(form_english.language, settings.LANGUAGES[1])
-
-        self.assertEqual(list(form_french.text_labels_name), [self.cms_label_for_child.text_label.label])
-        self.assertEqual(list(form_english.text_labels_name), [self.cms_label_for_child.text_label.label])
 
     def test_user_has_link_to_edit_pedagogy(self):
         self.user.user_permissions.add(Permission.objects.get(codename='can_edit_educationgroup_pedagogy'))
@@ -358,7 +335,7 @@ class EducationGroupGeneralInformations(TestCase):
         self.assertTemplateUsed(response, "education_group/tab_general_informations.html")
 
         soup = bs4.BeautifulSoup(response.content, 'html.parser')
-        self.assertEqual(len(soup.select('a.pedagogy-edit-btn')), 2)
+        self.assertGreater(len(soup.select('a.pedagogy-edit-btn')), 0)
 
     def test_user_has_not_link_to_edit_pedagogy(self):
         response = self.client.get(self.url)
@@ -368,6 +345,81 @@ class EducationGroupGeneralInformations(TestCase):
         soup = bs4.BeautifulSoup(response.content, 'html.parser')
         self.assertEqual(len(soup.select('a.pedagogy-edit-btn')), 0)
 
+    @mock.patch('base.views.education_group.education_group_year_pedagogy_edit_post')
+    @mock.patch('base.views.education_group.education_group_year_pedagogy_edit_get')
+    @mock.patch('django.contrib.auth.decorators')
+    def test_education_group_year_pedagogy_edit(self, mock_decorators, mock_edit_get, mock_edit_post):
+        from base.views.education_group import education_group_year_pedagogy_edit
+        mock_decorators.login_required = lambda x: x
+        mock_decorators.permission_required = lambda *args, **kwargs: lambda func: func
+
+        root_id = self.education_group_parent.id
+        education_group_year_id = self.education_group_child.id
+
+        factory = RequestFactory()
+        request = factory.post('/{}/{}/informations/edit/'.format(root_id, education_group_year_id))
+        request.user = mock.Mock()
+        response = education_group_year_pedagogy_edit(request, root_id, education_group_year_id)
+
+        mock_edit_post.assert_called_once_with(request, education_group_year_id, root_id)
+
+        request = factory.get('/1/2/informations/edit/')
+        request.user = mock.Mock()
+        response = education_group_year_pedagogy_edit(request, root_id, education_group_year_id)
+
+        mock_edit_get.assert_called_once_with(request, education_group_year_id)
+
+    @mock.patch('base.views.layout.render')
+    def test_education_group_year_pedagogy_edit_get(self, mock_render):
+        request = RequestFactory().get('/')
+
+        from base.views.education_group import education_group_year_pedagogy_edit_get
+        education_group_year_pedagogy_edit_get(request, self.education_group_child.id)
+
+        request, template, context = mock_render.call_args[0]
+
+        self.assertEqual(context['education_group_year'], self.education_group_child)
+
+    @mock.patch('base.views.layout.render')
+    def test_education_group_year_pedagogy_edit_get_with_translated_texts(self, mock_render):
+        text_label = TextLabelFactory(label='label_abc')
+        fr_translated_text = TranslatedTextRandomFactory(reference=str(self.education_group_child.id),
+                                                         entity=entity_name.OFFER_YEAR,
+                                                         text_label=text_label,
+                                                         language='fr-be')
+        en_translated_text = TranslatedTextRandomFactory(reference=str(self.education_group_child.id),
+                                                         entity=entity_name.OFFER_YEAR,
+                                                         text_label=fr_translated_text.text_label,
+                                                         language='en')
+
+        request = RequestFactory().get('/?label={}'.format(fr_translated_text.text_label.label))
+
+        from base.views.education_group import education_group_year_pedagogy_edit_get
+        education_group_year_pedagogy_edit_get(request, self.education_group_child.id)
+
+        request, template, context = mock_render.call_args[0]
+
+        form = context['form']
+        self.assertEqual(form.initial['label'], text_label.label)
+        self.assertEqual(form.initial['text_french'], fr_translated_text.text)
+        self.assertEqual(form.initial['text_english'], en_translated_text.text)
+
+
+    def test_education_group_year_pedagogy_edit_post(self):
+        form = {
+            'label': 'welcome_introduction',
+            'text_french': 'Salut',
+            'text_english': 'Hello'
+        }
+        request = RequestFactory().post('/', form)
+
+        from base.views.education_group import education_group_year_pedagogy_edit_post
+
+        response = education_group_year_pedagogy_edit_post(request,
+                                                           self.education_group_child.id,
+                                                           self.education_group_parent.id)
+
+        self.assertEqual(response.status_code, 302)
 
 @override_flag('education_group_update', active=True)
 class EducationGroupViewTestCase(TestCase):
