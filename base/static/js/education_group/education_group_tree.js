@@ -38,7 +38,7 @@ $(document).ready(function () {
 
         return {
             group_element_year_id: obj.a_attr.group_element_year,
-            element_id: obj.a_attr.education_group_year,
+            element_id: obj.a_attr.element_id,
             element_type: obj.a_attr.element_type
         };
     }
