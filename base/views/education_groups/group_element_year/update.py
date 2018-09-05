@@ -54,11 +54,11 @@ from base.views.education_groups.select import build_success_message, build_succ
 
 @login_required
 @waffle_flag("education_group_update")
-def management(request, root_id, education_group_year_id, group_element_year_id):
+def management(request, root_id, element_id, group_element_year_id):
     group_element_year_id = int(group_element_year_id)
     group_element_year = get_group_element_year_by_id(group_element_year_id) if group_element_year_id else None
 
-    element = _get_element(education_group_year_id, group_element_year)
+    element = _get_element(element_id, group_element_year)
     _check_perm_for_management(request, element, group_element_year)
 
     action_method = _get_action_method(request)
@@ -117,16 +117,16 @@ def _check_perm_for_management(request, element, group_element_year):
 def proxy_management(request):
     root_id = _get_data(request, 'root_id')
     group_element_year_id = _get_data(request, 'group_element_year_id')
+    element_id = _get_data(request, 'element_id')
+
     if _get_data(request, 'action') == "select":
         element_type = _get_data(request, 'element_type')
-        element_id = _get_data(request, 'element_id')
         return _select(request, element_type, element_id)
     else:
-        education_group_year_id = _get_data(request, 'education_group_year_id')
         return management(
             request,
             root_id=root_id,
-            education_group_year_id=education_group_year_id,
+            element_id=element_id,
             group_element_year_id=group_element_year_id,
         )
 
