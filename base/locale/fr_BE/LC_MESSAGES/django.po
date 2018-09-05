@@ -3806,4 +3806,3 @@ msgstr "Ajouter le contenu Français de ce paragraphe"
 
 msgid "Add the English content of this paragraph"
 msgstr "Ajouter le contenu Anglais de ce paragraphe"
->>>>>>> c0f54a3ed554c650461f87847c60bfedb9d10ac8
