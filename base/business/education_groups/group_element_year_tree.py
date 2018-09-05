@@ -26,11 +26,13 @@
 from django.db.models import OuterRef, Exists
 from django.urls import reverse
 
+from base.business.group_element_years.management import EDUCATION_GROUP_YEAR, LEARNING_UNIT_YEAR
 from base.models.prerequisite import Prerequisite
 
 
 class NodeBranchJsTree:
     """ Use to generate json from a list of education group years compatible with jstree """
+    element_type = EDUCATION_GROUP_YEAR
 
     def __init__(self, root, group_element_year=None):
         self.root = root
@@ -66,6 +68,7 @@ class NodeBranchJsTree:
                 'root': self.root.pk,
                 'group_element_year': self.group_element_year and self.group_element_year.pk,
                 'element_id': self.education_group_year.pk,
+                'element_type': self.element_type
             }
         }
 
@@ -83,6 +86,7 @@ class NodeBranchJsTree:
 
 class NodeLeafJsTree(NodeBranchJsTree):
     """ The leaf has no child """
+    element_type = LEARNING_UNIT_YEAR
 
     @property
     def learning_unit_year(self):
@@ -102,6 +106,7 @@ class NodeLeafJsTree(NodeBranchJsTree):
                 'root': self.root.pk,
                 'group_element_year': self.group_element_year and self.group_element_year.pk,
                 'element_id': self.learning_unit_year.pk,
+                'element_type': self.element_type
             }
         }
 
