@@ -148,11 +148,6 @@
 {% endblock %}
 {% block script %}
     <script>
-        var root_id = "{{ root_id }}";
-        var url_resolver_match = "{% url_resolver_match %}";
-    </script>
-    <script src="{% static 'js/education_group/education_group_tree.js' %}"></script>
-    <script>
         {% if can_edit_information %}
 
         $('div#panel-data').on('click', 'a.pedagogy-edit-btn', function(evt) {

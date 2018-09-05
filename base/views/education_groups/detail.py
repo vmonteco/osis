@@ -23,6 +23,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+import json
 from collections import OrderedDict
 
 from django.conf import settings
@@ -32,6 +33,7 @@ from django.db.models import F, Case, When, OuterRef, Exists
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.decorators import method_decorator
+from django.utils.safestring import SafeString
 from django.views.generic import DetailView
 
 from base import models as mdl
@@ -43,7 +45,6 @@ from base.models.education_group_year import EducationGroupYear
 from base.models.enums import education_group_categories, academic_calendar_type
 from base.models.person import Person
 from base.models.prerequisite import Prerequisite
-from base.views.common_classes import JSONResponseMixin
 from cms import models as mdl_cms
 from cms.enums import entity_name
 
@@ -82,12 +83,13 @@ class EducationGroupGenericDetailView(PermissionRequiredMixin, DetailView):
         # This objects are mandatory for all education group views
         context['person'] = self.get_person()
 
+        root = self.get_root()
         # TODO same param
-        context['root'] = self.get_root()
-        context['root_id'] = self.kwargs.get("root_id")
-        context['parent'] = self.get_root()
+        context['root'] = root
+        context['root_id'] = root.pk
+        context['parent'] = root
+        context['tree'] = json.dumps(NodeBranchJsTree(root).to_json())
 
-        context["education_group_year"] = self.get_object()
         context['group_to_parent'] = self.request.GET.get("group_to_parent") or '0'
         context['can_change_education_group'] = perms.is_eligible_to_change_education_group(
             person=self.get_person(),
@@ -331,20 +333,3 @@ class NodeLeafJsTree(NodeBranchJsTree):
 
     def generate_children(self):
         return []
-
-
-class EducationGroupTree(JSONResponseMixin, PermissionRequiredMixin, DetailView):
-
-    # DetailView
-    model = EducationGroupYear
-    context_object_name = "root"
-    pk_url_kwarg = 'root_id'
-    http_method_names = ["get"]
-
-    # PermissionRequiredMixin
-    permission_required = 'base.can_access_education_group'
-    raise_exception = True
-
-    def get_context_data(self, **kwargs):
-        root = NodeBranchJsTree(self.get_object())
-        return root.to_json()

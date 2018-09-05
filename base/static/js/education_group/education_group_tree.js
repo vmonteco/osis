@@ -58,9 +58,7 @@ $(document).ready(function () {
     $documentTree.jstree({
             "core": {
                 "check_callback": true,
-                "data": {
-                    'url': location.pathname.split('/', 4).join('/') + '/tree',
-                }
+                "data": tree,
             },
             "plugins": [
                 "contextmenu",
