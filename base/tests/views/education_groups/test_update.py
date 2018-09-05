@@ -300,12 +300,13 @@ class TestSelectAttach(TestCase):
             "learning_unit_select",
             args=[self.learning_unit_year.id]
         )
+        group_above_new_parent = GroupElementYearFactory(child_branch=self.new_parent_education_group_year)
         self.url_attach = reverse(
             "group_element_year_management",
             args=[
-                self.new_parent_education_group_year.id,
-                self.new_parent_education_group_year.id,
-                self.initial_group_element_year.id,
+                group_above_new_parent.parent.id,  # root
+                self.new_parent_education_group_year.id,  # egy
+                group_above_new_parent.id  # gey
             ]
         ) + "?action=attach"
 

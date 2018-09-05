@@ -27,7 +27,7 @@ import abc
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.messages.views import SuccessMessageMixin
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db import IntegrityError
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse, NoReverseMatch
@@ -49,8 +49,7 @@ from base.models.learning_unit_year import LearningUnitYear
 from base.views.common import display_success_messages, display_warning_messages
 from base.views.common_classes import AjaxTemplateMixin, FlagMixin, RulesRequiredMixin
 from base.views.education_groups import perms
-from base.views.education_groups.select import build_success_message, build_success_json_response, \
-    learning_unit_select
+from base.views.education_groups.select import build_success_message, build_success_json_response
 
 
 @login_required
@@ -58,14 +57,17 @@ from base.views.education_groups.select import build_success_message, build_succ
 def management(request, root_id, education_group_year_id, group_element_year_id):
     group_element_year_id = int(group_element_year_id)
     group_element_year = get_group_element_year_by_id(group_element_year_id) if group_element_year_id else None
+
+    element = _get_element(education_group_year_id, group_element_year)
+    _check_perm_for_management(request, element, group_element_year)
+
     action_method = _get_action_method(request)
-    perms.can_change_education_group(request.user, group_element_year.parent)
     source = _get_data(request, 'source')
     response = action_method(
         request,
         group_element_year,
         root_id=root_id,
-        education_group_year_id=education_group_year_id,
+        element=element,
         source=source,
     )
     if response:
@@ -76,6 +78,38 @@ def management(request, root_id, education_group_year_id, group_element_year_id)
 
 def _get_data(request, name):
     return getattr(request, request.method, {}).get(name)
+
+
+def _get_element(element_id, group_element_year):
+    element_id = int(element_id)
+    if group_element_year and group_element_year.child_leaf and group_element_year.child_leaf.id == element_id:
+        return get_object_or_404(LearningUnitYear, pk=element_id)
+    elif group_element_year and group_element_year.child_branch and group_element_year.child_branch.id == element_id:
+        return get_object_or_404(EducationGroupYear, pk=element_id)
+    else:
+        return None
+
+
+def _check_perm_for_management(request, element, group_element_year):
+    actions_needing_perm_on_parent = [
+        "detach",
+        "up",
+        "down",
+    ]
+    actions_needing_perm_on_education_group_year_itself = [
+        "attach",
+    ]
+
+    if _get_data(request, 'action') in actions_needing_perm_on_parent:
+        # In this case, element can be education_group_year OR learning_unit_year because we check perm on its parent
+        perms.can_change_education_group(request.user, group_element_year.parent)
+    elif _get_data(request, 'action') in actions_needing_perm_on_education_group_year_itself:
+        # In this case, element MUST BE an education_group_year (we cannot take action here on a learning_unit_year)
+        if type(element) != EducationGroupYear:
+            raise ValidationError(
+                "It is forbidden to update the content of an object which is not an EducationGroupYear"
+            )
+        perms.can_change_education_group(request.user, element)
 
 
 @login_required
@@ -123,7 +157,7 @@ def _detach(request, group_element_year, *args, **kwargs):
 
 @require_http_methods(['GET', 'POST'])
 def _attach(request, group_element_year, *args, **kwargs):
-    parent = get_object_or_404(EducationGroupYear, pk=kwargs['education_group_year_id'])
+    parent = kwargs['element']
     try:
         group_element_years.management.attach_from_cache(parent)
         success_msg = _("Attached to \"%(acronym)s\"") % {'acronym': parent}
