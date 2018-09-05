@@ -277,7 +277,7 @@ def append_output(item, output, padding, sublist):
             CHILD_LEAF_START.format(
                 padding=padding,
                 icon_list_1=CASE_JPG,
-                icon_list_2=MANDATORY_PNG if item.is_mandatory else OPTIONAL_PNG,
+                icon_list_2=get_mandatory_picture(item),
                 value=escaper(force_text(item.verbose)))
         )
 
@@ -285,7 +285,7 @@ def append_output(item, output, padding, sublist):
             output.append(
                 CHILD_LEAF_COMMENT.format(
                     icon_list_1=CASE_JPG,
-                    icon_list_2=MANDATORY_PNG if item.is_mandatory else OPTIONAL_PNG,
+                    icon_list_2=get_mandatory_picture(item),
                     comment=item.verbose_comment))
 
         output.append(
@@ -300,27 +300,31 @@ def append_output(item, output, padding, sublist):
         output.append(
             CHILD_BRANCH_START.format(
                 padding=padding,
-                icon_list_2=MANDATORY_PNG if item.is_mandatory else OPTIONAL_PNG,
+                icon_list_2=get_mandatory_picture(item),
                 value=escaper(force_text(item.verbose)))
         )
 
         if item.child.verbose_remark:
             output.append(
                 CHILD_BRANCH_REMARK.format(
-                    icon_list_2=MANDATORY_PNG if item.is_mandatory else OPTIONAL_PNG,
+                    icon_list_2=get_mandatory_picture(item),
                     remark=item.child.verbose_remark)
             )
 
         if item.comment:
             output.append(
                 CHILD_BRANCH_COMMENT.format(
-                    icon_list_2=MANDATORY_PNG if item.is_mandatory else OPTIONAL_PNG,
+                    icon_list_2=get_mandatory_picture(item),
                     comment=item.verbose_comment)
             )
 
         output.append(
             CHILD_BRANCH_END.format(sublist=sublist)
         )
+
+
+def get_mandatory_picture(item):
+    return MANDATORY_PNG if item.is_mandatory else OPTIONAL_PNG
 
 
 def check_block(item, value):
