@@ -44,7 +44,7 @@ OPTIONAL_PNG = base.STATIC_URL + 'img/education_group_year/optional.png'
 MANDATORY_PNG = base.STATIC_URL + 'img/education_group_year/mandatory.png'
 CASE_JPG = base.STATIC_URL + 'img/education_group_year/case.jpg'
 
-#margin-left is there to align the value with the remark.
+# margin-left is there to align the value with the remark.
 # We use 14px which is the size of the image before the value
 CHILD_BRANCH_REMARK = """\
         <div style="word-break: keep-all;margin-left: 14px;">
@@ -52,7 +52,7 @@ CHILD_BRANCH_REMARK = """\
         </div>
 """
 
-#margin-left is there to align the value with the remark.
+# margin-left is there to align the value with the remark.
 # We use 14px which is the size of the image before the value
 CHILD_BRANCH_COMMENT = """\
         <div style="word-break: keep-all;margin-left: 14px;">
@@ -75,7 +75,7 @@ CHILD_BRANCH_END = """\
 </tr>
 """
 
-#margin-left is there to align the value with the remark.
+# margin-left is there to align the value with the remark.
 # We use 14px which is the size of the image before the value
 CHILD_LEAF_COMMENT = """\
         <div style="word-break: keep-all;margin-left:27px;">
