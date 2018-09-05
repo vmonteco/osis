@@ -41,7 +41,6 @@ from waffle.decorators import waffle_flag
 from base import models as mdl
 from base.business import education_group as education_group_business
 from base.business.education_group import assert_category_of_education_group_year
-from base.business.learning_unit import find_language_in_settings
 from base.forms.education_group_pedagogy_edit import EducationGroupPedagogyEditForm
 from base.forms.education_groups_administrative_data import CourseEnrollmentForm, AdministrativeDataFormset
 from base.models.admission_condition import AdmissionConditionLine, AdmissionCondition
@@ -98,12 +97,55 @@ def find_root_by_name(text_label_name):
     ).get(label=text_label_name, parent__isnull=True)
 
 
-def education_group_year_pedagogy_edit_post(request, root_id, education_group_year_id):
+def education_group_year_pedagogy_edit_post(request, education_group_year_id, root_id):
     form = EducationGroupPedagogyEditForm(request.POST)
+
     if form.is_valid():
-        form.save()
+        label = form.cleaned_data['label']
+
+        text_label = TextLabel.objects.filter(label=label).first()
+
+        record, created = TranslatedText.objects.get_or_create(reference=str(education_group_year_id),
+                                                               entity='offer_year',
+                                                               text_label=text_label,
+                                                               language='fr-be')
+        record.text = form.cleaned_data['text_french']
+        record.save()
+
+        record, created = TranslatedText.objects.get_or_create(reference=str(education_group_year_id),
+                                                               entity='offer_year',
+                                                               text_label=text_label,
+                                                               language='en')
+        record.text = form.cleaned_data['text_english']
+        record.save()
+
     redirect_url = reverse('education_group_general_informations', args=[root_id, education_group_year_id])
     return redirect(redirect_url)
+
+
+def education_group_year_pedagogy_edit_get(request, education_group_year_id):
+    education_group_year = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
+    context = {
+        'education_group_year': education_group_year,
+    }
+    label_name = request.GET.get('label')
+    initial_values = {'label': label_name}
+    fr_text = TranslatedText.objects.filter(reference=str(education_group_year_id),
+                                            text_label__label=label_name,
+                                            entity=entity_name.OFFER_YEAR,
+                                            language='fr-be').first()
+    if fr_text:
+        initial_values['text_french'] = fr_text.text
+    en_text = TranslatedText.objects.filter(reference=str(education_group_year_id),
+                                            text_label__label=label_name,
+                                            entity=entity_name.OFFER_YEAR,
+                                            language='en').first()
+    if en_text:
+        initial_values['text_english'] = en_text.text
+    form = EducationGroupPedagogyEditForm(initial=initial_values)
+    context['form'] = form
+    context['group_to_parent'] = request.GET.get("group_to_parent") or '0'
+    return layout.render(request, 'education_group/pedagogy_edit.html', context)
 
 
 @login_required
@@ -111,32 +153,9 @@ def education_group_year_pedagogy_edit_post(request, root_id, education_group_ye
 @require_http_methods(['GET', 'POST'])
 def education_group_year_pedagogy_edit(request, root_id, education_group_year_id):
     if request.method == 'POST':
-        return education_group_year_pedagogy_edit_post(request, root_id, education_group_year_id)
+        return education_group_year_pedagogy_edit_post(request, education_group_year_id, root_id)
 
-    education_group_year = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
-
-    context = {
-        'education_group_year': education_group_year,
-    }
-
-    label_name = request.GET.get('label')
-    language = request.GET.get('language')
-
-    text_lb = find_root_by_name(label_name)
-    form = EducationGroupPedagogyEditForm(**{
-        'education_group_year': context['education_group_year'],
-        'language': language,
-        'text_label': text_lb,
-    })
-
-    form.load_initial()
-    context['form'] = form
-    user_language = mdl.person.get_user_interface_language(request.user)
-    context['text_label_translated'] = get_text_label_translated(text_lb, user_language)
-    context['language_translated'] = find_language_in_settings(language)
-    context['group_to_parent'] = request.GET.get("group_to_parent") or '0'
-
-    return layout.render(request, 'education_group/pedagogy_edit.html', context)
+    return education_group_year_pedagogy_edit_get(request, education_group_year_id)
 
 
 @login_required
