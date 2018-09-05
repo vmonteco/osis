@@ -126,17 +126,3 @@ class DeleteViewWithDependencies(FlagMixin, RulesRequiredMixin, AjaxTemplateMixi
         result = super().delete(request, *args, **kwargs)
         display_success_messages(request, _(self.success_message))
         return result
-
-
-class JSONResponseMixin:
-    """
-    A mixin that can be used to render a JSON response.
-    """
-    def render_to_response(self, context, **response_kwargs):
-        """
-        Returns a JSON response, transforming 'context' to make the payload.
-        """
-        return JsonResponse(
-            context,
-            **response_kwargs
-        )

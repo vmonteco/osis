@@ -48,6 +48,7 @@ from base.models.admission_condition import AdmissionConditionLine, AdmissionCon
 from base.models.education_group_year import EducationGroupYear
 from base.models.enums import academic_calendar_type
 from base.models.enums import education_group_categories
+from base.views.education_groups.detail import NodeBranchJsTree
 from base.views.learning_units.common import get_text_label_translated
 from cms.enums import entity_name
 from cms.models.text_label import TextLabel
@@ -252,6 +253,7 @@ def education_group_year_admission_condition_edit(request, root_id, education_gr
         'parent': parent,
         'root': parent,
         'root_id': parent.id,
+        'tree': json.dumps(NodeBranchJsTree(parent).to_json()),
 
         'can_edit_information': request.user.has_perm('base.can_edit_educationgroup_pedagogy'),
         'info': {

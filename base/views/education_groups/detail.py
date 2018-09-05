@@ -33,7 +33,6 @@ from django.db.models import F, Case, When, OuterRef, Exists
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.decorators import method_decorator
-from django.utils.safestring import SafeString
 from django.views.generic import DetailView
 
 from base import models as mdl
@@ -299,7 +298,10 @@ class NodeBranchJsTree:
         return self.root if not self.group_element_year else self.group_element_year.child_branch
 
     def get_url(self):
-        return reverse('education_group_read', args=[self.root.pk, self.education_group_year.pk])
+        group_to_parent = self.group_element_year.pk if self.group_element_year else 0
+        url = reverse('education_group_read', args=[self.root.pk, self.education_group_year.pk])
+
+        return url + "?group_to_parent=" + str(group_to_parent)
 
 
 class NodeLeafJsTree(NodeBranchJsTree):
@@ -329,7 +331,10 @@ class NodeLeafJsTree(NodeBranchJsTree):
         }
 
     def get_url(self):
-        return reverse('learning_unit_utilization', args=[self.root.pk, self.learning_unit_year.pk])
+        group_to_parent = self.group_element_year.pk if self.group_element_year else 0
+        url = reverse('learning_unit_utilization', args=[self.root.pk, self.learning_unit_year.pk])
+
+        return url + "?group_to_parent=" + str(group_to_parent)
 
     def generate_children(self):
         return []
