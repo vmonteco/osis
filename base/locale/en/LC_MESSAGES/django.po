@@ -3721,8 +3721,8 @@ msgstr ""
 msgid "The user has not permission to create a %(category)s."
 msgstr ""
 
-msgid "from {} to {} among"
+msgid "from %(min)s to %(max)s among"
 msgstr ""
 
-msgid "from {} to {} credits among"
+msgid "from %(min)s to %(max)s credits among"
 msgstr ""

@@ -44,7 +44,7 @@ OPTIONAL_PNG = base.STATIC_URL + 'img/education_group_year/optional.png'
 MANDATORY_PNG = base.STATIC_URL + 'img/education_group_year/mandatory.png'
 CASE_JPG = base.STATIC_URL + 'img/education_group_year/case.jpg'
 
-START = """\
+CHILD_START = """\
 <tr>
     <td style="padding-left:{padding}em;float:left;">
 """
@@ -76,7 +76,7 @@ BRANCH_REMARK = """\
 
 # margin-left is there to align the value with the remark.
 # We use 14px which is the size of the image before the value
-COMMENT = """\
+CHILD_COMMENT = """\
         <div style="word-break: keep-all;margin-left: {margin};">
             ({comment})
         </div>
@@ -281,7 +281,7 @@ def list_formatter(item_list, tabs=1, depth=None):
 def append_output(item, output, padding, sublist):
     if item.child_leaf:
         output.append(
-            START.format(padding=padding)
+            CHILD_START.format(padding=padding)
         )
 
         output.append(
@@ -292,7 +292,7 @@ def append_output(item, output, padding, sublist):
 
         if item.comment:
             output.append(
-                COMMENT.format(
+                CHILD_COMMENT.format(
                     icon_list_1=CASE_JPG,
                     icon_list_2=get_mandatory_picture(item),
                     margin="27px",
@@ -307,7 +307,7 @@ def append_output(item, output, padding, sublist):
 
     else:
         output.append(
-            START.format(padding=padding)
+            CHILD_START.format(padding=padding)
 
         )
 
@@ -333,7 +333,7 @@ def append_output(item, output, padding, sublist):
 
         if item.comment:
             output.append(
-                COMMENT.format(
+                CHILD_COMMENT.format(
                     icon_list_2=get_mandatory_picture(item),
                     comment=item.verbose_comment,
                     margin="27px", )
