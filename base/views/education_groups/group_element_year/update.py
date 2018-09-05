@@ -40,7 +40,7 @@ from waffle.decorators import waffle_flag
 
 from base.business import group_element_years
 from base.business.group_element_years.management import SELECT_CACHE_KEY, select_education_group_year, \
-    LEARNING_UNIT_YEAR, EDUCATION_GROUP_YEAR, select_learning_unit_year
+    select_learning_unit_year
 from base.forms.education_group.group_element_year import UpdateGroupElementYearForm
 from base.models.education_group_year import EducationGroupYear
 from base.models.exceptions import IncompatiblesTypesException
@@ -115,20 +115,12 @@ def _check_perm_for_management(request, element, group_element_year):
 @login_required
 @waffle_flag("education_group_update")
 def proxy_management(request):
-    root_id = _get_data(request, 'root_id')
-    group_element_year_id = _get_data(request, 'group_element_year_id')
-    element_id = _get_data(request, 'element_id')
-
-    if _get_data(request, 'action') == "select":
-        element_type = _get_data(request, 'element_type')
-        return _select(request, element_type, element_id)
-    else:
-        return management(
-            request,
-            root_id=root_id,
-            element_id=element_id,
-            group_element_year_id=group_element_year_id,
-        )
+    return management(
+        request,
+        root_id=_get_data(request, 'root_id'),
+        element_id=_get_data(request, 'element_id'),
+        group_element_year_id=_get_data(request, 'group_element_year_id'),
+    )
 
 
 @require_http_methods(['POST'])
@@ -174,30 +166,30 @@ def _attach(request, group_element_year, *args, **kwargs):
 
 
 @require_http_methods(['POST'])
-def _select(request, element_type, element_id):
-    if element_type == LEARNING_UNIT_YEAR:
-        learning_unit_year = get_object_or_404(LearningUnitYear, pk=element_id)
-        select_learning_unit_year(learning_unit_year)
-        success_msg = build_success_message(learning_unit_year)
-    elif element_type == EDUCATION_GROUP_YEAR:
-        education_group_year = get_object_or_404(EducationGroupYear, pk=element_id)
-        select_education_group_year(education_group_year)
-        success_msg = build_success_message(education_group_year)
+def _select(request, group_element_year, *args, **kwargs):
+    element = kwargs['element']
+    if type(element) == LearningUnitYear:
+        select_learning_unit_year(element)
+    elif type(element) == EducationGroupYear:
+        select_education_group_year(element)
+
+    success_msg = build_success_message(element)
     return build_success_json_response(success_msg)
 
 
 def _get_action_method(request):
-    AVAILABLE_ACTIONS = {
+    available_actions = {
         'up': _up,
         'down': _down,
         'detach': _detach,
         'attach': _attach,
+        'select': _select,
     }
     data = getattr(request, request.method, {})
     action = data.get('action')
-    if action not in AVAILABLE_ACTIONS.keys():
-        raise AttributeError('Action should be {}'.format(','.join(AVAILABLE_ACTIONS.keys())))
-    return AVAILABLE_ACTIONS[action]
+    if action not in available_actions.keys():
+        raise AttributeError('Action should be {}'.format(','.join(available_actions.keys())))
+    return available_actions[action]
 
 
 @method_decorator(login_required, name='dispatch')

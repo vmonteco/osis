@@ -576,9 +576,8 @@ class TestSelectAttach(TestCase):
             reverse("proxy_management"),
             data={
                 'root_id': str(self.initial_parent_education_group_year.id),
-                'education_group_year_id': str(self.child_education_group_year.id),
+                'element_id': str(self.child_education_group_year.id),
                 'group_element_year_id': str(self.initial_group_element_year.id),
-                'element_type': None,
             }
         )
         request.user = self.person.user
@@ -587,7 +586,7 @@ class TestSelectAttach(TestCase):
         mock_management_view.assert_called_with(
             request,
             root_id=str(self.initial_parent_education_group_year.id),
-            education_group_year_id=str(self.child_education_group_year.id),
+            element_id=str(self.child_education_group_year.id),
             group_element_year_id=str(self.initial_group_element_year.id),
         )
 
@@ -600,7 +599,6 @@ class TestSelectAttach(TestCase):
                 'root_id': str(self.initial_parent_education_group_year.id),
                 'element_id': str(self.child_education_group_year.id),
                 'group_element_year_id': str(self.initial_group_element_year.id),
-                'element_type': EDUCATION_GROUP_YEAR,
                 'action': 'select',
             }
         )
@@ -621,7 +619,6 @@ class TestSelectAttach(TestCase):
                 'root_id': str(self.initial_parent_education_group_year.id),
                 'element_id': str(self.learning_unit_year.id),
                 'group_element_year_id': str(self.child_group_element_year.id),
-                'element_type': LEARNING_UNIT_YEAR,
                 'action': 'select',
             }
         )
