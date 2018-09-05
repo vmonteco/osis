@@ -29,21 +29,19 @@ from collections import OrderedDict
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import PermissionRequiredMixin
-from django.db.models import F, Case, When, OuterRef, Exists
+from django.db.models import F, Case, When
 from django.shortcuts import get_object_or_404
-from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.generic import DetailView
 
 from base import models as mdl
 from base.business.education_group import assert_category_of_education_group_year, can_user_edit_administrative_data
 from base.business.education_groups import perms
-from base.business.group_element_years.management import EDUCATION_GROUP_YEAR, LEARNING_UNIT_YEAR
+from base.business.education_groups.group_element_year_tree import NodeBranchJsTree
 from base.forms.education_group_general_informations import EducationGroupGeneralInformationsForm
 from base.models.education_group_year import EducationGroupYear
 from base.models.enums import education_group_categories, academic_calendar_type
 from base.models.person import Person
-from base.models.prerequisite import Prerequisite
 from cms import models as mdl_cms
 from cms.enums import entity_name
 
@@ -252,90 +250,4 @@ class EducationGroupUsing(EducationGroupGenericDetailView):
         context = super().get_context_data(**kwargs)
         context["group_element_years"] = mdl.group_element_year.find_by_child_branch(self.object) \
             .select_related("parent")
-
         return context
-
-
-class NodeBranchJsTree:
-    """ Use to generate json from a list of education group years compatible with jstree """
-    element_type = EDUCATION_GROUP_YEAR
-
-    def __init__(self, root, group_element_year=None):
-        self.root = root
-        self.group_element_year = group_element_year
-        self.children = self.generate_children()
-
-    def generate_children(self):
-        result = []
-        has_prerequisite = Prerequisite.objects.filter(
-            education_group_year__id=self.root.id,
-            learning_unit_year__id=OuterRef("child_leaf__id"),
-        ).exclude(prerequisite__exact='')
-
-        for group_element_year in self.education_group_year.groupelementyear_set.all()\
-                .annotate(has_prerequisites=Exists(has_prerequisite)):
-            if group_element_year.child_branch:
-                result.append(NodeBranchJsTree(self.root, group_element_year))
-            else:
-                result.append(NodeLeafJsTree(self.root, group_element_year))
-
-        return result
-
-    def to_json(self):
-        return {
-            'text': self.education_group_year.verbose,
-            'children': [child.to_json() for child in self.children],
-            'a_attr': {
-                'href': self.get_url(),
-                'root': self.root.pk,
-                'group_element_year': self.group_element_year and self.group_element_year.pk,
-                'education_group_year': self.education_group_year.pk,
-                'element_type': self.element_type
-            }
-        }
-
-    @property
-    def education_group_year(self):
-        return self.root if not self.group_element_year else self.group_element_year.child_branch
-
-    def get_url(self):
-        group_to_parent = self.group_element_year.pk if self.group_element_year else 0
-        url = reverse('education_group_read', args=[self.root.pk, self.education_group_year.pk])
-
-        return url + "?group_to_parent=" + str(group_to_parent)
-
-
-class NodeLeafJsTree(NodeBranchJsTree):
-    """ The leaf has no child """
-    element_type = LEARNING_UNIT_YEAR
-
-    @property
-    def learning_unit_year(self):
-        if self.group_element_year:
-            return self.group_element_year.child_leaf
-
-    @property
-    def education_group_year(self):
-        return
-
-    def to_json(self):
-        return {
-            'text': self.learning_unit_year.acronym,
-            'icon': "glyphicon glyphicon-leaf" if self.group_element_year.has_prerequisites else "jstree-file",
-            'a_attr': {
-                'href': self.get_url(),
-                'root': self.root.pk,
-                'group_element_year': self.group_element_year and self.group_element_year.pk,
-                'learning_unit_year': self.learning_unit_year.pk,
-                'element_type': self.element_type
-            }
-        }
-
-    def get_url(self):
-        group_to_parent = self.group_element_year.pk if self.group_element_year else 0
-        url = reverse('learning_unit_utilization', args=[self.root.pk, self.learning_unit_year.pk])
-
-        return url + "?group_to_parent=" + str(group_to_parent)
-
-    def generate_children(self):
-        return []

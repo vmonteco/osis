@@ -48,7 +48,7 @@ from base.models.admission_condition import AdmissionConditionLine, AdmissionCon
 from base.models.education_group_year import EducationGroupYear
 from base.models.enums import academic_calendar_type
 from base.models.enums import education_group_categories
-from base.views.education_groups.detail import NodeBranchJsTree
+from base.business.education_groups.group_element_year_tree import NodeBranchJsTree
 from base.views.learning_units.common import get_text_label_translated
 from cms.enums import entity_name
 from cms.models.text_label import TextLabel

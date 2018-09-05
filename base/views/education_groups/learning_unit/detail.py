@@ -44,7 +44,7 @@ from base.models.person import Person
 from base.models.prerequisite import Prerequisite
 from base.models.utils.utils import get_object_or_none
 from base.views.common import display_warning_messages
-from base.views.education_groups.detail import NodeBranchJsTree
+from base.business.education_groups.group_element_year_tree import NodeBranchJsTree
 
 
 @method_decorator(login_required, name='dispatch')
