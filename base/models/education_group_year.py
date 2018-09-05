@@ -409,16 +409,12 @@ class EducationGroupYear(models.Model):
 
     @property
     def verbose_constraint(self):
-        if self.constraint_type == CREDITS:
-            return _("from %(min)s to %(max)s credits among") % {
-                "min": self.min_constraint,
-                "max": self.max_constraint
-            }
-        else:
-            return _("from %(min)s to %(max)s among") % {
-                "min": self.min_constraint,
-                "max": self.max_constraint
-            }
+        msg = "from %(min)s to %(max)s credits among" \
+            if self.constraint_type == CREDITS else "from %(min)s to %(max)s among"
+        return _(msg) % {
+            "min": self.min_constraint if self.min_constraint else "",
+            "max": self.max_constraint if self.max_constraint else ""
+        }
 
     class Meta:
         verbose_name = _("education group year")
