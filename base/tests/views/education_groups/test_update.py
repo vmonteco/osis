@@ -303,11 +303,11 @@ class TestSelectAttach(TestCase):
         group_above_new_parent = GroupElementYearFactory(child_branch=self.new_parent_education_group_year)
         self.url_attach = reverse(
             "group_element_year_management",
-            args=[
-                group_above_new_parent.parent.id,  # root
-                self.new_parent_education_group_year.id,  # egy
-                group_above_new_parent.id  # gey
-            ]
+            kwargs={
+                "root_id": group_above_new_parent.parent.id,
+                "element_id": self.new_parent_education_group_year.id,
+                "group_element_year_id": group_above_new_parent.id,
+            }
         ) + "?action=attach"
 
         cache.set('child_to_cache_id', None, timeout=None)
@@ -460,11 +460,11 @@ class TestSelectAttach(TestCase):
         )
         url_attach = reverse(
             "group_element_year_management",
-            args=[
-                self.new_parent_education_group_year.id,
-                self.child_education_group_year.id,
-                self.initial_group_element_year.id,
-            ]
+            kwargs={
+                "root_id": self.new_parent_education_group_year.id,
+                "element_id": self.child_education_group_year.id,
+                "group_element_year_id": self.initial_group_element_year.id,
+            }
         ) + "?action=attach"
         response = self.client.get(url_attach, follow=True, HTTP_REFERER=http_referer)
         messages = list(get_messages(response.wsgi_request))
