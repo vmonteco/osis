@@ -3727,3 +3727,76 @@ msgstr "Sous-groupe"
 
 msgid "The user has not permission to create a %(category)s."
 msgstr "L'utilisateur n'a pas la permission de créer une %(category)s."
+
+#: backoffice/settings/base.py:402
+msgid "Teaching profile"
+msgstr "Profil enseignement"
+
+#: backoffice/settings/base.py:403
+msgid "Learning outcomes"
+msgstr "Compétences et acquis"
+
+#: backoffice/settings/base.py:404
+msgid "Programme structure"
+msgstr "Structure du programme"
+
+#: backoffice/settings/base.py:406
+msgid "Detailed programme"
+msgstr "Programme détaillé"
+
+#: backoffice/settings/base.py:407
+msgid "Options courses"
+msgstr "Options et/ou cours au choix"
+
+#: backoffice/settings/base.py:408
+msgid "The programme's courses and learning outcomes"
+msgstr "Cours et acquis d'apprentissage du programme"
+
+#: backoffice/settings/base.py:410
+msgid "Admission"
+msgstr "Conditions d'admission"
+
+#: backoffice/settings/base.py:412
+msgid "Preparatory module"
+msgstr "Module complémentaire"
+
+#: backoffice/settings/base.py:414
+msgid "Benefits and organization"
+msgstr "Atouts et organisation"
+
+#: backoffice/settings/base.py:415
+msgid "Pedagogy"
+msgstr "Pédagogie"
+
+#: backoffice/settings/base.py:416
+msgid "Course evaluation methods"
+msgstr "Evaluation"
+
+#: backoffice/settings/base.py:417
+msgid "Mobility and/or Internationalisation outlook"
+msgstr "Mobilité et internationalisation"
+
+#: backoffice/settings/base.py:418
+msgid "Then after, Further degree programs"
+msgstr "Et après ... quelles formations"
+
+#: backoffice/settings/base.py:419
+msgid "Certificates"
+msgstr "Certificats"
+
+#: backoffice/settings/base.py:421
+msgid "In practice"
+msgstr "En pratique"
+
+#: backoffice/settings/base.py:422
+msgid "Curriculum Management and contacts"
+msgstr "Gestion et contacts"
+
+msgid "Welcome"
+msgstr "Page d'accueil"
+
+msgid "Add the French content of this paragraph"
+msgstr "Ajouter le contenu Français de ce paragraphe"
+
+msgid "Add the English content of this paragraph"
+msgstr "Ajouter le contenu Anglais de ce paragraphe"

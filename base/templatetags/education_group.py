@@ -44,25 +44,61 @@ OPTIONAL_PNG = base.STATIC_URL + 'img/education_group_year/optional.png'
 MANDATORY_PNG = base.STATIC_URL + 'img/education_group_year/mandatory.png'
 CASE_JPG = base.STATIC_URL + 'img/education_group_year/case.jpg'
 
-CHILD_BRANCH = """\
+# margin-left is there to align the value with the remark.
+# We use 14px which is the size of the image before the value
+CHILD_BRANCH_REMARK = """\
+        <div style="word-break: keep-all;margin-left: 14px;">
+            {remark}
+        </div>
+"""
+
+# margin-left is there to align the value with the remark.
+# We use 14px which is the size of the image before the value
+CHILD_BRANCH_COMMENT = """\
+        <div style="word-break: keep-all;margin-left: 14px;">
+            ({comment})
+        </div>
+"""
+
+CHILD_BRANCH_START = """\
 <tr>
-    <td style="padding-left:{padding}em;width:{width_main};float:left;">
-        <img src="{icon_list_2}" height="10" width="10">
-        {value}{sublist}
+    <td style="padding-left:{padding}em;float:left;">
+        <div style="word-break: keep-all;">
+            <img src="{icon_list_2}" height="10" width="10">
+            {value}
+"""
+
+CHILD_BRANCH_END = """\
+            {sublist}
+        </div>
     </td>
 </tr>
 """
 
-CHILD_LEAF = """\
+# margin-left is there to align the value with the remark.
+# We use 14px which is the size of the image before the value
+CHILD_LEAF_COMMENT = """\
+        <div style="word-break: keep-all;margin-left:27px;">
+            ({comment})
+        </div>
+"""
+
+CHILD_LEAF_START = """\
 <tr>
-    <td style="padding-left:{padding}em;width:{width_main};float:left;">
+    <td style="padding-left:{padding}em;float:left;">
         <img src="{icon_list_1}" height="14" width="17">
         <img src="{icon_list_2}" height="10" width="10">
-        {value}{sublist}
     </td>
-    <td style="width:{width_an};text-align: center;">{an_1}</td>
-    <td style="width:{width_an};text-align: center;">{an_2}</td>
-    <td style="width:{width_an};text-align: center;">{an_3}</td>
+    <td style="float:left;">
+        {value}
+"""
+
+CHILD_LEAF_END = """\
+        {sublist}
+    </td>
+    <td style="text-align: center;">{an_1}</td>
+    <td style="text-align: center;">{an_2}</td>
+    <td style="text-align: center;">{an_3}</td>
 </tr>
 """
 
@@ -244,22 +280,57 @@ def list_formatter(item_list, tabs=1, depth=None):
 def append_output(item, output, padding, sublist):
     if item.child_leaf:
         output.append(
-            CHILD_LEAF.format(padding=padding,
-                              width_main="80%",
-                              icon_list_1=CASE_JPG,
-                              icon_list_2=MANDATORY_PNG if item.is_mandatory else OPTIONAL_PNG,
-                              value=escaper(force_text(item.verbose)),
-                              sublist=sublist,
-                              width_an="15px",
-                              an_1=check_block(item, "1"),
-                              an_2=check_block(item, "2"),
-                              an_3=check_block(item, "3")))
+            CHILD_LEAF_START.format(
+                padding=padding,
+                icon_list_1=CASE_JPG,
+                icon_list_2=get_mandatory_picture(item),
+                value=escaper(force_text(item.verbose)))
+        )
+
+        if item.comment:
+            output.append(
+                CHILD_LEAF_COMMENT.format(
+                    icon_list_1=CASE_JPG,
+                    icon_list_2=get_mandatory_picture(item),
+                    comment=item.verbose_comment))
+
+        output.append(
+            CHILD_LEAF_END.format(sublist=sublist,
+                                  width_an="15px",
+                                  an_1=check_block(item, "1"),
+                                  an_2=check_block(item, "2"),
+                                  an_3=check_block(item, "3"))
+        )
+
     else:
         output.append(
-            CHILD_BRANCH.format(padding=padding, width_main="80%",
-                                icon_list_2=MANDATORY_PNG if item.is_mandatory else OPTIONAL_PNG,
-                                value=escaper(force_text(item.verbose)),
-                                sublist=sublist))
+            CHILD_BRANCH_START.format(
+                padding=padding,
+                icon_list_2=get_mandatory_picture(item),
+                value=escaper(force_text(item.verbose)))
+        )
+
+        if item.child.verbose_remark:
+            output.append(
+                CHILD_BRANCH_REMARK.format(
+                    icon_list_2=get_mandatory_picture(item),
+                    remark=item.child.verbose_remark)
+            )
+
+        if item.comment:
+            output.append(
+                CHILD_BRANCH_COMMENT.format(
+                    icon_list_2=get_mandatory_picture(item),
+                    comment=item.verbose_comment)
+            )
+
+        output.append(
+            CHILD_BRANCH_END.format(sublist=sublist)
+        )
+
+
+def get_mandatory_picture(item):
+    return MANDATORY_PNG if item.is_mandatory else OPTIONAL_PNG
 
 
 def check_block(item, value):

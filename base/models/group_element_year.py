@@ -32,6 +32,7 @@ from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from ordered_model.models import OrderedModel
 
+from backoffice.settings.base import LANGUAGE_CODE_EN
 from base.models import education_group_type, education_group_year
 from base.models.education_group_type import GROUP_TYPE_OPTION
 from base.models.education_group_year import EducationGroupYear
@@ -166,6 +167,12 @@ class GroupElementYear(OrderedModel):
                 "volumes": volume_total_verbose(components),
                 "credits": self.relative_credits or self.child_leaf.credits or 0
             }
+
+    @property
+    def verbose_comment(self):
+        if self.comment_english and translation.get_language() == LANGUAGE_CODE_EN:
+            return self.comment_english
+        return self.comment
 
     class Meta:
         ordering = ('order',)
