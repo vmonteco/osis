@@ -29,7 +29,7 @@ import string
 import factory.fuzzy
 from django.utils import timezone
 
-from base.models.enums.academic_calendar_type import SUMMARY_COURSE_SUBMISSION
+from base.models.enums.academic_calendar_type import SUMMARY_COURSE_SUBMISSION, EDUCATION_GROUP_EDITION
 from base.tests.factories.academic_year import AcademicYearFactory
 from osis_common.utils.datetime import get_tzinfo
 
@@ -53,8 +53,12 @@ class AcademicCalendarFactory(factory.DjangoModelFactory):
         model = 'base.AcademicCalendar'
 
     external_id = factory.fuzzy.FuzzyText(length=10, chars=string.digits)
-    changed = factory.fuzzy.FuzzyDateTime(datetime.datetime(2016, 1, 1, tzinfo=get_tzinfo()),
-                                          datetime.datetime(2017, 3, 1, tzinfo=get_tzinfo()))
+
+    changed = factory.fuzzy.FuzzyNaiveDateTime(
+        datetime.datetime(2016, 1, 1),
+        datetime.datetime(2017, 3, 1)
+    )
+
     academic_year = factory.SubFactory(AcademicYearFactory)
     title = factory.Sequence(lambda n: 'Academic Calendar - %d' % n)
     start_date = factory.LazyAttribute(generate_start_date)
@@ -71,3 +75,7 @@ class AcademicCalendarExamSubmissionFactory(AcademicCalendarFactory):
 
 class AcademicCalendarSummaryCourseSubmissionFactory(AcademicCalendarFactory):
     reference = SUMMARY_COURSE_SUBMISSION
+
+
+class AcademicCalendarEducationGroupEditionFactory(AcademicCalendarFactory):
+    reference = EDUCATION_GROUP_EDITION

@@ -27,22 +27,36 @@ from base.forms.education_group.common import CommonBaseForm, EducationGroupMode
 from base.models.enums import education_group_categories
 
 
-class GroupModelForm(EducationGroupYearModelForm):
+class GroupYearModelForm(EducationGroupYearModelForm):
     category = education_group_categories.GROUP
 
     class Meta(EducationGroupYearModelForm.Meta):
-        fields = ("acronym", "partial_acronym", "education_group_type", "title", "title_english", "credits",
-                  "main_teaching_campus", "academic_year", "remark", "remark_english", "min_credits", "max_credits",
-                  "management_entity")
+        fields = (
+            "acronym",
+            "partial_acronym",
+            "education_group_type",
+            "title",
+            "title_english",
+            "credits",
+            "main_teaching_campus",
+            "academic_year",
+            "remark",
+            "remark_english",
+            "min_constraint",
+            "max_constraint",
+            "constraint_type",
+            "management_entity"
+        )
+
+
+class GroupModelForm(EducationGroupModelForm):
+    """ For groups, it is forbidden to update data about education_group """
+    category = education_group_categories.GROUP
+
+    def __init__(self, _, *args, **kwargs):
+        super().__init__({}, *args, **kwargs)
 
 
 class GroupForm(CommonBaseForm):
-
-    def __init__(self, data, instance=None, parent=None):
-        educ_group_year_form = GroupModelForm(data, instance=instance, parent=parent)
-
-        education_group = instance.education_group if instance else None
-
-        educ_group_model_form = EducationGroupModelForm({}, instance=education_group)
-
-        super(GroupForm, self).__init__(educ_group_year_form, educ_group_model_form)
+    education_group_year_form_class = GroupYearModelForm
+    education_group_form_class = GroupModelForm

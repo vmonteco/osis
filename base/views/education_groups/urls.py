@@ -27,6 +27,7 @@ from django.conf.urls import url, include
 
 from base.views import education_group
 from base.views.education_groups.group_element_year.read import pdf_content
+from base.views.education_groups.learning_unit import detail as learning_unit_detail, update as learning_unit_update
 from base.views.education_groups.select import education_group_select, learning_unit_select
 from . import search, create, detail, update, delete, group_element_year
 
@@ -34,9 +35,29 @@ urlpatterns = [
 
     url(r'^$', search.education_groups, name='education_groups'),
     url(r'^select_lu/(?P<learning_unit_year_id>[0-9]+)$', learning_unit_select, name='learning_unit_select'),
-    url(r'^new/(?P<category>[A-Z_]+)/$', create.create_education_group, name='new_education_group'),
-    url(r'^new/(?P<category>[A-Z_]+)/(?P<parent_id>[0-9]+)/$', create.create_education_group,
-        name='new_education_group'),
+
+    url(
+        r'^new/(?P<category>[A-Z_]+)/(?P<education_group_type_pk>[0-9]+)/$',
+        create.create_education_group,
+        name='new_education_group'
+    ),
+    url(
+        r'^new/(?P<category>[A-Z_]+)/(?P<education_group_type_pk>[0-9]+)/(?P<parent_id>[0-9]+)/$',
+        create.create_education_group,
+        name='new_education_group'
+    ),
+
+    url(
+        r'^select_type/(?P<category>[A-Z_]+)/$',
+        create.SelectEducationGroupTypeView.as_view(),
+        name='select_education_group_type'
+    ),
+    url(
+        r'^select_type/(?P<category>[A-Z_]+)/(?P<parent_id>[0-9]+)/$',
+        create.SelectEducationGroupTypeView.as_view(),
+        name='select_education_group_type'
+    ),
+    url(r'^proxy_management/$', group_element_year.update.proxy_management, name='proxy_management'),
 
     url(r'^(?P<root_id>[0-9]+)/(?P<education_group_year_id>[0-9]+)/', include([
 
@@ -49,7 +70,6 @@ urlpatterns = [
             name='education_group_general_informations'),
         url(r'^informations/edit/$', education_group.education_group_year_pedagogy_edit,
             name="education_group_pedagogy_edit"),
-
         url(r'^informations/remove$', education_group.education_group_year_pedagogy_remove_term,
             name="education_group_pedagogy_remove_term"),
         url(r'^informations/add$', education_group.education_group_year_pedagogy_add_term,
@@ -57,7 +77,6 @@ urlpatterns = [
         url(r'^informations/get_terms/(?P<language>[a-z\-]+)',
             education_group.education_group_year_pedagogy_get_terms,
             name="education_group_pedagogy_get_terms"),
-
         url(r'^administrative/', include([
             url(u'^$', detail.EducationGroupAdministrativeData.as_view(), name='education_group_administrative'),
             url(u'^edit/$', education_group.education_group_edit_administrative_data,
@@ -74,9 +93,9 @@ urlpatterns = [
                     name="group_element_year_management_comment")
             ]))
         ])),
-
+        url(r'^utilization/$', detail.EducationGroupUsing.as_view(), name='education_group_utilization'),
         url(r'^admission_conditions/$',
-            education_group.education_group_year_admission_condition_edit,
+            detail.EducationGroupYearAdmissionCondition.as_view(),
             name='education_group_year_admission_condition_edit'),
         url(r'^admission_conditions/add_line$',
             education_group.education_group_year_admission_condition_add_line,
@@ -102,7 +121,19 @@ urlpatterns = [
             education_group.education_group_year_admission_condition_get_line,
             name='education_group_year_admission_condition_get_line'),
 
-        url(r'^delete/$', delete.DeleteGroupEducationYearView.as_view(), name="delete_education_group"),
-        url(r'^pdf_content/$', pdf_content, name="pdf_content"),
+        url(r'^delete/$', delete.DeleteGroupEducationView.as_view(), name="delete_education_group"),
+        url(r'^group_content/', group_element_year.read.ReadEducationGroupTypeView.as_view(), name="group_content"),
+        url(r'^pdf_content/(?P<language>[a-z\-]+)', pdf_content, name="pdf_content"),
+    ])),
+    url(r'^(?P<root_id>[0-9]+)/(?P<learning_unit_year_id>[0-9]+)/learning_unit/', include([
+        url(r'^utilization/$',
+            learning_unit_detail.LearningUnitUtilization.as_view(),
+            name='learning_unit_utilization'),
+        url(r'^prerequisite/$',
+            learning_unit_detail.LearningUnitPrerequisite.as_view(),
+            name='learning_unit_prerequisite'),
+        url(r'^prerequisite/update/$',
+            learning_unit_update.LearningUnitPrerequisite.as_view(),
+            name='learning_unit_prerequisite_update'),
     ])),
 ]

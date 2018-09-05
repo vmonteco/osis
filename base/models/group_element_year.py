@@ -25,13 +25,14 @@
 ##############################################################################
 import itertools
 
-from django.core.exceptions import ObjectDoesNotExist
 from django.db import models, IntegrityError
 from django.db.models import Q
+from django.utils import translation
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from ordered_model.models import OrderedModel
 
+from backoffice.settings.base import LANGUAGE_CODE_EN
 from base.models import education_group_type, education_group_year
 from base.models.education_group_type import GROUP_TYPE_OPTION
 from base.models.education_group_year import EducationGroupYear
@@ -55,6 +56,13 @@ class GroupElementYearAdmin(osis_model_admin.OsisModelAdmin):
     list_filter = ('is_mandatory', 'minor_access', 'quadrimester_derogation', 'parent__academic_year')
 
 
+class GroupElementYearManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(
+            Q(child_branch__isnull=False) | Q(child_leaf__learning_container_year__isnull=False)
+        )
+
+
 class GroupElementYear(OrderedModel):
     external_id = models.CharField(max_length=100, blank=True, null=True, db_index=True)
     changed = models.DateTimeField(null=True, auto_now=True)
@@ -62,6 +70,7 @@ class GroupElementYear(OrderedModel):
     parent = models.ForeignKey(
         EducationGroupYear,
         null=True,  # TODO: can not be null, dirty data
+        on_delete=models.PROTECT,
     )
 
     child_branch = models.ForeignKey(
@@ -133,6 +142,8 @@ class GroupElementYear(OrderedModel):
 
     order_with_respect_to = 'parent'
 
+    objects = GroupElementYearManager()
+
     def __str__(self):
         return "{} - {}".format(self.parent, self.child)
 
@@ -150,19 +161,29 @@ class GroupElementYear(OrderedModel):
 
             return _("%(acronym)s %(title)s [%(volumes)s] (%(credits)s credits)") % {
                 "acronym": self.child_leaf.acronym,
-                "title": self.child_leaf.specific_title,
+                "title": self.child.specific_title_english
+                if self.child.specific_title_english and translation.get_language() == 'en'
+                else self.child.specific_title,
                 "volumes": volume_total_verbose(components),
                 "credits": self.relative_credits or self.child_leaf.credits or 0
             }
+
+    @property
+    def verbose_comment(self):
+        if self.comment_english and translation.get_language() == LANGUAGE_CODE_EN:
+            return self.comment_english
+        return self.comment
 
     class Meta:
         ordering = ('order',)
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         if self.child_branch and self.child_leaf:
-            raise IntegrityError("Can not save GroupElementYear with a child branch and a child leaf.")
+            raise IntegrityError("It is forbidden to save a GroupElementYear with a child branch and a child leaf.")
         if self.child_branch == self.parent:
-            raise IntegrityError("Can not save GroupElementYear when a child branch and a parent are identical.")
+            raise IntegrityError("It is forbidden to attach an element to itself.")
+        if self.parent and self.child_branch in self.parent.ascendants_of_branch:
+            raise IntegrityError("It is forbidden to attach an element to one of its included elements.")
 
         return super().save(force_insert, force_update, using, update_fields)
 
@@ -199,6 +220,18 @@ def get_group_element_year_by_id(id):
 @deprecated
 def find_by_parent(an_education_group_year):
     return GroupElementYear.objects.filter(parent=an_education_group_year)
+
+
+# TODO : education_group_yr.child_branch.all() instead
+@deprecated
+def find_by_child_branch(an_education_group_year):
+    return GroupElementYear.objects.filter(child_branch=an_education_group_year)
+
+
+# TODO : education_group_yr.child_leaf.all() instead
+@deprecated
+def find_by_child_leaf(learning_unit_year):
+    return GroupElementYear.objects.filter(child_leaf=learning_unit_year)
 
 
 def find_learning_unit_formations(objects, parents_as_instances=False):

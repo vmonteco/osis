@@ -26,6 +26,7 @@
 from django.contrib import admin
 
 from base.models import *
+from base.models import validation_rule
 
 admin.site.register(academic_calendar.AcademicCalendar,
                     academic_calendar.AcademicCalendarAdmin)
@@ -165,6 +166,9 @@ admin.site.register(person_address.PersonAddress,
 admin.site.register(person_entity.PersonEntity,
                     person_entity.PersonEntityAdmin)
 
+admin.site.register(prerequisite.Prerequisite,
+                    prerequisite.PrerequisiteAdmin)
+
 admin.site.register(program_manager.ProgramManager,
                     program_manager.ProgramManagerAdmin)
 
@@ -200,3 +204,6 @@ admin.site.register(tutor.Tutor,
 
 admin.site.register(authorized_relationship.AuthorizedRelationship,
                     authorized_relationship.AuthorizedRelationshipAdmin)
+
+admin.site.register(validation_rule.ValidationRule,
+                    validation_rule.ValidationRuleAdmin)

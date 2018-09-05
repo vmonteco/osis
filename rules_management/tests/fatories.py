@@ -23,25 +23,35 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.core.exceptions import ObjectDoesNotExist
 
-from base.models import person_entity
-from base.models.entity_container_year import EntityContainerYear
-from base.models.entity_version import EntityVersion
-from base.models.person_entity import PersonEntity
-from osis_common.decorators.deprecated import deprecated
-
-MAP_ENTITY_FIELD = {
-    EntityVersion: 'entity',
-    PersonEntity: 'entity',
-    EntityContainerYear: 'entity'
-}
+import factory
+from django.contrib.auth.models import Permission
+from django.contrib.contenttypes.models import ContentType
 
 
-def filter_by_attached_entities(person, entity_queryset):
-    entities_attached = person_entity.find_entities_by_person(person)
-    field_path = MAP_ENTITY_FIELD.get(entity_queryset.model)
-    if not field_path:
-        raise ObjectDoesNotExist
-    field_filter = "{}__in".format(field_path)
-    return entity_queryset.filter(**{field_filter: entities_attached})
+class PermissionFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = Permission
+
+    name = factory.Faker('text', max_nb_chars=255)
+    codename = factory.Faker('text', max_nb_chars=100)
+    content_type = factory.Iterator(ContentType.objects.all())
+
+
+class FieldReferenceFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = 'rules_management.FieldReference'
+
+    content_type = factory.Iterator(ContentType.objects.all())
+    field_name = "acronym"
+
+    @factory.post_generation
+    def permissions(self, create, extracted, **kwargs):
+        if not create:
+            # Simple build, do nothing.
+            return
+
+        if extracted:
+            # A list of permissions were passed in, use them
+            for permission in extracted:
+                self.permissions.add(permission)

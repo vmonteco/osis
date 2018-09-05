@@ -24,9 +24,9 @@
 #
 ##############################################################################
 from django.core.exceptions import PermissionDenied
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, pgettext
 
-from base.models import academic_calendar
+from base.models import academic_calendar, group_element_year
 from base.models.education_group_type import find_authorized_types
 from base.models.enums import academic_calendar_type
 from base.models.enums.education_group_categories import TRAINING, MINI_TRAINING, GROUP
@@ -39,19 +39,20 @@ ERRORS_MSG = {
 
 
 def is_eligible_to_add_training(person, education_group, raise_exception=False):
-    return is_eligible_to_add_education_group(person, education_group, TRAINING, raise_exception)
+    return _is_eligible_to_add_education_group(person, education_group, TRAINING, raise_exception)
 
 
 def is_eligible_to_add_mini_training(person, education_group, raise_exception=False):
-    return is_eligible_to_add_education_group(person, education_group, MINI_TRAINING, raise_exception)
+    return _is_eligible_to_add_education_group(person, education_group, MINI_TRAINING, raise_exception)
 
 
 def is_eligible_to_add_group(person, education_group, raise_exception=False):
-    return is_eligible_to_add_education_group(person, education_group, GROUP, raise_exception)
+    return _is_eligible_to_add_education_group(person, education_group, GROUP, raise_exception)
 
 
-def is_eligible_to_add_education_group(person, education_group, category=None, raise_exception=False):
+def _is_eligible_to_add_education_group(person, education_group, category, raise_exception=False):
     return check_permission(person, "base.add_educationgroup", raise_exception) and \
+           _is_eligible_to_add_education_group_with_category(person, category, raise_exception) and \
            _is_eligible_education_group(person, education_group, raise_exception) and \
            check_authorized_type(education_group, category, raise_exception)
 
@@ -82,9 +83,18 @@ def _is_eligible_education_group(person, education_group, raise_exception):
     )
 
 
+def _is_eligible_to_add_education_group_with_category(person, category, raise_exception):
+    # TRAINING/MINI_TRAINING can only be added by central managers | Faculty manager must make a proposition of creation
+    result = person.is_central_manager() or (person.is_faculty_manager() and category == GROUP)
+    msg = _("The user has not permission to create a %(category)s.") % {"category": _(category)}
+    can_raise_exception(raise_exception, result, msg)
+    return result
+
+
 def check_link_to_management_entity(education_group, person, raise_exception):
-    if education_group and education_group.management_entity:
-        result = person.is_attached_entities([education_group.management_entity])
+    if education_group:
+        eligible_entities = get_education_group_year_eligible_management_entities(education_group)
+        result = person.is_attached_entities(eligible_entities)
     else:
         result = True
 
@@ -105,8 +115,8 @@ def can_raise_exception(raise_exception, result, msg):
         raise PermissionDenied(_(msg))
 
 
-def check_authorized_type(education_group, category=None, raise_exception=False):
-    if not education_group:
+def check_authorized_type(education_group, category, raise_exception=False):
+    if not education_group or not category:
         return True
 
     result = find_authorized_types(
@@ -114,11 +124,27 @@ def check_authorized_type(education_group, category=None, raise_exception=False)
         parents=[education_group]
     ).exists()
 
+    parent_category = education_group.education_group_type.category
     can_raise_exception(
         raise_exception, result,
-        _("No type of education group can be created as child of %(category)s of type %(type)s") % {
+        pgettext(
+            "female" if parent_category in [TRAINING, MINI_TRAINING] else "male",
+            "No type of %(child_category)s can be created as child of %(category)s of type %(type)s"
+        ) % {
+            "child_category": _(category),
             "category": _(education_group.education_group_type.category),
             "type": education_group.education_group_type.name,
         })
 
     return result
+
+
+def get_education_group_year_eligible_management_entities(education_group):
+    if education_group and education_group.management_entity:
+        return [education_group.management_entity]
+    else:
+        eligible_entities = []
+        for group in group_element_year.find_by_child_branch(education_group).select_related('parent'):
+            eligible_entities = eligible_entities + get_education_group_year_eligible_management_entities(group.parent)
+
+        return eligible_entities

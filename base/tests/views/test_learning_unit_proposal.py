@@ -559,6 +559,7 @@ class TestGroupActionsOnProposals(TestCase):
         cls.person.user.user_permissions.add(Permission.objects.get(codename="can_access_learningunit"))
         cls.proposals = [_create_proposal_learning_unit() for _ in range(3)]
         cls.url = reverse(learning_units_proposal_search)
+        create_current_academic_year()
 
     def setUp(self):
         self.client.force_login(self.person.user)
@@ -1026,7 +1027,7 @@ class TestLearningUnitProposalDisplay(TestCase):
         )
 
         cls.proposal_learning_unit = ProposalLearningUnitFactory(learning_unit_year=cls.learning_unit_yr)
-        cls.initial_credits = 3
+        cls.initial_credits = 3.0
         cls.initial_quadrimester = 'Q1'
         cls.initial_language = cls.language_it.pk
         cls.initial_data_learning_unit_year = {'credits': cls.initial_credits}

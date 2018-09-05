@@ -34,12 +34,12 @@ from attribution.models.attribution import find_all_tutors_by_learning_unit_year
 from base import models as mdl_base
 from base.business.entity import get_entity_calendar
 from base.business.learning_unit_year_with_context import volume_learning_component_year
+from base.business.learning_units.comparison import get_entity_by_type
 from base.business.xls import get_name_or_username
 from base.models import entity_container_year, academic_calendar
 from base.models import learning_achievement
-from base.models.academic_year import find_academic_year_by_year
 from base.models.entity_component_year import EntityComponentYear
-from base.models.enums import entity_container_year_link_type, academic_calendar_type
+from base.models.enums import academic_calendar_type
 from base.models.enums.entity_container_year_link_type import REQUIREMENT_ENTITIES
 from cms import models as mdl_cms
 from cms.enums import entity_name
@@ -47,14 +47,24 @@ from cms.enums.entity_name import LEARNING_UNIT_YEAR
 from cms.models import translated_text
 from osis_common.document import xls_build
 from osis_common.utils.datetime import convert_date_to_datetime
+from base.models.enums import entity_container_year_link_type
+
 
 # List of key that a user can modify
 WORKSHEET_TITLE = 'learning_units'
 XLS_FILENAME = 'learning_units_filename'
 XLS_DESCRIPTION = "List_activities"
-LEARNING_UNIT_TITLES = [str(_('academic_year_small')), str(_('code')), str(_('title')), str(_('type')),
-                        str(_('subtype')), str(_('requirement_entity_small')), str(_('allocation_entity_small')),
-                        str(_('credits')), str(_('active_title'))]
+LEARNING_UNIT_TITLES = [
+    str(_('academic_year_small')),
+    str(_('code')),
+    str(_('title')),
+    str(_('type')),
+    str(_('subtype')),
+    str(_('requirement_entity_small')),
+    str(_('allocation_entity_small')),
+    str(_('credits')),
+    str(_('active_title'))
+]
 CMS_LABEL_SPECIFICATIONS = ['themes_discussed', 'prerequisite']
 
 CMS_LABEL_PEDAGOGY_FR_AND_EN = ['resume', 'teaching_methods', 'evaluation_methods', 'other_informations',
@@ -288,3 +298,22 @@ def get_achievements_group_by_language(learning_unit_year):
 def get_no_summary_responsible_teachers(learning_unit_yr, summary_responsibles):
     tutors = find_all_tutors_by_learning_unit_year(learning_unit_yr, "-summary_responsible")
     return [tutor[0] for tutor in tutors if tutor[0] not in summary_responsibles]
+
+
+def get_learning_unit_comparison_context(learning_unit_year):
+    context = dict({'learning_unit_year': learning_unit_year})
+    context['campus'] = learning_unit_year.campus
+    context['organization'] = get_organization_from_learning_unit_year(learning_unit_year)
+    context['experimental_phase'] = True
+    components = get_components_identification(learning_unit_year)
+    context['components'] = components.get('components')
+    context['REQUIREMENT_ENTITY'] = get_entity_by_type(learning_unit_year,
+                                                       entity_container_year_link_type.REQUIREMENT_ENTITY)
+    context['ALLOCATION_ENTITY'] = get_entity_by_type(learning_unit_year,
+                                                      entity_container_year_link_type.ALLOCATION_ENTITY)
+    context['ADDITIONAL_REQUIREMENT_ENTITY_1'] = \
+        get_entity_by_type(learning_unit_year, entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1)
+    context['ADDITIONAL_REQUIREMENT_ENTITY_2'] = \
+        get_entity_by_type(learning_unit_year, entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2)
+    context['learning_container_year_partims'] = learning_unit_year.get_partims_related()
+    return context

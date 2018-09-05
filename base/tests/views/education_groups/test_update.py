@@ -28,20 +28,24 @@ from http import HTTPStatus
 from unittest import mock
 from unittest.mock import patch
 
-
 from django.contrib.auth.models import Permission
-from django.test import TestCase, Client
+from django.contrib.messages import get_messages
+from django.http import HttpResponseForbidden
+from django.test import TestCase, Client, RequestFactory
 from django.urls import reverse
 from django.utils.translation import ugettext as _
 from waffle.testutils import override_flag
 
-from base.forms.education_group.group import GroupModelForm
-from base.models.enums import education_group_categories
+from base.business.group_element_years import management
+from base.business.group_element_years.management import EDUCATION_GROUP_YEAR, LEARNING_UNIT_YEAR
+from base.forms.education_group.group import GroupYearModelForm
+from base.models.enums import education_group_categories, internship_presence
 from base.models.enums.active_status import ACTIVE
 from base.models.enums.schedule_type import DAILY
 from base.models.group_element_year import GroupElementYear
 from base.tests.factories.academic_year import create_current_academic_year
 from base.tests.factories.authorized_relationship import AuthorizedRelationshipFactory
+from base.tests.factories.business.learning_units import GenerateAcademicYear
 from base.tests.factories.education_group_type import EducationGroupTypeFactory
 from base.tests.factories.education_group_year import EducationGroupYearFactory
 from base.tests.factories.education_group_year import GroupFactory, TrainingFactory
@@ -51,14 +55,17 @@ from base.tests.factories.group_element_year import GroupElementYearFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from base.tests.factories.person import PersonFactory
 from base.utils.cache import cache
-from base.business.group_element_years import management
-from base.views.education_groups.update import update_education_group
+from base.views.education_groups.group_element_year.update import proxy_management
+from base.views.education_groups.update import update_education_group, _get_success_redirect_url
 from reference.tests.factories.domain import DomainFactory
+from reference.tests.factories.language import LanguageFactory
 
 
 @override_flag('education_group_update', active=True)
 class TestUpdate(TestCase):
     def setUp(self):
+        self.current_academic_year = create_current_academic_year()
+
         self.education_group_year = GroupFactory()
 
         EntityVersionFactory(entity=self.education_group_year.management_entity,
@@ -85,6 +92,7 @@ class TestUpdate(TestCase):
         self.an_training_education_group_type = EducationGroupTypeFactory(category=education_group_categories.TRAINING)
 
         self.training_education_group_year = TrainingFactory(
+            academic_year=self.current_academic_year,
             education_group_type=self.an_training_education_group_type
         )
 
@@ -135,7 +143,7 @@ class TestUpdate(TestCase):
 
         form_education_group_year = response.context["form_education_group_year"]
 
-        self.assertIsInstance(form_education_group_year, GroupModelForm)
+        self.assertIsInstance(form_education_group_year, GroupYearModelForm)
 
     def test_post(self):
         new_entity_version = MainEntityVersionFactory()
@@ -190,10 +198,11 @@ class TestUpdate(TestCase):
             'secondary_domains': ['|' + ('|'.join([str(domain.pk) for domain in self.domains])) + '|'],
             'active': ACTIVE,
             'schedule_type': DAILY,
+            "internship": internship_presence.NO,
+            "primary_language": LanguageFactory().pk,
+            "start_year": 2010,
         }
-
         response = self.client.post(self.training_url, data=data)
-
         self.assertEqual(response.status_code, 302)
 
         self.training_education_group_year.refresh_from_db()
@@ -211,10 +220,45 @@ class TestUpdate(TestCase):
         self.assertNotIn(old_domain, self.education_group_year.secondary_domains.all())
 
 
+class TestGetSuccessRedirectUrl(TestCase):
+    def setUp(self):
+        self.current_academic_year = create_current_academic_year()
+        self.education_group_year = EducationGroupYearFactory(
+            academic_year=self.current_academic_year
+        )
+
+        self.ac_year_in_future = GenerateAcademicYear(
+            start_year=self.current_academic_year.year + 1,
+            end_year=self.current_academic_year.year + 5,
+        )
+
+        self.education_group_year_in_future = []
+        for ac_in_future in self.ac_year_in_future.academic_years:
+            self.education_group_year_in_future.append(EducationGroupYearFactory(
+                education_group=self.education_group_year.education_group,
+                academic_year=ac_in_future
+            ))
+
+    def test_get_redirect_success_url_when_exist(self):
+        expected_url = reverse("education_group_read", args=[self.education_group_year.pk,
+                                                             self.education_group_year.id])
+        result = _get_success_redirect_url(self.education_group_year, self.education_group_year)
+        self.assertEqual(result, expected_url)
+
+    def test_get_redirect_success_url_when_current_viewed_has_been_deleted(self):
+        current_viewed = self.education_group_year_in_future[-1]
+        current_viewed.delete()
+        # Expected URL is the latest existing [-2]
+        expected_url = reverse("education_group_read", args=[self.education_group_year_in_future[-2].pk,
+                                                             self.education_group_year_in_future[-2].pk])
+        result = _get_success_redirect_url(current_viewed, current_viewed)
+        self.assertEqual(result, expected_url)
+
+
 @override_flag('education_group_attach', active=True)
 @override_flag('education_group_select', active=True)
 @override_flag('education_group_update', active=True)
-class TestSelectDetachAttach(TestCase):
+class TestSelectAttach(TestCase):
     def setUp(self):
         self.locmem_cache = cache
         self.locmem_cache.clear()
@@ -239,6 +283,12 @@ class TestSelectDetachAttach(TestCase):
             child_branch=self.child_education_group_year
         )
 
+        self.child_group_element_year = GroupElementYearFactory(
+            parent=self.initial_parent_education_group_year,
+            child_branch=None,
+            child_leaf=self.learning_unit_year
+        )
+
         self.url_select_education_group = reverse(
             "education_group_select",
             args=[
@@ -256,7 +306,7 @@ class TestSelectDetachAttach(TestCase):
                 self.new_parent_education_group_year.id,
                 self.new_parent_education_group_year.id,
                 self.initial_group_element_year.id,
-        ]
+            ]
         ) + "?action=attach"
 
         cache.set('child_to_cache_id', None, timeout=None)
@@ -270,7 +320,7 @@ class TestSelectDetachAttach(TestCase):
     def test_select_case_education_group(self):
         response = self.client.post(
             self.url_select_education_group,
-            data={'child_to_cache_id': self.child_education_group_year.id},
+            data={'element_id': self.child_education_group_year.id},
             HTTP_X_REQUESTED_WITH='XMLHttpRequest',
         )
         data_cached = cache.get(management.SELECT_CACHE_KEY)
@@ -307,6 +357,11 @@ class TestSelectDetachAttach(TestCase):
         self.assertRedirects(response, redirected_url, fetch_redirect_response=False)
 
     def test_attach_case_child_education_group_year(self):
+        AuthorizedRelationshipFactory(
+            parent_type=self.new_parent_education_group_year.education_group_type,
+            child_type=self.child_education_group_year.education_group_type,
+        )
+
         expected_absent_group_element_year = GroupElementYear.objects.filter(
             parent=self.new_parent_education_group_year,
             child_branch=self.child_education_group_year
@@ -315,7 +370,13 @@ class TestSelectDetachAttach(TestCase):
 
         self._assert_link_with_inital_parent_present()
 
-        self.client.post(self.url_select_education_group, data={'child_to_cache_id': self.child_education_group_year.id})
+        # Select :
+        self.client.post(
+            self.url_select_education_group,
+            data={'element_id': self.child_education_group_year.id}
+        )
+
+        # Attach :
         self.client.get(self.url_attach, HTTP_REFERER='http://foo/bar')
 
         expected_group_element_year_count = GroupElementYear.objects.filter(
@@ -323,6 +384,140 @@ class TestSelectDetachAttach(TestCase):
             child_branch=self.child_education_group_year
         ).count()
         self.assertEqual(expected_group_element_year_count, 1)
+
+        self._assert_link_with_inital_parent_present()
+
+    def test_attach_case_child_education_group_year_without_authorized_relationship_fails(self):
+        expected_absent_group_element_year = GroupElementYear.objects.filter(
+            parent=self.new_parent_education_group_year,
+            child_branch=self.child_education_group_year
+        ).exists()
+        self.assertFalse(expected_absent_group_element_year)
+
+        self._assert_link_with_inital_parent_present()
+
+        # Select :
+        self.client.post(
+            self.url_select_education_group,
+            data={'element_id': self.child_education_group_year.id}
+        )
+
+        # Attach :
+        http_referer = reverse(
+            "education_group_read",
+            args=[
+                self.initial_parent_education_group_year.id,
+                self.child_education_group_year.id
+            ]
+        )
+        response = self.client.get(self.url_attach, follow=True, HTTP_REFERER=http_referer)
+        messages = list(get_messages(response.wsgi_request))
+        self.assertEqual(len(messages), 2)
+        self.assertEqual(
+            str(messages[1]),
+            _("You cannot attach \"%(child)s\" (type \"%(child_type)s\") "
+              "to \"%(parent)s\" (type \"%(parent_type)s\")") % {
+                'child': self.child_education_group_year,
+                'child_type': self.child_education_group_year.education_group_type,
+                'parent': self.new_parent_education_group_year,
+                'parent_type': self.new_parent_education_group_year.education_group_type,
+            }
+        )
+
+        expected_absent_group_element_year = GroupElementYear.objects.filter(
+            parent=self.new_parent_education_group_year,
+            child_branch=self.child_education_group_year
+        ).exists()
+        self.assertFalse(expected_absent_group_element_year)
+
+        self._assert_link_with_inital_parent_present()
+
+    def test_attach_child_education_group_year_to_one_of_its_descendants_creating_loop(self):
+        # We attempt to create a loop : child --> initial_parent --> new_parent --> child
+        GroupElementYearFactory(
+            parent=self.new_parent_education_group_year,
+            child_branch=self.initial_parent_education_group_year
+        )
+        AuthorizedRelationshipFactory(
+            parent_type=self.child_education_group_year.education_group_type,
+            child_type=self.new_parent_education_group_year.education_group_type,
+        )
+
+        # Select :
+        self.client.post(
+            self.url_select_education_group,
+            data={'element_id': self.new_parent_education_group_year.id}
+        )
+
+        # Attach :
+        http_referer = reverse(
+            "education_group_read",
+            args=[
+                self.initial_parent_education_group_year.id,
+                self.child_education_group_year.id
+            ]
+        )
+        url_attach = reverse(
+            "group_element_year_management",
+            args=[
+                self.new_parent_education_group_year.id,
+                self.child_education_group_year.id,
+                self.initial_group_element_year.id,
+            ]
+        ) + "?action=attach"
+        response = self.client.get(url_attach, follow=True, HTTP_REFERER=http_referer)
+        messages = list(get_messages(response.wsgi_request))
+        self.assertEqual(len(messages), 2)
+        self.assertEqual(
+            str(messages[1]),
+            _("It is forbidden to attach an element to one of its included elements.")
+        )
+
+        expected_absent_group_element_year = GroupElementYear.objects.filter(
+            parent=self.child_education_group_year,
+            child_branch=self.new_parent_education_group_year
+        ).exists()
+        self.assertFalse(expected_absent_group_element_year)
+
+    @mock.patch("base.business.education_groups.perms.is_eligible_to_change_education_group")
+    def test_attach_case_child_education_group_year_without_person_entity_link_fails(self, mock_permission):
+        mock_permission.return_value = False
+        AuthorizedRelationshipFactory(
+            parent_type=self.new_parent_education_group_year.education_group_type,
+            child_type=self.child_education_group_year.education_group_type,
+        )
+        expected_absent_group_element_year = GroupElementYear.objects.filter(
+            parent=self.new_parent_education_group_year,
+            child_branch=self.child_education_group_year
+        ).exists()
+        self.assertFalse(expected_absent_group_element_year)
+
+        self._assert_link_with_inital_parent_present()
+
+        # Select :
+        self.client.post(
+            self.url_select_education_group,
+            data={'element_id': self.child_education_group_year.id}
+        )
+
+        # Attach :
+        http_referer = reverse(
+            "education_group_read",
+            args=[
+                self.initial_parent_education_group_year.id,
+                self.child_education_group_year.id
+            ]
+        )
+        response = self.client.get(self.url_attach, follow=True, HTTP_REFERER=http_referer)
+
+        self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
+        self.assertTemplateUsed(response, "access_denied.html")
+
+        expected_absent_group_element_year = GroupElementYear.objects.filter(
+            parent=self.new_parent_education_group_year,
+            child_branch=self.child_education_group_year
+        ).exists()
+        self.assertFalse(expected_absent_group_element_year)
 
         self._assert_link_with_inital_parent_present()
 
@@ -362,7 +557,6 @@ class TestSelectDetachAttach(TestCase):
         )
         response = self.client.get(self.url_attach, follow=True, HTTP_REFERER=http_referer)
 
-        from django.contrib.messages import get_messages
         messages = list(get_messages(response.wsgi_request))
         self.assertEqual(len(messages), 1)
         self.assertEqual(str(messages[0]), _("Please Select or Move an item before Attach it"))
@@ -373,3 +567,67 @@ class TestSelectDetachAttach(TestCase):
             child_branch=self.child_education_group_year
         )
         self.assertEqual(expected_initial_group_element_year, self.initial_group_element_year)
+
+    @mock.patch("base.views.education_groups.group_element_year.update.management")
+    def test_proxy_management_view_calls_management_view(self, mock_management_view):
+        request_factory = RequestFactory()
+        request = request_factory.post(
+            reverse("proxy_management"),
+            data={
+                'root_id': str(self.initial_parent_education_group_year.id),
+                'education_group_year_id': str(self.child_education_group_year.id),
+                'group_element_year_id': str(self.initial_group_element_year.id),
+                'element_type': None,
+            }
+        )
+        request.user = self.person.user
+        proxy_management(request)
+
+        mock_management_view.assert_called_with(
+            request,
+            root_id=str(self.initial_parent_education_group_year.id),
+            education_group_year_id=str(self.child_education_group_year.id),
+            group_element_year_id=str(self.initial_group_element_year.id),
+        )
+
+    @mock.patch("base.business.group_element_years.management._set_selected_element_on_cache")
+    def test_proxy_management_view_calls_select_action_on_education_group_year(self, mock_management_view):
+        request_factory = RequestFactory()
+        request = request_factory.post(
+            reverse("proxy_management"),
+            data={
+                'root_id': str(self.initial_parent_education_group_year.id),
+                'element_id': str(self.child_education_group_year.id),
+                'group_element_year_id': str(self.initial_group_element_year.id),
+                'element_type': EDUCATION_GROUP_YEAR,
+                'action': 'select',
+            }
+        )
+        request.user = self.person.user
+        proxy_management(request)
+
+        mock_management_view.assert_called_with(
+            self.child_education_group_year.id,
+            EDUCATION_GROUP_YEAR
+        )
+
+    @mock.patch("base.business.group_element_years.management._set_selected_element_on_cache")
+    def test_proxy_management_view_calls_select_action_on_learning_unit_year(self, mock_management_view):
+        request_factory = RequestFactory()
+        request = request_factory.post(
+            reverse("proxy_management"),
+            data={
+                'root_id': str(self.initial_parent_education_group_year.id),
+                'element_id': str(self.learning_unit_year.id),
+                'group_element_year_id': str(self.child_group_element_year.id),
+                'element_type': LEARNING_UNIT_YEAR,
+                'action': 'select',
+            }
+        )
+        request.user = self.person.user
+        proxy_management(request)
+
+        mock_management_view.assert_called_with(
+            self.learning_unit_year.id,
+            LEARNING_UNIT_YEAR
+        )

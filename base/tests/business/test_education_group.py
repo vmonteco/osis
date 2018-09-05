@@ -40,29 +40,31 @@ from base.business.education_group import can_user_edit_administrative_data, pre
     CHAIR_OF_THE_EXAM_BOARD_COL, EXAM_BOARD_SECRETARY_COL, EXAM_BOARD_SIGNATORY_COL, SIGNATORY_QUALIFICATION_COL, \
     START_EXAM_REGISTRATION_COL, END_EXAM_REGISTRATION_COL, MARKS_PRESENTATION_COL, DISSERTATION_PRESENTATION_COL, \
     DELIBERATION_COL, SCORES_DIFFUSION_COL, SESSION_HEADERS, _get_translated_header_titles
+from base.business.education_groups.perms import get_education_group_year_eligible_management_entities
 from base.models.education_group_year import EducationGroupYear
-
+from base.models.enums import academic_calendar_type
+from base.models.enums import education_group_categories
+from base.models.enums import mandate_type as mandate_types
 from base.models.enums import offer_year_entity_type
 from base.models.person import Person, CENTRAL_MANAGER_GROUP
+from base.tests.factories.academic_year import create_current_academic_year
+from base.tests.factories.education_group import EducationGroupFactory
+from base.tests.factories.education_group_type import EducationGroupTypeFactory
 from base.tests.factories.education_group_year import EducationGroupYearFactory
 from base.tests.factories.entity import EntityFactory
 from base.tests.factories.entity_version import EntityVersionFactory
+from base.tests.factories.group_element_year import GroupElementYearFactory
+from base.tests.factories.mandatary import MandataryFactory
+from base.tests.factories.offer_year_calendar import OfferYearCalendarFactory
 from base.tests.factories.offer_year_entity import OfferYearEntityFactory
 from base.tests.factories.organization import OrganizationFactory
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.person_entity import PersonEntityFactory
 from base.tests.factories.program_manager import ProgramManagerFactory
-from base.tests.factories.user import UserFactory
-from base.models.enums import education_group_categories
-from base.tests.factories.education_group_type import EducationGroupTypeFactory
-from base.tests.factories.academic_year import create_current_academic_year
-from osis_common.document import xls_build
-from base.tests.factories.mandatary import MandataryFactory
-from base.tests.factories.education_group import EducationGroupFactory
-from base.models.enums import mandate_type as mandate_types
-from base.tests.factories.offer_year_calendar import OfferYearCalendarFactory
-from base.models.enums import academic_calendar_type
 from base.tests.factories.session_exam_calendar import SessionExamCalendarFactory
+from base.tests.factories.user import UserFactory
+from osis_common.document import xls_build
+
 NO_SESSION_DATA = {'session1': None, 'session2': None, 'session3': None}
 
 
@@ -122,7 +124,10 @@ class EducationGroupTestCase(TestCase):
         self.assertFalse(can_user_edit_administrative_data(self.user, self.education_group_year))
 
     def test_can_user_edit_administartive_data_group_central_manager_no_entity_linked_but_program_manager(self):
-        """With permission + Group central manager + Linked to the parent entity (with_child FALSE) + IS program manager ==> Allowed """
+        """
+        With permission + Group central manager + Linked to the parent entity (with_child FALSE) + IS
+        program manager ==> Allowed
+        """
         _add_to_group(self.user, CENTRAL_MANAGER_GROUP)
         PersonEntityFactory(person=self.person, entity=self.root_entity, with_child=False)
         ProgramManagerFactory(person=self.person, education_group=self.education_group_year.education_group)
@@ -375,6 +380,7 @@ def _generate_xls_build_parameter(xls_data, user):
             xls_build.CONTENT_KEY: xls_data,
             xls_build.HEADER_TITLES_KEY: EDUCATION_GROUP_TITLES,
             xls_build.WORKSHEET_TITLE_KEY: _(WORKSHEET_TITLE),
+            xls_build.STYLED_CELLS: None,
         }]
     }
 
@@ -388,6 +394,138 @@ def _generate_xls_administrative_data_build_parameter(xls_data, user):
             xls_build.CONTENT_KEY: xls_data,
             xls_build.HEADER_TITLES_KEY: _get_translated_header_titles(),
             xls_build.WORKSHEET_TITLE_KEY: _(WORKSHEET_TITLE_ADMINISTRATIVE),
+            xls_build.STYLED_CELLS: None,
         }]
     }
 
+
+class EducationGroupGetEligibleEntities(TestCase):
+    def test_case_one_egy(self):
+        education_group_year = EducationGroupYearFactory()
+        self.assertEquals(
+            get_education_group_year_eligible_management_entities(education_group_year),
+            [education_group_year.management_entity]
+        )
+
+    def test_case_one_egy_and_parent(self):
+        education_group_year_child = EducationGroupYearFactory()
+        education_group_year_parent = EducationGroupYearFactory()
+        GroupElementYearFactory(
+            parent=education_group_year_parent,
+            child_branch=education_group_year_child
+        )
+
+        self.assertEquals(
+            get_education_group_year_eligible_management_entities(education_group_year_child),
+            [education_group_year_child.management_entity]
+        )
+
+        self.assertEquals(
+            get_education_group_year_eligible_management_entities(education_group_year_parent),
+            [education_group_year_parent.management_entity]
+        )
+
+    def test_case_one_egy_one_parent_no_entity_on_child(self):
+        education_group_year_child = EducationGroupYearFactory()
+        education_group_year_parent = EducationGroupYearFactory()
+        GroupElementYearFactory(
+            parent=education_group_year_parent,
+            child_branch=education_group_year_child
+        )
+        education_group_year_child.management_entity = None
+        education_group_year_child.save()
+
+        self.assertEquals(
+            get_education_group_year_eligible_management_entities(education_group_year_child),
+            [education_group_year_parent.management_entity]
+        )
+
+    def test_case_one_egy_two_parent_no_entity_on_child(self):
+        education_group_year_child = EducationGroupYearFactory()
+        education_group_year_parent1 = EducationGroupYearFactory()
+        GroupElementYearFactory(
+            parent=education_group_year_parent1,
+            child_branch=education_group_year_child
+        )
+        education_group_year_parent2 = EducationGroupYearFactory()
+        GroupElementYearFactory(
+            parent=education_group_year_parent2,
+            child_branch=education_group_year_child
+        )
+        education_group_year_child.management_entity = None
+        education_group_year_child.save()
+
+        self.assertCountEqual(
+            get_education_group_year_eligible_management_entities(education_group_year_child),
+            [
+                education_group_year_parent1.management_entity,
+                education_group_year_parent2.management_entity,
+            ]
+        )
+
+    def test_case_complex_hierarchy(self):
+        education_group_year_child = EducationGroupYearFactory()
+        EntityVersionFactory(entity=education_group_year_child.management_entity, acronym="CHILD")
+
+        education_group_year_parent1 = EducationGroupYearFactory()
+        EntityVersionFactory(entity=education_group_year_parent1.management_entity, acronym="PARENT1")
+        GroupElementYearFactory(
+            parent=education_group_year_parent1,
+            child_branch=education_group_year_child
+        )
+
+        education_group_year_parent2 = EducationGroupYearFactory()
+        EntityVersionFactory(entity=education_group_year_parent2.management_entity, acronym="PARENT2")
+        GroupElementYearFactory(
+            parent=education_group_year_parent2,
+            child_branch=education_group_year_child
+        )
+
+        education_group_year_parent3 = EducationGroupYearFactory()
+        EntityVersionFactory(entity=education_group_year_parent3.management_entity, acronym="PARENT3")
+        GroupElementYearFactory(
+            parent=education_group_year_parent3,
+            child_branch=education_group_year_parent1
+        )
+
+        education_group_year_parent4 = EducationGroupYearFactory()
+        EntityVersionFactory(entity=education_group_year_parent4.management_entity, acronym="PARENT4")
+        GroupElementYearFactory(
+            parent=education_group_year_parent4,
+            child_branch=education_group_year_parent1
+        )
+
+        education_group_year_parent5 = EducationGroupYearFactory()
+        EntityVersionFactory(entity=education_group_year_parent5.management_entity, acronym="PARENT5")
+        GroupElementYearFactory(
+            parent=education_group_year_parent5,
+            child_branch=education_group_year_child
+        )
+        GroupElementYearFactory(
+            parent=education_group_year_parent5,
+            child_branch=education_group_year_parent2
+        )
+
+        education_group_year_parent6 = EducationGroupYearFactory()
+        EntityVersionFactory(entity=education_group_year_parent6.management_entity, acronym="PARENT6")
+        GroupElementYearFactory(
+            parent=education_group_year_parent6,
+            child_branch=education_group_year_parent5
+        )
+
+        education_group_year_child.management_entity = None
+        education_group_year_child.save()
+        education_group_year_parent1.management_entity = None
+        education_group_year_parent1.save()
+        education_group_year_parent5.management_entity = None
+        education_group_year_parent5.save()
+
+        self.assertCountEqual(
+            get_education_group_year_eligible_management_entities(education_group_year_child),
+            [
+                education_group_year_parent2.management_entity,
+                education_group_year_parent3.management_entity,
+                education_group_year_parent4.management_entity,
+                education_group_year_parent6.management_entity,
+            ]
+        )

@@ -28,7 +28,7 @@ import itertools
 
 from django import forms
 from django.core.exceptions import ValidationError
-from django.db.models import OuterRef, Subquery
+from django.db.models import OuterRef, Subquery, Exists
 from django.db.models.fields import BLANK_CHOICE_DASH
 from django.utils.translation import ugettext_lazy as _
 
@@ -51,6 +51,7 @@ from base.models.enums import entity_container_year_link_type, learning_containe
 from base.models.learning_unit_year import convert_status_bool
 from base.models.offer_year_entity import OfferYearEntity
 from base.models.organization_address import find_distinct_by_country
+from base.models.proposal_learning_unit import ProposalLearningUnit
 from reference.models.country import Country
 
 MAX_RECORDS = 1000
@@ -167,24 +168,32 @@ class LearningUnitYearForm(LearningUnitSearchForm):
 
     def get_learning_units(self, service_course_search=None, requirement_entities=None, luy_status=None):
         service_course_search = service_course_search or self.service_course_search
-        search_criterias = self.cleaned_data.copy()
-        search_criterias['status'] = self._set_status(luy_status)
+        search_criteria = self.cleaned_data.copy()
+        search_criteria['status'] = self._set_status(luy_status)
 
         if requirement_entities:
-            search_criterias['requirement_entities'] = requirement_entities
+            search_criteria['requirement_entities'] = requirement_entities
 
         # TODO Use a queryset instead !!
-        search_criterias['learning_container_year_id'] = get_filter_learning_container_ids(search_criterias)
+        search_criteria['learning_container_year_id'] = get_filter_learning_container_ids(search_criteria)
 
         if not service_course_search \
-                and search_criterias \
-                and mdl.learning_unit_year.count_search_results(**search_criterias) > self.MAX_RECORDS:
+                and search_criteria \
+                and mdl.learning_unit_year.count_search_results(**search_criteria) > self.MAX_RECORDS:
             raise TooManyResultsException
 
-        learning_units = mdl.learning_unit_year.search(**search_criterias) \
+        has_proposal = ProposalLearningUnit.objects.filter(
+            learning_unit_year=OuterRef('pk'),
+        )
+
+        learning_units = mdl.learning_unit_year.search(**search_criteria) \
             .select_related('academic_year', 'learning_container_year', 'learning_container_year__academic_year') \
-            .prefetch_related(build_entity_container_prefetch()) \
-            .order_by('academic_year__year', 'acronym')
+            .prefetch_related(
+                build_entity_container_prefetch([
+                    entity_container_year_link_type.ALLOCATION_ENTITY,
+                    entity_container_year_link_type.REQUIREMENT_ENTITY
+                ])
+            ).order_by('academic_year__year', 'acronym').annotate(has_proposal=Exists(has_proposal))
 
         if self.borrowed_course_search:
             learning_units = self._filter_borrowed_learning_units(learning_units)

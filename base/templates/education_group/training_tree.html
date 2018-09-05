@@ -1,26 +1,18 @@
-{% load i18n %}
+{% load i18n staticfiles %}
 {% load format education_group %}
 
 
 <div id="panel-collapse" class="col-md-0">
-    <div id="collapse" class="panel panel-default" style="display:none;overflow: auto;">
+    <div id="collapse" class="panel panel-default" style="height: 100%;display:flex;overflow: auto;">
         <div class="panel-body">
-
-            {# Button to expand and close all nodes of the trees #}
-            <div class="row">
-                <a class="button pull-right col-md-1" id="tree_close_all">
-                    <span class="glyphicon glyphicon-minus" aria-hidden="true"></span>
-                </a>
-
-                <a class="button pull-right col-md-1" id="tree_open_all">
-                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
-                </a>
-            </div>
-
-            <div class="row" id="panel_file_tree">
-                {% build_tree 0 education_group_year %}
-            </div>
-
+            <div class="row" id="panel_file_tree"></div>
         </div>
     </div>
 </div>
+
+<script>
+    const root_id = "{{ root_id }}";
+    const url_resolver_match = "{% url_resolver_match %}";
+    const tree = JSON.parse('{{ tree | escapejs }}');
+</script>
+<script type="text/javascript" src="{% static 'js/education_group/education_group_tree.js' %}"></script>

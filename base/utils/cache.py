@@ -29,6 +29,8 @@ from django.conf import settings
 from django.core.cache import caches, InvalidCacheBackendError
 from functools import wraps
 
+from django.http import QueryDict
+
 CACHE_FILTER_TIMEOUT = None
 PREFIX_CACHE_KEY = 'cache_filter'
 
@@ -40,14 +42,14 @@ except InvalidCacheBackendError:
     cache = caches["default"]
 
 
-def cache_filter(param_list=None):
+def cache_filter(exclude_params=None):
     def decorator(func):
         @wraps(func)
         def inner(request, *args, **kwargs):
             try:
                 if request.GET:
-                    _save_filter_to_cache(request, param_list)
-                _restore_filter_from_cache(request, param_list)
+                    _save_filter_to_cache(request, exclude_params=exclude_params)
+                _restore_filter_from_cache(request)
             except Exception:
                 logger.exception('An error occurred with cache system')
             return func(request, *args, **kwargs)
@@ -55,18 +57,20 @@ def cache_filter(param_list=None):
     return decorator
 
 
-def _save_filter_to_cache(request, param_list):
-    param_to_cache = {key: value for key, value in request.GET.items() if key in param_list} if param_list \
-                     else request.GET
+def _save_filter_to_cache(request, exclude_params=None):
+    if exclude_params is None:
+        exclude_params = []
+    param_to_cache = {key: value for key, value in request.GET.items() if key not in exclude_params}
     key = _get_filter_key(request)
     cache.set(key, param_to_cache, timeout=CACHE_FILTER_TIMEOUT)
 
 
-def _restore_filter_from_cache(request, param_list):
+def _restore_filter_from_cache(request):
     cached_value = _get_from_cache(request)
     if cached_value:
-        request.GET = {key: value for key, value in cached_value.items() if key in param_list} if param_list \
-                      else cached_value
+
+        request.GET = QueryDict(mutable=True)
+        request.GET.update({**request.GET.dict(), **cached_value})
 
 
 def _get_from_cache(request):

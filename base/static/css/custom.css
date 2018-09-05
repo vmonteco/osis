@@ -139,6 +139,10 @@ table.volumes thead{
 }
 
 /* Override style for trash in ajax-multi-select*/
+input[type="text"].ui-autocomplete-input:disabled ~ .results_on_deck .ui-icon{
+    display: none!important;
+}
+
 .results_on_deck .ui-icon.ui-icon-trash {
     display: inline-block;
     font: normal normal normal 14px/1 FontAwesome;
@@ -155,4 +159,20 @@ table.volumes thead{
 .results_on_deck .ui-icon.ui-icon-trash:before {
     color: black;
     content: "\f00d";
+}
+
+.table_header{
+    background-color: lightgray;
+}
+
+.p0-50 {
+    padding: 0px 50px;
+}
+
+.education_group_year-common {
+    color: darkgray;
+}
+
+.italic {
+    font-style: italic;
 }

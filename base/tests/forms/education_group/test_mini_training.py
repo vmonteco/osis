@@ -23,23 +23,39 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from base.forms.education_group.mini_training import MiniTrainingModelForm
+import datetime
+from unittest.mock import patch
+
+from base.forms.education_group.mini_training import MiniTrainingYearModelForm
+from base.models.education_group_type import EducationGroupType
 from base.models.enums import education_group_categories
+from base.tests.factories.academic_calendar import AcademicCalendarEducationGroupEditionFactory
+from base.tests.factories.authorized_relationship import AuthorizedRelationshipFactory
 from base.tests.factories.education_group_type import EducationGroupTypeFactory
+from base.tests.factories.user import UserFactory
 from base.tests.forms.education_group.test_common import EducationGroupYearModelFormMixin
+from rules_management.enums import MINI_TRAINING_DAILY_MANAGEMENT, MINI_TRAINING_PGRM_ENCODING_PERIOD
 
 
 class TestMiniTrainingModelForm(EducationGroupYearModelFormMixin):
 
     def setUp(self):
-        self.education_group_type = EducationGroupTypeFactory(category=education_group_categories.MINI_TRAINING)
-        self.form_class = MiniTrainingModelForm
+        self.education_group_type = EducationGroupTypeFactory(
+            category=education_group_categories.MINI_TRAINING
+        )
+        self.form_class = MiniTrainingYearModelForm
+        AuthorizedRelationshipFactory(child_type=self.education_group_type)
+
         super(TestMiniTrainingModelForm, self).setUp(education_group_type=self.education_group_type)
 
     def test_fields(self):
-        fields = ("acronym", "partial_acronym", "education_group_type", "title", "title_english", "credits", "active",
-                  "main_teaching_campus", "academic_year", "remark", "remark_english", "min_credits", "max_credits",
-                  "schedule_type", "management_entity", "keywords")
+        fields = (
+            "acronym", "partial_acronym", "education_group_type",
+            "title", "title_english", "credits", "active",
+            "main_teaching_campus", "academic_year", "remark",
+            "remark_english", "min_constraint", "max_constraint", "constraint_type",
+            "schedule_type", "management_entity", "keywords"
+        )
         self._test_fields(self.form_class, fields)
 
     def test_init_academic_year_field(self):
@@ -50,3 +66,28 @@ class TestMiniTrainingModelForm(EducationGroupYearModelFormMixin):
 
     def test_preselect_entity_version_from_entity_value(self):
         self._test_preselect_entity_version_from_entity_value(self.form_class)
+
+    @patch('base.forms.education_group.common.find_authorized_types')
+    def test_get_context_for_field_references_case_not_in_editing_pgrm_period(self, mock_authorized_types):
+        mock_authorized_types.return_value = EducationGroupType.objects.all()
+        context = self.form_class(
+            parent=self.parent_education_group_year,
+            education_group_type=self.education_group_type,
+            user=UserFactory(),
+        ).get_context()
+        self.assertTrue(context, MINI_TRAINING_DAILY_MANAGEMENT)
+
+    @patch('base.forms.education_group.common.find_authorized_types')
+    def test_get_context_for_field_references_case_in_editing_pgrm_period(self, mock_authorized_types):
+        mock_authorized_types.return_value = EducationGroupType.objects.all()
+        # Create an academic calendar for event EDUCATION_GROUP_EDITION
+        AcademicCalendarEducationGroupEditionFactory(
+            start_date=datetime.date.today() - datetime.timedelta(days=5),
+            end_date=datetime.date.today() + datetime.timedelta(days=30),
+        )
+        context = self.form_class(
+            parent=self.parent_education_group_year,
+            education_group_type=self.education_group_type,
+            user=UserFactory(),
+        ).get_context()
+        self.assertTrue(context, MINI_TRAINING_PGRM_ENCODING_PERIOD)

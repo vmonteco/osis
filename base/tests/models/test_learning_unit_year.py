@@ -23,6 +23,8 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from decimal import Decimal
+
 from django.db.models import QuerySet
 from django.test import TestCase
 from django.utils.translation import ugettext_lazy as _
@@ -102,7 +104,7 @@ class LearningUnitYearTest(TestCase):
 
         result = list(selected_learning_unit_year.find_gte_learning_units_year().values_list('academic_year__year',
                                                                                              flat=True))
-        self.assertListEqual(result, list(range(2007,2018)))
+        self.assertListEqual(result, list(range(2007, 2018)))
 
     def test_find_gte_learning_units_year_case_no_future(self):
         learning_unit = LearningUnitFactory()
@@ -121,7 +123,7 @@ class LearningUnitYearTest(TestCase):
         selected_learning_unit_year = dict_learning_unit_year[2007]
 
         result = list(selected_learning_unit_year.find_gt_learning_units_year().values_list('academic_year__year',
-                                                                                             flat=True))
+                                                                                            flat=True))
         self.assertListEqual(result, list(range(2008, 2018)))
 
     def test_find_gt_learning_units_year_case_no_future(self):
@@ -131,7 +133,7 @@ class LearningUnitYearTest(TestCase):
         selected_learning_unit_year = dict_learning_unit_year[2017]
 
         result = list(selected_learning_unit_year.find_gt_learning_units_year().values_list('academic_year__year',
-                                                                                             flat=True))
+                                                                                            flat=True))
         self.assertEqual(result, [])
 
     def test_get_learning_unit_parent(self):
@@ -165,7 +167,6 @@ class LearningUnitYearTest(TestCase):
         self.assertEqual(learning_unit_year.search(title=a_common_title)[0], luy)
         self.assertEqual(learning_unit_year.search(title=common_part)[0], luy)
         self.assertEqual(learning_unit_year.search(title=a_specific_title)[0], luy)
-
 
     def test_find_max_credits_of_partims(self):
         self.partim_1 = LearningUnitYearFactory(academic_year=self.academic_year,
@@ -588,3 +589,20 @@ class LearningUnitYearWarningsTest(TestCase):
         luy_partim.periodicity = learning_unit_year_periodicity.BIENNIAL_ODD
         result = luy_partim._check_partim_parent_periodicity()
         self.assertFalse(result)
+
+    def test_warning_when_credits_is_not_an_interger(self):
+        """In this test, we ensure that the warning of credits is not interger"""
+        self.luy_full.credits = Decimal(5.5)
+        self.luy_full.save()
+        expected_result = [
+            _("The credits value should be an integer")
+        ]
+        result = self.luy_full._check_credits_is_integer()
+        self.assertEqual(result, expected_result)
+
+    def test_no_warning_when_credits_is_an_interger(self):
+        """In this test, we ensure that the warning is not displayed when of credits is an interger"""
+        self.luy_full.credits = Decimal(5)
+        self.luy_full.save()
+        result = self.luy_full._check_credits_is_integer()
+        self.assertFalse(self.luy_full._check_credits_is_integer())

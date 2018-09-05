@@ -23,13 +23,13 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.utils import timezone
 
 from django.forms import formset_factory, MultiWidget
-from base.forms.utils.datefield import DATETIME_FORMAT
+from django.test import TestCase
 
 from base.forms.education_groups_administrative_data import AdministrativeDataSessionForm, AdministrativeDataFormSet, \
     DATE_FORMAT
+from base.forms.utils.datefield import DATETIME_FORMAT
 from base.models.enums import academic_calendar_type
 from base.models.offer_year_calendar import OfferYearCalendar
 from base.tests.factories.academic_calendar import AcademicCalendarFactory
@@ -37,8 +37,6 @@ from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.education_group_year import EducationGroupYearFactory
 from base.tests.factories.offer_year_calendar import OfferYearCalendarFactory
 from base.tests.factories.session_exam_calendar import SessionExamCalendarFactory
-
-from django.test import TestCase
 
 
 class TestAdministrativeDataForm(TestCase):
@@ -102,11 +100,11 @@ class TestAdministrativeDataForm(TestCase):
         formset_session.save()
 
         oyc = formset_session.forms[0]._get_offer_year_calendar('exam_enrollment_range')
-        self.assertEqual(exam_enrollment_start, timezone.localtime(oyc.start_date).strftime(DATE_FORMAT))
-        self.assertEqual(exam_enrollment_end, timezone.localtime(oyc.end_date).strftime(DATE_FORMAT))
+        self.assertEqual(exam_enrollment_start, oyc.start_date.strftime(DATE_FORMAT))
+        self.assertEqual(exam_enrollment_end, oyc.end_date.strftime(DATE_FORMAT))
 
         oyc = formset_session.forms[0]._get_offer_year_calendar('deliberation')
-        self.assertEqual(deliberation_date + ' ' + deliberation_time, timezone.localtime(oyc.start_date).strftime(DATETIME_FORMAT))
+        self.assertEqual(deliberation_date + ' ' + deliberation_time, oyc.start_date.strftime(DATETIME_FORMAT))
 
     def test_save_errors(self):
         deliberation_date = '08/12/1900'

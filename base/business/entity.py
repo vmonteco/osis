@@ -29,28 +29,25 @@ from django.utils import timezone
 from base import models as mdl
 from base.models import entity_calendar, entity_version
 from base.models import entity_version as mdl_entity_version
-from base.models.enums import entity_container_year_link_type, academic_calendar_type
+from base.models.entity import Entity
+from base.models.entity_version import EntityVersion
+from base.models.enums import academic_calendar_type
 
 
 def get_entities_ids(requirement_entity_acronym, with_entity_subordinated):
     entity_versions = mdl.entity_version.search(acronym=requirement_entity_acronym)
-    return _get_distinct_entity_ids(entity_versions, with_entity_subordinated)
-
-
-def _get_distinct_entity_ids(entity_versions, with_entity_subordinated):
-    entities_ids = set()
-    entities_ids |= set(entity_versions.values_list('entity', flat=True).distinct())
+    entities_ids = set(entity_versions.values_list('entity', flat=True).distinct())
     if with_entity_subordinated:
-        entities_data = mdl.entity_version.build_current_entity_version_structure_in_memory()
-        for an_entity_version in entity_versions:
-            all_descendants = entities_data.get(an_entity_version.entity_id)
-            if all_descendants:
-                entities_ids |= {descendant.entity.id for descendant in all_descendants['all_children']}
+        list_descendants = EntityVersion.objects.get_tree(
+            Entity.objects.filter(entityversion__acronym__iregex=requirement_entity_acronym)
+        )
+        entities_ids |= {row["entity_id"] for row in list_descendants}
+
     return list(entities_ids)
 
 
 def get_entity_container_list(entity_ids, entity_container_yr_link_type):
-    entities_id_list = list(
+    return list(
         mdl.entity_container_year.search(
             link_type=entity_container_yr_link_type,
             entity_id=entity_ids
@@ -58,7 +55,6 @@ def get_entity_container_list(entity_ids, entity_container_yr_link_type):
             'learning_container_year', flat=True
         ).distinct()
     )
-    return entities_id_list
 
 
 def get_entity_calendar(an_entity_version, academic_yr):
@@ -79,7 +75,7 @@ def get_entity_calendar(an_entity_version, academic_yr):
         return None
 
 
-def build_entity_container_prefetch():
+def build_entity_container_prefetch(entity_container_year_link_types):
     parent_version_prefetch = Prefetch('parent__entityversion_set',
                                        queryset=mdl_entity_version.search(),
                                        to_attr='entity_versions')
@@ -89,13 +85,7 @@ def build_entity_container_prefetch():
                                        to_attr='entity_versions')
     entity_container_prefetch = Prefetch('learning_container_year__entitycontaineryear_set',
                                          queryset=mdl.entity_container_year.search(
-                                             link_type=[entity_container_year_link_type.ALLOCATION_ENTITY,
-                                                        entity_container_year_link_type.REQUIREMENT_ENTITY])
+                                             link_type=entity_container_year_link_types)
                                          .prefetch_related(entity_version_prefetch),
                                          to_attr='entity_containers_year')
     return entity_container_prefetch
-
-
-def get_entities_ids_by_acronyms(requirement_entity_acronym, with_entity_subordinated):
-    entity_versions = mdl.entity_version.search_by_acronyms(requirement_entity_acronym)
-    return _get_distinct_entity_ids(entity_versions, with_entity_subordinated)
