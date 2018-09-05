@@ -36,7 +36,7 @@ from base.models.campus import Campus
 from base.models.education_group import EducationGroup
 from base.models.education_group_type import find_authorized_types, EducationGroupType
 from base.models.education_group_year import EducationGroupYear
-from base.models.entity_version import find_main_entities_version, get_last_version
+from base.models.entity_version import find_pedagogical_entities_version, get_last_version
 from base.models.enums import academic_calendar_type, education_group_categories
 from reference.models.language import Language
 from rules_management.enums import TRAINING_PGRM_ENCODING_PERIOD, TRAINING_DAILY_MANAGEMENT, \
@@ -53,8 +53,13 @@ class MainTeachingCampusChoiceField(forms.ModelChoiceField):
 
 class MainEntitiesVersionChoiceField(EntitiesVersionChoiceField):
     def __init__(self, queryset, *args, **kwargs):
-        queryset = find_main_entities_version()
+        queryset = find_pedagogical_entities_version()
         super(MainEntitiesVersionChoiceField, self).__init__(queryset, *args, **kwargs)
+
+
+class EducationGroupTypeModelChoiceField(forms.ModelChoiceField):
+    def label_from_instance(self, obj):
+        return _(obj.name)
 
 
 class ValidationRuleEducationGroupTypeMixin(ValidationRuleMixin):
@@ -108,7 +113,8 @@ class EducationGroupYearModelForm(ValidationRuleEducationGroupTypeMixin, Permiss
         model = EducationGroupYear
         field_classes = {
             "management_entity": MainEntitiesVersionChoiceField,
-            "main_teaching_campus": MainTeachingCampusChoiceField
+            "main_teaching_campus": MainTeachingCampusChoiceField,
+            "education_group_type": EducationGroupTypeModelChoiceField,
         }
         fields = []
 
@@ -273,7 +279,11 @@ class CommonBaseForm:
 
 
 class EducationGroupTypeForm(forms.Form):
-    name = forms.ModelChoiceField(EducationGroupType.objects.none(), label=_("training_type"), required=True)
+    name = EducationGroupTypeModelChoiceField(
+        EducationGroupType.objects.none(),
+        label=_("training_type"),
+        required=True,
+    )
 
     def __init__(self, parent, category, *args, **kwargs):
         super().__init__(*args, **kwargs)

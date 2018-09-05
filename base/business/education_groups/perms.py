@@ -52,6 +52,7 @@ def is_eligible_to_add_group(person, education_group, raise_exception=False):
 
 def _is_eligible_to_add_education_group(person, education_group, category, raise_exception=False):
     return check_permission(person, "base.add_educationgroup", raise_exception) and \
+           _is_eligible_to_add_education_group_with_category(person, category, raise_exception) and \
            _is_eligible_education_group(person, education_group, raise_exception) and \
            check_authorized_type(education_group, category, raise_exception)
 
@@ -80,6 +81,14 @@ def _is_eligible_education_group(person, education_group, raise_exception):
                     person.is_central_manager() or is_education_group_creation_period_opened(raise_exception)
             )
     )
+
+
+def _is_eligible_to_add_education_group_with_category(person, category, raise_exception):
+    # TRAINING/MINI_TRAINING can only be added by central managers | Faculty manager must make a proposition of creation
+    result = person.is_central_manager() or (person.is_faculty_manager() and category == GROUP)
+    msg = _("The user has not permission to create a %(category)s.") % {"category": _(category)}
+    can_raise_exception(raise_exception, result, msg)
+    return result
 
 
 def check_link_to_management_entity(education_group, person, raise_exception):

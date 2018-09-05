@@ -61,20 +61,31 @@ class TestRead(TestCase):
             learning_component_year=cls.learning_component_year_2,
             learning_unit_year=cls.learning_unit_year_1)
         cls.group_element_year_1 = GroupElementYearFactory(parent=cls.education_group_year_1,
-                                                           child_branch=cls.education_group_year_2)
+                                                           child_branch=cls.education_group_year_2,
+                                                           comment="commentaire",
+                                                           comment_english="english")
         cls.group_element_year_2 = GroupElementYearFactory(parent=cls.education_group_year_2,
                                                            child_branch=None,
-                                                           child_leaf=cls.learning_unit_year_1)
+                                                           child_leaf=cls.learning_unit_year_1,
+                                                           comment="commentaire",
+                                                           comment_english="english")
         cls.group_element_year_3 = GroupElementYearFactory(parent=cls.education_group_year_1,
-                                                           child_branch=cls.education_group_year_3)
+                                                           child_branch=cls.education_group_year_3,
+                                                           comment="commentaire",
+                                                           comment_english="english")
         cls.group_element_year_4 = GroupElementYearFactory(parent=cls.education_group_year_3,
                                                            child_branch=None,
-                                                           child_leaf=cls.learning_unit_year_2)
+                                                           child_leaf=cls.learning_unit_year_2,
+                                                           comment="commentaire",
+                                                           comment_english="english")
         cls.a_superuser = SuperUserFactory()
 
     def test_pdf_content(self):
         self.client.force_login(self.a_superuser)
-        url = reverse("pdf_content", args=[self.education_group_year_1.id, self.education_group_year_1.id, "fr-be"])
+        url = reverse("pdf_content", args=[self.education_group_year_1.id, self.education_group_year_2.id, "fr-be"])
+        response = self.client.get(url)
+        self.assertTemplateUsed(response, 'education_group/pdf_content.html')
+        url = reverse("pdf_content", args=[self.education_group_year_1.id, self.education_group_year_2.id, "en"])
         response = self.client.get(url)
         self.assertTemplateUsed(response, 'education_group/pdf_content.html')
 

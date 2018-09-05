@@ -120,19 +120,10 @@ class LearningComponentYear(SerializableModel):
 
 
 def volume_total_verbose(learning_component_years):
-    sum_q1 = sum([learning_component_year.hourly_volume_partial_q1
-                  for learning_component_year in learning_component_years
-                  if learning_component_year.hourly_volume_partial_q1])
-    sum_q2 = sum([learning_component_year.hourly_volume_partial_q2
-                  for learning_component_year in learning_component_years
-                  if learning_component_year.hourly_volume_partial_q2])
-    q1 = volumes_format(sum_q1)
-    q2 = volumes_format(sum_q2)
-    return "%(q1)s + %(q2)s" % {"q1": q1, "q2": q2}
-
-
-def volumes_format(sum):
-    return "%(sum)sh" % {"sum": float(sum)} if sum else '-h'
+    return "%(q1)gh + %(q2)gh" % {
+        "q1": learning_component_years[0].hourly_volume_total_annual or 0,
+        "q2": learning_component_years[1].hourly_volume_total_annual or 0,
+    }
 
 
 def find_by_id(learning_component_year_id):

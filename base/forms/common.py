@@ -31,6 +31,8 @@ from django.utils.translation import ugettext_lazy as _
 from base.models.enums.field_status import DISABLED, REQUIRED, ALERT, NOT_REQUIRED, FIXED
 from base.models.validation_rule import ValidationRule
 
+STEP_HALF_INTEGER = '0.5'
+
 
 def get_clean_data(datas_to_clean):
     return {key: treat_empty_or_str_none_as_none(value) for (key, value) in datas_to_clean.items()}

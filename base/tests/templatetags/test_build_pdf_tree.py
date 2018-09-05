@@ -26,9 +26,12 @@
 from django.template import Context, Template
 from django.test import TestCase
 
+from base.models.enums.learning_component_year_type import LECTURING, PRACTICAL_EXERCISES
 from base.templatetags.education_group import pdf_tree_list
 from base.tests.factories.education_group_year import EducationGroupYearFactory
 from base.tests.factories.group_element_year import GroupElementYearFactory
+from base.tests.factories.learning_component_year import LearningComponentYearFactory
+from base.tests.factories.learning_unit_component import LearningUnitComponentFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from base.views.education_groups.group_element_year.read import get_verbose_children
 
@@ -49,6 +52,14 @@ class TestBuildPDFTree(TestCase):
                                                             child_branch=None,
                                                             child_leaf=self.learning_unit_year_1,
                                                             is_mandatory=True)
+        self.learning_component_year_1 = LearningComponentYearFactory(
+            learning_container_year=self.learning_unit_year_1.learning_container_year, type=LECTURING)
+        self.learning_component_year_2 = LearningComponentYearFactory(
+            learning_container_year=self.learning_unit_year_1.learning_container_year, type=PRACTICAL_EXERCISES)
+        self.learning_unit_component_1 = LearningUnitComponentFactory(learning_unit_year=self.learning_unit_year_1,
+                                                                      learning_component_year=self.learning_component_year_1)
+        self.learning_unit_component_2 = LearningUnitComponentFactory(learning_unit_year=self.learning_unit_year_1,
+                                                                      learning_component_year=self.learning_component_year_2)
 
     def test_build_pdf_tree_with_mandatory(self):
         tree = get_verbose_children(self.education_group_year_1)

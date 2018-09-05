@@ -168,3 +168,11 @@ input[type="text"].ui-autocomplete-input:disabled ~ .results_on_deck .ui-icon{
 .p0-50 {
     padding: 0px 50px;
 }
+
+.education_group_year-common {
+    color: darkgray;
+}
+
+.italic {
+    font-style: italic;
+}

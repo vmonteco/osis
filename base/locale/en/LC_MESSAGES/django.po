@@ -3464,7 +3464,7 @@ msgstr ""
 msgid "There are warnings in the form."
 msgstr ""
 
-msgid "Number of learning units"
+msgid "Number of elements"
 msgstr ""
 
 msgid "Education group year <a href='%(link)s'> %(acronym)s (%(academic_year)s) </a> successfuly updated."
@@ -3546,7 +3546,9 @@ msgstr ""
 
 msgid "Prerequisites are invalid"
 msgstr "<p>Prerequisites are invalid</p>"
-       "<p><b>Syntax rules</b>:"
+
+msgid "prerequisites_syntax_rules"
+msgstr "<b>Syntax rules</b>:"
        "<ul><li>No double parentheses.</li>"
        "<li>Valid operators are OU or ET.</li>"
        "<li>The operator must be the same inside all parentheses (groups).</li>"
@@ -3558,7 +3560,7 @@ msgstr "<p>Prerequisites are invalid</p>"
        "<li>A ET (B OU C) ET (D OU E): valid</li>"
        "<li>A ET (B OU C) OU (D OU E): not valid</li>"
        "<li>A ET (B ET C) ET (D ET E): not valid</li>"
-       "<li>A ET (B OU C) ET (D ET E): not valid</li></ul></p>"
+       "<li>A ET (B OU C) ET (D ET E): not valid</li></ul>"
 
 msgid "Prerequisites saved."
 msgstr ""
@@ -3567,4 +3569,218 @@ msgid "The credits value should be an integer"
 msgstr ""
 
 msgid "The prerequisites %s for the learning unit %s are not inside the selected formation %s"
+msgstr ""
+
+msgid "This form must be submitted to the secretariat of your faculty"
+msgstr ""
+
+msgid "This form must be signed by the designated authority and delivered to the secretariat of your faculty."
+msgstr ""
+
+msgid "The registration form is available at the Secretariat of"
+msgstr ""
+
+msgid "training"
+msgstr ""
+
+msgid "faculty number"
+msgstr ""
+
+msgid "(optional)"
+msgstr ""
+
+msgid "Agregation"
+msgstr ""
+
+msgid "Certificate of participation"
+msgstr ""
+
+msgid "Certificate of success"
+msgstr ""
+
+msgid "Certificate of holding credits"
+msgstr ""
+
+msgid "Bachelor"
+msgstr ""
+
+msgid "Certificat"
+msgstr ""
+
+msgid "Research certificat"
+msgstr ""
+
+msgid "University first cycle certificat"
+msgstr ""
+
+msgid "University second cycle certificat"
+msgstr ""
+
+msgid "Access contest"
+msgstr ""
+
+msgid "Language classes"
+msgstr ""
+
+msgid "Isoldated classes"
+msgstr ""
+
+msgid "PHD"
+msgstr ""
+
+msgid "Formation PHD"
+msgstr ""
+
+msgid "Junior year"
+msgstr ""
+
+msgid "Program master 120"
+msgstr ""
+
+msgid "Master MA 120"
+msgstr ""
+
+msgid "Master MD 120"
+msgstr ""
+
+msgid "Master MS 120"
+msgstr ""
+
+msgid "Program master 180-240"
+msgstr ""
+
+msgid "Master MA 180-240"
+msgstr ""
+
+msgid "Master MD 180-240"
+msgstr ""
+
+msgid "Master MS 180-240"
+msgstr ""
+
+msgid "Master in 60 credits"
+msgstr ""
+
+msgid "Master of specialist"
+msgstr ""
+
+msgid "Internship"
+msgstr ""
+
+msgid "Deepening"
+msgstr ""
+
+msgid "Sociaty minor"
+msgstr ""
+
+msgid "Access minor"
+msgstr ""
+
+msgid "Open minor"
+msgstr ""
+
+msgid "Disciplinary complement minor"
+msgstr ""
+
+msgid "FSA speciality"
+msgstr ""
+
+msgid "Option"
+msgstr ""
+
+msgid "Mobility partnership"
+msgstr ""
+
+msgid "Common core"
+msgstr ""
+
+msgid "Minor list choice"
+msgstr ""
+
+msgid "Major list choice"
+msgstr ""
+
+msgid "Option list choice"
+msgstr ""
+
+msgid "Finality 120 list choice"
+msgstr ""
+
+msgid "Finality 180 list choice"
+msgstr ""
+
+msgid "Mobility partnership list choice"
+msgstr ""
+
+msgid "Complementary module"
+msgstr ""
+
+msgid "Sub group"
+msgstr ""
+
+msgid "The user has not permission to create a %(category)s."
+msgstr ""
+
+#: backoffice/settings/base.py:402
+msgid "Teaching profile"
+msgstr ""
+
+#: backoffice/settings/base.py:403
+msgid "Learning outcomes"
+msgstr ""
+
+#: backoffice/settings/base.py:404
+msgid "Programme structure"
+msgstr ""
+
+#: backoffice/settings/base.py:406
+msgid "Detailed programme"
+msgstr ""
+
+#: backoffice/settings/base.py:407
+msgid "Options courses"
+msgstr ""
+
+#: backoffice/settings/base.py:408
+msgid "The programme's courses and learning outcomes"
+msgstr ""
+
+#: backoffice/settings/base.py:410
+msgid "Admission"
+msgstr ""
+
+#: backoffice/settings/base.py:412
+msgid "Preparatory module"
+msgstr ""
+
+#: backoffice/settings/base.py:414
+msgid "Benefits and organization"
+msgstr ""
+
+#: backoffice/settings/base.py:415
+msgid "Pedagogy"
+msgstr ""
+
+#: backoffice/settings/base.py:416
+msgid "Course evaluation methods"
+msgstr ""
+
+#: backoffice/settings/base.py:417
+msgid "Mobility and/or Internationalisation outlook"
+msgstr ""
+
+#: backoffice/settings/base.py:418
+msgid "Then after, Further degree programs"
+msgstr ""
+
+#: backoffice/settings/base.py:419
+msgid "Certificates"
+msgstr ""
+
+#: backoffice/settings/base.py:421
+msgid "In practice"
+msgstr ""
+
+#: backoffice/settings/base.py:422
+msgid "Curriculum Management and contacts"
 msgstr ""
