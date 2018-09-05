@@ -23,6 +23,8 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+import json
+
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.db.models import Prefetch
@@ -42,6 +44,7 @@ from base.models.person import Person
 from base.models.prerequisite import Prerequisite
 from base.models.utils.utils import get_object_or_none
 from base.views.common import display_warning_messages
+from base.business.education_groups.group_element_year_tree import NodeBranchJsTree
 
 
 @method_decorator(login_required, name='dispatch')
@@ -62,10 +65,13 @@ class LearningUnitGenericDetailView(PermissionRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
+        root = self.get_root()
+        # TODO remove parent in context
         context['person'] = self.get_person()
-        context['root'] = self.get_root()
-        context['root_id'] = self.kwargs.get("root_id")
-        context['parent'] = self.get_root()
+        context['root'] = root
+        context['root_id'] = root.pk
+        context['parent'] = root
+        context['tree'] = json.dumps(NodeBranchJsTree(root).to_json())
 
         context['group_to_parent'] = self.request.GET.get("group_to_parent") or '0'
         return context
@@ -76,7 +82,7 @@ class LearningUnitUtilization(LearningUnitGenericDetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["group_element_years"] = group_element_year.find_by_child_leaf(self.object).select_related("parent")
+        context["group_element_years"] = self.object.child_leaf.select_related("parent")
         return context
 
 

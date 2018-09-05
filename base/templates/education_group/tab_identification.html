@@ -60,10 +60,5 @@
     </div>
 {% endblock %}
 {% block script %}
-    <script>
-        var root_id = "{{ root_id }}";
-        var url_resolver_match = "{% url_resolver_match %}";
-    </script>
-    <script type="text/javascript" src="{% static 'js/education_group/education_group_tree.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/education_group/tbl_coorganization.js' %}"></script>
 {% endblock %}
