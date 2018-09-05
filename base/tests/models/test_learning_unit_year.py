@@ -28,6 +28,7 @@ from django.test import TestCase
 from django.utils.translation import ugettext_lazy as _
 
 from attribution.models import attribution
+from attribution.models.enums.function import COORDINATOR, CO_HOLDER
 from attribution.tests.factories.attribution import AttributionFactory
 from base.models import learning_unit_year
 from base.models.entity_component_year import EntityComponentYear
@@ -281,6 +282,19 @@ class LearningUnitYearFindLearningUnitYearByAcademicYearTutorAttributionsTest(Te
         AttributionFactory(learning_unit_year=self.learning_unit_year, tutor=self.tutor)
 
     def test_find_learning_unit_years_by_academic_year_tutor_attributions_case_occurrence_found(self):
+        result = find_learning_unit_years_by_academic_year_tutor_attributions(
+            academic_year=self.current_academic_year,
+            tutor=self.tutor
+        )
+        self.assertIsInstance(result, QuerySet)
+        self.assertEqual(result.count(), 1)
+
+    def test_find_learning_unit_years_by_academic_year_tutor_attributions_case_distinct_occurrence_found(self):
+        """In this test, we ensure that user see one line per learning unit year despite multiple attribution"""
+        AttributionFactory(learning_unit_year=self.learning_unit_year, tutor=self.tutor, function=COORDINATOR)
+        AttributionFactory(learning_unit_year=self.learning_unit_year, tutor=self.tutor, function=CO_HOLDER)
+        AttributionFactory(learning_unit_year=self.learning_unit_year, tutor=self.tutor)
+
         result = find_learning_unit_years_by_academic_year_tutor_attributions(
             academic_year=self.current_academic_year,
             tutor=self.tutor

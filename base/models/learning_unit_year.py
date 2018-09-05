@@ -494,7 +494,7 @@ def find_learning_unit_years_by_academic_year_tutor_attributions(academic_year, 
     qs = LearningUnitYear.objects_with_container.filter(
             academic_year=academic_year,
             attribution__tutor=tutor,
-         ).order_by('academic_year__year', 'acronym')
+         ).distinct().order_by('academic_year__year', 'acronym')
     return qs
 
 
