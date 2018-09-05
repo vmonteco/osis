@@ -3727,3 +3727,9 @@ msgstr "Sous-groupe"
 
 msgid "The user has not permission to create a %(category)s."
 msgstr "L'utilisateur n'a pas la permission de créer une %(category)s."
+
+msgid "from {} to {} among"
+msgstr "de {} à {} parmi"
+
+msgid "from {} to {} credits among"
+msgstr "de {} à {} crédits parmi"

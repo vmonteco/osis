@@ -407,6 +407,13 @@ class EducationGroupYear(models.Model):
             return self.remark_english
         return self.remark
 
+    @property
+    def verbose_constraint(self):
+        if self.constraint_type==CREDITS:
+            return _("from {} to {} credits among").format(self.min_constraint, self.max_constraint)
+        else:
+            return _("from {} to {} among").format(self.min_constraint, self.max_constraint)
+
     class Meta:
         verbose_name = _("education group year")
 

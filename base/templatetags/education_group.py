@@ -44,9 +44,31 @@ OPTIONAL_PNG = base.STATIC_URL + 'img/education_group_year/optional.png'
 MANDATORY_PNG = base.STATIC_URL + 'img/education_group_year/mandatory.png'
 CASE_JPG = base.STATIC_URL + 'img/education_group_year/case.jpg'
 
+START = """\
+<tr>
+    <td style="padding-left:{padding}em;float:left;">
+"""
+
+BRANCH_END = """\
+            {sublist}
+        </div>
+    </td>
+</tr>
+"""
+
+LEAF_END = """\
+            {sublist}
+        </div>
+    </td>
+    <td style="text-align: center;">{an_1}</td>
+    <td style="text-align: center;">{an_2}</td>
+    <td style="text-align: center;">{an_3}</td>
+</tr>
+"""
+
 # margin-left is there to align the value with the remark.
 # We use 14px which is the size of the image before the value
-CHILD_BRANCH_REMARK = """\
+BRANCH_REMARK = """\
         <div style="word-break: keep-all;margin-left: 14px;">
             {remark}
         </div>
@@ -54,52 +76,31 @@ CHILD_BRANCH_REMARK = """\
 
 # margin-left is there to align the value with the remark.
 # We use 14px which is the size of the image before the value
-CHILD_BRANCH_COMMENT = """\
-        <div style="word-break: keep-all;margin-left: 14px;">
+COMMENT = """\
+        <div style="word-break: keep-all;margin-left: {margin};">
             ({comment})
         </div>
 """
 
-CHILD_BRANCH_START = """\
-<tr>
-    <td style="padding-left:{padding}em;float:left;">
+# margin-left is there to align the value with the remark.
+# We use 14px which is the size of the image before the value
+BRANCH_CONSTRAINT = """\
+        <div margin-left:-27px;">
+            {constraint}
+        </div>
+"""
+
+BRANCH_VALUE = """\
         <div style="word-break: keep-all;">
             <img src="{icon_list_2}" height="10" width="10">
             {value}
 """
 
-CHILD_BRANCH_END = """\
-            {sublist}
-        </div>
-    </td>
-</tr>
-"""
-
-# margin-left is there to align the value with the remark.
-# We use 14px which is the size of the image before the value
-CHILD_LEAF_COMMENT = """\
-        <div style="word-break: keep-all;margin-left:27px;">
-            ({comment})
-        </div>
-"""
-
-CHILD_LEAF_START = """\
-<tr>
-    <td style="padding-left:{padding}em;float:left;">
-        <img src="{icon_list_1}" height="14" width="17">
-        <img src="{icon_list_2}" height="10" width="10">
-    </td>
-    <td style="float:left;">
-        {value}
-"""
-
-CHILD_LEAF_END = """\
-        {sublist}
-    </td>
-    <td style="text-align: center;">{an_1}</td>
-    <td style="text-align: center;">{an_2}</td>
-    <td style="text-align: center;">{an_3}</td>
-</tr>
+LEAF_VALUE = """\
+        <div style="word-break: keep-all;">
+            <img src="{icon_list_1}" height="14" width="17">
+            <img src="{icon_list_2}" height="10" width="10">
+            {value}
 """
 
 NO_GIVEN_ROOT = "INVALID TREE : no given root"
@@ -280,52 +281,66 @@ def list_formatter(item_list, tabs=1, depth=None):
 def append_output(item, output, padding, sublist):
     if item.child_leaf:
         output.append(
-            CHILD_LEAF_START.format(
-                padding=padding,
-                icon_list_1=CASE_JPG,
-                icon_list_2=get_mandatory_picture(item),
-                value=escaper(force_text(item.verbose)))
+            START.format(padding=padding)
+        )
+
+        output.append(
+            LEAF_VALUE.format(icon_list_1=CASE_JPG,
+                              icon_list_2=get_mandatory_picture(item),
+                              value=escaper(force_text(item.verbose)))
         )
 
         if item.comment:
             output.append(
-                CHILD_LEAF_COMMENT.format(
+                COMMENT.format(
                     icon_list_1=CASE_JPG,
                     icon_list_2=get_mandatory_picture(item),
+                    margin="27px",
                     comment=item.verbose_comment))
 
         output.append(
-            CHILD_LEAF_END.format(sublist=sublist,
-                                  width_an="15px",
-                                  an_1=check_block(item, "1"),
-                                  an_2=check_block(item, "2"),
-                                  an_3=check_block(item, "3"))
+            LEAF_END.format(sublist=sublist,
+                            an_1=check_block(item, "1"),
+                            an_2=check_block(item, "2"),
+                            an_3=check_block(item, "3"))
         )
 
     else:
         output.append(
-            CHILD_BRANCH_START.format(
-                padding=padding,
+            START.format(padding=padding)
+
+        )
+
+        if item.child_branch.constraint_type:
+            output.append(
+                BRANCH_CONSTRAINT.format(padding=padding,
+                                         constraint=item.child_branch.verbose_constraint)
+            )
+
+        output.append(
+            BRANCH_VALUE.format(
                 icon_list_2=get_mandatory_picture(item),
                 value=escaper(force_text(item.verbose)))
+
         )
 
         if item.child.verbose_remark:
             output.append(
-                CHILD_BRANCH_REMARK.format(
+                BRANCH_REMARK.format(
                     icon_list_2=get_mandatory_picture(item),
                     remark=item.child.verbose_remark)
             )
 
         if item.comment:
             output.append(
-                CHILD_BRANCH_COMMENT.format(
+                COMMENT.format(
                     icon_list_2=get_mandatory_picture(item),
-                    comment=item.verbose_comment)
+                    comment=item.verbose_comment,
+                    margin="27px", )
             )
 
         output.append(
-            CHILD_BRANCH_END.format(sublist=sublist)
+            BRANCH_END.format(sublist=sublist)
         )
 
 
