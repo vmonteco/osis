@@ -1,4 +1,3 @@
-
 function switchTreeVisibility() {
     var newTreeVisibility = (sessionStorage.getItem('treeVisibility') === '0') ? '1' : '0';
     sessionStorage.setItem('treeVisibility', newTreeVisibility);
