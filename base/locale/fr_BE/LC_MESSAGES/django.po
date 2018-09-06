@@ -3728,6 +3728,12 @@ msgstr "Sous-groupe"
 msgid "The user has not permission to create a %(category)s."
 msgstr "L'utilisateur n'a pas la permission de créer une %(category)s."
 
+msgid "from %(min)s to %(max)s among"
+msgstr "de %(min)s à %(max)s parmi"
+
+msgid "from %(min)s to %(max)s credits among"
+msgstr "de %(min)s à %(max)s crédits parmi"
+
 #: backoffice/settings/base.py:402
 msgid "Teaching profile"
 msgstr "Profil enseignement"

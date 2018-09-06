@@ -3721,6 +3721,12 @@ msgstr ""
 msgid "The user has not permission to create a %(category)s."
 msgstr ""
 
+msgid "from %(min)s to %(max)s among"
+msgstr ""
+
+msgid "from %(min)s to %(max)s credits among"
+msgstr ""
+
 #: backoffice/settings/base.py:402
 msgid "Teaching profile"
 msgstr ""

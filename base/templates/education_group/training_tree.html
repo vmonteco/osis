@@ -14,5 +14,6 @@
     const root_id = "{{ root_id }}";
     const url_resolver_match = "{% url_resolver_match %}";
     const tree = JSON.parse('{{ tree | escapejs }}');
+    const proxy_management_url = "{% url "proxy_management" %}";
 </script>
 <script type="text/javascript" src="{% static 'js/education_group/education_group_tree.js' %}"></script>

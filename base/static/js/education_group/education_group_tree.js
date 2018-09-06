@@ -1,5 +1,3 @@
-const management_url = "/educationgroups/management/";
-
 
 function switchTreeVisibility() {
     var newTreeVisibility = (sessionStorage.getItem('treeVisibility') === '0') ? '1' : '0';
@@ -26,10 +24,18 @@ function modifyPanelAttribute(collapse_style_display, panel_collapse_class, pane
 $(document).ready(function () {
     var $documentTree = $('#panel_file_tree');
 
-    $documentTree.bind("state_ready.jstree", function () {
+    $documentTree.bind("state_ready.jstree", function (event, data) {
+
+        // Bind the redirection only when the tree is ready,
+        // however, it reload the page during the loading
         $documentTree.bind("select_node.jstree", function (event, data) {
             document.location.href = data.node.a_attr.href;
         });
+
+        // if the tree has never been loaded, execute open_all by default.
+        if ($.vakata.storage.get(data.instance.settings.state.key) === null) {
+            $(this).jstree('open_all');
+        }
     });
 
     function get_data_from_tree(data) {
