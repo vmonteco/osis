@@ -83,10 +83,10 @@
                                             </tr>
                                             </thead>
                                             <tbody>
-                                            {% render_condition_rows 'ucl_bachelors' _('UCL Bachelors') record.ucl_bachelors can_edit_information %}
-                                            {% render_condition_rows 'others_bachelors_french' _('Others Bachelors of the French speaking Community of Belgium') record.others_bachelors_french can_edit_information %}
-                                            {% render_condition_rows 'bachelors_dutch' _('Bachelors of the Dutch speaking Community of Beligum') record.bachelors_dutch can_edit_information %}
-                                            {% render_condition_rows 'foreign_bachelors' _('Foreign Bachelors') record.foreign_bachelors can_edit_information %}
+                                            {% render_condition_rows root education_group_year 'ucl_bachelors' _('UCL Bachelors') record.ucl_bachelors can_edit_information %}
+                                            {% render_condition_rows root education_group_year 'others_bachelors_french' _('Others Bachelors of the French speaking Community of Belgium') record.others_bachelors_french can_edit_information %}
+                                            {% render_condition_rows root education_group_year 'bachelors_dutch' _('Bachelors of the Dutch speaking Community of Beligum') record.bachelors_dutch can_edit_information %}
+                                            {% render_condition_rows root education_group_year 'foreign_bachelors' _('Foreign Bachelors') record.foreign_bachelors can_edit_information %}
                                             </tbody>
                                         </table>
                                         <hr/>
@@ -109,8 +109,8 @@
                                             </tr>
                                             </thead>
                                             <tbody>
-                                            {% render_condition_rows 'graduates' _('Graduates') record.graduates can_edit_information %}
-                                            {% render_condition_rows 'masters' _('Masters') record.masters can_edit_information %}
+                                            {% render_condition_rows root education_group_year 'graduates' _('Graduates') record.graduates can_edit_information %}
+                                            {% render_condition_rows root education_group_year 'masters' _('Masters') record.masters can_edit_information %}
                                             </tbody>
                                         </table>
                                     </div>

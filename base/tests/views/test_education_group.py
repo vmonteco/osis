@@ -885,8 +885,6 @@ class EducationGroupAdmissionConditionWSTest(TestCase):
         })
 
     def test_ws_remove_line(self):
-        kwargs = {'HTTP_X_REQUESTED_WITH': 'XMLHttpRequest'}
-
         education_group_year = EducationGroupYearFactory(acronym='actu2m')
         admission_condition = AdmissionCondition.objects.create(education_group_year=education_group_year)
         self.assertEqual(AdmissionConditionLine.objects.filter(admission_condition=admission_condition).count(), 0)
@@ -898,22 +896,14 @@ class EducationGroupAdmissionConditionWSTest(TestCase):
                                                                          remarks='Remarks')
         self.assertEqual(AdmissionConditionLine.objects.filter(admission_condition=admission_condition).count(), 1)
 
-        data = {
-            'id': admission_condition_line.id,
-        }
-
         url = reverse('education_group_year_admission_condition_remove_line', kwargs={
             'root_id': education_group_year.id,
             'education_group_year_id': education_group_year.id,
-        })
+        }) + "?id={}".format(admission_condition_line.id)
 
-        response = self.client.post(url, data=json.dumps(data), content_type='application/json', **kwargs)
+        response = self.client.get(url)
 
-        self.assertEqual(response.status_code, 200)
-
-        response_json = response.json()
-
-        self.assertEqual(response_json['message'], 'deleted')
+        self.assertEqual(response.status_code, 302)
         self.assertEqual(AdmissionConditionLine.objects.filter(admission_condition=admission_condition).count(), 0)
 
     def test_ws_update_line(self):

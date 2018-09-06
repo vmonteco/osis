@@ -29,8 +29,10 @@ register = template.Library()
 
 
 @register.inclusion_tag('templatetags/admission_condition_table_row.html')
-def render_condition_rows(section_name, header_text, records, condition):
+def render_condition_rows(root, education_group_year, section_name, header_text, records, condition):
     return {
+        'root': root,
+        'education_group_year': education_group_year,
         'section_name': section_name,
         'header_text': header_text,
         'records': records,

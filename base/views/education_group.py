@@ -264,11 +264,9 @@ def education_group_year_admission_condition_add_line(request, root_id, educatio
 
 
 @login_required
-@ajax_required
 @permission_required('base.can_edit_educationgroup_pedagogy', raise_exception=True)
 def education_group_year_admission_condition_remove_line(request, root_id, education_group_year_id):
-    info = json.loads(request.body.decode('utf-8'))
-    admission_condition_line_id = info['id']
+    admission_condition_line_id = request.GET['id']
 
     education_group_year = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
     admission_condition = get_object_or_404(AdmissionCondition, education_group_year=education_group_year)
@@ -276,7 +274,8 @@ def education_group_year_admission_condition_remove_line(request, root_id, educa
                                                  admission_condition=admission_condition,
                                                  pk=admission_condition_line_id)
     admission_condition_line.delete()
-    return JsonResponse({'message': 'deleted'})
+    return redirect(reverse('education_group_year_admission_condition_edit',
+                            kwargs={'root_id': root_id, 'education_group_year_id': education_group_year_id}))
 
 
 @login_required
