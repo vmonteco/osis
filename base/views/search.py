@@ -25,7 +25,6 @@
 ##############################################################################
 from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import redirect
-from django.urls import reverse
 from django.views.decorators.http import require_POST
 
 from base.forms.search.search_tutor import TutorSearchForm
