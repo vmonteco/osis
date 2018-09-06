@@ -57,7 +57,7 @@ urlpatterns = [
         create.SelectEducationGroupTypeView.as_view(),
         name='select_education_group_type'
     ),
-    url(r'^proxy_management/$', group_element_year.update.proxy_management, name='proxy_management'),
+    url(r'^management/$', group_element_year.update.management, name='education_groups_management'),
 
     url(r'^(?P<root_id>[0-9]+)/(?P<education_group_year_id>[0-9]+)/', include([
 
@@ -86,9 +86,6 @@ urlpatterns = [
         url(r'^content/', include([
             url(u'^$', detail.EducationGroupContent.as_view(), name='education_group_content'),
             url(r'^(?P<group_element_year_id>[0-9]+)/', include([
-                url(r'^management/$', group_element_year.update.management,
-                    name="group_element_year_management"),
-
                 url(r'^comment/$', group_element_year.update.UpdateGroupElementYearView.as_view(),
                     name="group_element_year_management_comment")
             ]))

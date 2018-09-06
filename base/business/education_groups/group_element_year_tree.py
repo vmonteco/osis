@@ -67,7 +67,7 @@ class NodeBranchJsTree:
                 'href': self.get_url(),
                 'root': self.root.pk,
                 'group_element_year': self.group_element_year and self.group_element_year.pk,
-                'education_group_year': self.education_group_year.pk,
+                'element_id': self.education_group_year.pk,
                 'element_type': self.element_type
             }
         }
@@ -105,7 +105,7 @@ class NodeLeafJsTree(NodeBranchJsTree):
                 'href': self.get_url(),
                 'root': self.root.pk,
                 'group_element_year': self.group_element_year and self.group_element_year.pk,
-                'learning_unit_year': self.learning_unit_year.pk,
+                'element_id': self.learning_unit_year.pk,
                 'element_type': self.element_type
             }
         }
