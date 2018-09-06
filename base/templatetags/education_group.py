@@ -272,7 +272,7 @@ def append_output(item, output, padding, sublist):
                               icon_list_1=get_case_picture(item),
                               icon_list_2=mandatory_picture,
                               icon_list_3=get_status_picture(item),
-                              icon_list_4=get_bisannual_picture(item),
+                              icon_list_4=get_biennial_picture(item),
                               value=escaper(force_text(item.verbose)),
                               comment=comment,
                               sublist=sublist,
@@ -302,8 +302,9 @@ def get_status_picture(item):
     return DELTA if not item.child_leaf.status else ""
 
 
-def get_bisannual_picture(item):
-    return BISANNUAL_EVEN if item.child_leaf.periodicity == BIENNIAL_EVEN else BISANNUAL_ODD if item.child_leaf.periodicity == BIENNIAL_ODD else ""
+def get_biennial_picture(item):
+    return BISANNUAL_EVEN if item.child_leaf.periodicity == BIENNIAL_EVEN else \
+        BISANNUAL_ODD if item.child_leaf.periodicity == BIENNIAL_ODD else ""
 
 
 def get_mandatory_picture(item):
