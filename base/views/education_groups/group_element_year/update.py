@@ -44,8 +44,9 @@ from base.business.group_element_years.management import SELECT_CACHE_KEY, selec
 from base.forms.education_group.group_element_year import UpdateGroupElementYearForm
 from base.models.education_group_year import EducationGroupYear
 from base.models.exceptions import IncompatiblesTypesException
-from base.models.group_element_year import GroupElementYear, get_group_element_year_by_id
+from base.models.group_element_year import GroupElementYear
 from base.models.learning_unit_year import LearningUnitYear
+from base.models.utils.utils import get_object_or_none
 from base.views.common import display_success_messages, display_warning_messages
 from base.views.common_classes import AjaxTemplateMixin, FlagMixin, RulesRequiredMixin
 from base.views.education_groups import perms
@@ -56,13 +57,11 @@ from base.views.education_groups.select import build_success_message, build_succ
 @waffle_flag("education_group_update")
 def management(request):
     root_id = _get_data(request, 'root_id')
+    group_element_year_id = int(_get_data(request, 'group_element_year_id'))
+    group_element_year = get_object_or_none(GroupElementYear, pk=group_element_year_id)
     element_id = _get_data(request, 'element_id')
-    group_element_year_id = _get_data(request, 'group_element_year_id')
-
-    group_element_year_id = int(group_element_year_id)
-    group_element_year = get_group_element_year_by_id(group_element_year_id) if group_element_year_id else None
-
     element = _get_element(element_id, group_element_year)
+
     _check_perm_for_management(request, element, group_element_year)
 
     action_method = _get_action_method(request)
