@@ -214,34 +214,6 @@
             return false;
         });
 
-        $('div#panel-data').on('click', 'a.line-remove-btn', function (evt) {
-            evt.preventDefault();
-
-            var section = $(this).data('section');
-            var record_id = $(this).data('record-id');
-
-            var url = "{% url 'education_group_year_admission_condition_remove_line' root.pk education_group_year.pk %}";
-
-            $.ajax(url, {
-                data: JSON.stringify({'id': record_id, 'section': section}),
-                type: 'post',
-                dataType: 'json',
-                success: function (data) {
-                    var element = $("tr#" + section + "_" + record_id);
-                    element.remove();
-                },
-                error: function(jqXHR, textStatus, errorThrown) {
-                    if (jqXHR.status == 404) {
-                        alert(gettext("We can't remove this line of section because it does not exist on the server"));
-                    } else if (jqXHR.status == 500) {
-                        alert(gettext("There is an error on the server, please contact the OSIS team."));
-                    }
-                }
-            });
-
-            return false;
-        });
-
         $('div#panel-data').on('click', 'a.line-edit-btn', function (evt) {
             evt.preventDefault();
             var section = $(this).data('section'),
