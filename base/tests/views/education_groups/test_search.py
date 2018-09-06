@@ -44,7 +44,6 @@ from base.tests.factories.entity_version import EntityVersionFactory
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.user import UserFactory
 from base.views.education_groups import search
-from base.views.search import clear_filter
 
 FILTER_DATA = {"acronym": "LBIR", "title": "dummy filter"}
 
