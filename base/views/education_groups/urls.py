@@ -31,6 +31,7 @@ from base.views.education_groups.learning_unit import detail as learning_unit_de
 from base.views.education_groups.select import education_group_select, learning_unit_select
 from . import search, create, detail, update, delete, group_element_year
 
+
 urlpatterns = [
 
     url(r'^$', search.education_groups, name='education_groups'),
