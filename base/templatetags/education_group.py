@@ -35,14 +35,16 @@ from backoffice.settings import base
 from base.business.education_groups.perms import is_eligible_to_delete_education_group, \
     is_eligible_to_change_education_group, is_eligible_to_add_training, \
     is_eligible_to_add_mini_training, is_eligible_to_add_group
+from base.models.enums.learning_unit_year_periodicity import BIENNIAL_EVEN, BIENNIAL_ODD, ANNUAL
 
 OPTIONAL_PNG = base.STATIC_URL + 'img/education_group_year/optional.png'
 MANDATORY_PNG = base.STATIC_URL + 'img/education_group_year/mandatory.png'
-CASE_JPG = base.STATIC_URL + 'img/education_group_year/case.jpg'
+VALIDATE_CASE_JPG = base.STATIC_URL + 'img/education_group_year/validate_case.jpg'
+INVALIDATE_CASE_JPG = base.STATIC_URL + 'img/education_group_year/invalidate_case.png'
 
 CHILD_BRANCH = """\
 <tr>
-    <td style="padding-left:{padding}em;float:left;">
+    <td style="padding-left:{padding}em;">
         {constraint}
         <div style="word-break: keep-all;">
             <img src="{icon_list_2}" height="10" width="10">
@@ -57,7 +59,7 @@ CHILD_BRANCH = """\
 
 CHILD_LEAF = """\
 <tr>
-    <td style="padding-left:{padding}em;float:left;">
+    <td style="padding-left:{padding}em;">
         <div style="word-break: keep-all;">
             <img src="{icon_list_1}" height="14" width="17">
             <img src="{icon_list_2}" height="10" width="10">
@@ -83,7 +85,7 @@ BRANCH_REMARK = """\
 # margin-left is there to align the value with the remark.
 # We use 14px which is the size of the image before the value
 CHILD_COMMENT = """\
-        <div style="word-break: keep-all;margin-left: 27px;">
+        <div style="word-break: keep-all;margin-left: 32px;">
             ({comment_value})
         </div>
 """
@@ -257,14 +259,14 @@ def list_formatter(item_list, tabs=1, depth=None):
 
 
 def append_output(item, output, padding, sublist):
+    comment = CHILD_COMMENT.format(comment_value=item.verbose_comment) if item.verbose_comment else ""
     if item.child_leaf:
         output.append(
             CHILD_LEAF.format(padding=padding,
-                              icon_list_1=CASE_JPG,
+                              icon_list_1=get_case_picture(item),
                               icon_list_2=get_mandatory_picture(item),
                               value=escaper(force_text(item.verbose)),
-                              comment=CHILD_COMMENT.format(
-                                  comment_value=item.verbose_comment) if item.comment else "",
+                              comment=comment,
                               sublist=sublist,
                               an_1=check_block(item, "1"),
                               an_2=check_block(item, "2"),
@@ -272,17 +274,17 @@ def append_output(item, output, padding, sublist):
                               )
         )
     else:
+        constraint = BRANCH_CONSTRAINT.format(
+            constraint_value=item.child_branch.verbose_constraint) if item.child_branch.constraint_type else ""
+        remark = BRANCH_REMARK.format(remark_value=item.child.verbose_remark) if item.child.verbose_remark else ""
+
         output.append(
             CHILD_BRANCH.format(padding=padding,
-                                constraint=BRANCH_CONSTRAINT.format(
-                                    constraint_value=item.child_branch.verbose_constraint)
-                                if item.child_branch.constraint_type else "",
+                                constraint=constraint,
                                 icon_list_2=get_mandatory_picture(item),
                                 value=escaper(force_text(item.verbose)),
-                                remark=BRANCH_REMARK.format(
-                                    remark_value=item.child.verbose_remark) if item.child.verbose_remark else "",
-                                comment=CHILD_COMMENT.format(
-                                    comment_value=item.verbose_comment) if item.comment else "",
+                                remark=remark,
+                                comment=comment,
                                 sublist=sublist
                                 )
         )
@@ -290,6 +292,17 @@ def append_output(item, output, padding, sublist):
 
 def get_mandatory_picture(item):
     return MANDATORY_PNG if item.is_mandatory else OPTIONAL_PNG
+
+
+def get_case_picture(item):
+    validate = INVALIDATE_CASE_JPG
+    if item.child_leaf.periodicity == ANNUAL:
+        validate = VALIDATE_CASE_JPG
+    elif item.child_leaf.periodicity == BIENNIAL_EVEN:
+        validate = VALIDATE_CASE_JPG if item.child_leaf.academic_year.year % 2 == 0 else INVALIDATE_CASE_JPG
+    elif item.child_leaf.periodicity == BIENNIAL_ODD:
+        validate = VALIDATE_CASE_JPG if item.child_leaf.academic_year.year % 2 == 1 else INVALIDATE_CASE_JPG
+    return validate
 
 
 def check_block(item, value):
