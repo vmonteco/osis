@@ -33,7 +33,6 @@
                 <h4>{% trans 'Modify an existing line' %}</h4>
             </div>
             <div class="modal-body">
-                {{ request.path }}
                 {% csrf_token %}
                 <ul class="nav nav-tabs" id="modification_tabs" role="tablist">
                     <li role="presentation" class="active"><a href="#modification_diploma">{% trans 'Diploma' %}</a></li>
