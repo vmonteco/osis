@@ -264,7 +264,10 @@ def list_formatter(item_list, tabs=1, depth=None):
 
 
 def append_output(item, output, padding, sublist):
-    comment = CHILD_COMMENT.format(comment_value=item.verbose_comment) if item.verbose_comment else ""
+    comment = CHILD_COMMENT.format(
+        comment_value=item.verbose_comment
+    ) if item.verbose_comment else ""
+
     if item.child_leaf:
         mandatory_picture = get_mandatory_picture(item)
         output.append(
@@ -283,7 +286,9 @@ def append_output(item, output, padding, sublist):
         )
     else:
         constraint = BRANCH_CONSTRAINT.format(
-            constraint_value=item.child_branch.verbose_constraint) if item.child_branch.constraint_type else ""
+            constraint_value=item.child_branch.verbose_constraint
+        ) if item.child_branch.constraint_type else ""
+
         remark = BRANCH_REMARK.format(remark_value=item.child.verbose_remark) if item.child.verbose_remark else ""
 
         output.append(
