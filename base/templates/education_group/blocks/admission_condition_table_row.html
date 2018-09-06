@@ -24,7 +24,7 @@
 <tr id="{{ section_name }}">
     <td colspan="5" class="info">
         {{ header_text }}
-        {% if condition %}
+        {% if can_edit_information %}
             <a href="#" role="button"
                 class="button line-edit-btn"
                 data-form="{% url 'education_group_year_admission_condition_update_line' root.pk education_group_year.pk %}?section={{ section_name }}&amp;language=fr">
@@ -39,7 +39,7 @@
     <td id="{{ section_name }}_{{ record.id }}_conditions">{{record.conditions|safe }}</td>
     <td id="{{ section_name }}_{{ record.id }}_access" class="text-right">{{ record.access|safe }}</td>
     <td id="{{ section_name }}_{{ record.id }}_remarks">{{ record.remarks|safe }}</td>
-    {% if condition %}
+    {% if can_edit_information %}
     <td class="text-right">
         <a href="{% url 'education_group_year_admission_condition_remove_line' root.pk education_group_year.pk %}?id={{ record.id }}"
            role="button" class="button">

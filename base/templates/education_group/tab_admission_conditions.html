@@ -46,30 +46,29 @@
 
                             <div class="row">
                                 {% if info.is_common %}
-                                    {% render_condition_text root education_group_year 'alert_message' _('Alert Message') admission_condition.text_alert_message can_edit_information %}
+                                    {% include 'education_group/blocks/admission_condition_text.html' with section_name="alert_message" text=_("Alert Message") field=admission_condition.text_alert_message %}
                                 {% endif %}
 
                                 {% if info.is_common and info.is_bachelor %}
-                                    {% render_condition_text root education_group_year 'ca_bacs_cond_generales' _('General Conditions') admission_condition.text_ca_bacs_cond_generales can_edit_information %}
-                                    {% render_condition_text root education_group_year 'ca_bacs_cond_particulieres' _('Specific Conditions') admission_condition.text_ca_bacs_cond_particulieres can_edit_information %}
-                                    {% render_condition_text root education_group_year 'ca_bacs_examen_langue' _('Language Exam') admission_condition.text_ca_bacs_examen_langue can_edit_information %}
-                                    {% render_condition_text root education_group_year 'ca_bacs_cond_speciales' _('Special Conditions') admission_condition.text_ca_bacs_cond_speciales can_edit_information %}
+                                    {% include 'education_group/blocks/admission_condition_text.html' with section_name="ca_bacs_cond_generales" text=_("General Conditions") field=admission_condition.text_ca_bacs_cond_generales %}
+                                    {% include 'education_group/blocks/admission_condition_text.html' with section_name="ca_bacs_cond_particulieres" text=_("Specific Conditions") field=admission_condition.text_ca_bacs_cond_particulieres %}
+                                    {% include 'education_group/blocks/admission_condition_text.html' with section_name="ca_bacs_examen_langue" text=_("Language Exam") field=admission_condition.text_ca_bacs_examen_langue %}
+                                    {% include 'education_group/blocks/admission_condition_text.html' with section_name="ca_bacs_cond_speciales" text=_("Special Conditions") field=admission_condition.text_ca_bacs_cond_speciales %}
                                 {% endif %}
 
                                 {% if info.is_master and info.show_free_text %}
-                                    {% render_condition_text root education_group_year 'free' _('Free Text') admission_condition.text_free can_edit_information %}
+                                    {% include 'education_group/blocks/admission_condition_text.html' with section_name="free" text=_("Free Text") field=admission_condition.text_free %}
                                 {% endif %}
 
                                 {% if info.show_components_for_agreg_and_mc %}
-                                    {% render_condition_text root education_group_year 'ca_cond_generales' _('General Condition') admission_condition.text_ca_cond_generales can_edit_information %}
-                                    {% render_condition_text root education_group_year 'ca_maitrise_fr' _('French language proficiency examination') admission_condition.text_ca_maitrise can_edit_information %}
-                                    {% render_condition_text root education_group_year 'ca_allegement' _('Reduction') admission_condition.text_ca_allegement can_edit_information %}
-                                    {% render_condition_text root education_group_year 'ca_ouv_adultes' _('Opening to Adults') admission_condition.text_ca_ouv_adultes can_edit_information %}
-
+                                    {% include 'education_group/blocks/admission_condition_text.html' with section_name="ca_cond_generales" text=_("General Conditions") field=admission_condition.text_ca_cond_generales %}
+                                    {% include 'education_group/blocks/admission_condition_text.html' with section_name="ca_maitrise_fr" text=_("French language proficiency examination") field=admission_condition.text_ca_maitrise %}
+                                    {% include 'education_group/blocks/admission_condition_text.html' with section_name="ca_allegement" text=_("Reduction") field=admission_condition.text_ca_allegement %}
+                                    {% include 'education_group/blocks/admission_condition_text.html' with section_name="ca_ouv_adultes" text=_("Opening to Adults") field=admission_condition.text_ca_ouv_adultes %}
                                 {% endif %}
                                 {% if info.is_specific and info.is_master %}
                                     <div id="university_bachelors">
-                                        {% render_condition_text root education_group_year 'university_bachelors' _('University Bachelors') admission_condition.text_university_bachelors can_edit_information %}
+                                        {% include 'education_group/blocks/admission_condition_text.html' with section_name="university_bachelors" text=_("University Bachelors") field=admission_condition.text_university_bachelors %}
 
                                         <table class="table table-bordered">
                                             <thead>
@@ -82,17 +81,17 @@
                                             </tr>
                                             </thead>
                                             <tbody>
-                                            {% render_condition_rows root education_group_year 'ucl_bachelors' _('UCL Bachelors') record.ucl_bachelors can_edit_information %}
-                                            {% render_condition_rows root education_group_year 'others_bachelors_french' _('Others Bachelors of the French speaking Community of Belgium') record.others_bachelors_french can_edit_information %}
-                                            {% render_condition_rows root education_group_year 'bachelors_dutch' _('Bachelors of the Dutch speaking Community of Beligum') record.bachelors_dutch can_edit_information %}
-                                            {% render_condition_rows root education_group_year 'foreign_bachelors' _('Foreign Bachelors') record.foreign_bachelors can_edit_information %}
+                                            {% include 'education_group/blocks/admission_condition_table_row.html' with section_name="ucl_bachelors" header_text=_("UCL Bachelors") records=record.ucl_bachelors %}
+                                            {% include 'education_group/blocks/admission_condition_table_row.html' with section_name="others_bachelors_french" header_text=_("Others Bachelors of the French speaking Community of Belgium") records=record.others_bachelors_french %}
+                                            {% include 'education_group/blocks/admission_condition_table_row.html' with section_name="bachelors_dutch" header_text=_("Bachelors of the Dutch speaking Community of Belgium") records=record.bachelors_dutch %}
+                                            {% include 'education_group/blocks/admission_condition_table_row.html' with section_name="ucl_bachelors" header_text=_("Foreign Bachelors") records=record.foreign_bachelors %}
                                             </tbody>
                                         </table>
                                         <hr/>
                                     </div>
                                 {% endif %}
                                 {% if info.is_master %}
-                                    {% render_condition_text root education_group_year 'non_university_bachelors' _('Non university Bachelors') admission_condition.text_non_university_bachelors can_edit_information %}
+                                    {% include 'education_group/blocks/admission_condition_text.html' with section_name="non_university_bachelors" text=_("Non university Bachelors") field=admission_condition.text_non_university_bachelors %}
                                 {% endif %}
                                 {% if info.is_specific and info.is_master %}
                                     <div id="holders_second_university_degree">
@@ -110,15 +109,17 @@
                                             <tbody>
                                             {% render_condition_rows root education_group_year 'graduates' _('Graduates') record.graduates can_edit_information %}
                                             {% render_condition_rows root education_group_year 'masters' _('Masters') record.masters can_edit_information %}
+                                            {% include 'education_group/blocks/admission_condition_table_row.html' with section_name="graduates" header_text=_("Graduates") records=record.graduates %}
+                                            {% include 'education_group/blocks/admission_condition_table_row.html' with section_name="masters" header_text=_("Masters") records=record.masters %}
                                             </tbody>
                                         </table>
                                     </div>
-                                    {% render_condition_text root education_group_year 'holders_non_university_second_degree' _('Holders of a non-University 2nd cycle degree') admission_condition.text_holders_non_university_second_degree can_edit_information %}
+                                    {% include 'education_group/blocks/admission_condition_text.html' with section_name="holders_non_university_second_degree" text=_("Holders of a non-University 2nd cycle degree") field=admission_condition.text_holders_non_university_second_degree %}
                                 {% endif %}
                                 {% if info.is_master %}
-                                    {% render_condition_text root education_group_year 'adults_taking_up_university_training' _('Adults taking up their university training') admission_condition.text_adults_taking_up_university_training can_edit_information %}
-                                    {% render_condition_text root education_group_year 'personalized_access' _('Personalized access') admission_condition.text_personalized_access can_edit_information %}
-                                    {% render_condition_text root education_group_year 'admission_enrollment_procedures' _('Admission and Enrolment Procedures for general registration') admission_condition.text_admission_enrollment_procedures can_edit_information %}
+                                    {% include 'education_group/blocks/admission_condition_text.html' with section_name="adults_taking_up_university_training" text=_("Adults taking up their university training") field=admission_condition.text_adults_taking_up_university_training %}
+                                    {% include 'education_group/blocks/admission_condition_text.html' with section_name="personalized_access" text=_("Personalized access") field=admission_condition.text_personalized_access %}
+                                    {% include 'education_group/blocks/admission_condition_text.html' with section_name="admission_enrollment_procedures" text=_("Admission and Enrolment Procedures for general registration") field=admission_condition.text_admission_enrollment_procedures %}
                                 {% endif %}
                             </div>
                         </div>
