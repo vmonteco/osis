@@ -117,6 +117,10 @@ urlpatterns = [
             education_group.education_group_year_admission_condition_update_line,
             name='education_group_year_admission_condition_update_line'),
 
+        url(r'^admission_conditions/update_text$',
+            education_group.education_group_year_admission_condition_update_text,
+            name='education_group_year_admission_condition_update_text'),
+
         url(r'^delete/$', delete.DeleteGroupEducationView.as_view(), name="delete_education_group"),
         url(r'^group_content/', group_element_year.read.ReadEducationGroupTypeView.as_view(), name="group_content"),
         url(r'^pdf_content/(?P<language>[a-z\-]+)', pdf_content, name="pdf_content"),

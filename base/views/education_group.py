@@ -25,6 +25,7 @@
 ##############################################################################
 import json
 
+from ckeditor.fields import RichTextFormField
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core.exceptions import PermissionDenied
@@ -35,6 +36,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_http_methods
+from prettyprinter import cpprint
 from waffle.decorators import waffle_flag
 
 from base import models as mdl
@@ -414,3 +416,55 @@ def education_group_year_admission_condition_update_line(request, root_id, educa
     if request.method == 'POST':
         return education_group_year_admission_condition_update_line_post(request, root_id, education_group_year_id)
     return education_group_year_admission_condition_update_line_get(request)
+
+
+class UpdateTextForm(forms.Form):
+    # text = forms.CharField(widget=forms.Textarea)
+    text = RichTextFormField(required=False, config_name='minimal')
+    section = forms.CharField(widget=forms.HiddenInput())
+    language = forms.CharField(widget=forms.HiddenInput())
+
+
+def education_group_year_admission_condition_update_text_post(request, root_id, education_group_year_id):
+    form = UpdateTextForm(request.POST)
+
+    if form.is_valid():
+        education_group_year = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
+        language = form.cleaned_data['language']
+        lang = '' if language == 'fr' else '_en'
+        section = form.cleaned_data['section']
+
+        admission_condition = education_group_year.admissioncondition
+
+        setattr(admission_condition, 'text_' + section + lang, form.cleaned_data['text'])
+        admission_condition.save()
+
+    return redirect(
+        reverse('education_group_year_admission_condition_edit', args=[root_id, education_group_year_id])
+    )
+
+
+def education_group_year_admission_condition_update_text_get(request, education_group_year_id):
+    education_group_year = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
+    section = request.GET['section']
+    language = request.GET['language']
+    lang = '' if language == 'fr' else '_en'
+
+    form = UpdateTextForm(initial={
+        'section': section,
+        'language': language,
+        'text': getattr(education_group_year.admissioncondition, 'text_' + section + lang)
+    })
+
+    context = {
+        'form': form,
+    }
+    return layout.render(request, 'education_group/condition_text_edit.html', context)
+
+
+@login_required
+@permission_required('base.can_edit_educationgroup_pedagogy', raise_exception=True)
+def education_group_year_admission_condition_update_text(request, root_id, education_group_year_id):
+    if request.method == 'POST':
+        return education_group_year_admission_condition_update_text_post(request, root_id, education_group_year_id)
+    return education_group_year_admission_condition_update_text_get(request, education_group_year_id)

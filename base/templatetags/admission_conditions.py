@@ -41,9 +41,11 @@ def render_condition_rows(root, education_group_year, section_name, header_text,
 
 
 @register.inclusion_tag('templatetags/admission_condition_text.html')
-def render_condition_text(section_name, text, field, condition):
+def render_condition_text(root, education_group_year, section_name, text, field, condition):
     return {
-        'section': section_name,
+        'root': root,
+        'education_group_year': education_group_year,
+        'section_name': section_name,
         'text': text,
         'field': field,
         'condition': condition,

@@ -46,30 +46,30 @@
 
                             <div class="row">
                                 {% if info.is_common %}
-                                    {% render_condition_text 'alert_message' _('Alert Message') admission_condition.text_alert_message can_edit_information %}
+                                    {% render_condition_text root education_group_year 'alert_message' _('Alert Message') admission_condition.text_alert_message can_edit_information %}
                                 {% endif %}
 
                                 {% if info.is_common and info.is_bachelor %}
-                                    {% render_condition_text 'ca_bacs_cond_generales' _('General Conditions') admission_condition.text_ca_bacs_cond_generales can_edit_information %}
-                                    {% render_condition_text 'ca_bacs_cond_particulieres' _('Specific Conditions') admission_condition.text_ca_bacs_cond_particulieres can_edit_information %}
-                                    {% render_condition_text 'ca_bacs_examen_langue' _('Language Exam') admission_condition.text_ca_bacs_examen_langue can_edit_information %}
-                                    {% render_condition_text 'ca_bacs_cond_speciales' _('Special Conditions') admission_condition.text_ca_bacs_cond_speciales can_edit_information %}
+                                    {% render_condition_text root education_group_year 'ca_bacs_cond_generales' _('General Conditions') admission_condition.text_ca_bacs_cond_generales can_edit_information %}
+                                    {% render_condition_text root education_group_year 'ca_bacs_cond_particulieres' _('Specific Conditions') admission_condition.text_ca_bacs_cond_particulieres can_edit_information %}
+                                    {% render_condition_text root education_group_year 'ca_bacs_examen_langue' _('Language Exam') admission_condition.text_ca_bacs_examen_langue can_edit_information %}
+                                    {% render_condition_text root education_group_year 'ca_bacs_cond_speciales' _('Special Conditions') admission_condition.text_ca_bacs_cond_speciales can_edit_information %}
                                 {% endif %}
 
                                 {% if info.is_master and info.show_free_text %}
-                                    {% render_condition_text 'free' _('Free Text') admission_condition.text_free can_edit_information %}
+                                    {% render_condition_text root education_group_year 'free' _('Free Text') admission_condition.text_free can_edit_information %}
                                 {% endif %}
 
                                 {% if info.show_components_for_agreg_and_mc %}
-                                    {% render_condition_text 'ca_cond_generales' _('General Condition') admission_condition.text_ca_cond_generales can_edit_information %}
-                                    {% render_condition_text 'ca_maitrise_fr' _('French language proficiency examination') admission_condition.text_ca_maitrise can_edit_information %}
-                                    {% render_condition_text 'ca_allegement' _('Reduction') admission_condition.text_ca_allegement can_edit_information %}
-                                    {% render_condition_text 'ca_ouv_adultes' _('Opening to Adults') admission_condition.text_ca_ouv_adultes can_edit_information %}
+                                    {% render_condition_text root education_group_year 'ca_cond_generales' _('General Condition') admission_condition.text_ca_cond_generales can_edit_information %}
+                                    {% render_condition_text root education_group_year 'ca_maitrise_fr' _('French language proficiency examination') admission_condition.text_ca_maitrise can_edit_information %}
+                                    {% render_condition_text root education_group_year 'ca_allegement' _('Reduction') admission_condition.text_ca_allegement can_edit_information %}
+                                    {% render_condition_text root education_group_year 'ca_ouv_adultes' _('Opening to Adults') admission_condition.text_ca_ouv_adultes can_edit_information %}
 
                                 {% endif %}
                                 {% if info.is_specific and info.is_master %}
                                     <div id="university_bachelors">
-                                        {% render_condition_text 'university_bachelors' _('University Bachelors') admission_condition.text_university_bachelors can_edit_information %}
+                                        {% render_condition_text root education_group_year 'university_bachelors' _('University Bachelors') admission_condition.text_university_bachelors can_edit_information %}
 
                                         <table class="table table-bordered">
                                             <thead>
@@ -92,7 +92,7 @@
                                     </div>
                                 {% endif %}
                                 {% if info.is_master %}
-                                    {% render_condition_text 'non_university_bachelors' _('Non university Bachelors') admission_condition.text_non_university_bachelors can_edit_information %}
+                                    {% render_condition_text root education_group_year 'non_university_bachelors' _('Non university Bachelors') admission_condition.text_non_university_bachelors can_edit_information %}
                                 {% endif %}
                                 {% if info.is_specific and info.is_master %}
                                     <div id="holders_second_university_degree">
@@ -113,12 +113,12 @@
                                             </tbody>
                                         </table>
                                     </div>
-                                    {% render_condition_text 'holders_non_university_second_degree' _('Holders of a non-University 2nd cycle degree') admission_condition.text_holders_non_university_second_degree can_edit_information %}
+                                    {% render_condition_text root education_group_year 'holders_non_university_second_degree' _('Holders of a non-University 2nd cycle degree') admission_condition.text_holders_non_university_second_degree can_edit_information %}
                                 {% endif %}
                                 {% if info.is_master %}
-                                    {% render_condition_text 'adults_taking_up_university_training' _('Adults taking up their university training') admission_condition.text_adults_taking_up_university_training can_edit_information %}
-                                    {% render_condition_text 'personalized_access' _('Personalized access') admission_condition.text_personalized_access can_edit_information %}
-                                    {% render_condition_text 'admission_enrollment_procedures' _('Admission and Enrolment Procedures for general registration') admission_condition.text_admission_enrollment_procedures can_edit_information %}
+                                    {% render_condition_text root education_group_year 'adults_taking_up_university_training' _('Adults taking up their university training') admission_condition.text_adults_taking_up_university_training can_edit_information %}
+                                    {% render_condition_text root education_group_year 'personalized_access' _('Personalized access') admission_condition.text_personalized_access can_edit_information %}
+                                    {% render_condition_text root education_group_year 'admission_enrollment_procedures' _('Admission and Enrolment Procedures for general registration') admission_condition.text_admission_enrollment_procedures can_edit_information %}
                                 {% endif %}
                             </div>
                         </div>
@@ -129,24 +129,7 @@
     </div>
 
     {% if can_edit_information %}
-    <div class="modal fade" id="modify_text">
-        <div class="modal-dialog modal-lg" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">{% trans 'Modify text' %}</h5>
-                </div>
-                <div class="modal-body">
-                    {{ admission_condition_form.text_field }}
-                </div>
-                <div class="modal-footer">
-                    <button id="modify_text_btn" type="submit" class="btn btn-primary" role="button"
-                            title="{% trans 'save' %}">{% trans 'save' %}</button>
-                    <button type="submit" class="btn" data-dismiss="modal">{% trans 'cancel' %}</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
+    <div class="modal fade" id="modify_text" role="dialog" data-backdrop="static"></div>
     <div class="modal fade" id="save_term" role="dialog" data-backdrop="static"></div>
     {% endif %}
 
@@ -165,75 +148,13 @@
             return false;
         });
 
-        $('#modify_text_btn').click(function(evt) {
+        $('a.modify-text-btn').click(function (evt) {
             evt.preventDefault();
+            var url = $(this).data('form');
             var modal = $("#modify_text");
-            var url = "{% url 'education_group_year_admission_condition_modify_text' root.pk education_group_year.pk %}";
-            var section = $(this).data('section'),
-                language = $(this).data('language');
-
-            var text_ptr = CKEDITOR.instances['id_text_field'];
-
-            var data = {
-                section: section,
-                text: text_ptr.getData(),
-                language: language,
-            };
-
-            $.ajax(url, {
-                data: JSON.stringify(data),
-                type: 'post',
-                dataType: 'json',
-                success: function (response) {
-                    if (language === 'fr') {
-                        $("#text_" + section).html(response.text);
-                    }
-                    modal.modal('hide');
-                },
-                error: function (jqXHR, textStatus, errorThrown) {
-                    if (jqXHR.status == 404) {
-                        alert(gettext("We can't read the text because it does not exist on the server"));
-                    } else if (jqXHR.status == 500) {
-                        alert(gettext("There is an error on the server, please contact the OSIS team."));
-                    }
-                }
+            modal.load(url, function() {
+                $(this).modal('show');
             });
-        });
-
-        $('.modify-text-btn').click(function (evt) {
-            evt.preventDefault();
-            var section = $(this).data('section'),
-                language = $(this).data('language');
-            var url = "{% url 'education_group_year_admission_condition_get_text' root.pk education_group_year.pk %}";
-
-            var modal = $("#modify_text");
-            var button = modal.find('#modify_text_btn');
-            button.data('section', section);
-            button.data('language', language);
-
-            var text_ptr = CKEDITOR.instances['id_text_field'];
-            var data = {
-                section: section,
-                language: language,
-            };
-
-            $.ajax(url, {
-                data: JSON.stringify(data),
-                type: 'post',
-                dataType: 'json',
-                success: function (data) {
-                    text_ptr.setData(data.text);
-                },
-                error: function(jqXHR, textStatus, errorThrown) {
-                    if (jqXHR.status == 404) {
-                        alert(gettext("We can't modify the text because it does not exist on the server"));
-                    } else if (jqXHR.status == 500) {
-                        alert(gettext("There is an error on the server, please contact the OSIS team."));
-                    }
-                }
-            });
-
-            modal.modal('show');
             return false;
         });
     </script>
