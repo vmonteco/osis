@@ -41,6 +41,9 @@ OPTIONAL_PNG = base.STATIC_URL + 'img/education_group_year/optional.png'
 MANDATORY_PNG = base.STATIC_URL + 'img/education_group_year/mandatory.png'
 VALIDATE_CASE_JPG = base.STATIC_URL + 'img/education_group_year/validate_case.jpg'
 INVALIDATE_CASE_JPG = base.STATIC_URL + 'img/education_group_year/invalidate_case.png'
+DELTA = base.STATIC_URL + 'img/education_group_year/delta.png'
+BISANNUAL_EVEN = base.STATIC_URL + 'img/education_group_year/bisannual_even.png'
+BISANNUAL_ODD = base.STATIC_URL + 'img/education_group_year/bisannual_odd.png'
 
 CHILD_BRANCH = """\
 <tr>
@@ -64,6 +67,7 @@ CHILD_LEAF = """\
             <img src="{icon_list_1}" height="14" width="17">
             <img src="{icon_list_2}" height="10" width="10">
             {value}
+            <img src="{icon_list_3}" height="10" width="10">
             {comment}
             {sublist}
         </div>
@@ -261,10 +265,13 @@ def list_formatter(item_list, tabs=1, depth=None):
 def append_output(item, output, padding, sublist):
     comment = CHILD_COMMENT.format(comment_value=item.verbose_comment) if item.verbose_comment else ""
     if item.child_leaf:
+        mandatory_picture = get_mandatory_picture(item)
         output.append(
             CHILD_LEAF.format(padding=padding,
                               icon_list_1=get_case_picture(item),
-                              icon_list_2=get_mandatory_picture(item),
+                              icon_list_2=mandatory_picture,
+                              icon_list_3=BISANNUAL_EVEN if item.child_leaf.periodicity == BIENNIAL_EVEN
+                              else BISANNUAL_ODD if item.child_leaf.periodicity == BIENNIAL_ODD else "",
                               value=escaper(force_text(item.verbose)),
                               comment=comment,
                               sublist=sublist,
@@ -295,14 +302,12 @@ def get_mandatory_picture(item):
 
 
 def get_case_picture(item):
-    validate = INVALIDATE_CASE_JPG
     if item.child_leaf.periodicity == ANNUAL:
-        validate = VALIDATE_CASE_JPG
+        return VALIDATE_CASE_JPG
     elif item.child_leaf.periodicity == BIENNIAL_EVEN:
-        validate = VALIDATE_CASE_JPG if item.child_leaf.academic_year.year % 2 == 0 else INVALIDATE_CASE_JPG
+        return VALIDATE_CASE_JPG if item.child_leaf.academic_year.year % 2 == 0 else INVALIDATE_CASE_JPG
     elif item.child_leaf.periodicity == BIENNIAL_ODD:
-        validate = VALIDATE_CASE_JPG if item.child_leaf.academic_year.year % 2 == 1 else INVALIDATE_CASE_JPG
-    return validate
+        return VALIDATE_CASE_JPG if item.child_leaf.academic_year.year % 2 == 1 else INVALIDATE_CASE_JPG
 
 
 def check_block(item, value):
