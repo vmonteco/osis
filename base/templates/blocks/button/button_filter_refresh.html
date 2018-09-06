@@ -1,4 +1,3 @@
-{% load i18n bootstrap3 %}
 {% comment "License" %}
     * OSIS stands for Open Student Information System. It's an application
     * designed to manage the core business of higher education institutions,
@@ -23,33 +22,8 @@
     * see http://www.gnu.org/licenses/.
 {% endcomment %}
 
-<form style="border-bottom: 1px solid #ddd;" method="get" action="{{ request.path }}" name="search" id="search_form">
-    <div class="panel-body">
-        <div class="row">
-            {% block search_form_row_1 %}
-                {% comment %} TO COMPLETE {% endcomment %}
-            {% endblock %}
-        </div>
-        <div class="row" style="margin-top:10px;">
-            {% block search_form_row_2 %}
-                {% comment %} TO COMPLETE {% endcomment %}
-            {% endblock %}
-
-            {% block search_form_buttons %}
-                <br>
-                <div class="col-md-1">
-                    <div class="btn-toolbar pull-right">
-                        {% bootstrap_button "" value=_('learning_unit_search') button_type="submit" button_class="btn-primary" icon="search" %}
-                    </div>
-                </div>
-            {% endblock %}
-        </div>
-
-        {% block extras %}{% endblock %}
-        <div class="row">
-            {% bootstrap_form_errors form %}
-        </div>
-    </div>
-</form>
-
-{% include 'learning_unit/blocks/form/search_form_reset.html' %}
+<button type="button" id="btn_clear_filter"
+        class="btn btn-default" role="button"
+        onclick="$('#form_clear_filter').submit();">
+    <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span>
+</button>

@@ -24,5 +24,10 @@
     * see http://www.gnu.org/licenses/.
 {% endcomment %}
 
-{% bootstrap_button "" href=url_search_reset button_type="link" button_class="btn-default" icon="refresh" %}
+<form method="post"
+      action="{% url 'clear_filter'%}"
+      id="form_clear_filter">
+    {% csrf_token %}
+    <input type="hidden" value="{{ request.path }}" name="current_url" id="hdn_current_url">
 
+</form>

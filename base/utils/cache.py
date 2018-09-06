@@ -99,8 +99,9 @@ def delete_filter_from_cache():
 
 
 def _clear_key(request):
+    path = request.POST['current_url']
     cache.delete("_".join([
         PREFIX_CACHE_KEY,
         str(request.user.id),
-        request.path.replace("reset/", "")
+        path
     ]))

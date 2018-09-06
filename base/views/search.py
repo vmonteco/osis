@@ -26,6 +26,7 @@
 from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import redirect
 from django.urls import reverse
+from django.views.decorators.http import require_POST
 
 from base.forms.search.search_tutor import TutorSearchForm
 from base.models.tutor import Tutor
@@ -52,49 +53,8 @@ def search_tutors(request):
 
 
 @login_required
-@permission_required('base.can_access_learningunit', raise_exception=True)
 @delete_filter_from_cache()
-def reset_filter_by_activity(request):
-    return redirect(reverse("learning_units"))
-
-
-@login_required
-@permission_required('base.can_access_learningunit', raise_exception=True)
-@delete_filter_from_cache()
-def reset_filter_by_service_course(request):
-    return redirect(reverse("learning_units_service_course"))
-
-
-@login_required
-@permission_required('base.can_access_learningunit', raise_exception=True)
-@delete_filter_from_cache()
-def reset_filter_by_proposal(request):
-    return redirect(reverse("learning_units_proposal"))
-
-
-@login_required
-@permission_required('base.can_access_learningunit', raise_exception=True)
-@delete_filter_from_cache()
-def reset_filter_by_borrowed_course(request):
-    return redirect(reverse("learning_units_borrowed_course"))
-
-
-@login_required
-@permission_required('base.can_access_learningunit', raise_exception=True)
-@delete_filter_from_cache()
-def reset_filter_by_external(request):
-    return redirect(reverse("learning_units_external"))
-
-
-@login_required
-@permission_required('base.can_access_learningunit', raise_exception=True)
-@delete_filter_from_cache()
-def reset_filter_by_summary(request):
-    return redirect(reverse("learning_units_summary"))
-
-
-@login_required
-@permission_required('base.can_access_education_group', raise_exception=True)
-@delete_filter_from_cache()
-def reset_education_group_filter(request):
-    return redirect(reverse("education_groups"))
+@require_POST
+def clear_filter(request):
+    path = request.POST['current_url']
+    return redirect(path)

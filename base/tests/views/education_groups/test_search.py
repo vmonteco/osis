@@ -44,7 +44,7 @@ from base.tests.factories.entity_version import EntityVersionFactory
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.user import UserFactory
 from base.views.education_groups import search
-from base.views.search import reset_education_group_filter
+from base.views.search import clear_filter
 
 FILTER_DATA = {"acronym": "LBIR", "title": "dummy filter"}
 
@@ -110,8 +110,12 @@ class TestEducationGroupSearchView(TestCase):
         )
         request.user = self.person.user
         search.education_groups(request)
-        reset_education_group_filter(request)
+        clear_filter(request)
         self.assertTrue(mock_reset_filter_from_cache.called)
+        self.assertTrue(mock_display_msg.called)
+        self.assertTrue(mock_layout_render.called)
+        request, template, context = mock_layout_render.call_args[0]
+        self.assertEqual(template, 'education_group/search.html')
 
 
 class TestEducationGroupDataSearchFilter(TestCase):

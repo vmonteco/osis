@@ -35,7 +35,7 @@
 {% endblock %}
 
 {% block content %}
-{% url 'reset_education_group_filter' as url_search_reset %}
+
 <div class="page-header">
     <div class="row">
         <div class="col-md-10">
@@ -101,7 +101,7 @@
                                 class="btn btn-primary" role="button" >
                                 <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
                         </button>
-                        {% include 'learning_unit/blocks/form/init_search_fields_button.html' %}
+                        {% include 'blocks/button/button_filter_refresh.html' %}
                     </div>
                 </div>
             </div>
@@ -109,6 +109,7 @@
             <input type="hidden" id="xls_order_col" name="xls_order_col">
             <input type="hidden" id="xls_order" name="xls_order">
         </form>
+        {% include 'learning_unit/blocks/form/search_form_reset.html' %}
         <hr style="margin:10px -15px 10px -15px;">
         <div class="row">
             {% if object_list %}
