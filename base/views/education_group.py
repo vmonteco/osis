@@ -35,7 +35,6 @@ from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_http_methods
-from prettyprinter import cpprint
 from waffle.decorators import waffle_flag
 
 from base import models as mdl
