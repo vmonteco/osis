@@ -315,9 +315,9 @@ def get_case_picture(item):
     if item.child_leaf.periodicity == ANNUAL:
         return VALIDATE_CASE_JPG
     elif item.child_leaf.periodicity == BIENNIAL_EVEN:
-        return VALIDATE_CASE_JPG if item.child_leaf.academic_year.year % 2 == 0 else INVALIDATE_CASE_JPG
+        return VALIDATE_CASE_JPG if item.child_leaf.academic_year.is_even else INVALIDATE_CASE_JPG
     elif item.child_leaf.periodicity == BIENNIAL_ODD:
-        return VALIDATE_CASE_JPG if item.child_leaf.academic_year.year % 2 == 1 else INVALIDATE_CASE_JPG
+        return VALIDATE_CASE_JPG if item.child_leaf.academic_year.is_odd else INVALIDATE_CASE_JPG
 
 
 def check_block(item, value):

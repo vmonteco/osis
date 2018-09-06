@@ -79,7 +79,7 @@ class ExtraManagerLearningUnitYear(models.Model):
 
 class LearningUnitYear(SerializableModel, ExtraManagerLearningUnitYear):
     external_id = models.CharField(max_length=100, blank=True, null=True, db_index=True)
-    academic_year = models.ForeignKey(AcademicYear,  verbose_name=_('academic_year'),
+    academic_year = models.ForeignKey(AcademicYear, verbose_name=_('academic_year'),
                                       validators=[academic_year_validator])
     learning_unit = models.ForeignKey('LearningUnit')
     learning_container_year = models.ForeignKey('LearningContainerYear', null=True)
@@ -398,7 +398,7 @@ def search(academic_year_id=None, acronym=None, learning_container_year_id=None,
         queryset = queryset.filter(learning_unit=learning_unit)
 
     if title:
-        queryset = queryset.\
+        queryset = queryset. \
             filter(Q(specific_title__iregex=title) | Q(learning_container_year__common_title__iregex=title))
 
     if subtype:
@@ -492,17 +492,17 @@ def find_latest_by_learning_unit(a_learning_unit):
 def find_lt_learning_unit_year_with_different_acronym(a_learning_unit_yr):
     return LearningUnitYear.objects.filter(learning_unit__id=a_learning_unit_yr.learning_unit.id,
                                            academic_year__year__lt=a_learning_unit_yr.academic_year.year,
-                                           proposallearningunit__isnull=True)\
-        .order_by('-academic_year')\
+                                           proposallearningunit__isnull=True) \
+        .order_by('-academic_year') \
         .exclude(acronym__iexact=a_learning_unit_yr.acronym).first()
 
 
 def find_learning_unit_years_by_academic_year_tutor_attributions(academic_year, tutor):
     """ In this function, only learning unit year with containers is visible! [no classes] """
     qs = LearningUnitYear.objects_with_container.filter(
-            academic_year=academic_year,
-            attribution__tutor=tutor,
-         ).distinct().order_by('academic_year__year', 'acronym')
+        academic_year=academic_year,
+        attribution__tutor=tutor,
+    ).distinct().order_by('academic_year__year', 'acronym')
     return qs
 
 
