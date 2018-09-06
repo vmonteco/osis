@@ -1,4 +1,4 @@
-const proxy_management_url = "/educationgroups/proxy_management/";
+const management_url = "/educationgroups/management/";
 
 
 function switchTreeVisibility() {
@@ -81,7 +81,7 @@ $(document).ready(function () {
                             var element_id = __ret.element_id;
                             var group_element_year_id = __ret.group_element_year_id;
                             $.ajax({
-                                url: proxy_management_url,
+                                url: management_url,
                                 dataType: 'json',
                                 data: {'element_id': element_id, 'group_element_year_id': group_element_year_id, 'action': 'select'},
                                 type: 'POST',
@@ -100,7 +100,7 @@ $(document).ready(function () {
                             var group_element_year_id = __ret.group_element_year_id;
                             var element_id = __ret.element_id;
                             var attach_data = build_url_data(element_id, group_element_year_id, 'attach');
-                            window.location.href = proxy_management_url + "?" + attach_data;
+                            window.location.href = management_url + "?" + attach_data;
                         },
                         "_disabled": function (data) {
                             var __ret = get_data_from_tree(data);
@@ -120,13 +120,13 @@ $(document).ready(function () {
 
                             var detach_data = build_url_data(element_id, group_element_year_id, 'detach');
 
-                            $('#form-modal-content').load(proxy_management_url, detach_data, function () {
+                            $('#form-modal-content').load(management_url, detach_data, function () {
                                 $('#form-modal').modal('toggle');
                                 formAjaxSubmit('#form-modal-body form', '#form-modal');
                             });
 
                             $.ajax({
-                                url: proxy_management_url,
+                                url: management_url,
                                 dataType: 'json',
                                 data: {'element_id': element_id, 'group_element_year_id': group_element_year_id, 'action': 'select'},
                                 type: 'POST',

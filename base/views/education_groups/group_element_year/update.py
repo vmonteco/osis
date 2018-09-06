@@ -54,7 +54,11 @@ from base.views.education_groups.select import build_success_message, build_succ
 
 @login_required
 @waffle_flag("education_group_update")
-def management(request, root_id, element_id, group_element_year_id):
+def management(request):
+    root_id = _get_data(request, 'root_id')
+    element_id = _get_data(request, 'element_id')
+    group_element_year_id = _get_data(request, 'group_element_year_id')
+
     group_element_year_id = int(group_element_year_id)
     group_element_year = get_group_element_year_by_id(group_element_year_id) if group_element_year_id else None
 
@@ -110,17 +114,6 @@ def _check_perm_for_management(request, element, group_element_year):
                 "It is forbidden to update the content of an object which is not an EducationGroupYear"
             )
         perms.can_change_education_group(request.user, element)
-
-
-@login_required
-@waffle_flag("education_group_update")
-def proxy_management(request):
-    return management(
-        request,
-        root_id=_get_data(request, 'root_id'),
-        element_id=_get_data(request, 'element_id'),
-        group_element_year_id=_get_data(request, 'group_element_year_id'),
-    )
 
 
 @require_http_methods(['POST'])

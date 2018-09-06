@@ -51,15 +51,13 @@ class TestUp(TestCase):
 
         cls.person = CentralManagerFactory()
         cls.person.user.user_permissions.add(Permission.objects.get(codename="can_access_education_group"))
-        cls.url = reverse(
-            "group_element_year_management",
-            kwargs={
-                "root_id": cls.education_group_year.id,
-                "element_id": cls.education_group_year.id,
-                "group_element_year_id": cls.group_element_year_3.id,
-            }
-        )
-        cls.post_valid_data = {'action': 'up'}
+        cls.url = reverse("education_groups_management")
+        cls.post_valid_data = {
+            "root_id": cls.education_group_year.id,
+            "element_id": cls.education_group_year.id,
+            "group_element_year_id": cls.group_element_year_3.id,
+            'action': 'up',
+        }
 
     def setUp(self):
         self.client.force_login(self.person.user)
@@ -117,15 +115,13 @@ class TestDown(TestCase):
 
         cls.person = CentralManagerFactory()
         cls.person.user.user_permissions.add(Permission.objects.get(codename="can_access_education_group"))
-        cls.url = reverse(
-            "group_element_year_management",
-            kwargs={
-                "root_id": cls.education_group_year.id,
-                "element_id": cls.education_group_year.id,
-                "group_element_year_id": cls.group_element_year_1.id
-            }
-        )
-        cls.post_valid_data = {'action': 'down'}
+        cls.url = reverse("education_groups_management")
+        cls.post_valid_data = {
+            "root_id": cls.education_group_year.id,
+            "element_id": cls.education_group_year.id,
+            "group_element_year_id": cls.group_element_year_1.id,
+            'action': 'down',
+        }
 
     def setUp(self):
         self.client.force_login(self.person.user)

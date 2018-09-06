@@ -46,34 +46,32 @@ class TestDetach(TestCase):
         cls.group_element_year = GroupElementYearFactory(parent=cls.education_group_year)
         cls.person = CentralManagerFactory()
         cls.person.user.user_permissions.add(Permission.objects.get(codename="can_access_education_group"))
-        cls.url = reverse(
-            "group_element_year_management",
-            kwargs={
-                "root_id": cls.education_group_year.id,
-                "element_id": cls.education_group_year.id,
-                "group_element_year_id": cls.group_element_year.id
-            }
-        )
-        cls.post_valid_data = {'action': 'detach'}
+        cls.url = reverse("education_groups_management")
+        cls.post_valid_data = {
+            "root_id": cls.education_group_year.id,
+            "element_id": cls.education_group_year.id,
+            "group_element_year_id": cls.group_element_year.id,
+            'action': 'detach',
+        }
 
     def setUp(self):
         self.client.force_login(self.person.user)
 
     def test_edit_case_user_not_logged(self):
         self.client.logout()
-        response = self.client.post(self.url, self.post_valid_data)
+        response = self.client.post(self.url, data=self.post_valid_data)
 
         self.assertRedirects(response, '/login/?next={}'.format(self.url))
 
     @override_flag('education_group_update', active=False)
     def test_detach_case_flag_disabled(self):
-        response = self.client.post(self.url, self.post_valid_data)
+        response = self.client.post(self.url, data=self.post_valid_data)
         self.assertEqual(response.status_code, HttpResponseNotFound.status_code)
         self.assertTemplateUsed(response, "page_not_found.html")
 
     @mock.patch("base.business.education_groups.perms.is_eligible_to_change_education_group", return_value=False)
     def test_detach_case_user_not_have_access(self, mock_permission):
-        response = self.client.post(self.url, self.post_valid_data)
+        response = self.client.post(self.url, data=self.post_valid_data)
         self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
         self.assertTemplateUsed(response, "access_denied.html")
 
