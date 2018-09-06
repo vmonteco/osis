@@ -25,23 +25,21 @@
 ##############################################################################
 import json
 
-from ckeditor.fields import RichTextFormField
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core.exceptions import PermissionDenied
 from django.db.models import Prefetch
-from django import forms
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_http_methods
-from prettyprinter import cpprint
 from waffle.decorators import waffle_flag
 
 from base import models as mdl
 from base.business import education_group as education_group_business
 from base.business.education_group import assert_category_of_education_group_year
+from base.forms.education_group_admission import UpdateLineForm, UpdateTextForm
 from base.forms.education_group_pedagogy_edit import EducationGroupPedagogyEditForm
 from base.forms.education_groups_administrative_data import CourseEnrollmentForm, AdministrativeDataFormset
 from base.models.admission_condition import AdmissionConditionLine, AdmissionCondition
@@ -335,16 +333,6 @@ def get_content_of_admission_condition_line(message, admission_condition_line, l
     }
 
 
-class Form(forms.Form):
-    admission_condition_line = forms.IntegerField(widget=forms.HiddenInput())
-    section = forms.CharField(widget=forms.HiddenInput())
-    language = forms.CharField(widget=forms.HiddenInput())
-    diploma = forms.CharField(widget=forms.Textarea, required=False)
-    conditions = forms.CharField(widget=forms.Textarea, required=False)
-    access = forms.CharField(widget=forms.Textarea, required=False)
-    remarks = forms.CharField(widget=forms.Textarea, required=False)
-
-
 def education_group_year_admission_condition_update_line_post(request, root_id, education_group_year_id):
     creation_mode = request.POST.get('admission_condition_line') == ''
 
@@ -353,7 +341,7 @@ def education_group_year_admission_condition_update_line_post(request, root_id, 
         request.POST = request.POST.copy()
         request.POST.update({'admission_condition_line': 0})
 
-    form = Form(request.POST)
+    form = UpdateLineForm(request.POST)
 
     if form.is_valid():
         admission_condition_line_id = form.cleaned_data['admission_condition_line']
@@ -402,7 +390,7 @@ def education_group_year_admission_condition_update_line_get(request):
         response = get_content_of_admission_condition_line('read', admission_condition_line, lang)
         initial_values.update(response)
 
-    form = Form(initial=initial_values)
+    form = UpdateLineForm(initial=initial_values)
 
     context = {
         'form': form
@@ -416,13 +404,6 @@ def education_group_year_admission_condition_update_line(request, root_id, educa
     if request.method == 'POST':
         return education_group_year_admission_condition_update_line_post(request, root_id, education_group_year_id)
     return education_group_year_admission_condition_update_line_get(request)
-
-
-class UpdateTextForm(forms.Form):
-    # text = forms.CharField(widget=forms.Textarea)
-    text = RichTextFormField(required=False, config_name='minimal')
-    section = forms.CharField(widget=forms.HiddenInput())
-    language = forms.CharField(widget=forms.HiddenInput())
 
 
 def education_group_year_admission_condition_update_text_post(request, root_id, education_group_year_id):
