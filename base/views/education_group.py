@@ -239,6 +239,7 @@ def translated_text_labels2dict(translated_text_label):
     }
 
 
+# keep
 @login_required
 @ajax_required
 @permission_required('base.can_edit_educationgroup_pedagogy', raise_exception=True)
@@ -269,6 +270,7 @@ def education_group_year_admission_condition_add_line(request, root_id, educatio
     return JsonResponse({'message': 'added', 'record': record})
 
 
+# keep
 @login_required
 @permission_required('base.can_edit_educationgroup_pedagogy', raise_exception=True)
 def education_group_year_admission_condition_remove_line(request, root_id, education_group_year_id):
@@ -318,27 +320,6 @@ def education_group_year_admission_condition_get_text(request, root_id, educatio
     column = 'text_' + info['section'] + lang
     text = getattr(admission_condition, column, 'Undefined')
     return JsonResponse({'message': 'read', 'section': info['section'], 'text': text})
-
-
-@login_required
-@ajax_required
-@permission_required('base.can_edit_educationgroup_pedagogy', raise_exception=True)
-def education_group_year_admission_condition_get_line(request, root_id, education_group_year_id):
-
-    education_group_year = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
-
-    admission_condition, created = AdmissionCondition.objects.get_or_create(education_group_year=education_group_year)
-
-    info = json.loads(request.body.decode('utf-8'))
-    lang = '' if info['language'] == 'fr' else '_en'
-
-    admission_condition_line = get_object_or_404(AdmissionConditionLine,
-                                                 admission_condition=admission_condition,
-                                                 section=info['section'],
-                                                 pk=info['id'])
-
-    response = get_content_of_admission_condition_line('read', admission_condition_line, lang)
-    return JsonResponse(response)
 
 
 def get_content_of_admission_condition_line(message, admission_condition_line, lang):
