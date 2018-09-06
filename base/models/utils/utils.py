@@ -25,7 +25,10 @@
 ##############################################################################
 from enum import Enum
 
+from django.http import Http404
+from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
+
 
 class ChoiceEnum(Enum):
     @classmethod
@@ -35,3 +38,16 @@ class ChoiceEnum(Enum):
     @classmethod
     def translation_choices(cls):
         return tuple((x.name, _(x.value)) for x in cls)
+
+
+def get_object_or_none(klass, *args, **kwargs):
+    try:
+        return get_object_or_404(klass, *args, **kwargs)
+    except Http404:
+        return None
+    except ValueError:
+        klass__name = klass.__name__ if isinstance(klass, type) else klass.__class__.__name__
+        raise ValueError(
+            "First argument to get_object_or_none() must be a Model, Manager, "
+            "or QuerySet, not '%s'." % klass__name
+        )

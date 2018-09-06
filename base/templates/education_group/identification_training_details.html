@@ -149,6 +149,16 @@
                 </div>
                 <br>
                 <div>
+                    <label>{% trans 'Decree category' %}</label><br>
+                    {% if education_group_year.decree_category %}{% trans education_group_year.decree_category %}{% endif %}
+                </div>
+                <br>
+                <div>
+                    <label>{% trans 'Rate code' %}</label><br>
+                    {% if education_group_year.rate_code %}{% trans education_group_year.rate_code %}{% endif %}
+                </div>
+                <br>
+                <div>
                     <label>{% trans 'primary_language' %}</label><br>
                     {% if education_group_languages %}
                         {{ education_group_languages|join_with_spaces:education_group_year.language_association }}
@@ -165,12 +175,23 @@
                 </div>
                 <br>
                 <div>
-                    <label>{% trans 'studies_domain' %}</label><br>
-                    {% if education_group_year.domains %}
-                        <ul>{{ education_group_year.domains.all | unordered_list }}</ul>
+                    <label>{% trans 'main domain'|title %}</label><br>
+                    {% if education_group_year.main_domain %}
+                        {{ education_group_year.main_domain }}
                     {% else %}
                         <strong class="text-primary">
-                            <ul>{{ parent.domains.all | unordered_list }}</ul>
+                            {{ parent.main_domain }}
+                        </strong><br>
+                    {% endif %}
+                </div>
+                <br>
+                <div>
+                    <label>{% trans 'secondary domains'|title %}</label><br>
+                    {% if education_group_year.secondary_domains %}
+                        <ul>{{ education_group_year.secondary_domains.all | unordered_list }}</ul>
+                    {% else %}
+                        <strong class="text-primary">
+                            <ul>{{ parent.secondary_domains.all | unordered_list }}</ul>
                         </strong><br>
                     {% endif %}
                 </div>

@@ -37,7 +37,7 @@ from base.models.academic_year import current_academic_year, compute_max_academi
     MAX_ACADEMIC_YEAR_FACULTY
 from base.models.enums import active_status, learning_container_year_types
 from base.models.enums import learning_unit_year_subtypes, internship_subtypes, \
-    learning_unit_year_session, entity_container_year_link_type, learning_unit_year_quadrimesters, attribution_procedure
+    learning_unit_year_session, entity_container_year_link_type, quadrimesters, attribution_procedure
 from base.models.enums.learning_container_year_types import COURSE, INTERNSHIP
 from base.models.enums.learning_unit_year_periodicity import PERIODICITY_TYPES, ANNUAL, BIENNIAL_EVEN, BIENNIAL_ODD
 from base.models.learning_unit import LEARNING_UNIT_ACRONYM_REGEX_ALL, REGEX_BY_SUBTYPE
@@ -69,8 +69,16 @@ class LearningUnitYearWithContainerManager(models.Manager):
         return super().get_queryset().filter(learning_container_year__isnull=False)
 
 
-class LearningUnitYear(SerializableModel):
-    external_id = models.CharField(max_length=100, blank=True, null=True)
+class ExtraManagerLearningUnitYear(models.Model):
+    # This class ensure that the default manager (from serializable model) is not override by this manager
+    objects_with_container = LearningUnitYearWithContainerManager()
+
+    class Meta:
+        abstract = True
+
+
+class LearningUnitYear(SerializableModel, ExtraManagerLearningUnitYear):
+    external_id = models.CharField(max_length=100, blank=True, null=True, db_index=True)
     academic_year = models.ForeignKey(AcademicYear,  verbose_name=_('academic_year'),
                                       validators=[academic_year_validator])
     learning_unit = models.ForeignKey('LearningUnit')
@@ -84,7 +92,7 @@ class LearningUnitYear(SerializableModel):
                                               verbose_name=_('english_title_proper_to_UE'))
     subtype = models.CharField(max_length=50, choices=learning_unit_year_subtypes.LEARNING_UNIT_YEAR_SUBTYPES,
                                default=learning_unit_year_subtypes.FULL)
-    credits = models.DecimalField(max_digits=5, decimal_places=2, null=True,
+    credits = models.DecimalField(null=True, max_digits=5, decimal_places=2,
                                   validators=[MinValueValidator(MINIMUM_CREDITS), MaxValueValidator(MAXIMUM_CREDITS)],
                                   verbose_name=_('credits'))
     decimal_scores = models.BooleanField(default=False)
@@ -97,21 +105,19 @@ class LearningUnitYear(SerializableModel):
                                choices=learning_unit_year_session.LEARNING_UNIT_YEAR_SESSION,
                                verbose_name=_('session_title'))
     quadrimester = models.CharField(max_length=9, blank=True, null=True, verbose_name=_('quadrimester'),
-                                    choices=learning_unit_year_quadrimesters.LEARNING_UNIT_YEAR_QUADRIMESTERS)
+                                    choices=quadrimesters.LEARNING_UNIT_YEAR_QUADRIMESTERS)
     attribution_procedure = models.CharField(max_length=20, blank=True, null=True, verbose_name=_('procedure'),
                                              choices=attribution_procedure.ATTRIBUTION_PROCEDURES)
     summary_locked = models.BooleanField(default=False, verbose_name=_("summary_locked"))
 
     professional_integration = models.BooleanField(default=False, verbose_name=_('professional_integration'))
 
-    campus = models.ForeignKey('Campus', null=True)
+    campus = models.ForeignKey('Campus', null=True, verbose_name=_("learning_location"))
 
     language = models.ForeignKey('reference.Language', null=True, verbose_name=_('language'))
 
     periodicity = models.CharField(max_length=20, choices=PERIODICITY_TYPES, default=ANNUAL,
                                    verbose_name=_('periodicity'))
-
-    objects_with_container = LearningUnitYearWithContainerManager()
     _warnings = None
 
     class Meta:
@@ -241,10 +247,15 @@ class LearningUnitYear(SerializableModel):
         return self.subtype == learning_unit_year_subtypes.PARTIM
 
     def get_entity(self, entity_type):
-        entity_container_yr = mdl_entity_container_year.search(
-            link_type=entity_type, learning_container_year=self.learning_container_year
-        ).get()
-        return entity_container_yr.entity if entity_container_yr else None
+        entity = None
+        # @TODO: Remove this condition when classes will be removed from learning unit year
+        if self.learning_container_year:
+            entity_container_yr = mdl_entity_container_year.search(
+                link_type=entity_type,
+                learning_container_year=self.learning_container_year,
+            ).get()
+            entity = entity_container_yr.entity if entity_container_yr else None
+        return entity
 
     def clean(self):
         learning_unit_years = find_gte_year_acronym(self.academic_year, self.acronym)
@@ -264,6 +275,7 @@ class LearningUnitYear(SerializableModel):
     def warnings(self):
         if self._warnings is None:
             self._warnings = []
+            self._warnings.extend(self._check_credits_is_integer())
             self._warnings.extend(self._check_partim_parent_credits())
             self._warnings.extend(self._check_internship_subtype())
             self._warnings.extend(self._check_partim_parent_status())
@@ -272,6 +284,13 @@ class LearningUnitYear(SerializableModel):
             self._warnings.extend(self._check_learning_container_year_warnings())
             self._warnings.extend(self._check_entity_container_year_warnings())
         return self._warnings
+
+    # TODO: Currently, we should warning user that the credits is not an integer
+    def _check_credits_is_integer(self):
+        warnings = []
+        if self.credits and self.credits % 1 != 0:
+            warnings.append(_('The credits value should be an integer'))
+        return warnings
 
     def _check_partim_parent_credits(self):
         children = self.get_partims_related()
@@ -479,10 +498,11 @@ def find_lt_learning_unit_year_with_different_acronym(a_learning_unit_yr):
 
 
 def find_learning_unit_years_by_academic_year_tutor_attributions(academic_year, tutor):
-    qs = LearningUnitYear.objects.filter(
+    """ In this function, only learning unit year with containers is visible! [no classes] """
+    qs = LearningUnitYear.objects_with_container.filter(
             academic_year=academic_year,
-            attribution__tutor=tutor)\
-        .order_by('academic_year__year', 'acronym')
+            attribution__tutor=tutor,
+         ).distinct().order_by('academic_year__year', 'acronym')
     return qs
 
 

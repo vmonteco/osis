@@ -23,9 +23,10 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from django.core import serializers
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
-from django.core import serializers
+
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
 
 
@@ -36,9 +37,16 @@ class LanguageAdmin(SerializableModelAdmin):
     search_fields = ['code', 'name']
 
 
+class CountryManager(models.Manager):
+    """Enable fixtures using self.code instead of `id`"""
+
+    def get_by_natural_key(self, code):
+        return self.get(code=code)
+
+
 class Language(SerializableModel):
     code = models.CharField(max_length=4, unique=True)
-    external_id = models.CharField(max_length=100, blank=True, null=True)
+    external_id = models.CharField(max_length=100, blank=True, null=True, db_index=True)
     changed = models.DateTimeField(null=True, auto_now=True)
     name = models.CharField(max_length=80, unique=True)
     recognized = models.BooleanField(default=False)

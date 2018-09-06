@@ -559,6 +559,7 @@ class TestGroupActionsOnProposals(TestCase):
         cls.person.user.user_permissions.add(Permission.objects.get(codename="can_access_learningunit"))
         cls.proposals = [_create_proposal_learning_unit() for _ in range(3)]
         cls.url = reverse(learning_units_proposal_search)
+        create_current_academic_year()
 
     def setUp(self):
         self.client.force_login(self.person.user)

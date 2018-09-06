@@ -86,36 +86,55 @@
         {% endif %}
         <br>
         <div class="row">
-            <div class="col-md-4">
-                <label>{% trans 'credits' %}</label><br>
-                {% if education_group_year.credits %}
-                    {{ education_group_year.credits }}
-                {% elif parent.credits %}
-                    <strong class="text-primary">{{ parent.credits }}</strong><br>
-                {% else %}
-                    <br>
-                {% endif %}
-            </div>
-            <div class="col-md-4">
-                <label>{% trans 'minimum credits'|capfirst %}</label><br>
-                {% if education_group_year.min_credits %}
-                    {{ education_group_year.min_credits }}
-                {% elif parent.min_credits %}
-                    <strong class="text-primary">{{ parent.min_credits }}</strong><br>
-                {% else %}
-                    <br>
-                {% endif %}
-            </div>
-            <div class="col-md-4">
-                <label>{% trans 'maximum credits'|capfirst %}</label><br>
-                {% if education_group_year.max_credits %}
-                    {{ education_group_year.max_credits }}
-                {% elif parent.max_credits %}
-                    <strong class="text-primary">{{ parent.max_credits }}</strong><br>
-                {% else %}
-                    <br>
-                {% endif %}
-            </div>
+            <dl class="col-md-6">
+                <dt>
+                    {% trans 'credits' %}
+                </dt>
+                <dd>
+                    {% if education_group_year.credits %}
+                        {{ education_group_year.credits }}
+                    {% elif parent.credits %}
+                        <strong class="text-primary">{{ parent.credits }}</strong>
+                    {% endif %}
+                </dd>
+            </dl>
+            <dl class="col-md-6">
+                <dt>
+                    {% trans 'type of constraint'|capfirst %}
+                </dt>
+                <dd>
+                    {% if education_group_year.constraint_type %}
+                        {{ education_group_year.get_constraint_type_display }}
+                    {% elif parent.constraint_type %}
+                        <strong class="text-primary">{{ parent.get_constraint_type_display }}</strong>
+                    {% endif %}
+                </dd>
+            </dl>
+
+            <dl class="col-md-6">
+                <dt>
+                    {% trans 'minimum constraint'|capfirst %}
+                </dt>
+                <dd>
+                    {% if education_group_year.min_constraint %}
+                        {{ education_group_year.min_constraint }}
+                    {% elif parent.min_constraint %}
+                        <strong class="text-primary">{{ parent.min_constraint }}</strong>
+                    {% endif %}
+                </dd>
+            </dl>
+            <dl class="col-md-6">
+                <dt>
+                    {% trans 'maximum constraint'|capfirst %}
+                </dt>
+                <dd>
+                    {% if education_group_year.max_constraint %}
+                        {{ education_group_year.max_constraint }}
+                    {% elif parent.max_constraint %}
+                        <strong class="text-primary">{{ parent.max_constraint }}</strong>
+                    {% endif %}
+                </dd>
+            </dl>
         </div>
         <br>
         <div>

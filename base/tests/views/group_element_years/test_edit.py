@@ -31,7 +31,7 @@ from django.test import TestCase
 from django.urls import reverse
 from waffle.testutils import override_flag
 
-from base.models.enums.sessions_derogation import SessionsDerogationTypes
+from base.models.enums import quadrimesters
 from base.tests.factories.education_group_year import EducationGroupYearFactory
 from base.tests.factories.group_element_year import GroupElementYearFactory
 from base.tests.factories.person import CentralManagerFactory
@@ -85,14 +85,14 @@ class TestEdit(TestCase):
     def test_edit_comment_post(self, mock_permission):
         data = {
             "comment":  """C'est une affaire dangereuse de passer ta porte, Frodon, 
-            Tu vas sur la route, et si tu ne retiends pas tes pieds, 
+            Tu vas sur la route, et si tu ne retiens pas tes pieds,
             Dieu sait jusqu'où tu pourrais être emporté.""",
 
             "comment_english": """It's a dangerous business, Frodo, 
             going out your door. You step onto the road, and if you don't keep your feet,
              there's no knowing where you might be swept off to.""",
 
-            "sessions_derogation": SessionsDerogationTypes.SESSION_UNDEFINED.value,
+            "quadrimester_derogation": quadrimesters.Q1,
         }
         response = self.client.post(self.url, data=data)
 
@@ -101,3 +101,4 @@ class TestEdit(TestCase):
         self.group_element_year.refresh_from_db()
         self.assertEqual(self.group_element_year.comment, data['comment'])
         self.assertEqual(self.group_element_year.comment_english, data['comment_english'])
+        self.assertEqual(self.group_element_year.quadrimester_derogation, data['quadrimester_derogation'])

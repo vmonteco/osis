@@ -23,6 +23,8 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+import collections
+
 from django.conf import settings
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core.exceptions import PermissionDenied
@@ -30,6 +32,7 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_http_methods
+from django.utils.translation import ugettext_lazy as _
 
 from attribution.business import attribution_charge_new
 from base import models as mdl
@@ -37,6 +40,8 @@ from base.business.learning_unit import get_cms_label_data, \
     get_same_container_year_components, find_language_in_settings, \
     CMS_LABEL_SPECIFICATIONS, get_achievements_group_by_language
 from base.business.learning_units import perms as business_perms
+from base.business.learning_units.comparison import get_keys, compare_learning_unit_years, \
+    compare_learning_container_years, get_components_changes, get_partims_as_str
 from base.business.learning_units.perms import can_update_learning_achievement
 from base.forms.learning_class import LearningClassEditForm
 from base.forms.learning_unit_component import LearningUnitComponentEditForm
@@ -47,6 +52,11 @@ from base.views.learning_units.common import get_learning_unit_identification_co
     get_common_context_learning_unit_year, get_text_label_translated
 from cms.models import text_label
 from . import layout
+from base.business.learning_unit import get_learning_unit_comparison_context
+
+ORGANIZATION_KEYS = ['ALLOCATION_ENTITY', 'REQUIREMENT_ENTITY',
+                     'ADDITIONAL_REQUIREMENT_ENTITY_1', 'ADDITIONAL_REQUIREMENT_ENTITY_2',
+                     'campus', 'organization']
 
 
 @login_required
@@ -74,7 +84,7 @@ def learning_unit_formations(request, learning_unit_year_id):
     context = get_common_context_learning_unit_year(learning_unit_year_id, get_object_or_404(Person, user=request.user))
     learn_unit_year = context["learning_unit_year"]
     group_elements_years = mdl.group_element_year.search(child_leaf=learn_unit_year) \
-        .select_related("parent", "child_leaf").order_by('parent__partial_acronym')
+        .select_related("parent", "child_leaf", "parent__education_group_type").order_by('parent__partial_acronym')
     education_groups_years = [group_element_year.parent for group_element_year in group_elements_years]
     formations_by_educ_group_year = mdl.group_element_year.find_learning_unit_formations(education_groups_years,
                                                                                          parents_as_instances=True)
@@ -82,6 +92,7 @@ def learning_unit_formations(request, learning_unit_year_id):
     context['group_elements_years'] = group_elements_years
 
     context['root_formations'] = education_group_year.find_with_enrollments_count(learn_unit_year)
+    context['experimental_phase'] = True
 
     return layout.render(request, "learning_unit/formations.html", context)
 
@@ -227,3 +238,72 @@ def learning_class_year_edit(request, learning_unit_year_id):
     form.load_initial()  # Load data from database
     context['form'] = form
     return layout.render(request, "learning_unit/class_edit.html", context)
+
+
+def learning_unit_comparison(request, learning_unit_year_id):
+    learning_unit_yr = get_object_or_404(mdl.learning_unit_year.LearningUnitYear.objects.all()
+                                         .select_related('learning_unit', 'learning_container_year'),
+                                         pk=learning_unit_year_id)
+    context = get_learning_unit_comparison_context(learning_unit_yr)
+
+    previous_academic_yr = mdl.academic_year.find_academic_year_by_year(learning_unit_yr.academic_year.year - 1)
+    previous_lu = _get_learning_unit_year(previous_academic_yr, learning_unit_yr)
+    previous_values = compare_learning_unit_years(learning_unit_yr, previous_lu)
+    previous_lcy_values = compare_learning_container_years(learning_unit_yr.learning_container_year,
+                                                           previous_lu.learning_container_year)
+
+    next_academic_yr = mdl.academic_year.find_academic_year_by_year(learning_unit_yr.academic_year.year + 1)
+    next_lu = _get_learning_unit_year(next_academic_yr, learning_unit_yr)
+    next_values = compare_learning_unit_years(learning_unit_yr, next_lu)
+    next_lcy_values = compare_learning_container_years(learning_unit_yr.learning_container_year,
+                                                       next_lu.learning_container_year)
+    previous_context = get_learning_unit_comparison_context(previous_lu)
+    next_context = get_learning_unit_comparison_context(next_lu)
+
+    if _has_changed(context, next_context, previous_context, 'learning_container_year_partims'):
+        context.update({'partims': {'prev': get_partims_as_str(previous_context.get('learning_container_year_partims')),
+                                    'current': get_partims_as_str(context.get('learning_container_year_partims')),
+                                    'next': get_partims_as_str(next_context.get('learning_container_year_partims'))}})
+
+    context.update(
+        {'previous_values': previous_values,
+         'previous_academic_yr': previous_academic_yr,
+         'next_academic_yr': next_academic_yr,
+         'next_values': next_values,
+         'fields': get_keys(list(previous_values.keys()), list(next_values.keys())),
+         'entity_changes': _get_changed_organization(context,
+                                                     previous_context,
+                                                     next_context),
+         'fields_lcy': get_keys(list(previous_lcy_values.keys()), list(next_lcy_values.keys())),
+         'previous_lcy_values': previous_lcy_values,
+         'next_lcy_values': next_lcy_values,
+         'components_comparison': get_components_changes(previous_context['components'],
+                                                         context['components'],
+                                                         next_context['components'])
+         })
+    return layout.render(request, "learning_unit/comparison.html", context)
+
+
+def _get_learning_unit_year(academic_yr, learning_unit_yr):
+    learning_unit_years = mdl.learning_unit_year.search(learning_unit=learning_unit_yr.learning_unit,
+                                                        academic_year_id=academic_yr.id)
+    if learning_unit_years.exists():
+        return learning_unit_years.first()
+    return None
+
+
+def _get_changed_organization(context, context_prev, context_next):
+    data = {}
+    for key_value in ORGANIZATION_KEYS:
+        if _has_changed(context, context_next, context_prev, key_value):
+            translated_key = _('learning_location') if key_value == "campus" else _(key_value.lower())
+            data.update({translated_key: {'prev': context_prev.get(key_value),
+                                          'current': context.get(key_value),
+                                          'next': context_next.get(key_value)}
+                         })
+
+    return collections.OrderedDict(sorted(data.items()))
+
+
+def _has_changed(data_reference, data_1, data_2, key):
+    return data_reference.get(key) != data_1.get(key) or data_reference.get(key) != data_2.get(key)

@@ -23,9 +23,12 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from django.core.exceptions import ValidationError
 from django.db import models
-from osis_common.models.osis_model_admin import OsisModelAdmin
 from django.utils.translation import ugettext_lazy as _
+
+from base.business.education_groups import shorten
+from osis_common.models.osis_model_admin import OsisModelAdmin
 
 
 class EducationGroupAdmin(OsisModelAdmin):
@@ -34,10 +37,20 @@ class EducationGroupAdmin(OsisModelAdmin):
 
 
 class EducationGroup(models.Model):
-    external_id = models.CharField(max_length=100, blank=True, null=True)
+    external_id = models.CharField(max_length=100, blank=True, null=True, db_index=True)
     changed = models.DateTimeField(null=True, auto_now=True)
-    start_year = models.IntegerField(blank=True, null=True, verbose_name=_('start'))
-    end_year = models.IntegerField(blank=True, null=True, verbose_name=_('end'))
+
+    start_year = models.PositiveIntegerField(
+        blank=True,
+        null=True,
+        verbose_name=_('start')
+    )
+
+    end_year = models.PositiveIntegerField(
+        blank=True,
+        null=True,
+        verbose_name=_('end')
+    )
 
     @property
     def most_recent_acronym(self):
@@ -53,3 +66,17 @@ class EducationGroup(models.Model):
             ("can_access_education_group", "Can access education_group"),
             ("can_edit_educationgroup_pedagogy", "Can edit education group pedagogy")
         )
+
+    def clean(self):
+        # Check end_year should be greater of equals to start_year
+        if self.start_year and self.end_year:
+            if self.start_year > self.end_year:
+                raise ValidationError({
+                    'end_year': _("%(max)s must be greater or equals than %(min)s") % {
+                        "max": _("end").title(),
+                        "min": _("start").title(),
+                    }
+                })
+        # Check if end_year could be set according to protected data
+        if self.end_year:
+            shorten.check_education_group_end_date(self, self.end_year)

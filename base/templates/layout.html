@@ -39,7 +39,8 @@
     <meta name="apple-mobile-web-app-capable" content="yes"/>
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
-    <link rel="icon" href="{% static 'img/favicon.ico' %}"/>
+    <link rel="icon" href="
+            {% if environment == 'LOCAL' %}{% static 'img/favicon_blue.ico' %}{% else %}{% static 'img/favicon.ico' %}{% endif %}"/>
     <link rel="stylesheet" href="{% static 'css/armata.css' %}" type='text/css'>
     <link rel="stylesheet" href="{% static 'css/jquery-ui.css' %}">
     <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
@@ -89,7 +90,7 @@
     {% analytical_body_top %}
     {% block layout_navbar_top %}
     <nav class="navbar navbar-default navbar-fixed-top">
-        <div class="container">
+        <div class="container-fluid p0-50">
             <!-- Brand and toggle get grouped for better mobile display -->
             <div class="navbar-header">
                 <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
@@ -238,12 +239,12 @@
         </div>
     </div>
     {% if subject %}
-        <div class="container">
+        <div class="container-fluid p0-50">
             <div class="alert alert-warning" role="alert"><b>{{ subject }}</b><br>{{ notice }}</div>
         </div>
     {% endif %}
 
-    <div class="container">
+    <div class="container-fluid p0-50">
         {% if request.user.is_authenticated %}
             {% block breadcrumbarea %}
                 <ol class="breadcrumb">
@@ -264,9 +265,10 @@
                 <i class="fa fa-exclamation-triangle" aria-hidden="true"></i> {% trans 'experimental_phase' %}.
             </div>
         {% endif %}
+        {# FIXME ! It is forbidden to add something in the main layout for a specific need. Use messages instead !#}
         {% if warnings %}
             <div class="alert alert-warning" style="margin-bottom: 10px">
-                <i class="fa fa-exclamation-triangle" aria-hidden="true"></i> {% trans 'warnigns_detected' %}
+                <i class="fa fa-exclamation-triangle" aria-hidden="true"></i> {% trans 'warnings_detected' %}
                 <a role="button" data-toggle="collapse" href="#CollapseWarnings" aria-expanded="false"
                    aria-controls="collapse_classes" style="border:0;padding:0;">
                     <span id="expandButton" class="glyphicon glyphicon-collapse-down" aria-hidden="true"
@@ -288,12 +290,14 @@
         {% endblock %}
         {% block content %}
         {% endblock %}
+        {% block modal %}
+        {% endblock %}
         <br>
         <br>
     </div>
 
     <nav class="navbar navbar-default navbar-fixed-bottom">
-        <div class="container">
+        <div class="container-fluid p0-50">
             <p class="navbar-text pull-left"><a
                     href="{{ user_manual.global }}"
                     target="_blank" id="lnk_user_manual">{% trans 'documentation' %}</a> |

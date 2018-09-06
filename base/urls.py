@@ -29,8 +29,6 @@ from django.conf.urls import url, include
 from django.conf.urls.static import static
 
 import base.views.education_groups.create
-import base.views.education_groups.detail
-import base.views.education_groups.search
 import base.views.learning_units.common
 import base.views.learning_units.create
 import base.views.learning_units.delete
@@ -42,11 +40,8 @@ import base.views.learning_units.update
 from attribution.views import attribution, tutor_application
 from base.views import learning_achievement, search, education_groups
 from base.views import learning_unit, offer, common, institution, organization, academic_calendar, \
-    my_osis, entity, student, education_group
+    my_osis, entity, student
 from base.views import teaching_material
-from base.views.education_groups.delete import DeleteGroupEducationYearView
-from base.views.education_groups.group_element_year import update
-from base.views.education_groups.update import update_education_group
 from base.views.learning_units.external import create as create_external
 from base.views.learning_units.external.search import filter_cities_by_country, filter_campus_by_city
 from base.views.learning_units.pedagogy.read import learning_unit_pedagogy
@@ -177,7 +172,8 @@ urlpatterns = [
                     name="teaching_material_edit"),
                 url(r'^(?P<teaching_material_id>[0-9]+)/delete/', teaching_material.delete,
                     name="teaching_material_delete")
-            ]))
+            ])),
+            url(r'^comparison/$', learning_unit.learning_unit_comparison, name="learning_unit_comparison"),
         ])),
         url(r'^check/(?P<subtype>[A-Z]+)$', base.views.learning_units.common.check_acronym, name="check_acronym"),
         url(r'^email_educational_information_update/$',
@@ -220,84 +216,8 @@ urlpatterns = [
             url(r'^program_managers/$', offer.offer_program_managers_tab, name='offer_program_managers_tab'),
         ]))
     ])),
-    url(r'^educationgroups/', include([
-        url(r'^$', base.views.education_groups.search.education_groups, name='education_groups'),
-        url(r'^new/(?P<category>[A-Z_]+)/$',
-            base.views.education_groups.create.create_education_group, name='new_education_group'),
-        url(r'^new/(?P<category>[A-Z_]+)/(?P<parent_id>[0-9]+)/$',
-            base.views.education_groups.create.create_education_group, name='new_education_group'),
-        url(r'^(?P<education_group_year_id>[0-9]+)/', include([
-            url(r'^$', base.views.education_groups.detail.EducationGroupRead.as_view(), name='education_group_read'),
-            url(r'^update/$', update_education_group, name="update_education_group"),
-            url(r'^diplomas/$', base.views.education_groups.detail.EducationGroupDiplomas.as_view(),
-                name='education_group_diplomas'),
-            url(r'^informations/$', base.views.education_groups.detail.EducationGroupGeneralInformation.as_view(),
-                name='education_group_general_informations'),
-            url(r'^informations/edit/$', education_group.education_group_year_pedagogy_edit,
-                name="education_group_pedagogy_edit"),
 
-            url(r'^informations/remove$', education_group.education_group_year_pedagogy_remove_term,
-                name="education_group_pedagogy_remove_term"),
-            url(r'^informations/add$', education_group.education_group_year_pedagogy_add_term,
-                name="education_group_pedagogy_add_term"),
-            url(r'^informations/get_terms/(?P<language>[a-z\-]+)',
-                education_group.education_group_year_pedagogy_get_terms,
-                name="education_group_pedagogy_get_terms"),
-
-            url(r'^administrative/', include([
-                url(u'^$', base.views.education_groups.detail.EducationGroupAdministrativeData.as_view(),
-                    name='education_group_administrative'),
-                url(u'^edit/$', education_group.education_group_edit_administrative_data,
-                    name='education_group_edit_administrative')])),
-            url(r'^content/$', base.views.education_groups.detail.EducationGroupContent.as_view(),
-                name='education_group_content'),
-            url(r'^admission_conditions/$',
-                education_group.education_group_year_admission_condition_edit,
-                name='education_group_year_admission_condition_edit'),
-            url(r'^admission_conditions/add_line$',
-                education_group.education_group_year_admission_condition_add_line,
-                name='education_group_year_admission_condition_add_line'),
-
-            url(r'^admission_conditions/modify_text$',
-                education_group.education_group_year_admission_condition_modify_text,
-                name='education_group_year_admission_condition_modify_text'),
-
-            url(r'^admission_conditions/get_text$',
-                education_group.education_group_year_admission_condition_get_text,
-                name='education_group_year_admission_condition_get_text'),
-
-            url(r'^admission_conditions/remove_line$',
-                education_group.education_group_year_admission_condition_remove_line,
-                name='education_group_year_admission_condition_remove_line'),
-
-            url(r'^admission_conditions/update_line$',
-                education_group.education_group_year_admission_condition_update_line,
-                name='education_group_year_admission_condition_update_line'),
-
-            url(r'^admission_conditions/get_line$',
-                education_group.education_group_year_admission_condition_get_line,
-                name='education_group_year_admission_condition_get_line'),
-            url(r'^delete/$', DeleteGroupEducationYearView.as_view(), name="delete_education_group"),
-        ])),
-        url(r'^(?P<root_id>[0-9]+)/', include([
-            url(r'^(?P<education_group_year_id>[0-9]+)/', include([
-                url(r'^contents/', include([
-                    url(r'^(?P<group_element_year_id>[0-9]+)/', include([
-                        url(
-                            r'^management/',
-                            education_groups.group_element_year.update.management,
-                            name="group_element_year_management"
-                        ),
-                        url(
-                            r'^comment/$',
-                            education_groups.group_element_year.update.UpdateGroupElementYearView.as_view(),
-                            name="group_element_year_management_comment"
-                        )
-                    ]))
-                ]))
-            ]))
-        ]))
-    ])),
+    url(r'^educationgroups/', include(education_groups.urls.urlpatterns)),
 
     url(r'^offer_year_calendars/([0-9]+)/$', offer.offer_year_calendar_read, name='offer_year_calendar_read'),
 

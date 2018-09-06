@@ -1,4 +1,5 @@
 {% extends 'education_group/layout_detail.html' %}
+{% load education_group format %}
 {% comment "License" %}
 * OSIS stands for Open Student Information System. It's an application
 * designed to manage the core business of higher education institutions,
@@ -37,21 +38,34 @@
         <div class="panel-body" id="tabs">
             <div class="tab-content" id="tab_content">
                 <div role="tabpanel" class="tab-pane active" id="admission_conditions">
-                    <div class="row">
+                    <div class="row" style="display:flex;">
                         {% include "education_group/training_tree.html" %}
-                        <div id="panel-data" class="col-md-12">
+                        <div id="panel-data" class="col-md-12" style="height: 100%;">
                             {% include "education_group/tabs.html" %}
                             <br/>
 
                             <div class="row">
-                                {% if info.is_common and info.is_bachelor %}
-                                    {% render_condition_text 'bachelor' _('Admission Conditions for Bachelors') admission_condition.text_bachelor can_edit_information %}
-                                {% endif %}
-                                {% if info.is_common and info.is_master %}
+                                {% if info.is_common %}
                                     {% render_condition_text 'alert_message' _('Alert Message') admission_condition.text_alert_message can_edit_information %}
                                 {% endif %}
-                                {% if info.show_free_text %}
+
+                                {% if info.is_common and info.is_bachelor %}
+                                    {% render_condition_text 'ca_bacs_cond_generales' _('General Conditions') admission_condition.text_ca_bacs_cond_generales can_edit_information %}
+                                    {% render_condition_text 'ca_bacs_cond_particulieres' _('Specific Conditions') admission_condition.text_ca_bacs_cond_particulieres can_edit_information %}
+                                    {% render_condition_text 'ca_bacs_examen_langue' _('Language Exam') admission_condition.text_ca_bacs_examen_langue can_edit_information %}
+                                    {% render_condition_text 'ca_bacs_cond_speciales' _('Special Conditions') admission_condition.text_ca_bacs_cond_speciales can_edit_information %}
+                                {% endif %}
+
+                                {% if info.is_master and info.show_free_text %}
                                     {% render_condition_text 'free' _('Free Text') admission_condition.text_free can_edit_information %}
+                                {% endif %}
+
+                                {% if info.show_components_for_agreg_and_mc %}
+                                    {% render_condition_text 'ca_cond_generales' _('General Condition') admission_condition.text_ca_cond_generales can_edit_information %}
+                                    {% render_condition_text 'ca_maitrise_fr' _('French language proficiency examination') admission_condition.text_ca_maitrise can_edit_information %}
+                                    {% render_condition_text 'ca_allegement' _('Reduction') admission_condition.text_ca_allegement can_edit_information %}
+                                    {% render_condition_text 'ca_ouv_adultes' _('Opening to Adults') admission_condition.text_ca_ouv_adultes can_edit_information %}
+
                                 {% endif %}
                                 {% if info.is_specific and info.is_master %}
                                     <div id="university_bachelors">
@@ -177,7 +191,6 @@
 {% endblock %}
 
 {% block script %}
-    <script src="{% static 'js/education_group/education_group_tree.js' %}"></script>
     {% if can_edit_information %}
     <script>
         $(".line-add-btn").click(function (evt) {
@@ -207,7 +220,7 @@
             var section = $(this).data('section');
             var record_id = $(this).data('record-id');
 
-            var url = "{% url 'education_group_year_admission_condition_remove_line' education_group_year_id=education_group_year.id %}";
+            var url = "{% url 'education_group_year_admission_condition_remove_line' root.pk education_group_year.pk %}";
 
             $.ajax(url, {
                 data: JSON.stringify({'id': record_id, 'section': section}),
@@ -242,7 +255,7 @@
             button.data('record-id', record_id);
             button.data('language', language);
 
-            var url = "{% url 'education_group_year_admission_condition_get_line' education_group_year_id=education_group_year.id %}";
+            var url = "{% url 'education_group_year_admission_condition_get_line' root.pk education_group_year.pk %}";
 
             var diploma_ptr = $('#textarea_diploma'),
                 conditions_ptr = $('#textarea_conditions'),
@@ -282,7 +295,7 @@
         $('#modify_text_btn').click(function(evt) {
             evt.preventDefault();
             var modal = $("#modify_text");
-            var url = "{% url 'education_group_year_admission_condition_modify_text' education_group_year_id=education_group_year.id %}";
+            var url = "{% url 'education_group_year_admission_condition_modify_text' root.pk education_group_year.pk %}";
             var section = $(this).data('section'),
                 language = $(this).data('language');
 
@@ -320,7 +333,7 @@
             evt.preventDefault();
             var section = $(this).data('section'),
                 language = $(this).data('language');
-            var url = "{% url 'education_group_year_admission_condition_get_text' education_group_year_id=education_group_year.id %}";
+            var url = "{% url 'education_group_year_admission_condition_get_text' root.pk education_group_year.pk %}";
 
             var modal = $("#modify_text");
             var button = modal.find('#modify_text_btn');
@@ -347,7 +360,7 @@
                         alert(gettext("There is an error on the server, please contact the OSIS team."));
                     }
                 }
-            })
+            });
 
             modal.modal('show');
             return false;
@@ -391,10 +404,10 @@
             }
 
             if (add_mode) {
-                url = "{% url 'education_group_year_admission_condition_add_line' education_group_year_id=education_group_year.id %}";
+                url = "{% url 'education_group_year_admission_condition_add_line' root.pk education_group_year.pk  %}";
             }
             else {
-                url = "{% url 'education_group_year_admission_condition_update_line' education_group_year_id=education_group_year.id %}"
+                url = "{% url 'education_group_year_admission_condition_update_line' root.pk education_group_year.pk  %}"
             }
             var diploma_ptr = modal.find('#textarea_diploma'),
                 conditions_ptr = modal.find('#textarea_conditions'),

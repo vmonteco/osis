@@ -29,10 +29,12 @@ from django.test import TestCase
 from django.urls import reverse
 from waffle.testutils import override_flag
 
-from base.forms.education_group.group import GroupModelForm
-from base.forms.education_group.mini_training import MiniTrainingModelForm
+from base.forms.education_group.group import GroupYearModelForm
+from base.forms.education_group.mini_training import MiniTrainingYearModelForm
 from base.forms.education_group.training import TrainingEducationGroupYearForm
 from base.models.enums import education_group_categories
+from base.tests.factories.authorized_relationship import AuthorizedRelationshipFactory
+from base.tests.factories.education_group_type import EducationGroupTypeFactory
 from base.tests.factories.education_group_year import EducationGroupYearFactory
 from base.tests.factories.person import PersonFactory
 
@@ -49,27 +51,35 @@ class TestCreate(TestCase):
             education_group_categories.MINI_TRAINING,
         ]
 
+        cls.education_group_types = [
+            EducationGroupTypeFactory(category=category)
+            for category in cls.test_categories
+        ]
+
         cls.urls_without_parent_by_category = {
-            category:
+            education_group_type.category:
                 reverse(
                     "new_education_group",
                     kwargs={
-                        "category": category,
+                        "category": education_group_type.category,
+                        "education_group_type_pk": education_group_type.pk,
                     }
                 )
-            for category in cls.test_categories
+            for education_group_type in cls.education_group_types
         }
         cls.urls_with_parent_by_category = {
-            category:
+            education_group_type.category:
                 reverse(
                     "new_education_group",
                     kwargs={
-                        "category": category,
+                        "category": education_group_type.category,
+                        "education_group_type_pk": education_group_type.pk,
                         "parent_id": cls.parent_education_group_year.id,
                     }
                 )
-            for category in cls.test_categories
+            for education_group_type in cls.education_group_types
         }
+
         cls.expected_templates_by_category = {
             education_group_categories.GROUP: "education_group/create_groups.html",
             education_group_categories.TRAINING: "education_group/create_trainings.html",
@@ -79,7 +89,7 @@ class TestCreate(TestCase):
 
     def setUp(self):
         self.client.force_login(self.person.user)
-        self.perm_patcher = mock.patch("base.business.education_groups.perms.is_eligible_to_add_education_group",
+        self.perm_patcher = mock.patch("base.business.education_groups.perms._is_eligible_to_add_education_group",
                                        return_value=True)
         self.mocked_perm = self.perm_patcher.start()
 
@@ -94,11 +104,10 @@ class TestCreate(TestCase):
                 self.assertRedirects(response, '/login/?next={}'.format(url))
 
     def test_permission_required(self):
-        for url in self.urls_without_parent_by_category.values():
+        for category, url in self.urls_without_parent_by_category.items():
             with self.subTest(url=url):
                 self.client.get(url)
-                self.mocked_perm.assert_called_with(self.person, None, raise_exception=True)
-
+                self.mocked_perm.assert_called_with(self.person, None, category, raise_exception=True)
 
     def test_template_used(self):
         for category in self.test_categories:
@@ -107,6 +116,12 @@ class TestCreate(TestCase):
                 self.assertTemplateUsed(response, self.expected_templates_by_category.get(category))
 
     def test_with_parent_set(self):
+        for egt in self.education_group_types:
+            AuthorizedRelationshipFactory(
+                child_type=egt,
+                parent_type=self.parent_education_group_year.education_group_type
+            )
+
         for category in self.test_categories:
             with self.subTest(category=category):
                 response = self.client.get(self.urls_with_parent_by_category.get(category))
@@ -114,9 +129,9 @@ class TestCreate(TestCase):
 
     def test_response_context(self):
         expected_forms_by_category = {
-            education_group_categories.GROUP: GroupModelForm,
+            education_group_categories.GROUP: GroupYearModelForm,
             education_group_categories.TRAINING: TrainingEducationGroupYearForm,
-            education_group_categories.MINI_TRAINING: MiniTrainingModelForm,
+            education_group_categories.MINI_TRAINING: MiniTrainingYearModelForm,
         }
         for category in self.test_categories:
             with self.subTest(category=category):

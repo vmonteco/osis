@@ -32,18 +32,19 @@ from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 
 from base import models as mdl
-from base.business.education_group import create_xls, ORDER_COL, ORDER_DIRECTION
-from base.business.education_groups import perms
+from base.business.education_group import create_xls, ORDER_COL, ORDER_DIRECTION, create_xls_administrative_data
 from base.forms.education_groups import EducationGroupFilter
 from base.forms.search.search_form import get_research_criteria
 from base.models.enums import education_group_categories
 from base.models.person import Person
-from base.views import layout
+from base.utils.cache import cache_filter
 from base.views.common import paginate_queryset
+from base.views import layout
 
 
 @login_required
 @permission_required('base.can_access_education_group', raise_exception=True)
+@cache_filter(exclude_params=['xls_status', 'xls_order_col'])
 def education_groups(request):
     person = get_object_or_404(Person, user=request.user)
     if request.GET:
@@ -59,16 +60,24 @@ def education_groups(request):
         return create_xls(request.user, object_list, _get_filter_keys(form),
                           {ORDER_COL: request.GET.get('xls_order_col'), ORDER_DIRECTION: request.GET.get('xls_order')})
 
+    if request.GET.get('xls_status') == "xls_administrative":
+        return create_xls_administrative_data(
+            request.user,
+            object_list,
+            _get_filter_keys(form),
+            {ORDER_COL: request.GET.get('xls_order_col'), ORDER_DIRECTION: request.GET.get('xls_order')}
+        )
+
     context = {
         'form': form,
         'object_list': paginate_queryset(object_list, request.GET),
         'object_list_count': len(object_list),
         'experimental_phase': True,
-        'education_group_cats': education_group_categories,
-        'can_create_education_group': perms.is_eligible_to_add_education_group(person=person, education_group=None)
+        'enums': education_group_categories,
+        'person': person
     }
 
-    return layout.render(request, "education_groups.html", context)
+    return layout.render(request, "education_group/search.html", context)
 
 
 def _get_object_list(form, request):

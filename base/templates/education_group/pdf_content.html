@@ -1,0 +1,126 @@
+{% load education_group %}
+{% load staticfiles %}
+{% load i18n %}
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>
+        {{ parent.verbose_credit }}
+    </title>
+    <style type="text/css">
+        @page {
+            size: A4 portrait;
+            margin: 3cm 1cm 3cm 1cm;
+
+            @top-left {
+                content: "{% trans 'academic_year' %} {{ parent.academic_year }} \A {{ parent.verbose_credit }} ";
+                white-space: pre;
+                font-size: 11px;
+            }
+
+            @top-right {
+                background: url("{% static 'img/logo_uclouvain.png' %}") no-repeat;
+                display: inline-block;
+                width: 92mm;
+                padding-top: 65px;
+                font-size: 9px;
+                text-align: center;
+                content: "Université catholique de Louvain";
+            }
+
+            @bottom-left {
+                content: "({{ created | date:'d/m/y' }})";
+                font-size: 11px;
+            }
+
+            @bottom-right {
+                content: "Page " counter(page);
+                font-size: 11px;
+            }
+
+            @bottom-center {
+                background: url("{% static 'img/education_group_year/legend.png' %}") no-repeat;
+                display: inline-block;
+                width: 125mm;
+                content: "";
+                text-align: center;
+                margin: 0 auto;
+                padding: 0;
+            }
+        }
+
+        td, th, tr {
+            font-size: 11px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="list-group">
+        <div class="container" style="font-size: 11px;">
+            <div>{% trans "Formulaire d'inscription au contenu de" %} {{ parent.title }}</div>
+            <br>
+            <div>
+                {% if not parent.is_minor %}
+                    {% trans "This form must be submitted to the secretariat of your faculty" %}
+                {% else %}
+                    {% trans "The registration form is available at the Secretariat of" %}
+                    {{ parent.administration_entity_version.acronym }}
+                    <br>
+                    {% trans "This form must be signed by the designated authority and delivered to the secretariat of
+                    your faculty." %}
+                {% endif %}
+            </div>
+            <br>
+            <table style="margin-left: 100px;">
+                <tbody>
+                    <tr>
+                        <td>{% trans "training"|title %}</td>
+                        <td style="width:170px;"> .....</td>
+                        <td>{% trans "mobile_phone" %}</td>
+                        <td style="width:170px;"> .....</td>
+                    </tr>
+                    <tr>
+                        <td>{% trans "first_name" %}</td>
+                        <td style="width:170px;"> .....</td>
+                        <td>{% trans "email" %}</td>
+                        <td style="width:170px;"> .....</td>
+                    </tr>
+                    <tr>
+                        <td>{% trans "name"|title  %}</td>
+                        <td style="width:170px;"> .....</td>
+                        <td>{% trans "faculty number"|title %}</td>
+                        <td style="width:170px;"> .....</td>
+                    </tr>
+                    <tr>
+                        <td>{% trans "registration_id" %}</td>
+                        <td style="width:170px;"> .....</td>
+                        <td>{% trans "(optional)" %}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <table>
+            <thead>
+            <tr>
+                <th style="width:655px;"></th>
+                <th style="width:15px;text-align: center;">An 1</th>
+                <th style="width:15px;text-align: center;">An 2</th>
+                <th style="width:15px;text-align: center;">An 3</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td style="width:auto;float:left;">
+                    <img src="{% static 'img/education_group_year/mandatory.png' %}" height="10" width="10">
+                    {{ parent.verbose_credit }}
+                </td>
+            </tr>
+            {{ tree|pdf_tree_list }}
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

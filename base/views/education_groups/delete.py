@@ -24,27 +24,25 @@
 #
 ##############################################################################
 from django.urls import reverse_lazy
-from django.utils.translation import ngettext_lazy
-from django.utils.translation import ugettext_lazy as _
 
+from base.business.education_groups import shorten
+from base.models.education_group import EducationGroup
 from base.models.education_group_year import EducationGroupYear
-from base.models.group_element_year import GroupElementYear
-from base.models.offer_enrollment import OfferEnrollment
 from base.views.common_classes import DeleteViewWithDependencies
-from base.views.education_groups.perms import can_delete_education_group
+from base.views.education_groups.perms import can_delete_all_education_group
 
 
-class DeleteGroupEducationYearView(DeleteViewWithDependencies):
+class DeleteGroupEducationView(DeleteViewWithDependencies):
     # DeleteView
-    model = EducationGroupYear
+    model = EducationGroup
     success_url = reverse_lazy('education_groups')
     pk_url_kwarg = "education_group_year_id"
     template_name = "education_group/delete.html"
-    context_object_name = "education_group_year"
+    context_object_name = "education_group"
 
     # RulesRequiredMixin
     raise_exception = True
-    rules = [can_delete_education_group]
+    rules = [can_delete_all_education_group]
 
     # DeleteViewWithDependencies
     success_message = "The education group has been deleted."
@@ -52,47 +50,17 @@ class DeleteGroupEducationYearView(DeleteViewWithDependencies):
 
     # FlagMixin
     flag = 'education_group_delete'
-
-    # TODO : This method is a quick fix.
-    # GroupElementYear should be split in two tables with their own protected FK !
-    def post_collect(self):
-        for instance, obj in self.collector.model_objs.items():
-            if instance is GroupElementYear:
-                self._append_protected_object(obj)
-
-    def _append_protected_object(self, list_objects):
-        if not isinstance(list_objects, (list, set)):
-            list_objects = [list_objects]
-
-        for obj in list_objects:
-            if not obj.is_deletable():
-                self.collector.protected.add(obj)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        if self.collector.protected:
-            context["protected_messages"] = self.get_protected_messages()
-
-        return context
+    education_group_years = []
 
     def get_protected_messages(self):
-        protected_message = []
-
-        count_enrollment = len([
-            enrollment for enrollment in self.collector.protected if isinstance(enrollment, OfferEnrollment)
-        ])
-
-        if count_enrollment:
-            protected_message.append(
-                ngettext_lazy(
-                    "%(count_enrollment)d student is  enrolled in the offer.",
-                    "%(count_enrollment)d students are  enrolled in the offer.",
-                    count_enrollment
-                ) % {"count_enrollment": count_enrollment}
-            )
-
-        if [isinstance(group, GroupElementYear) for group in self.collector.protected]:
-            protected_message.append(_("The content of the education group is not empty."))
-
-        return protected_message
+        """This function will return all protected message ordered by year"""
+        self.education_group_years = self.get_object().educationgroupyear_set.all().order_by('academic_year__year')
+        protected_messages = []
+        for education_group_year in self.education_group_years:
+            protected_message = shorten.get_protected_messages_by_education_group_year(education_group_year)
+            if protected_message:
+                protected_messages.append({
+                    'education_group_year': education_group_year,
+                    'messages': protected_message
+                })
+        return protected_messages

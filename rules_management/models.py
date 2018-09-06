@@ -23,29 +23,30 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-FEE_1 = 'FEE_1'
-FEE_2 = 'FEE_2'
-FEE_3 = 'FEE_3'
-FEE_4 = 'FEE_4'
-FEE_5 = 'FEE_5'
-FEE_6 = 'FEE_6'
-FEE_7 = 'FEE_7'
-FEE_8 = 'FEE_8'
-FEE_10 = 'FEE_10'
-FEE_11 = 'FEE_11'
-FEE_12 = 'FEE_12'
-FEE_13 = 'FEE_13'
+from django import forms
+from django.contrib.auth.models import Permission, Group
+from django.contrib.contenttypes.models import ContentType
+from django.db import models
+
+from osis_common.models.osis_model_admin import OsisModelAdmin
+from rules_management import enums
 
 
-FEES = ((FEE_1, FEE_1),  ## Rôle
-         (FEE_2, FEE_2), ## rôle + examen
-         (FEE_3, FEE_3), ## AESS, CAPAES ou fin de cycle
-         (FEE_4, FEE_4), ## Minerval sans examen
-         (FEE_5, FEE_5), ## Minerval complet
-         (FEE_6, FEE_6), ## certificat universitaire
-         (FEE_7, FEE_7), ## Master complémentaire spécialisation médicale
-         (FEE_8, FEE_8), ## Concours d’accès
-         (FEE_10, FEE_10), ## CU 30 crédits
-         (FEE_11, FEE_11), ## Certificat compétence méd
-         (FEE_12, FEE_12), ## Offres ISA : 12BA et 21MS
-         (FEE_13, FEE_13)) ## Offres ISA : 13BA et 22MS
+class AdminForm(forms.ModelForm):
+    content_type = forms.ModelChoiceField(queryset=ContentType.objects.all().order_by('model'))
+
+
+class FieldReferenceAdmin(OsisModelAdmin):
+    list_display = ('content_type', 'field_name', 'context')
+    search_fields = ('content_type', 'field_name', 'context',)
+    filter_horizontal = ('permissions', 'groups',)
+    list_filter = ('context',)
+    form = AdminForm
+
+
+class FieldReference(models.Model):
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    field_name = models.CharField(max_length=50)
+    context = models.CharField(max_length=50,  choices=enums.CONTEXT_CHOICES, blank=True)
+    permissions = models.ManyToManyField(Permission, blank=True)
+    groups = models.ManyToManyField(Group, blank=True)

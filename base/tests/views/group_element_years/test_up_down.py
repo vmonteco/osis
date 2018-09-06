@@ -56,7 +56,7 @@ class TestUp(TestCase):
             kwargs={
                 "root_id": cls.education_group_year.id,
                 "education_group_year_id": cls.education_group_year.id,
-                "group_element_year_id": cls.group_element_year_3.id
+                "group_element_year_id": cls.group_element_year_3.id,
             }
         )
         cls.post_valid_data = {'action': 'up'}
@@ -76,8 +76,9 @@ class TestUp(TestCase):
         self.assertEqual(response.status_code, HttpResponseNotFound.status_code)
         self.assertTemplateUsed(response, "page_not_found.html")
 
-    @mock.patch("base.views.education_groups.perms.can_change_education_group", side_effect=lambda user: False)
+    @mock.patch("base.business.education_groups.perms.is_eligible_to_change_education_group")
     def test_up_case_user_not_have_access(self, mock_permission):
+        mock_permission.return_value = False
         response = self.client.post(self.url, self.post_valid_data)
         self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
         self.assertTemplateUsed(response, "access_denied.html")
@@ -92,7 +93,14 @@ class TestUp(TestCase):
     @mock.patch("base.business.education_groups.perms.is_eligible_to_change_education_group")
     def test_up_case_success(self, mock_permission, mock_up):
         mock_permission.return_value = True
-        response = self.client.post(self.url, data=self.post_valid_data, follow=True)
+        http_referer = reverse(
+            'education_group_content',
+            args=[
+                self.education_group_year.id,
+                self.education_group_year.id,
+            ]
+        )
+        response = self.client.post(self.url, data=self.post_valid_data, follow=True, HTTP_REFERER=http_referer)
         self.assertEqual(response.status_code, HttpResponse.status_code)
         self.assertTrue(mock_up.called)
 
@@ -134,8 +142,9 @@ class TestDown(TestCase):
         self.assertEqual(response.status_code, HttpResponseNotFound.status_code)
         self.assertTemplateUsed(response, "page_not_found.html")
 
-    @mock.patch("base.views.education_groups.perms.can_change_education_group", side_effect=lambda user: False)
+    @mock.patch("base.business.education_groups.perms.is_eligible_to_change_education_group")
     def test_down_case_user_not_have_access(self, mock_permission):
+        mock_permission.return_value = False
         response = self.client.post(self.url, self.post_valid_data)
         self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
         self.assertTemplateUsed(response, "access_denied.html")
@@ -150,6 +159,13 @@ class TestDown(TestCase):
     @mock.patch("base.business.education_groups.perms.is_eligible_to_change_education_group")
     def test_down_case_success(self, mock_permission, mock_down):
         mock_permission.return_value = True
-        response = self.client.post(self.url, data=self.post_valid_data, follow=True)
+        http_referer = reverse(
+            'education_group_content',
+            args=[
+                self.education_group_year.id,
+                self.education_group_year.id,
+            ]
+        )
+        response = self.client.post(self.url, data=self.post_valid_data, follow=True, HTTP_REFERER=http_referer)
         self.assertEqual(response.status_code, HttpResponse.status_code)
         self.assertTrue(mock_down.called)

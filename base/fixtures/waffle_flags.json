@@ -218,4 +218,104 @@
         "groups": [],
         "users": []
     }
+},
+{
+    "model": "waffle.flag",
+    "pk": 13,
+    "fields": {
+        "name": "education_group_select",
+        "everyone": null,
+        "percent": null,
+        "testing": false,
+        "superusers": true,
+        "staff": true,
+        "authenticated": true,
+        "languages": "",
+        "rollout": false,
+        "note": "",
+        "created": "2018-07-30T13:58:08Z",
+        "modified": "2018-07-30T13:58:13.883Z",
+        "groups": [],
+        "users": []
+    }
+},
+{
+    "model": "waffle.flag",
+    "pk": 14,
+    "fields": {
+        "name": "education_group_move",
+        "everyone": null,
+        "percent": null,
+        "testing": false,
+        "superusers": true,
+        "staff": true,
+        "authenticated": true,
+        "languages": "",
+        "rollout": false,
+        "note": "",
+        "created": "2018-07-30T13:58:08Z",
+        "modified": "2018-07-30T13:58:13.883Z",
+        "groups": [],
+        "users": []
+    }
+},
+{
+    "model": "waffle.flag",
+    "pk": 15,
+    "fields": {
+        "name": "education_group_detach",
+        "everyone": null,
+        "percent": null,
+        "testing": false,
+        "superusers": true,
+        "staff": true,
+        "authenticated": true,
+        "languages": "",
+        "rollout": false,
+        "note": "",
+        "created": "2018-07-30T13:58:08Z",
+        "modified": "2018-07-30T13:58:13.883Z",
+        "groups": [],
+        "users": []
+    }
+},
+{
+    "model": "waffle.flag",
+    "pk": 16,
+    "fields": {
+        "name": "education_group_attach",
+        "everyone": null,
+        "percent": null,
+        "testing": false,
+        "superusers": true,
+        "staff": true,
+        "authenticated": true,
+        "languages": "",
+        "rollout": false,
+        "note": "",
+        "created": "2018-07-30T13:58:08Z",
+        "modified": "2018-07-30T13:58:13.883Z",
+        "groups": [],
+        "users": []
+    }
+},
+{
+    "model": "waffle.flag",
+    "pk": 17,
+    "fields": {
+        "name": "pdf_content",
+        "everyone": null,
+        "percent": null,
+        "testing": false,
+        "superusers": true,
+        "staff": true,
+        "authenticated": true,
+        "languages": "",
+        "rollout": false,
+        "note": "",
+        "created": "2018-07-30T13:58:08Z",
+        "modified": "2018-07-30T13:58:13.883Z",
+        "groups": [],
+        "users": []
+    }
 }]

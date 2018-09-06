@@ -23,26 +23,42 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-
+from base.business.education_groups import shorten
+from base.business.education_groups.postponement import PostponementEducationGroupYearMixin
 from base.forms.education_group.common import CommonBaseForm, EducationGroupModelForm, EducationGroupYearModelForm
 from base.models.education_group_year import EducationGroupYear
 from base.models.enums import education_group_categories
 
 
-class MiniTrainingModelForm(EducationGroupYearModelForm):
+class MiniTrainingYearModelForm(EducationGroupYearModelForm):
     category = education_group_categories.MINI_TRAINING
 
     class Meta(EducationGroupYearModelForm.Meta):
         model = EducationGroupYear
-        fields = ("acronym", "partial_acronym", "education_group_type", "title", "title_english", "credits", "active",
-                  "main_teaching_campus", "academic_year", "remark", "remark_english", "min_credits", "max_credits",
-                  "schedule_type", "administration_entity", "keywords")
+        fields = (
+            "acronym", "partial_acronym",
+            "education_group_type", "title", "title_english",
+            "credits", "active", "main_teaching_campus",
+            "academic_year", "remark", "remark_english",
+            "min_constraint", "max_constraint", "constraint_type",
+            "schedule_type", "management_entity", "keywords"
+        )
 
 
-class MiniTrainingForm(CommonBaseForm):
+class MiniTrainingModelForm(EducationGroupModelForm):
+    category = education_group_categories.MINI_TRAINING
 
-    def __init__(self, data, instance=None, parent=None):
-        education_group_year_form = MiniTrainingModelForm(data, instance=instance, parent=parent)
-        education_group = instance.education_group if instance else None
-        education_group_form = EducationGroupModelForm(data, instance=education_group)
-        super(MiniTrainingForm, self).__init__(education_group_year_form, education_group_form)
+
+class MiniTrainingForm(PostponementEducationGroupYearMixin, CommonBaseForm):
+    education_group_year_form_class = MiniTrainingYearModelForm
+    education_group_form_class = MiniTrainingModelForm
+
+    def _post_save(self):
+        education_group_instance = self.forms[EducationGroupModelForm].instance
+        egy_deleted = []
+        if education_group_instance.end_year:
+            egy_deleted = shorten.start(education_group_instance, education_group_instance.end_year)
+
+        return {
+            'object_list_deleted': egy_deleted
+        }

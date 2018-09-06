@@ -25,8 +25,6 @@
 ##############################################################################
 import json
 
-from ckeditor.widgets import CKEditorWidget
-from django import forms
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core.exceptions import PermissionDenied
@@ -41,15 +39,12 @@ from waffle.decorators import waffle_flag
 from base import models as mdl
 from base.business import education_group as education_group_business
 from base.business.education_group import assert_category_of_education_group_year
-from base.business.learning_unit import find_language_in_settings
 from base.forms.education_group_pedagogy_edit import EducationGroupPedagogyEditForm
 from base.forms.education_groups_administrative_data import CourseEnrollmentForm, AdministrativeDataFormset
 from base.models.admission_condition import AdmissionConditionLine, AdmissionCondition
 from base.models.education_group_year import EducationGroupYear
 from base.models.enums import academic_calendar_type
 from base.models.enums import education_group_categories
-from base.views.education_groups.detail import get_education_group_root
-from base.views.learning_units.common import get_text_label_translated
 from cms.enums import entity_name
 from cms.models.text_label import TextLabel
 from cms.models.translated_text import TranslatedText
@@ -61,7 +56,7 @@ from . import layout
 @login_required
 @waffle_flag("education_group_update")
 @permission_required('base.can_edit_education_group_administrative_data', raise_exception=True)
-def education_group_edit_administrative_data(request, education_group_year_id):
+def education_group_edit_administrative_data(request, root_id, education_group_year_id):
     education_group_year = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
 
     assert_category_of_education_group_year(education_group_year, (education_group_categories.TRAINING,))
@@ -82,11 +77,13 @@ def education_group_edit_administrative_data(request, education_group_year_id):
     course_enrollment_validity = course_enrollment.is_valid()
     formset_session_validity = formset_session.is_valid()
 
+    group_to_parent = request.GET.get("group_to_parent")
+
     if course_enrollment_validity and formset_session_validity:
         formset_session.save()
         course_enrollment.save()
         messages.add_message(request, messages.SUCCESS, _('The administrative data has been successfully modified'))
-        return HttpResponseRedirect(reverse('education_group_administrative', args=(education_group_year_id,)))
+        return HttpResponseRedirect(reverse('education_group_administrative', args=[root_id, education_group_year_id]))
 
     return layout.render(request, "education_group/tab_edit_administrative_data.html", locals())
 
@@ -97,54 +94,74 @@ def find_root_by_name(text_label_name):
     ).get(label=text_label_name, parent__isnull=True)
 
 
-def education_group_year_pedagogy_edit_post(request, education_group_year_id):
+def education_group_year_pedagogy_edit_post(request, education_group_year_id, root_id):
     form = EducationGroupPedagogyEditForm(request.POST)
+
     if form.is_valid():
-        form.save()
-    redirect_url = reverse('education_group_general_informations',
-                           kwargs={
-                               'education_group_year_id': education_group_year_id
-                           })
+        label = form.cleaned_data['label']
+
+        text_label = TextLabel.objects.filter(label=label).first()
+
+        record, created = TranslatedText.objects.get_or_create(reference=str(education_group_year_id),
+                                                               entity='offer_year',
+                                                               text_label=text_label,
+                                                               language='fr-be')
+        record.text = form.cleaned_data['text_french']
+        record.save()
+
+        record, created = TranslatedText.objects.get_or_create(reference=str(education_group_year_id),
+                                                               entity='offer_year',
+                                                               text_label=text_label,
+                                                               language='en')
+        record.text = form.cleaned_data['text_english']
+        record.save()
+
+    redirect_url = reverse('education_group_general_informations', args=[root_id, education_group_year_id])
     return redirect(redirect_url)
+
+
+def education_group_year_pedagogy_edit_get(request, education_group_year_id):
+    education_group_year = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
+    context = {
+        'education_group_year': education_group_year,
+    }
+    label_name = request.GET.get('label')
+    initial_values = {'label': label_name}
+    fr_text = TranslatedText.objects.filter(reference=str(education_group_year_id),
+                                            text_label__label=label_name,
+                                            entity=entity_name.OFFER_YEAR,
+                                            language='fr-be').first()
+    if fr_text:
+        initial_values['text_french'] = fr_text.text
+    en_text = TranslatedText.objects.filter(reference=str(education_group_year_id),
+                                            text_label__label=label_name,
+                                            entity=entity_name.OFFER_YEAR,
+                                            language='en').first()
+    if en_text:
+        initial_values['text_english'] = en_text.text
+    form = EducationGroupPedagogyEditForm(initial=initial_values)
+    context['form'] = form
+    context['group_to_parent'] = request.GET.get("group_to_parent") or '0'
+    return layout.render(request, 'education_group/pedagogy_edit.html', context)
 
 
 @login_required
 @permission_required('base.can_edit_educationgroup_pedagogy', raise_exception=True)
 @require_http_methods(['GET', 'POST'])
-def education_group_year_pedagogy_edit(request, education_group_year_id):
+def education_group_year_pedagogy_edit(request, root_id, education_group_year_id):
     if request.method == 'POST':
-        return education_group_year_pedagogy_edit_post(request, education_group_year_id)
+        return education_group_year_pedagogy_edit_post(request, education_group_year_id, root_id)
 
-    education_group_year = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
-
-    context = {
-        'education_group_year': education_group_year,
-    }
-
-    label_name = request.GET.get('label')
-    language = request.GET.get('language')
-
-    text_lb = find_root_by_name(label_name)
-    form = EducationGroupPedagogyEditForm(**{
-        'education_group_year': context['education_group_year'],
-        'language': language,
-        'text_label': text_lb,
-    })
-
-    form.load_initial()
-    context['form'] = form
-    user_language = mdl.person.get_user_interface_language(request.user)
-    context['text_label_translated'] = get_text_label_translated(text_lb, user_language)
-    context['language_translated'] = find_language_in_settings(language)
-
-    return layout.render(request, 'education_group/pedagogy_edit.html', context)
+    return education_group_year_pedagogy_edit_get(request, education_group_year_id)
 
 
 @login_required
 @ajax_required
 @permission_required('base.can_edit_educationgroup_pedagogy', raise_exception=True)
-def education_group_year_pedagogy_add_term(request, education_group_year_id):
+def education_group_year_pedagogy_add_term(request, root_id, education_group_year_id):
+
     education_group_year = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
+
     label = request.GET.get('label')
     text_label = get_object_or_404(TextLabel, label=label, entity=entity_name.OFFER_YEAR)
 
@@ -171,21 +188,22 @@ def education_group_year_pedagogy_add_term(request, education_group_year_id):
 @login_required
 @ajax_required
 @permission_required('base.can_edit_educationgroup_pedagogy', raise_exception=True)
-def education_group_year_pedagogy_remove_term(request, education_group_year_id):
+def education_group_year_pedagogy_remove_term(request, root_id, education_group_year_id):
     education_group_year = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
+
     label = request.GET.get('label')
     text_label = get_object_or_404(TextLabel, label=label, entity=entity_name.OFFER_YEAR)
     translated_texts = TranslatedText.objects.filter(text_label=text_label,
                                                      reference=education_group_year.id,
                                                      entity=entity_name.OFFER_YEAR)
     translated_texts.delete()
-    return JsonResponse({'education_group_year': int(education_group_year_id)})
+    return JsonResponse({'education_group_year': int(education_group_year.pk)})
 
 
 @login_required
 @ajax_required
 @permission_required('base.can_edit_educationgroup_pedagogy', raise_exception=True)
-def education_group_year_pedagogy_get_terms(request, education_group_year_id, language):
+def education_group_year_pedagogy_get_terms(request, root_id, education_group_year_id, language):
     text_labels = TextLabel.objects.filter(entity='offer_year')
 
     translated_texts = TranslatedText.objects.filter(text_label__entity=entity_name.OFFER_YEAR,
@@ -216,59 +234,11 @@ def translated_text_labels2dict(translated_text_label):
 
 
 @login_required
-@permission_required('base.can_edit_educationgroup_pedagogy', raise_exception=True)
-def education_group_year_admission_condition_edit(request, education_group_year_id):
-    education_group_year = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
-
-    education_group_year_root_id = request.GET.get('root')
-    parent = get_education_group_root(education_group_year_root_id, education_group_year)
-
-    acronym = education_group_year.acronym.lower()
-
-    is_common = acronym.startswith('common-')
-    is_specific = not is_common
-
-    is_master = acronym.endswith(('2m', '2m1'))
-    use_standard_text = acronym.endswith(('2a', '2mc'))
-
-    class AdmissionConditionForm(forms.Form):
-        text_field = forms.CharField(widget=CKEditorWidget(config_name='minimal'))
-
-    admission_condition_form = AdmissionConditionForm()
-
-    admission_condition, created = AdmissionCondition.objects.get_or_create(
-        education_group_year=education_group_year)
-
-    record = {}
-    for section in ('ucl_bachelors', 'others_bachelors_french', 'bachelors_dutch', 'foreign_bachelors',
-                    'graduates', 'masters'):
-        record[section] = AdmissionConditionLine.objects.filter(admission_condition=admission_condition,
-                                                                section=section)
-
-    context = {
-        'admission_condition_form': admission_condition_form,
-        'education_group_year': education_group_year,
-        'parent': parent,
-        'can_edit_information': request.user.has_perm('base.can_edit_educationgroup_pedagogy'),
-        'info': {
-            'is_specific': is_specific,
-            'is_common': is_common,
-            'is_bachelor': acronym == 'common-bacs',
-            'is_master': is_master,
-            'show_free_text': is_specific and (is_master or use_standard_text),
-        },
-        'admission_condition': admission_condition,
-        'record': record,
-    }
-
-    return layout.render(request, 'education_group/tab_admission_conditions.html', context)
-
-
-@login_required
 @ajax_required
 @permission_required('base.can_edit_educationgroup_pedagogy', raise_exception=True)
-def education_group_year_admission_condition_add_line(request, education_group_year_id):
+def education_group_year_admission_condition_add_line(request, root_id, education_group_year_id):
     education_group_year = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
+
     info = json.loads(request.body.decode('utf-8'))
 
     admission_condition, created = AdmissionCondition.objects.get_or_create(education_group_year=education_group_year)
@@ -296,7 +266,7 @@ def education_group_year_admission_condition_add_line(request, education_group_y
 @login_required
 @ajax_required
 @permission_required('base.can_edit_educationgroup_pedagogy', raise_exception=True)
-def education_group_year_admission_condition_remove_line(request, education_group_year_id):
+def education_group_year_admission_condition_remove_line(request, root_id, education_group_year_id):
     info = json.loads(request.body.decode('utf-8'))
     admission_condition_line_id = info['id']
 
@@ -312,7 +282,7 @@ def education_group_year_admission_condition_remove_line(request, education_grou
 @login_required
 @ajax_required
 @permission_required('base.can_edit_educationgroup_pedagogy', raise_exception=True)
-def education_group_year_admission_condition_modify_text(request, education_group_year_id):
+def education_group_year_admission_condition_modify_text(request, root_id, education_group_year_id):
     info = json.loads(request.body.decode('utf-8'))
     lang = '' if info['language'] == 'fr' else '_en'
 
@@ -334,9 +304,10 @@ def education_group_year_admission_condition_modify_text(request, education_grou
 @login_required
 @ajax_required
 @permission_required('base.can_edit_educationgroup_pedagogy', raise_exception=True)
-def education_group_year_admission_condition_get_text(request, education_group_year_id):
+def education_group_year_admission_condition_get_text(request, root_id, education_group_year_id):
     info = json.loads(request.body.decode('utf-8'))
     lang = '' if info['language'] == 'fr' else '_en'
+
     education_group_year = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
     admission_condition, created = AdmissionCondition.objects.get_or_create(education_group_year=education_group_year)
     column = 'text_' + info['section'] + lang
@@ -347,8 +318,10 @@ def education_group_year_admission_condition_get_text(request, education_group_y
 @login_required
 @ajax_required
 @permission_required('base.can_edit_educationgroup_pedagogy', raise_exception=True)
-def education_group_year_admission_condition_get_line(request, education_group_year_id):
+def education_group_year_admission_condition_get_line(request, root_id, education_group_year_id):
+
     education_group_year = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
+
     admission_condition, created = AdmissionCondition.objects.get_or_create(education_group_year=education_group_year)
 
     info = json.loads(request.body.decode('utf-8'))
@@ -378,8 +351,10 @@ def get_content_of_admission_condition_line(message, admission_condition_line, l
 @login_required
 @ajax_required
 @permission_required('base.can_edit_educationgroup_pedagogy', raise_exception=True)
-def education_group_year_admission_condition_update_line(request, education_group_year_id):
+def education_group_year_admission_condition_update_line(request, root_id, education_group_year_id):
+
     education_group_year = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
+
     admission_condition, created = AdmissionCondition.objects.get_or_create(education_group_year=education_group_year)
 
     info = json.loads(request.body.decode('utf-8'))

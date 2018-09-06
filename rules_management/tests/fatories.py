@@ -23,22 +23,35 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from enum import Enum
-from base.models.utils.utils import ChoiceEnum
+
+import factory
+from django.contrib.auth.models import Permission
+from django.contrib.contenttypes.models import ContentType
 
 
-class SessionsDerogationTypes(ChoiceEnum):
-    SESSION_1 = "SESSION_1"
-    SESSION_2 = "SESSION_2"
-    SESSION_3 = "SESSION_3"
+class PermissionFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = Permission
 
-    SESSION_1_2 = "SESSION_1_2"
-    SESSION_1_3 = "SESSION_1_3"
-    SESSION_2_3 = "SESSION_2_3"
+    name = factory.Faker('text', max_nb_chars=255)
+    codename = factory.Faker('text', max_nb_chars=100)
+    content_type = factory.Iterator(ContentType.objects.all())
 
-    SESSION_1_2_3 = "SESSION_1_2_3"
 
-    SESSION_UNDEFINED = "SESSION_UNDEFINED"
+class FieldReferenceFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = 'rules_management.FieldReference'
 
-    SESSION_PARTIAL_2_3 = "SESSION_PARTIAL_2_3"
+    content_type = factory.Iterator(ContentType.objects.all())
+    field_name = "acronym"
 
+    @factory.post_generation
+    def permissions(self, create, extracted, **kwargs):
+        if not create:
+            # Simple build, do nothing.
+            return
+
+        if extracted:
+            # A list of permissions were passed in, use them
+            for permission in extracted:
+                self.permissions.add(permission)

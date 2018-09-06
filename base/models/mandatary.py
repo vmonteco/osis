@@ -35,7 +35,7 @@ class MandataryAdmin(OsisModelAdmin):
 
 
 class Mandatary(models.Model):
-    external_id = models.CharField(max_length=100, blank=True, null=True)
+    external_id = models.CharField(max_length=100, blank=True, null=True, db_index=True)
     changed = models.DateTimeField(null=True, auto_now=True)
     mandate = models.ForeignKey('Mandate')
     person = models.ForeignKey('Person')
@@ -48,3 +48,11 @@ def find_by_education_group_year(an_education_group_year):
                                     start_date__lte=an_education_group_year.academic_year.start_date,
                                     end_date__gte=an_education_group_year.academic_year.end_date) \
         .order_by('mandate__function', 'person__last_name', 'person__first_name')
+
+
+def find_by_education_group_year_function(an_education_group_year, a_function):
+    return Mandatary.objects.filter(mandate__education_group=an_education_group_year.education_group,
+                                    mandate__function=a_function,
+                                    start_date__lte=an_education_group_year.academic_year.start_date,
+                                    end_date__gte=an_education_group_year.academic_year.end_date) \
+        .order_by('person__last_name', 'person__first_name')

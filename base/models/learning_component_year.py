@@ -25,7 +25,6 @@
 ##############################################################################
 from django.db import models
 from django.db.models import Sum
-from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
 from base.models import learning_class_year
@@ -40,7 +39,7 @@ class LearningComponentYearAdmin(SerializableModelAdmin):
 
 
 class LearningComponentYear(SerializableModel):
-    external_id = models.CharField(max_length=100, blank=True, null=True)
+    external_id = models.CharField(max_length=100, blank=True, null=True, db_index=True)
     changed = models.DateTimeField(null=True, auto_now=True)
     learning_container_year = models.ForeignKey('LearningContainerYear')
     acronym = models.CharField(max_length=4, blank=True, null=True)
@@ -120,6 +119,13 @@ class LearningComponentYear(SerializableModel):
         return _warnings
 
 
+def volume_total_verbose(learning_component_years):
+    return "%(q1)gh + %(q2)gh" % {
+        "q1": learning_component_years[0].hourly_volume_total_annual or 0,
+        "q2": learning_component_years[1].hourly_volume_total_annual or 0,
+    }
+
+
 def find_by_id(learning_component_year_id):
     return LearningComponentYear.objects.get(pk=learning_component_year_id)
 
@@ -129,7 +135,7 @@ def find_by_learning_container_year(learning_container_year, with_classes=False)
         .order_by('type', 'acronym')
     if with_classes:
         queryset = queryset.prefetch_related(
-             models.Prefetch('learningclassyear_set', to_attr="classes")
+            models.Prefetch('learningclassyear_set', to_attr="classes")
         )
 
     return queryset

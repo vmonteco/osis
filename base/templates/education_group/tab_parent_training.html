@@ -1,6 +1,6 @@
 {% extends "education_group/layout_detail.html" %}
 {% load i18n %}
-{% load staticfiles %}
+{% load staticfiles education_group format %}
 {% comment "License" %}
 * OSIS stands for Open Student Information System. It's an application
 * designed to manage the core business of higher education institutions,
@@ -37,7 +37,7 @@
                         <div class="col-md-6">
                         <label>{% trans 'focuses'%}</label> :
                         {% for child in education_group_year.children_by_group_element_year %}
-                            <a href="{% url 'education_group_read' child.id %}">
+                            <a href="{% url 'education_group_read' education_group_year.pk child.id %}">
                                     {{ child.acronym }}
                             </a>
                             {% if not forloop.last %},&nbsp;{% endif %}
@@ -58,7 +58,4 @@
             </div>
         </div>
     </div>
-{% endblock %}
-{% block script %}
-    <script src="{% static 'js/education_group/education_group_tree.js' %}"></script>
 {% endblock %}

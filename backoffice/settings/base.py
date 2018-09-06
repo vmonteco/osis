@@ -29,6 +29,9 @@ import sys
 from django.core.urlresolvers import reverse_lazy
 from django.utils.translation import ugettext_lazy as _
 
+# Used in base.views.education_groups.detail.EducationGroupGeneralInformation#get_sections_with_translated_labels
+from .portal_conf import SECTION_LIST
+
 BASE_DIR = os.path.dirname((os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 # SECURITY Settings
@@ -65,6 +68,7 @@ INSTALLED_APPS = (
     'ckeditor',
     'osis_common',
     'reference',
+    'rules_management',
     'base',
     'statici18n',
     'rest_framework',
@@ -89,6 +93,7 @@ MIDDLEWARE = (
     'waffle.middleware.WaffleMiddleware',
 )
 
+INTERNAL_IPS = ()
 # check if we are testing right now
 TESTING = 'test' in sys.argv
 if TESTING:
@@ -97,6 +102,7 @@ if TESTING:
 APPS_TO_TEST = (
     'osis_common',
     'reference',
+    'rules_management',
     'base',
 )
 TEST_RUNNER = os.environ.get('TEST_RUNNER', 'osis_common.tests.runner.InstalledAppsTestRunner')
@@ -149,7 +155,7 @@ LANGUAGE_CODE_EN = 'en'
 # You can change default values for internalizations settings in your .env file
 USE_I18N = os.environ.get('USE_I18N', 'True').lower() == 'true'
 USE_L10N = os.environ.get('USE_L10N', 'True').lower() == 'true'
-USE_TZ = os.environ.get('USE_TZ', 'True').lower() == 'true'
+USE_TZ = os.environ.get('USE_TZ', 'False').lower() == 'true'
 TIME_ZONE = os.environ.get('TIME_ZONE', 'Europe/Brussels')
 
 # Static files (CSS, JavaScript, Images) and Media

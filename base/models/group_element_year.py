@@ -27,15 +27,17 @@ import itertools
 
 from django.db import models, IntegrityError
 from django.db.models import Q
+from django.utils import translation
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from ordered_model.models import OrderedModel
 
+from backoffice.settings.base import LANGUAGE_CODE_EN
 from base.models import education_group_type, education_group_year
 from base.models.education_group_type import GROUP_TYPE_OPTION
 from base.models.education_group_year import EducationGroupYear
-from base.models.enums import education_group_categories
-from base.models.enums import sessions_derogation
+from base.models.enums import education_group_categories, link_type, quadrimesters
+from base.models.learning_component_year import LearningComponentYear, volume_total_verbose
 from base.models.learning_unit_year import LearningUnitYear
 from osis_common.decorators.deprecated import deprecated
 from osis_common.models import osis_model_admin
@@ -51,52 +53,53 @@ class GroupElementYearAdmin(osis_model_admin.OsisModelAdmin):
         'parent__acronym',
         'parent__partial_acronym'
     ]
-    list_filter = ('is_mandatory', 'minor_access', 'sessions_derogation')
+    list_filter = ('is_mandatory', 'minor_access', 'quadrimester_derogation', 'parent__academic_year')
+
+
+class GroupElementYearManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(
+            Q(child_branch__isnull=False) | Q(child_leaf__learning_container_year__isnull=False)
+        )
 
 
 class GroupElementYear(OrderedModel):
-    external_id = models.CharField(max_length=100, blank=True, null=True)
+    external_id = models.CharField(max_length=100, blank=True, null=True, db_index=True)
     changed = models.DateTimeField(null=True, auto_now=True)
 
     parent = models.ForeignKey(
         EducationGroupYear,
-        related_name='parents',
         null=True,  # TODO: can not be null, dirty data
+        on_delete=models.PROTECT,
     )
 
     child_branch = models.ForeignKey(
         EducationGroupYear,
-        related_name='child_branch',
+        related_name='child_branch',  # TODO: can not be child_branch
         blank=True, null=True,
         on_delete=models.CASCADE,
     )
 
     child_leaf = models.ForeignKey(
         LearningUnitYear,
-        related_name='child_leaf',
+        related_name='child_leaf',  # TODO: can not be child_leaf
         blank=True, null=True,
         on_delete=models.CASCADE,
     )
 
-    relative_credits = models.DecimalField(
-        max_digits=5,
-        decimal_places=2,
+    relative_credits = models.IntegerField(
         blank=True,
         null=True,
         verbose_name=_("relative credits"),
     )
 
-    min_credits = models.DecimalField(
-        max_digits=5,
-        decimal_places=2,
+    min_credits = models.IntegerField(
         blank=True,
         null=True,
         verbose_name=_("min_credits"),
     )
 
-    max_credits = models.DecimalField(
-        max_digits=5,
-        decimal_places=2,
+    max_credits = models.IntegerField(
         blank=True,
         null=True,
         verbose_name=_("max_credits"),
@@ -129,24 +132,58 @@ class GroupElementYear(OrderedModel):
 
     own_comment = models.CharField(max_length=500, blank=True, null=True)
 
-    sessions_derogation = models.CharField(
-        max_length=65,
-        choices=sessions_derogation.SessionsDerogationTypes.translation_choices(),
-        default=sessions_derogation.SessionsDerogationTypes.SESSION_UNDEFINED.value,
-        verbose_name=_("sessions_derogation"),
-    )
+    quadrimester_derogation = models.CharField(max_length=10,
+                                               choices=quadrimesters.DEROGATION_QUADRIMESTERS,
+                                               blank=True, null=True, verbose_name=_('Quadrimester derogation'))
+
+    link_type = models.CharField(max_length=25,
+                                 choices=link_type.LINK_TYPE,
+                                 blank=True, null=True, verbose_name=_('Link type'))
 
     order_with_respect_to = 'parent'
 
+    objects = GroupElementYearManager()
+
     def __str__(self):
         return "{} - {}".format(self.parent, self.child)
+
+    @property
+    def verbose(self):
+        if self.child_branch:
+            return _("%(title)s (%(credits)s credits)") % {
+                "title": self.child.title,
+                "credits": self.relative_credits or self.child_branch.credits or 0
+            }
+        else:
+            components = LearningComponentYear.objects.filter(
+                learningunitcomponent__learning_unit_year=self.child_leaf
+            )
+
+            return _("%(acronym)s %(title)s [%(volumes)s] (%(credits)s credits)") % {
+                "acronym": self.child_leaf.acronym,
+                "title": self.child.specific_title_english
+                if self.child.specific_title_english and translation.get_language() == 'en'
+                else self.child.specific_title,
+                "volumes": volume_total_verbose(components),
+                "credits": self.relative_credits or self.child_leaf.credits or 0
+            }
+
+    @property
+    def verbose_comment(self):
+        if self.comment_english and translation.get_language() == LANGUAGE_CODE_EN:
+            return self.comment_english
+        return self.comment
 
     class Meta:
         ordering = ('order',)
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         if self.child_branch and self.child_leaf:
-            raise IntegrityError("Can not save GroupElementYear with a child branch and a child leaf.")
+            raise IntegrityError("It is forbidden to save a GroupElementYear with a child branch and a child leaf.")
+        if self.child_branch == self.parent:
+            raise IntegrityError("It is forbidden to attach an element to itself.")
+        if self.parent and self.child_branch in self.parent.ascendants_of_branch:
+            raise IntegrityError("It is forbidden to attach an element to one of its included elements.")
 
         return super().save(force_insert, force_update, using, update_fields)
 
@@ -175,10 +212,26 @@ def search(**kwargs):
     return queryset
 
 
+def get_group_element_year_by_id(id):
+    return GroupElementYear.objects.get(id=id)
+
+
 # TODO : education_group_yr.parent.all() instead
 @deprecated
 def find_by_parent(an_education_group_year):
     return GroupElementYear.objects.filter(parent=an_education_group_year)
+
+
+# TODO : education_group_yr.child_branch.all() instead
+@deprecated
+def find_by_child_branch(an_education_group_year):
+    return GroupElementYear.objects.filter(child_branch=an_education_group_year)
+
+
+# TODO : education_group_yr.child_leaf.all() instead
+@deprecated
+def find_by_child_leaf(learning_unit_year):
+    return GroupElementYear.objects.filter(child_leaf=learning_unit_year)
 
 
 def find_learning_unit_formations(objects, parents_as_instances=False):
@@ -284,5 +337,9 @@ def _match_any_filters(element_year, filters):
     return any(element_year[col_name] in values_list for col_name, values_list in filters.items())
 
 
-def get_or_create_group_element_year(parent, child):
-    return GroupElementYear.objects.get_or_create(parent=parent, child_branch=child)
+def get_or_create_group_element_year(parent, child_branch=None, child_leaf=None):
+    if child_branch:
+        return GroupElementYear.objects.get_or_create(parent=parent, child_branch=child_branch)
+    elif child_leaf:
+        return GroupElementYear.objects.get_or_create(parent=parent, child_leaf=child_leaf)
+    return AttributeError('child branch OR child leaf params must be set')

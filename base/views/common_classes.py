@@ -24,12 +24,10 @@
 #
 ##############################################################################
 import waffle
-from django.contrib.admin.utils import NestedObjects
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
-from django.utils.encoding import force_text
-from django.utils.text import capfirst
+from django.http import JsonResponse
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import DeleteView
 
@@ -67,7 +65,7 @@ class RulesRequiredMixin(UserPassesTestMixin):
         return rule(self.request.user, self.get_object())
 
 
-class AjaxTemplateMixin(object):
+class AjaxTemplateMixin:
     ajax_template_suffix = "_inner"
 
     def get_template_names(self):
@@ -84,43 +82,47 @@ class AjaxTemplateMixin(object):
         split.append('.html')
         return "".join(split)
 
+    def form_valid(self, form):
+        redirect = super().form_valid(form)
+
+        # When the form is saved, we return only the url, not all the template
+        if self.request.is_ajax():
+            return JsonResponse({"success": True, "success_url": self.get_success_url()})
+        else:
+            return redirect
+
+    def delete(self, request, *args, **kwargs):
+        redirect = super().delete(request, *args, **kwargs)
+
+        # When the form is saved, we return only the url, not all the template
+        if self.request.is_ajax():
+            return JsonResponse({"success": True, "success_url": self.get_success_url()})
+        else:
+            return redirect
+
 
 class DeleteViewWithDependencies(FlagMixin, RulesRequiredMixin, AjaxTemplateMixin, DeleteView):
     success_message = "The objects are been deleted successfully"
     protected_template = None
-
-    collector = None
+    protected_messages = None
 
     def get(self, request, *args, **kwargs):
-        self.collector = NestedObjects(using="default")
+        self.protected_messages = self.get_protected_messages()
 
-        self.get_collect()
-        self.post_collect()
-
-        # If there is some protected objects, change the template
-        if self.collector.protected:
+        # If there is some protected messages, change the template
+        if self.protected_messages:
             self.template_name = self.protected_template
-
         return super().get(request, *args, **kwargs)
 
-    def get_collect(self):
-        # Collect objects how will be deleted
-        self.collector.collect([self.get_object()])
-
-    def post_collect(self):
+    def get_protected_messages(self):
         pass
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["deletable_objects"] = self.collector.nested(format_callback)
-        context["protected_objects"] = self.collector.protected
+        context["protected_messages"] = self.protected_messages
         return context
 
     def delete(self, request, *args, **kwargs):
         result = super().delete(request, *args, **kwargs)
         display_success_messages(request, _(self.success_message))
         return result
-
-
-def format_callback(obj):
-    return "%s: %s" % (capfirst(obj._meta.verbose_name), force_text(obj))

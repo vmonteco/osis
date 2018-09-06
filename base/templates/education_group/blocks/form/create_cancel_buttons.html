@@ -23,10 +23,12 @@
 * see http://www.gnu.org/licenses/.
 {% endcomment %}
 
-{% if education_group_year %}
-    {% url 'education_group_read' education_group_year_id=education_group_year.id as cancel_url %}
+{% if parent and education_group_year %}
+    {% url 'education_group_read' parent.id education_group_year.id as cancel_url %}
 {% elif parent %}
-    {% url 'education_group_read' education_group_year_id=parent.id as cancel_url %}
+    {% url 'education_group_read' parent.id parent.id as cancel_url %}
+{% elif education_group_year %}
+    {% url 'education_group_read' education_group_year.id education_group_year.id as cancel_url %}
 {% else %}
     {% url 'education_groups' as cancel_url %}
 {% endif %}

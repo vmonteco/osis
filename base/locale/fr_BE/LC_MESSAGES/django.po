@@ -1653,7 +1653,7 @@ msgid "PLATFORM"
 msgstr "Plateforme"
 
 msgid "LOGISTICS_ENTITY"
-msgstr "Entitée logistique"
+msgstr "Entité logistique"
 
 msgid "organogram"
 msgstr "Organigramme"
@@ -1736,8 +1736,8 @@ msgstr "Composition"
 msgid "real_classes"
 msgstr "Classes effectives"
 
-msgid "lu_usage"
-msgstr "Utilisation par les UE"
+msgid "LU"
+msgstr "UE"
 
 msgid "academic_years"
 msgstr "Années académiques"
@@ -2014,6 +2014,12 @@ msgstr "Certificat universitaire"
 
 msgid "studies_domain"
 msgstr "Domaine d'études"
+
+msgid "main domain"
+msgstr "domaine principal"
+
+msgid "secondary domains"
+msgstr "domaines secondaires"
 
 msgid "primary_language"
 msgstr "Langue principale"
@@ -2888,6 +2894,9 @@ msgstr "Erreur de consistance en %(academic_year)s : %(error)s"
 msgid "%(col_name)s has been already modified. ({%(new_value)s} instead of {%(current_value)s})"
 msgstr "%(col_name)s a déjà été modifié. ({%(new_value)s} à la place de {%(current_value)s})"
 
+msgid "%(col_name)s has been already modified."
+msgstr "%(col_name)s a déjà été modifié."
+
 msgid "external_code"
 msgstr "Code local"
 
@@ -2933,7 +2942,7 @@ msgstr "Entité demandeuse"
 msgid "local_credits"
 msgstr "Crédits locaux"
 
-msgid "warnigns_detected"
+msgid "warnings_detected"
 msgstr "Nous avons détecté des incohérences dans les données suivantes :"
 
 msgid "Volumes are inconsistent"
@@ -3054,13 +3063,16 @@ msgid "validity"
 msgstr "validité"
 
 msgid "Education group year <a href='%(link)s'> %(acronym)s (%(academic_year)s) </a> successfuly created."
-msgstr "Formation <a href='%(link)s'> %(acronym)s (%(academic_year)s) </a> créée avec succès."
+msgstr "Organisation de formation <a href='%(link)s'> %(acronym)s (%(academic_year)s) </a> créée avec succès."
 
-msgid "minimum credits"
-msgstr "crédits minimum"
+msgid "minimum constraint"
+msgstr "contrainte minimum"
 
-msgid "maximum credits"
-msgstr "crédits maximum"
+msgid "maximum constraint"
+msgstr "contrainte maximum"
+
+msgid "type of constraint"
+msgstr "type de contrainte"
 
 msgid "EDUCATION_GROUP_EDITION"
 msgstr "Edition programme"
@@ -3227,8 +3239,8 @@ msgstr "L'organisation de formation a été supprimée."
 msgid "The %(acronym)s has been moved"
 msgstr "%(acronym)s a été déplacé"
 
-msgid "The %(acronym)s has been detached"
-msgstr "%(acronym)s a été détaché"
+msgid "\"%(child)s\" has been detached from \"%(parent)s\""
+msgstr "\"%(child)s\" a été détaché de \"%(parent)s\""
 
 msgid "Additional info"
 msgstr "Infos complémentaires"
@@ -3260,16 +3272,16 @@ msgstr "Abs. créd."
 msgid "Sess. derog."
 msgstr "Sess. dérog."
 
-msgid "%(count_enrollment)d student is  enrolled in the offer."
-msgid_plural "%(count_enrollment)d students are  enrolled in the offer."
+msgid "%(count_enrollment)d student is enrolled in the offer."
+msgid_plural "%(count_enrollment)d students are enrolled in the offer."
 msgstr[0] "%(count_enrollment)d étudiant est inscrit à l'offre."
 msgstr[1] "%(count_enrollment)d étudiants sont inscrits à l'offre."
 
 msgid "The content of the education group is not empty."
 msgstr "Le contenu du programme type n'est pas vide."
 
-msgid "Cred. abs./rel."
-msgstr "Créd. abs./rel."
+msgid "Cred. rel./abs."
+msgstr "Créd. rel./abs."
 
 msgid "Decree category"
 msgstr "Catégorie décret"
@@ -3300,3 +3312,497 @@ msgstr "Certificat universitaire 30 crédits "
 
 msgid "CERTIFICATE_MEDECINE_COMPETENCE"
 msgstr "Certificat compétence médecine "
+
+msgid "Generate pdf"
+msgstr "Générer le pdf"
+
+msgid "%(acronym)s %(title)s [%(volumes)s] (%(credits)s credits)"
+msgstr "%(acronym)s %(title)s [%(volumes)s] (%(credits)s crédits)"
+
+msgid "Link type"
+msgstr "Type de lien"
+
+msgid "REFERENCE"
+msgstr "Référence"
+
+msgid "Quadrimester derogation"
+msgstr "Quadrimestre dérogation"
+
+msgid "Quad. derog."
+msgstr "Quad. dérog."
+
+msgctxt "male"
+msgid "No type of %(child_category)s can be created as child of %(category)s of type %(type)s"
+msgstr "Aucun type de %(child_category)s ne peut être créé comme enfant d'un %(category)s de type %(type)s"
+
+msgctxt "female"
+msgid "No type of %(child_category)s can be created as child of %(category)s of type %(type)s"
+msgstr "Aucun type de %(child_category)s ne peut être créé comme enfant d'une %(category)s de type %(type)s"
+
+msgid "Produce xls with a list of education groups"
+msgstr "Produire un fichier Excel avec la liste des organisations de formations"
+
+msgid "Produce xls of trainings with administrative data"
+msgstr "Produire un fichier Excel pour les organisations de type 'formation' avec le détail des données administratives"
+
+msgid "Begining of course registration"
+msgstr "Début inscription au cours"
+
+msgid "Ending of course registration"
+msgstr "Fin inscription au cours"
+
+msgid "Begining of exam registration"
+msgstr "Début Inscription examens"
+
+msgid "Ending of exam registration"
+msgstr "Fin Inscription examens"
+
+msgid "Exam board signatory"
+msgstr "Signataire du jury"
+
+msgid "List of trainings, with administrative data"
+msgstr "Liste des formations avec leurs données administratives"
+
+msgid "List of trainings"
+msgstr "Liste des organisation de formation"
+
+msgid "List of trainings with administrative data"
+msgstr "Liste des formations avec données administratives"
+
+msgid "Validity"
+msgstr "Validité"
+
+msgid "Attach"
+msgstr "Attacher"
+
+msgid "Detach"
+msgstr "Détacher"
+
+msgid "Select"
+msgstr "Sélectionner"
+
+msgid "Please Select or Move an item before Attach it"
+msgstr "Veuillez Sélectionner ou Déplacer un élément avant d'Attacher"
+
+msgid "Used by an other education group"
+msgstr "Utilisé dans une autre formation"
+
+msgid "The user has not permission to change education groups."
+msgstr "L'utilisateur n'a pas la permission de modifier les formations."
+
+msgid "It is not possible to move the root element."
+msgstr "Il n'est pas possible de déplacer l'élément racine de l'arbre."
+
+msgid "It is not possible to detach the root element."
+msgstr "Il n'est pas possible de détacher l'élément racine de l'arbre."
+
+msgid "Attached to \"%(acronym)s\""
+msgstr "L'élément sélectionné a été attaché à \"%(acronym)s\""
+
+msgid "Learning units comparison"
+msgstr "Fiche comparative"
+
+msgid "specific_title"
+msgstr "Intitulé"
+
+msgid "specific_title_english"
+msgstr "Intitulé en anglais"
+
+msgid "attribution_procedure"
+msgstr "Procédure"
+
+msgid "No difference"
+msgstr "Aucune différence"
+
+msgid "is_vacant"
+msgstr "Vacant"
+
+msgid "team"
+msgstr "Gestion par équipe"
+
+msgid "Selected element"
+msgstr "Élément sélectionné"
+
+msgid "English"
+msgstr "Anglais"
+
+msgid "French"
+msgstr "Français"
+
+msgid "Which type of %(category)s do you want to create ?"
+msgstr "Quel type de %(category)s voulez-vous créer ?"
+
+msgid "Select a language"
+msgstr "Sélectionnez une langue"
+
+msgid "VOLUME_Q1"
+msgstr "Vol. Q1"
+
+msgid "VOLUME_Q2"
+msgstr "Vol. Q2"
+
+msgid "VOLUME_TOTAL"
+msgstr "Vol. annuel"
+
+msgid "PLANNED_CLASSES"
+msgstr "Classes prévues"
+
+msgid "REAL_CLASSES"
+msgstr "Classes effectives"
+
+msgid "VOLUME_REQUIREMENT_ENTITY"
+msgstr "Entité resp. cahier de charges"
+
+msgid "VOLUME_ALLOCATION_ENTITY"
+msgstr "Entité resp. de l'attribution"
+
+msgid "VOLUME_ADDITIONAL_REQUIREMENT_ENTITY_1"
+msgstr "Entité resp. cahier de charges complémentaire 1"
+
+msgid "VOLUME_ADDITIONAL_REQUIREMENT_ENTITY_2"
+msgstr "Entité resp. cahier de charges complémentaire 2"
+
+msgid "This field is empty"
+msgstr "Ce champ est vide"
+
+msgid "Do you want to continue ?"
+msgstr "Voulez-vous continuer ?"
+
+msgid "There are warnings in the form."
+msgstr "Il y a des avertissements dans le formulaire."
+
+msgid "Number of elements"
+msgstr "Nombre d'éléments"
+
+msgid "Education group year <a href='%(link)s'> %(acronym)s (%(academic_year)s) </a> successfuly updated."
+msgstr "Organisation de formation <a href='%(link)s'> %(acronym)s (%(academic_year)s) </a> mis à jour avec succès."
+
+msgid "%(max)s must be greater or equals than %(min)s"
+msgstr "%(max)s doit être plus grand ou égal à %(min)s"
+
+msgid "Education group year %(acronym)s (%(academic_year)s) successfuly deleted."
+msgstr "Organisation de formation %(acronym)s (%(academic_year)s) a été supprimée avec succès."
+
+msgid "VOLUME_GLOBAL"
+msgstr "Vol. global"
+
+msgid "Produce xls of comparison"
+msgstr "Produire une fiche comparative entre unités d'enseignement"
+
+msgid "List of learning_units with comparison"
+msgstr "Comparaison entre unités d'enseignement"
+
+msgid "Choose academic years"
+msgstr "Choisir les années"
+
+msgid "Produce Xls"
+msgstr "Produire Excel"
+
+msgid "Internship subtype"
+msgstr "Sous-type stage"
+
+msgid "Add. requ. ent. 1"
+msgstr "Ent.charges compl. 1"
+
+msgid "Add. requ. ent. 2"
+msgstr "Ent.charges compl. 2"
+
+msgid "Profes. integration"
+msgstr "Intégration prof."
+
+msgid "Req. Entities"
+msgstr "Ent. charges"
+
+msgid "list_learning_units_comparison"
+msgstr "Liste comparative d'unités d'enseignement"
+
+msgid "Utilizations"
+msgstr "Utilisations"
+
+msgid "You cannot attach \"%(child)s\" (type \"%(child_type)s\") to \"%(parent)s\" (type \"%(parent_type)s\")"
+msgstr "Vous ne pouvez pas attacher \"%(child)s\" (de type \"%(child_type)s\") à \"%(parent)s\" (de type \"%(parent_type)s\")"
+
+msgid "is using in"
+msgstr "est utilisée dans :"
+
+msgid "Prerequisite"
+msgid_plural "Prerequisites"
+msgstr[0] "Prérequis"
+msgstr[1] "Prérequis"
+
+msgid "has the following prerequisites"
+msgstr "dispose des prérequis suivants"
+
+msgid "Cannot set end year to %(end_year)s :"
+msgstr "Impossible de mettre la fin à %(end_year)s :"
+
+msgid "You cannot attach an element to a learning unit year"
+msgstr "Vous ne pouvez pas attacher un élément à une unité d'enseignement"
+
+msgid "It is forbidden to save a GroupElementYear with a child branch and a child leaf."
+msgstr "Il est interdit de créer un GroupElementYear avec un child branch et un child leaf."
+
+msgid "It is forbidden to attach an element to itself."
+msgstr "Il est inderdit d'attacher un élement à lui-même."
+
+msgid "It is forbidden to attach an element to one of its included elements."
+msgstr "Il est interdit d'attacher un élement à un autre élement y étant inclus."
+
+msgid "Modify prerequisites"
+msgstr "Modifier les prérequis"
+
+msgid "Prerequisites are invalid"
+msgstr "<p>Prérequis invalides</p>"
+
+msgid "prerequisites_syntax_rules"
+msgstr "<b>Règles de syntaxe:</b>"
+       "<ul><li>Pas de doubles parenthèses.</li>"
+       "<li>Les opérateurs valides sont OU et ET.</li>"
+       "<li>L'opérateur doit être le même à l'intérieur de toutes les parenthèses (groupes).</li>"
+       "<li>L'opérateur qui unit les groupes doit être différent de celui qui unit les UEs dans un groupe (parenthèses).</li>"
+       "<li>Le code de l'UE ne peut pas comporté d'espaces (ex: LDROI1001 et non LDROI&nbsp;1001).</li></ul></p>"
+       "<p><b>Exemples</b>:"
+       "<ul><li>A OU B OU C: valide</li>"
+       "<li>A ET B ET C : valide</li>"
+       "<li>A ET (B OU C) ET (D OU E): valide</li>"
+       "<li>A ET (B OU C) OU (D OU E): non valide</li>"
+       "<li>A ET (B ET C) ET (D ET E): non valide</li>"
+       "<li>A ET (B OU C) ET (D ET E): non valide</li></ul>"
+
+msgid "Prerequisites saved."
+msgstr "Prérequis enregistrés."
+
+msgid "The credits value should be an integer"
+msgstr "La valeur du champs crédits doit être un entier"
+
+msgid "The prerequisites %s for the learning unit %s are not inside the selected formation %s"
+msgstr "Les prérequis %s pour l'unité d'enseignement %s ne sont pas dans la formation sélectionnée %s"
+
+msgid "This form must be submitted to the secretariat of your faculty"
+msgstr "Ce formulaire doit être remis au secrétariat de votre faculté"
+
+msgid "This form must be signed by the designated authority and delivered to the secretariat of your faculty."
+msgstr "Ce formulaire doit être revêtu de la signature de l'autorité désignée et remis au secrétariat de votre faculté."
+
+msgid "The registration form is available at the Secretariat of"
+msgstr "Le formulaire d'inscription est disponible au Secrétariat de"
+
+msgid "training"
+msgstr "formation"
+
+msgid "faculty number"
+msgstr "n° facultaire"
+
+msgid "(optional)"
+msgstr "(optionnel)"
+
+msgid "Agregation"
+msgstr "Agrégation"
+
+msgid "Certificate of participation"
+msgstr "Attestation de participation"
+
+msgid "Certificate of success"
+msgstr "Attestation de réussite"
+
+msgid "Certificate of holding credits"
+msgstr "Attestation d'obtention de crédits"
+
+msgid "Bachelor"
+msgstr "Bachelier"
+
+msgid "Certificat"
+msgstr ""
+
+msgid "Research certificat"
+msgstr "Certificat de recherche"
+
+msgid "University first cycle certificat"
+msgstr "Certificat d'université 1er cycle"
+
+msgid "University second cycle certificat"
+msgstr "Certificat d'université 2eme cycle"
+
+msgid "Access contest"
+msgstr "Concours d’accès"
+
+msgid "Language classes"
+msgstr "Cours de langue"
+
+msgid "Isoldated classes"
+msgstr "Cours isolés"
+
+msgid "PHD"
+msgstr "Doctorat"
+
+msgid "Formation PHD"
+msgstr "Formation doctorale"
+
+msgid "Junior year"
+msgstr "Junior year"
+
+msgid "Program master 120"
+msgstr "Master en 120 crédits (programme)"
+
+msgid "Master MA 120"
+msgstr "Master en 120 crédits à finalité approfondie"
+
+msgid "Master MD 120"
+msgstr "Master en 120 crédits à finalité didactique"
+
+msgid "Master MS 120"
+msgstr "Master en 120 crédits à finalité spécialisée"
+
+msgid "Program master 180-240"
+msgstr "Master en 180-240 crédits (programme)"
+
+msgid "Master MA 180-240"
+msgstr "Master en 180-240 crédits à finalité approfondie"
+
+msgid "Master MD 180-240"
+msgstr "Master en 180-240 crédits à finalité didactique"
+
+msgid "Master MS 180-240"
+msgstr "Master en 180-240 crédits à finalité spécialisée"
+
+msgid "Master in 60 credits"
+msgstr "Master en 60 crédits"
+
+msgid "Master of specialist"
+msgstr "Master de spécialisation"
+
+msgid "Internship"
+msgstr "Stagiaire"
+
+msgid "Deepening"
+msgstr "Approfondissement"
+
+msgid "Sociaty minor"
+msgstr "Mineure de société"
+
+msgid "Access minor"
+msgstr "Mineure d'accès"
+
+msgid "Open minor"
+msgstr "Mineure d'ouverture"
+
+msgid "Disciplinary complement minor"
+msgstr "Mineure complément disciplinaire"
+
+msgid "FSA speciality"
+msgstr "Spécialité FSA (Majeure)"
+
+msgid "Option"
+msgstr "Option"
+
+msgid "Mobility partnership"
+msgstr "Partenariat de mobilité"
+
+msgid "Common core"
+msgstr "Partie de base (Tronc commun)"
+
+msgid "Minor list choice"
+msgstr "Liste au choix Mineures"
+
+msgid "Major list choice"
+msgstr "Liste au choix Majeures"
+
+msgid "Option list choice"
+msgstr "Liste au choix Options"
+
+msgid "Finality 120 list choice"
+msgstr "Liste au choix de Finalités (120)"
+
+msgid "Finality 180 list choice"
+msgstr "Liste au choix de Finalités (180)"
+
+msgid "Mobility partnership list choice"
+msgstr "Liste au choix Partenariat mobilité"
+
+msgid "Complementary module"
+msgstr "Module complémentaire"
+
+msgid "Sub group"
+msgstr "Sous-groupe"
+
+msgid "The user has not permission to create a %(category)s."
+msgstr "L'utilisateur n'a pas la permission de créer une %(category)s."
+
+msgid "from %(min)s to %(max)s among"
+msgstr "de %(min)s à %(max)s parmi"
+
+msgid "from %(min)s to %(max)s credits among"
+msgstr "de %(min)s à %(max)s crédits parmi"
+
+#: backoffice/settings/base.py:402
+msgid "Teaching profile"
+msgstr "Profil enseignement"
+
+#: backoffice/settings/base.py:403
+msgid "Learning outcomes"
+msgstr "Compétences et acquis"
+
+#: backoffice/settings/base.py:404
+msgid "Programme structure"
+msgstr "Structure du programme"
+
+#: backoffice/settings/base.py:406
+msgid "Detailed programme"
+msgstr "Programme détaillé"
+
+#: backoffice/settings/base.py:407
+msgid "Options courses"
+msgstr "Options et/ou cours au choix"
+
+#: backoffice/settings/base.py:408
+msgid "The programme's courses and learning outcomes"
+msgstr "Cours et acquis d'apprentissage du programme"
+
+#: backoffice/settings/base.py:410
+msgid "Admission"
+msgstr "Conditions d'admission"
+
+#: backoffice/settings/base.py:412
+msgid "Preparatory module"
+msgstr "Module complémentaire"
+
+#: backoffice/settings/base.py:414
+msgid "Benefits and organization"
+msgstr "Atouts et organisation"
+
+#: backoffice/settings/base.py:415
+msgid "Pedagogy"
+msgstr "Pédagogie"
+
+#: backoffice/settings/base.py:416
+msgid "Course evaluation methods"
+msgstr "Evaluation"
+
+#: backoffice/settings/base.py:417
+msgid "Mobility and/or Internationalisation outlook"
+msgstr "Mobilité et internationalisation"
+
+#: backoffice/settings/base.py:418
+msgid "Then after, Further degree programs"
+msgstr "Et après ... quelles formations"
+
+#: backoffice/settings/base.py:419
+msgid "Certificates"
+msgstr "Certificats"
+
+#: backoffice/settings/base.py:421
+msgid "In practice"
+msgstr "En pratique"
+
+#: backoffice/settings/base.py:422
+msgid "Curriculum Management and contacts"
+msgstr "Gestion et contacts"
+
+msgid "Welcome"
+msgstr "Page d'accueil"
+
+msgid "Add the French content of this paragraph"
+msgstr "Ajouter le contenu Français de ce paragraphe"
+
+msgid "Add the English content of this paragraph"
+msgstr "Ajouter le contenu Anglais de ce paragraphe"

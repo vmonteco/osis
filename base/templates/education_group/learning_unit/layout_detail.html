@@ -1,0 +1,51 @@
+{% extends "education_group/layout.html" %}
+{% load staticfiles getattr education_group format %}
+
+{% block breadcrumb %}
+    {{ block.super }}
+    <li class="active">
+        {{ learning_unit_year.acronym }}
+    </li>
+{% endblock %}
+
+
+{% block header_content %}
+    <div class="page-header">
+        <h2>
+            {{ learning_unit_year.acronym }} - {{ learning_unit_year.complete_title }}
+            <small style="color:black;font-family:Verdana;">
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ learning_unit_year.academic_year }}</small>
+        </h2>
+    </div>
+{% endblock %}
+
+
+{% block content %}
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <div class="row">
+                {% include "education_group/blocks/hamburger_button.html" %}
+            </div>
+        </div>
+        <div class="panel-body" id="tabs">
+            <div class="tab-content" id="tab_content">
+                <div role="tabpanel" class="tab-pane active" id="content">
+                    <div class="row" style="display:flex;">
+                        {% include "education_group/training_tree.html" %}
+                        <div id="panel-data" class="col-md-12" style="height: 100%;">
+                            {% include "education_group/learning_unit/tabs.html" %}
+
+                            <br>
+
+                            {% block tab_content %}
+                            {% endblock %}
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

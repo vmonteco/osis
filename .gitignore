@@ -5,6 +5,7 @@ sys
 *.iml
 .idea/
 *.csv
+!base/fixtures/*.csv
 venv/
 __pycache__/
 backoffice/server_settings.py
@@ -25,5 +26,4 @@ dev.py
 ghostdriver.log
 .DS_Store
 /geckodriver.log
-/venv_3.6/
-/.gitignore
+**/*.orig

@@ -23,19 +23,25 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from django.core.exceptions import ValidationError
+from django.core.validators import RegexValidator
 from django.db import models
-from django.db.models import Count
+from django.db.models import Count, OuterRef, Exists
 from django.urls import reverse
+from django.utils import translation
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
+from backoffice.settings.base import LANGUAGE_CODE_EN
 from base.models import entity_version
 from base.models.entity import Entity
-from base.models.enums import academic_type, fee, internship_presence, schedule_type, activity_presence, \
+from base.models.enums import academic_type, internship_presence, schedule_type, activity_presence, \
     diploma_printing_orientation, active_status, duration_unit, decree_category, rate_code
 from base.models.enums import education_group_association
 from base.models.enums import education_group_categories
+from base.models.enums.constraint_type import CONSTRAINT_TYPE, CREDITS
 from base.models.exceptions import MaximumOneParentAllowedException
+from base.models.prerequisite import Prerequisite
 from osis_common.models.osis_model_admin import OsisModelAdmin
 
 
@@ -48,12 +54,32 @@ class EducationGroupYearAdmin(OsisModelAdmin):
 
 
 class EducationGroupYear(models.Model):
-    external_id = models.CharField(max_length=100, blank=True, null=True)
+    external_id = models.CharField(max_length=100, blank=True, null=True, db_index=True)
     changed = models.DateTimeField(null=True, auto_now=True)
-    acronym = models.CharField(max_length=40, db_index=True, verbose_name=_("acronym"))
-    title = models.CharField(max_length=255, verbose_name=_("title_in_french"))
-    title_english = models.CharField(max_length=240, blank=True, null=True, verbose_name=_("title_in_english"))
-    academic_year = models.ForeignKey('AcademicYear', verbose_name=_("validity"))
+
+    acronym = models.CharField(
+        max_length=40,
+        db_index=True,
+        verbose_name=_("acronym"),
+        validators=[RegexValidator(regex="^([A-Z]{2,4})([0-9]?)(.*)$")]
+    )
+
+    title = models.CharField(
+        max_length=255,
+        verbose_name=_("title_in_french")
+    )
+
+    title_english = models.CharField(
+        max_length=240,
+        blank=True,
+        default="",
+        verbose_name=_("title_in_english")
+    )
+
+    academic_year = models.ForeignKey(
+        'AcademicYear',
+        verbose_name=_("validity")
+    )
 
     education_group = models.ForeignKey(
         'EducationGroup',
@@ -62,9 +88,11 @@ class EducationGroupYear(models.Model):
 
     education_group_type = models.ForeignKey(
         'EducationGroupType',
-        blank=False, null=True,
+        blank=False,
+        null=True,
         verbose_name=_("training_type")
     )
+
     active = models.CharField(
         max_length=20,
         choices=active_status.ACTIVE_STATUS_LIST,
@@ -72,116 +100,248 @@ class EducationGroupYear(models.Model):
         verbose_name=_('status')
     )
 
-    partial_deliberation = models.BooleanField(default=False, verbose_name=_('partial_deliberation'))
-    admission_exam = models.BooleanField(default=False, verbose_name=_('admission_exam'))
-    funding = models.BooleanField(default=False, verbose_name=_('funding'))
-    funding_direction = models.CharField(max_length=1, blank=True, null=True, verbose_name=_('funding_direction'))
+    partial_deliberation = models.BooleanField(
+        default=False,
+        verbose_name=_('partial_deliberation')
+    )
+
+    admission_exam = models.BooleanField(
+        default=False,
+        verbose_name=_('admission_exam')
+    )
+
+    funding = models.BooleanField(
+        default=False,
+        verbose_name=_('funding')
+    )
+
+    funding_direction = models.CharField(
+        max_length=1,
+        blank=True,
+        default="",
+        verbose_name=_('funding_direction')
+    )
 
     funding_cud = models.BooleanField(
-        default=False, verbose_name=_('funding_cud')  # cud = commission universitaire au développement
+        default=False,
+        verbose_name=_('funding_cud')  # cud = commission universitaire au développement
     )
 
     funding_direction_cud = models.CharField(
-        max_length=1, blank=True, null=True, verbose_name=_('cud_funding_direction')
+        max_length=1,
+        blank=True,
+        default="",
+        verbose_name=_('cud_funding_direction')
     )
 
     academic_type = models.CharField(
-        max_length=20, choices=academic_type.ACADEMIC_TYPES, blank=True, null=True, verbose_name=_('academic_type')
+        max_length=20,
+        choices=academic_type.ACADEMIC_TYPES,
+        blank=True,
+        null=True,
+        verbose_name=_('academic_type')
     )
 
-    university_certificate = models.BooleanField(default=False, verbose_name=_('university_certificate'))
-    fee_type = models.CharField(max_length=20, choices=fee.FEES, blank=True, null=True)
+    university_certificate = models.BooleanField(
+        default=False,
+        verbose_name=_('university_certificate')
+    )
 
     enrollment_campus = models.ForeignKey(
-        'Campus', related_name='enrollment', blank=True, null=True, verbose_name=_("enrollment_campus")
+        'Campus',
+        related_name='enrollment',
+        blank=True,
+        null=True,
+        verbose_name=_("enrollment_campus"),
     )
 
     main_teaching_campus = models.ForeignKey(
-        'Campus', blank=True, null=True, related_name='teaching', verbose_name=_("learning_location")
+        'Campus',
+        blank=True,
+        null=True,
+        related_name='teaching',
+        verbose_name=_("learning_location")
     )
 
-    dissertation = models.BooleanField(default=False, verbose_name=_('dissertation'))
+    dissertation = models.BooleanField(
+        default=False,
+        verbose_name=_('dissertation')
+    )
+
     internship = models.CharField(
-        max_length=20, choices=internship_presence.INTERNSHIP_PRESENCE, blank=True, null=True,
+        max_length=20,
+        choices=internship_presence.INTERNSHIP_PRESENCE,
+        default=internship_presence.NO,
+        null=True,
         verbose_name=_('internship')
     )
 
     schedule_type = models.CharField(
-        max_length=20, choices=schedule_type.SCHEDULE_TYPES, default=schedule_type.DAILY,
+        max_length=20,
+        choices=schedule_type.SCHEDULE_TYPES,
+        default=schedule_type.DAILY,
         verbose_name=_('schedule_type')
     )
 
     english_activities = models.CharField(
-        max_length=20, choices=activity_presence.ACTIVITY_PRESENCES, blank=True, null=True
+        max_length=20,
+        choices=activity_presence.ACTIVITY_PRESENCES,
+        blank=True,
+        null=True
     )
 
     other_language_activities = models.CharField(
-        max_length=20, choices=activity_presence.ACTIVITY_PRESENCES,
-        blank=True, null=True, verbose_name=_('other_language_activities')
+        max_length=20,
+        choices=activity_presence.ACTIVITY_PRESENCES,
+        blank=True,
+        null=True,
+        verbose_name=_('other_language_activities')
     )
 
     other_campus_activities = models.CharField(
-        max_length=20, choices=activity_presence.ACTIVITY_PRESENCES, blank=True,
-        null=True, verbose_name=_('other_campus_activities')
+        max_length=20,
+        choices=activity_presence.ACTIVITY_PRESENCES,
+        blank=True,
+        null=True,
+        verbose_name=_('other_campus_activities')
     )
 
-    professional_title = models.CharField(max_length=320, blank=True, null=True)
+    professional_title = models.CharField(
+        max_length=320,
+        blank=True,
+        default="",
+    )
+
     joint_diploma = models.BooleanField(default=False)
 
     diploma_printing_orientation = models.CharField(
-        max_length=30, choices=diploma_printing_orientation.DIPLOMA_FOCUS, blank=True, null=True
+        max_length=30,
+        choices=diploma_printing_orientation.DIPLOMA_FOCUS,
+        blank=True,
+        null=True
     )
 
-    diploma_printing_title = models.CharField(max_length=140, blank=True, null=True)
-    inter_organization_information = models.CharField(max_length=320, blank=True, null=True)
+    diploma_printing_title = models.CharField(
+        max_length=140,
+        blank=True,
+        default="",
+    )
+
+    inter_organization_information = models.CharField(
+        max_length=320,
+        blank=True,
+        default="",
+    )
+
     inter_university_french_community = models.BooleanField(default=False)
     inter_university_belgium = models.BooleanField(default=False)
     inter_university_abroad = models.BooleanField(default=False)
 
     primary_language = models.ForeignKey(
-        'reference.Language', blank=True, null=True, verbose_name=_('primary_language')
+        'reference.Language',
+        null=True,
+        verbose_name=_('primary_language'),
     )
 
     language_association = models.CharField(
-        max_length=5, choices=education_group_association.EducationGroupAssociations.choices(), blank=True, null=True
+        max_length=5,
+        choices=education_group_association.EducationGroupAssociations.choices(),
+        blank=True,
+        null=True
     )
 
-    keywords = models.CharField(max_length=320, blank=True, null=True, verbose_name=_('keywords'))
-    duration = models.IntegerField(blank=True, null=True, verbose_name=_('duration'))
-    duration_unit = models.CharField(max_length=40,
-                                     choices=duration_unit.DURATION_UNIT,
-                                     default=duration_unit.DurationUnits.QUADRIMESTER.value,
-                                     blank=True, null=True, verbose_name=_('unit'))
-    enrollment_enabled = models.BooleanField(default=False, verbose_name=_('enrollment_enabled'))
-    partial_acronym = models.CharField(max_length=15, db_index=True, null=True, verbose_name=_("code"))
+    keywords = models.CharField(
+        max_length=320,
+        blank=True,
+        default="",
+        verbose_name=_('keywords')
+    )
+
+    duration = models.PositiveIntegerField(
+        blank=True,
+        null=True,
+        verbose_name=_('duration')
+    )
+
+    duration_unit = models.CharField(
+        max_length=40,
+        choices=duration_unit.DURATION_UNIT,
+        default=duration_unit.DurationUnits.QUADRIMESTER.value,
+        blank=True,
+        null=True,
+        verbose_name=_('unit')
+    )
+
+    enrollment_enabled = models.BooleanField(
+        default=True,
+        verbose_name=_('enrollment_enabled')
+    )
+
+    partial_acronym = models.CharField(
+        max_length=15,
+        db_index=True,
+        null=True,
+        verbose_name=_("code"),
+        validators=[RegexValidator(regex="^([A-Z]{3,5})([0-9]{3})([A-Z])$")]
+    )
 
     # TODO :: rename credits into expected_credits
-    credits = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True, verbose_name=_("credits"))
-    remark = models.TextField(blank=True, null=True, verbose_name=_("remark"))
-    remark_english = models.TextField(blank=True, null=True, verbose_name=_("remark_english"))
-
-    min_credits = models.DecimalField(
-        max_digits=5, decimal_places=2,
-        blank=True, null=True,
-        verbose_name=_("minimum credits")
+    credits = models.IntegerField(
+        blank=True,
+        null=True,
+        verbose_name=_("credits")
     )
 
-    max_credits = models.DecimalField(
-        max_digits=5, decimal_places=2,
-        blank=True, null=True,
-        verbose_name=_("maximum credits")
+    remark = models.TextField(
+        blank=True,
+        default="",
+        verbose_name=_("remark")
     )
 
-    domains = models.ManyToManyField(
+    remark_english = models.TextField(
+        blank=True,
+        default="",
+        verbose_name=_("remark_english")
+    )
+
+    min_constraint = models.IntegerField(
+        blank=True, null=True,
+        verbose_name=_("minimum constraint")
+    )
+
+    max_constraint = models.IntegerField(
+        blank=True, null=True,
+        verbose_name=_("maximum constraint")
+    )
+
+    constraint_type = models.CharField(
+        max_length=20,
+        choices=CONSTRAINT_TYPE,
+        default=CREDITS,
+        blank=True,
+        null=True,
+        verbose_name=_("type of constraint")
+    )
+
+    main_domain = models.ForeignKey(
+        "reference.domain",
+        on_delete=models.CASCADE,
+        null=True, blank=True,
+        verbose_name=_("main domain")
+    )
+
+    secondary_domains = models.ManyToManyField(
         "reference.domain",
         through="EducationGroupYearDomain",
-        related_name="education_group_years"
+        related_name="education_group_years",
+        verbose_name=_("secondary domains")
+
     )
 
     management_entity = models.ForeignKey(
         Entity,
         verbose_name=_("management_entity"),
-        blank=True, null=True,
+        null=True,
         related_name="management_entity"
     )
 
@@ -206,16 +366,55 @@ class EducationGroupYear(models.Model):
         related_name="education_group_years"
     )
 
-    decree_category = models.CharField(max_length=40,
-                                       choices=decree_category.DECREE_CATEGORY,
-                                       blank=True, null=True, verbose_name=_('Decree category'))
+    decree_category = models.CharField(
+        max_length=40,
+        choices=decree_category.DECREE_CATEGORY,
+        blank=True,
+        null=True,
+        verbose_name=_('Decree category')
+    )
 
-    rate_code = models.CharField(max_length=50,
-                                 choices=rate_code.RATE_CODE,
-                                 blank=True, null=True, verbose_name=_('Rate code'))
+    rate_code = models.CharField(
+        max_length=50,
+        choices=rate_code.RATE_CODE,
+        blank=True,
+        null=True,
+        verbose_name=_('Rate code')
+    )
 
     def __str__(self):
-        return u"%s - %s" % (self.academic_year, self.acronym)
+        return "{} - {} - {}".format(
+            self.partial_acronym,
+            self.acronym,
+            self.academic_year,
+        )
+
+    @property
+    def verbose(self):
+        return "{} - {}".format(self.partial_acronym or "", self.acronym)
+
+    @property
+    def verbose_credit(self):
+        return _("%(title)s (%(credits)s credits)") % {
+            "title": self.title_english if self.title_english and translation.get_language() == LANGUAGE_CODE_EN
+            else self.title,
+            "credits": self.credits or 0
+        }
+
+    @property
+    def verbose_remark(self):
+        if self.remark_english and translation.get_language() == LANGUAGE_CODE_EN:
+            return self.remark_english
+        return self.remark
+
+    @property
+    def verbose_constraint(self):
+        msg = "from %(min)s to %(max)s credits among" \
+            if self.constraint_type == CREDITS else "from %(min)s to %(max)s among"
+        return _(msg) % {
+            "min": self.min_constraint if self.min_constraint else "",
+            "max": self.max_constraint if self.max_constraint else ""
+        }
 
     class Meta:
         verbose_name = _("education group year")
@@ -225,8 +424,9 @@ class EducationGroupYear(models.Model):
 
     @property
     def str_domains(self):
-        ch = ''
-        for domain in self.domains.all():
+        ch = "{}-{}\n".format(self.main_domain.decree, self.main_domain.name) if self.main_domain else ""
+
+        for domain in self.secondary_domains.all():
             ch += "{}-{}\n".format(domain.decree, domain.name)
         return ch
 
@@ -257,11 +457,33 @@ class EducationGroupYear(models.Model):
         return [group_element_year.parent for group_element_year in group_elements_year
                 if group_element_year.parent]
 
-    @property
-    def children_by_group_element_year(self):
-        group_elements_year = self.parents.filter(parent=self).select_related('child_branch')
-        return [group_element_year.child_branch for group_element_year in group_elements_year
-                if group_element_year.child_branch]
+    @cached_property
+    def children_without_leaf(self):
+        return self.children.exclude(child_leaf__isnull=False)
+
+    @cached_property
+    def children(self):
+        return self.groupelementyear_set.select_related('child_branch', 'child_leaf')
+
+    @cached_property
+    def children_group_element_years(self):
+        return self.children_without_leaf
+
+    @cached_property
+    def group_element_year_branches(self):
+        return self.groupelementyear_set.filter(child_branch__isnull=False).select_related("child_branch")
+
+    @cached_property
+    def group_element_year_leaves(self):
+        return self.groupelementyear_set.filter(child_leaf__isnull=False). \
+            select_related("child_leaf", "child_leaf__learning_container_year")
+
+    def group_element_year_leaves_with_annotate_on_prerequisites(self, root_id):
+        has_prerequisite = Prerequisite.objects.filter(
+            education_group_year__id=root_id,
+            learning_unit_year__id=OuterRef("child_leaf__id"),
+        ).exclude(prerequisite__exact='')
+        return self.group_element_year_leaves.annotate(has_prerequisites=Exists(has_prerequisite))
 
     @cached_property
     def coorganizations(self):
@@ -279,6 +501,42 @@ class EducationGroupYear(models.Model):
         if not self.education_group.educationgroupyear_set.all().exists():
             result = self.education_group.delete()
         return result
+
+    @property
+    def category(self):
+        return self.education_group_type.category
+
+    @property
+    def direct_parents_of_branch(self):
+        return EducationGroupYear.objects.filter(
+            groupelementyear__child_branch=self
+        ).distinct()
+
+    @property
+    def ascendants_of_branch(self):
+        ascendants = []
+
+        for parent in self.direct_parents_of_branch:
+            ascendants.append(parent)
+            ascendants += parent.ascendants_of_branch
+
+        return list(set(ascendants))
+
+    def is_deletable(self):
+        """An education group year cannot be deleted if there are enrollment on it"""
+        if self.offerenrollment_set.all().exists():
+            return False
+        return True
+
+    def clean(self):
+        if self.min_constraint and self.max_constraint:
+            if self.min_constraint > self.max_constraint:
+                raise ValidationError({
+                    'max_constraint': _("%(max)s must be greater or equals than %(min)s") % {
+                        "max": _("maximum constraint").title(),
+                        "min": _("minimum constraint").title(),
+                    }
+                })
 
 
 def find_by_id(an_id):
@@ -333,6 +591,6 @@ def _count_education_group_enrollments_by_id(education_groups_years):
 
 
 def _find_with_learning_unit_enrollment_count(learning_unit_year):
-    return EducationGroupYear.objects\
-        .filter(offerenrollment__learningunitenrollment__learning_unit_year_id=learning_unit_year)\
+    return EducationGroupYear.objects \
+        .filter(offerenrollment__learningunitenrollment__learning_unit_year_id=learning_unit_year) \
         .annotate(count_learning_unit_enrollments=Count('offerenrollment__learningunitenrollment')).order_by('acronym')

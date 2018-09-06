@@ -24,6 +24,7 @@
 #
 ##############################################################################
 from django.test import TestCase
+from django.utils.translation import ugettext_lazy as _
 
 from base.models.education_group_year import find_by_id, search, find_with_enrollments_count
 from base.models.enums import education_group_categories
@@ -43,7 +44,6 @@ from base.tests.factories.offer_year import OfferYearFactory
 class EducationGroupYearTest(TestCase):
 
     def setUp(self):
-
         academic_year = AcademicYearFactory()
         self.education_group_type_training = EducationGroupTypeFactory(category=education_group_categories.TRAINING)
 
@@ -82,9 +82,14 @@ class EducationGroupYearTest(TestCase):
         )
 
         self.group_element_year_4 = GroupElementYearFactory(parent=self.education_group_year_3,
-                                                     child_branch=self.education_group_year_1)
+                                                            child_branch=self.education_group_year_1)
         self.group_element_year_5 = GroupElementYearFactory(parent=self.education_group_year_3,
-                                                     child_branch=self.education_group_year_1)
+                                                            child_branch=self.education_group_year_1)
+
+    def test_verbose_credit(self):
+        verbose__waiting = _("%(title)s (%(credits)s credits)") % {"title": self.education_group_year_1.title,
+                                                                   "credits": self.education_group_year_1.credits}
+        self.assertEqual(self.education_group_year_1.verbose_credit, verbose__waiting)
 
     def test_find_by_id(self):
         education_group_year = find_by_id(self.education_group_year_1.id)
@@ -110,7 +115,8 @@ class EducationGroupYearTest(TestCase):
         self.assertEqual(domains, '')
 
         domains = self.education_group_year_2.str_domains
-        offer_year_domain = "{}-{}\n".format(self.educ_group_year_domain.domain.decree, self.educ_group_year_domain.domain.name)
+        offer_year_domain = "{}-{}\n".format(self.educ_group_year_domain.domain.decree,
+                                             self.educ_group_year_domain.domain.name)
         self.assertEqual(domains, offer_year_domain)
 
     def test_administration_entity_version_property(self):
@@ -127,15 +133,67 @@ class EducationGroupYearTest(TestCase):
         self.assertIsNone(parent_by_training)
 
         with self.assertRaises(MaximumOneParentAllowedException):
-            parent_by_training=self.education_group_year_1.parent_by_training
+            parent_by_training = self.education_group_year_1.parent_by_training
 
-    def test_children_by_group_element_year_property(self):
-        children_by_group_element_year = self.education_group_year_1.children_by_group_element_year
-        self.assertListEqual(children_by_group_element_year, [])
+    def test_children_group_element_years_property(self):
+        children_group_element_years = self.education_group_year_1.children_group_element_years
+        self.assertListEqual(list(children_group_element_years), [])
+
+    def test_direct_parents_of_branch(self):
+        GroupElementYearFactory(
+            parent=self.education_group_year_2,
+            child_branch=self.education_group_year_1
+        )
+        GroupElementYearFactory(
+            parent=self.education_group_year_4,
+            child_branch=self.education_group_year_1
+        )
+        GroupElementYearFactory(
+            parent=self.education_group_year_5,
+            child_branch=self.education_group_year_4
+        )
+
+        self.assertCountEqual(
+            self.education_group_year_1.direct_parents_of_branch,
+            [
+                self.education_group_year_2,
+                self.education_group_year_3,
+                self.education_group_year_4,
+            ]
+        )
+
+    def test_ascendants_of_branch(self):
+        GroupElementYearFactory(
+            parent=self.education_group_year_2,
+            child_branch=self.education_group_year_1
+        )
+        GroupElementYearFactory(
+            parent=self.education_group_year_4,
+            child_branch=self.education_group_year_1
+        )
+        GroupElementYearFactory(
+            parent=self.education_group_year_5,
+            child_branch=self.education_group_year_4
+        )
+        GroupElementYearFactory(
+            parent=self.education_group_year_5,
+            child_branch=self.education_group_year_1
+        )
+
+        self.assertCountEqual(
+            self.education_group_year_1.ascendants_of_branch,
+            [
+                self.education_group_year_2,
+                self.education_group_year_3,
+                self.education_group_year_4,
+                self.education_group_year_5,
+            ]
+        )
 
 
 class TestFindWithEnrollmentsCount(TestCase):
     """Unit tests on find_with_enrollments_count()"""
+
     def setUp(self):
         self.current_academic_year = create_current_academic_year()
         self.learning_unit_year = LearningUnitYearFactory(academic_year=self.current_academic_year)
@@ -173,9 +231,12 @@ class TestFindWithEnrollmentsCount(TestCase):
         group_3 = GroupElementYearFactory(parent=EducationGroupYearFactory(acronym='LDROI1001'),
                                           child_branch=None,
                                           child_leaf=self.learning_unit_year)
-        LearningUnitEnrollmentFactory(learning_unit_year=self.learning_unit_year, offer_enrollment__education_group_year=group_1.parent)
-        LearningUnitEnrollmentFactory(learning_unit_year=self.learning_unit_year, offer_enrollment__education_group_year=group_2.parent)
-        LearningUnitEnrollmentFactory(learning_unit_year=self.learning_unit_year, offer_enrollment__education_group_year=group_3.parent)
+        LearningUnitEnrollmentFactory(learning_unit_year=self.learning_unit_year,
+                                      offer_enrollment__education_group_year=group_1.parent)
+        LearningUnitEnrollmentFactory(learning_unit_year=self.learning_unit_year,
+                                      offer_enrollment__education_group_year=group_2.parent)
+        LearningUnitEnrollmentFactory(learning_unit_year=self.learning_unit_year,
+                                      offer_enrollment__education_group_year=group_3.parent)
 
         result = find_with_enrollments_count(self.learning_unit_year)
         expected_list_order = [group_2.parent, group_3.parent, group_1.parent]

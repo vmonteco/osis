@@ -24,11 +24,11 @@
 #
 ##############################################################################
 import datetime
-import factory
-import factory.fuzzy
 import string
+
+import factory.fuzzy
+
 from base.tests.factories.person import PersonFactory
-from osis_common.utils.datetime import get_tzinfo
 
 
 class StudentFactory(factory.DjangoModelFactory):
@@ -37,7 +37,7 @@ class StudentFactory(factory.DjangoModelFactory):
         django_get_or_create = ('registration_id', )
 
     external_id = factory.fuzzy.FuzzyText(length=10, chars=string.digits)
-    changed = factory.fuzzy.FuzzyDateTime(datetime.datetime(2016, 1, 1, tzinfo=get_tzinfo()),
-                                          datetime.datetime(2017, 3, 1, tzinfo=get_tzinfo()))
+    changed = factory.fuzzy.FuzzyNaiveDateTime(datetime.datetime(2016, 1, 1),
+                                          datetime.datetime(2017, 3, 1))
     registration_id = factory.fuzzy.FuzzyText(length=10, chars=string.digits)
     person = factory.SubFactory(PersonFactory)
