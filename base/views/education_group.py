@@ -198,28 +198,29 @@ def education_group_year_admission_condition_update_line_post(request, root_id, 
     form = UpdateLineForm(request.POST)
 
     if form.is_valid():
-        admission_condition_line_id = form.cleaned_data['admission_condition_line']
-        language = form.cleaned_data['language']
-        lang = '' if language == 'fr' else '_en'
-
-        if not creation_mode:
-            admission_condition_line = get_object_or_404(AdmissionConditionLine,
-                                                         pk=admission_condition_line_id)
-        else:
-            section = form.cleaned_data['section']
-            education_group_year = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
-            admission_condition_line = AdmissionConditionLine.objects.create(
-                admission_condition=education_group_year.admissioncondition,
-                section=section)
-
-        for key in ('diploma', 'conditions', 'access', 'remarks'):
-            setattr(admission_condition_line, key + lang, form.cleaned_data[key])
-
-        admission_condition_line.save()
+        save_form_to_admission_condition_line(education_group_year_id, creation_mode, form)
 
     return redirect(
         reverse('education_group_year_admission_condition_edit', args=[root_id, education_group_year_id])
     )
+
+
+def save_form_to_admission_condition_line(education_group_year_id, creation_mode, form):
+    admission_condition_line_id = form.cleaned_data['admission_condition_line']
+    language = form.cleaned_data['language']
+    lang = '' if language == 'fr' else '_en'
+    if not creation_mode:
+        admission_condition_line = get_object_or_404(AdmissionConditionLine,
+                                                     pk=admission_condition_line_id)
+    else:
+        section = form.cleaned_data['section']
+        education_group_year = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
+        admission_condition_line = AdmissionConditionLine.objects.create(
+            admission_condition=education_group_year.admissioncondition,
+            section=section)
+    for key in ('diploma', 'conditions', 'access', 'remarks'):
+        setattr(admission_condition_line, key + lang, form.cleaned_data[key])
+    admission_condition_line.save()
 
 
 def education_group_year_admission_condition_update_line_get(request):
