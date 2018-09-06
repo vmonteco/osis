@@ -299,8 +299,15 @@ class TestSelectAttach(TestCase):
             args=[self.learning_unit_year.id]
         )
         group_above_new_parent = GroupElementYearFactory(child_branch=self.new_parent_education_group_year)
-        self.url_attach = reverse("education_groups_management")
-        self.url_attach_data = {
+
+        self.url_management = reverse("education_groups_management")
+        self.select_data = {
+            "root_id": group_above_new_parent.parent.id,
+            "element_id": self.child_education_group_year.id,
+            "group_element_year_id": self.initial_group_element_year.id,
+            "action": "select",
+        }
+        self.attach_data = {
             "root_id": group_above_new_parent.parent.id,
             "element_id": self.new_parent_education_group_year.id,
             "group_element_year_id": group_above_new_parent.id,
@@ -317,8 +324,8 @@ class TestSelectAttach(TestCase):
 
     def test_select_case_education_group(self):
         response = self.client.post(
-            self.url_select_education_group,
-            data={'element_id': self.child_education_group_year.id},
+            self.url_management,
+            data=self.select_data,
             HTTP_X_REQUESTED_WITH='XMLHttpRequest',
         )
         data_cached = cache.get(management.SELECT_CACHE_KEY)
@@ -370,12 +377,12 @@ class TestSelectAttach(TestCase):
 
         # Select :
         self.client.post(
-            self.url_select_education_group,
-            data={'element_id': self.child_education_group_year.id}
+            self.url_management,
+            data=self.select_data
         )
 
         # Attach :
-        self.client.post(self.url_attach, data=self.url_attach_data, HTTP_REFERER='http://foo/bar')
+        self.client.post(self.url_management, data=self.attach_data, HTTP_REFERER='http://foo/bar')
 
         expected_group_element_year_count = GroupElementYear.objects.filter(
             parent=self.new_parent_education_group_year,
@@ -396,8 +403,8 @@ class TestSelectAttach(TestCase):
 
         # Select :
         self.client.post(
-            self.url_select_education_group,
-            data={'element_id': self.child_education_group_year.id}
+            self.url_management,
+            data=self.select_data
         )
 
         # Attach :
@@ -408,11 +415,11 @@ class TestSelectAttach(TestCase):
                 self.child_education_group_year.id
             ]
         )
-        response = self.client.get(self.url_attach, data=self.url_attach_data, follow=True, HTTP_REFERER=http_referer)
+        response = self.client.get(self.url_management, data=self.attach_data, follow=True, HTTP_REFERER=http_referer)
         messages = list(get_messages(response.wsgi_request))
-        self.assertEqual(len(messages), 2)
+        self.assertEqual(len(messages), 1)
         self.assertEqual(
-            str(messages[1]),
+            str(messages[0]),
             _("You cannot attach \"%(child)s\" (type \"%(child_type)s\") "
               "to \"%(parent)s\" (type \"%(parent_type)s\")") % {
                 'child': self.child_education_group_year,
@@ -493,8 +500,8 @@ class TestSelectAttach(TestCase):
 
         # Select :
         self.client.post(
-            self.url_select_education_group,
-            data={'element_id': self.child_education_group_year.id}
+            self.url_management,
+            data=self.select_data
         )
 
         # Attach :
@@ -505,7 +512,7 @@ class TestSelectAttach(TestCase):
                 self.child_education_group_year.id
             ]
         )
-        response = self.client.get(self.url_attach, data=self.url_attach_data, follow=True, HTTP_REFERER=http_referer)
+        response = self.client.get(self.url_management, data=self.attach_data, follow=True, HTTP_REFERER=http_referer)
 
         self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
         self.assertTemplateUsed(response, "access_denied.html")
@@ -530,7 +537,7 @@ class TestSelectAttach(TestCase):
             {'id': self.learning_unit_year.pk, 'modelname': management.LEARNING_UNIT_YEAR},
             timeout=None,
         )
-        self.client.post(self.url_attach, data=self.url_attach_data, HTTP_REFERER='http://foo/bar')
+        self.client.post(self.url_management, data=self.attach_data, HTTP_REFERER='http://foo/bar')
 
         expected_group_element_year_count = GroupElementYear.objects.filter(
             parent=self.new_parent_education_group_year,
@@ -552,7 +559,7 @@ class TestSelectAttach(TestCase):
                 self.child_education_group_year.id
             ]
         )
-        response = self.client.get(self.url_attach, data=self.url_attach_data, follow=True, HTTP_REFERER=http_referer)
+        response = self.client.get(self.url_management, data=self.attach_data, follow=True, HTTP_REFERER=http_referer)
 
         messages = list(get_messages(response.wsgi_request))
         self.assertEqual(len(messages), 1)
