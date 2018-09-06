@@ -408,7 +408,7 @@ class TestSelectAttach(TestCase):
                 self.child_education_group_year.id
             ]
         )
-        response = self.client.post(self.url_attach, data=self.url_attach_data, follow=True, HTTP_REFERER=http_referer)
+        response = self.client.get(self.url_attach, data=self.url_attach_data, follow=True, HTTP_REFERER=http_referer)
         messages = list(get_messages(response.wsgi_request))
         self.assertEqual(len(messages), 2)
         self.assertEqual(
@@ -505,7 +505,7 @@ class TestSelectAttach(TestCase):
                 self.child_education_group_year.id
             ]
         )
-        response = self.client.post(self.url_attach, data=self.url_attach_data, follow=True, HTTP_REFERER=http_referer)
+        response = self.client.get(self.url_attach, data=self.url_attach_data, follow=True, HTTP_REFERER=http_referer)
 
         self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
         self.assertTemplateUsed(response, "access_denied.html")
@@ -552,7 +552,7 @@ class TestSelectAttach(TestCase):
                 self.child_education_group_year.id
             ]
         )
-        response = self.client.post(self.url_attach, data=self.url_attach_data, follow=True, HTTP_REFERER=http_referer)
+        response = self.client.get(self.url_attach, data=self.url_attach_data, follow=True, HTTP_REFERER=http_referer)
 
         messages = list(get_messages(response.wsgi_request))
         self.assertEqual(len(messages), 1)
