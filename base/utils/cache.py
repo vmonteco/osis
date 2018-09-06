@@ -85,20 +85,7 @@ def _get_filter_key(request):
     return "_".join([PREFIX_CACHE_KEY, str(user.id), path])
 
 
-def delete_filter_from_cache():
-    def decorator(func):
-        @wraps(func)
-        def inner(request, *args, **kwargs):
-            try:
-                _clear_key(request)
-            except Exception:
-                logger.exception('An error occurred with cache system')
-            return func(request, *args, **kwargs)
-        return inner
-    return decorator
-
-
-def _clear_key(request):
+def clear_key(request):
     path = request.POST['current_url']
     cache.delete("_".join([
         PREFIX_CACHE_KEY,

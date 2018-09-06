@@ -32,7 +32,7 @@ from base.forms.search.search_tutor import TutorSearchForm
 from base.models.tutor import Tutor
 from base.views import layout
 from base.views.common import paginate_queryset
-from base.utils.cache import delete_filter_from_cache
+from base.utils.cache import clear_key
 
 
 @login_required
@@ -53,8 +53,8 @@ def search_tutors(request):
 
 
 @login_required
-@delete_filter_from_cache()
 @require_POST
 def clear_filter(request):
+    clear_key(request)
     path = request.POST['current_url']
     return redirect(path)

@@ -99,24 +99,6 @@ class TestEducationGroupSearchView(TestCase):
         # Ensure that we don't cache field related to xls
         mock_save_filter_to_cache.assert_called_once_with(request, exclude_params=['xls_status', 'xls_order_col'])
 
-    @mock.patch('base.views.layout.render')
-    @mock.patch("base.views.education_groups.search._check_if_display_message", side_effect=lambda *args,**kwargs: True)
-    @mock.patch("base.utils.cache._clear_key", side_effect=lambda *args,**kwargs: True)
-    def test_reset_criteria_parameters(self, mock_reset_filter_from_cache, mock_display_msg, mock_layout_render):
-        request_factory = RequestFactory()
-        request = request_factory.get(
-            self.url,
-            data=FILTER_DATA
-        )
-        request.user = self.person.user
-        search.education_groups(request)
-        clear_filter(request)
-        self.assertTrue(mock_reset_filter_from_cache.called)
-        self.assertTrue(mock_display_msg.called)
-        self.assertTrue(mock_layout_render.called)
-        request, template, context = mock_layout_render.call_args[0]
-        self.assertEqual(template, 'education_group/search.html')
-
 
 class TestEducationGroupDataSearchFilter(TestCase):
     """
