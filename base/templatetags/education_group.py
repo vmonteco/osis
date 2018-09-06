@@ -308,8 +308,12 @@ def get_status_picture(item):
 
 
 def get_biennial_picture(item):
-    return BISANNUAL_EVEN if item.child_leaf.periodicity == BIENNIAL_EVEN else \
-        BISANNUAL_ODD if item.child_leaf.periodicity == BIENNIAL_ODD else ""
+    if item.child_leaf.periodicity == BIENNIAL_EVEN:
+        return BISANNUAL_EVEN
+    elif item.child_leaf.periodicity == BIENNIAL_ODD:
+        return BISANNUAL_ODD
+    else:
+        return ""
 
 
 def get_mandatory_picture(item):

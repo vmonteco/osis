@@ -52,11 +52,11 @@ class AcademicYear(SerializableModel):
 
     @property
     def is_even(self):
-        return True if self.year % 2 == 0 else False
+        return self.year % 2 == 0
 
     @property
     def is_odd(self):
-        return True if self.year % 2 == 1 else False
+        return self.year % 2 == 1
 
     def save(self, *args, **kwargs):
         if self.start_date and self.year != self.start_date.year:
