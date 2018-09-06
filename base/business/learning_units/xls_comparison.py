@@ -291,7 +291,7 @@ def get_academic_year_of_reference(objects):
 def _get_academic_year(obj):
     if isinstance(obj, LearningUnitYear):
         return obj.academic_year
-    if isinstance(obj, ProposalLearningUnit, ExternalLearningUnitYear):
+    if isinstance(obj, (ProposalLearningUnit, ExternalLearningUnitYear)):
         return obj.learning_unit_year.academic_year
 
 
