@@ -335,6 +335,7 @@ def get_content_of_admission_condition_line(message, admission_condition_line, l
 
 class Form(forms.Form):
     admission_condition_line = forms.IntegerField(widget=forms.HiddenInput())
+    section = forms.CharField(widget=forms.HiddenInput())
     language = forms.CharField(widget=forms.HiddenInput())
     diploma = forms.CharField(widget=forms.Textarea, required=False)
     conditions = forms.CharField(widget=forms.Textarea, required=False)
@@ -343,6 +344,13 @@ class Form(forms.Form):
 
 
 def education_group_year_admission_condition_update_line_post(request, root_id, education_group_year_id):
+    creation_mode = request.POST.get('admission_condition_line') == ''
+
+    if creation_mode:
+        # bypass the validation of the form
+        request.POST = request.POST.copy()
+        request.POST.update({'admission_condition_line': 0})
+
     form = Form(request.POST)
 
     if form.is_valid():
@@ -350,8 +358,15 @@ def education_group_year_admission_condition_update_line_post(request, root_id, 
         language = form.cleaned_data['language']
         lang = '' if language == 'fr' else '_en'
 
-        admission_condition_line = get_object_or_404(AdmissionConditionLine,
-                                                     pk=admission_condition_line_id)
+        if not creation_mode:
+            admission_condition_line = get_object_or_404(AdmissionConditionLine,
+                                                         pk=admission_condition_line_id)
+        else:
+            section = form.cleaned_data['section']
+            education_group_year = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
+            admission_condition_line = AdmissionConditionLine.objects.create(
+                admission_condition=education_group_year.admissioncondition,
+                section=section)
 
         for key in ('diploma', 'conditions', 'access', 'remarks'):
             setattr(admission_condition_line, key + lang, form.cleaned_data[key])
@@ -363,23 +378,27 @@ def education_group_year_admission_condition_update_line_post(request, root_id, 
     )
 
 
-def education_group_year_admission_condition_update_line_get(request, education_group_year_id):
-    admission_condition_line_id = request.GET['id']
-    language = request.GET['language']
+def education_group_year_admission_condition_update_line_get(request):
     section = request.GET['section']
+    language = request.GET['language']
     lang = '' if language == 'fr' else '_en'
 
-    admission_condition_line = get_object_or_404(AdmissionConditionLine,
-                                                 pk=admission_condition_line_id,
-                                                 section=section)
-
     initial_values = {
-        'admission_condition_line': admission_condition_line.id,
-        'language': language
+        'language': language,
+        'section': section,
     }
 
-    response = get_content_of_admission_condition_line('read', admission_condition_line, lang)
-    initial_values.update(response)
+    admission_condition_line_id = request.GET.get('id')
+
+    if admission_condition_line_id:
+        admission_condition_line = get_object_or_404(AdmissionConditionLine,
+                                                     pk=admission_condition_line_id,
+                                                     section=section)
+
+        initial_values['admission_condition_line'] = admission_condition_line.id
+
+        response = get_content_of_admission_condition_line('read', admission_condition_line, lang)
+        initial_values.update(response)
 
     form = Form(initial=initial_values)
 
@@ -394,4 +413,4 @@ def education_group_year_admission_condition_update_line_get(request, education_
 def education_group_year_admission_condition_update_line(request, root_id, education_group_year_id):
     if request.method == 'POST':
         return education_group_year_admission_condition_update_line_post(request, root_id, education_group_year_id)
-    return education_group_year_admission_condition_update_line_get(request, education_group_year_id)
+    return education_group_year_admission_condition_update_line_get(request)

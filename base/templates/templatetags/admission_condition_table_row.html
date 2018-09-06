@@ -23,9 +23,14 @@
 {% endcomment %}
 <tr id="{{ section_name }}">
     <td colspan="5" class="info">
-        {{ header_text }} {% if condition %}<a class="button line-add-btn" data-section="{{ section_name }}" href="#">
-        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
-    </a>{% endif %}
+        {{ header_text }}
+        {% if condition %}
+            <a href="#" role="button"
+                class="button line-edit-btn"
+                data-form="{% url 'education_group_year_admission_condition_update_line' root.pk education_group_year.pk %}?section={{ section_name }}&amp;language=fr">
+                    <span class="glyphicon glyphicon-plus" style="font-size: 16px;" aria-hidden="true"></span>
+            </a>
+        {% endif %}
     </td>
 </tr>
 {% for record in records %}

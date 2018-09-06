@@ -147,46 +147,6 @@
         </div>
     </div>
 
-    <div class="modal fade" id="save_term">
-        <div class="modal-dialog modal-lg" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title"></h5>
-                </div>
-                <div class="modal-body">
-                    <ul class="nav nav-tabs" id="modification_tabs" role="tablist">
-                        <li role="presentation" class="active"><a href="#modification_diploma">{% trans 'Diploma' %}</a></li>
-                        <li role="presentation"><a href="#modification_conditions">{% trans 'Conditions' %}</a></li>
-                        <li role="presentation"><a href="#modification_access">{% trans 'Access' %}</a></li>
-                        <li role="presentation"><a href="#modification_remarks">{% trans 'Remarks' %}</a></li>
-                    </ul>
-                    <div class="tab-content">
-                        <div role="tabpanel" class="tab-pane active" id="modification_diploma">
-                            <textarea id="textarea_diploma" class="form-control" style="min-width: 100%" rows="10"></textarea>
-                        </div>
-                        <div role="tabpanel" class="tab-pane" id="modification_conditions">
-                            <textarea id="textarea_conditions" class="form-control" style="min-width: 100%" rows="10"></textarea>
-                        </div>
-                        <div role="tabpanel" class="tab-pane" id="modification_access">
-                            <textarea id="textarea_access" class="form-control" style="min-width: 100%" rows="10"></textarea>
-                        </div>
-                        <div role="tabpanel" class="tab-pane" id="modification_remarks">
-                            <textarea id="textarea_remarks" class="form-control" style="min-width: 100%" rows="10"></textarea>
-                        </div>
-
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button id="save_term_button" type="submit"
-                            class="btn btn-primary" role="button"
-                            title="{% trans 'save' %}">{% trans 'save' %}</button>
-                    <button type="submit" class="btn" data-dismiss="modal">{% trans 'cancel' %}</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-
     <div class="modal fade" id="save_term" role="dialog" data-backdrop="static"></div>
     {% endif %}
 
@@ -195,28 +155,7 @@
 {% block script %}
     {% if can_edit_information %}
     <script>
-        $(".line-add-btn").click(function (evt) {
-            evt.preventDefault();
-            var section = $(this).data('section');
-            var modal = $("#save_term");
-
-            var button = modal.find('#save_term_button'),
-                diploma_ptr = modal.find('#textarea_diploma'),
-                conditions_ptr = modal.find('#textarea_conditions'),
-                access_ptr = modal.find('#textarea_access'),
-                remarks_ptr = modal.find('#textarea_remarks'),
-                modal_title = modal.find('.modal-title');
-
-            modal_title.text("{% trans 'Add a new line' %}");
-
-            reset_textareas(diploma_ptr, conditions_ptr, access_ptr, remarks_ptr);
-
-            button.data('section', section);
-            modal.modal('show');
-            return false;
-        });
-
-        $('div#panel-data').on('click', 'a.line-edit-btn', function (evt) {
+        $('a.line-edit-btn').click(function (evt) {
             evt.preventDefault();
             var url = $(this).data('form');
             var modal = $('#save_term');
