@@ -26,9 +26,9 @@
 from django.utils.translation import ugettext_lazy as _
 
 CREDITS = "CREDITS"
-LEARNING_UNIT_NUMBER = "LEARNING_UNIT_NUMBER"
+NUMBER_OF_ELEMENTS = "NUMBER_OF_ELEMENTS"
 
 CONSTRAINT_TYPE = (
     (CREDITS, _("credits")),
-    (LEARNING_UNIT_NUMBER, _("Number of learning units")),
+    (NUMBER_OF_ELEMENTS, _("Number of elements")),
 )

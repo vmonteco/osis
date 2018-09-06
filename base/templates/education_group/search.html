@@ -167,7 +167,11 @@
                                id="lnk_offer_{education_group_year.id}}">{{ education_group_year.acronym }}</a>
 			            </td>
                         <td>{{ education_group_year.title }}</td>
-                        <td>{{ education_group_year.education_group_type.name }}</td>
+                        <td>
+                            {% if education_group_year.education_group_type %}
+                                {% trans education_group_year.education_group_type.name %}
+                            {% endif %}
+                        </td>
                         <td>{{ education_group_year.management_entity_version.acronym }}</td>
                         <td>{{ education_group_year.partial_acronym | default_if_none:""  }}</td>
                     </tr>
@@ -279,7 +283,5 @@
         var field_name = element.replace(id_search, "");
         return field_name;
     }
-
-
 </script>
 {% endblock %}

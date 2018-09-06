@@ -82,6 +82,7 @@ class PersonWithPermissionsFactory:
         obj.__init__(*permissions, **kwargs)
         return obj.person
 
+
 class FacultyManagerFactory(PersonWithPermissionsFactory):
     def __init__(self, *permissions, **kwargs):
         super().__init__(*permissions, groups=(FACULTY_MANAGER_GROUP, ), **kwargs)

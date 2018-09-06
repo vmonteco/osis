@@ -75,7 +75,6 @@ msgstr "Nous ne pouvons pas modifer ce texte car il n'existe pas sur le serveur"
 msgid "We can't save this line because it (the offer or the line) does not exist on the server"
 msgstr "Nous ne pouvons pas enregister cette ligne car l'offre ou la ligne n'existe pas sur le serveur"
 
-
 msgid "Attach"
 msgstr "Attacher"
 

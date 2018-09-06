@@ -43,11 +43,10 @@ class SelectWithData(forms.Select):
     data_attrs = None
 
     def create_option(self, name, value, label, selected, index, subindex=None, attrs=None):
+        label = _(label)
         option_dict = super().create_option(name, value, label, selected, index,
                                             subindex=subindex, attrs=attrs)
-
         group_type = self.data_attrs.get(value)
-
         if group_type:
             option_dict['attrs']['data-category'] = group_type.category
         return option_dict

@@ -25,22 +25,26 @@
 ##############################################################################
 from decimal import Decimal
 
+from django.db.models import QuerySet
 from django.test import TestCase
-from django.test.utils import override_settings
 from django.utils.translation import ugettext_lazy as _
 
 from attribution.models import attribution
+from attribution.models.enums.function import COORDINATOR, CO_HOLDER
+from attribution.tests.factories.attribution import AttributionFactory
 from base.models import learning_unit_year
 from base.models.entity_component_year import EntityComponentYear
-from base.models.enums import quadrimesters, learning_unit_year_session, attribution_procedure
-from base.models.enums import learning_unit_year_periodicity
+from base.models.entity_container_year import EntityContainerYear
+from base.models.enums import learning_unit_year_periodicity, entity_container_year_link_type
 from base.models.enums import learning_unit_year_subtypes
 from base.models.enums.entity_container_year_link_type import REQUIREMENT_ENTITY
 from base.models.enums.learning_component_year_type import LECTURING, PRACTICAL_EXERCISES
 from base.models.learning_component_year import LearningComponentYear
-from base.models.learning_unit_year import find_max_credits_of_related_partims, check_if_acronym_regex_is_valid
-from base.tests.factories.academic_year import create_current_academic_year, AcademicYearFactory
+from base.models.learning_unit_year import find_max_credits_of_related_partims, check_if_acronym_regex_is_valid, \
+    find_learning_unit_years_by_academic_year_tutor_attributions
+from base.tests.factories.academic_year import create_current_academic_year
 from base.tests.factories.business.learning_units import GenerateAcademicYear, GenerateContainer
+from base.tests.factories.entity_container_year import EntityContainerYearFactory
 from base.tests.factories.external_learning_unit_year import ExternalLearningUnitYearFactory
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
 from base.tests.factories.learning_unit import LearningUnitFactory
@@ -242,6 +246,74 @@ class LearningUnitYearTest(TestCase):
         self.assertFalse(check_if_acronym_regex_is_valid('*TEST'))
         self.assertFalse(check_if_acronym_regex_is_valid('?TEST'))
         self.assertFalse(check_if_acronym_regex_is_valid(self.learning_unit_year))
+
+
+class LearningUnitYearGetEntityTest(TestCase):
+    def setUp(self):
+        self.learning_unit_year = LearningUnitYearFactory()
+        self.requirement_entity = EntityContainerYearFactory(
+            type=entity_container_year_link_type.REQUIREMENT_ENTITY,
+            learning_container_year=self.learning_unit_year.learning_container_year
+        )
+
+    def test_get_entity_case_found_entity_type(self):
+        result = self.learning_unit_year.get_entity(entity_type=entity_container_year_link_type.REQUIREMENT_ENTITY)
+        self.assertEqual(result, self.requirement_entity.entity)
+
+    def test_get_entity_case_not_found_entity_type(self):
+        with self.assertRaises(EntityContainerYear.DoesNotExist):
+            self.learning_unit_year.get_entity(entity_type=entity_container_year_link_type.ALLOCATION_ENTITY)
+
+    def test_get_entity_case_no_learning_container_year(self):
+        self.learning_unit_year.learning_container_year = None
+        self.learning_unit_year.save()
+
+        result = self.learning_unit_year.get_entity(entity_type=entity_container_year_link_type.REQUIREMENT_ENTITY)
+        self.assertIsNone(result)
+
+
+class LearningUnitYearFindLearningUnitYearByAcademicYearTutorAttributionsTest(TestCase):
+    def setUp(self):
+        self.current_academic_year = create_current_academic_year()
+        self.learning_unit_year = LearningUnitYearFactory(
+            academic_year=self.current_academic_year,
+            learning_container_year__academic_year=self.current_academic_year,
+        )
+        self.tutor = TutorFactory()
+        AttributionFactory(learning_unit_year=self.learning_unit_year, tutor=self.tutor)
+
+    def test_find_learning_unit_years_by_academic_year_tutor_attributions_case_occurrence_found(self):
+        result = find_learning_unit_years_by_academic_year_tutor_attributions(
+            academic_year=self.current_academic_year,
+            tutor=self.tutor
+        )
+        self.assertIsInstance(result, QuerySet)
+        self.assertEqual(result.count(), 1)
+
+    def test_find_learning_unit_years_by_academic_year_tutor_attributions_case_distinct_occurrence_found(self):
+        """In this test, we ensure that user see one line per learning unit year despite multiple attribution"""
+        AttributionFactory(learning_unit_year=self.learning_unit_year, tutor=self.tutor, function=COORDINATOR)
+        AttributionFactory(learning_unit_year=self.learning_unit_year, tutor=self.tutor, function=CO_HOLDER)
+        AttributionFactory(learning_unit_year=self.learning_unit_year, tutor=self.tutor)
+
+        result = find_learning_unit_years_by_academic_year_tutor_attributions(
+            academic_year=self.current_academic_year,
+            tutor=self.tutor
+        )
+        self.assertIsInstance(result, QuerySet)
+        self.assertEqual(result.count(), 1)
+
+    def test_find_learning_unit_years_by_academic_year_tutor_attributions_case_no_occurrence_found(self):
+        """In this test, we ensure that if the learning unit year as no learning container, it is not taking account"""
+        self.learning_unit_year.learning_container_year = None
+        self.learning_unit_year.save()
+
+        result = find_learning_unit_years_by_academic_year_tutor_attributions(
+            academic_year=self.current_academic_year,
+            tutor=self.tutor
+        )
+        self.assertIsInstance(result, QuerySet)
+        self.assertFalse(result.count())
 
 
 class LearningUnitYearWarningsTest(TestCase):

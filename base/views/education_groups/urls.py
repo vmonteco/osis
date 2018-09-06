@@ -96,7 +96,7 @@ urlpatterns = [
         ])),
         url(r'^utilization/$', detail.EducationGroupUsing.as_view(), name='education_group_utilization'),
         url(r'^admission_conditions/$',
-            education_group.education_group_year_admission_condition_edit,
+            detail.EducationGroupYearAdmissionCondition.as_view(),
             name='education_group_year_admission_condition_edit'),
         url(r'^admission_conditions/add_line$',
             education_group.education_group_year_admission_condition_add_line,
