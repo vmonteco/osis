@@ -185,6 +185,9 @@
             </div>
         </div>
     </div>
+
+
+    <div class="modal fade" id="save_term" role="dialog" data-backdrop="static"></div>
     {% endif %}
 
 {% endblock %}
@@ -215,52 +218,12 @@
 
         $('div#panel-data').on('click', 'a.line-edit-btn', function (evt) {
             evt.preventDefault();
-            var section = $(this).data('section'),
-                record_id = $(this).data('record-id'),
-                language = $(this).data('language');
-
-            var modal = $("#save_term");
-            var button = modal.find('#save_term_button');
-
-            button.data('section', section);
-            button.data('record-id', record_id);
-            button.data('language', language);
-
-            var url = "{% url 'education_group_year_admission_condition_get_line' root.pk education_group_year.pk %}";
-
-            var diploma_ptr = $('#textarea_diploma'),
-                conditions_ptr = $('#textarea_conditions'),
-                access_ptr = $('#textarea_access'),
-                remarks_ptr = $('#textarea_remarks'),
-                modal_title = modal.find('.modal-title');
-
-            modal_title.text("{% trans 'Modify an existing line' %}");
-
-            var data = {
-                section: section,
-                id: record_id,
-                language: language,
-            };
-
-            $.ajax(url, {
-                data: JSON.stringify(data),
-                type: 'post',
-                dataType: 'json',
-                success: function(data) {
-                    diploma_ptr.val(data.diploma);
-                    conditions_ptr.val(data.conditions);
-                    access_ptr.val(data.access);
-                    remarks_ptr.val(data.remarks);
-                    modal.modal('show');
-                },
-                error: function(jqXHR, textStatus, errorThrown) {
-                    if (jqXHR.status == 404) {
-                        alert(gettext("We can't edit this line of section because it does not exist on the server"));
-                    } else if (jqXHR.status == 500) {
-                        alert(gettext("There is an error on the server, please contact the OSIS team."));
-                    }
-                }
+            var url = $(this).data('form');
+            var modal = $('#save_term');
+            modal.load(url, function() {
+               $(this).modal('show');
             });
+            return false;
         });
 
         $('#modify_text_btn').click(function(evt) {
@@ -335,11 +298,6 @@
 
             modal.modal('show');
             return false;
-        });
-
-        $('#myTabs a').click(function (e) {
-            e.preventDefault();
-            $(this).tab('show');
         });
 
         $('#modification_tabs a').click(function(e) {

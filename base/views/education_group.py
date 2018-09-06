@@ -29,11 +29,13 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core.exceptions import PermissionDenied
 from django.db.models import Prefetch
+from django import forms
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_http_methods
+from prettyprinter import cpprint
 from waffle.decorators import waffle_flag
 
 from base import models as mdl
@@ -116,7 +118,11 @@ def education_group_year_pedagogy_edit_post(request, education_group_year_id, ro
         record.text = form.cleaned_data['text_english']
         record.save()
 
-    redirect_url = reverse('education_group_general_informations', args=[root_id, education_group_year_id])
+    redirect_url = reverse('education_group_general_informations', kwargs={
+        'root_id': root_id,
+        'education_group_year_id': education_group_year_id
+    })
+
     return redirect(redirect_url)
 
 
@@ -347,31 +353,65 @@ def get_content_of_admission_condition_line(message, admission_condition_line, l
     }
 
 
-@login_required
-@ajax_required
-@permission_required('base.can_edit_educationgroup_pedagogy', raise_exception=True)
-def education_group_year_admission_condition_update_line(request, root_id, education_group_year_id):
+class Form(forms.Form):
+    admission_condition_line = forms.IntegerField(widget=forms.HiddenInput())
+    language = forms.CharField(widget=forms.HiddenInput())
+    diploma = forms.CharField(widget=forms.Textarea, required=False)
+    conditions = forms.CharField(widget=forms.Textarea, required=False)
+    access = forms.CharField(widget=forms.Textarea, required=False)
+    remarks = forms.CharField(widget=forms.Textarea, required=False)
 
-    education_group_year = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
 
-    admission_condition, created = AdmissionCondition.objects.get_or_create(education_group_year=education_group_year)
+def education_group_year_admission_condition_update_line_post(request, root_id, education_group_year_id):
+    form = Form(request.POST)
 
-    info = json.loads(request.body.decode('utf-8'))
+    if form.is_valid():
+        admission_condition_line_id = form.cleaned_data['admission_condition_line']
+        language = form.cleaned_data['language']
+        lang = '' if language == 'fr' else '_en'
+
+        admission_condition_line = get_object_or_404(AdmissionConditionLine,
+                                                     pk=admission_condition_line_id)
+
+        for key in ('diploma', 'conditions', 'access', 'remarks'):
+            setattr(admission_condition_line, key + lang, form.cleaned_data[key])
+
+        admission_condition_line.save()
+
+    return redirect(
+        reverse('education_group_year_admission_condition_edit', args=[root_id, education_group_year_id])
+    )
+
+
+def education_group_year_admission_condition_update_line_get(request, education_group_year_id):
+    admission_condition_line_id = request.GET['id']
+    language = request.GET['language']
+    section = request.GET['section']
+    lang = '' if language == 'fr' else '_en'
 
     admission_condition_line = get_object_or_404(AdmissionConditionLine,
-                                                 admission_condition=admission_condition,
-                                                 section=info.pop('section'),
-                                                 pk=info.pop('id')
-                                                 )
+                                                 pk=admission_condition_line_id,
+                                                 section=section)
 
-    lang = '' if info['language'] == 'fr' else '_en'
+    initial_values = {
+        'admission_condition_line': admission_condition_line.id,
+        'language': language
+    }
 
-    for key, value in info.items():
-        setattr(admission_condition_line, key + lang, value)
+    response = get_content_of_admission_condition_line('read', admission_condition_line, lang)
+    initial_values.update(response)
 
-    admission_condition_line.save()
+    form = Form(initial=initial_values)
 
-    admission_condition_line.refresh_from_db()
+    context = {
+        'form': form
+    }
+    return layout.render(request, 'education_group/condition_line_edit.html', context)
 
-    response = get_content_of_admission_condition_line('updated', admission_condition_line, lang)
-    return JsonResponse(response)
+
+@login_required
+@permission_required('base.can_edit_educationgroup_pedagogy', raise_exception=True)
+def education_group_year_admission_condition_update_line(request, root_id, education_group_year_id):
+    if request.method == 'POST':
+        return education_group_year_admission_condition_update_line_post(request, root_id, education_group_year_id)
+    return education_group_year_admission_condition_update_line_get(request, education_group_year_id)
