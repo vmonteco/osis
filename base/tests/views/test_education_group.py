@@ -25,6 +25,7 @@
 ##############################################################################
 import datetime
 import json
+import unittest
 from http import HTTPStatus
 from unittest import mock
 
@@ -724,6 +725,7 @@ class EducationGroupEditAdministrativeData(TestCase):
         self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
 
 
+@unittest.skip('removing this test case')
 class WebServiceForManagementTermsEducationGroupYear(TestCase):
     def setUp(self):
         user = SuperUserFactory()
@@ -843,7 +845,7 @@ class WebServiceForManagementTermsEducationGroupYear(TestCase):
 
         self.assertDictEqual(response_json, {'education_group_year': education_group_year.id})
 
-
+@unittest.skip('removing this test case')
 class EducationGroupAdmissionConditionWSTest(TestCase):
     def setUp(self):
         user = SuperUserFactory()
