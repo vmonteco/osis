@@ -60,7 +60,7 @@ def management(request):
     group_element_year_id = _get_data_from_request(request, 'group_element_year_id') or 0
     group_element_year = get_object_or_none(GroupElementYear, pk=group_element_year_id)
     element_id = _get_data_from_request(request, 'element_id')
-    element = _get_concerned_object(element_id, group_element_year, root_id)
+    element = _get_concerned_object(element_id, group_element_year)
 
     _check_perm_for_management(request, element, group_element_year)
 
@@ -83,16 +83,13 @@ def _get_data_from_request(request, name):
     return getattr(request, request.method, {}).get(name)
 
 
-def _get_concerned_object(element_id, group_element_year, root_id):
-    element_id = int(element_id)
-    if group_element_year and group_element_year.child_leaf and group_element_year.child_leaf.id == element_id:
-        return get_object_or_404(LearningUnitYear, pk=element_id)
-    elif group_element_year and group_element_year.child_branch and group_element_year.child_branch.id == element_id:
-        return get_object_or_404(EducationGroupYear, pk=element_id)
-    elif element_id == int(root_id) and not group_element_year:
-        return get_object_or_404(EducationGroupYear, pk=element_id)
+def _get_concerned_object(element_id, group_element_year):
+    if group_element_year and group_element_year.child_leaf:
+        object_class = LearningUnitYear
     else:
-        return None
+        object_class = EducationGroupYear
+
+    return get_object_or_404(object_class, pk=element_id)
 
 
 def _check_perm_for_management(request, element, group_element_year):
