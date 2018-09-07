@@ -40,9 +40,15 @@
             }
 
             @bottom-center {
-                background: url("{% static 'img/education_group_year/legend.png' %}") no-repeat;
+                background:
+                {% if get_current_language == "en" %}
+                    url("{% static 'img/education_group_year/legend_en.png' %}")
+                {% else %}
+                    url("{% static 'img/education_group_year/legend_fr.png' %}")
+                {% endif %}
+                no-repeat;
                 display: inline-block;
-                width: 125mm;
+                width: 400px;
                 content: "";
                 text-align: center;
                 margin: 0 auto;
@@ -75,29 +81,29 @@
             <br>
             <table style="margin-left: 100px;">
                 <tbody>
-                    <tr>
-                        <td>{% trans "training"|title %}</td>
-                        <td style="width:170px;"> .....</td>
-                        <td>{% trans "mobile_phone" %}</td>
-                        <td style="width:170px;"> .....</td>
-                    </tr>
-                    <tr>
-                        <td>{% trans "first_name" %}</td>
-                        <td style="width:170px;"> .....</td>
-                        <td>{% trans "email" %}</td>
-                        <td style="width:170px;"> .....</td>
-                    </tr>
-                    <tr>
-                        <td>{% trans "name"|title  %}</td>
-                        <td style="width:170px;"> .....</td>
-                        <td>{% trans "faculty number"|title %}</td>
-                        <td style="width:170px;"> .....</td>
-                    </tr>
-                    <tr>
-                        <td>{% trans "registration_id" %}</td>
-                        <td style="width:170px;"> .....</td>
-                        <td>{% trans "(optional)" %}</td>
-                    </tr>
+                <tr>
+                    <td>{% trans "training"|title %}</td>
+                    <td style="width:170px;"> .....</td>
+                    <td>{% trans "mobile_phone" %}</td>
+                    <td style="width:170px;"> .....</td>
+                </tr>
+                <tr>
+                    <td>{% trans "first_name" %}</td>
+                    <td style="width:170px;"> .....</td>
+                    <td>{% trans "email" %}</td>
+                    <td style="width:170px;"> .....</td>
+                </tr>
+                <tr>
+                    <td>{% trans "name"|title %}</td>
+                    <td style="width:170px;"> .....</td>
+                    <td>{% trans "faculty number"|title %}</td>
+                    <td style="width:170px;"> .....</td>
+                </tr>
+                <tr>
+                    <td>{% trans "registration_id" %}</td>
+                    <td style="width:170px;"> .....</td>
+                    <td>{% trans "(optional)" %}</td>
+                </tr>
                 </tbody>
             </table>
         </div>

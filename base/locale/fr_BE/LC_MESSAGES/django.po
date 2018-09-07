@@ -3818,3 +3818,6 @@ msgstr "Le ......./......./......."
 
 msgid "For approval"
 msgstr "Pour accord,"
+
+msgid "Legend"
+msgstr "Légende"
