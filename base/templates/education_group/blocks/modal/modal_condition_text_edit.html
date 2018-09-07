@@ -1,4 +1,4 @@
-{% load staticfiles %}
+{% load staticfiles bootstrap3 %}
 {% load i18n %}
 {% comment "License" %}
     * OSIS stands for Open Student Information System. It's an application
@@ -25,47 +25,32 @@
 {% endcomment %}
 
 
-<div class="modal-dialog" role="document" style="width: 850px;">
+<div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
         <form class="pedagogy-form" role="form" method="POST" action="{{ request.path }}" class="form">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">×</button>
-                <h4>{{ text_label_translated.label }}</h4>
+                <h4>{% trans 'Update the text' %}</h4>
             </div>
-
             <div class="modal-body">
                 {% csrf_token %}
-                <ul class="nav nav-tabs" id="modification_tabs" role="tablist">
-                    <li role="presentation" class="active"><a href="#modification_fr">{% trans 'French' %}</a></li>
-                    <li role="presentation"><a href="#modification_en">{% trans 'English' %}</a></li>
-                </ul>
-                <div class="tab-content">
-                    <div role="tabpanel" class="tab-pane active" id="modification_fr">
-                        {{ form.text_french }}
-                    </div>
-                    <div role="tabpanel" class="tab-pane" id="modification_en">
-                        {{ form.text_english }}
-                    </div>
-                </div>
-                {{ form.label }}
+                {% bootstrap_field form.text show_label=False %}
+                {% bootstrap_field form.section %}
+                {% bootstrap_field form.language %}
             </div>
             <div class="modal-footer">
-                <button class="btn btn-primary" type="submit">{% trans 'save' %}</button>
-                <button type="submit" class="btn" data-dismiss="modal">{% trans 'cancel' %}</button>
-            </div>
+               <button class="btn btn-primary" type="submit">{% trans 'save' %}</button>
+               <button type="submit" class="btn" data-dismiss="modal">{% trans 'cancel' %}</button>
+          </div>
         </form>
     </div>
 </div>
 
 <script>
     $(function () {
-        var richText = $('#id_text_french');
+        var richText = $('#id_text');
         var config = richText.data('config');
-        CKEDITOR.replace('id_text_french', config);
-
-        var richText = $('#id_text_english');
-        var config = richText.data('config');
-        CKEDITOR.replace('id_text_english', config);
+        CKEDITOR.replace('id_text', config);
     });
 
     $('#modification_tabs a').click(function (e) {

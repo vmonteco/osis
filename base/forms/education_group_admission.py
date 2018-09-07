@@ -23,26 +23,21 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django import template
-
-register = template.Library()
-
-
-@register.inclusion_tag('templatetags/admission_condition_table_row.html')
-def render_condition_rows(section_name, header_text, records, condition):
-    return {
-        'section_name': section_name,
-        'header_text': header_text,
-        'records': records,
-        'condition': condition,
-    }
+from ckeditor.fields import RichTextFormField
+from django import forms
 
 
-@register.inclusion_tag('templatetags/admission_condition_text.html')
-def render_condition_text(section_name, text, field, condition):
-    return {
-        'section': section_name,
-        'text': text,
-        'field': field,
-        'condition': condition,
-    }
+class UpdateLineForm(forms.Form):
+    admission_condition_line = forms.IntegerField(widget=forms.HiddenInput())
+    section = forms.CharField(widget=forms.HiddenInput())
+    language = forms.CharField(widget=forms.HiddenInput())
+    diploma = forms.CharField(widget=forms.Textarea, required=False)
+    conditions = forms.CharField(widget=forms.Textarea, required=False)
+    access = forms.CharField(widget=forms.Textarea, required=False)
+    remarks = forms.CharField(widget=forms.Textarea, required=False)
+
+
+class UpdateTextForm(forms.Form):
+    text = RichTextFormField(required=False, config_name='minimal')
+    section = forms.CharField(widget=forms.HiddenInput())
+    language = forms.CharField(widget=forms.HiddenInput())
