@@ -120,6 +120,21 @@
             {{ tree|pdf_tree_list }}
             </tbody>
         </table>
+        <br>
+        <div class="container" style="font-size: 11px;">
+            <div>{% trans 'Add potential courses' %}</div>
+            <div style="border: solid;height: 70px;"></div>
+            <br>
+            <div style="display: inline;margin-left: 50px;">
+                {% trans 'Made in ...................' %}&emsp;&emsp;
+                {% trans 'on ......./......./.......' %}
+            </div>&emsp; &emsp;
+            {% if parent.is_minor %}
+                <div style="display: inline;margin-left: 150px;">
+                    {% trans 'For approval' %}
+                </div>
+            {% endif %}
+        </div>
     </div>
 </div>
 </body>

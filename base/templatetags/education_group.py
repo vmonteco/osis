@@ -321,7 +321,9 @@ def get_mandatory_picture(item):
 
 
 def get_case_picture(item):
-    if item.child_leaf.periodicity == ANNUAL:
+    if not item.child_leaf.status:
+        return INVALIDATE_CASE_JPG
+    elif item.child_leaf.periodicity == ANNUAL:
         return VALIDATE_CASE_JPG
     elif item.child_leaf.periodicity == BIENNIAL_EVEN and item.child_leaf.academic_year.is_even:
         return VALIDATE_CASE_JPG
