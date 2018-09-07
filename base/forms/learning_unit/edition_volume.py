@@ -60,19 +60,19 @@ class VolumeEditionForm(forms.Form):
     opening_parenthesis_field = EmptyField(label='(')
     volume_q1 = VolumeField(label=_('partial_volume_1Q'),
                             help_text=_('partial_volume_1'),
-                            widget=forms.TextInput(attrs={'type':'number', 'step': "{}".format(STEP_HALF_INTEGER)}),
+                            widget=forms.TextInput(attrs={'type':'number', 'step': STEP_HALF_INTEGER}),
                             )
     add_field = EmptyField(label='+')
     volume_q2 = VolumeField(
         label=_('partial_volume_2Q'),
         help_text=_('partial_volume_2'),
-        widget=forms.TextInput(attrs={'type':'number', 'step': "{}".format(STEP_HALF_INTEGER)}),
+        widget=forms.TextInput(attrs={'type':'number', 'step': STEP_HALF_INTEGER}),
     )
     equal_field_1 = EmptyField(label='=')
     volume_total = VolumeField(
         label=_('Vol. annual'),
         help_text=_('The annual volume must be equal to the sum of the volumes Q1 and Q2'),
-        widget=forms.TextInput(attrs={'type':'number', 'step': "{}".format(STEP_HALF_INTEGER)}),
+        widget=forms.TextInput(attrs={'type':'number', 'step': STEP_HALF_INTEGER}),
     )
     help_volume_total = "{} = {} + {}".format(_('Volume total annual'), _('partial_volume_1'), _('partial_volume_2'))
     closing_parenthesis_field = EmptyField(label=')')
@@ -104,7 +104,7 @@ class VolumeEditionForm(forms.Form):
             self.fields["volume_" + key.lower()] = VolumeField(
                 label=entity.acronym,
                 help_text=entity.title,
-                widget=forms.TextInput(attrs={'type':'number', 'step': STEP_HALF_INTEGER}),
+                widget=forms.TextInput(attrs={'type': 'number', 'step': STEP_HALF_INTEGER}),
             )
             if i != len(entities_to_add) - 1:
                 self.fields["add" + key.lower()] = EmptyField(label='+')
