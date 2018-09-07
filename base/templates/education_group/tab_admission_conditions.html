@@ -106,8 +106,6 @@
                                             </tr>
                                             </thead>
                                             <tbody>
-                                            {% render_condition_rows root education_group_year 'graduates' _('Graduates') record.graduates can_edit_information %}
-                                            {% render_condition_rows root education_group_year 'masters' _('Masters') record.masters can_edit_information %}
                                             {% include 'education_group/blocks/admission_condition_table_row.html' with section_name="graduates" header_text=_("Graduates") records=record.graduates %}
                                             {% include 'education_group/blocks/admission_condition_table_row.html' with section_name="masters" header_text=_("Masters") records=record.masters %}
                                             </tbody>
