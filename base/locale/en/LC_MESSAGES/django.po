@@ -3814,3 +3814,9 @@ msgstr ""
 
 msgid "Legend"
 msgstr ""
+
+msgid "Registration form for the content of"
+msgstr ""
+
+msgid "Student's contact information"
+msgstr ""

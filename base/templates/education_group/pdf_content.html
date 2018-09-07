@@ -6,7 +6,7 @@
 <head>
     <meta charset="UTF-8">
     <title>
-        {{ parent.verbose_credit }}
+        {{ parent.verbose_title }}
     </title>
     <style type="text/css">
         @page {
@@ -66,7 +66,9 @@
 <div class="container">
     <div class="list-group">
         <div class="container" style="font-size: 11px;">
-            <div>{% trans "Formulaire d'inscription au contenu de" %} {{ parent.title }}</div>
+            <div style="font-weight: bold;text-decoration: underline; ">
+                {% trans "Registration form for the content of" %} {{ parent.verbose_title }}
+            </div>
             <br>
             <div>
                 {% if not parent.is_minor %}
@@ -80,6 +82,9 @@
                 {% endif %}
             </div>
             <br>
+            <div style="font-weight: bold;">
+                {% trans "Student's contact information" %}
+            </div>
             <table style="margin-left: 100px;">
                 <tbody>
                 <tr>

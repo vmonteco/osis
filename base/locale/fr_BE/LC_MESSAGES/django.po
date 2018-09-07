@@ -3821,3 +3821,9 @@ msgstr "Pour accord,"
 
 msgid "Legend"
 msgstr "Légende"
+
+msgid "Registration form for the content of"
+msgstr "Formulaire d'inscription au contenu de"
+
+msgid "Student's contact information"
+msgstr "Coordonnées de l'étudiant.e"
