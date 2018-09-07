@@ -42,7 +42,7 @@ class LearningUnitComponentEditForm(forms.ModelForm):
             'hourly_volume_partial_q1': forms.NumberInput(attrs={'step': STEP_HALF_INTEGER}),
             'hourly_volume_partial_q2': forms.NumberInput(attrs={'step': STEP_HALF_INTEGER}),
             'volume_declared_vacant': forms.NumberInput(attrs={'step': STEP_HALF_INTEGER}),
-        },
+        }
 
     def __init__(self, *args, **kwargs):
         self.learning_unit_year = kwargs.pop('learning_unit_year', None)
