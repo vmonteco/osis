@@ -71,13 +71,6 @@ urlpatterns = [
             name='education_group_general_informations'),
         url(r'^informations/edit/$', education_group.education_group_year_pedagogy_edit,
             name="education_group_pedagogy_edit"),
-        url(r'^informations/remove$', education_group.education_group_year_pedagogy_remove_term,
-            name="education_group_pedagogy_remove_term"),
-        url(r'^informations/add$', education_group.education_group_year_pedagogy_add_term,
-            name="education_group_pedagogy_add_term"),
-        url(r'^informations/get_terms/(?P<language>[a-z\-]+)',
-            education_group.education_group_year_pedagogy_get_terms,
-            name="education_group_pedagogy_get_terms"),
         url(r'^administrative/', include([
             url(u'^$', detail.EducationGroupAdministrativeData.as_view(), name='education_group_administrative'),
             url(u'^edit/$', education_group.education_group_edit_administrative_data,
@@ -95,18 +88,6 @@ urlpatterns = [
         url(r'^admission_conditions/$',
             detail.EducationGroupYearAdmissionCondition.as_view(),
             name='education_group_year_admission_condition_edit'),
-        url(r'^admission_conditions/add_line$',
-            education_group.education_group_year_admission_condition_add_line,
-            name='education_group_year_admission_condition_add_line'),
-
-        url(r'^admission_conditions/modify_text$',
-            education_group.education_group_year_admission_condition_modify_text,
-            name='education_group_year_admission_condition_modify_text'),
-
-        url(r'^admission_conditions/get_text$',
-            education_group.education_group_year_admission_condition_get_text,
-            name='education_group_year_admission_condition_get_text'),
-
         url(r'^admission_conditions/remove_line$',
             education_group.education_group_year_admission_condition_remove_line,
             name='education_group_year_admission_condition_remove_line'),
@@ -115,9 +96,9 @@ urlpatterns = [
             education_group.education_group_year_admission_condition_update_line,
             name='education_group_year_admission_condition_update_line'),
 
-        url(r'^admission_conditions/get_line$',
-            education_group.education_group_year_admission_condition_get_line,
-            name='education_group_year_admission_condition_get_line'),
+        url(r'^admission_conditions/update_text$',
+            education_group.education_group_year_admission_condition_update_text,
+            name='education_group_year_admission_condition_update_text'),
 
         url(r'^delete/$', delete.DeleteGroupEducationView.as_view(), name="delete_education_group"),
         url(r'^group_content/', group_element_year.read.ReadEducationGroupTypeView.as_view(), name="group_content"),

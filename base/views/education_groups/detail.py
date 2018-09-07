@@ -289,6 +289,10 @@ class EducationGroupContent(EducationGroupGenericDetailView):
                         When(child_leaf__isnull=False, then=F("child_leaf__specific_title")),
                         When(child_branch__isnull=False, then=F("child_branch__title")),
                      ),
+                child_id=Case(
+                    When(child_leaf__isnull=False, then=F("child_leaf__id")),
+                    When(child_branch__isnull=False, then=F("child_branch__id")),
+                ),
             ).order_by('order')
 
         return context

@@ -3134,7 +3134,7 @@ msgstr "Bacheliers UCL"
 msgid "Others Bachelors of the French speaking Community of Belgium"
 msgstr "Autres bacheliers de la Communauté française de Belgique"
 
-msgid "Bachelors of the Dutch speaking Community of Beligum"
+msgid "Bachelors of the Dutch speaking Community of Belgium"
 msgstr "Bachelier de la Communauté flamande de Belgique"
 
 msgid "Foreign Bachelors"

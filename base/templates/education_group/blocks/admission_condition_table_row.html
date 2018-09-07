@@ -21,11 +21,17 @@
 * at the root of the source code of this program.  If not,
 * see http://www.gnu.org/licenses/.
 {% endcomment %}
+{% url 'education_group_year_admission_condition_update_line' root.pk education_group_year.pk as update_line_url %}
 <tr id="{{ section_name }}">
     <td colspan="5" class="info">
-        {{ header_text }} {% if condition %}<a class="button line-add-btn" data-section="{{ section_name }}" href="#">
-        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
-    </a>{% endif %}
+        {{ header_text }}
+        {% if can_edit_information %}
+            <a href="#" role="button"
+                class="button line-edit-btn"
+                data-form="{{ update_line_url }}?section={{ section_name }}&amp;language=fr">
+                    <span class="glyphicon glyphicon-plus" style="font-size: 16px;" aria-hidden="true"></span>
+            </a>
+        {% endif %}
     </td>
 </tr>
 {% for record in records %}
@@ -34,15 +40,18 @@
     <td id="{{ section_name }}_{{ record.id }}_conditions">{{record.conditions|safe }}</td>
     <td id="{{ section_name }}_{{ record.id }}_access" class="text-right">{{ record.access|safe }}</td>
     <td id="{{ section_name }}_{{ record.id }}_remarks">{{ record.remarks|safe }}</td>
-    {% if condition %}
+    {% if can_edit_information %}
     <td class="text-right">
-        <a href="#" role="button" data-record-id="{{ record.id }}" data-section="{{ section_name }}" class="button line-remove-btn">
+        <a href="{% url 'education_group_year_admission_condition_remove_line' root.pk education_group_year.pk %}?id={{ record.id }}"
+           role="button" class="button">
             <span class="glyphicon glyphicon-remove-circle" style="font-size: 16px;" aria-hidden="true"></span>
         </a>
-        <a href="#" role="button" class="button line-edit-btn" data-record-id="{{ record.id }}" data-section="{{ section_name }}" data-language="fr">
+        <a href="#" role="button" class="button line-edit-btn"
+           data-form="{{ update_line_url }}?id={{ record.id }}&amp;section={{ section_name }}&amp;language=fr">
             <span class="glyphicon glyphicon-edit" style="font-size: 16px;" aria-hidden="true"></span>
         </a>
-        <a href="#" role="button" class="button line-edit-btn" data-record-id="{{ record.id }}" data-section="{{ section_name }}" data-language="en">
+        <a href="#" role="button" class="button line-edit-btn"
+           data-form="{{ update_line_url }}?id={{ record.id }}&amp;section={{ section_name }}&amp;language=en">
             <span class="glyphicon glyphicon-flag" style="font-size: 16px;" aria-hidden="true"></span>
         </a>
     </td>
