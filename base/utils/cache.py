@@ -61,24 +61,27 @@ def _save_filter_to_cache(request, exclude_params=None):
     if exclude_params is None:
         exclude_params = []
     param_to_cache = {key: value for key, value in request.GET.items() if key not in exclude_params}
-    key = _get_filter_key(request)
+    key = _get_filter_key(request.user, request.path)
     cache.set(key, param_to_cache, timeout=CACHE_FILTER_TIMEOUT)
 
 
 def _restore_filter_from_cache(request):
     cached_value = _get_from_cache(request)
     if cached_value:
-
         request.GET = QueryDict(mutable=True)
         request.GET.update({**request.GET.dict(), **cached_value})
 
 
 def _get_from_cache(request):
-    key = _get_filter_key(request)
+    key = _get_filter_key(request.user, request.path)
     return cache.get(key)
 
 
-def _get_filter_key(request):
-    user = request.user
-    path = request.path
+def clear_cached_filter(request):
+    path = request.POST['current_url']
+    key = _get_filter_key(request.user, path)
+    cache.delete(key)
+
+
+def _get_filter_key(user, path):
     return "_".join([PREFIX_CACHE_KEY, str(user.id), path])

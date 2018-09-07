@@ -45,6 +45,8 @@ from base.tests.factories.person import PersonFactory
 from base.tests.factories.user import UserFactory
 from base.views.education_groups import search
 
+FILTER_DATA = {"acronym": "LBIR", "title": "dummy filter"}
+
 
 class TestEducationGroupSearchView(TestCase):
     @classmethod
@@ -87,7 +89,7 @@ class TestEducationGroupSearchView(TestCase):
         request_factory = RequestFactory()
         request = request_factory.get(
             self.url,
-            data={"acronym": "LBIR", "title": "dummy filter"}
+            data=FILTER_DATA
         )
         request.user = self.person.user
         search.education_groups(request)

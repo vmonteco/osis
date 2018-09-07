@@ -263,6 +263,7 @@ urlpatterns = [
         ]))
     ])),
     url(r'^ajax_select/', include(ajax_select_urls)),
+    url(r'^clear_filter/$', base.views.search.clear_filter, name="clear_filter"),
 
 ]
 

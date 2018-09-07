@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -23,37 +23,33 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.contrib.auth.decorators import login_required, permission_required
-from django.shortcuts import redirect
-from django.views.decorators.http import require_POST
+from django.test import TestCase, RequestFactory
+from django.urls import reverse
 
-from base.forms.search.search_tutor import TutorSearchForm
-from base.models.tutor import Tutor
-from base.views import layout
-from base.views.common import paginate_queryset
-from base.utils.cache import clear_cached_filter
+from base.tests.factories.user import UserFactory
+from base.utils.cache import cache, clear_cached_filter, _get_filter_key
 
 
-@login_required
-@permission_required('base.can_access_learningunit', raise_exception=True)
-def search_tutors(request):
-    tutors_qs = Tutor.objects.none()
-    form = TutorSearchForm(data=request.GET)
+class TestClearCachedFilter(TestCase):
+    def setUp(self):
+        cache.clear()
+        self.url_cached = 'dummy_url'
+        self.user = UserFactory()
 
-    if form.is_valid():
-        tutors_qs = form.search()
+        request_factory = RequestFactory()
+        self.request = request_factory.post(reverse("clear_filter"), data={'current_url':  self.url_cached})
+        self.request.user = self.user
 
-    tutors = paginate_queryset(tutors_qs, request.GET)
+    def tearDown(self):
+        cache.clear()
 
-    return layout.render(request, "search/search.html", {
-        "form": form,
-        "tutors": tutors
-    })
+    def test_clear_cached_filter(self):
+        key = _get_filter_key(self.user, self.url_cached)
+        filter_to_cached = {'filter_a': 'ABCD', 'filter_b': 'CDEF'}
+        cache.set(key, filter_to_cached)
+        # Check that cache is set
+        self.assertDictEqual(cache.get(key), filter_to_cached)
 
-
-@login_required
-@require_POST
-def clear_filter(request):
-    clear_cached_filter(request)
-    path = request.POST['current_url']
-    return redirect(path)
+        # Clear fitler cache
+        clear_cached_filter(self.request)
+        self.assertIsNone(cache.get(key))

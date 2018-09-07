@@ -1,5 +1,5 @@
 {% extends "blocks/forms/search_form.html" %}
-{% load bootstrap3 format %}
+{% load bootstrap3 format staticfiles %}
 
 {% comment "License" %}
     * OSIS stands for Open Student Information System. It's an application
@@ -59,6 +59,7 @@
     {% if search_type == borrowed_search_type %}
     {% else %}
         {{ block.super }}
+        {% include 'blocks/button/button_filter_refresh.html' %}
     {% endif %}
     {% endwith %}
 {% endblock %}
@@ -68,10 +69,15 @@
     {% if search_type == borrowed_search_type %}
         <div class="row" style="margin-top:10px;">
             {% bootstrap_field form.faculty_borrowing_acronym form_group_class="col-md-3" %}
-            <div class="col-md-1 text-right" style="line-height:70px;">
-                {% bootstrap_button "" value=_('learning_unit_search') button_type="submit" button_class="btn-primary" icon="search" %}
+            <div class="col-md-1">
+                <br>
+                <div class="btn-toolbar pull-right">
+                    {% bootstrap_button "" value=_('learning_unit_search') button_type="submit" button_class="btn-primary" icon="search" %}
+                    {% include 'blocks/button/button_filter_refresh.html' %}
+                </div>
             </div>
         </div>
     {% endif %}
     {% endwith %}
 {% endblock %}
+
