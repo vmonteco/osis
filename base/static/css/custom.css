@@ -181,3 +181,6 @@ input[type="text"].ui-autocomplete-input:disabled ~ .results_on_deck .ui-icon{
 .vakata-context {
     z-index: 100;
 }
+.navbar-fixed-bottom {
+    z-index: 1;
+}
