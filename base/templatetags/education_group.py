@@ -321,16 +321,14 @@ def get_mandatory_picture(item):
 
 
 def get_case_picture(item):
-    if not item.child_leaf.status:
-        return INVALIDATE_CASE_JPG
-    elif item.child_leaf.periodicity == ANNUAL:
-        return VALIDATE_CASE_JPG
-    elif item.child_leaf.periodicity == BIENNIAL_EVEN and item.child_leaf.academic_year.is_even:
-        return VALIDATE_CASE_JPG
-    elif item.child_leaf.periodicity == BIENNIAL_ODD and item.child_leaf.academic_year.is_odd:
-        return VALIDATE_CASE_JPG
-    else:
-        return INVALIDATE_CASE_JPG
+    if item.child_leaf.status:
+        if item.child_leaf.periodicity == ANNUAL:
+            return VALIDATE_CASE_JPG
+        elif item.child_leaf.periodicity == BIENNIAL_EVEN and item.child_leaf.academic_year.is_even:
+            return VALIDATE_CASE_JPG
+        elif item.child_leaf.periodicity == BIENNIAL_ODD and item.child_leaf.academic_year.is_odd:
+            return VALIDATE_CASE_JPG
+    return INVALIDATE_CASE_JPG
 
 
 def check_block(item, value):
