@@ -38,11 +38,11 @@ class LearningUnitComponentEditForm(forms.ModelForm):
         fields = ['comment']
         widgets = {
             'comment': forms.Textarea(attrs={'class': 'form-control', 'rows': 5}),
-            'hourly_volume_total_annual': forms.NumberInput(attrs={'step': STEP_HALF_INTEGER}),
-            'hourly_volume_partial_q1': forms.NumberInput(attrs={'step': STEP_HALF_INTEGER}),
-            'hourly_volume_partial_q2': forms.NumberInput(attrs={'step': STEP_HALF_INTEGER}),
-            'volume_declared_vacant': forms.NumberInput(attrs={'step': STEP_HALF_INTEGER}),
-        }
+            'hourly_volume_total_annual': forms.TextInput(attrs={'type': 'number', 'step': "{}".format(STEP_HALF_INTEGER)}),
+            'hourly_volume_partial_q1': forms.TextInput(attrs={'type': 'number','step': "{}".format(STEP_HALF_INTEGER)}),
+            'hourly_volume_partial_q2': forms.TextInput(attrs={'type': 'number','step': "{}".format(STEP_HALF_INTEGER)}),
+            'volume_declared_vacant': forms.TextInput(attrs={'type': 'number', 'step': "{}".format(STEP_HALF_INTEGER)}),
+        },
 
     def __init__(self, *args, **kwargs):
         self.learning_unit_year = kwargs.pop('learning_unit_year', None)

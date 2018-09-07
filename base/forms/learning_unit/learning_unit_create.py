@@ -130,7 +130,7 @@ class LearningUnitYearModelForm(forms.ModelForm):
             }
         }
         widgets = {
-            'credits': forms.NumberInput(attrs={'step': STEP_HALF_INTEGER}),
+            'credits': forms.TextInput(attrs={'type':'number', 'step': "{}".format(STEP_HALF_INTEGER)}),
         }
 
     def post_clean(self, container_type):
