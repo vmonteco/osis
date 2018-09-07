@@ -56,16 +56,16 @@ from base.views.education_groups.select import build_success_message, build_succ
 @login_required
 @waffle_flag("education_group_update")
 def management(request):
-    root_id = _get_data(request, 'root_id')
-    group_element_year_id = int(_get_data(request, 'group_element_year_id') or 0)
+    root_id = _get_data_from_request(request, 'root_id')
+    group_element_year_id = _get_data_from_request(request, 'group_element_year_id') or 0
     group_element_year = get_object_or_none(GroupElementYear, pk=group_element_year_id)
-    element_id = _get_data(request, 'element_id')
-    element = _get_element(element_id, group_element_year, root_id)
+    element_id = _get_data_from_request(request, 'element_id')
+    element = _get_concerned_object(element_id, group_element_year, root_id)
 
     _check_perm_for_management(request, element, group_element_year)
 
     action_method = _get_action_method(request)
-    source = _get_data(request, 'source')
+    source = _get_data_from_request(request, 'source')
     response = action_method(
         request,
         group_element_year,
@@ -79,11 +79,11 @@ def management(request):
     return redirect(request.META.get('HTTP_REFERER'))
 
 
-def _get_data(request, name):
+def _get_data_from_request(request, name):
     return getattr(request, request.method, {}).get(name)
 
 
-def _get_element(element_id, group_element_year, root_id):
+def _get_concerned_object(element_id, group_element_year, root_id):
     element_id = int(element_id)
     if group_element_year and group_element_year.child_leaf and group_element_year.child_leaf.id == element_id:
         return get_object_or_404(LearningUnitYear, pk=element_id)
@@ -105,10 +105,10 @@ def _check_perm_for_management(request, element, group_element_year):
         "attach",
     ]
 
-    if _get_data(request, 'action') in actions_needing_perm_on_parent:
+    if _get_data_from_request(request, 'action') in actions_needing_perm_on_parent:
         # In this case, element can be EducationGroupYear OR LearningUnitYear because we check perm on its parent
         perms.can_change_education_group(request.user, group_element_year.parent)
-    elif _get_data(request, 'action') in actions_needing_perm_on_education_group_year_itself:
+    elif _get_data_from_request(request, 'action') in actions_needing_perm_on_education_group_year_itself:
         # In this case, element MUST BE an EducationGroupYear (we cannot take action on a learning_unit_year)
         if type(element) != EducationGroupYear:
             raise ValidationError(
