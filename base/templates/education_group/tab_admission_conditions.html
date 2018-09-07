@@ -155,6 +155,26 @@
             });
             return false;
         });
+
+        $('a.action-order').click(function(evt) {
+            evt.preventDefault();
+            var record = $(this).data('record'),
+                action = $(this).data('action');
+
+            $.ajax({
+                type: 'POST',
+                url: "{% url 'education_group_year_admission_condition_line_order' root.pk education_group_year.pk %}",
+                dataType: 'json',
+                data: JSON.stringify({'record': record, 'action': action}),
+                success: function(xhr, ajaxOptions, thrownError) {
+                    if (xhr.hasOwnProperty('success_url')) {
+                        window.location.href = xhr['success_url'];
+                    } else {
+                        window.location.reload();
+                    }
+                }
+            })
+        });
     </script>
     {% endif %}
 {% endblock %}

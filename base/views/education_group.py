@@ -49,7 +49,6 @@ from base.models.enums import education_group_categories
 from cms.enums import entity_name
 from cms.models.text_label import TextLabel
 from cms.models.translated_text import TranslatedText
-from cms.models.translated_text_label import TranslatedTextLabel
 from osis_common.decorators.ajax import ajax_required
 from . import layout
 
@@ -304,3 +303,25 @@ def education_group_year_admission_condition_update_text(request, root_id, educa
     if request.method == 'POST':
         return education_group_year_admission_condition_update_text_post(request, root_id, education_group_year_id)
     return education_group_year_admission_condition_update_text_get(request, education_group_year_id)
+
+
+@login_required
+@ajax_required
+@permission_required('base.can_edit_educationgroup_pedagogy', raise_exception=True)
+def education_group_year_admission_condition_line_order(request, root_id, education_group_year_id):
+    education_group_year = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
+    info = json.loads(request.body.decode('utf-8'))
+
+    admission_condition_line = get_object_or_404(AdmissionConditionLine, pk=info['record'])
+
+    if info['action'] == 'up':
+        admission_condition_line.up()
+    elif info['action'] == 'down':
+        admission_condition_line.down()
+
+    return JsonResponse({
+        'success_url': reverse('education_group_year_admission_condition_edit', kwargs={
+            'root_id': root_id,
+            'education_group_year_id': education_group_year_id
+        })
+    })

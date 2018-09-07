@@ -24,6 +24,7 @@
 #
 ##############################################################################
 import datetime
+import json
 import urllib
 from http import HTTPStatus
 from unittest import mock
@@ -1043,3 +1044,46 @@ class AdmissionConditionEducationGroupYearTest(TestCase):
         response = education_group_year_admission_condition_update_text_post(request, root_id, education_group_year_id)
 
         self.assertEqual(response.status_code, 302)
+
+    def test_webservice_education_group_year_admission_condition_line_order(self):
+        kwargs = {'HTTP_X_REQUESTED_WITH': 'XMLHttpRequest'}
+
+        admission_condition = AdmissionCondition.objects.create(education_group_year=self.education_group_child)
+
+        admission_condition_line_1 = AdmissionConditionLine.objects.create(admission_condition=admission_condition)
+        admission_condition_line_2 = AdmissionConditionLine.objects.create(admission_condition=admission_condition)
+
+        self.assertLess(admission_condition_line_1.order, admission_condition_line_2.order)
+
+        url = reverse('education_group_year_admission_condition_line_order', kwargs={
+            'root_id': self.education_group_parent.id,
+            'education_group_year_id': self.education_group_child.id,
+        })
+
+        data = {
+            'action': 'down',
+            'record': admission_condition_line_1.id,
+        }
+
+        response = self.client.post(url, data=json.dumps(data), content_type='application/json', **kwargs)
+
+        self.assertEqual(response.status_code, 200)
+
+        admission_condition_line_1.refresh_from_db()
+        admission_condition_line_2.refresh_from_db()
+
+        self.assertGreater(admission_condition_line_1.order, admission_condition_line_2.order)
+
+        data = {
+            'action': 'up',
+            'record': admission_condition_line_1.id,
+        }
+
+        response = self.client.post(url, data=json.dumps(data), content_type='application/json', **kwargs)
+
+        self.assertEqual(response.status_code, 200)
+
+        admission_condition_line_1.refresh_from_db()
+        admission_condition_line_2.refresh_from_db()
+
+        self.assertLess(admission_condition_line_1.order, admission_condition_line_2.order)
