@@ -56,8 +56,13 @@
                                 </thead>
                                 <tbody>
                                     {% for group_element_year in group_elements_years %}
+                                        {% url 'education_group_read' group_element_year.parent_id group_element_year.parent_id as url_education_group_year %}
                                         <tr>
-                                            <td>{{ group_element_year.parent.partial_acronym | default_if_none:'-' }}</td>
+                                            <td>
+                                                <a href="{{ url_education_group_year }}">
+                                                    {{ group_element_year.parent.partial_acronym | default_if_none:'-' }}
+                                                </a>
+                                            </td>
                                             <td>{{ group_element_year.parent.title | default_if_none:'-' }}</td>
                                             <td>{{ group_element_year.parent.education_group_type | default_if_none:'-' }}</td>
                                             <td>{{ group_element_year.block | default_if_none:'-' }}</td>
@@ -108,8 +113,13 @@
                                 </thead>
                                 <tbody>
                                 {% for education_group_year in root_formations %}
+                                    {% url 'education_group_read' education_group_year.id education_group_year.id as url_education_group_year %}
                                     <tr>
-                                        <td>{{ education_group_year.acronym }}</td>
+                                        <td>
+                                             <a href="{{ url_education_group_year }}">
+                                                 {{ education_group_year.acronym }}
+                                             </a>
+                                        </td>
                                         <td>{{ education_group_year.count_formation_enrollments }}</td>
                                         <td>{{ education_group_year.count_learning_unit_enrollments }}</td>
                                     </tr>
