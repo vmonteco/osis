@@ -43,8 +43,6 @@ from rules_management.enums import TRAINING_PGRM_ENCODING_PERIOD, TRAINING_DAILY
     MINI_TRAINING_PGRM_ENCODING_PERIOD, MINI_TRAINING_DAILY_MANAGEMENT, GROUP_PGRM_ENCODING_PERIOD, \
     GROUP_DAILY_MANAGEMENT
 from rules_management.mixins import PermissionFieldMixin
-import operator
-from django.db.models import Case, When
 
 
 class MainTeachingCampusChoiceField(forms.ModelChoiceField):
