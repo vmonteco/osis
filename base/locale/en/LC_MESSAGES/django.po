@@ -3799,3 +3799,18 @@ msgstr ""
 
 msgid "Add the English content of this paragraph"
 msgstr ""
+
+msgid "Add potential courses"
+msgstr ""
+
+msgid "Made in ..................."
+msgstr ""
+
+msgid "on ......./......./......."
+msgstr ""
+
+msgid "For approval"
+msgstr ""
+
+msgid "Legend"
+msgstr ""
