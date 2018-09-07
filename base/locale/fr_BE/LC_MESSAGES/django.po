@@ -1602,7 +1602,7 @@ msgid "duration"
 msgstr "Durée"
 
 msgid "learning_unit_specifications"
-msgstr "Cahier de charges"
+msgstr "Cahier des charges"
 
 msgid "experimental_phase"
 msgstr "Cette fonctionnalité est en phase expérimentale"
@@ -1677,7 +1677,7 @@ msgid "PUBLIC_PARTNER"
 msgstr "Partenaire public"
 
 msgid "requirement_entity"
-msgstr "Entité resp. cahier de charges"
+msgstr "Entité resp. cahier des charges"
 
 msgid "requirement_entity_small"
 msgstr "Ent. charge"
@@ -1692,13 +1692,13 @@ msgid "with_entity_subordinated_small"
 msgstr "Avec ent. subord."
 
 msgid "additional_requirement_entity"
-msgstr "Entité resp. cahier de charges complémentaire"
+msgstr "Entité resp. cahier des charges complémentaire"
 
 msgid "additional_requirement_entity_1"
-msgstr "Entité resp. cahier de charges complémentaire 1"
+msgstr "Entité resp. cahier des charges complémentaire 1"
 
 msgid "additional_requirement_entity_2"
-msgstr "Entité resp. cahier de charges complémentaire 2"
+msgstr "Entité resp. cahier des charges complémentaire 2"
 
 msgid "academic_end_year"
 msgstr "Anac de fin"
@@ -2545,10 +2545,10 @@ msgid "Edit the learning unit"
 msgstr "Modifier l'unité d'enseignement"
 
 msgid "requirement_entity_end_date_too_short"
-msgstr "La durée de vie de l'entité responsable cahier de charges est trop courte."
+msgstr "La durée de vie de l'entité responsable cahier des charges est trop courte."
 
 msgid "Requirement and allocation entities must be linked to the same faculty for this learning unit type."
-msgstr "L'entité responsable du cahier de charges et celle d'attribution doivent appartenir à la même faculté pour ce type d'unité d'enseignement."
+msgstr "L'entité responsable du cahier des charges et celle d'attribution doivent appartenir à la même faculté pour ce type d'unité d'enseignement."
 
 msgid "success_modification_learning_unit"
 msgstr "L'unité d'enseignement a été modifiée."
@@ -3451,16 +3451,16 @@ msgid "REAL_CLASSES"
 msgstr "Classes effectives"
 
 msgid "VOLUME_REQUIREMENT_ENTITY"
-msgstr "Entité resp. cahier de charges"
+msgstr "Entité resp. cahier des charges"
 
 msgid "VOLUME_ALLOCATION_ENTITY"
 msgstr "Entité resp. de l'attribution"
 
 msgid "VOLUME_ADDITIONAL_REQUIREMENT_ENTITY_1"
-msgstr "Entité resp. cahier de charges complémentaire 1"
+msgstr "Entité resp. cahier des charges complémentaire 1"
 
 msgid "VOLUME_ADDITIONAL_REQUIREMENT_ENTITY_2"
-msgstr "Entité resp. cahier de charges complémentaire 2"
+msgstr "Entité resp. cahier des charges complémentaire 2"
 
 msgid "This field is empty"
 msgstr "Ce champ est vide"
