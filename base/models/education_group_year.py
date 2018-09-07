@@ -407,6 +407,13 @@ class EducationGroupYear(models.Model):
         }
 
     @property
+    def verbose_title(self):
+        return _("%(title)s") % {
+            "title": self.title_english if self.title_english and translation.get_language() == LANGUAGE_CODE_EN
+            else self.title
+        }
+
+    @property
     def verbose_remark(self):
         if self.remark_english and translation.get_language() == LANGUAGE_CODE_EN:
             return self.remark_english
