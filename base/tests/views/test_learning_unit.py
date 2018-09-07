@@ -1246,11 +1246,16 @@ class LearningUnitViewTestCase(TestCase):
 
     def test_error_message_case_too_many_results_to_show(self):
         LearningUnitYearFactory(academic_year=self.academic_year_1)
+        tmpmaxrecors = LearningUnitSearchForm.MAX_RECORDS
         LearningUnitSearchForm.MAX_RECORDS = 0
 
         response = self.client.get(reverse('learning_units'), {'academic_year_id': self.academic_year_1.id})
         messages = list(response.context['messages'])
         self.assertEqual(messages[0].message, _('too_many_results'))
+
+        # Restore max_record
+        LearningUnitSearchForm.MAX_RECORDS = tmpmaxrecors
+
 
     def test_get_username_with_no_person(self):
         a_username = 'dupontm'
