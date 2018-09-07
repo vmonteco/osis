@@ -41,7 +41,19 @@ class EducationGroupTypeAdmin(OsisModelAdmin):
     search_fields = ['name', 'category']
 
 
+class EducationGroupTypeQueryset(models.QuerySet):
+
+    def order_by_translated_name(self):
+        query_set_dict = self.in_bulk()
+        pk_list = sorted(query_set_dict, key=lambda education_grp_type: _(query_set_dict[education_grp_type].name))
+        preserved = Case(*[When(pk=pk, then=pos) for pos, pk in enumerate(pk_list)])
+        return self.order_by(preserved)
+
+
 class EducationGroupTypeManager(models.Manager):
+    def get_queryset(self):
+        return EducationGroupTypeQueryset(self.model, using=self._db)
+
     def get_by_natural_key(self, external_id):
         return self.get(external_id=external_id)
 
@@ -97,23 +109,8 @@ def find_authorized_types(category=None, parents=None):
                 authorized_child_type__parent_type__educationgroupyear=parent
             )
 
-    return find_types_ordered_by_name(queryset)
+    return queryset.order_by_translated_name()
 
 
 def find_by_name(name=None):
     return EducationGroupType.objects.filter(name=name)
-
-
-def find_all_types_ordered_by_name():
-    return find_types_ordered_by_name(EducationGroupType.objects.all())
-
-
-def find_types_ordered_by_name(qs):
-    query_set_dict = qs.in_bulk()
-    pk_list = sorted(query_set_dict, key=lambda education_grp_type: _(query_set_dict[education_grp_type].name))
-    if pk_list:
-        preserved = Case(*[When(pk=pk, then=pos) for pos, pk in enumerate(pk_list)])
-        return qs.order_by(preserved)
-    else:
-        return qs
-
