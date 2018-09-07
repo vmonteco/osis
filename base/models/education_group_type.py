@@ -26,9 +26,10 @@
 import collections
 
 from django.db import models
+from django.db.models import Case, When
 from django.utils.translation import ugettext_lazy as _
 
-from base.models.enums import education_group_categories, education_group_types
+from base.models.enums import education_group_categories
 from osis_common.models.osis_model_admin import OsisModelAdmin
 
 GROUP_TYPE_OPTION = 'Option'
@@ -61,7 +62,6 @@ class EducationGroupType(models.Model):
 
     name = models.CharField(
         max_length=255,
-        choices=education_group_types.TYPES,
         verbose_name=_('training_type'),
     )
 
@@ -81,10 +81,6 @@ def search(**kwargs):
     return queryset
 
 
-def find_all():
-    return EducationGroupType.objects.order_by('name')
-
-
 def find_authorized_types(category=None, parents=None):
     if category:
         queryset = search(category=category)
@@ -101,8 +97,19 @@ def find_authorized_types(category=None, parents=None):
                 authorized_child_type__parent_type__educationgroupyear=parent
             )
 
-    return queryset.order_by('name')
+    return find_types_ordered_by_name(queryset)
 
 
 def find_by_name(name=None):
     return EducationGroupType.objects.filter(name=name)
+
+
+def find_all_types_ordered_by_name():
+    return find_types_ordered_by_name(EducationGroupType.objects.all())
+
+
+def find_types_ordered_by_name(qs):
+    query_set_dict = qs.in_bulk()
+    pk_list = sorted(query_set_dict, key=lambda education_grp_type: _(query_set_dict[education_grp_type].name))
+    preserved = Case(*[When(pk=pk, then=pos) for pos, pk in enumerate(pk_list)])
+    return EducationGroupType.objects.filter(id__in=pk_list).order_by(preserved)

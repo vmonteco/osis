@@ -30,7 +30,7 @@ from django.utils.translation import ugettext_lazy as _
 from base.business.entity import get_entities_ids
 from base.forms.bootstrap import BootstrapForm
 from base.models import academic_year, education_group_year
-from base.models.education_group_type import EducationGroupType
+from base.models.education_group_type import EducationGroupType, find_all_types_ordered_by_name
 from base.models.enums import education_group_categories
 
 
@@ -90,6 +90,8 @@ class EducationGroupFilter(BootstrapForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        print('init')
+        self.fields["education_group_type"].queryset = find_all_types_ordered_by_name()
         self.fields["education_group_type"].set_data_attrs()
 
     def clean_category(self):
@@ -106,7 +108,7 @@ class EducationGroupFilter(BootstrapForm):
             result = _get_filter_entity_management(
                 result,
                 clean_data['requirement_entity_acronym'],
-                clean_data.get('with_entity_subordinated',False)
+                clean_data.get('with_entity_subordinated', False)
             )
 
         # TODO User should choice the order
