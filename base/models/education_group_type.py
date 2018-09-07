@@ -111,5 +111,9 @@ def find_all_types_ordered_by_name():
 def find_types_ordered_by_name(qs):
     query_set_dict = qs.in_bulk()
     pk_list = sorted(query_set_dict, key=lambda education_grp_type: _(query_set_dict[education_grp_type].name))
-    preserved = Case(*[When(pk=pk, then=pos) for pos, pk in enumerate(pk_list)])
-    return qs.order_by(preserved)
+    if pk_list:
+        preserved = Case(*[When(pk=pk, then=pos) for pos, pk in enumerate(pk_list)])
+        return qs.order_by(preserved)
+    else:
+        return qs
+
