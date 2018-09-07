@@ -4,18 +4,18 @@
 <!doctype html>
 <html>
 <head>
-    <meta charset="utf-8">
+    <meta charset="UTF-8">
     <title>
         {{ parent.verbose_credit }}
     </title>
     <style type="text/css">
         @page {
             size: A4 portrait;
-            margin: 3cm 1cm 3cm 1cm;
+            margin: 2cm 1cm 2cm 1cm;
 
             @top-left {
-                content: "{% trans 'academic_year' %} {{ parent.academic_year }} \A {{ parent.verbose_credit }} ";
-                white-space: pre;
+                content: "{% trans 'academic_year' %} {{ parent.academic_year }} \A {{ parent.verbose_credit|safe }}";
+                white-space: pre-line;
                 font-size: 11px;
             }
 
@@ -40,9 +40,15 @@
             }
 
             @bottom-center {
-                background: url("{% static 'img/education_group_year/legend.png' %}") no-repeat;
+                background:
+                {% if get_current_language == "en" %}
+                    url("{% static 'img/education_group_year/legend_en.png' %}")
+                {% else %}
+                    url("{% static 'img/education_group_year/legend_fr.png' %}")
+                {% endif %}
+                no-repeat;
                 display: inline-block;
-                width: 125mm;
+                width: 400px;
                 content: "";
                 text-align: center;
                 margin: 0 auto;
@@ -53,6 +59,7 @@
         td, th, tr {
             font-size: 11px;
         }
+
     </style>
 </head>
 <body>
@@ -75,29 +82,29 @@
             <br>
             <table style="margin-left: 100px;">
                 <tbody>
-                    <tr>
-                        <td>{% trans "training"|title %}</td>
-                        <td style="width:170px;"> .....</td>
-                        <td>{% trans "mobile_phone" %}</td>
-                        <td style="width:170px;"> .....</td>
-                    </tr>
-                    <tr>
-                        <td>{% trans "first_name" %}</td>
-                        <td style="width:170px;"> .....</td>
-                        <td>{% trans "email" %}</td>
-                        <td style="width:170px;"> .....</td>
-                    </tr>
-                    <tr>
-                        <td>{% trans "name"|title  %}</td>
-                        <td style="width:170px;"> .....</td>
-                        <td>{% trans "faculty number"|title %}</td>
-                        <td style="width:170px;"> .....</td>
-                    </tr>
-                    <tr>
-                        <td>{% trans "registration_id" %}</td>
-                        <td style="width:170px;"> .....</td>
-                        <td>{% trans "(optional)" %}</td>
-                    </tr>
+                <tr>
+                    <td>{% trans "training"|title %}</td>
+                    <td style="width:170px;"> .....</td>
+                    <td>{% trans "mobile_phone" %}</td>
+                    <td style="width:170px;"> .....</td>
+                </tr>
+                <tr>
+                    <td>{% trans "first_name" %}</td>
+                    <td style="width:170px;"> .....</td>
+                    <td>{% trans "email" %}</td>
+                    <td style="width:170px;"> .....</td>
+                </tr>
+                <tr>
+                    <td>{% trans "name"|title %}</td>
+                    <td style="width:170px;"> .....</td>
+                    <td>{% trans "faculty number"|title %}</td>
+                    <td style="width:170px;"> .....</td>
+                </tr>
+                <tr>
+                    <td>{% trans "registration_id" %}</td>
+                    <td style="width:170px;"> .....</td>
+                    <td>{% trans "(optional)" %}</td>
+                </tr>
                 </tbody>
             </table>
         </div>
@@ -120,6 +127,21 @@
             {{ tree|pdf_tree_list }}
             </tbody>
         </table>
+        <br>
+        <div class="container" style="font-size: 11px;">
+            <div>{% trans 'Add potential courses' %}</div>
+            <div style="border: solid;height: 70px;"></div>
+            <br>
+            <div style="display: inline;margin-left: 50px;">
+                {% trans 'Made in ...................' %}&emsp;&emsp;
+                {% trans 'on ......./......./.......' %}
+            </div>&emsp; &emsp;
+            {% if parent.is_minor %}
+                <div style="display: inline;margin-left: 150px;">
+                    {% trans 'For approval' %}
+                </div>
+            {% endif %}
+        </div>
     </div>
 </div>
 </body>

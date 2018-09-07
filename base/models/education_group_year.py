@@ -40,6 +40,7 @@ from base.models.enums import academic_type, internship_presence, schedule_type,
 from base.models.enums import education_group_association
 from base.models.enums import education_group_categories
 from base.models.enums.constraint_type import CONSTRAINT_TYPE, CREDITS
+from base.models.enums.education_group_types import MINOR
 from base.models.exceptions import MaximumOneParentAllowedException
 from base.models.prerequisite import Prerequisite
 from osis_common.models.osis_model_admin import OsisModelAdmin
@@ -388,6 +389,10 @@ class EducationGroupYear(models.Model):
             self.acronym,
             self.academic_year,
         )
+
+    @property
+    def is_minor(self):
+        return self.education_group_type.name in MINOR
 
     @property
     def verbose(self):
