@@ -134,7 +134,9 @@ function validateAcronymAjax(url, acronym, year_id, callback) {
 
 $(document).ready(function() {
     $(function () {
-        $('#LearningUnitYearForm').validate();
+        $('#LearningUnitYearForm').validate({
+            ignore: ".ignore-js-validator > input" //It allow the specify a field that must not be pre-valided on client side
+        });
     });
     $.extend($.validator.messages, {
         required: trans_field_required,
