@@ -445,10 +445,6 @@ def convert_status_bool(status):
     return boolean
 
 
-def count_search_results(**kwargs):
-    return search(**kwargs).count()
-
-
 def find_gte_year_acronym(academic_yr, acronym):
     return LearningUnitYear.objects.filter(academic_year__year__gte=academic_yr.year,
                                            acronym__iexact=acronym)

@@ -33,7 +33,7 @@ from django.db.models.fields import BLANK_CHOICE_DASH
 from django.utils.translation import ugettext_lazy as _
 
 from base import models as mdl
-from base.business.entity import get_entities_ids, get_entity_container_list, build_entity_container_prefetch
+from base.business.entity import get_entities_ids, build_entity_container_prefetch
 from base.business.entity_version import SERVICE_COURSE
 from base.business.learning_unit_year_with_context import append_latest_entities
 from base.forms.common import get_clean_data, treat_empty_or_str_none_as_none, TooManyResultsException
@@ -42,12 +42,13 @@ from base.forms.utils.choice_field import add_blank
 from base.forms.utils.dynamic_field import DynamicChoiceField
 from base.forms.utils.uppercase import convert_to_uppercase
 from base.models import learning_unit_year, group_element_year
-from base.models.academic_year import AcademicYear, current_academic_year
+from base.models.academic_year import AcademicYear
 from base.models.campus import Campus
 from base.models.entity_container_year import EntityContainerYear
 from base.models.entity_version import EntityVersion, build_current_entity_version_structure_in_memory
 from base.models.enums import entity_container_year_link_type, learning_container_year_types, \
     learning_unit_year_subtypes, active_status, entity_type
+from base.models.enums.entity_container_year_link_type import REQUIREMENT_ENTITY, ALLOCATION_ENTITY
 from base.models.learning_unit_year import convert_status_bool
 from base.models.offer_year_entity import OfferYearEntity
 from base.models.organization_address import find_distinct_by_country
@@ -174,14 +175,6 @@ class LearningUnitYearForm(LearningUnitSearchForm):
         if requirement_entities:
             search_criteria['requirement_entities'] = requirement_entities
 
-        # TODO Use a queryset instead !!
-        search_criteria['learning_container_year_id'] = get_filter_learning_container_ids(search_criteria)
-
-        if not service_course_search \
-                and search_criteria \
-                and mdl.learning_unit_year.count_search_results(**search_criteria) > self.MAX_RECORDS:
-            raise TooManyResultsException
-
         has_proposal = ProposalLearningUnit.objects.filter(
             learning_unit_year=OuterRef('pk'),
         )
@@ -195,7 +188,13 @@ class LearningUnitYearForm(LearningUnitSearchForm):
                 ])
             ).order_by('academic_year__year', 'acronym').annotate(has_proposal=Exists(has_proposal))
 
+        learning_units = get_filter_learning_container_ids(learning_units, search_criteria)
+
+        if not service_course_search and search_criteria and learning_units.count() > self.MAX_RECORDS:
+            raise TooManyResultsException
+
         if self.borrowed_course_search:
+            # TODO must return a queryset
             learning_units = self._filter_borrowed_learning_units(learning_units)
 
         # FIXME We must keep a queryset
@@ -204,44 +203,54 @@ class LearningUnitYearForm(LearningUnitSearchForm):
     def _set_status(self, luy_status):
         return convert_status_bool(luy_status) if luy_status else self.cleaned_data['status']
 
-    def _filter_borrowed_learning_units(self, learning_units):
+    def _filter_borrowed_learning_units(self, qs_learning_units):
         faculty_borrowing_id = None
-        if self.cleaned_data["faculty_borrowing_acronym"]:
+        faculty_borrowing_acronym = self.cleaned_data.get('faculty_borrowing_acronym')
+        academic_year = self.cleaned_data["academic_year_id"]
+
+        if faculty_borrowing_acronym:
             try:
-                faculty_borrowing_id = EntityVersion.objects.current(self.cleaned_data["academic_year_id"].start_date).\
-                    get(acronym=self.cleaned_data["faculty_borrowing_acronym"]).entity.id
+                faculty_borrowing_id = EntityVersion.objects.current(academic_year.start_date).\
+                    get(acronym=faculty_borrowing_acronym).entity.id
             except EntityVersion.DoesNotExist:
                 return []
-        return filter_is_borrowed_learning_unit_year(learning_units, self.cleaned_data["academic_year_id"].start_date,
-                                                     faculty_borrowing=faculty_borrowing_id)
+
+        return filter_is_borrowed_learning_unit_year(
+            qs_learning_units,
+            academic_year.start_date,
+            faculty_borrowing=faculty_borrowing_id
+        )
 
 
-def get_filter_learning_container_ids(filter_data):
+def get_filter_learning_container_ids(qs, filter_data):
+    """
+    Append a filter on the queryset if entities are given in the search
+
+    :param qs: LearningUnitYearQuerySet
+    :param filter_data: dict of cleaned_data
+    :return: queryset
+    """
     requirement_entity_acronym = filter_data.get('requirement_entity_acronym')
     allocation_entity_acronym = filter_data.get('allocation_entity_acronym')
     with_entity_subordinated = filter_data.get('with_entity_subordinated', False)
-    entities_id_list_requirement = []
-    entities_id_list_allocation = []
 
     if requirement_entity_acronym:
-        entity_ids = get_entities_ids(requirement_entity_acronym, with_entity_subordinated)
-        entities_id_list_requirement += get_entity_container_list(entity_ids,
-                                                                  entity_container_year_link_type.REQUIREMENT_ENTITY)
+        requirement_entity_ids = get_entities_ids(requirement_entity_acronym, with_entity_subordinated)
+
+        qs = qs.filter(
+            learning_container_year__entitycontaineryear__entity__in=requirement_entity_ids,
+            learning_container_year__entitycontaineryear__type=REQUIREMENT_ENTITY
+        )
 
     if allocation_entity_acronym:
-        entity_ids = get_entities_ids(allocation_entity_acronym, with_entity_subordinated)
-        entities_id_list_allocation += get_entity_container_list(entity_ids,
-                                                                 entity_container_year_link_type.ALLOCATION_ENTITY)
+        allocation_entity_ids = get_entities_ids(allocation_entity_acronym, with_entity_subordinated)
 
-    if requirement_entity_acronym and allocation_entity_acronym:
-        return _get_common_entities(entities_id_list_allocation, entities_id_list_requirement)
-    else:
-        return _get_entity_ids_list(allocation_entity_acronym, entities_id_list_allocation,
-                                    entities_id_list_requirement, requirement_entity_acronym)
+        qs = qs.filter(
+            learning_container_year__entitycontaineryear__entity__in=allocation_entity_ids,
+            learning_container_year__entitycontaineryear__type=ALLOCATION_ENTITY
+        )
 
-
-def _get_common_entities(entities_id_list_allocation, entities_id_list_requirement):
-    return list(set(entities_id_list_allocation).intersection(set(entities_id_list_requirement)))
+    return qs
 
 
 def filter_is_borrowed_learning_unit_year(learning_unit_year_qs, date, faculty_borrowing=None):
@@ -251,6 +260,7 @@ def filter_is_borrowed_learning_unit_year(learning_unit_year_qs, date, faculty_b
         entities_borrowing_allowed.extend(entities[faculty_borrowing]["all_children"])
         entities_borrowing_allowed.append(entities[faculty_borrowing]["entity_version"])
         entities_borrowing_allowed = [entity_version.entity.id for entity_version in entities_borrowing_allowed]
+
     entities_faculty = compute_faculty_for_entities(entities)
     map_luy_entity = map_learning_unit_year_with_requirement_entity(learning_unit_year_qs)
     map_luy_education_group_entities = \
@@ -319,16 +329,6 @@ def __is_borrowed_learning_unit(luy, map_entity_faculty, map_luy_entity, map_luy
                 and map_entity_faculty.get(education_group_entity) is not None:
             return True
     return False
-
-
-def _get_entity_ids_list(allocation_entity_acronym, entities_id_list_allocation, entities_id_list_requirement,
-                         requirement_entity_acronym):
-    if requirement_entity_acronym:
-        return entities_id_list_requirement
-    elif allocation_entity_acronym:
-        return entities_id_list_allocation
-    else:
-        return None
 
 
 class ExternalLearningUnitYearForm(LearningUnitYearForm):

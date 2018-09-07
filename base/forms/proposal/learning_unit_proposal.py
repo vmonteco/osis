@@ -25,19 +25,17 @@
 ##############################################################################
 
 from django import forms
-from django.db import transaction
 from django.db.models import Prefetch
-from django.urls import reverse
 from django.utils.functional import lazy
 from django.utils.translation import ugettext_lazy as _
 
 from base import models as mdl
+from base.business.entity import get_entities_ids
 from base.business.learning_unit_year_with_context import append_latest_entities
-from base.forms.learning_unit import search_form as learning_units_form
 from base.forms.common import get_clean_data, TooManyResultsException
 from base.forms.learning_unit.search_form import LearningUnitSearchForm
-from base.models import entity_version
 from base.models.enums import entity_container_year_link_type, proposal_type, proposal_state
+from base.models.enums.entity_container_year_link_type import REQUIREMENT_ENTITY, ALLOCATION_ENTITY
 from base.models.proposal_learning_unit import ProposalLearningUnit
 
 
@@ -106,18 +104,45 @@ class LearningUnitProposalForm(LearningUnitSearchForm):
                                              .prefetch_related(entity_version_prefetch),
                                              to_attr='entity_containers_year')
 
-        clean_data['learning_container_year_id'] = learning_units_form.get_filter_learning_container_ids(clean_data)
+        # TODO must be a learning_unit_year queryset
+        proposals = mdl.proposal_learning_unit.search(**clean_data)
 
-        proposal = mdl.proposal_learning_unit.search(**clean_data) \
-            .select_related('learning_unit_year__academic_year', 'learning_unit_year__learning_container_year',
-                            'learning_unit_year__learning_container_year__academic_year') \
+        proposals = self.get_filter_learning_container_ids(proposals)
+
+        proposals = proposals.select_related(
+            'learning_unit_year__academic_year', 'learning_unit_year__learning_container_year',
+            'learning_unit_year__learning_container_year__academic_year') \
             .prefetch_related(entity_container_prefetch) \
             .order_by('learning_unit_year__academic_year__year', 'learning_unit_year__acronym')
 
-        for learning_unit_proposal in proposal:
+        for learning_unit_proposal in proposals:
+            # TODO Use an annotate
             append_latest_entities(learning_unit_proposal.learning_unit_year, None)
 
-        return proposal
+        return proposals
+
+    def get_filter_learning_container_ids(self, qs):
+        requirement_entity_acronym = self.cleaned_data.get('requirement_entity_acronym')
+        allocation_entity_acronym = self.cleaned_data.get('allocation_entity_acronym')
+        with_entity_subordinated = self.cleaned_data.get('with_entity_subordinated', False)
+
+        if requirement_entity_acronym:
+            requirement_entity_ids = get_entities_ids(requirement_entity_acronym, with_entity_subordinated)
+
+            qs = qs.filter(
+                learning_unit_year__learning_container_year__entitycontaineryear__entity__in=requirement_entity_ids,
+                learning_unit_year__learning_container_year__entitycontaineryear__type=REQUIREMENT_ENTITY
+            )
+
+        if allocation_entity_acronym:
+            allocation_entity_ids = get_entities_ids(allocation_entity_acronym, with_entity_subordinated)
+
+            qs = qs.filter(
+                learning_unit_year__learning_container_year__entitycontaineryear__entity__in=allocation_entity_ids,
+                learning_unit_year__learning_container_year__entitycontaineryear__type=ALLOCATION_ENTITY
+            )
+
+        return qs
 
 
 class ProposalStateModelForm(forms.ModelForm):
