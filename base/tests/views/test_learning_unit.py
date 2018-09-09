@@ -1256,7 +1256,6 @@ class LearningUnitViewTestCase(TestCase):
         # Restore max_record
         LearningUnitSearchForm.MAX_RECORDS = tmpmaxrecors
 
-
     def test_get_username_with_no_person(self):
         a_username = 'dupontm'
         a_user = UserFactory(username=a_username)
