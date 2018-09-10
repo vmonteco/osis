@@ -146,6 +146,10 @@ $(document).ready(function () {
                                 }
                             });
                         },
+                        "_disabled": function (data) {
+                            var __ret = get_data_from_tree(data);
+                            return __ret.group_element_year_id === null; // tree's root cannot be detached
+                        }
                     }
                 }
             }
