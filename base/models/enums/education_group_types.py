@@ -23,8 +23,6 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.utils.translation import ugettext_lazy as _
-
 # TRAINING
 AGREGATION = "Agregation"
 CERTIFICATE_OF_PARTICIPATION = "Certificate of participation"
@@ -75,8 +73,8 @@ MOBILITY_PARTNERSHIP_LIST_CHOICE = "Mobility partnership list choice"
 COMPLEMENTARY_MODULE = "Complementary module"
 SUB_GROUP = "Sub group"
 
-MINOR = (_(SOCIATY_MINOR), _(ACCESS_MINOR), _(OPEN_MINOR),
-         _(DISCIPLINARY_COMPLEMENT_MINOR))
+MINOR = (SOCIATY_MINOR, ACCESS_MINOR, OPEN_MINOR,
+         DISCIPLINARY_COMPLEMENT_MINOR)
 
 TYPES = (
     # TRAINING
