@@ -3820,3 +3820,7 @@ msgstr ""
 
 msgid "Student's contact information"
 msgstr ""
+
+msgid "Own components"
+msgstr ""
+

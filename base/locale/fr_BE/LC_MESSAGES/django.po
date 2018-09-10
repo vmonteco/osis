@@ -3827,3 +3827,7 @@ msgstr "Formulaire d'inscription au contenu de"
 
 msgid "Student's contact information"
 msgstr "Coordonnées de l'étudiant.e"
+
+msgid "Own components"
+msgstr "Composants propres"
+
