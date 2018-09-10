@@ -42,16 +42,15 @@
             @bottom-center {
                 background:
                 {% if get_current_language == "en" %}
-                    url("{% static 'img/education_group_year/legend_fr.png' %}")
+                    url("{% static 'img/education_group_year/legend_en.png' %}")
                 {% else %}
                     url("{% static 'img/education_group_year/legend_fr.png' %}")
                 {% endif %}
                 no-repeat;
-                display: inline-block;
                 width: 400px;
                 content: "";
                 text-align: center;
-                margin: 0 auto;
+                margin: 0;
                 padding: 0;
             }
         }
