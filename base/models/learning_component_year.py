@@ -121,11 +121,11 @@ class LearningComponentYear(SerializableModel):
 
 
 def volume_total_verbose(learning_component_years):
-    q1 = next((component for component in learning_component_years if component['type'] == LECTURING), 0)
-    q2 = next((component for component in learning_component_years if component['type'] == PRACTICAL_EXERCISES), 0)
-    return "%(q1)gh + %(q2)gh" % {
-        "q1": q1, "q2": q2,
-    }
+    q1 = next((component['total'] for component in learning_component_years
+               if component['type'] == LECTURING), 0)
+    q2 = next((component['total'] for component in learning_component_years
+               if component['type'] == PRACTICAL_EXERCISES), 0)
+    return "%(q1)gh + %(q2)gh" % {"q1": q1, "q2": q2}
 
 
 def get_volume(learning_component_years, index):
