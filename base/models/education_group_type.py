@@ -45,9 +45,11 @@ class EducationGroupTypeQueryset(models.QuerySet):
 
     def order_by_translated_name(self):
         query_set_dict = self.in_bulk()
-        pk_list = sorted(query_set_dict, key=lambda education_grp_type: _(query_set_dict[education_grp_type].name))
-        preserved = Case(*[When(pk=pk, then=pos) for pos, pk in enumerate(pk_list)])
-        return self.order_by(preserved)
+        if query_set_dict:
+            pk_list = sorted(query_set_dict, key=lambda education_grp_type: _(query_set_dict[education_grp_type].name))
+            preserved = Case(*[When(pk=pk, then=pos) for pos, pk in enumerate(pk_list)])
+            return self.order_by(preserved)
+        return self
 
 
 class EducationGroupTypeManager(models.Manager):
