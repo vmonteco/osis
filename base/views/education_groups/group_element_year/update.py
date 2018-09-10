@@ -251,10 +251,6 @@ class DetachGroupElementYearView(GenericUpdateGroupElementYearMixin, DeleteView)
 
     def get_success_url(self):
         return self.kwargs.get('http_referer')
-        # try:
-        #     # return reverse(self.kwargs.get('source'), args=[self.kwargs["root_id"], self.kwargs["root_id"]])
-        # except NoReverseMatch:
-        #     return reverse("education_group_read", args=[self.kwargs["root_id"], self.kwargs["root_id"]])
 
     @property
     def group_element_year(self):
