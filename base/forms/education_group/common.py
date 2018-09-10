@@ -287,7 +287,6 @@ class EducationGroupTypeForm(forms.Form):
 
     def __init__(self, parent, category, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
         self.fields["name"].queryset = find_authorized_types(
             category=category,
             parents=parent
