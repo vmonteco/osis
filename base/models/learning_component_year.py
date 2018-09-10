@@ -128,13 +128,6 @@ def volume_total_verbose(learning_component_years):
     return "%(q1)gh + %(q2)gh" % {"q1": q1, "q2": q2}
 
 
-def get_volume(learning_component_years, index):
-    try:
-        return learning_component_years[index].hourly_volume_total_annual or 0
-    except IndexError:
-        return 0
-
-
 def find_by_id(learning_component_year_id):
     return LearningComponentYear.objects.get(pk=learning_component_year_id)
 
