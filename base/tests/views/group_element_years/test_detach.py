@@ -91,17 +91,11 @@ class TestDetach(TestCase):
     @mock.patch("base.business.education_groups.perms.is_eligible_to_change_education_group")
     def test_detach_case_post_success(self, mock_permission, mock_delete):
         mock_permission.return_value = True
-        response = self.client.post(self.url, data=self.post_valid_data, follow=True)
-        self.assertEqual(response.status_code, HttpResponse.status_code)
-        self.assertTrue(mock_delete.called)
-
-    @mock.patch("base.models.group_element_year.GroupElementYear.delete")
-    @mock.patch("base.business.education_groups.perms.is_eligible_to_change_education_group")
-    def test_detach_case_post_success_redirection(self, mock_permission, mock_delete):
-        mock_permission.return_value = True
-        response = self.client.post(self.url, data=self.post_valid_data)
-        redirected_url = reverse('education_group_read', args=[
+        http_referer = reverse('education_group_read', args=[
             self.education_group_year.id,
             self.education_group_year.id
         ])
-        self.assertRedirects(response, redirected_url)
+        response = self.client.post(self.url, data=self.post_valid_data, follow=True, HTTP_REFERER=http_referer)
+        self.assertEqual(response.status_code, HttpResponse.status_code)
+        self.assertRedirects(response, http_referer)
+        self.assertTrue(mock_delete.called)

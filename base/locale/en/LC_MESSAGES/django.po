@@ -3823,3 +3823,6 @@ msgstr ""
 
 msgid "Student's signature"
 msgstr ""
+
+msgid "Own components"
+msgstr ""

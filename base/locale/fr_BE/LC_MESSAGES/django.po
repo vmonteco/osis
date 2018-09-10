@@ -3830,3 +3830,6 @@ msgstr "Coordonnées de l'étudiant.e"
 
 msgid "Student's signature"
 msgstr "Signature de l'étudiant.e"
+
+msgid "Own components"
+msgstr "Composants propres"

@@ -60,6 +60,7 @@ class NodeBranchJsTree:
                                         .select_related('child_branch__academic_year', 'child_leaf__academic_year')
 
     def to_json(self):
+        group_element_year_pk = self.group_element_year.pk if self.group_element_year else '#'
         return {
             'text': self.education_group_year.verbose,
             'children': [child.to_json() for child in self.children],
@@ -69,7 +70,8 @@ class NodeBranchJsTree:
                 'group_element_year': self.group_element_year and self.group_element_year.pk,
                 'element_id': self.education_group_year.pk,
                 'element_type': self.element_type
-            }
+            },
+            'id': 'id_{}_{}'.format(self.education_group_year.pk, group_element_year_pk),
         }
 
     @property
@@ -98,6 +100,7 @@ class NodeLeafJsTree(NodeBranchJsTree):
         return
 
     def to_json(self):
+        group_element_year_pk = self.group_element_year.pk if self.group_element_year else '#'
         return {
             'text': self.learning_unit_year.acronym,
             'icon': "glyphicon glyphicon-leaf" if self.group_element_year.has_prerequisites else "jstree-file",
@@ -107,7 +110,8 @@ class NodeLeafJsTree(NodeBranchJsTree):
                 'group_element_year': self.group_element_year and self.group_element_year.pk,
                 'element_id': self.learning_unit_year.pk,
                 'element_type': self.element_type
-            }
+            },
+            'id': 'id_{}_{}'.format(self.learning_unit_year.pk, group_element_year_pk),
         }
 
     def get_url(self):

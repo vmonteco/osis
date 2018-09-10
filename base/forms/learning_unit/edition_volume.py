@@ -58,10 +58,11 @@ class VolumeEditionForm(forms.Form):
     additional_requirement_entity_2_key = 'volume_' + entity_types.ADDITIONAL_REQUIREMENT_ENTITY_2.lower()
 
     opening_parenthesis_field = EmptyField(label='(')
-    volume_q1 = VolumeField(label=_('partial_volume_1Q'),
-                            help_text=_('partial_volume_1'),
-                            widget=forms.NumberInput(attrs={'step': STEP_HALF_INTEGER}),
-                            )
+    volume_q1 = VolumeField(
+        label=_('partial_volume_1Q'),
+        help_text=_('partial_volume_1'),
+        widget=forms.NumberInput(attrs={'step': STEP_HALF_INTEGER}),
+    )
     add_field = EmptyField(label='+')
     volume_q2 = VolumeField(
         label=_('partial_volume_2Q'),
