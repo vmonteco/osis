@@ -30,7 +30,7 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db import IntegrityError
 from django.shortcuts import get_object_or_404, redirect
-from django.urls import reverse, NoReverseMatch
+from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_http_methods
@@ -66,17 +66,20 @@ def management(request):
 
     action_method = _get_action_method(request)
     source = _get_data_from_request(request, 'source')
+    http_referer = request.META.get('HTTP_REFERER')
+
     response = action_method(
         request,
         group_element_year,
         root_id=root_id,
         element=element,
         source=source,
+        http_referer=http_referer,
     )
     if response:
         return response
 
-    return redirect(request.META.get('HTTP_REFERER'))
+    return redirect(http_referer)
 
 
 def _get_data_from_request(request, name):
@@ -243,14 +246,11 @@ class DetachGroupElementYearView(GenericUpdateGroupElementYearMixin, DeleteView)
         return super().delete(request, *args, **kwargs)
 
     def _call_rule(self, rule):
-        """ The permission is computed from the education_group_year """
+        """ The permission is computed from the parent education_group_year """
         return rule(self.request.user, self.group_element_year.parent)
 
     def get_success_url(self):
-        try:
-            return reverse(self.kwargs.get('source'), args=[self.kwargs["root_id"], self.kwargs["root_id"]])
-        except NoReverseMatch:
-            return reverse("education_group_read", args=[self.kwargs["root_id"], self.kwargs["root_id"]])
+        return self.kwargs.get('http_referer')
 
     @property
     def group_element_year(self):

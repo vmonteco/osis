@@ -34,16 +34,22 @@ from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 
 
 class TestBuildTree(TestCase):
-    maxDiff = None
-
     def setUp(self):
         self.parent = EducationGroupYearFactory()
-        self.group_element_year_1 = GroupElementYearFactory(parent=self.parent)
-        self.group_element_year_1_1 = GroupElementYearFactory(parent=self.group_element_year_1.child_branch)
-        self.group_element_year_2 = GroupElementYearFactory(parent=self.parent)
-        self.group_element_year_2_1 = GroupElementYearFactory(parent=self.group_element_year_2.child_branch,
-                                                              child_branch=None,
-                                                              child_leaf=LearningUnitYearFactory())
+        self.group_element_year_1 = GroupElementYearFactory(
+            parent=self.parent
+        )
+        self.group_element_year_1_1 = GroupElementYearFactory(
+            parent=self.group_element_year_1.child_branch
+        )
+        self.group_element_year_2 = GroupElementYearFactory(
+            parent=self.parent
+        )
+        self.group_element_year_2_1 = GroupElementYearFactory(
+            parent=self.group_element_year_2.child_branch,
+            child_branch=None,
+            child_leaf=LearningUnitYearFactory()
+        )
 
     def test_init_tree(self):
         node = NodeBranchJsTree(self.parent)
@@ -75,3 +81,23 @@ class TestBuildTree(TestCase):
                 'learning_unit_utilization',
                 args=[self.parent.pk, self.group_element_year_2_1.child_leaf.pk]
             ) + "?group_to_parent={}".format(self.group_element_year_2_1.pk))
+
+    def test_tree_to_json_ids(self):
+        node = NodeBranchJsTree(self.parent)
+        json = node.to_json()
+
+        self.assertEquals(
+            json['children'][1]['id'],
+            "id_{}_{}".format(
+                node.children[1].education_group_year.pk,
+                node.children[1].group_element_year.pk if node.children[1].group_element_year else '#'
+            )
+        )
+
+        self.assertEquals(
+            json['children'][1]['children'][0]['id'],
+            "id_{}_{}".format(
+                node.children[1].children[0].learning_unit_year.pk,
+                node.children[1].children[0].group_element_year.pk if node.children[1].group_element_year else '#'
+            )
+        )
