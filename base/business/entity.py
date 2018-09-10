@@ -34,27 +34,19 @@ from base.models.entity_version import EntityVersion
 from base.models.enums import academic_calendar_type
 
 
-def get_entities_ids(requirement_entity_acronym, with_entity_subordinated):
-    entity_versions = mdl.entity_version.search(acronym=requirement_entity_acronym)
-    entities_ids = set(entity_versions.values_list('entity', flat=True).distinct())
-    if with_entity_subordinated:
-        list_descendants = EntityVersion.objects.get_tree(
-            Entity.objects.filter(entityversion__acronym__iregex=requirement_entity_acronym)
-        )
-        entities_ids |= {row["entity_id"] for row in list_descendants}
+def get_entities_ids(entity_acronym, with_entity_subordinated):
+    if entity_acronym:
+        entity_versions = EntityVersion.objects.filter(acronym__iregex=entity_acronym)
+        entities_ids = set(entity_versions.values_list('entity', flat=True))
 
-    return list(entities_ids)
+        if with_entity_subordinated:
+            list_descendants = EntityVersion.objects.get_tree(
+                Entity.objects.filter(entityversion__acronym__iregex=entity_acronym)
+            )
+            entities_ids |= {row["entity_id"] for row in list_descendants}
 
-
-def get_entity_container_list(entity_ids, entity_container_yr_link_type):
-    return list(
-        mdl.entity_container_year.search(
-            link_type=entity_container_yr_link_type,
-            entity_id=entity_ids
-        ).values_list(
-            'learning_container_year', flat=True
-        ).distinct()
-    )
+        return list(entities_ids)
+    return []
 
 
 def get_entity_calendar(an_entity_version, academic_yr):
