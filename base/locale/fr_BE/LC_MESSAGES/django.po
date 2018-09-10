@@ -3827,3 +3827,6 @@ msgstr "Formulaire d'inscription au contenu de"
 
 msgid "Student's contact information"
 msgstr "Coordonnées de l'étudiant.e"
+
+msgid "Student's signature"
+msgstr "Signature de l'étudiant.e"

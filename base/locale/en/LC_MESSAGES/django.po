@@ -3820,3 +3820,6 @@ msgstr ""
 
 msgid "Student's contact information"
 msgstr ""
+
+msgid "Student's signature"
+msgstr ""
