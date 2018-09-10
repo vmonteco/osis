@@ -121,10 +121,6 @@ class TestBuildPDFTree(TestCase):
             learning_unit_year=self.learning_unit_year_4,
             learning_component_year=self.learning_component_year_7
         )
-        self.learning_unit_component_8 = LearningUnitComponentFactory(
-            learning_unit_year=self.learning_unit_year_4,
-            learning_component_year=self.learning_component_year_8
-        )
 
     def test_build_pdf_tree_with_mandatory(self):
         tree = get_verbose_children(self.education_group_year_1)
