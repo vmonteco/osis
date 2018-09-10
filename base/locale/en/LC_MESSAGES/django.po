@@ -3821,6 +3821,8 @@ msgstr ""
 msgid "Student's contact information"
 msgstr ""
 
-msgid "Own components"
+msgid "Student's signature"
 msgstr ""
 
+msgid "Own components"
+msgstr ""
