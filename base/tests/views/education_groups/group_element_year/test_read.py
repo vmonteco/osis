@@ -23,6 +23,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from django.db.models import F, When, Case
 from django.http import HttpResponseRedirect
 from django.test import TestCase
 from django.urls import reverse
@@ -102,8 +103,10 @@ class TestRead(TestCase):
         self.assertEqual(self.group_element_year_1.verbose, verbose_branch)
 
         components = LearningComponentYear.objects.filter(
-            learningunitcomponent__learning_unit_year=self.group_element_year_2.child_leaf
-        )
+            learningunitcomponent__learning_unit_year=self.group_element_year_2.child_leaf).annotate(
+            total=Case(When(hourly_volume_total_annual=None, then=0),
+                       default=F('hourly_volume_total_annual'))).values('type', 'total')
+
         verbose_leaf = _("%(acronym)s %(title)s [%(volumes)s] (%(credits)s credits)") % {
             "acronym": self.group_element_year_2.child_leaf.acronym,
             "title": self.group_element_year_2.child_leaf.specific_title,
