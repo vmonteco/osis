@@ -71,7 +71,7 @@ class NodeBranchJsTree:
                 'element_id': self.education_group_year.pk,
                 'element_type': self.element_type
             },
-            'id': 'id_' + str(self.education_group_year.pk) + str(group_element_year_pk),
+            'id': 'id_{}_{}'.format(str(self.education_group_year.pk), str(group_element_year_pk)),
         }
 
     @property
@@ -111,7 +111,7 @@ class NodeLeafJsTree(NodeBranchJsTree):
                 'element_id': self.learning_unit_year.pk,
                 'element_type': self.element_type
             },
-            'id': 'id_' + str(self.learning_unit_year.pk) + str(group_element_year_pk),
+            'id': 'id_{}_{}'.format(str(self.learning_unit_year.pk), str(group_element_year_pk)),
         }
 
     def get_url(self):
