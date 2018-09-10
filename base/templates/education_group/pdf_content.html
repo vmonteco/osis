@@ -14,7 +14,7 @@
             margin: 2cm 1cm 2cm 1cm;
 
             @top-left {
-                content: "{% trans 'academic_year' %} {{ parent.academic_year }} \A {{ parent.verbose_credit|safe }}";
+                content: "{% trans 'academic_year' %} {{ parent.academic_year }} \A {{ parent.verbose_title|safe }}";
                 white-space: pre-line;
                 font-size: 11px;
             }
@@ -41,17 +41,16 @@
 
             @bottom-center {
                 background:
-                {% if get_current_language == "en" %}
+                {% if language == "en" %}
                     url("{% static 'img/education_group_year/legend_en.png' %}")
                 {% else %}
                     url("{% static 'img/education_group_year/legend_fr.png' %}")
                 {% endif %}
                 no-repeat;
-                display: inline-block;
                 width: 400px;
                 content: "";
                 text-align: center;
-                margin: 0 auto;
+                margin: 0;
                 padding: 0;
             }
         }
@@ -127,6 +126,11 @@
                 <td>
                     <img src="{% static 'img/education_group_year/mandatory.png' %}" height="10" width="10">
                     {{ parent.verbose_credit }}
+                    {% if parent.verbose_remark %}
+                        <div style="word-break: keep-all;margin-left: 14px;">
+                            {{ parent.verbose_remark }}
+                        </div>
+                    {% endif %}
                 </td>
             </tr>
             {{ tree|pdf_tree_list }}

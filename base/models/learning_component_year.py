@@ -29,6 +29,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from base.models import learning_class_year
 from base.models.enums import learning_component_year_type, learning_container_year_types
+from base.models.enums.component_type import LECTURING, PRACTICAL_EXERCISES
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
 
 
@@ -120,10 +121,11 @@ class LearningComponentYear(SerializableModel):
 
 
 def volume_total_verbose(learning_component_years):
-    return "%(q1)gh + %(q2)gh" % {
-        "q1": learning_component_years[0].hourly_volume_total_annual or 0,
-        "q2": learning_component_years[1].hourly_volume_total_annual or 0,
-    }
+    q1 = next((component['total'] for component in learning_component_years
+               if component['type'] == LECTURING), 0)
+    q2 = next((component['total'] for component in learning_component_years
+               if component['type'] == PRACTICAL_EXERCISES), 0)
+    return "%(q1)gh + %(q2)gh" % {"q1": q1, "q2": q2}
 
 
 def find_by_id(learning_component_year_id):
