@@ -67,11 +67,9 @@ def _save_filter_to_cache(request, exclude_params=None):
 def _restore_filter_from_cache(request):
     cached_value = _get_from_cache(request)
     if cached_value:
-        request.GET = QueryDict(
-            query_string=request.META.get('QUERY_STRING'),
-            mutable=True
-        )
-        request.GET.update({**request.GET.dict(), **cached_value})
+        new_get_request = QueryDict(mutable=True)
+        new_get_request.update({**request.GET.dict(), **cached_value})
+        request.GET = new_get_request
 
 
 def _get_from_cache(request):
