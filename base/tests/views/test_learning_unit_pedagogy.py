@@ -141,6 +141,13 @@ class LearningUnitPedagogyTestCase(TestCase):
         self.assertEqual(len(context['learning_units_with_errors']), 1)
         self.assertTrue(context['is_faculty_manager'])
 
+    def test_learning_units_summary_list_by_cient(self):
+        self.client.force_login(self.faculty_user)
+        response = self.client.get(self.url, data={'academic_year_id': current_academic_year().id})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "learning_units.html")
+
     def _create_entity_calendar(self, an_entity):
         an_academic_calendar = AcademicCalendarFactory(academic_year=self.previous_academic_year,
                                                        start_date=self.previous_academic_year.start_date,
