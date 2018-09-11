@@ -182,5 +182,5 @@ input[type="text"].ui-autocomplete-input:disabled ~ .results_on_deck .ui-icon{
     z-index: 100;
 }
 .navbar-fixed-bottom {
-    z-index: 1;
+    z-index: 10;
 }
