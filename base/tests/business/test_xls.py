@@ -23,11 +23,11 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.utils import timezone
-
 from django.test import TestCase
+from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
-from base.business.xls import convert_boolean, NO_DATA
+
+from base.business.xls import convert_boolean
 
 
 class TestXls(TestCase):

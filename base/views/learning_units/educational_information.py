@@ -31,10 +31,11 @@ from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 from waffle.decorators import waffle_flag
 
-from base.business.learning_unit import get_learning_units_and_summary_status
+from base.business.learning_unit import get_learning_units_and_summary_status, XLS_DESCRIPTION, XLS_FILENAME
 from base.business.learning_units.educational_information import get_responsible_and_learning_unit_yr_list
 from base.business.learning_units.perms import can_learning_unit_year_educational_information_be_udpated
 from base.business.learning_units.xls_comparison import get_academic_year_of_reference
+from base.business.xls import get_name_or_username
 from base.forms.common import TooManyResultsException
 from base.forms.learning_unit.comparison import SelectComparisonYears
 from base.forms.learning_unit.educational_information.mail_reminder import MailReminderRow, MailReminderFormset
@@ -48,6 +49,10 @@ from base.views import layout
 from base.views.common import check_if_display_message
 from base.views.common import display_error_messages
 from base.views.learning_units.search import SUMMARY_LIST
+from cms.enums.entity_name import LEARNING_UNIT_YEAR
+from cms.models.translated_text import TranslatedText
+from osis_common.document import xls_build
+from osis_common.document.xls_build import prepare_xls_parameters_list
 
 SUCCESS_MESSAGE = _('success_mail_reminder')
 
@@ -71,6 +76,7 @@ def send_email_educational_information_needs_update(request):
 
 
 @login_required
+# @cache_filter(exclude_params=["xls_status"])
 @permission_required('base.can_access_learningunit', raise_exception=True)
 def learning_units_summary_list(request):
     a_user_person = find_by_user(request.user)
@@ -87,15 +93,19 @@ def learning_units_summary_list(request):
                 requirement_entities=a_user_person.find_main_entities_version,
                 luy_status=True
             )
+
+            # TODO refactoring : too many queries
             learning_units_found = get_learning_units_and_summary_status(learning_units_found_search)
             check_if_display_message(request, learning_units_found_search)
     except TooManyResultsException:
         display_error_messages(request, 'too_many_results')
-
     responsible_and_learning_unit_yr_list = get_responsible_and_learning_unit_yr_list(learning_units_found)
     learning_units = sorted(learning_units_found, key=lambda learning_yr: learning_yr.acronym)
     errors = [can_learning_unit_year_educational_information_be_udpated(learning_unit_year_id=luy.id)
               for luy in learning_units]
+
+    if request.GET.get('xls_status') == "xls_teaching_material":
+        return generate_xls_teaching_material(request.user, learning_units_found)
 
     form_comparison = SelectComparisonYears(academic_year=get_academic_year_of_reference(learning_units_found))
     context = {
@@ -108,6 +118,64 @@ def learning_units_summary_list(request):
     }
 
     return layout.render(request, "learning_units.html", context)
+
+
+def generate_xls_teaching_material(user, learning_units):
+    """ Generate a XLS file with all filtered learning_units where the course material is required """
+
+    titles = [
+        str(_('code')).title(),
+        str(_('title')).title(),
+        str(_('requirement_entity_small')).title(),
+        str(_('bibliography')).title(),
+        str(_('teaching materials')).title(),
+        str(_('online resources')).title(),
+    ]
+
+    file_parameters = {
+        xls_build.DESCRIPTION: XLS_DESCRIPTION,
+        xls_build.FILENAME: XLS_FILENAME,
+        xls_build.USER: get_name_or_username(user),
+        xls_build.HEADER_TITLES: titles,
+        xls_build.WS_TITLE: _("Teaching material"),
+    }
+
+    working_sheets_data = _filter_required_teaching_material(learning_units)
+    return xls_build.generate_xls(prepare_xls_parameters_list(working_sheets_data, file_parameters))
+
+
+def _filter_required_teaching_material(learning_units):
+    """ Apply a filter to return a list with only the learning units with at least one teaching material """
+    result = []
+    for learning_unit in learning_units:
+        # Only learning_units with a required teaching material will be display
+        if not learning_unit.teachingmaterial_set.filter(mandatory=True):
+            continue
+
+        # Fetch data in CMS
+        bibliography = TranslatedText.objects.filter(
+            text_label__label='bibliography',
+            entity=LEARNING_UNIT_YEAR,
+            reference=learning_unit.pk
+        ).first()
+
+        online_resources = TranslatedText.objects.filter(
+            text_label__label='online_resources',
+            entity=LEARNING_UNIT_YEAR,
+            reference=learning_unit.pk
+        ).first()
+
+        result.append(
+            (
+                learning_unit.acronym,
+                learning_unit.complete_title,
+                learning_unit.requirement_entity,
+                getattr(bibliography, "text", ""),
+                ", ".join(learning_unit.teachingmaterial_set.filter(mandatory=True).values_list('title', flat=True)),
+                getattr(online_resources, "text", ""),
+            )
+        )
+    return result
 
 
 def _send_email_to_responsibles(responsible_person_ids):
