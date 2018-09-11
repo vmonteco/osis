@@ -34,7 +34,9 @@ from waffle.decorators import waffle_flag
 from base.business.learning_unit import get_learning_units_and_summary_status
 from base.business.learning_units.educational_information import get_responsible_and_learning_unit_yr_list
 from base.business.learning_units.perms import can_learning_unit_year_educational_information_be_udpated
+from base.business.learning_units.xls_comparison import get_academic_year_of_reference
 from base.forms.common import TooManyResultsException
+from base.forms.learning_unit.comparison import SelectComparisonYears
 from base.forms.learning_unit.educational_information.mail_reminder import MailReminderRow, MailReminderFormset
 from base.forms.learning_unit.search_form import LearningUnitYearForm
 from base.models import academic_calendar
@@ -94,12 +96,15 @@ def learning_units_summary_list(request):
     learning_units = sorted(learning_units_found, key=lambda learning_yr: learning_yr.acronym)
     errors = [can_learning_unit_year_educational_information_be_udpated(learning_unit_year_id=luy.id)
               for luy in learning_units]
+
+    form_comparison = SelectComparisonYears(academic_year=get_academic_year_of_reference(learning_units_found))
     context = {
         'form': search_form,
         'formset': _get_formset(request, responsible_and_learning_unit_yr_list),
         'learning_units_with_errors': list(zip(learning_units, errors)),
         'search_type': SUMMARY_LIST,
-        'is_faculty_manager': a_user_person.is_faculty_manager()
+        'is_faculty_manager': a_user_person.is_faculty_manager(),
+        'form_comparison': form_comparison
     }
 
     return layout.render(request, "learning_units.html", context)

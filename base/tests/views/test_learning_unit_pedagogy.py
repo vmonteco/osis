@@ -30,7 +30,7 @@ from unittest.mock import patch
 from django.contrib.auth.models import Group
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
-from django.http import HttpResponseNotAllowed
+from django.http import HttpResponseNotAllowed, Http404
 from django.http.response import HttpResponseForbidden, HttpResponseRedirect
 from django.test import TestCase, RequestFactory
 from waffle.testutils import override_flag
@@ -140,6 +140,13 @@ class LearningUnitPedagogyTestCase(TestCase):
         self.assertEqual(context['search_type'], SUMMARY_LIST)
         self.assertEqual(len(context['learning_units_with_errors']), 1)
         self.assertTrue(context['is_faculty_manager'])
+
+    def test_learning_units_summary_list_by_cient(self):
+        self.client.force_login(self.faculty_user)
+        response = self.client.get(self.url, data={'academic_year_id': current_academic_year().id})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "learning_units.html")
 
     def _create_entity_calendar(self, an_entity):
         an_academic_calendar = AcademicCalendarFactory(academic_year=self.previous_academic_year,
