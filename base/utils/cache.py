@@ -24,11 +24,10 @@
 #
 ##############################################################################
 import logging
+from functools import wraps
 
 from django.conf import settings
 from django.core.cache import caches, InvalidCacheBackendError
-from functools import wraps
-
 from django.http import QueryDict
 
 CACHE_FILTER_TIMEOUT = None
@@ -68,7 +67,10 @@ def _save_filter_to_cache(request, exclude_params=None):
 def _restore_filter_from_cache(request):
     cached_value = _get_from_cache(request)
     if cached_value:
-        request.GET = QueryDict(mutable=True)
+        request.GET = QueryDict(
+            query_string=request.META.get('QUERY_STRING'),
+            mutable=True
+        )
         request.GET.update({**request.GET.dict(), **cached_value})
 
 
