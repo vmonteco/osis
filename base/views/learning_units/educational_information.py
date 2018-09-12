@@ -35,6 +35,7 @@ from base.business.learning_unit import get_learning_units_and_summary_status
 from base.business.learning_units.educational_information import get_responsible_and_learning_unit_yr_list
 from base.business.learning_units.perms import can_learning_unit_year_educational_information_be_udpated
 from base.business.learning_units.xls_comparison import get_academic_year_of_reference
+from base.business.learning_units.xls_generator import generate_xls_teaching_material
 from base.forms.common import TooManyResultsException
 from base.forms.learning_unit.comparison import SelectComparisonYears
 from base.forms.learning_unit.educational_information.mail_reminder import MailReminderRow, MailReminderFormset
@@ -71,6 +72,7 @@ def send_email_educational_information_needs_update(request):
 
 
 @login_required
+# @cache_filter(exclude_params=["xls_status"])
 @permission_required('base.can_access_learningunit', raise_exception=True)
 def learning_units_summary_list(request):
     a_user_person = find_by_user(request.user)
@@ -87,15 +89,19 @@ def learning_units_summary_list(request):
                 requirement_entities=a_user_person.find_main_entities_version,
                 luy_status=True
             )
+
+            # TODO refactoring : too many queries
             learning_units_found = get_learning_units_and_summary_status(learning_units_found_search)
             check_if_display_message(request, learning_units_found_search)
     except TooManyResultsException:
         display_error_messages(request, 'too_many_results')
-
     responsible_and_learning_unit_yr_list = get_responsible_and_learning_unit_yr_list(learning_units_found)
     learning_units = sorted(learning_units_found, key=lambda learning_yr: learning_yr.acronym)
     errors = [can_learning_unit_year_educational_information_be_udpated(learning_unit_year_id=luy.id)
               for luy in learning_units]
+
+    if request.GET.get('xls_status') == "xls_teaching_material":
+        return generate_xls_teaching_material(request.user, learning_units_found)
 
     form_comparison = SelectComparisonYears(academic_year=get_academic_year_of_reference(learning_units_found))
     context = {

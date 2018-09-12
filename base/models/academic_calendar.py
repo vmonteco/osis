@@ -31,6 +31,7 @@ from base.models import academic_year
 from base.models.enums import academic_calendar_type
 from base.models.exceptions import StartDateHigherThanEndDateException
 from base.models.utils.admin_extentions import remove_delete_action
+from base.models.utils.utils import get_object_or_none
 from base.signals.publisher import compute_all_scores_encodings_deadlines
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
 
@@ -132,10 +133,7 @@ def find_by_ids(academic_calendars_id):
 
 
 def get_by_reference_and_academic_year(a_reference, an_academic_year):
-    try:
-        return AcademicCalendar.objects.get(reference=a_reference, academic_year=an_academic_year)
-    except AcademicCalendar.DoesNotExist:
-        return None
+    return get_object_or_none(AcademicCalendar, reference=a_reference, academic_year=an_academic_year)
 
 
 def find_academic_calendar(academic_year_id, a_reference, a_date):
