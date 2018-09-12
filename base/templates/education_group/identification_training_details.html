@@ -160,9 +160,7 @@
                 <br>
                 <div>
                     <label>{% trans 'primary_language' %}</label><br>
-                    {% if education_group_languages %}
-                        {{ education_group_languages|join_with_spaces:education_group_year.language_association }}
-                    {% endif %}
+                    {{ education_group_year.primary_language }}
                 </div>
                 <br>
                 <div>

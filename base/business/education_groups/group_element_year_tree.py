@@ -69,7 +69,8 @@ class NodeBranchJsTree:
                 'root': self.root.pk,
                 'group_element_year': self.group_element_year and self.group_element_year.pk,
                 'element_id': self.education_group_year.pk,
-                'element_type': self.element_type
+                'element_type': self.element_type,
+                'title': self.education_group_year.acronym,
             },
             'id': 'id_{}_{}'.format(self.education_group_year.pk, group_element_year_pk),
         }
@@ -109,7 +110,8 @@ class NodeLeafJsTree(NodeBranchJsTree):
                 'root': self.root.pk,
                 'group_element_year': self.group_element_year and self.group_element_year.pk,
                 'element_id': self.learning_unit_year.pk,
-                'element_type': self.element_type
+                'element_type': self.element_type,
+                'title': self.learning_unit_year.complete_title,
             },
             'id': 'id_{}_{}'.format(self.learning_unit_year.pk, group_element_year_pk),
         }
