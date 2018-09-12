@@ -170,9 +170,10 @@ def _filter_required_teaching_material(learning_units):
                 learning_unit.acronym,
                 learning_unit.complete_title,
                 learning_unit.requirement_entity,
-                getattr(bibliography, "text", ""),
+                # Let a white space, the empty string is converted in None.
+                getattr(bibliography, "text", " "),
                 ", ".join(learning_unit.teachingmaterial_set.filter(mandatory=True).values_list('title', flat=True)),
-                getattr(online_resources, "text", ""),
+                getattr(online_resources, "text", " "),
             )
         )
     return result
