@@ -25,6 +25,7 @@
 ##############################################################################
 from django import template
 from django.core.exceptions import PermissionDenied
+from django.urls import reverse
 from django.utils import six
 from django.utils.encoding import force_text
 from django.utils.html import conditional_escape
@@ -32,6 +33,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
 
 from backoffice.settings import base
+from base.business.education_group import can_user_edit_administrative_data
 from base.business.education_groups.perms import is_eligible_to_delete_education_group, \
     is_eligible_to_change_education_group, is_eligible_to_add_training, \
     is_eligible_to_add_mini_training, is_eligible_to_add_group
@@ -174,7 +176,7 @@ def _get_permission(context, permission):
 
     education_group_year = context.get('education_group_year')
     person = context.get('person')
-    root = context["request"].GET.get("root", "")
+    root = context.get("root") or context.get("parent")
 
     try:
         result = permission(person, education_group_year, raise_exception=True)
@@ -184,6 +186,23 @@ def _get_permission(context, permission):
         permission_denied_message = str(e)
 
     return permission_denied_message, "" if result else "disabled", root
+
+
+@register.inclusion_tag('blocks/button/button_with_perm.html', takes_context=True)
+def button_edit_administrative_data(context):
+    education_group_year = context.get('education_group_year')
+
+    permission_denied_message, is_disabled, root = _get_permission(context, can_user_edit_administrative_data)
+    if not permission_denied_message:
+        permission_denied_message = "Only program managers of the education group OR central manager " \
+                                    "linked to entity can edit."
+
+    return {
+        'is_disabled': is_disabled,
+        'message': permission_denied_message,
+        'text': _('edit'),
+        'url': reverse('education_group_edit_administrative', args=[root.pk, education_group_year.pk])
+    }
 
 
 @register.simple_tag(takes_context=True)
