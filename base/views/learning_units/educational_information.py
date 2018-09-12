@@ -156,26 +156,22 @@ def _filter_required_teaching_material(learning_units):
         bibliography = TranslatedText.objects.filter(
             text_label__label='bibliography',
             entity=LEARNING_UNIT_YEAR,
-            reference=learning_unit.pk
-        ).first()
+            reference=learning_unit.pk).first()
 
         online_resources = TranslatedText.objects.filter(
             text_label__label='online_resources',
             entity=LEARNING_UNIT_YEAR,
-            reference=learning_unit.pk
-        ).first()
+            reference=learning_unit.pk).first()
 
-        result.append(
-            (
-                learning_unit.acronym,
-                learning_unit.complete_title,
-                learning_unit.requirement_entity,
-                # Let a white space, the empty string is converted in None.
-                getattr(bibliography, "text", " "),
-                ", ".join(learning_unit.teachingmaterial_set.filter(mandatory=True).values_list('title', flat=True)),
-                getattr(online_resources, "text", " "),
-            )
-        )
+        result.append((
+            learning_unit.acronym,
+            learning_unit.complete_title,
+            learning_unit.requirement_entity,
+            # Let a white space, the empty string is converted in None.
+            getattr(bibliography, "text", " "),
+            ", ".join(learning_unit.teachingmaterial_set.filter(mandatory=True).values_list('title', flat=True)),
+            getattr(online_resources, "text", " "),
+        ))
     return result
 
 
