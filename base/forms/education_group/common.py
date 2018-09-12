@@ -45,10 +45,10 @@ from rules_management.enums import TRAINING_PGRM_ENCODING_PERIOD, TRAINING_DAILY
 from rules_management.mixins import PermissionFieldMixin
 
 
-class MainTeachingCampusChoiceField(forms.ModelChoiceField):
+class MainCampusChoiceField(forms.ModelChoiceField):
     def __init__(self, queryset, *args, **kwargs):
         queryset = campus.find_main_campuses()
-        super(MainTeachingCampusChoiceField, self).__init__(queryset, *args, **kwargs)
+        super().__init__(queryset, *args, **kwargs)
 
 
 class MainEntitiesVersionChoiceField(EntitiesVersionChoiceField):
@@ -113,7 +113,8 @@ class EducationGroupYearModelForm(ValidationRuleEducationGroupTypeMixin, Permiss
         model = EducationGroupYear
         field_classes = {
             "management_entity": MainEntitiesVersionChoiceField,
-            "main_teaching_campus": MainTeachingCampusChoiceField,
+            "main_teaching_campus": MainCampusChoiceField,
+            "enrollment_campus": MainCampusChoiceField,
             "education_group_type": EducationGroupTypeModelChoiceField,
         }
         fields = []
