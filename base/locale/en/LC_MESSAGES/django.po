@@ -3838,3 +3838,9 @@ msgstr ""
 
 msgid "the list to generate is empty."
 msgstr ""
+
+msgid "Add/Modify a line"
+msgstr ""
+
+msgid "Update the text"
+msgstr ""
