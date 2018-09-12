@@ -41,7 +41,6 @@ from base.models.enums import education_group_association
 from base.models.enums import education_group_categories
 from base.models.enums.constraint_type import CONSTRAINT_TYPE, CREDITS
 from base.models.enums.education_group_types import MINOR
-from base.models.enums.link_type import REFERENCE
 from base.models.exceptions import MaximumOneParentAllowedException
 from base.models.prerequisite import Prerequisite
 from osis_common.models.osis_model_admin import OsisModelAdmin
@@ -476,7 +475,7 @@ class EducationGroupYear(models.Model):
 
     @cached_property
     def children(self):
-        return self.groupelementyear_set.exclude(link_type=REFERENCE).select_related('child_branch', 'child_leaf')
+        return self.groupelementyear_set.select_related('child_branch', 'child_leaf')
 
     @cached_property
     def children_group_element_years(self):

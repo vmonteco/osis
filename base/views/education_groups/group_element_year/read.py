@@ -61,7 +61,7 @@ def pdf_content(request, root_id, education_group_year_id, language):
 def get_verbose_children(education_group_year):
     result = []
 
-    for group_element_year in education_group_year.children:
+    for group_element_year in education_group_year.children.exclude(link_type=REFERENCE):
         result.append(group_element_year)
         if group_element_year.child_branch:
             result.append(get_verbose_children(group_element_year.child_branch))
