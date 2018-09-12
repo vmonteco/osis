@@ -3833,3 +3833,6 @@ msgstr "Signature de l'étudiant.e"
 
 msgid "Own components"
 msgstr "Composants propres"
+
+msgid "list of required teaching material"
+msgstr "liste des supports de cours obligatoires"

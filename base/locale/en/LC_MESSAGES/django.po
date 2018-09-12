@@ -3826,3 +3826,6 @@ msgstr ""
 
 msgid "Own components"
 msgstr ""
+
+msgid "list of required teaching material"
+msgstr ""
