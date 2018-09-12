@@ -3201,6 +3201,12 @@ msgstr ""
 msgid "Are you sure you want to delete the teaching material?"
 msgstr ""
 
+msgid "teaching materials"
+msgstr ""
+
+msgid "online resources"
+msgstr ""
+
 msgid "{} successfully updated"
 msgstr ""
 

@@ -2708,6 +2708,12 @@ msgstr "bibliographie"
 msgid "Teaching material"
 msgstr "Supports de cours"
 
+msgid "teaching materials"
+msgstr "supports de cours"
+
+msgid "online resources"
+msgstr "ressources en ligne"
+
 msgid "Mobility"
 msgstr "Mobilité"
 
