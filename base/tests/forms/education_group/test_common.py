@@ -313,7 +313,8 @@ def _get_valid_post_data(category):
         management_entity=entity_version.entity,
         main_teaching_campus=campus,
         education_group_type=education_group_type,
-        education_group__start_year=current_academic_year.year
+        education_group__start_year=current_academic_year.year,
+        constraint_type=CREDITS,
     )
     AuthorizedRelationshipFactory(child_type=fake_education_group_year.education_group_type)
     post_data = {
