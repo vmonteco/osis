@@ -42,7 +42,6 @@ class GroupYearModelForm(EducationGroupYearModelForm):
             "academic_year",
             "remark",
             "remark_english",
-            "internal_comment",
             "min_constraint",
             "max_constraint",
             "constraint_type",
