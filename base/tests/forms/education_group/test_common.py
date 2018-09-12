@@ -36,6 +36,7 @@ from base.models.education_group_type import EducationGroupType
 from base.models.education_group_year import EducationGroupYear
 from base.models.entity_version import EntityVersion
 from base.models.enums import organization_type, education_group_categories
+from base.models.enums.constraint_type import CREDITS
 from base.models.enums.education_group_categories import TRAINING
 from base.models.group_element_year import GroupElementYear
 from base.tests.factories.academic_year import AcademicYearFactory, create_current_academic_year
@@ -326,6 +327,7 @@ def _get_valid_post_data(category):
         'title': str(fake_education_group_year.title),
         'credits': str(fake_education_group_year.credits),
         'academic_year': str(fake_education_group_year.academic_year.id),
+        'constraint_type': CREDITS,
         'max_constraint': str(fake_education_group_year.max_constraint),
         'min_constraint': str(fake_education_group_year.min_constraint),
         'remark': str(fake_education_group_year.remark),
