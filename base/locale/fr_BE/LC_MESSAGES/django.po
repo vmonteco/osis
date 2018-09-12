@@ -3863,3 +3863,6 @@ msgstr "Inscriptions en allègement"
 
 msgid "Opening to Adults"
 msgstr "Ouverture aux adultes"
+
+msgid "comment (internal)"
+msgstr "commentaire (interne)"

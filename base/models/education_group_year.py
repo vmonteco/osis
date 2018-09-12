@@ -383,6 +383,12 @@ class EducationGroupYear(models.Model):
         verbose_name=_('Rate code')
     )
 
+    internal_comment = models.TextField(
+        max_length=500,
+        blank=True,
+        verbose_name=_("comment (internal)"),
+    )
+
     def __str__(self):
         return "{} - {} - {}".format(
             self.partial_acronym,

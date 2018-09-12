@@ -42,5 +42,16 @@
             {% endif %}
             <br>
         </div>
+        <br>
+        <dl>
+            <dt>{% trans 'comment (internal)'|title %}</dt>
+            <dd>
+                {% if education_group_year.iternal_comment %}
+                    {{ education_group_year.iternal_comment }}
+                {% elif parent.iternal_comment %}
+                    <strong class="text-primary">{{ parent.iternal_comment }}</strong>
+                {% endif %}
+            </dd>
+        </dl>
     </div>
 </div>
