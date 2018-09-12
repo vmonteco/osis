@@ -3829,3 +3829,6 @@ msgstr ""
 
 msgid "list of required teaching material"
 msgstr ""
+
+msgid "the list to generate is empty."
+msgstr ""

@@ -24,6 +24,7 @@
 #
 ##############################################################################
 from django.contrib.auth.decorators import login_required, permission_required
+from django.core.exceptions import ObjectDoesNotExist
 from django.forms import formset_factory
 from django.http import JsonResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
@@ -46,7 +47,7 @@ from base.models.enums.academic_calendar_type import SUMMARY_COURSE_SUBMISSION
 from base.models.person import Person, find_by_user
 from base.utils.send_mail import send_mail_for_educational_information_update
 from base.views import layout
-from base.views.common import check_if_display_message
+from base.views.common import check_if_display_message, display_warning_messages
 from base.views.common import display_error_messages
 from base.views.learning_units.search import SUMMARY_LIST
 
@@ -101,7 +102,10 @@ def learning_units_summary_list(request):
               for luy in learning_units]
 
     if request.GET.get('xls_status') == "xls_teaching_material":
-        return generate_xls_teaching_material(request.user, learning_units_found)
+        try:
+            return generate_xls_teaching_material(request.user, learning_units_found)
+        except ObjectDoesNotExist:
+            display_warning_messages(request, _("the list to generate is empty.").capitalize())
 
     form_comparison = SelectComparisonYears(academic_year=get_academic_year_of_reference(learning_units_found))
     context = {

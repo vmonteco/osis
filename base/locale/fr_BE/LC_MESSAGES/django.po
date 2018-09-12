@@ -3836,3 +3836,6 @@ msgstr "Composants propres"
 
 msgid "list of required teaching material"
 msgstr "liste des supports de cours obligatoires"
+
+msgid "the list to generate is empty."
+msgstr "la liste à générer est vide."
