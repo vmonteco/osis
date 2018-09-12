@@ -239,7 +239,7 @@ def response_for_bachelor(context):
 
 
 def build_content_response(context, admission_condition, admission_condition_common, acronym_suffix):
-    get_value = functools.partial(get_value_from_ac, admission_condition=admission_condition, context=context)
+    get_value = functools.partial(get_value_from_ac, admission_condition=admission_condition_common, context=context)
 
     response = {
         "free_text": getattr(admission_condition, 'text_free' + context.suffix_language),
