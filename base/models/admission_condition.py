@@ -62,6 +62,62 @@ class AdmissionCondition(models.Model):
     def __str__(self):
         return "Admission condition - {}".format(self.education_group_year)
 
+    def duplicate(self, destination):
+        FIELDS = (
+            'alert_message',
+
+            'free',
+
+            'university_bachelors',
+
+            'non_university_bachelors',
+
+            'holders_second_university_degree',
+            'holders_non_university_second_degree',
+
+            'adults_taking_up_university_training',
+            'personalized_access',
+            'admission_enrollment_procedures',
+
+            'ca_bacs_cond_generales',
+            'ca_bacs_cond_particulieres',
+            'ca_bacs_examen_langue',
+            'ca_bacs_cond_speciales',
+
+            'ca_cond_generales',
+            'ca_maitrise_fr',
+            'ca_allegement',
+            'ca_ouv_adultes',
+
+            'alert_message_en',
+            'free_en',
+
+            'university_bachelors_en',
+
+            'non_university_bachelors_en',
+
+            'holders_second_university_degree_en',
+            'holders_non_university_second_degree_en',
+
+            'adults_taking_up_university_training_en',
+            'personalized_access_en',
+            'admission_enrollment_procedures_en',
+
+            'ca_bacs_cond_generales_en',
+            'ca_bacs_cond_particulieres_en',
+            'ca_bacs_examen_langue_en',
+            'ca_bacs_cond_speciales_en',
+
+            'ca_cond_generales_en',
+            'ca_maitrise_fr_en',
+            'ca_allegement_en',
+            'ca_ouv_adultes_en',
+        )
+        for field in FIELDS:
+            setattr(destination, )
+        pass
+
+
 
 class AdmissionConditionAdmin(osis_model_admin.OsisModelAdmin):
     list_display = ('name',)
@@ -92,6 +148,16 @@ class AdmissionConditionLine(OrderedModel):
 
     class Meta(OrderedModel.Meta):
         ordering = ('admission_condition', 'section', 'order')
+
+    def duplicate(self, destination):
+        FIELDS = (
+            'section',
+            'diploma', 'conditions', 'access', 'remarks',
+            'diploma_en', 'conditions_en', 'access_en', 'remarks_en',
+            'order'
+        )
+        for field in FIELDS:
+            setattr(destination, field, getattr(self, field))
 
 
 class AdmissionConditionLineAdmin(osis_model_admin.OsisModelAdmin):
