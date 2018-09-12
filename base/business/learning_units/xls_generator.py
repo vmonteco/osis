@@ -23,6 +23,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import ugettext_lazy as _
 
 from base.business.learning_unit import XLS_DESCRIPTION, XLS_FILENAME
@@ -85,4 +86,8 @@ def _filter_required_teaching_material(learning_units):
             ", ".join(learning_unit.teachingmaterial_set.filter(mandatory=True).values_list('title', flat=True)),
             getattr(online_resources, "text", " "),
         ))
+
+    if not result:
+        raise ObjectDoesNotExist
+
     return result
