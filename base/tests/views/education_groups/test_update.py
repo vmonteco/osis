@@ -155,7 +155,8 @@ class TestUpdate(TestCase):
             'partial_acronym': 'LDVLD101R',
             'management_entity': new_entity_version.pk,
             'main_teaching_campus': "",
-            'academic_year': self.education_group_year.academic_year.pk
+            'academic_year': self.education_group_year.academic_year.pk,
+            "constraint_type": "",
         }
         response = self.client.post(self.url, data=data)
 
@@ -199,6 +200,7 @@ class TestUpdate(TestCase):
             "internship": internship_presence.NO,
             "primary_language": LanguageFactory().pk,
             "start_year": 2010,
+            "constraint_type": "",
         }
         response = self.client.post(self.training_url, data=data)
         self.assertEqual(response.status_code, 302)
