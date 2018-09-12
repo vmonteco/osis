@@ -23,6 +23,8 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+import json
+
 from django.http import HttpResponseForbidden
 from django.test import TestCase
 from django.urls import reverse
@@ -78,6 +80,21 @@ class TestUpdateLearningUnitPrerequisite(TestCase):
     def test_template_used(self):
         response = self.client.get(self.url)
         self.assertTemplateUsed(response, "education_group/learning_unit/tab_prerequisite_update.html")
+
+    def test_context(self):
+        response = self.client.get(self.url)
+        context = response.context
+        self.assertEquals(
+            context['root'],
+            self.education_group_year_parents[0]
+        )
+
+        tree = json.loads(context['tree'])
+        self.assertTrue(tree)
+        self.assertEquals(
+            tree['text'],
+            self.education_group_year_parents[0].verbose
+        )
 
     def test_post_data(self):
         form_data = {
