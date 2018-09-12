@@ -541,7 +541,22 @@ class EducationGroupYear(models.Model):
         return True
 
     def clean(self):
-        if self.min_constraint and self.max_constraint:
+        # If min or max has been set, constraint_type is required
+        if not self.constraint_type and (self.min_constraint is not None or self.max_constraint is not None):
+            raise ValidationError({'constraint_type': _("field_is_required")})
+
+        # If constraint_type has been set, min and max are required
+        if self.constraint_type:
+            error_dict = {}
+            if self.min_constraint is None:
+                error_dict['min_constraint'] = ValidationError(_("field_is_required"), code='required')
+
+            if self.max_constraint is None:
+                error_dict['max_constraint'] = ValidationError(_("field_is_required"), code='required')
+
+            if error_dict:
+                raise ValidationError(error_dict)
+
             if self.min_constraint > self.max_constraint:
                 raise ValidationError({
                     'max_constraint': _("%(max)s must be greater or equals than %(min)s") % {
