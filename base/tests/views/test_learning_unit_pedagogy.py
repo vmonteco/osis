@@ -29,6 +29,7 @@ from unittest import mock
 from unittest.mock import patch
 
 from django.contrib.auth.models import Group
+from django.contrib.messages import get_messages
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseNotAllowed
@@ -205,6 +206,39 @@ class LearningUnitPedagogyTestCase(TestCase):
         # The second luy has no mandatory teaching material
         with self.assertRaises(StopIteration):
             next(data)
+
+    def test_learning_units_summary_list_by_cient_xls_empty(self):
+        # Generate data
+        now = datetime.datetime.now()
+        EntityVersionFactory(entity=self.an_entity,
+                             start_date=now,
+                             end_date=datetime.datetime(now.year+1, 9, 15),
+                             entity_type='INSTITUTE')
+
+        luy = self._create_learning_unit_year_for_entity(self.an_entity)
+        self._create_entity_calendar(self.an_entity)
+
+        TeachingMaterialFactory(learning_unit_year=luy, title="Magic wand", mandatory=False)
+        TeachingMaterialFactory(learning_unit_year=luy, title="Broomsticks", mandatory=False)
+
+        luy_without_mandatory_teaching_material = self._create_learning_unit_year_for_entity(self.an_entity)
+        TeachingMaterialFactory(learning_unit_year=luy_without_mandatory_teaching_material, title="cauldron", mandatory=False)
+
+        # Test the view
+        self.client.force_login(self.faculty_user)
+        response = self.client.get(self.url, data={
+            'academic_year_id': current_academic_year().id,
+            'xls_status': 'xls_teaching_material'
+        })
+
+        # OK, the server will stay in the page
+        self.assertEqual(response.status_code, 200)
+
+        # A warning message should be generated
+        messages = list(get_messages(response.wsgi_request))
+        self.assertEqual(len(messages), 1)
+        self.assertEqual(str(messages[0]), _("the list to generate is empty.").capitalize())
+
 
     def _create_entity_calendar(self, an_entity):
         an_academic_calendar = AcademicCalendarFactory(academic_year=self.previous_academic_year,
