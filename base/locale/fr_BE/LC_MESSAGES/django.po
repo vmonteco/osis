@@ -3851,3 +3851,15 @@ msgstr "Ajouter/Modifier une ligne"
 
 msgid "Update the text"
 msgstr "Mettre à jour le texte"
+
+msgid "General Conditions"
+msgstr "Conditions Générales"
+
+msgid "French language proficiency examination"
+msgstr "Maîtrise de la langue française"
+
+msgid "Reduction"
+msgstr "Inscriptions en allègement"
+
+msgid "Opening to Adults"
+msgstr "Ouverture aux adultes"
