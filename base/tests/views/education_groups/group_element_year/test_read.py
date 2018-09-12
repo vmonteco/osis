@@ -24,11 +24,11 @@
 #
 ##############################################################################
 from django.db.models import F, When, Case
-from django.http import HttpResponseRedirect
 from django.test import TestCase
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
+from base.models.enums.link_type import REFERENCE
 from base.models.learning_component_year import LearningComponentYear, volume_total_verbose
 from base.tests.factories.education_group_year import EducationGroupYearFactory
 from base.tests.factories.group_element_year import GroupElementYearFactory
@@ -114,3 +114,12 @@ class TestRead(TestCase):
             "credits": self.group_element_year_2.relative_credits or self.group_element_year_2.child_leaf.credits or 0
         }
         self.assertEqual(self.group_element_year_2.verbose, verbose_leaf)
+
+    def test_exclude_reference_link_type(self):
+        self.group_element_year_1.link_type=REFERENCE
+        self.group_element_year_1.save()
+        self.group_element_year_3.link_type = REFERENCE
+        self.group_element_year_3.save()
+        result = get_verbose_children(self.education_group_year_1)
+        context_waiting = []
+        self.assertEqual(result, context_waiting)

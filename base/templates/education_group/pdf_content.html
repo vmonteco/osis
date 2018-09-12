@@ -6,7 +6,7 @@
 <head>
     <meta charset="UTF-8">
     <title>
-        {{ parent.verbose_title }}
+        {{ root.verbose_title }}
     </title>
     <style type="text/css">
         @page {
@@ -14,7 +14,7 @@
             margin: 2cm 1cm 2cm 1cm;
 
             @top-left {
-                content: "{% trans 'academic_year' %} {{ parent.academic_year }} \A {{ parent.verbose_title|safe }}";
+                content: "{% trans 'academic_year' %} {{ root.academic_year }} \A {{ root.verbose_title|safe }}";
                 white-space: pre-line;
                 font-size: 11px;
             }
@@ -66,15 +66,15 @@
     <div class="list-group">
         <div class="container" style="font-size: 11px;">
             <div style="font-weight: bold;text-decoration: underline; ">
-                {% trans "Registration form for the content of" %} {{ parent.verbose_title }}
+                {% trans "Registration form for the content of" %} {{ root.verbose_title }}
             </div>
             <br>
             <div>
-                {% if not parent.is_minor %}
+                {% if not root.is_minor %}
                     {% trans "This form must be submitted to the secretariat of your faculty" %}
                 {% else %}
                     {% trans "The registration form is available at the Secretariat of" %}
-                    {{ parent.administration_entity_version.acronym }}
+                    {{ root.administration_entity_version.acronym }}
                     <br>
                     {% trans "This form must be signed by the designated authority and delivered to the secretariat of your faculty." %}
                 {% endif %}
@@ -124,10 +124,10 @@
             <tr>
                 <td>
                     <img src="{% static 'img/education_group_year/mandatory.png' %}" height="10" width="10">
-                    {{ parent.verbose_credit }}
-                    {% if parent.verbose_remark %}
+                    {{ root.verbose_credit }}
+                    {% if root.verbose_remark %}
                         <div style="word-break: keep-all;margin-left: 14px;">
-                            {{ parent.verbose_remark }}
+                            {{ root.verbose_remark }}
                         </div>
                     {% endif %}
                 </td>
@@ -144,7 +144,7 @@
                 {% trans 'Made in ...................' %}&emsp;&emsp;
                 {% trans 'on ......./......./.......' %}
             </div>&emsp; &emsp;
-            {% if parent.is_minor %}
+            {% if root.is_minor %}
                 <div style="display: inline;margin-left: 150px;">
                     {% trans 'For approval' %}
                 </div>
