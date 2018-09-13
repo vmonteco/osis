@@ -76,7 +76,7 @@ def is_education_group_creation_period_opened(education_group, raise_exception=F
     ac = AcademicCalendar.objects.filter(
         reference=academic_calendar_type.EDUCATION_GROUP_EDITION,
         start_date__lte=now,
-        end_date__gte=now
+        end_date__gt=now
     )
 
     # Check if the edition period is open

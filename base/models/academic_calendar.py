@@ -156,7 +156,7 @@ def is_academic_calendar_opened_for_specific_academic_year(an_academic_year_id, 
 
 def is_academic_calendar_opened(a_reference):
     now = timezone.now()
-    return AcademicCalendar.objects.filter(reference=a_reference, start_date__lte=now, end_date__gte=now).exists()
+    return AcademicCalendar.objects.filter(reference=a_reference, start_date__lte=now, end_date__gt=now).exists()
 
 
 def find_dates_for_current_academic_year(reference):
