@@ -3197,6 +3197,9 @@ msgstr "Cela supprimera également les objets suivants"
 msgid "The education group edition period is not open."
 msgstr "La période de modification d'organisation de formation n'est pas ouverte."
 
+msgid "this education group is not editable during this period."
+msgstr "cette organisation de formation n'est pas édtiable durant cette période."
+
 msgid "The user has not permission to delete education groups."
 msgstr "L'utilisateur n'a pas la permission de supprimer les organisations de formation."
 

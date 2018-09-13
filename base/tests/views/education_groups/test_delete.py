@@ -35,6 +35,7 @@ from base.models.education_group import EducationGroup
 from base.models.education_group_year import EducationGroupYear
 from base.models.enums.academic_calendar_type import EDUCATION_GROUP_EDITION
 from base.tests.factories.academic_calendar import AcademicCalendarFactory
+from base.tests.factories.academic_year import create_current_academic_year, AcademicYearFactory
 from base.tests.factories.education_group import EducationGroupFactory
 from base.tests.factories.education_group_year import EducationGroupYearFactory
 from base.tests.factories.group_element_year import GroupElementYearFactory
@@ -47,9 +48,14 @@ from base.tests.factories.person_entity import PersonEntityFactory
 class TestDeleteGroupEducationView(TestCase):
 
     def setUp(self):
+        current_ac = create_current_academic_year()
+        next_ac = AcademicYearFactory(year=current_ac.year + 1)
+
         self.education_group = EducationGroupFactory()
-        self.education_group_year = EducationGroupYearFactory(education_group=self.education_group)
-        self.education_group_year2 = EducationGroupYearFactory(education_group=self.education_group)
+        self.education_group_year = EducationGroupYearFactory(education_group=self.education_group,
+                                                              academic_year=next_ac)
+        self.education_group_year2 = EducationGroupYearFactory(education_group=self.education_group,
+                                                               academic_year=next_ac)
         self.person = PersonFactory()
         PersonEntityFactory(person=self.person, entity=self.education_group_year.management_entity)
         PersonEntityFactory(person=self.person, entity=self.education_group_year2.management_entity)
@@ -63,7 +69,8 @@ class TestDeleteGroupEducationView(TestCase):
         self.academic_calendar = AcademicCalendarFactory(
             reference=EDUCATION_GROUP_EDITION,
             start_date=timezone.now(),
-            end_date=timezone.now()
+            end_date=timezone.now(),
+            academic_year=current_ac,
         )
 
     def test_delete_get_permission_denied(self):
