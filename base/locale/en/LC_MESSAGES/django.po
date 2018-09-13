@@ -3201,6 +3201,12 @@ msgstr ""
 msgid "Are you sure you want to delete the teaching material?"
 msgstr ""
 
+msgid "teaching materials"
+msgstr ""
+
+msgid "online resources"
+msgstr ""
+
 msgid "{} successfully updated"
 msgstr ""
 
@@ -3821,7 +3827,34 @@ msgstr ""
 msgid "Student's contact information"
 msgstr ""
 
+msgid "Student's signature"
+msgstr ""
+
 msgid "Own components"
+msgstr ""
+
+msgid "list of required teaching material"
+msgstr ""
+
+msgid "the list to generate is empty."
+msgstr ""
+
+msgid "Add/Modify a line"
+msgstr ""
+
+msgid "Update the text"
+msgstr ""
+
+msgid "General Conditions"
+msgstr ""
+
+msgid "French language proficiency examination"
+msgstr ""
+
+msgid "Reduction"
+msgstr ""
+
+msgid "Opening to Adults"
 msgstr ""
 
 msgid "Produce configurable xls of learning units"

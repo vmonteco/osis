@@ -2708,6 +2708,12 @@ msgstr "bibliographie"
 msgid "Teaching material"
 msgstr "Supports de cours"
 
+msgid "teaching materials"
+msgstr "supports de cours"
+
+msgid "online resources"
+msgstr "ressources en ligne"
+
 msgid "Mobility"
 msgstr "Mobilité"
 
@@ -2955,7 +2961,7 @@ msgid "planned classes cannot be 0"
 msgstr "le nombre de classes prévues ne peut être 0"
 
 msgid "Vol_tot is not equal to vol_q1 + vol_q2"
-msgstr "Le volume total doit être égal à la somme des volumes de Q1 et de Q2"
+msgstr "Le volume annuel doit être égal à la somme des volumes de Q1 et de Q2"
 
 msgid "Vol_global is not equal to Vol_tot * planned_classes"
 msgstr "Le volume global doit être égal au volume annuel multiplié par le nombre de classes"
@@ -3828,8 +3834,35 @@ msgstr "Formulaire d'inscription au contenu de"
 msgid "Student's contact information"
 msgstr "Coordonnées de l'étudiant.e"
 
+msgid "Student's signature"
+msgstr "Signature de l'étudiant.e"
+
 msgid "Own components"
 msgstr "Composants propres"
+
+msgid "list of required teaching material"
+msgstr "liste des supports de cours obligatoires"
+
+msgid "the list to generate is empty."
+msgstr "la liste à générer est vide."
+
+msgid "Add/Modify a line"
+msgstr "Ajouter/Modifier une ligne"
+
+msgid "Update the text"
+msgstr "Mettre à jour le texte"
+
+msgid "General Conditions"
+msgstr "Conditions Générales"
+
+msgid "French language proficiency examination"
+msgstr "Maîtrise de la langue française"
+
+msgid "Reduction"
+msgstr "Inscriptions en allègement"
+
+msgid "Opening to Adults"
+msgstr "Ouverture aux adultes"
 
 msgid "Produce configurable xls of learning units"
 msgstr "Produire une liste personnalisable des unités d'enseignement"

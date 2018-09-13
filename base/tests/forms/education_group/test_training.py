@@ -112,6 +112,7 @@ class TestPostponementEducationGroupYearMixin(TestCase):
             "internship": internship_presence.NO,
             "primary_language": LanguageFactory().pk,
             "start_year": 2010,
+            "constraint_type": "",
         }
 
     def test_init(self):

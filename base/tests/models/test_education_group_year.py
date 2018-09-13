@@ -23,11 +23,13 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django.utils.translation import ugettext_lazy as _
 
 from base.models.education_group_year import find_by_id, search, find_with_enrollments_count
 from base.models.enums import education_group_categories
+from base.models.enums.constraint_type import CREDITS
 from base.models.exceptions import MaximumOneParentAllowedException
 from base.tests.factories.academic_year import AcademicYearFactory, create_current_academic_year
 from base.tests.factories.education_group_type import EducationGroupTypeFactory
@@ -189,6 +191,35 @@ class EducationGroupYearTest(TestCase):
                 self.education_group_year_5,
             ]
         )
+
+
+class EducationGroupYearCleanTest(TestCase):
+
+    def test_clean_constraint(self):
+
+        e = EducationGroupYearFactory(min_constraint=12, max_constraint=20, constraint_type=CREDITS)
+        try:
+            e.clean()
+        except ValidationError:
+            self.fail()
+
+    def test_clean_no_constraint_type(self):
+        e = EducationGroupYearFactory(min_constraint=12, max_constraint=20, constraint_type=None)
+
+        with self.assertRaises(ValidationError):
+            e.clean()
+
+    def test_clean_no_min_max(self):
+        e = EducationGroupYearFactory(min_constraint=None, max_constraint=None, constraint_type=CREDITS)
+
+        with self.assertRaises(ValidationError):
+            e.clean()
+
+    def test_clean_min_gt_max(self):
+        e = EducationGroupYearFactory(min_constraint=20, max_constraint=10, constraint_type=CREDITS)
+
+        with self.assertRaises(ValidationError):
+            e.clean()
 
 
 class TestFindWithEnrollmentsCount(TestCase):

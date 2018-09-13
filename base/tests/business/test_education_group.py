@@ -89,6 +89,7 @@ class EducationGroupTestCase(TestCase):
     def test_can_user_edit_administrative_data_no_permission(self):
         """Without permission/group, we cannot access to administrative data ==> Refused"""
         user_without_perm = UserFactory()
+        PersonFactory(user=user_without_perm)
         self.assertFalse(can_user_edit_administrative_data(user_without_perm, self.education_group_year))
 
     def test_can_user_edit_administrative_data_with_permission_no_pgrm_manager(self):

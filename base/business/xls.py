@@ -27,13 +27,6 @@ from django.utils.translation import ugettext_lazy as _
 
 from base import models as mdl_base
 
-DESCRIPTION = "description"
-FILENAME = "filename"
-TITLES = "titles"
-WS_TITLE = "ws_title"
-
-NO_DATA = '-'
-
 
 def get_name_or_username(a_user):
     person = mdl_base.person.find_by_user(a_user)

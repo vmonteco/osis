@@ -24,15 +24,19 @@
 #
 ##############################################################################
 import datetime
+from io import BytesIO
 from unittest import mock
 from unittest.mock import patch
 
 from django.contrib.auth.models import Group
+from django.contrib.messages import get_messages
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseNotAllowed
 from django.http.response import HttpResponseForbidden, HttpResponseRedirect
 from django.test import TestCase, RequestFactory
+from django.utils.translation import ugettext_lazy as _
+from openpyxl import load_workbook
 from waffle.testutils import override_flag
 
 from attribution.tests.factories.attribution import AttributionFactory
@@ -54,6 +58,7 @@ from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from base.tests.factories.organization import OrganizationFactory
 from base.tests.factories.person import PersonFactory, FacultyManagerFactory
 from base.tests.factories.person_entity import PersonEntityFactory
+from base.tests.factories.teaching_material import TeachingMaterialFactory
 from base.tests.factories.tutor import TutorFactory
 from base.tests.factories.user import UserFactory
 from base.views.learning_units.educational_information import learning_units_summary_list, \
@@ -140,6 +145,100 @@ class LearningUnitPedagogyTestCase(TestCase):
         self.assertEqual(context['search_type'], SUMMARY_LIST)
         self.assertEqual(len(context['learning_units_with_errors']), 1)
         self.assertTrue(context['is_faculty_manager'])
+
+    def test_learning_units_summary_list_by_cient(self):
+        self.client.force_login(self.faculty_user)
+        response = self.client.get(self.url, data={'academic_year_id': current_academic_year().id})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "learning_units.html")
+
+    def test_learning_units_summary_list_by_cient_xls(self):
+        # Generate data
+        now = datetime.datetime.now()
+        EntityVersionFactory(entity=self.an_entity,
+                             start_date=now,
+                             end_date=datetime.datetime(now.year+1, 9, 15),
+                             entity_type='INSTITUTE')
+
+        luy = self._create_learning_unit_year_for_entity(self.an_entity)
+        self._create_entity_calendar(self.an_entity)
+
+        TeachingMaterialFactory(learning_unit_year=luy, title="Magic wand", mandatory=True)
+        TeachingMaterialFactory(learning_unit_year=luy, title="Broomsticks", mandatory=False)
+
+        luy_without_mandatory_teaching_material = self._create_learning_unit_year_for_entity(self.an_entity)
+        TeachingMaterialFactory(learning_unit_year=luy_without_mandatory_teaching_material, title="cauldron", mandatory=False)
+
+        # Test the view
+        self.client.force_login(self.faculty_user)
+        response = self.client.get(self.url, data={
+            'academic_year_id': current_academic_year().id,
+            'xls_status': 'xls_teaching_material'
+        })
+
+        # OK, the server returned the xls file
+        self.assertEqual(response.status_code, 200)
+        wb = load_workbook(BytesIO(response.content), read_only=True)
+
+        sheet = wb.active
+        data = sheet['A1': 'F3']
+
+        # Check the first row content
+        titles = next(data)
+        title_values = list(t.value for t in titles)
+        self.assertEqual(title_values, [
+            str(_('code')).title(),
+            str(_('title')).title(),
+            str(_('requirement_entity_small')).title(),
+            str(_('bibliography')).title(),
+            str(_('teaching materials')).title(),
+            str(_('online resources')).title(),
+        ])
+
+        # Check data from the luy
+        first_luy = next(data)
+        first_luy_values = list(t.value for t in first_luy)
+        self.assertEqual(first_luy_values, [
+            luy.acronym, luy.complete_title, str(luy.requirement_entity), " ", "Magic wand", " "
+        ])
+
+        # The second luy has no mandatory teaching material
+        with self.assertRaises(StopIteration):
+            next(data)
+
+    def test_learning_units_summary_list_by_cient_xls_empty(self):
+        # Generate data
+        now = datetime.datetime.now()
+        EntityVersionFactory(entity=self.an_entity,
+                             start_date=now,
+                             end_date=datetime.datetime(now.year+1, 9, 15),
+                             entity_type='INSTITUTE')
+
+        luy = self._create_learning_unit_year_for_entity(self.an_entity)
+        self._create_entity_calendar(self.an_entity)
+
+        TeachingMaterialFactory(learning_unit_year=luy, title="Magic wand", mandatory=False)
+        TeachingMaterialFactory(learning_unit_year=luy, title="Broomsticks", mandatory=False)
+
+        luy_without_mandatory_teaching_material = self._create_learning_unit_year_for_entity(self.an_entity)
+        TeachingMaterialFactory(learning_unit_year=luy_without_mandatory_teaching_material, title="cauldron", mandatory=False)
+
+        # Test the view
+        self.client.force_login(self.faculty_user)
+        response = self.client.get(self.url, data={
+            'academic_year_id': current_academic_year().id,
+            'xls_status': 'xls_teaching_material'
+        })
+
+        # OK, the server will stay in the page
+        self.assertEqual(response.status_code, 200)
+
+        # A warning message should be generated
+        messages = list(get_messages(response.wsgi_request))
+        self.assertEqual(len(messages), 1)
+        self.assertEqual(str(messages[0]), _("the list to generate is empty.").capitalize())
+
 
     def _create_entity_calendar(self, an_entity):
         an_academic_calendar = AcademicCalendarFactory(academic_year=self.previous_academic_year,

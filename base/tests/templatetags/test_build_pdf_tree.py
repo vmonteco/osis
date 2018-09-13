@@ -92,10 +92,7 @@ class TestBuildPDFTree(TestCase):
             learning_container_year=self.learning_unit_year_4.learning_container_year,
             type=LECTURING
         )
-        self.learning_component_year_8 = LearningComponentYearFactory(
-            learning_container_year=self.learning_unit_year_4.learning_container_year,
-            type=PRACTICAL_EXERCISES
-        )
+
         self.learning_unit_component_1 = LearningUnitComponentFactory(
             learning_unit_year=self.learning_unit_year_1,
             learning_component_year=self.learning_component_year_1
@@ -123,10 +120,6 @@ class TestBuildPDFTree(TestCase):
         self.learning_unit_component_7 = LearningUnitComponentFactory(
             learning_unit_year=self.learning_unit_year_4,
             learning_component_year=self.learning_component_year_7
-        )
-        self.learning_unit_component_8 = LearningUnitComponentFactory(
-            learning_unit_year=self.learning_unit_year_4,
-            learning_component_year=self.learning_component_year_8
         )
 
     def test_build_pdf_tree_with_mandatory(self):

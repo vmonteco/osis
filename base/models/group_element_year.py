@@ -26,7 +26,7 @@
 import itertools
 
 from django.db import models, IntegrityError
-from django.db.models import Q
+from django.db.models import Q, F, Case, When
 from django.utils import translation
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
@@ -156,8 +156,9 @@ class GroupElementYear(OrderedModel):
             }
         else:
             components = LearningComponentYear.objects.filter(
-                learningunitcomponent__learning_unit_year=self.child_leaf
-            )
+                learningunitcomponent__learning_unit_year=self.child_leaf).annotate(
+                total=Case(When(hourly_volume_total_annual=None, then=0),
+                           default=F('hourly_volume_total_annual'))).values('type', 'total')
 
             return _("%(acronym)s %(title)s [%(volumes)s] (%(credits)s credits)") % {
                 "acronym": self.child_leaf.acronym,

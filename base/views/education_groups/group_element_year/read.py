@@ -33,17 +33,18 @@ from django.views.generic import FormView
 
 from base.forms.education_group.common import SelectLanguage
 from base.models.education_group_year import EducationGroupYear
+from base.models.enums.link_type import REFERENCE
 from base.views.common_classes import FlagMixin, AjaxTemplateMixin
 from osis_common.document.pdf_build import render_pdf
 
 
 @login_required
 def pdf_content(request, root_id, education_group_year_id, language):
-    parent = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
-    tree = get_verbose_children(parent)
+    education_group_year = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
+    tree = get_verbose_children(education_group_year)
 
     context = {
-        'parent': parent,
+        'root': education_group_year,
         'tree': tree,
         'language': language,
         'created': datetime.datetime.now(),
@@ -52,15 +53,15 @@ def pdf_content(request, root_id, education_group_year_id, language):
         return render_pdf(
             request,
             context=context,
-            filename=parent.acronym,
+            filename=education_group_year.acronym,
             template='education_group/pdf_content.html',
         )
 
 
-def get_verbose_children(parent):
+def get_verbose_children(education_group_year):
     result = []
 
-    for group_element_year in parent.children:
+    for group_element_year in education_group_year.children.exclude(link_type=REFERENCE):
         result.append(group_element_year)
         if group_element_year.child_branch:
             result.append(get_verbose_children(group_element_year.child_branch))

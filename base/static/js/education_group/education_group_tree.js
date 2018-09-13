@@ -125,9 +125,15 @@ $(document).ready(function () {
 
                             var detach_data = build_url_data(element_id, group_element_year_id, 'detach');
 
-                            $('#form-modal-content').load(management_url, detach_data, function () {
-                                $('#form-modal').modal('toggle');
-                                formAjaxSubmit('#form-modal-body form', '#form-modal');
+                            $('#form-modal-content').load(management_url, detach_data, function (response, status, xhr) {
+                                if ( status === "success" ){
+                                    $('#form-modal').modal('toggle');
+                                    formAjaxSubmit('#form-modal-body form', '#form-modal');
+                                }
+                                else {
+                                    window.location.href = management_url + "?" + detach_data
+                                }
+
                             });
 
                             $.ajax({
@@ -140,6 +146,10 @@ $(document).ready(function () {
                                 }
                             });
                         },
+                        "_disabled": function (data) {
+                            var __ret = get_data_from_tree(data);
+                            return __ret.group_element_year_id === null; // tree's root cannot be detached
+                        }
                     }
                 }
             }
