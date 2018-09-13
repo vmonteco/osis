@@ -270,7 +270,7 @@ class EducationGroupYear(models.Model):
         default=duration_unit.DurationUnits.QUADRIMESTER.value,
         blank=True,
         null=True,
-        verbose_name=_('unit')
+        verbose_name=_('duration unit')
     )
 
     enrollment_enabled = models.BooleanField(

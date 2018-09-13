@@ -3212,8 +3212,8 @@ msgstr "Êtes-vous sûr·e de vouloir supprimer le support de cours?"
 msgid "{} successfully updated"
 msgstr "{} modifié(e) avec succès."
 
-msgid "unit"
-msgstr "unité"
+msgid "duration unit"
+msgstr "type durée"
 
 msgid "Enter text to search"
 msgstr "Entrez le texte à rechercher"
