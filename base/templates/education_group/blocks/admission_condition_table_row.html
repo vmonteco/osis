@@ -36,10 +36,10 @@
 </tr>
 {% for record in records %}
 <tr id="{{ section_name }}_{{ record.id }}">
-    <td id="{{ section_name }}_{{ record.id }}_diploma">{{ record.diploma }}</td>
-    <td id="{{ section_name }}_{{ record.id }}_conditions">{{record.conditions|safe }}</td>
-    <td id="{{ section_name }}_{{ record.id }}_access" class="text-right">{{ record.access|safe }}</td>
-    <td id="{{ section_name }}_{{ record.id }}_remarks">{{ record.remarks|safe }}</td>
+    <td id="{{ section_name }}_{{ record.id }}_diploma">{{ record.diploma|linebreaksbr }}</td>
+    <td id="{{ section_name }}_{{ record.id }}_conditions">{{record.conditions|linebreaksbr|safe }}</td>
+    <td id="{{ section_name }}_{{ record.id }}_access" class="text-right">{{ record.access|linebreaksbr|safe }}</td>
+    <td id="{{ section_name }}_{{ record.id }}_remarks">{{ record.remarks|linebreaksbr|safe }}</td>
     {% if can_edit_information %}
     <td class="text-right">
         <a href="{% url 'education_group_year_admission_condition_remove_line' root.pk education_group_year.pk %}?id={{ record.id }}"

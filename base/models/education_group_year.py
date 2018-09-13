@@ -318,7 +318,7 @@ class EducationGroupYear(models.Model):
     constraint_type = models.CharField(
         max_length=20,
         choices=CONSTRAINT_TYPE,
-        default=CREDITS,
+        default=None,
         blank=True,
         null=True,
         verbose_name=_("type of constraint")
@@ -381,6 +381,12 @@ class EducationGroupYear(models.Model):
         blank=True,
         null=True,
         verbose_name=_('Rate code')
+    )
+
+    internal_comment = models.TextField(
+        max_length=500,
+        blank=True,
+        verbose_name=_("comment (internal)"),
     )
 
     def __str__(self):

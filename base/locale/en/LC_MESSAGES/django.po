@@ -3841,3 +3841,24 @@ msgstr ""
 
 msgid "Only program managers of the education group OR central manager linked to entity can edit."
 msgstr ""
+
+msgid "Add/Modify a line"
+msgstr ""
+
+msgid "Update the text"
+msgstr ""
+
+msgid "General Conditions"
+msgstr ""
+
+msgid "French language proficiency examination"
+msgstr ""
+
+msgid "Reduction"
+msgstr ""
+
+msgid "Opening to Adults"
+msgstr ""
+
+msgid "comment (internal)"
+msgstr ""

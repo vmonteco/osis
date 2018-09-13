@@ -3848,3 +3848,24 @@ msgstr "la liste à générer est vide."
 
 msgid "Only program managers of the education group OR central manager linked to entity can edit."
 msgstr "Seuls les gestionnaires de programme d'organisation de formation OU les gestionnaires facultaires liées à l'entité peuvent éditer."
+
+msgid "Add/Modify a line"
+msgstr "Ajouter/Modifier une ligne"
+
+msgid "Update the text"
+msgstr "Mettre à jour le texte"
+
+msgid "General Conditions"
+msgstr "Conditions Générales"
+
+msgid "French language proficiency examination"
+msgstr "Maîtrise de la langue française"
+
+msgid "Reduction"
+msgstr "Inscriptions en allègement"
+
+msgid "Opening to Adults"
+msgstr "Ouverture aux adultes"
+
+msgid "comment (internal)"
+msgstr "commentaire (interne)"
