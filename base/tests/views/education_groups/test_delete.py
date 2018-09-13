@@ -23,6 +23,8 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from datetime import timedelta
+
 from django.contrib.auth.models import Permission
 from django.utils.translation import ugettext_lazy as _
 from django.test import TestCase
@@ -69,7 +71,7 @@ class TestDeleteGroupEducationView(TestCase):
         self.academic_calendar = AcademicCalendarFactory(
             reference=EDUCATION_GROUP_EDITION,
             start_date=timezone.now(),
-            end_date=timezone.now(),
+            end_date=timezone.now() + timedelta(weeks=+1),
             academic_year=current_ac,
         )
 

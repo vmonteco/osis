@@ -72,12 +72,7 @@ def is_eligible_to_delete_education_group(person, education_group, raise_excepti
 def is_education_group_creation_period_opened(education_group, raise_exception=False):
     result = False
 
-    now = timezone.now()
-    ac = AcademicCalendar.objects.filter(
-        reference=academic_calendar_type.EDUCATION_GROUP_EDITION,
-        start_date__lte=now,
-        end_date__gt=now
-    )
+    ac = AcademicCalendar.objects.filter(reference=academic_calendar_type.EDUCATION_GROUP_EDITION).open_calendars()
 
     # Check if the edition period is open
     if not ac:
