@@ -3864,6 +3864,9 @@ msgstr "Inscriptions en allègement"
 msgid "Opening to Adults"
 msgstr "Ouverture aux adultes"
 
+msgid "comment (internal)"
+msgstr "commentaire (interne)"
+
 msgid "Produce configurable xls of learning units"
 msgstr "Produire une liste personnalisable des unités d'enseignement"
 
