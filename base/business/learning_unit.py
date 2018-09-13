@@ -64,18 +64,21 @@ EMPTY = ''
 WORKSHEET_TITLE = 'learning_units'
 XLS_FILENAME = 'learning_units_filename'
 XLS_DESCRIPTION = "List_activities"
-LEARNING_UNIT_TITLES = [
-    str(_('academic_year_small')),
+LEARNING_UNIT_TITLES_PART1 = [
     str(_('code')),
+    str(_('academic_year_small')),
     str(_('title')),
     str(_('type')),
     str(_('subtype')),
     str(_('requirement_entity_small')),
-    str(_('allocation_entity_small')),
     str(_('proposal_type')),
     str(_('proposal_status')),
     str(_('credits')),
+    str(_('allocation_entity_small')),
     str(_('title_in_english')),
+]
+
+LEARNING_UNIT_TITLES_PART2 = [
     str(_('periodicity')),
     str(_('active_title')),
     "{} 1 - {}".format(str(_('Hourly vol.')), str(_('ANNUAL'))),
@@ -234,20 +237,26 @@ def extract_xls_data_from_learning_unit(learning_unit_yr, with_grp, with_attribu
     volumes = _get_volumes(learning_unit_yr)
     proposal = mdl_base.proposal_learning_unit.find_by_learning_unit_year(learning_unit_yr)
 
-    lu_data = [
-        learning_unit_yr.academic_year.name,
+    lu_data_part1 = [
         learning_unit_yr.acronym,
+        learning_unit_yr.academic_year.name,
         learning_unit_yr.complete_title.lstrip(),
         xls_build.translate(learning_unit_yr.learning_container_year.container_type)
         # FIXME Condition to remove when the LearningUnitYear.learning_continer_year_id will be null=false
         if learning_unit_yr.learning_container_year else "",
         xls_build.translate(learning_unit_yr.subtype),
         get_entity_acronym(learning_unit_yr.entities.get('REQUIREMENT_ENTITY')),
-        get_entity_acronym(learning_unit_yr.entities.get('ALLOCATION_ENTITY')),
         xls_build.translate(proposal.type) if proposal else '',
         xls_build.translate(proposal.state) if proposal else '',
         learning_unit_yr.credits,
+        get_entity_acronym(learning_unit_yr.entities.get('ALLOCATION_ENTITY')),
         learning_unit_yr.complete_title_english.lstrip(),
+        ]
+    lu_data_part2 = []
+    if with_attributions:
+        lu_data_part2.append(append_attributions(learning_unit_yr))
+
+    lu_data_part2.extend([
         xls_build.translate(learning_unit_yr.periodicity),
         xls_build.translate(learning_unit_yr.status),
         _get_significant_volume(volumes.get(learning_component_year_type.LECTURING).get('VOLUME_TOTAL')),
@@ -262,7 +271,7 @@ def extract_xls_data_from_learning_unit(learning_unit_yr, with_grp, with_attribu
         xls_build.translate(learning_unit_yr.session),
         learning_unit_yr.language if learning_unit_yr.language else "",
         _get_absolute_credits(learning_unit_yr),
-    ]
+    ])
 
     if with_grp:
         ch = EMPTY
@@ -276,12 +285,9 @@ def extract_xls_data_from_learning_unit(learning_unit_yr, with_grp, with_attribu
                     str(group_element_year.child_leaf.credits) if group_element_year.child_leaf.credits else DASH),
                 _get_trainings(group_element_year, formations_by_educ_group_year)
             )
-        lu_data.append(ch)
-
-    if with_attributions:
-        lu_data.append(append_attributions(learning_unit_yr))
-
-    return lu_data
+        lu_data_part2.append(ch)
+    lu_data_part1.extend(lu_data_part2)
+    return lu_data_part1
 
 
 def append_attributions(learning_unit_yr):
@@ -314,11 +320,13 @@ def get_entity_acronym(an_entity):
 
 
 def create_xls(user, found_learning_units, filters):
+    titles = LEARNING_UNIT_TITLES_PART1.copy()
+    titles.extend(LEARNING_UNIT_TITLES_PART2.copy())
     working_sheets_data = prepare_xls_content(found_learning_units, False, False, None)
     parameters = {xls_build.DESCRIPTION: XLS_DESCRIPTION,
                   xls_build.USER: get_name_or_username(user),
                   xls_build.FILENAME: XLS_FILENAME,
-                  xls_build.HEADER_TITLES: LEARNING_UNIT_TITLES,
+                  xls_build.HEADER_TITLES: titles,
                   xls_build.WS_TITLE: WORKSHEET_TITLE}
 
     return xls_build.generate_xls(xls_build.prepare_xls_parameters_list(working_sheets_data, parameters), filters)
@@ -429,12 +437,13 @@ def get_learning_unit_comparison_context(learning_unit_year):
 
 
 def create_xls_with_parameters(user, found_learning_units, filters, with_grp, with_attributions):
+    titles_part1 = LEARNING_UNIT_TITLES_PART1.copy()
+    titles_part2 = LEARNING_UNIT_TITLES_PART2.copy()
     formations_by_educ_group_year = []
     if with_grp:
-        LEARNING_UNIT_TITLES.append(str(_('Programs')))
+        titles_part2.append(str(_('Programs')))
         groups = []
         for learning_unit_yr in found_learning_units:
-            print(learning_unit_yr)
             learning_unit_yr.group_elements_years = mdl_base.group_element_year.search(child_leaf=learning_unit_yr) \
                 .select_related("parent", "child_leaf", "parent__education_group_type")\
                 .order_by('parent__partial_acronym')
@@ -443,7 +452,7 @@ def create_xls_with_parameters(user, found_learning_units, filters, with_grp, wi
         formations_by_educ_group_year = mdl_base.group_element_year\
             .find_learning_unit_formations(education_groups_years, parents_as_instances=True)
     if with_attributions:
-        LEARNING_UNIT_TITLES.append(str(_('List of teachers')))
+        titles_part1.append(str(_('List of teachers')))
         for learning_unit_yr in found_learning_units:
             learning_unit_yr.attribution_charge_news = attribution_charge_new \
                 .find_attribution_charge_new_by_learning_unit_year(learning_unit_year=learning_unit_yr)
@@ -463,12 +472,12 @@ def create_xls_with_parameters(user, found_learning_units, filters, with_grp, wi
         proposal = mdl_base.proposal_learning_unit.find_by_learning_unit_year(luy)
         if proposal:
             dict_colored_styled_cells.update({PROPOSAL_LINE_STYLES.get(proposal.type): [idx-1]})
-
+    titles_part1.extend(titles_part2)
     parameters = {
         xls_build.DESCRIPTION: XLS_DESCRIPTION,
         xls_build.USER: get_name_or_username(user),
         xls_build.FILENAME: XLS_FILENAME,
-        xls_build.HEADER_TITLES: LEARNING_UNIT_TITLES,
+        xls_build.HEADER_TITLES: titles_part1,
         xls_build.WS_TITLE: WORKSHEET_TITLE,
         xls_build.STYLED_CELLS: dict_wrapped_styled_cells,
         xls_build.COLORED_ROWS: dict_colored_styled_cells
