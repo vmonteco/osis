@@ -55,7 +55,6 @@ from . import layout
 
 @login_required
 @waffle_flag("education_group_update")
-@permission_required('base.can_edit_education_group_administrative_data', raise_exception=True)
 def education_group_edit_administrative_data(request, root_id, education_group_year_id):
     education_group_year = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
 
@@ -65,12 +64,15 @@ def education_group_edit_administrative_data(request, root_id, education_group_y
         raise PermissionDenied("Only program managers of the education group OR central manager "
                                "linked to entity can edit.")
 
-    formset_session = AdministrativeDataFormset(request.POST or None,
-                                                form_kwargs={'education_group_year': education_group_year})
+    formset_session = AdministrativeDataFormset(
+        request.POST or None,
+        form_kwargs={'education_group_year': education_group_year}
+    )
 
     offer_year_calendar = mdl.offer_year_calendar.search(
         education_group_year_id=education_group_year_id,
-        academic_calendar_reference=academic_calendar_type.COURSE_ENROLLMENT).first()
+        academic_calendar_reference=academic_calendar_type.COURSE_ENROLLMENT
+    ).first()
 
     course_enrollment = CourseEnrollmentForm(request.POST or None, instance=offer_year_calendar)
 

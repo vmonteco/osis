@@ -318,7 +318,7 @@ class EducationGroupYear(models.Model):
     constraint_type = models.CharField(
         max_length=20,
         choices=CONSTRAINT_TYPE,
-        default=CREDITS,
+        default=None,
         blank=True,
         null=True,
         verbose_name=_("type of constraint")
