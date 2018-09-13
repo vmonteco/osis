@@ -63,6 +63,7 @@ class TrainingEducationGroupYearForm(EducationGroupYearModelForm):
             "main_teaching_campus",
             "remark",
             "remark_english",
+            "internal_comment",
             "credits",
             "enrollment_enabled",
             "partial_deliberation",
@@ -93,7 +94,7 @@ class TrainingEducationGroupYearForm(EducationGroupYearModelForm):
             "main_domain",
             "secondary_domains",
             "decree_category",
-            "rate_code"
+            "rate_code",
         ]
 
         field_classes = {
