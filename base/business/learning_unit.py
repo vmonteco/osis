@@ -584,6 +584,7 @@ def _get_format(found_learning_units):
         COLORED: dict_colored_styled_cells
     }
 
+
 def _get_attribution_line(ch, value):
     ch = ch + "{} - {} : {} - {} : {} - {} : {} - {} : {} - {} : {} - {} : {} ".format(
         value.get('person'),
