@@ -112,6 +112,11 @@ PROPOSAL_LINE_STYLES = {
     proposal_type.ProposalType.TRANSFORMATION_AND_MODIFICATION.name:
         Style(font=Font(color=TRANSFORMATION_AND_MODIFICATION),),
 }
+COLORED = 'COLORED_ROW'
+WRAP = 'WRAP'
+WRAP_TEXT_STYLE = Style(alignment=Alignment(wrapText=True, vertical="top"), )
+WITH_ATTRIBUTIONS = 'with_attributions'
+WITH_GRP = 'with_grp'
 
 
 def get_same_container_year_components(learning_unit_year, with_classes=False):
@@ -258,7 +263,7 @@ def extract_xls_data_from_learning_unit(learning_unit_yr, with_grp=False, with_a
         ]
     lu_data_part2 = []
     if with_attributions:
-        lu_data_part2.append(append_attributions(learning_unit_yr))
+        lu_data_part2.append(_append_attributions(learning_unit_yr))
 
     lu_data_part2.extend([
         xls_build.translate(learning_unit_yr.periodicity),
@@ -294,29 +299,15 @@ def extract_xls_data_from_learning_unit(learning_unit_yr, with_grp=False, with_a
     return lu_data_part1
 
 
-def append_attributions(learning_unit_yr):
-    ch = ''
+def _append_attributions(learning_unit_yr):
+    attributions_line = ''
     cpt = 0
     for key, value in learning_unit_yr.attribution_charge_news.items():
         if cpt > 0:
-            ch += CARRIAGE_RETURN
-        ch = ch + "{} - {} : {} - {} : {} - {} : {} - {} : {} - {} : {} - {} : {} ".format(
-            value.get('person'),
-            _('function'),
-            _(value.get('function')) if value.get('function') else '',
-            _('substitute'),
-            value.get('substitute') if value.get('substitute') else '',
-            _('Beg. of attribution'),
-            value.get('start_year'),
-            _('Attribution duration'),
-            value.get('duration'),
-            _('Attrib. vol1'),
-            value.get('LECTURING'),
-            _('Attrib. vol2'),
-            value.get('PRACTICAL_EXERCISES'),
-        )
+            attributions_line += CARRIAGE_RETURN
+        attributions_line = _get_attribution_line(attributions_line, value)
         cpt += 1
-    return ch
+    return attributions_line
 
 
 def get_entity_acronym(an_entity):
@@ -440,21 +431,16 @@ def get_learning_unit_comparison_context(learning_unit_year):
     return context
 
 
-def create_xls_with_parameters(user, found_learning_units, filters, with_grp, with_attributions):
+def create_xls_with_parameters(user, found_learning_units, filters, extra_configuration):
+    with_grp = extra_configuration.get(WITH_GRP)
+    with_attributions = extra_configuration.get(WITH_ATTRIBUTIONS)
     titles_part1 = LEARNING_UNIT_TITLES_PART1.copy()
     titles_part2 = LEARNING_UNIT_TITLES_PART2.copy()
+
     formations_by_educ_group_year = []
     if with_grp:
         titles_part2.append(str(_('Programs')))
-        groups = []
-        for learning_unit_yr in found_learning_units:
-            learning_unit_yr.group_elements_years = mdl_base.group_element_year.search(child_leaf=learning_unit_yr) \
-                .select_related("parent", "child_leaf", "parent__education_group_type")\
-                .order_by('parent__partial_acronym')
-            groups.extend(learning_unit_yr.group_elements_years)
-        education_groups_years = [group_element_year.parent for group_element_year in groups]
-        formations_by_educ_group_year = mdl_base.group_element_year\
-            .find_learning_unit_formations(education_groups_years, parents_as_instances=True)
+        formations_by_educ_group_year = _get_formations_by_educ_group_year(found_learning_units)
     if with_attributions:
         titles_part1.append(str(_('List of teachers')))
         for learning_unit_yr in found_learning_units:
@@ -467,29 +453,29 @@ def create_xls_with_parameters(user, found_learning_units, filters, with_grp, wi
         with_attributions,
         formations_by_educ_group_year
     )
-    wrap_text_style = Style(alignment=Alignment(wrapText=True, vertical="top"),)
-    dict_wrapped_styled_cells = {}
-    dict_colored_styled_cells = {}
 
-    for idx, luy in enumerate(found_learning_units, start=2):
-        dict_wrapped_styled_cells.update({wrap_text_style:  ["X{}".format(idx), "Y{}".format(idx)]})
-        proposal = mdl_base.proposal_learning_unit.find_by_learning_unit_year(luy)
-        if proposal:
-            dict_colored_styled_cells.update({PROPOSAL_LINE_STYLES.get(proposal.type): [idx-1]})
     titles_part1.extend(titles_part2)
+
+    ws_data = xls_build.prepare_xls_parameters_list(working_sheets_data,
+                                                    _get_parameters_configurable_list(found_learning_units,
+                                                                                      titles_part1,
+                                                                                      user))
+    ws_data.update({xls_build.WORKSHEETS_DATA: [ws_data.get(xls_build.WORKSHEETS_DATA)[0], _prepare_legend_ws_data()]})
+    return xls_build.generate_xls(ws_data, filters)
+
+
+def _get_parameters_configurable_list(found_learning_units, titles_part1, user):
+    dict_styles = _get_format(found_learning_units)
     parameters = {
         xls_build.DESCRIPTION: XLS_DESCRIPTION,
         xls_build.USER: get_name_or_username(user),
         xls_build.FILENAME: XLS_FILENAME,
         xls_build.HEADER_TITLES: titles_part1,
         xls_build.WS_TITLE: WORKSHEET_TITLE,
-        xls_build.STYLED_CELLS: dict_wrapped_styled_cells,
-        xls_build.COLORED_ROWS: dict_colored_styled_cells
+        xls_build.STYLED_CELLS: dict_styles.get(WRAP),
+        xls_build.COLORED_ROWS: dict_styles.get(COLORED)
     }
-
-    ws_data = xls_build.prepare_xls_parameters_list(working_sheets_data, parameters)
-    ws_data.update({xls_build.WORKSHEETS_DATA: [ws_data.get(xls_build.WORKSHEETS_DATA)[0], _prepare_legend_ws_data()]})
-    return xls_build.generate_xls(ws_data, filters)
+    return parameters
 
 
 def _get_trainings(group_element_year, formations_by_educ_group_year):
@@ -571,3 +557,47 @@ def _prepare_legend_ws_data():
             }
     }
 
+
+def _get_formations_by_educ_group_year(found_learning_units):
+    groups = []
+    for learning_unit_yr in found_learning_units:
+        learning_unit_yr.group_elements_years = mdl_base.group_element_year.search(child_leaf=learning_unit_yr) \
+            .select_related("parent", "child_leaf", "parent__education_group_type") \
+            .order_by('parent__partial_acronym')
+        groups.extend(learning_unit_yr.group_elements_years)
+    education_groups_years = [group_element_year.parent for group_element_year in groups]
+    return mdl_base.group_element_year \
+        .find_learning_unit_formations(education_groups_years, parents_as_instances=True)
+
+
+def _get_format(found_learning_units):
+    dict_wrapped_styled_cells = {}
+    dict_colored_styled_cells = {}
+
+    for idx, luy in enumerate(found_learning_units, start=2):
+        dict_wrapped_styled_cells.update({WRAP_TEXT_STYLE:  ["X{}".format(idx), "Y{}".format(idx)]})
+        proposal = mdl_base.proposal_learning_unit.find_by_learning_unit_year(luy)
+        if proposal:
+            dict_colored_styled_cells.update({PROPOSAL_LINE_STYLES.get(proposal.type): [idx-1]})
+    return {
+        WRAP: dict_wrapped_styled_cells,
+        COLORED: dict_colored_styled_cells
+    }
+
+def _get_attribution_line(ch, value):
+    ch = ch + "{} - {} : {} - {} : {} - {} : {} - {} : {} - {} : {} - {} : {} ".format(
+        value.get('person'),
+        _('function'),
+        _(value.get('function')) if value.get('function') else '',
+        _('substitute'),
+        value.get('substitute') if value.get('substitute') else '',
+        _('Beg. of attribution'),
+        value.get('start_year'),
+        _('Attribution duration'),
+        value.get('duration'),
+        _('Attrib. vol1'),
+        value.get('LECTURING'),
+        _('Attrib. vol2'),
+        value.get('PRACTICAL_EXERCISES'),
+    )
+    return ch

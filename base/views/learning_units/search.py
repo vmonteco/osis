@@ -35,7 +35,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from attribution.business.xls_build import create_xls_attribution
 from base.utils.cache import cache_filter
-from base.business.learning_unit import create_xls, create_xls_with_parameters
+from base.business.learning_unit import create_xls, create_xls_with_parameters, WITH_ATTRIBUTIONS, WITH_GRP
 from base.business.proposal_xls import create_xls_proposal
 from base.forms.common import TooManyResultsException
 from base.forms.learning_unit.comparison import SelectComparisonYears
@@ -101,8 +101,7 @@ def learning_units_search(request, search_type):
         return create_xls_with_parameters(request.user,
                                           found_learning_units,
                                           _get_filter(form, search_type),
-                                          with_grp,
-                                          with_attributions)
+                                          {WITH_GRP: with_grp, WITH_ATTRIBUTIONS: with_attributions})
 
     a_person = find_by_user(request.user)
     form_comparison = SelectComparisonYears(academic_year=get_academic_year_of_reference(found_learning_units))
