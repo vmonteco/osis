@@ -222,7 +222,10 @@ def _is_used_by_full_learning_unit_year(a_learning_class_year):
     return False
 
 
-def prepare_xls_content(found_learning_units, with_grp, with_attributions, formations_by_educ_group_year):
+def prepare_xls_content(found_learning_units,
+                        with_grp=False,
+                        with_attributions=False,
+                        formations_by_educ_group_year=None):
     return [
         extract_xls_data_from_learning_unit(lu,
                                             with_grp,
@@ -232,7 +235,8 @@ def prepare_xls_content(found_learning_units, with_grp, with_attributions, forma
         ]
 
 
-def extract_xls_data_from_learning_unit(learning_unit_yr, with_grp, with_attributions, formations_by_educ_group_year):
+def extract_xls_data_from_learning_unit(learning_unit_yr, with_grp=False, with_attributions=False,
+                                        formations_by_educ_group_year=None):
 
     volumes = _get_volumes(learning_unit_yr)
     proposal = mdl_base.proposal_learning_unit.find_by_learning_unit_year(learning_unit_yr)
