@@ -3213,7 +3213,7 @@ msgstr ""
 msgid "{} successfully updated"
 msgstr ""
 
-msgid "unit"
+msgid "duration unit"
 msgstr ""
 
 msgid "Enter text to search"
