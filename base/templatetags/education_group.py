@@ -440,7 +440,6 @@ def dl_with_parent(context, label, key=None, class_dl="", default_value=None):
     else:
         parent, parent_value = None, None
 
-    print(key, value, parent_value)
     return {
         'label': _(label),
         'value': _bool_to_string(value),
@@ -462,7 +461,7 @@ def _bool_to_string(value):
 
 
 def _fetch_value_with_attrgetter(obj, attrs):
-    """ Use attrgetter to support attrs with . """
+    """ Use attrgetter to support attrs with '.' """
     try:
         return obj and operator.attrgetter(attrs)(obj)
     except AttributeError:
