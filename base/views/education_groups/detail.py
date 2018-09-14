@@ -358,4 +358,6 @@ class EducationGroupSkillsAchievements(EducationGroupGenericDetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update({'LANGUAGE_CODE_FR': settings.LANGUAGE_CODE_FR, 'LANGUAGE_CODE_EN': settings.LANGUAGE_CODE_EN})
+        context["education_group_achievements"] = self.object.educationgroupachievement_set.all()\
+                                                             .prefetch_related('educationgroupdetailedachievement_set')
         return context
