@@ -3865,3 +3865,9 @@ msgstr ""
 
 msgid "comment (internal)"
 msgstr ""
+
+msgid "education group achievement"
+msgstr ""
+
+msgid "education group detailed achievement"
+msgstr ""
