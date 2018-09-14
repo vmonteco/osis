@@ -52,7 +52,7 @@ from attribution.business import attribution_charge_new
 from base.models.enums import learning_component_year_type
 from openpyxl.styles import Alignment, Style, PatternFill, Color, Font
 from base.models.enums import proposal_type, proposal_state
-
+from openpyxl.utils import get_column_letter
 # List of key that a user can modify
 TRANSFORMATION_AND_MODIFICATION = Color('808000')
 TRANSFORMATION_COLOR = Color('ff6600')
@@ -117,6 +117,8 @@ WRAP = 'WRAP'
 WRAP_TEXT_STYLE = Style(alignment=Alignment(wrapText=True, vertical="top"), )
 WITH_ATTRIBUTIONS = 'with_attributions'
 WITH_GRP = 'with_grp'
+HEADER_TEACHERS = _('List of teachers')
+HEADER_PROGRAMS = _('Programs')
 
 
 def get_same_container_year_components(learning_unit_year, with_classes=False):
@@ -439,10 +441,10 @@ def create_xls_with_parameters(user, found_learning_units, filters, extra_config
 
     formations_by_educ_group_year = []
     if with_grp:
-        titles_part2.append(str(_('Programs')))
+        titles_part2.append(str(HEADER_PROGRAMS))
         formations_by_educ_group_year = _get_formations_by_educ_group_year(found_learning_units)
     if with_attributions:
-        titles_part1.append(str(_('List of teachers')))
+        titles_part1.append(str(HEADER_TEACHERS))
         for learning_unit_yr in found_learning_units:
             learning_unit_yr.attribution_charge_news = attribution_charge_new \
                 .find_attribution_charge_new_by_learning_unit_year(learning_unit_year=learning_unit_yr)
@@ -464,16 +466,21 @@ def create_xls_with_parameters(user, found_learning_units, filters, extra_config
     return xls_build.generate_xls(ws_data, filters)
 
 
-def _get_parameters_configurable_list(found_learning_units, titles_part1, user):
-    dict_styles = _get_format(found_learning_units)
+def _get_parameters_configurable_list(found_learning_units, titles, user):
     parameters = {
         xls_build.DESCRIPTION: XLS_DESCRIPTION,
         xls_build.USER: get_name_or_username(user),
         xls_build.FILENAME: XLS_FILENAME,
-        xls_build.HEADER_TITLES: titles_part1,
+        xls_build.HEADER_TITLES: titles,
         xls_build.WS_TITLE: WORKSHEET_TITLE,
-        xls_build.STYLED_CELLS: dict_styles.get(WRAP),
-        xls_build.COLORED_ROWS: dict_styles.get(COLORED)
+        xls_build.STYLED_CELLS: {
+            WRAP_TEXT_STYLE: _get_wrapped_cells(
+                found_learning_units,
+                _get_col_letter(titles, HEADER_PROGRAMS),
+                _get_col_letter(titles, HEADER_TEACHERS)
+            )
+        },
+        xls_build.COLORED_ROWS: _get_colored_rows(found_learning_units),
     }
     return parameters
 
@@ -570,35 +577,52 @@ def _get_formations_by_educ_group_year(found_learning_units):
         .find_learning_unit_formations(education_groups_years, parents_as_instances=True)
 
 
-def _get_format(found_learning_units):
-    dict_wrapped_styled_cells = {}
-    dict_colored_styled_cells = {}
+def _get_wrapped_cells(learning_units, teachers_col_letter, programs_col_letter):
+    dict_wrapped_styled_cells = []
 
-    for idx, luy in enumerate(found_learning_units, start=2):
-        dict_wrapped_styled_cells.update({WRAP_TEXT_STYLE:  ["X{}".format(idx), "Y{}".format(idx)]})
+    for idx, luy in enumerate(learning_units, start=2):
+        if teachers_col_letter:
+            dict_wrapped_styled_cells.append("{}{}".format(teachers_col_letter, idx))
+        if programs_col_letter:
+            dict_wrapped_styled_cells.append("{}{}".format(programs_col_letter, idx))
+
+    return dict_wrapped_styled_cells
+
+
+def _get_colored_rows(learning_units):
+    colored_cells = {}
+    for idx, luy in enumerate(learning_units, start=1):
         proposal = mdl_base.proposal_learning_unit.find_by_learning_unit_year(luy)
         if proposal:
-            dict_colored_styled_cells.update({PROPOSAL_LINE_STYLES.get(proposal.type): [idx-1]})
-    return {
-        WRAP: dict_wrapped_styled_cells,
-        COLORED: dict_colored_styled_cells
-    }
+            value = colored_cells.get(PROPOSAL_LINE_STYLES.get(proposal.type))
+            if value:
+                colored_cells.update({PROPOSAL_LINE_STYLES.get(proposal.type): value.append(idx)})
+            else:
+                colored_cells[PROPOSAL_LINE_STYLES.get(proposal.type)] = [idx]
+    return colored_cells
 
 
-def _get_attribution_line(ch, value):
-    ch = ch + "{} - {} : {} - {} : {} - {} : {} - {} : {} - {} : {} - {} : {} ".format(
-        value.get('person'),
+def _get_attribution_line(attribution_line, an_attribution):
+    attribution_line += "{} - {} : {} - {} : {} - {} : {} - {} : {} - {} : {} - {} : {} ".format(
+        an_attribution.get('person'),
         _('function'),
-        _(value.get('function')) if value.get('function') else '',
+        _(an_attribution.get('function')) if an_attribution.get('function') else '',
         _('substitute'),
-        value.get('substitute') if value.get('substitute') else '',
+        an_attribution.get('substitute') if an_attribution.get('substitute') else '',
         _('Beg. of attribution'),
-        value.get('start_year'),
+        an_attribution.get('start_year'),
         _('Attribution duration'),
-        value.get('duration'),
+        an_attribution.get('duration'),
         _('Attrib. vol1'),
-        value.get('LECTURING'),
+        an_attribution.get('LECTURING'),
         _('Attrib. vol2'),
-        value.get('PRACTICAL_EXERCISES'),
+        an_attribution.get('PRACTICAL_EXERCISES'),
     )
-    return ch
+    return attribution_line
+
+
+def _get_col_letter(titles, title_search):
+    for idx, title in enumerate(titles, start=1):
+        if title == title_search:
+            return get_column_letter(idx)
+    return None

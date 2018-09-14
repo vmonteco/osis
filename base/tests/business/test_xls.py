@@ -28,6 +28,15 @@ from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
 from base.business.xls import convert_boolean
+from base.tests.factories.learning_unit_year import LearningUnitYearFactory
+from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
+from base.tests.factories.person import PersonFactory
+from base.business.learning_unit import _get_wrapped_cells, _get_col_letter, _get_colored_rows, \
+    PROPOSAL_LINE_STYLES, _get_attribution_line
+from base.models.enums import proposal_type
+
+COL_TEACHERS_LETTER = 'L'
+COL_PROGRAMS_LETTER = 'Z'
 
 
 class TestXls(TestCase):
@@ -38,3 +47,71 @@ class TestXls(TestCase):
         self.assertEqual(convert_boolean(None), _('no'))
         self.assertEqual(convert_boolean(True), _('yes'))
         self.assertEqual(convert_boolean(False), _('no'))
+
+
+class TestLearningUnitXls(TestCase):
+    def setUp(self):
+        self.learning_unit_yr_1 = LearningUnitYearFactory()
+        self.learning_unit_yr_2 = LearningUnitYearFactory()
+
+    def test_get_wrapped_cells_with_teachers_and_programs(self):
+        styles = _get_wrapped_cells([self.learning_unit_yr_1, self.learning_unit_yr_2],
+                                    COL_TEACHERS_LETTER,
+                                    COL_PROGRAMS_LETTER)
+        self.assertCountEqual(styles, ['{}2'.format(COL_TEACHERS_LETTER),
+                                       '{}2'.format(COL_PROGRAMS_LETTER),
+                                       '{}3'.format(COL_TEACHERS_LETTER),
+                                       '{}3'.format(COL_PROGRAMS_LETTER)])
+
+    def test_get_wrapped_cells_with_teachers(self):
+        styles = _get_wrapped_cells([self.learning_unit_yr_1, self.learning_unit_yr_2], COL_TEACHERS_LETTER, None)
+        self.assertCountEqual(styles, ['{}2'.format(COL_TEACHERS_LETTER),
+                                       '{}3'.format(COL_TEACHERS_LETTER)])
+
+    def test_get_wrapped_cells_with_programs(self):
+        styles = _get_wrapped_cells([self.learning_unit_yr_1, self.learning_unit_yr_2], None, COL_PROGRAMS_LETTER)
+        self.assertCountEqual(styles, ['{}2'.format(COL_PROGRAMS_LETTER),
+                                       '{}3'.format(COL_PROGRAMS_LETTER)])
+
+    def test_get_col_letter(self):
+        title_searched = 'title 2'
+        titles = ['title 1', title_searched, 'title 3']
+        self.assertEqual(_get_col_letter(titles, title_searched), 'B')
+        self.assertIsNone(_get_col_letter(titles, 'whatever'))
+
+    def test_get_colored_rows(self):
+        proposal = ProposalLearningUnitFactory(type=proposal_type.ProposalType.CREATION)
+
+        self.assertEqual(_get_colored_rows([self.learning_unit_yr_1,
+                                            self.learning_unit_yr_2,
+                                            proposal.learning_unit_year]),
+                         {PROPOSAL_LINE_STYLES.get(proposal_type): [3]})
+
+    def test_get_attribution_line(self):
+        a_person = PersonFactory(last_name="Smith", first_name='Aaron')
+        attribution_dict = {
+            'LECTURING': 10,
+            'substitute': None,
+            'duration': 3,
+            'PRACTICAL_EXERCISES': 15,
+            'person': a_person,
+            'function': 'CO_HOLDER',
+            'start_year': 2017
+        }
+        self.assertEqual(_get_attribution_line("", attribution_dict),
+                         "{} - {} : {} - {} : {} - {} : {} - {} : {} - {} : {} - {} : {} ".format(
+                             'SMITH, Aaron',
+                             _('function'),
+                             _('CO_HOLDER'),
+                             _('substitute'),
+                             '',
+                             _('Beg. of attribution'),
+                             2017,
+                             _('Attribution duration'),
+                             3,
+                             _('Attrib. vol1'),
+                             10,
+                             _('Attrib. vol2'),
+                             15,
+                         )
+                         )
