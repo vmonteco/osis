@@ -245,28 +245,37 @@ def prepare_xls_content(found_learning_units,
 def extract_xls_data_from_learning_unit(learning_unit_yr, with_grp=False, with_attributions=False,
                                         formations_by_educ_group_year=None):
 
-    volumes = _get_volumes(learning_unit_yr)
-    proposal = mdl_base.proposal_learning_unit.find_by_learning_unit_year(learning_unit_yr)
+    lu_data_part1 = _get_data_part1(learning_unit_yr)
+    lu_data_part2 = _get_data_part2(learning_unit_yr, with_attributions)
 
-    lu_data_part1 = [
-        learning_unit_yr.acronym,
-        learning_unit_yr.academic_year.name,
-        learning_unit_yr.complete_title.lstrip(),
-        xls_build.translate(learning_unit_yr.learning_container_year.container_type)
-        # FIXME Condition to remove when the LearningUnitYear.learning_continer_year_id will be null=false
-        if learning_unit_yr.learning_container_year else "",
-        xls_build.translate(learning_unit_yr.subtype),
-        get_entity_acronym(learning_unit_yr.entities.get('REQUIREMENT_ENTITY')),
-        xls_build.translate(proposal.type) if proposal else '',
-        xls_build.translate(proposal.state) if proposal else '',
-        learning_unit_yr.credits,
-        get_entity_acronym(learning_unit_yr.entities.get('ALLOCATION_ENTITY')),
-        learning_unit_yr.complete_title_english.lstrip(),
-        ]
+    if with_grp:
+        lu_data_part2.append(_add_training_data(formations_by_educ_group_year, learning_unit_yr))
+    lu_data_part1.extend(lu_data_part2)
+    return lu_data_part1
+
+
+def _add_training_data(formations_by_educ_group_year, learning_unit_yr):
+
+    training_string = EMPTY
+    for cpt, group_element_year in enumerate(learning_unit_yr.group_elements_years):
+        if cpt > 0:
+            training_string += CARRIAGE_RETURN
+        training_string = "{} {} {} {}".format(
+            training_string,
+            group_element_year.parent.partial_acronym if group_element_year.parent.partial_acronym else EMPTY,
+            "({})".format(
+                str(group_element_year.child_leaf.credits) if group_element_year.child_leaf.credits else DASH),
+            _get_trainings(group_element_year, formations_by_educ_group_year)
+        )
+
+    return training_string
+
+
+def _get_data_part2(learning_unit_yr, with_attributions):
+    volumes = _get_volumes(learning_unit_yr)
     lu_data_part2 = []
     if with_attributions:
         lu_data_part2.append(_append_attributions(learning_unit_yr))
-
     lu_data_part2.extend([
         xls_build.translate(learning_unit_yr.periodicity),
         xls_build.translate(learning_unit_yr.status),
@@ -283,21 +292,26 @@ def extract_xls_data_from_learning_unit(learning_unit_yr, with_grp=False, with_a
         learning_unit_yr.language if learning_unit_yr.language else "",
         _get_absolute_credits(learning_unit_yr),
     ])
+    return lu_data_part2
 
-    if with_grp:
-        ch = EMPTY
-        for cpt, group_element_year in enumerate(learning_unit_yr.group_elements_years):
-            if cpt > 0:
-                ch += CARRIAGE_RETURN
-            ch = "{} {} {} {}".format(
-                ch,
-                group_element_year.parent.partial_acronym if group_element_year.parent.partial_acronym else EMPTY,
-                "({})".format(
-                    str(group_element_year.child_leaf.credits) if group_element_year.child_leaf.credits else DASH),
-                _get_trainings(group_element_year, formations_by_educ_group_year)
-            )
-        lu_data_part2.append(ch)
-    lu_data_part1.extend(lu_data_part2)
+
+def _get_data_part1(learning_unit_yr):
+    proposal = mdl_base.proposal_learning_unit.find_by_learning_unit_year(learning_unit_yr)
+    lu_data_part1 = [
+        learning_unit_yr.acronym,
+        learning_unit_yr.academic_year.name,
+        learning_unit_yr.complete_title.lstrip(),
+        xls_build.translate(learning_unit_yr.learning_container_year.container_type)
+        # FIXME Condition to remove when the LearningUnitYear.learning_continer_year_id will be null=false
+        if learning_unit_yr.learning_container_year else "",
+        xls_build.translate(learning_unit_yr.subtype),
+        get_entity_acronym(learning_unit_yr.entities.get('REQUIREMENT_ENTITY')),
+        xls_build.translate(proposal.type) if proposal else '',
+        xls_build.translate(proposal.state) if proposal else '',
+        learning_unit_yr.credits,
+        get_entity_acronym(learning_unit_yr.entities.get('ALLOCATION_ENTITY')),
+        learning_unit_yr.complete_title_english.lstrip(),
+    ]
     return lu_data_part1
 
 
@@ -433,33 +447,28 @@ def get_learning_unit_comparison_context(learning_unit_year):
     return context
 
 
-def create_xls_with_parameters(user, found_learning_units, filters, extra_configuration):
+def create_xls_with_parameters(user, learning_units, filters, extra_configuration):
     with_grp = extra_configuration.get(WITH_GRP)
     with_attributions = extra_configuration.get(WITH_ATTRIBUTIONS)
     titles_part1 = LEARNING_UNIT_TITLES_PART1.copy()
     titles_part2 = LEARNING_UNIT_TITLES_PART2.copy()
 
-    formations_by_educ_group_year = []
+    formations_by_educ_group_yr = []
     if with_grp:
         titles_part2.append(str(HEADER_PROGRAMS))
-        formations_by_educ_group_year = _get_formations_by_educ_group_year(found_learning_units)
+        formations_by_educ_group_yr = _get_formations_by_educ_group_year(learning_units)
     if with_attributions:
         titles_part1.append(str(HEADER_TEACHERS))
-        for learning_unit_yr in found_learning_units:
+        for learning_unit_yr in learning_units:
             learning_unit_yr.attribution_charge_news = attribution_charge_new \
                 .find_attribution_charge_new_by_learning_unit_year(learning_unit_year=learning_unit_yr)
 
-    working_sheets_data = prepare_xls_content(
-        found_learning_units,
-        with_grp,
-        with_attributions,
-        formations_by_educ_group_year
-    )
+    working_sheets_data = prepare_xls_content(learning_units, with_grp, with_attributions, formations_by_educ_group_yr)
 
     titles_part1.extend(titles_part2)
 
     ws_data = xls_build.prepare_xls_parameters_list(working_sheets_data,
-                                                    _get_parameters_configurable_list(found_learning_units,
+                                                    _get_parameters_configurable_list(learning_units,
                                                                                       titles_part1,
                                                                                       user))
     ws_data.update({xls_build.WORKSHEETS_DATA: [ws_data.get(xls_build.WORKSHEETS_DATA)[0], _prepare_legend_ws_data()]})
