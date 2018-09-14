@@ -1983,6 +1983,12 @@ msgstr "Submission of exam scores"
 msgid "TEACHING_CHARGE_APPLICATION"
 msgstr "Teaching charge application"
 
+msgid "TESTING"
+msgstr "Testing"
+
+msgid "RELEASE"
+msgstr "Release"
+
 msgid "field_is_required"
 msgstr "This field is required"
 
@@ -3189,6 +3195,9 @@ msgstr ""
 msgid "The education group edition period is not open."
 msgstr ""
 
+msgid "this education group is not editable during this period."
+msgstr ""
+
 msgid "The user has not permission to delete education groups."
 msgstr ""
 
@@ -3210,7 +3219,7 @@ msgstr ""
 msgid "{} successfully updated"
 msgstr ""
 
-msgid "unit"
+msgid "duration unit"
 msgstr ""
 
 msgid "Enter text to search"
@@ -3809,10 +3818,10 @@ msgstr ""
 msgid "Add potential courses"
 msgstr ""
 
-msgid "Made in ..................."
+msgid "Made in"
 msgstr ""
 
-msgid "on ......./......./......."
+msgid "on"
 msgstr ""
 
 msgid "For approval"
@@ -3839,6 +3848,9 @@ msgstr ""
 msgid "the list to generate is empty."
 msgstr ""
 
+msgid "Only program managers of the education group OR central manager linked to entity can edit."
+msgstr ""
+
 msgid "Add/Modify a line"
 msgstr ""
 
@@ -3858,6 +3870,12 @@ msgid "Opening to Adults"
 msgstr ""
 
 msgid "comment (internal)"
+msgstr ""
+
+msgid "education group achievement"
+msgstr ""
+
+msgid "education group detailed achievement"
 msgstr ""
 
 msgid "Produce configurable xls of learning units"

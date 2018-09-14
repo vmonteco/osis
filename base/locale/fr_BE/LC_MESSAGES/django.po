@@ -1985,6 +1985,12 @@ msgstr "Soumission des feuilles de note"
 msgid "TEACHING_CHARGE_APPLICATION"
 msgstr "Application pour charges d'enseignement"
 
+msgid "TESTING"
+msgstr "Tests"
+
+msgid "RELEASE"
+msgstr "Release"
+
 msgid "field_is_required"
 msgstr "Ce champ est obligatoire."
 
@@ -3197,6 +3203,9 @@ msgstr "Cela supprimera également les objets suivants"
 msgid "The education group edition period is not open."
 msgstr "La période de modification d'organisation de formation n'est pas ouverte."
 
+msgid "this education group is not editable during this period."
+msgstr "cette organisation de formation n'est pas édtiable durant cette période."
+
 msgid "The user has not permission to delete education groups."
 msgstr "L'utilisateur n'a pas la permission de supprimer les organisations de formation."
 
@@ -3212,8 +3221,8 @@ msgstr "Êtes-vous sûr·e de vouloir supprimer le support de cours?"
 msgid "{} successfully updated"
 msgstr "{} modifié(e) avec succès."
 
-msgid "unit"
-msgstr "unité"
+msgid "duration unit"
+msgstr "type durée"
 
 msgid "Enter text to search"
 msgstr "Entrez le texte à rechercher"
@@ -3816,11 +3825,11 @@ msgstr "Ajouter le contenu Anglais de ce paragraphe"
 msgid "Add potential courses"
 msgstr "Ajouts de cours éventuels"
 
-msgid "Made in ..................."
-msgstr "Fait à ..................."
+msgid "Made in"
+msgstr "Fait à"
 
-msgid "on ......./......./......."
-msgstr "Le ......./......./......."
+msgid "on"
+msgstr "Le"
 
 msgid "For approval"
 msgstr "Pour accord,"
@@ -3846,6 +3855,9 @@ msgstr "liste des supports de cours obligatoires"
 msgid "the list to generate is empty."
 msgstr "la liste à générer est vide."
 
+msgid "Only program managers of the education group OR central manager linked to entity can edit."
+msgstr "Seuls les gestionnaires de programme d'organisation de formation OU les gestionnaires facultaires liées à l'entité peuvent éditer."
+
 msgid "Add/Modify a line"
 msgstr "Ajouter/Modifier une ligne"
 
@@ -3866,6 +3878,12 @@ msgstr "Ouverture aux adultes"
 
 msgid "comment (internal)"
 msgstr "commentaire (interne)"
+
+msgid "education group achievement"
+msgstr "Acquis d'apprentissage d'organisation de formation"
+
+msgid "education group detailed achievement"
+msgstr "Acquis d'apprentissage détaillé d'organisation de formation"
 
 msgid "Produce configurable xls of learning units"
 msgstr "Produire une liste personnalisable des unités d'enseignement"

@@ -29,6 +29,7 @@ from unittest import mock
 from django.forms import model_to_dict
 from django.test import TestCase
 from django.utils import timezone
+
 from base.models import academic_calendar
 from base.models.academic_calendar import find_dates_for_current_academic_year, is_academic_calendar_has_started
 from base.models.enums import academic_calendar_type
@@ -49,13 +50,6 @@ class AcademicCalendarTest(TestCase):
                                                              start_date=datetime.date(yr, 3, 4),
                                                              end_date=datetime.date(yr, 3, 3))
         self.assertRaises(StartDateHigherThanEndDateException, an_academic_calendar.save)
-
-    def test_find_by_id(self):
-        an_academic_year = AcademicYearFactory()
-        tmp_academic_calendar = AcademicCalendarFactory(academic_year=an_academic_year)
-        db_academic_calendar = academic_calendar.find_by_id(tmp_academic_calendar.id)
-        self.assertIsNotNone(db_academic_calendar)
-        self.assertEqual(db_academic_calendar, tmp_academic_calendar)
 
     def test_find_highlight_academic_calendar(self):
         an_academic_year = AcademicYearFakerFactory(start_date=timezone.now() - datetime.timedelta(days=10),
@@ -97,12 +91,6 @@ class AcademicCalendarTest(TestCase):
         with mock.patch.object(compute_all_scores_encodings_deadlines, 'send') as mock_method:
             AcademicCalendarFactory()
             self.assertTrue(mock_method.called)
-
-    def test_find_academic_calendar_no_mandatory_args_mentioned(self):
-        self.assertIsNone(academic_calendar.find_academic_calendar(None, None, timezone.now()))
-        an_academic_year = AcademicYearFactory(year=timezone.now().year)
-        self.assertIsNone(academic_calendar.find_academic_calendar(an_academic_year, None, timezone.now()))
-        self.assertIsNone(academic_calendar.find_academic_calendar(None, "EVENT_CALENDAR", timezone.now()))
 
 
 class TestFindDatesForCurrentAcademicYear(TestCase):
@@ -153,3 +141,36 @@ class TestIsAcademicCalendarHasStarted(TestCase):
             reference=academic_calendar_type.SUMMARY_COURSE_SUBMISSION,
             date=higher_date
         ))
+
+    def test_academic_calendar_types(self):
+        excepted_academic_calendar_types = (
+            (academic_calendar_type.DELIBERATION, academic_calendar_type.DELIBERATION),
+            (academic_calendar_type.DISSERTATION_SUBMISSION, academic_calendar_type.DISSERTATION_SUBMISSION),
+            (academic_calendar_type.EXAM_ENROLLMENTS, academic_calendar_type.EXAM_ENROLLMENTS),
+            (academic_calendar_type.SCORES_EXAM_DIFFUSION, academic_calendar_type.SCORES_EXAM_DIFFUSION),
+            (academic_calendar_type.SCORES_EXAM_SUBMISSION, academic_calendar_type.SCORES_EXAM_SUBMISSION),
+            (academic_calendar_type.TEACHING_CHARGE_APPLICATION, academic_calendar_type.TEACHING_CHARGE_APPLICATION),
+            (academic_calendar_type.COURSE_ENROLLMENT, academic_calendar_type.COURSE_ENROLLMENT),
+            (academic_calendar_type.SUMMARY_COURSE_SUBMISSION, academic_calendar_type.SUMMARY_COURSE_SUBMISSION),
+            (academic_calendar_type.EDUCATION_GROUP_EDITION, academic_calendar_type.EDUCATION_GROUP_EDITION),
+        )
+        self.assertCountEqual(
+            academic_calendar_type.ACADEMIC_CALENDAR_TYPES,
+            excepted_academic_calendar_types
+        )
+
+    def test_project_calendar_types(self):
+        excepted_project_calendar_types = (
+            (academic_calendar_type.TESTING, academic_calendar_type.TESTING),
+            (academic_calendar_type.RELEASE, academic_calendar_type.RELEASE),
+        )
+        self.assertCountEqual(
+            academic_calendar_type.PROJECT_CALENDAR_TYPES,
+            excepted_project_calendar_types
+        )
+
+    def test_calendar_types(self):
+        self.assertCountEqual(
+            academic_calendar_type.ACADEMIC_CALENDAR_TYPES + academic_calendar_type.PROJECT_CALENDAR_TYPES,
+            academic_calendar_type.CALENDAR_TYPES
+        )
