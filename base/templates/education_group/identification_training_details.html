@@ -41,10 +41,8 @@
                         <div class="row">
                             {% dl_with_parent 'duration' 'verbose_duration' class_dl="col-md-6" %}
                             {% dl_with_parent 'internship' class_dl="col-md-6" %}
-
                             {% dl_with_parent 'enrollment_enabled' class_dl="col-md-6" %}
                             {% dl_with_parent 'partial_deliberation' class_dl="col-md-6" %}
-
                             {% dl_with_parent 'admission_exam' class_dl="col-md-6" %}
                             {% dl_with_parent 'dissertation' class_dl="col-md-6" %}
                         </div>
@@ -69,10 +67,11 @@
                             <dt>{% trans 'primary_language' %}</dt>
                             <dd>{{ education_group_year.primary_language }}</dd>
                         </dl>
+                        {% dl_with_parent 'activities in English' 'english_activities' %}
                         {% dl_with_parent 'other_language_activities' %}
                         {% dl_with_parent  'main domain' 'main_domain' %}
 
-                        {# TODO dl needs to manage list #}
+                        {# TODO dl_with_parent needs to manage list #}
                         <div>
                             <label>{% trans 'secondary domains'|title %}</label><br>
                             {% if education_group_year.secondary_domains %}
@@ -91,142 +90,21 @@
             <div class="col-md-5" style="margin-top: 10px">
                 <div class="panel panel-default">
                     <div class="panel-body">
-                        <div>
-                            <label>{% trans 'management_entity' %}</label><br>
-                            {% if education_group_year.management_entity %}
-                                {{ education_group_year.management_entity_version.acronym }}
-                            {% elif parent.management_entity %}
-                                <strong class="text-primary">{{ parent.management_entity_version.acronym }}</strong>
-                            {% endif %}
-                        </div>
-                        <br>
-                        <div>
-                            <label>{% trans 'administration_entity' %}</label><br>
-                            {% if education_group_year.administration_entity %}
-                                {{ education_group_year.administration_entity_version.acronym }}
-                            {% elif parent.administration_entity %}
-                                <strong class="text-primary">{{ parent.administration_entity_version.acronym }}</strong>
-                            {% endif %}
-                        </div>
-                        <br>
-                        <div>
-                            <label>{% trans 'start' %}</label><br>
-                            {% if education_group_year.education_group.start_year %}
-                                {{ education_group_year.education_group.start_year }}
-                            {% elif parent.education_group.start_year %}
-                                <strong class="text-primary">{{ parent.education_group.start_year }}</strong>
-                            {% else %}
-                                {% trans 'unspecified' %}
-                            {% endif %}
-                        </div>
-                        <br>
-                        <div>
-                            <label>{% trans 'end'%}</label><br>
-                            {% if education_group_year.education_group.end_year and education_group_year.education_group.end_year %}
-                                {{ education_group_year.education_group.end_year }}
-                            {% elif parent.education_group.end_year and parent.education_group.end_year %}
-                                <strong class="text-primary">
-                                    {{ parent.education_group.end_year }}
-                                </strong>
-                            {% else%}
-                                {% trans 'unspecified' %}
-                            {% endif%}
-                        </div>
-                        <br>
-                        <div>
-                            <label>{% trans 'learning_location'%}</label><br>
-                            {% if education_group_year.main_teaching_campus %}
-                                {{ education_group_year.main_teaching_campus }}
-                            {% elif parent.main_teaching_campus %}
-                                <strong class="text-primary">
-                                    {{ parent.main_teaching_campus }}
-                                </strong>
-                            {% else %}
-                                <br>
-                            {% endif %}
-                        </div>
-                        <br>
-                        <div>
-                            <label>{% trans 'enrollment_campus' %}</label><br>
-                            {% if education_group_year.enrollment_campus %}
-                                {{ education_group_year.enrollment_campus }}
-                            {% elif parent.enrollment_campus %}
-                                <strong class="text-primary">
-                                    {{ parent.enrollment_campus }}
-                                </strong>
-                            {% else %}
-                                <br>
-                            {% endif %}
-                        </div>
-                        <br>
-                        <div>
-                            <label>{% trans 'other_campus_activities' %}</label><br>
-                            {% if education_group_year.other_campus_activities %}
-                                {% trans education_group_year.other_campus_activities %}
-                                {% elif parent.other_campus_activities %}
-                                <strong class="text-primary">
-                                    {% trans parent.other_campus_activities %}
-                                </strong>
-                            {% endif %}
-                        </div>
-                        <br>
+                        {% dl_with_parent "management_entity" "management_entity_version.acronym" %}
+                        {% dl_with_parent "administration_entity" "administration_entity_version.acronym" %}
+                        {% dl_with_parent "start" "education_group.start_year" default_value=_('unspecified') %}
+                        {% dl_with_parent "end" "education_group.end_year" default_value=_('unspecified') %}
+                        {% dl_with_parent "learning_location" "main_teaching_campus" %}
+                        {% dl_with_parent "enrollment_campus" %}
+                        {% dl_with_parent "other_campus_activities" %}
                     </div>
                 </div>
                 <div class="panel panel-default">
                     <div class="panel-body">
-                        <div>
-                            <label>{% trans 'funding' %}</label><br>
-                            {% if education_group_year.funding %}
-                                {% trans 'yes' %}
-                                {% elif education_group_year.funding != None %}
-                                {% trans 'no' %}
-                            {% else %}
-                                <strong class="text-primary">
-                                    {% if parent.funding %}
-                                        {% trans 'yes' %}
-                                    {% else %}
-                                        {% trans 'no' %}
-                                    {% endif %}
-                                </strong>
-                            {% endif %}
-                        </div>
-                        <br>
-                        <div>
-                            <label>{% trans 'funding_direction' %}</label><br>
-                            {% if education_group_year.funding_direction %}
-                                {% trans education_group_year.funding_direction %}
-                                {% elif parent.funding_direction %}
-                                <strong class="text-primary">{% trans parent.funding_direction %}</strong>
-                            {% else %}
-                            {% endif %}
-                        </div>
-                        <br>
-                        <div>
-                            <label>{% trans 'funding_cud' %}</label><br>
-                            {% if education_group_year.funding_cud %}
-                                {% trans 'yes' %}
-                                {% elif education_group_year.funding_cud != None %}
-                                {% trans 'no' %}
-                            {% else %}
-                                <strong class="text-primary">
-                                    {% if parent.funding_cud %}
-                                        {% trans 'yes' %}
-                                    {% else %}
-                                        {% trans 'no' %}
-                                    {% endif %}
-                                </strong>
-                            {% endif %}
-                        </div>
-                        <br>
-                        <div>
-                            <label>{% trans 'cud_funding_direction' %}</label><br>
-                            {% if education_group_year.funding_direction_cud %}
-                                {% trans education_group_year.funding_direction_cud %}
-                                {% elif parent.funding_direction_cud %}
-                                <strong class="text-primary">{% trans parent.funding_direction_cud %}</strong>
-                            {% endif %}
-                        </div>
-                        <br>
+                        {% dl_with_parent "funding" %}
+                        {% dl_with_parent "funding_direction" %}
+                        {% dl_with_parent "funding_cud" %}
+                        {% dl_with_parent "cud_funding_direction" "funding_direction_cud" %}
                     </div>
                 </div>
             </div>

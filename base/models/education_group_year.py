@@ -188,7 +188,8 @@ class EducationGroupYear(models.Model):
         max_length=20,
         choices=activity_presence.ACTIVITY_PRESENCES,
         blank=True,
-        null=True
+        null=True,
+        verbose_name=_("activities in English")
     )
 
     other_language_activities = models.CharField(

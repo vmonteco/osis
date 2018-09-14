@@ -27,6 +27,7 @@ from django.db.models import OuterRef, Exists
 from django.urls import reverse
 
 from base.business.group_element_years.management import EDUCATION_GROUP_YEAR, LEARNING_UNIT_YEAR
+from base.models.enums.education_group_categories import TRAINING
 from base.models.prerequisite import Prerequisite
 
 
@@ -42,9 +43,9 @@ class NodeBranchJsTree:
     def generate_children(self):
         result = []
         for group_element_year in self.get_queryset():
-            if group_element_year.child_branch:
+            if group_element_year.child_branch and group_element_year.child_branch != self.root:
                 result.append(NodeBranchJsTree(self.root, group_element_year))
-            else:
+            elif group_element_year.child_leaf:
                 result.append(NodeLeafJsTree(self.root, group_element_year))
 
         return result
