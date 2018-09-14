@@ -55,6 +55,7 @@ from base.models.enums import proposal_type, proposal_state
 from openpyxl.utils import get_column_letter
 from collections import defaultdict
 # List of key that a user can modify
+
 TRANSFORMATION_AND_MODIFICATION = Color('808000')
 TRANSFORMATION_COLOR = Color('ff6600')
 SUPPRESSION_COLOR = Color('ff0000')
@@ -120,6 +121,13 @@ WITH_ATTRIBUTIONS = 'with_attributions'
 WITH_GRP = 'with_grp'
 HEADER_TEACHERS = _('List of teachers')
 HEADER_PROGRAMS = _('Programs')
+
+DEFAULT_LEGEND_STYLES = {Style(fill=PatternFill(patternType='solid', fgColor=CREATION_COLOR)): ['A2'],
+                         Style(fill=PatternFill(patternType='solid', fgColor=MODIFICATION_COLOR)): ['A3'],
+                         Style(fill=PatternFill(patternType='solid', fgColor=SUPPRESSION_COLOR)): ['A4'],
+                         Style(fill=PatternFill(patternType='solid', fgColor=TRANSFORMATION_COLOR)): ['A5'],
+                         Style(fill=PatternFill(patternType='solid', fgColor=TRANSFORMATION_AND_MODIFICATION)): ['A6'], }
+SPACES = '  '
 
 
 def get_same_container_year_components(learning_unit_year, with_classes=False):
@@ -559,21 +567,15 @@ def _prepare_legend_ws_data():
     return {
         xls_build.HEADER_TITLES_KEY: [str(_('Legend'))],
         xls_build.CONTENT_KEY: [
-            ['  ', _('proposal_creation')],
-            ['  ', _('Proposal for modification')],
-            ['  ', _('Suppression proposal')],
-            ['  ', _('Transformation proposal')],
-            ['  ', _('Transformation/modification proposal')],
+            [SPACES, _('proposal_creation')],
+            [SPACES, _('Proposal for modification')],
+            [SPACES, _('Suppression proposal')],
+            [SPACES, _('Transformation proposal')],
+            [SPACES, _('Transformation/modification proposal')],
         ],
         xls_build.WORKSHEET_TITLE_KEY: _('Legend'),
         xls_build.STYLED_CELLS:
-            {
-                Style(fill=PatternFill(patternType='solid', fgColor=CREATION_COLOR)): ['A2'],
-                Style(fill=PatternFill(patternType='solid', fgColor=MODIFICATION_COLOR)): ['A3'],
-                Style(fill=PatternFill(patternType='solid', fgColor=SUPPRESSION_COLOR)): ['A4'],
-                Style(fill=PatternFill(patternType='solid', fgColor=TRANSFORMATION_COLOR)): ['A5'],
-                Style(fill=PatternFill(patternType='solid', fgColor=TRANSFORMATION_AND_MODIFICATION)): ['A6'],
-            }
+            DEFAULT_LEGEND_STYLES
     }
 
 

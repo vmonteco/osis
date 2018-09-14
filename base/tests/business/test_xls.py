@@ -35,12 +35,13 @@ from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFact
 from base.tests.factories.person import PersonFactory
 from base.business.learning_unit import _get_wrapped_cells, _get_col_letter, _get_colored_rows, \
     PROPOSAL_LINE_STYLES, _get_attribution_line, _get_significant_volume, _update_volumes_data, \
-    _initialize_component_data
+    _initialize_component_data, _prepare_legend_ws_data, SPACES, DEFAULT_LEGEND_STYLES
 from base.models.enums import proposal_type, proposal_state
 from base.tests.factories.academic_year import create_current_academic_year
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
 from base.tests.factories.learning_component_year import LearningComponentYearFactory
 from base.models.enums import learning_component_year_type
+from osis_common.document import xls_build
 
 COL_TEACHERS_LETTER = 'L'
 COL_PROGRAMS_LETTER = 'Z'
@@ -154,3 +155,19 @@ class TestLearningUnitXls(TestCase):
                               lecturing_data)
         self.assertCountEqual(volumes_updated.get(learning_component_year_type.PRACTICAL_EXERCISES),
                               _initialize_component_data())
+
+    def test_prepare_legend_ws_data(self):
+        expected = {
+            xls_build.HEADER_TITLES_KEY: [str(_('Legend'))],
+            xls_build.CONTENT_KEY: [
+                [SPACES, _('proposal_creation')],
+                [SPACES, _('Proposal for modification')],
+                [SPACES, _('Suppression proposal')],
+                [SPACES, _('Transformation proposal')],
+                [SPACES, _('Transformation/modification proposal')],
+            ],
+            xls_build.WORKSHEET_TITLE_KEY: _('Legend'),
+            xls_build.STYLED_CELLS:
+                DEFAULT_LEGEND_STYLES
+        }
+        self.assertEqual(_prepare_legend_ws_data(), expected)
