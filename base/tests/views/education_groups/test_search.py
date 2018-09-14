@@ -27,15 +27,15 @@ import datetime
 from unittest import mock
 
 from django.contrib.auth.models import Permission
+from django.core.cache import cache
 from django.http import HttpResponseForbidden
 from django.test import TestCase, RequestFactory
 from django.urls import reverse
-from django.core.cache import cache
 from django.utils.translation import ugettext_lazy as _
 
+from base import utils
 from base.forms.education_groups import EducationGroupFilter
 from base.models.enums import education_group_categories
-from base import utils
 from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.education_group_type import EducationGroupTypeFactory
 from base.tests.factories.education_group_year import EducationGroupYearFactory
@@ -44,6 +44,8 @@ from base.tests.factories.entity_version import EntityVersionFactory
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.user import UserFactory
 from base.views.education_groups import search
+
+FILTER_DATA = {"acronym": "LBIR", "title": "dummy filter"}
 
 
 class TestEducationGroupSearchView(TestCase):
@@ -73,6 +75,7 @@ class TestEducationGroupSearchView(TestCase):
 
     def test_search_education_group_using_template_use(self):
         response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "education_group/search.html")
 
     def test_search_education_group_keys_exists_in_context(self):
@@ -87,7 +90,7 @@ class TestEducationGroupSearchView(TestCase):
         request_factory = RequestFactory()
         request = request_factory.get(
             self.url,
-            data={"acronym": "LBIR", "title": "dummy filter"}
+            data=FILTER_DATA
         )
         request.user = self.person.user
         search.education_groups(request)

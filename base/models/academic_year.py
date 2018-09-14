@@ -28,6 +28,7 @@ import datetime
 from django.db import models
 from django.utils import timezone
 
+from base.models.utils.utils import get_object_or_none
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
 
 LEARNING_UNIT_CREATION_SPAN_YEARS = 6
@@ -49,6 +50,14 @@ class AcademicYear(SerializableModel):
     @property
     def name(self):
         return self.__str__()
+
+    @property
+    def is_even(self):
+        return self.year % 2 == 0
+
+    @property
+    def is_odd(self):
+        return self.year % 2 == 1
 
     def save(self, *args, **kwargs):
         if self.start_date and self.year != self.start_date.year:

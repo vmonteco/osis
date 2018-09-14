@@ -31,7 +31,8 @@ from django.utils.translation import ugettext_lazy as _
 
 from base.forms.common import ValidationRuleMixin
 from base.forms.learning_unit.entity_form import EntitiesVersionChoiceField
-from base.models import campus, group_element_year, academic_calendar
+from base.models import campus, group_element_year
+from base.models.academic_calendar import AcademicCalendar
 from base.models.campus import Campus
 from base.models.education_group import EducationGroup
 from base.models.education_group_type import find_authorized_types, EducationGroupType
@@ -45,10 +46,10 @@ from rules_management.enums import TRAINING_PGRM_ENCODING_PERIOD, TRAINING_DAILY
 from rules_management.mixins import PermissionFieldMixin
 
 
-class MainTeachingCampusChoiceField(forms.ModelChoiceField):
+class MainCampusChoiceField(forms.ModelChoiceField):
     def __init__(self, queryset, *args, **kwargs):
         queryset = campus.find_main_campuses()
-        super(MainTeachingCampusChoiceField, self).__init__(queryset, *args, **kwargs)
+        super().__init__(queryset, *args, **kwargs)
 
 
 class MainEntitiesVersionChoiceField(EntitiesVersionChoiceField):
@@ -90,8 +91,8 @@ class PermissionFieldEducationGroupMixin(PermissionFieldMixin):
     This mixin will get allowed field on reference_field model according to perm's
     """
     def get_context(self):
-        is_edition_period_egy_opened = academic_calendar.is_academic_calendar_opened(
-            academic_calendar_type.EDUCATION_GROUP_EDITION
+        is_edition_period_egy_opened = AcademicCalendar.objects.open_calendars().filter(
+            reference=academic_calendar_type.EDUCATION_GROUP_EDITION
         )
         if self.category == education_group_categories.TRAINING:
             return TRAINING_PGRM_ENCODING_PERIOD if is_edition_period_egy_opened else \
@@ -113,7 +114,8 @@ class EducationGroupYearModelForm(ValidationRuleEducationGroupTypeMixin, Permiss
         model = EducationGroupYear
         field_classes = {
             "management_entity": MainEntitiesVersionChoiceField,
-            "main_teaching_campus": MainTeachingCampusChoiceField,
+            "main_teaching_campus": MainCampusChoiceField,
+            "enrollment_campus": MainCampusChoiceField,
             "education_group_type": EducationGroupTypeModelChoiceField,
         }
         fields = []
@@ -287,7 +289,6 @@ class EducationGroupTypeForm(forms.Form):
 
     def __init__(self, parent, category, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
         self.fields["name"].queryset = find_authorized_types(
             category=category,
             parents=parent

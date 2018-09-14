@@ -27,10 +27,10 @@ import abc
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.messages.views import SuccessMessageMixin
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db import IntegrityError
 from django.shortcuts import get_object_or_404, redirect
-from django.urls import reverse, NoReverseMatch
+from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_http_methods
@@ -40,61 +40,81 @@ from waffle.decorators import waffle_flag
 
 from base.business import group_element_years
 from base.business.group_element_years.management import SELECT_CACHE_KEY, select_education_group_year, \
-    LEARNING_UNIT_YEAR, EDUCATION_GROUP_YEAR, select_learning_unit_year
+    select_learning_unit_year
 from base.forms.education_group.group_element_year import UpdateGroupElementYearForm
 from base.models.education_group_year import EducationGroupYear
 from base.models.exceptions import IncompatiblesTypesException
-from base.models.group_element_year import GroupElementYear, get_group_element_year_by_id
+from base.models.group_element_year import GroupElementYear
 from base.models.learning_unit_year import LearningUnitYear
+from base.models.utils.utils import get_object_or_none
 from base.views.common import display_success_messages, display_warning_messages
 from base.views.common_classes import AjaxTemplateMixin, FlagMixin, RulesRequiredMixin
 from base.views.education_groups import perms
-from base.views.education_groups.select import build_success_message, build_success_json_response, \
-    learning_unit_select
+from base.views.education_groups.select import build_success_message, build_success_json_response
 
 
 @login_required
 @waffle_flag("education_group_update")
-def management(request, root_id, education_group_year_id, group_element_year_id):
-    group_element_year_id = int(group_element_year_id)
-    group_element_year = get_group_element_year_by_id(group_element_year_id) if group_element_year_id else None
+def management(request):
+    root_id = _get_data_from_request(request, 'root_id')
+    group_element_year_id = _get_data_from_request(request, 'group_element_year_id') or 0
+    group_element_year = get_object_or_none(GroupElementYear, pk=group_element_year_id)
+    element_id = _get_data_from_request(request, 'element_id')
+    element = _get_concerned_object(element_id, group_element_year)
+
+    _check_perm_for_management(request, element, group_element_year)
+
     action_method = _get_action_method(request)
-    perms.can_change_education_group(request.user, group_element_year.parent)
-    source = _get_data(request, 'source')
+    source = _get_data_from_request(request, 'source')
+    http_referer = request.META.get('HTTP_REFERER')
+
     response = action_method(
         request,
         group_element_year,
         root_id=root_id,
-        education_group_year_id=education_group_year_id,
+        element=element,
         source=source,
+        http_referer=http_referer,
     )
     if response:
         return response
 
-    return redirect(request.META.get('HTTP_REFERER'))
+    return redirect(http_referer)
 
 
-def _get_data(request, name):
+def _get_data_from_request(request, name):
     return getattr(request, request.method, {}).get(name)
 
 
-@login_required
-@waffle_flag("education_group_update")
-def proxy_management(request):
-    root_id = _get_data(request, 'root_id')
-    group_element_year_id = _get_data(request, 'group_element_year_id')
-    if _get_data(request, 'action') == "select":
-        element_type = _get_data(request, 'element_type')
-        element_id = _get_data(request, 'element_id')
-        return _select(request, element_type, element_id)
+def _get_concerned_object(element_id, group_element_year):
+    if group_element_year and group_element_year.child_leaf:
+        object_class = LearningUnitYear
     else:
-        education_group_year_id = _get_data(request, 'education_group_year_id')
-        return management(
-            request,
-            root_id=root_id,
-            education_group_year_id=education_group_year_id,
-            group_element_year_id=group_element_year_id,
-        )
+        object_class = EducationGroupYear
+
+    return get_object_or_404(object_class, pk=element_id)
+
+
+def _check_perm_for_management(request, element, group_element_year):
+    actions_needing_perm_on_parent = [
+        "detach",
+        "up",
+        "down",
+    ]
+    actions_needing_perm_on_education_group_year_itself = [
+        "attach",
+    ]
+
+    if _get_data_from_request(request, 'action') in actions_needing_perm_on_parent:
+        # In this case, element can be EducationGroupYear OR LearningUnitYear because we check perm on its parent
+        perms.can_change_education_group(request.user, group_element_year.parent)
+    elif _get_data_from_request(request, 'action') in actions_needing_perm_on_education_group_year_itself:
+        # In this case, element MUST BE an EducationGroupYear (we cannot take action on a learning_unit_year)
+        if type(element) != EducationGroupYear:
+            raise ValidationError(
+                "It is forbidden to update the content of an object which is not an EducationGroupYear"
+            )
+        perms.can_change_education_group(request.user, element)
 
 
 @require_http_methods(['POST'])
@@ -123,7 +143,7 @@ def _detach(request, group_element_year, *args, **kwargs):
 
 @require_http_methods(['GET', 'POST'])
 def _attach(request, group_element_year, *args, **kwargs):
-    parent = get_object_or_404(EducationGroupYear, pk=kwargs['education_group_year_id'])
+    parent = kwargs['element']
     try:
         group_element_years.management.attach_from_cache(parent)
         success_msg = _("Attached to \"%(acronym)s\"") % {'acronym': parent}
@@ -140,30 +160,30 @@ def _attach(request, group_element_year, *args, **kwargs):
 
 
 @require_http_methods(['POST'])
-def _select(request, element_type, element_id):
-    if element_type == LEARNING_UNIT_YEAR:
-        learning_unit_year = get_object_or_404(LearningUnitYear, pk=element_id)
-        select_learning_unit_year(learning_unit_year)
-        success_msg = build_success_message(learning_unit_year)
-    elif element_type == EDUCATION_GROUP_YEAR:
-        education_group_year = get_object_or_404(EducationGroupYear, pk=element_id)
-        select_education_group_year(education_group_year)
-        success_msg = build_success_message(education_group_year)
+def _select(request, group_element_year, *args, **kwargs):
+    element = kwargs['element']
+    if type(element) == LearningUnitYear:
+        select_learning_unit_year(element)
+    elif type(element) == EducationGroupYear:
+        select_education_group_year(element)
+
+    success_msg = build_success_message(element)
     return build_success_json_response(success_msg)
 
 
 def _get_action_method(request):
-    AVAILABLE_ACTIONS = {
+    available_actions = {
         'up': _up,
         'down': _down,
         'detach': _detach,
         'attach': _attach,
+        'select': _select,
     }
     data = getattr(request, request.method, {})
     action = data.get('action')
-    if action not in AVAILABLE_ACTIONS.keys():
-        raise AttributeError('Action should be {}'.format(','.join(AVAILABLE_ACTIONS.keys())))
-    return AVAILABLE_ACTIONS[action]
+    if action not in available_actions.keys():
+        raise AttributeError('Action should be {}'.format(','.join(available_actions.keys())))
+    return available_actions[action]
 
 
 @method_decorator(login_required, name='dispatch')
@@ -226,14 +246,11 @@ class DetachGroupElementYearView(GenericUpdateGroupElementYearMixin, DeleteView)
         return super().delete(request, *args, **kwargs)
 
     def _call_rule(self, rule):
-        """ The permission is computed from the education_group_year """
+        """ The permission is computed from the parent education_group_year """
         return rule(self.request.user, self.group_element_year.parent)
 
     def get_success_url(self):
-        try:
-            return reverse(self.kwargs.get('source'), args=[self.kwargs["root_id"], self.kwargs["root_id"]])
-        except NoReverseMatch:
-            return reverse("education_group_read", args=[self.kwargs["root_id"], self.kwargs["root_id"]])
+        return self.kwargs.get('http_referer')
 
     @property
     def group_element_year(self):

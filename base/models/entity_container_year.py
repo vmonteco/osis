@@ -55,8 +55,10 @@ class EntityContainerYear(SerializableModel):
         return u"%s - %s - %s" % (self.entity, self.learning_container_year, self.type)
 
     def get_latest_entity_version(self):
-        if self.entity.entity_versions:
+        # Sometimes, entity-versions is prefetch to optimized queries
+        if getattr(self.entity, "entity_versions", None):
             return self.entity.entity_versions[-1]
+        return self.entity.entityversion_set.order_by('start_date').last()
 
     @property
     def warnings(self):

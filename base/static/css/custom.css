@@ -176,3 +176,11 @@ input[type="text"].ui-autocomplete-input:disabled ~ .results_on_deck .ui-icon{
 .italic {
     font-style: italic;
 }
+
+/* Ensure that jstree contextmenu is always on top */
+.vakata-context {
+    z-index: 100;
+}
+.navbar-fixed-bottom {
+    z-index: 10;
+}

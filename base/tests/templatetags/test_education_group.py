@@ -23,6 +23,8 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from datetime import timedelta
+
 from django.test import TestCase, RequestFactory
 from django.urls import reverse
 from django.utils import timezone
@@ -33,10 +35,11 @@ from base.models.enums.education_group_categories import TRAINING, MINI_TRAINING
 from base.templatetags.education_group import li_with_deletion_perm, button_with_permission, BUTTON_TEMPLATE, \
     button_order_with_permission, BUTTON_ORDER_TEMPLATE, li_with_create_perm_training, \
     li_with_create_perm_mini_training, li_with_create_perm_group, link_detach_education_group, \
-    link_pdf_content_education_group
+    link_pdf_content_education_group, button_edit_administrative_data
 from base.tests.factories.academic_calendar import AcademicCalendarFactory
+from base.tests.factories.academic_year import create_current_academic_year, AcademicYearFactory
 from base.tests.factories.authorized_relationship import AuthorizedRelationshipFactory
-from base.tests.factories.education_group_year import TrainingFactory, MiniTrainingFactory, GroupFactory
+from base.tests.factories.education_group_year import TrainingFactory, MiniTrainingFactory
 from base.tests.factories.person import FacultyManagerFactory, CentralManagerFactory
 from base.tests.factories.person_entity import PersonEntityFactory
 
@@ -122,6 +125,7 @@ class TestEducationGroupAsCentralManagerTag(TestCase):
             "category": _(self.education_group_year.education_group_type.category),
             "type": self.education_group_year.education_group_type.name
         }
+        msg = msg.capitalize()
         self.assertHTMLEqual(result, DISABLED_LI.format("link_create_training", msg, ""))
 
     def test_li_with_create_perm_mini_training_disabled(self):
@@ -131,6 +135,7 @@ class TestEducationGroupAsCentralManagerTag(TestCase):
             "category": _(self.education_group_year.education_group_type.category),
             "type": self.education_group_year.education_group_type.name
         }
+        msg = msg.capitalize()
         self.assertHTMLEqual(result, DISABLED_LI.format("link_create_mini_training", msg, ""))
 
     def test_li_with_create_perm_group_disabled(self):
@@ -140,6 +145,7 @@ class TestEducationGroupAsCentralManagerTag(TestCase):
             "category": _(self.education_group_year.education_group_type.category),
             "type": self.education_group_year.education_group_type.name
         }
+        msg = msg.capitalize()
         self.assertHTMLEqual(result, DISABLED_LI.format("link_create_group", msg, ""))
 
     def test_tag_detach_education_group_permitted_and_possible(self):
@@ -208,17 +214,23 @@ class TestEducationGroupAsFacultyManagerTag(TestCase):
         self.person = FacultyManagerFactory("delete_educationgroup", "change_educationgroup", "add_educationgroup")
         PersonEntityFactory(person=self.person, entity=self.education_group_year.management_entity)
 
+        current_ac = create_current_academic_year()
+
         # Create an academic calendar in order to check permission [Faculty can modify when period is opened]
         self.academic_calendar = AcademicCalendarFactory(
             reference=EDUCATION_GROUP_EDITION,
             start_date=timezone.now(),
-            end_date=timezone.now()
+            end_date=timezone.now() + timedelta(weeks=+1),
+            academic_year=current_ac,
         )
+
+        self.next_ac = AcademicYearFactory(year=current_ac.year + 1)
 
         self.client.force_login(user=self.person.user)
         self.url = reverse('delete_education_group', args=[self.education_group_year.id, self.education_group_year.id])
         self.context = {
             "person": self.person,
+            "root": self.education_group_year,
             "education_group_year": self.education_group_year,
             "request": RequestFactory().get("")
         }
@@ -231,6 +243,8 @@ class TestEducationGroupAsFacultyManagerTag(TestCase):
         self.assertEqual(result, BUTTON_TEMPLATE.format(PERMISSION_DENIED_MSG, "id", "disabled", "fa-edit"))
 
     def test_button_tag_case_inside_education_group_edition_period(self):
+        self.education_group_year.academic_year = self.next_ac
+
         result = button_with_permission(self.context, "title", "id", "edit")
         self.assertEqual(result, BUTTON_TEMPLATE.format("title", "id", "", "fa-edit"))
 
@@ -242,6 +256,8 @@ class TestEducationGroupAsFacultyManagerTag(TestCase):
         self.assertEqual(result, DISABLED_LI.format("link_delete", PERMISSION_DENIED_MSG, DELETE_MSG))
 
     def test_li_tag_case_inside_education_group_edition_period(self):
+        self.education_group_year.academic_year = self.next_ac
+
         result = li_with_deletion_perm(self.context, self.url, DELETE_MSG)
         self.assertEqual(result, ENABLED_LI.format("link_delete", self.url, DELETE_MSG))
 
@@ -253,6 +269,7 @@ class TestEducationGroupAsFacultyManagerTag(TestCase):
         self.context['education_group_year'] = MiniTrainingFactory()
         result = li_with_create_perm_mini_training(self.context, self.url, "")
         msg = _("The user has not permission to create a %(category)s.") % {"category": _(MINI_TRAINING)}
+        msg = msg.capitalize()
         self.assertHTMLEqual(result, DISABLED_LI.format("link_create_mini_training", msg, ""))
 
     def test_li_tag_case_training_disabled(self):
@@ -263,4 +280,25 @@ class TestEducationGroupAsFacultyManagerTag(TestCase):
         self.context['education_group_year'] = TrainingFactory()
         result = li_with_create_perm_training(self.context, self.url, "")
         msg = _("The user has not permission to create a %(category)s.") % {"category": _(TRAINING)}
+        msg = msg.capitalize()
         self.assertHTMLEqual(result, DISABLED_LI.format("link_create_training", msg, ""))
+
+    def test_button_edit_administrative_data(self):
+        result = button_edit_administrative_data(self.context)
+
+        self.assertEqual(
+            result["url"],
+            reverse('education_group_edit_administrative', args=[
+                self.education_group_year.pk,
+                self.education_group_year.pk
+            ])
+        )
+
+        self.assertEqual(
+            result["message"],
+            _('Only program managers of the education group OR central manager linked to entity can edit.')
+        )
+
+        self.assertEqual(result["is_disabled"], "disabled")
+        self.assertEqual(result["text"], _("edit"))
+

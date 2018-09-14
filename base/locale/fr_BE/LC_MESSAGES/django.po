@@ -1602,7 +1602,7 @@ msgid "duration"
 msgstr "Durée"
 
 msgid "learning_unit_specifications"
-msgstr "Cahier de charges"
+msgstr "Cahier des charges"
 
 msgid "experimental_phase"
 msgstr "Cette fonctionnalité est en phase expérimentale"
@@ -1677,7 +1677,7 @@ msgid "PUBLIC_PARTNER"
 msgstr "Partenaire public"
 
 msgid "requirement_entity"
-msgstr "Entité resp. cahier de charges"
+msgstr "Entité resp. cahier des charges"
 
 msgid "requirement_entity_small"
 msgstr "Ent. charge"
@@ -1692,13 +1692,13 @@ msgid "with_entity_subordinated_small"
 msgstr "Avec ent. subord."
 
 msgid "additional_requirement_entity"
-msgstr "Entité resp. cahier de charges complémentaire"
+msgstr "Entité resp. cahier des charges complémentaire"
 
 msgid "additional_requirement_entity_1"
-msgstr "Entité resp. cahier de charges complémentaire 1"
+msgstr "Entité resp. cahier des charges complémentaire 1"
 
 msgid "additional_requirement_entity_2"
-msgstr "Entité resp. cahier de charges complémentaire 2"
+msgstr "Entité resp. cahier des charges complémentaire 2"
 
 msgid "academic_end_year"
 msgstr "Anac de fin"
@@ -2545,10 +2545,10 @@ msgid "Edit the learning unit"
 msgstr "Modifier l'unité d'enseignement"
 
 msgid "requirement_entity_end_date_too_short"
-msgstr "La durée de vie de l'entité responsable cahier de charges est trop courte."
+msgstr "La durée de vie de l'entité responsable cahier des charges est trop courte."
 
 msgid "Requirement and allocation entities must be linked to the same faculty for this learning unit type."
-msgstr "L'entité responsable du cahier de charges et celle d'attribution doivent appartenir à la même faculté pour ce type d'unité d'enseignement."
+msgstr "L'entité responsable du cahier des charges et celle d'attribution doivent appartenir à la même faculté pour ce type d'unité d'enseignement."
 
 msgid "success_modification_learning_unit"
 msgstr "L'unité d'enseignement a été modifiée."
@@ -2707,6 +2707,12 @@ msgstr "bibliographie"
 
 msgid "Teaching material"
 msgstr "Supports de cours"
+
+msgid "teaching materials"
+msgstr "supports de cours"
+
+msgid "online resources"
+msgstr "ressources en ligne"
 
 msgid "Mobility"
 msgstr "Mobilité"
@@ -2955,7 +2961,7 @@ msgid "planned classes cannot be 0"
 msgstr "le nombre de classes prévues ne peut être 0"
 
 msgid "Vol_tot is not equal to vol_q1 + vol_q2"
-msgstr "Le volume total doit être égal à la somme des volumes de Q1 et de Q2"
+msgstr "Le volume annuel doit être égal à la somme des volumes de Q1 et de Q2"
 
 msgid "Vol_global is not equal to Vol_tot * planned_classes"
 msgstr "Le volume global doit être égal au volume annuel multiplié par le nombre de classes"
@@ -3134,7 +3140,7 @@ msgstr "Bacheliers UCL"
 msgid "Others Bachelors of the French speaking Community of Belgium"
 msgstr "Autres bacheliers de la Communauté française de Belgique"
 
-msgid "Bachelors of the Dutch speaking Community of Beligum"
+msgid "Bachelors of the Dutch speaking Community of Belgium"
 msgstr "Bachelier de la Communauté flamande de Belgique"
 
 msgid "Foreign Bachelors"
@@ -3191,6 +3197,9 @@ msgstr "Cela supprimera également les objets suivants"
 msgid "The education group edition period is not open."
 msgstr "La période de modification d'organisation de formation n'est pas ouverte."
 
+msgid "this education group is not editable during this period."
+msgstr "cette organisation de formation n'est pas édtiable durant cette période."
+
 msgid "The user has not permission to delete education groups."
 msgstr "L'utilisateur n'a pas la permission de supprimer les organisations de formation."
 
@@ -3206,8 +3215,8 @@ msgstr "Êtes-vous sûr·e de vouloir supprimer le support de cours?"
 msgid "{} successfully updated"
 msgstr "{} modifié(e) avec succès."
 
-msgid "unit"
-msgstr "unité"
+msgid "duration unit"
+msgstr "type durée"
 
 msgid "Enter text to search"
 msgstr "Entrez le texte à rechercher"
@@ -3451,16 +3460,16 @@ msgid "REAL_CLASSES"
 msgstr "Classes effectives"
 
 msgid "VOLUME_REQUIREMENT_ENTITY"
-msgstr "Entité resp. cahier de charges"
+msgstr "Entité resp. cahier des charges"
 
 msgid "VOLUME_ALLOCATION_ENTITY"
 msgstr "Entité resp. de l'attribution"
 
 msgid "VOLUME_ADDITIONAL_REQUIREMENT_ENTITY_1"
-msgstr "Entité resp. cahier de charges complémentaire 1"
+msgstr "Entité resp. cahier des charges complémentaire 1"
 
 msgid "VOLUME_ADDITIONAL_REQUIREMENT_ENTITY_2"
-msgstr "Entité resp. cahier de charges complémentaire 2"
+msgstr "Entité resp. cahier des charges complémentaire 2"
 
 msgid "This field is empty"
 msgstr "Ce champ est vide"
@@ -3806,3 +3815,66 @@ msgstr "Ajouter le contenu Français de ce paragraphe"
 
 msgid "Add the English content of this paragraph"
 msgstr "Ajouter le contenu Anglais de ce paragraphe"
+
+msgid "Add potential courses"
+msgstr "Ajouts de cours éventuels"
+
+msgid "Made in"
+msgstr "Fait à"
+
+msgid "on"
+msgstr "Le"
+
+msgid "For approval"
+msgstr "Pour accord,"
+
+msgid "Legend"
+msgstr "Légende"
+
+msgid "Registration form for the content of"
+msgstr "Formulaire d'inscription au contenu de"
+
+msgid "Student's contact information"
+msgstr "Coordonnées de l'étudiant.e"
+
+msgid "Student's signature"
+msgstr "Signature de l'étudiant.e"
+
+msgid "Own components"
+msgstr "Composants propres"
+
+msgid "list of required teaching material"
+msgstr "liste des supports de cours obligatoires"
+
+msgid "the list to generate is empty."
+msgstr "la liste à générer est vide."
+
+msgid "Only program managers of the education group OR central manager linked to entity can edit."
+msgstr "Seuls les gestionnaires de programme d'organisation de formation OU les gestionnaires facultaires liées à l'entité peuvent éditer."
+
+msgid "Add/Modify a line"
+msgstr "Ajouter/Modifier une ligne"
+
+msgid "Update the text"
+msgstr "Mettre à jour le texte"
+
+msgid "General Conditions"
+msgstr "Conditions Générales"
+
+msgid "French language proficiency examination"
+msgstr "Maîtrise de la langue française"
+
+msgid "Reduction"
+msgstr "Inscriptions en allègement"
+
+msgid "Opening to Adults"
+msgstr "Ouverture aux adultes"
+
+msgid "comment (internal)"
+msgstr "commentaire (interne)"
+
+msgid "education group achievement"
+msgstr "Acquis d'apprentissage d'organisation de formation"
+
+msgid "education group detailed achievement"
+msgstr "Acquis d'apprentissage détaillé d'organisation de formation"

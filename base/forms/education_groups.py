@@ -90,6 +90,7 @@ class EducationGroupFilter(BootstrapForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields["education_group_type"].queryset = EducationGroupType.objects.all().order_by_translated_name()
         self.fields["education_group_type"].set_data_attrs()
 
     def clean_category(self):
@@ -106,7 +107,7 @@ class EducationGroupFilter(BootstrapForm):
             result = _get_filter_entity_management(
                 result,
                 clean_data['requirement_entity_acronym'],
-                clean_data.get('with_entity_subordinated',False)
+                clean_data.get('with_entity_subordinated', False)
             )
 
         # TODO User should choice the order

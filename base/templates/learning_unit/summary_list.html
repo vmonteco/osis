@@ -29,14 +29,13 @@
 
 {% block content %}
     <div class="panel panel-default">
-
         {% include "learning_unit/blocks/form/search_form_summary_list.html" %}
 
         <div style="margin-top:10px;">
             {% if learning_units_with_errors %}
                 {% flag "educational_information_mailing" %}
                     <div class="row">
-                        <div class="col-md-3">
+                        <div class="col-md-4">
                             <button type="button" class="btn btn-default" style="margin-left:10px;"
                                     id="btn_modal_mail_educational_information_update_reminder"
                                     data-toggle="modal" data-target="#modal_mail_summary_reminder"
@@ -44,7 +43,25 @@
                                 {% trans 'educational_information_update_reminder' %}
                             </button>
                         </div>
-                        <div class="col-md-8"></div>
+                        <div class="col-md-8">
+                            <div class="dropdown {{ dropdirection }} text-right">
+                                <button id="dLabel" class="btn btn-default" type="button"
+                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                                        style="margin-right:10px;"
+                                        title="{% trans 'Export' %}">
+                                    <span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span>
+                                    <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-large row text-right pull-right">
+                                    <li>
+                                        {% trans 'list of required teaching material' as title_material%}
+                                        <a id="btn_teaching_material_xls" title="{{ title_material|capfirst }}" >
+                                            {{ title_material|capfirst }}
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
                     </div>
                 {% endflag %}
                 <br>
@@ -125,5 +142,17 @@
                 }
             });
         });
+
+        $("#btn_teaching_material_xls").click(function(e) {
+            e.preventDefault();
+            var status = $("#xls_status");
+            status.val('xls_teaching_material');
+
+            $("#search_form").submit();
+
+            status.val('');
+        });
+
+
     </script>
 {% endblock %}

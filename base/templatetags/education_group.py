@@ -25,6 +25,7 @@
 ##############################################################################
 from django import template
 from django.core.exceptions import PermissionDenied
+from django.urls import reverse
 from django.utils import six
 from django.utils.encoding import force_text
 from django.utils.html import conditional_escape
@@ -32,17 +33,23 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
 
 from backoffice.settings import base
+from base.business.education_group import can_user_edit_administrative_data
 from base.business.education_groups.perms import is_eligible_to_delete_education_group, \
     is_eligible_to_change_education_group, is_eligible_to_add_training, \
     is_eligible_to_add_mini_training, is_eligible_to_add_group
+from base.models.enums.learning_unit_year_periodicity import BIENNIAL_EVEN, BIENNIAL_ODD, ANNUAL
 
 OPTIONAL_PNG = base.STATIC_URL + 'img/education_group_year/optional.png'
 MANDATORY_PNG = base.STATIC_URL + 'img/education_group_year/mandatory.png'
-CASE_JPG = base.STATIC_URL + 'img/education_group_year/case.jpg'
+VALIDATE_CASE_JPG = base.STATIC_URL + 'img/education_group_year/validate_case.jpg'
+INVALIDATE_CASE_JPG = base.STATIC_URL + 'img/education_group_year/invalidate_case.png'
+DELTA = base.STATIC_URL + 'img/education_group_year/delta.png'
+BISANNUAL_EVEN = base.STATIC_URL + 'img/education_group_year/bisannual_even.png'
+BISANNUAL_ODD = base.STATIC_URL + 'img/education_group_year/bisannual_odd.png'
 
 CHILD_BRANCH = """\
 <tr>
-    <td style="padding-left:{padding}em;float:left;">
+    <td style="padding-left:{padding}em;">
         {constraint}
         <div style="word-break: keep-all;">
             <img src="{icon_list_2}" height="10" width="10">
@@ -57,11 +64,13 @@ CHILD_BRANCH = """\
 
 CHILD_LEAF = """\
 <tr>
-    <td style="padding-left:{padding}em;float:left;">
+    <td style="padding-left:{padding}em;">
         <div style="word-break: keep-all;">
             <img src="{icon_list_1}" height="14" width="17">
             <img src="{icon_list_2}" height="10" width="10">
             {value}
+            <img src="{icon_list_3}" height="10" width="10">
+            <img src="{icon_list_4}" height="10" width="10">
             {comment}
             {sublist}
         </div>
@@ -83,7 +92,7 @@ BRANCH_REMARK = """\
 # margin-left is there to align the value with the remark.
 # We use 14px which is the size of the image before the value
 CHILD_COMMENT = """\
-        <div style="word-break: keep-all;margin-left: 27px;">
+        <div style="word-break: keep-all;margin-left: 32px;">
             ({comment_value})
         </div>
 """
@@ -167,7 +176,7 @@ def _get_permission(context, permission):
 
     education_group_year = context.get('education_group_year')
     person = context.get('person')
-    root = context["request"].GET.get("root", "")
+    root = context.get("root") or context.get("parent")
 
     try:
         result = permission(person, education_group_year, raise_exception=True)
@@ -177,6 +186,23 @@ def _get_permission(context, permission):
         permission_denied_message = str(e)
 
     return permission_denied_message, "" if result else "disabled", root
+
+
+@register.inclusion_tag('blocks/button/button_with_perm.html', takes_context=True)
+def button_edit_administrative_data(context):
+    education_group_year = context.get('education_group_year')
+
+    permission_denied_message, is_disabled, root = _get_permission(context, can_user_edit_administrative_data)
+    if not permission_denied_message:
+        permission_denied_message = _("Only program managers of the education group OR "
+                                      "central manager linked to entity can edit.")
+
+    return {
+        'is_disabled': is_disabled,
+        'message': permission_denied_message,
+        'text': _('edit'),
+        'url': reverse('education_group_edit_administrative', args=[root.pk, education_group_year.pk])
+    }
 
 
 @register.simple_tag(takes_context=True)
@@ -257,14 +283,20 @@ def list_formatter(item_list, tabs=1, depth=None):
 
 
 def append_output(item, output, padding, sublist):
+    comment = CHILD_COMMENT.format(
+        comment_value=item.verbose_comment
+    ) if item.verbose_comment else ""
+
     if item.child_leaf:
+        mandatory_picture = get_mandatory_picture(item)
         output.append(
             CHILD_LEAF.format(padding=padding,
-                              icon_list_1=CASE_JPG,
-                              icon_list_2=get_mandatory_picture(item),
+                              icon_list_1=get_case_picture(item),
+                              icon_list_2=mandatory_picture,
+                              icon_list_3=get_status_picture(item),
+                              icon_list_4=get_biennial_picture(item),
                               value=escaper(force_text(item.verbose)),
-                              comment=CHILD_COMMENT.format(
-                                  comment_value=item.verbose_comment) if item.comment else "",
+                              comment=comment,
                               sublist=sublist,
                               an_1=check_block(item, "1"),
                               an_2=check_block(item, "2"),
@@ -272,24 +304,50 @@ def append_output(item, output, padding, sublist):
                               )
         )
     else:
+        constraint = BRANCH_CONSTRAINT.format(
+            constraint_value=item.child_branch.verbose_constraint
+        ) if item.child_branch.constraint_type else ""
+
+        remark = BRANCH_REMARK.format(remark_value=item.child.verbose_remark) if item.child.verbose_remark else ""
+
         output.append(
             CHILD_BRANCH.format(padding=padding,
-                                constraint=BRANCH_CONSTRAINT.format(
-                                    constraint_value=item.child_branch.verbose_constraint)
-                                if item.child_branch.constraint_type else "",
+                                constraint=constraint,
                                 icon_list_2=get_mandatory_picture(item),
                                 value=escaper(force_text(item.verbose)),
-                                remark=BRANCH_REMARK.format(
-                                    remark_value=item.child.verbose_remark) if item.child.verbose_remark else "",
-                                comment=CHILD_COMMENT.format(
-                                    comment_value=item.verbose_comment) if item.comment else "",
+                                remark=remark,
+                                comment=comment,
                                 sublist=sublist
                                 )
         )
 
 
+def get_status_picture(item):
+    return DELTA if not item.child_leaf.status else ""
+
+
+def get_biennial_picture(item):
+    if item.child_leaf.periodicity == BIENNIAL_EVEN:
+        return BISANNUAL_EVEN
+    elif item.child_leaf.periodicity == BIENNIAL_ODD:
+        return BISANNUAL_ODD
+    else:
+        return ""
+
+
 def get_mandatory_picture(item):
     return MANDATORY_PNG if item.is_mandatory else OPTIONAL_PNG
+
+
+def get_case_picture(item):
+    if item.child_leaf.status:
+        if item.child_leaf.periodicity == ANNUAL:
+            return VALIDATE_CASE_JPG
+        elif item.child_leaf.periodicity == BIENNIAL_EVEN and item.child_leaf.academic_year.is_even:
+            return VALIDATE_CASE_JPG
+        elif item.child_leaf.periodicity == BIENNIAL_ODD and item.child_leaf.academic_year.is_odd:
+            return VALIDATE_CASE_JPG
+    return INVALIDATE_CASE_JPG
 
 
 def check_block(item, value):

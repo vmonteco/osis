@@ -75,6 +75,7 @@ from base.tests.factories.learning_class_year import LearningClassYearFactory
 from base.tests.factories.learning_component_year import LearningComponentYearFactory
 from base.tests.factories.learning_container import LearningContainerFactory
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
+from base.tests.factories.learning_unit import LearningUnitFactory
 from base.tests.factories.learning_unit_component import LearningUnitComponentFactory
 from base.tests.factories.learning_unit_component_class import LearningUnitComponentClassFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory, create_learning_unit_year
@@ -95,7 +96,6 @@ from cms.tests.factories.translated_text import TranslatedTextFactory
 from osis_common.document import xls_build
 from reference.tests.factories.country import CountryFactory
 from reference.tests.factories.language import LanguageFactory
-from base.tests.factories.learning_unit import LearningUnitFactory
 
 
 @override_flag('learning_unit_create', active=True)
@@ -1244,12 +1244,17 @@ class LearningUnitViewTestCase(TestCase):
             'PLANNED_CLASSES_{}_{}'.format(learning_unit_year.id, learning_component_year.id): [2]
         }
 
-    @mock.patch("base.models.learning_unit_year.count_search_results")
-    def test_error_message_case_too_many_results_to_show(self, mock_count):
-        mock_count.return_value = LearningUnitSearchForm.MAX_RECORDS + 1
+    def test_error_message_case_too_many_results_to_show(self):
+        LearningUnitYearFactory(academic_year=self.academic_year_1)
+        tmpmaxrecors = LearningUnitSearchForm.MAX_RECORDS
+        LearningUnitSearchForm.MAX_RECORDS = 0
+
         response = self.client.get(reverse('learning_units'), {'academic_year_id': self.academic_year_1.id})
         messages = list(response.context['messages'])
         self.assertEqual(messages[0].message, _('too_many_results'))
+
+        # Restore max_record
+        LearningUnitSearchForm.MAX_RECORDS = tmpmaxrecors
 
     def test_get_username_with_no_person(self):
         a_username = 'dupontm'

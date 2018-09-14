@@ -23,31 +23,21 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from ckeditor.fields import RichTextFormField
 from django import forms
 
-from base.forms.common import set_trans_txt
-from cms.enums import entity_name
-from cms.models import translated_text
+
+class UpdateLineForm(forms.Form):
+    admission_condition_line = forms.IntegerField(widget=forms.HiddenInput())
+    section = forms.CharField(widget=forms.HiddenInput())
+    language = forms.CharField(widget=forms.HiddenInput())
+    diploma = forms.CharField(widget=forms.Textarea, required=False)
+    conditions = forms.CharField(widget=forms.Textarea, required=False)
+    access = forms.CharField(widget=forms.Textarea, required=False)
+    remarks = forms.CharField(widget=forms.Textarea, required=False)
 
 
-class EducationGroupGeneralInformationsForm(forms.Form):
-    education_group_year = language = None
-    text_labels_name = None
-
-    def __init__(self, *args, **kwargs):
-        self.education_group_year = kwargs.pop('education_group_year', None)
-        self.language = kwargs.pop('language', None)
-        self.text_labels_name = kwargs.pop('text_labels_name', None)
-        self.load_initial()
-        super().__init__(*args, **kwargs)
-
-    def load_initial(self):
-        translated_texts_list = self._get_all_translated_text_related()
-        set_trans_txt(self, translated_texts_list)
-
-    def _get_all_translated_text_related(self):
-        language_iso = self.language[0]
-        return translated_text.search(entity=entity_name.OFFER_YEAR,
-                                      reference=self.education_group_year.id,
-                                      language=language_iso,
-                                      text_labels_name=self.text_labels_name)
+class UpdateTextForm(forms.Form):
+    text = RichTextFormField(required=False, config_name='minimal')
+    section = forms.CharField(widget=forms.HiddenInput())
+    language = forms.CharField(widget=forms.HiddenInput())

@@ -36,8 +36,11 @@
             {% endblock %}
 
             {% block search_form_buttons %}
-                <div class="col-md-1 text-right" style="line-height:70px;">
-                    {% bootstrap_button "" value=_('learning_unit_search') button_type="submit" button_class="btn-primary" icon="search" %}
+                <br>
+                <div class="col-md-1">
+                    <div class="btn-toolbar pull-right">
+                        {% bootstrap_button "" value=_('learning_unit_search') button_type="submit" button_class="btn-primary" icon="search" %}
+                    </div>
                 </div>
             {% endblock %}
         </div>
@@ -48,3 +51,5 @@
         </div>
     </div>
 </form>
+
+{% include 'learning_unit/blocks/form/search_form_reset.html' %}

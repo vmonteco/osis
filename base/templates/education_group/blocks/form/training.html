@@ -45,7 +45,7 @@
                             <br>
                             <div class="row">
                                 <div class="col-md-6">
-                                    <label>{% trans 'type' %}</label><br>
+                                    <label>{% trans 'category' %}</label><br>
                                     <input value="{% trans form_education_group_year.category %}"
                                            disabled class="form-control" >
                                 </div>
@@ -101,6 +101,7 @@
                             {# Load ajax queries#}
                             {{ form_education_group_year.media }}
                             {% bootstrap_field form_education_group_year.secondary_domains %}
+                            {% bootstrap_field form_education_group_year.internal_comment %}
                             </div>
                         </div>
                 </div>

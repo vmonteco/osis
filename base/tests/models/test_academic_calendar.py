@@ -50,13 +50,6 @@ class AcademicCalendarTest(TestCase):
                                                              end_date=datetime.date(yr, 3, 3))
         self.assertRaises(StartDateHigherThanEndDateException, an_academic_calendar.save)
 
-    def test_find_by_id(self):
-        an_academic_year = AcademicYearFactory()
-        tmp_academic_calendar = AcademicCalendarFactory(academic_year=an_academic_year)
-        db_academic_calendar = academic_calendar.find_by_id(tmp_academic_calendar.id)
-        self.assertIsNotNone(db_academic_calendar)
-        self.assertEqual(db_academic_calendar, tmp_academic_calendar)
-
     def test_find_highlight_academic_calendar(self):
         an_academic_year = AcademicYearFakerFactory(start_date=timezone.now() - datetime.timedelta(days=10),
                                                     end_date=timezone.now() + datetime.timedelta(days=10))
@@ -97,12 +90,6 @@ class AcademicCalendarTest(TestCase):
         with mock.patch.object(compute_all_scores_encodings_deadlines, 'send') as mock_method:
             AcademicCalendarFactory()
             self.assertTrue(mock_method.called)
-
-    def test_find_academic_calendar_no_mandatory_args_mentioned(self):
-        self.assertIsNone(academic_calendar.find_academic_calendar(None, None, timezone.now()))
-        an_academic_year = AcademicYearFactory(year=timezone.now().year)
-        self.assertIsNone(academic_calendar.find_academic_calendar(an_academic_year, None, timezone.now()))
-        self.assertIsNone(academic_calendar.find_academic_calendar(None, "EVENT_CALENDAR", timezone.now()))
 
 
 class TestFindDatesForCurrentAcademicYear(TestCase):

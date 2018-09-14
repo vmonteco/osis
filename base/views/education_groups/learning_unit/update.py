@@ -23,9 +23,9 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+import json
 
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
@@ -34,6 +34,7 @@ from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import UpdateView
 
+from base.business.education_groups.group_element_year_tree import NodeBranchJsTree
 from base.forms.prerequisite import LearningUnitPrerequisiteForm
 from base.models import group_element_year
 from base.models.education_group_year import EducationGroupYear
@@ -65,10 +66,12 @@ class LearningUnitGenericUpdateView(RulesRequiredMixin, SuccessMessageMixin, Upd
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
+        root = self.get_root()
         context['person'] = self.get_person()
-        context['root'] = self.get_root()
+        context['root'] = root
         context['root_id'] = self.kwargs.get("root_id")
-        context['parent'] = self.get_root()
+        context['parent'] = root
+        context['tree'] = json.dumps(NodeBranchJsTree(root).to_json())
 
         context['group_to_parent'] = self.request.GET.get("group_to_parent") or '0'
         return context

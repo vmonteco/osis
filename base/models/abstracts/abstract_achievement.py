@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -23,26 +23,31 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django import template
+from django.db import models
+from django.utils.translation import ugettext_lazy as _
 
-register = template.Library()
+from ckeditor.fields import RichTextField
+from ordered_model.admin import OrderedModelAdmin
 
-
-@register.inclusion_tag('templatetags/admission_condition_table_row.html')
-def render_condition_rows(section_name, header_text, records, condition):
-    return {
-        'section_name': section_name,
-        'header_text': header_text,
-        'records': records,
-        'condition': condition,
-    }
+from ordered_model.models import OrderedModel
 
 
-@register.inclusion_tag('templatetags/admission_condition_text.html')
-def render_condition_text(section_name, text, field, condition):
-    return {
-        'section': section_name,
-        'text': text,
-        'field': field,
-        'condition': condition,
-    }
+class AbstractAchievementAdmin(OrderedModelAdmin):
+    list_display = ('code_name', 'order', 'move_up_down_links', 'language')
+    readonly_fields = ['order']
+    search_fields = ['code_name', 'order']
+
+
+class AbstractAchievement(OrderedModel):
+    external_id = models.CharField(max_length=100, blank=True, null=True, db_index=True)
+    changed = models.DateTimeField(null=True, auto_now=True)
+    code_name = models.CharField(max_length=100, verbose_name=_('code'))
+    text = RichTextField(null=True, verbose_name=_('text'))
+    language = models.ForeignKey(
+        'reference.Language',
+        verbose_name=_('language'),
+        on_delete=models.CASCADE,
+    )
+
+    class Meta:
+        abstract = True

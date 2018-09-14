@@ -3129,8 +3129,8 @@ msgstr "UCL Bachelors"
 msgid "Others Bachelors of the French speaking Community of Belgium"
 msgstr "Others Bachelors of the French speaking Community of Belgium"
 
-msgid "Bachelors of the Dutch speaking Community of Beligum"
-msgstr "Bachelors of the Dutch speaking Community of Beligum"
+msgid "Bachelors of the Dutch speaking Community of Belgium"
+msgstr "Bachelors of the Dutch speaking Community of Belgium"
 
 msgid "Foreign Bachelors"
 msgstr "Foreign Bachelors"
@@ -3189,6 +3189,9 @@ msgstr ""
 msgid "The education group edition period is not open."
 msgstr ""
 
+msgid "this education group is not editable during this period."
+msgstr ""
+
 msgid "The user has not permission to delete education groups."
 msgstr ""
 
@@ -3201,10 +3204,16 @@ msgstr ""
 msgid "Are you sure you want to delete the teaching material?"
 msgstr ""
 
+msgid "teaching materials"
+msgstr ""
+
+msgid "online resources"
+msgstr ""
+
 msgid "{} successfully updated"
 msgstr ""
 
-msgid "unit"
+msgid "duration unit"
 msgstr ""
 
 msgid "Enter text to search"
@@ -3798,4 +3807,67 @@ msgid "Add the French content of this paragraph"
 msgstr ""
 
 msgid "Add the English content of this paragraph"
+msgstr ""
+
+msgid "Add potential courses"
+msgstr ""
+
+msgid "Made in"
+msgstr ""
+
+msgid "on"
+msgstr ""
+
+msgid "For approval"
+msgstr ""
+
+msgid "Legend"
+msgstr ""
+
+msgid "Registration form for the content of"
+msgstr ""
+
+msgid "Student's contact information"
+msgstr ""
+
+msgid "Student's signature"
+msgstr ""
+
+msgid "Own components"
+msgstr ""
+
+msgid "list of required teaching material"
+msgstr ""
+
+msgid "the list to generate is empty."
+msgstr ""
+
+msgid "Only program managers of the education group OR central manager linked to entity can edit."
+msgstr ""
+
+msgid "Add/Modify a line"
+msgstr ""
+
+msgid "Update the text"
+msgstr ""
+
+msgid "General Conditions"
+msgstr ""
+
+msgid "French language proficiency examination"
+msgstr ""
+
+msgid "Reduction"
+msgstr ""
+
+msgid "Opening to Adults"
+msgstr ""
+
+msgid "comment (internal)"
+msgstr ""
+
+msgid "education group achievement"
+msgstr ""
+
+msgid "education group detailed achievement"
 msgstr ""
