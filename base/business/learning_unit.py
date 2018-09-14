@@ -260,14 +260,20 @@ def _add_training_data(formations_by_educ_group_year, learning_unit_yr):
     for cpt, group_element_year in enumerate(learning_unit_yr.group_elements_years):
         if cpt > 0:
             training_string += CARRIAGE_RETURN
-        training_string = "{} {} {} {}".format(
-            training_string,
-            group_element_year.parent.partial_acronym if group_element_year.parent.partial_acronym else EMPTY,
-            "({})".format(
-                str(group_element_year.child_leaf.credits) if group_element_year.child_leaf.credits else DASH),
-            _get_trainings(group_element_year, formations_by_educ_group_year)
-        )
+        training_string = _concatenate_training_data(formations_by_educ_group_year, group_element_year, training_string)
 
+    return training_string
+
+
+def _concatenate_training_data(formations_by_educ_group_year, group_element_year, training_string_param):
+    training_string = training_string_param
+    training_string = "{} {} {} {}".format(
+        training_string,
+        group_element_year.parent.partial_acronym if group_element_year.parent.partial_acronym else EMPTY,
+        "({})".format(
+            str(group_element_year.child_leaf.credits) if group_element_year.child_leaf.credits else DASH),
+        _get_trainings(group_element_year, formations_by_educ_group_year)
+    )
     return training_string
 
 
