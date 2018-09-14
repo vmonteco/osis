@@ -3819,11 +3819,11 @@ msgstr "Ajouter le contenu Anglais de ce paragraphe"
 msgid "Add potential courses"
 msgstr "Ajouts de cours éventuels"
 
-msgid "Made in ..................."
-msgstr "Fait à ..................."
+msgid "Made in"
+msgstr "Fait à"
 
-msgid "on ......./......./......."
-msgstr "Le ......./......./......."
+msgid "on"
+msgstr "Le"
 
 msgid "For approval"
 msgstr "Pour accord,"
@@ -3872,6 +3872,12 @@ msgstr "Ouverture aux adultes"
 
 msgid "comment (internal)"
 msgstr "commentaire (interne)"
+
+msgid "education group achievement"
+msgstr "Acquis d'apprentissage d'organisation de formation"
+
+msgid "education group detailed achievement"
+msgstr "Acquis d'apprentissage détaillé d'organisation de formation"
 
 msgid "on successful completion of this program, each student is able to"
 msgstr "au terme de ce programme, le diplômé est capable de"

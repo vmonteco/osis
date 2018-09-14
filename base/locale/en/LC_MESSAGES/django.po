@@ -3812,10 +3812,10 @@ msgstr ""
 msgid "Add potential courses"
 msgstr ""
 
-msgid "Made in ..................."
+msgid "Made in"
 msgstr ""
 
-msgid "on ......./......./......."
+msgid "on"
 msgstr ""
 
 msgid "For approval"
@@ -3864,6 +3864,12 @@ msgid "Opening to Adults"
 msgstr ""
 
 msgid "comment (internal)"
+msgstr ""
+
+msgid "education group achievement"
+msgstr ""
+
+msgid "education group detailed achievement"
 msgstr ""
 
 msgid "on successful completion of this program, each student is able to"
