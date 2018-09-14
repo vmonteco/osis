@@ -23,10 +23,10 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import sys
 import logging
-
 import os
+import sys
+
 import dotenv
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -78,3 +78,7 @@ if hasattr(settings, 'QUEUES') and settings.QUEUES:
                                                      send_json_scores_sheets_to_response_queue).start()
         except (ConnectionClosed, ChannelClosed, AMQPConnectionError, ConnectionError) as e:
             LOGGER.exception("Couldn't connect to the QueueServer")
+
+if hasattr(settings, 'ENABLED_CELERY') and settings.ENABLED_CELERY:
+    # Ensure that celery app is loaded
+    from .celery import app as celery_app

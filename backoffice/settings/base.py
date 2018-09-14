@@ -212,6 +212,15 @@ LOGO_OSIS_URL = os.environ.get('LOGO_OSIS_URL', '')
 # See in settings.dev.example to configure the queues
 QUEUES = {}
 
+# Celery settings
+ENABLED_CELERY = os.environ.get('ENABLED_CELERY', 'False').lower() == 'true'
+CELERY_BROKER_URL = "amqp://{user}:{password}@{host}:{port}".format(
+    user=os.environ.get('RABBITMQ_USER', 'guest'),
+    password=os.environ.get('RABBITMQ_PASSWORD', 'guest'),
+    host=os.environ.get('RABBITMQ_HOST', 'localhost'),
+    port=os.environ.get('RABBITMQ_PORT', '5672')
+)
+
 # Additionnal Locale Path
 # Add local path in your environment settings (ex: dev.py)
 LOCALE_PATHS = ()
