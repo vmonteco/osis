@@ -25,26 +25,27 @@
 ##############################################################################
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
-
-from ckeditor.fields import RichTextField
-from ordered_model.models import OrderedModel
-from ordered_model.admin import OrderedModelAdmin
 from django.core.exceptions import ObjectDoesNotExist
 
-
-class LearningAchievementAdmin(OrderedModelAdmin):
-    list_display = ('learning_unit_year', 'code_name', 'order', 'move_up_down_links', 'language')
-    readonly_fields = ['order']
-    search_fields = ['learning_unit_year__acronym', 'code_name', 'order']
+from base.models.abstracts.abstract_achievement import AbstractAchievement, AbstractAchievementAdmin
 
 
-class LearningAchievement(OrderedModel):
-    external_id = models.CharField(max_length=100, blank=True, null=True, db_index=True)
-    changed = models.DateTimeField(null=True, auto_now=True)
-    code_name = models.CharField(max_length=100, verbose_name=_('code'))
-    text = RichTextField(null=True, verbose_name=_('text'))
-    learning_unit_year = models.ForeignKey('LearningUnitYear')
-    language = models.ForeignKey('reference.Language')
+class LearningAchievementAdmin(AbstractAchievementAdmin):
+    raw_id_fields = ('learning_unit_year',)
+
+    def get_list_display(self, request):
+        return ('learning_unit_year',) + super().get_list_display(request)
+
+    def get_search_fields(self, request):
+        return ['learning_unit_year__acronym'] + super().get_search_fields(request)
+
+
+class LearningAchievement(AbstractAchievement):
+    learning_unit_year = models.ForeignKey(
+        'LearningUnitYear',
+        verbose_name=_('learning_unit'),
+        on_delete=models.CASCADE,
+    )
     order_with_respect_to = ('learning_unit_year', 'language')
 
     class Meta:
