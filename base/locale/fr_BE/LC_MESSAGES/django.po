@@ -3881,3 +3881,6 @@ msgstr "Acquis d'apprentissage détaillé d'organisation de formation"
 
 msgid "on successful completion of this program, each student is able to"
 msgstr "au terme de ce programme, le diplômé est capable de"
+
+msgid "skills and achievements"
+msgstr "compétences et acquis"

@@ -1,4 +1,4 @@
-{% extends "education_group/layout_detail.html" %}
+{% extends 'education_group/layout_detail.html' %}
 {% load i18n %}
 {% load staticfiles %}
 {% comment "License" %}
@@ -39,7 +39,18 @@
     </div>
 
     <div class="panel-body" id="tabs">
-        {% include "education_group/blocks/panel_achievements.html" %}
+         <div class="tab-content" id="tab_content">
+                <div role="tabpanel" class="tab-pane active" id="content">
+                    <div class="row" style="display:flex;">
+                        {% include "education_group/training_tree.html" %}
+                        <div id="panel-data" class="col-md-12" style="height: 100%;">
+                            {% include "education_group/tabs.html" %}
+
+                            {% include "education_group/blocks/panel_achievements.html" %}
+                        </div>
+                    </div>
+                </div>
+         </div>
     </div>
 </div>
 {% endblock %}
