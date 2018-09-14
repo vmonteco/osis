@@ -336,7 +336,7 @@ def get_entity_acronym(an_entity):
 def create_xls(user, found_learning_units, filters):
     titles = LEARNING_UNIT_TITLES_PART1.copy()
     titles.extend(LEARNING_UNIT_TITLES_PART2.copy())
-    working_sheets_data = prepare_xls_content(found_learning_units, False, False, None)
+    working_sheets_data = prepare_xls_content(found_learning_units, False, False)
     parameters = {xls_build.DESCRIPTION: XLS_DESCRIPTION,
                   xls_build.USER: get_name_or_username(user),
                   xls_build.FILENAME: XLS_FILENAME,
