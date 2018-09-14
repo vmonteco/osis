@@ -3189,6 +3189,9 @@ msgstr ""
 msgid "The education group edition period is not open."
 msgstr ""
 
+msgid "this education group is not editable during this period."
+msgstr ""
+
 msgid "The user has not permission to delete education groups."
 msgstr ""
 
