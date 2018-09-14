@@ -3812,10 +3812,10 @@ msgstr ""
 msgid "Add potential courses"
 msgstr ""
 
-msgid "Made in ..................."
+msgid "Made in"
 msgstr ""
 
-msgid "on ......./......./......."
+msgid "on"
 msgstr ""
 
 msgid "For approval"
