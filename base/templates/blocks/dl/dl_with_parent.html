@@ -1,0 +1,13 @@
+{% load i18n %}
+<dl class="{{ class_dl }}">
+    <dt>{{ label|title }}</dt>
+    <dd>
+        {% if value %}
+            {% trans value %}
+        {% elif parent_value %}
+            <strong class="text-primary">{% trans parent_value %}</strong>
+        {% else %}
+            <br>
+        {% endif %}
+    </dd>
+</dl>

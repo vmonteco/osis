@@ -422,3 +422,33 @@ def _custom_link_pdf_content(context, action, onclick):
             text=text,
         )
     )
+
+
+@register.inclusion_tag("blocks/dl/dl_with_parent.html", takes_context=True)
+def dl_with_parent(context, label, key=None, class_dl=""):
+    if not key:
+        key = label
+
+    education_group_year = context.get('education_group_year')
+    value = education_group_year and getattr(education_group_year, key, None)
+    value = _bool_to_string(value)
+
+    if value is None:
+        parent = context.get("parent")
+        parent_value = parent and getattr(parent, key, None)
+    else:
+        parent, parent_value = None, None
+
+    return {
+        'label': _(label),
+        'value': _bool_to_string(value),
+        'parent_value': _bool_to_string(parent_value),
+        'class_dl': class_dl
+    }
+
+
+def _bool_to_string(value):
+    # In this case, None has a different value meaning than usual (maybe)
+    if isinstance(value, bool):
+        return "yes" if value else "no"
+    return value
