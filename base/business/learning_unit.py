@@ -53,6 +53,7 @@ from base.models.enums import learning_component_year_type
 from openpyxl.styles import Alignment, Style, PatternFill, Color, Font
 from base.models.enums import proposal_type, proposal_state
 from openpyxl.utils import get_column_letter
+from collections import defaultdict
 # List of key that a user can modify
 TRANSFORMATION_AND_MODIFICATION = Color('808000')
 TRANSFORMATION_COLOR = Color('ff6600')
@@ -589,15 +590,11 @@ def _get_wrapped_cells(learning_units, teachers_col_letter, programs_col_letter)
 
 
 def _get_colored_rows(learning_units):
-    colored_cells = {}
+    colored_cells = defaultdict(list)
     for idx, luy in enumerate(learning_units, start=1):
         proposal = mdl_base.proposal_learning_unit.find_by_learning_unit_year(luy)
         if proposal:
-            value = colored_cells.get(PROPOSAL_LINE_STYLES.get(proposal.type))
-            if value:
-                colored_cells.update({PROPOSAL_LINE_STYLES.get(proposal.type): value.append(idx)})
-            else:
-                colored_cells[PROPOSAL_LINE_STYLES.get(proposal.type)] = [idx]
+            colored_cells[PROPOSAL_LINE_STYLES.get(proposal.type)].append(idx)
     return colored_cells
 
 
