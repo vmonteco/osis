@@ -1985,6 +1985,12 @@ msgstr "Soumission des feuilles de note"
 msgid "TEACHING_CHARGE_APPLICATION"
 msgstr "Application pour charges d'enseignement"
 
+msgid "TESTING"
+msgstr "Tests"
+
+msgid "RELEASE"
+msgstr "Release"
+
 msgid "field_is_required"
 msgstr "Ce champ est obligatoire."
 
@@ -3819,11 +3825,11 @@ msgstr "Ajouter le contenu Anglais de ce paragraphe"
 msgid "Add potential courses"
 msgstr "Ajouts de cours éventuels"
 
-msgid "Made in ..................."
-msgstr "Fait à ..................."
+msgid "Made in"
+msgstr "Fait à"
 
-msgid "on ......./......./......."
-msgstr "Le ......./......./......."
+msgid "on"
+msgstr "Le"
 
 msgid "For approval"
 msgstr "Pour accord,"
@@ -3875,3 +3881,9 @@ msgstr "commentaire (interne)"
 
 msgid "activities in English"
 msgstr "activités en anglais"
+
+msgid "education group achievement"
+msgstr "Acquis d'apprentissage d'organisation de formation"
+
+msgid "education group detailed achievement"
+msgstr "Acquis d'apprentissage détaillé d'organisation de formation"

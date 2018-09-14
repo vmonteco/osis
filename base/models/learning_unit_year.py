@@ -157,10 +157,13 @@ class LearningUnitYear(SerializableModel, ExtraManagerLearningUnitYear):
 
     @property
     def complete_title(self):
-        complete_title = self.specific_title
-        if self.learning_container_year:
-            complete_title = ' '.join(filter(None, [self.learning_container_year.common_title, self.specific_title]))
-        return complete_title
+        if self.specific_title:
+            complete_title = self.specific_title
+            if self.learning_container_year:
+                complete_title = ' - '.join(
+                    filter(None, [self.learning_container_year.common_title, self.specific_title]))
+            return complete_title
+        return ""
 
     @property
     def container_common_title(self):

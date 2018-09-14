@@ -25,10 +25,9 @@
 ##############################################################################
 from operator import itemgetter
 
-from django.utils.translation import ugettext_lazy as _
 from django import forms
 from django.db.models.fields import BLANK_CHOICE_DASH
-
+from django.utils.translation import ugettext_lazy as _
 
 from base.forms import bootstrap
 from base.models import academic_calendar, offer_year_calendar, academic_year
@@ -37,7 +36,7 @@ from base.models.enums import academic_calendar_type
 
 class AcademicCalendarForm(bootstrap.BootstrapModelForm):
     REFERENCE_CHOICE_FIELD = BLANK_CHOICE_DASH + \
-                             sorted([(a, _(b)) for (a, b) in academic_calendar_type.ACADEMIC_CALENDAR_TYPES],
+                             sorted([(a, _(b)) for (a, b) in academic_calendar_type.CALENDAR_TYPES],
                                     key=itemgetter(1))
 
     academic_year = forms.ModelChoiceField(queryset=academic_year.AcademicYear.objects.all().order_by('year'),

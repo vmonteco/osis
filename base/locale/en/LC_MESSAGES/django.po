@@ -1983,6 +1983,12 @@ msgstr "Submission of exam scores"
 msgid "TEACHING_CHARGE_APPLICATION"
 msgstr "Teaching charge application"
 
+msgid "TESTING"
+msgstr "Testing"
+
+msgid "RELEASE"
+msgstr "Release"
+
 msgid "field_is_required"
 msgstr "This field is required"
 
@@ -3812,10 +3818,10 @@ msgstr ""
 msgid "Add potential courses"
 msgstr ""
 
-msgid "Made in ..................."
+msgid "Made in"
 msgstr ""
 
-msgid "on ......./......./......."
+msgid "on"
 msgstr ""
 
 msgid "For approval"
@@ -3867,4 +3873,10 @@ msgid "comment (internal)"
 msgstr ""
 
 msgid "activities in English"
+msgstr ""
+
+msgid "education group achievement"
+msgstr ""
+
+msgid "education group detailed achievement"
 msgstr ""

@@ -89,6 +89,8 @@
 
 ### Pull request :
 - Ne fournir qu'un seul fichier de migration par issue/branche (fusionner tous les fichiers de migrations que vous avez en local en un seul fichier)
+- Ajouter la référence au ticket Jira dans le titre de la pull request (format = "OSIS-12345")
+- Utiliser un titre de pull request qui identifie son contenu (facilite la recherche de pull requests et permet aux contributeurs du projet d'avoir une idée sur son contenu)
 
 ### Ressources et dépendances :
 - Ne pas faire de référence à des librairie/ressources externes ; ajouter la librairie utilisée dans le dossier 'static'
