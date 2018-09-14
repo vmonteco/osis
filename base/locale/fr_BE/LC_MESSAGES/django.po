@@ -3846,6 +3846,9 @@ msgstr "liste des supports de cours obligatoires"
 msgid "the list to generate is empty."
 msgstr "la liste à générer est vide."
 
+msgid "Only program managers of the education group OR central manager linked to entity can edit."
+msgstr "Seuls les gestionnaires de programme d'organisation de formation OU les gestionnaires facultaires liées à l'entité peuvent éditer."
+
 msgid "Add/Modify a line"
 msgstr "Ajouter/Modifier une ligne"
 
