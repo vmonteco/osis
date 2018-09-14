@@ -24,6 +24,7 @@
 #
 ##############################################################################
 from django.db import models
+from django.utils.translation import ugettext_lazy as _
 from django.core.exceptions import ObjectDoesNotExist
 
 from base.models.abstracts.abstract_achievement import AbstractAchievement, AbstractAchievementAdmin
@@ -40,7 +41,11 @@ class LearningAchievementAdmin(AbstractAchievementAdmin):
 
 
 class LearningAchievement(AbstractAchievement):
-    learning_unit_year = models.ForeignKey('LearningUnitYear')
+    learning_unit_year = models.ForeignKey(
+        'LearningUnitYear',
+        verbose_name=_('learning_unit'),
+        on_delete=models.CASCADE,
+    )
     order_with_respect_to = ('learning_unit_year', 'language')
 
     class Meta:

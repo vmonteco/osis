@@ -40,7 +40,11 @@ class EducationGroupDetailedAchievementAdmin(AbstractAchievementAdmin):
 
 
 class EducationGroupDetailedAchievement(AbstractAchievement):
-    education_group_achievement = models.ForeignKey('EducationGroupAchievement')
+    education_group_achievement = models.ForeignKey(
+        'EducationGroupAchievement',
+        verbose_name=_("education group achievement"),
+        on_delete=models.CASCADE,
+    )
     order_with_respect_to = ('education_group_achievement', 'language')
 
     class Meta:

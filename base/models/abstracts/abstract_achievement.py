@@ -43,7 +43,11 @@ class AbstractAchievement(OrderedModel):
     changed = models.DateTimeField(null=True, auto_now=True)
     code_name = models.CharField(max_length=100, verbose_name=_('code'))
     text = RichTextField(null=True, verbose_name=_('text'))
-    language = models.ForeignKey('reference.Language')
+    language = models.ForeignKey(
+        'reference.Language',
+         verbose_name=_('language'),
+         on_delete=models.CASCADE,
+    )
 
     class Meta:
         abstract = True
