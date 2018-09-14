@@ -3872,3 +3872,6 @@ msgstr "Ouverture aux adultes"
 
 msgid "comment (internal)"
 msgstr "commentaire (interne)"
+
+msgid "on successful completion of this program, each student is able to"
+msgstr "au terme de ce programme, le diplômé est capable de"
