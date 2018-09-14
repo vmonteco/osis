@@ -1,3 +1,7 @@
+### Commits : 
+- Ajouter un message explicite à chaque commit
+- Commiter souvent = diff limité = facilité d'identification de commits amenant une régression = facilité de revert
+
 ### Lisibilité du code :
 - Séparation des classes: deux lignes vides
 - Séparation des methodes de class: une ligne vide
@@ -88,3 +92,11 @@
 
 ### Ressources et dépendances :
 - Ne pas faire de référence à des librairie/ressources externes ; ajouter la librairie utilisée dans le dossier 'static'
+
+### Tests : 
+#### Vues :
+Idéalement lorsqu'on teste une view, on doit vérifier :
+- Le template utilisé (assertTemplateUsed)
+- Les redirections en cas de succès/erreurs
+- Le contenu du contexte utilisé dans le render du template
+- Les éventuels ordres de listes attendus

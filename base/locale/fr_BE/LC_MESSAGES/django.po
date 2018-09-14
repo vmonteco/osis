@@ -3197,6 +3197,9 @@ msgstr "Cela supprimera également les objets suivants"
 msgid "The education group edition period is not open."
 msgstr "La période de modification d'organisation de formation n'est pas ouverte."
 
+msgid "this education group is not editable during this period."
+msgstr "cette organisation de formation n'est pas édtiable durant cette période."
+
 msgid "The user has not permission to delete education groups."
 msgstr "L'utilisateur n'a pas la permission de supprimer les organisations de formation."
 
@@ -3212,8 +3215,8 @@ msgstr "Êtes-vous sûr·e de vouloir supprimer le support de cours?"
 msgid "{} successfully updated"
 msgstr "{} modifié(e) avec succès."
 
-msgid "unit"
-msgstr "unité"
+msgid "duration unit"
+msgstr "type durée"
 
 msgid "Enter text to search"
 msgstr "Entrez le texte à rechercher"
@@ -3845,6 +3848,9 @@ msgstr "liste des supports de cours obligatoires"
 
 msgid "the list to generate is empty."
 msgstr "la liste à générer est vide."
+
+msgid "Only program managers of the education group OR central manager linked to entity can edit."
+msgstr "Seuls les gestionnaires de programme d'organisation de formation OU les gestionnaires facultaires liées à l'entité peuvent éditer."
 
 msgid "Add/Modify a line"
 msgstr "Ajouter/Modifier une ligne"

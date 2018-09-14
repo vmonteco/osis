@@ -61,8 +61,8 @@ def education_group_edit_administrative_data(request, root_id, education_group_y
     assert_category_of_education_group_year(education_group_year, (education_group_categories.TRAINING,))
 
     if not education_group_business.can_user_edit_administrative_data(request.user, education_group_year):
-        raise PermissionDenied("Only program managers of the education group OR central manager "
-                               "linked to entity can edit.")
+        raise PermissionDenied(_("Only program managers of the education group OR central manager "
+                                 "linked to entity can edit."))
 
     formset_session = AdministrativeDataFormset(
         request.POST or None,

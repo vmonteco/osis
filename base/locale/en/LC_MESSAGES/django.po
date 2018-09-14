@@ -3213,7 +3213,7 @@ msgstr ""
 msgid "{} successfully updated"
 msgstr ""
 
-msgid "unit"
+msgid "duration unit"
 msgstr ""
 
 msgid "Enter text to search"
@@ -3840,6 +3840,9 @@ msgid "list of required teaching material"
 msgstr ""
 
 msgid "the list to generate is empty."
+msgstr ""
+
+msgid "Only program managers of the education group OR central manager linked to entity can edit."
 msgstr ""
 
 msgid "Add/Modify a line"

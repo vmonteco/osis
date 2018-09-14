@@ -194,8 +194,8 @@ def button_edit_administrative_data(context):
 
     permission_denied_message, is_disabled, root = _get_permission(context, can_user_edit_administrative_data)
     if not permission_denied_message:
-        permission_denied_message = "Only program managers of the education group OR central manager " \
-                                    "linked to entity can edit."
+        permission_denied_message = _("Only program managers of the education group OR "
+                                      "central manager linked to entity can edit.")
 
     return {
         'is_disabled': is_disabled,

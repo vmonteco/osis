@@ -58,6 +58,13 @@ class AcademicCalendarQuerySet(models.QuerySet):
     def current_academic_year(self):
         return self.filter(academic_year=academic_year.current_academic_year())
 
+    def open_calendars(self, date=None):
+        """ return only open calendars """
+        if not date:
+            date = timezone.now()
+
+        return self.filter(start_date__lte=date, end_date__gt=date)
+
 
 class AcademicCalendar(SerializableModel):
     external_id = models.CharField(max_length=100, blank=True, null=True, db_index=True)
@@ -70,15 +77,14 @@ class AcademicCalendar(SerializableModel):
     highlight_title = models.CharField(max_length=50, blank=True, null=True)
     highlight_description = models.CharField(max_length=255, blank=True, null=True)
     highlight_shortcut = models.CharField(max_length=255, blank=True, null=True)
-    reference = models.CharField(choices=academic_calendar_type.ACADEMIC_CALENDAR_TYPES, max_length=50, blank=True,
-                                 null=True)
+    reference = models.CharField(choices=academic_calendar_type.ACADEMIC_CALENDAR_TYPES, max_length=50)
 
     objects = AcademicCalendarQuerySet.as_manager()
 
     def save(self, *args, **kwargs):
         self.validation_mandatory_dates()
         self.validation_start_end_dates()
-        super(AcademicCalendar, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
         compute_all_scores_encodings_deadlines.send(sender=self.__class__, academic_calendar=self)
 
     def validation_start_end_dates(self):
@@ -99,8 +105,7 @@ class AcademicCalendar(SerializableModel):
 
 
 def find_highlight_academic_calendar():
-    today = timezone.now()
-    return AcademicCalendar.objects.filter(start_date__lte=today, end_date__gte=today) \
+    return AcademicCalendar.objects.open_calendars() \
         .exclude(highlight_title__isnull=True).exclude(highlight_title__exact='') \
         .exclude(highlight_description__isnull=True).exclude(highlight_description__exact='') \
         .exclude(highlight_shortcut__isnull=True).exclude(highlight_shortcut__exact='') \
@@ -121,13 +126,6 @@ def find_academic_calendar_by_academic_year_with_dates(academic_year_id):
                                    .order_by('start_date')
 
 
-def find_by_id(academic_calendar_id):
-    try:
-        return AcademicCalendar.objects.get(pk=academic_calendar_id)
-    except AcademicCalendar.DoesNotExist:
-        return None
-
-
 def find_by_ids(academic_calendars_id):
     return AcademicCalendar.objects.filter(pk__in=academic_calendars_id)
 
@@ -136,27 +134,10 @@ def get_by_reference_and_academic_year(a_reference, an_academic_year):
     return get_object_or_none(AcademicCalendar, reference=a_reference, academic_year=an_academic_year)
 
 
-def find_academic_calendar(academic_year_id, a_reference, a_date):
-    if academic_year_id and a_reference:
-        return AcademicCalendar.objects.filter(academic_year=academic_year_id,
-                                               reference=a_reference,
-                                               start_date__lte=a_date,
-                                               end_date__gte=a_date).order_by('start_date').first()
-    return None
-
-
 def is_academic_calendar_opened_for_specific_academic_year(an_academic_year_id, a_reference):
-    an_academic_calendar = find_academic_calendar(an_academic_year_id,
-                                                  a_reference,
-                                                  timezone.now())
-    if an_academic_calendar:
-        return True
-    return False
-
-
-def is_academic_calendar_opened(a_reference):
-    now = timezone.now()
-    return AcademicCalendar.objects.filter(reference=a_reference, start_date__lte=now, end_date__gte=now).exists()
+    return AcademicCalendar.objects.open_calendars().filter(
+        academic_year=an_academic_year_id, reference=a_reference
+    ).exists()
 
 
 def find_dates_for_current_academic_year(reference):
