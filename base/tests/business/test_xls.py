@@ -64,7 +64,11 @@ class TestLearningUnitXls(TestCase):
                                                           learning_container_year=self.learning_container_yr)
         self.learning_unit_yr_2 = LearningUnitYearFactory()
 
-        self.proposal = ProposalLearningUnitFactory(
+        self.proposal_creation_1 = ProposalLearningUnitFactory(
+            state=proposal_state.ProposalState.ACCEPTED.name,
+            type=proposal_type.ProposalType.CREATION.name,
+        )
+        self.proposal_creation_2 = ProposalLearningUnitFactory(
             state=proposal_state.ProposalState.ACCEPTED.name,
             type=proposal_type.ProposalType.CREATION.name,
         )
@@ -97,8 +101,9 @@ class TestLearningUnitXls(TestCase):
     def test_get_colored_rows(self):
         self.assertEqual(_get_colored_rows([self.learning_unit_yr_1,
                                             self.learning_unit_yr_2,
-                                            self.proposal.learning_unit_year]),
-                         {PROPOSAL_LINE_STYLES.get(self.proposal.type): [3]})
+                                            self.proposal_creation_1.learning_unit_year,
+                                            self.proposal_creation_2.learning_unit_year]),
+                         {PROPOSAL_LINE_STYLES.get(self.proposal_creation_1.type): [3, 4]})
 
     def test_get_attribution_line(self):
         a_person = PersonFactory(last_name="Smith", first_name='Aaron')
