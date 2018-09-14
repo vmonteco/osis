@@ -35,13 +35,18 @@ from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFact
 from base.tests.factories.person import PersonFactory
 from base.business.learning_unit import _get_wrapped_cells, _get_col_letter, _get_colored_rows, \
     PROPOSAL_LINE_STYLES, _get_attribution_line, _get_significant_volume, _update_volumes_data, \
-    _initialize_component_data, _prepare_legend_ws_data, SPACES, DEFAULT_LEGEND_STYLES
+    _initialize_component_data, _prepare_legend_ws_data, SPACES, DEFAULT_LEGEND_STYLES, \
+    _get_formations_by_educ_group_year
 from base.models.enums import proposal_type, proposal_state
 from base.tests.factories.academic_year import create_current_academic_year
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
 from base.tests.factories.learning_component_year import LearningComponentYearFactory
+from base.tests.factories.education_group_year import EducationGroupYearFactory
+from base.tests.factories.group_element_year import GroupElementYearFactory
 from base.models.enums import learning_component_year_type
 from osis_common.document import xls_build
+from base.models.enums import education_group_categories
+from base.tests.factories.education_group_type import EducationGroupTypeFactory
 
 COL_TEACHERS_LETTER = 'L'
 COL_PROGRAMS_LETTER = 'Z'
@@ -171,3 +176,24 @@ class TestLearningUnitXls(TestCase):
                 DEFAULT_LEGEND_STYLES
         }
         self.assertEqual(_prepare_legend_ws_data(), expected)
+
+    def test_formations(self):
+        direct_parent_type = EducationGroupTypeFactory(name='Bachelor', category=education_group_categories.TRAINING)
+
+        group_element_child = GroupElementYearFactory(
+            parent=EducationGroupYearFactory(academic_year=self.current_academic_year,
+                                             education_group_type=direct_parent_type),
+            child_branch=None,
+            child_leaf=self.learning_unit_yr_1
+        )
+        an_education_group = EducationGroupYearFactory(academic_year=self.current_academic_year)
+
+        group_element_root = GroupElementYearFactory(
+            parent=an_education_group,
+            child_branch=group_element_child.parent,
+        )
+        formations = _get_formations_by_educ_group_year(self.learning_unit_yr_1)
+
+        self.assertEqual(formations.get(group_element_child.id),
+                         [an_education_group])
+
