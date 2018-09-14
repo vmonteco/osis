@@ -231,31 +231,28 @@ def _is_used_by_full_learning_unit_year(a_learning_class_year):
 
 def prepare_xls_content(found_learning_units,
                         with_grp=False,
-                        with_attributions=False,
-                        formations_by_educ_group_year=None):
+                        with_attributions=False):
     return [
         extract_xls_data_from_learning_unit(lu,
                                             with_grp,
-                                            with_attributions,
-                                            formations_by_educ_group_year)
+                                            with_attributions)
         for lu in found_learning_units
         ]
 
 
-def extract_xls_data_from_learning_unit(learning_unit_yr, with_grp=False, with_attributions=False,
-                                        formations_by_educ_group_year=None):
+def extract_xls_data_from_learning_unit(learning_unit_yr, with_grp=False, with_attributions=False):
 
     lu_data_part1 = _get_data_part1(learning_unit_yr)
     lu_data_part2 = _get_data_part2(learning_unit_yr, with_attributions)
 
     if with_grp:
-        lu_data_part2.append(_add_training_data(formations_by_educ_group_year, learning_unit_yr))
+        lu_data_part2.append(_add_training_data(learning_unit_yr))
     lu_data_part1.extend(lu_data_part2)
     return lu_data_part1
 
 
-def _add_training_data(formations_by_educ_group_year, learning_unit_yr):
-
+def _add_training_data(learning_unit_yr):
+    formations_by_educ_group_year = _get_formations_by_educ_group_year(learning_unit_yr)
     training_string = EMPTY
     for cpt, group_element_year in enumerate(learning_unit_yr.group_elements_years):
         if cpt > 0:
@@ -459,17 +456,16 @@ def create_xls_with_parameters(user, learning_units, filters, extra_configuratio
     titles_part1 = LEARNING_UNIT_TITLES_PART1.copy()
     titles_part2 = LEARNING_UNIT_TITLES_PART2.copy()
 
-    formations_by_educ_group_yr = []
     if with_grp:
         titles_part2.append(str(HEADER_PROGRAMS))
-        formations_by_educ_group_yr = _get_formations_by_educ_group_year(learning_units)
+
     if with_attributions:
         titles_part1.append(str(HEADER_TEACHERS))
         for learning_unit_yr in learning_units:
             learning_unit_yr.attribution_charge_news = attribution_charge_new \
                 .find_attribution_charge_new_by_learning_unit_year(learning_unit_year=learning_unit_yr)
 
-    working_sheets_data = prepare_xls_content(learning_units, with_grp, with_attributions, formations_by_educ_group_yr)
+    working_sheets_data = prepare_xls_content(learning_units, with_grp, with_attributions)
 
     titles_part1.extend(titles_part2)
 
@@ -580,18 +576,6 @@ def _prepare_legend_ws_data():
     }
 
 
-def _get_formations_by_educ_group_year(found_learning_units):
-    groups = []
-    for learning_unit_yr in found_learning_units:
-        learning_unit_yr.group_elements_years = mdl_base.group_element_year.search(child_leaf=learning_unit_yr) \
-            .select_related("parent", "child_leaf", "parent__education_group_type") \
-            .order_by('parent__partial_acronym')
-        groups.extend(learning_unit_yr.group_elements_years)
-    education_groups_years = [group_element_year.parent for group_element_year in groups]
-    return mdl_base.group_element_year \
-        .find_learning_unit_formations(education_groups_years, parents_as_instances=True)
-
-
 def _get_wrapped_cells(learning_units, teachers_col_letter, programs_col_letter):
     dict_wrapped_styled_cells = []
 
@@ -641,3 +625,15 @@ def _get_col_letter(titles, title_search):
         if title == title_search:
             return get_column_letter(idx)
     return None
+
+
+def _get_formations_by_educ_group_year(learning_unit_yr):
+    groups = []
+
+    learning_unit_yr.group_elements_years = mdl_base.group_element_year.search(child_leaf=learning_unit_yr) \
+        .select_related("parent", "child_leaf", "parent__education_group_type") \
+        .order_by('parent__partial_acronym')
+    groups.extend(learning_unit_yr.group_elements_years)
+    education_groups_years = [group_element_year.parent for group_element_year in groups]
+    return mdl_base.group_element_year \
+        .find_learning_unit_formations(education_groups_years, parents_as_instances=True)

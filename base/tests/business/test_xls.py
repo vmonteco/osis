@@ -23,8 +23,10 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+
 from django.test import TestCase
 from django.utils import timezone
+
 from django.utils.translation import ugettext_lazy as _
 
 from base.business.xls import convert_boolean
@@ -32,8 +34,13 @@ from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
 from base.tests.factories.person import PersonFactory
 from base.business.learning_unit import _get_wrapped_cells, _get_col_letter, _get_colored_rows, \
-    PROPOSAL_LINE_STYLES, _get_attribution_line
-from base.models.enums import proposal_type
+    PROPOSAL_LINE_STYLES, _get_attribution_line, _get_significant_volume, _update_volumes_data, \
+    _initialize_component_data
+from base.models.enums import proposal_type, proposal_state
+from base.tests.factories.academic_year import create_current_academic_year
+from base.tests.factories.learning_container_year import LearningContainerYearFactory
+from base.tests.factories.learning_component_year import LearningComponentYearFactory
+from base.models.enums import learning_component_year_type
 
 COL_TEACHERS_LETTER = 'L'
 COL_PROGRAMS_LETTER = 'Z'
@@ -51,8 +58,16 @@ class TestXls(TestCase):
 
 class TestLearningUnitXls(TestCase):
     def setUp(self):
-        self.learning_unit_yr_1 = LearningUnitYearFactory()
+        self.current_academic_year = create_current_academic_year()
+        self.learning_container_yr = LearningContainerYearFactory(academic_year=self.current_academic_year)
+        self.learning_unit_yr_1 = LearningUnitYearFactory(academic_year=self.current_academic_year,
+                                                          learning_container_year=self.learning_container_yr)
         self.learning_unit_yr_2 = LearningUnitYearFactory()
+
+        self.proposal = ProposalLearningUnitFactory(
+            state=proposal_state.ProposalState.ACCEPTED.name,
+            type=proposal_type.ProposalType.CREATION.name,
+        )
 
     def test_get_wrapped_cells_with_teachers_and_programs(self):
         styles = _get_wrapped_cells([self.learning_unit_yr_1, self.learning_unit_yr_2],
@@ -80,12 +95,10 @@ class TestLearningUnitXls(TestCase):
         self.assertIsNone(_get_col_letter(titles, 'whatever'))
 
     def test_get_colored_rows(self):
-        proposal = ProposalLearningUnitFactory(type=proposal_type.ProposalType.CREATION)
-
         self.assertEqual(_get_colored_rows([self.learning_unit_yr_1,
                                             self.learning_unit_yr_2,
-                                            proposal.learning_unit_year]),
-                         {PROPOSAL_LINE_STYLES.get(proposal_type): [3]})
+                                            self.proposal.learning_unit_year]),
+                         {PROPOSAL_LINE_STYLES.get(self.proposal.type): [3]})
 
     def test_get_attribution_line(self):
         a_person = PersonFactory(last_name="Smith", first_name='Aaron')
@@ -112,6 +125,27 @@ class TestLearningUnitXls(TestCase):
                              _('Attrib. vol1'),
                              10,
                              _('Attrib. vol2'),
-                             15,
+                             15,)
                          )
-                         )
+
+    def test_get_significant_volume(self):
+        self.assertEqual(_get_significant_volume(10), 10)
+        self.assertEqual(_get_significant_volume(None), '')
+        self.assertEqual(_get_significant_volume(0), '')
+
+    def test_get_volumes(self):
+        volumes = {
+            learning_component_year_type.LECTURING: _initialize_component_data(),
+            learning_component_year_type.PRACTICAL_EXERCISES: _initialize_component_data()
+        }
+        lecturing_data = {'PLANNED_CLASSES': 1, 'VOLUME_Q1': 10, 'VOLUME_TOTAL': 50, 'VOLUME_Q2': 40}
+        compo = {
+            'learning_component_year': LearningComponentYearFactory(learning_container_year=self.learning_container_yr,
+                                                                    type=learning_component_year_type.LECTURING),
+            'volumes': lecturing_data
+        }
+        volumes_updated = _update_volumes_data(compo, volumes)
+        self.assertCountEqual(volumes_updated.get(learning_component_year_type.LECTURING),
+                              lecturing_data)
+        self.assertCountEqual(volumes_updated.get(learning_component_year_type.PRACTICAL_EXERCISES),
+                              _initialize_component_data())
