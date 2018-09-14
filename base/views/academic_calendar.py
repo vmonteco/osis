@@ -24,14 +24,14 @@
 #
 ##############################################################################
 import datetime
-from django.shortcuts import get_object_or_404
-from django.contrib.auth.decorators import login_required, permission_required
-from django.views.decorators.http import require_http_methods
 
+from django.contrib.auth.decorators import login_required, permission_required
+from django.shortcuts import get_object_or_404
+
+from base import models as mdl
 from base.forms.academic_calendar import AcademicCalendarForm
 from base.models.academic_calendar import AcademicCalendar
 from base.models.enums import academic_calendar_type
-from base import models as mdl
 from base.models.utils.utils import get_object_or_none
 from . import layout
 
@@ -54,7 +54,7 @@ def _build_gantt_json(academic_calendar_list):
             'text': calendar.title,
             'start_date': calendar.start_date.strftime('%d-%m-%Y'),
             'end_date': calendar.end_date.strftime('%d-%m-%Y'),
-            'color': academic_calendar_type.ACADEMIC_CALENDAR_TYPES_COLORS.get(calendar.reference, '#337ab7'),
+            'color': academic_calendar_type.CALENDAR_TYPES_COLORS.get(calendar.reference, '#337ab7'),
             'progress': progress
         }
         academic_calendar_data.append(data)

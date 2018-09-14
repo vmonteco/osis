@@ -24,9 +24,10 @@
 #
 ##############################################################################
 import datetime
-from django.test import TestCase, RequestFactory
 from unittest import mock
+
 from django.core.urlresolvers import reverse
+from django.test import TestCase, RequestFactory
 
 from base.forms.academic_calendar import AcademicCalendarForm
 from base.models.academic_year import AcademicYear
@@ -123,7 +124,7 @@ class AcademicCalendarViewTestCase(TestCase):
         self.assertDictEqual(
             context['academic_calendar_json'],
             {'data': [
-                {'color': academic_calendar_type.ACADEMIC_CALENDAR_TYPES_COLORS.get(calendar.reference, '#337ab7'),
+                {'color': academic_calendar_type.CALENDAR_TYPES_COLORS.get(calendar.reference, '#337ab7'),
                  'text': calendar.title,
                  'start_date': calendar.start_date.strftime('%d-%m-%Y'),
                  'end_date': calendar.end_date.strftime('%d-%m-%Y'),
