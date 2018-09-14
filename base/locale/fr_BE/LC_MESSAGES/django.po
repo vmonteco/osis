@@ -3872,3 +3872,9 @@ msgstr "Ouverture aux adultes"
 
 msgid "comment (internal)"
 msgstr "commentaire (interne)"
+
+msgid "education group achievement"
+msgstr "Acquis d'apprentissage d'organisation de formation"
+
+msgid "education group detailed achievement"
+msgstr "Acquis d'apprentissage détaillé d'organisation de formation"
