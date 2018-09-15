@@ -427,9 +427,23 @@ def _custom_link_pdf_content(context, action, onclick):
 
 
 @register.inclusion_tag("blocks/dl/dl_with_parent.html", takes_context=True)
-def dl_with_parent(context, label, key=None, class_dl="", default_value=None):
+def dl_with_parent(context, dl_title, key=None, class_dl="", default_value=None):
+    """
+    Tag to render <dl> for details of education_group.
+    If the fetched value does not exist for the current education_group_year,
+    the method will try to fetch the parent's value and display it in another style
+    (strong, blue).
+
+    :param context: context of the page given by django inclusion tag
+    :param dl_title: text to display in <dt>
+    :param key: attr to fetch value from education_group_year (can be a property)
+    :param class_dl: additional html class
+    :param default_value: display a default value in <dd> if no value was found.
+    :return: dict
+    """
+
     if not key:
-        key = label
+        key = dl_title
 
     education_group_year = context.get('education_group_year')
     value = _fetch_value_with_attrgetter(education_group_year, key)
@@ -441,7 +455,7 @@ def dl_with_parent(context, label, key=None, class_dl="", default_value=None):
         parent, parent_value = None, None
 
     return {
-        'label': _(label),
+        'label': _(dl_title),
         'value': _bool_to_string(value),
         'parent_value': _bool_to_string(parent_value),
         'class_dl': class_dl,
