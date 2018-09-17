@@ -24,6 +24,7 @@
 #
 ##############################################################################
 
+from decimal import Decimal
 from django.test import TestCase
 from django.utils import timezone
 
@@ -36,7 +37,7 @@ from base.tests.factories.person import PersonFactory
 from base.business.learning_unit import _get_wrapped_cells, _get_col_letter, _get_colored_rows, \
     PROPOSAL_LINE_STYLES, _get_attribution_line, _get_significant_volume, _update_volumes_data, \
     _initialize_component_data, _prepare_legend_ws_data, SPACES, DEFAULT_LEGEND_STYLES, \
-    _get_formations_by_educ_group_year
+    _get_formations_by_educ_group_year, _add_training_data
 from base.models.enums import proposal_type, proposal_state
 from base.tests.factories.academic_year import create_current_academic_year
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
@@ -50,7 +51,10 @@ from base.tests.factories.education_group_type import EducationGroupTypeFactory
 
 COL_TEACHERS_LETTER = 'L'
 COL_PROGRAMS_LETTER = 'Z'
-
+PARENT_PARTIAL_ACRONYM = 'LDROI'
+PARENT_ACRONYM='LBIR'
+PARENT_TITLE='TITLE 1'
+ROOT_ACRONYM='DRTI'
 
 class TestXls(TestCase):
     def setUp(self):
@@ -67,7 +71,8 @@ class TestLearningUnitXls(TestCase):
         self.current_academic_year = create_current_academic_year()
         self.learning_container_yr = LearningContainerYearFactory(academic_year=self.current_academic_year)
         self.learning_unit_yr_1 = LearningUnitYearFactory(academic_year=self.current_academic_year,
-                                                          learning_container_year=self.learning_container_yr)
+                                                          learning_container_year=self.learning_container_yr,
+                                                          credits=50)
         self.learning_unit_yr_2 = LearningUnitYearFactory()
 
         self.proposal_creation_1 = ProposalLearningUnitFactory(
@@ -77,6 +82,25 @@ class TestLearningUnitXls(TestCase):
         self.proposal_creation_2 = ProposalLearningUnitFactory(
             state=proposal_state.ProposalState.ACCEPTED.name,
             type=proposal_type.ProposalType.CREATION.name,
+        )
+        direct_parent_type = EducationGroupTypeFactory(name='Bachelor', category=education_group_categories.TRAINING)
+
+        self.an_education_group_parent = EducationGroupYearFactory(academic_year=self.current_academic_year,
+                                            education_group_type=direct_parent_type,
+                                                                   acronym=ROOT_ACRONYM)
+        self.group_element_child = GroupElementYearFactory(
+            parent=self.an_education_group_parent,
+            child_branch=None,
+            child_leaf=self.learning_unit_yr_1
+        )
+        self.an_education_group = EducationGroupYearFactory(academic_year=self.current_academic_year,
+                                                            acronym=PARENT_ACRONYM,
+                                                            title=PARENT_TITLE,
+                                                            partial_acronym=PARENT_PARTIAL_ACRONYM)
+
+        GroupElementYearFactory(
+            parent=self.an_education_group,
+            child_branch=self.group_element_child.parent,
         )
 
     def test_get_wrapped_cells_with_teachers_and_programs(self):
@@ -177,23 +201,23 @@ class TestLearningUnitXls(TestCase):
         }
         self.assertEqual(_prepare_legend_ws_data(), expected)
 
-    def test_formations(self):
-        direct_parent_type = EducationGroupTypeFactory(name='Bachelor', category=education_group_categories.TRAINING)
+    def test_get_formations_by_educ_group_year(self):
 
-        group_element_child = GroupElementYearFactory(
-            parent=EducationGroupYearFactory(academic_year=self.current_academic_year,
-                                             education_group_type=direct_parent_type),
-            child_branch=None,
-            child_leaf=self.learning_unit_yr_1
-        )
-        an_education_group = EducationGroupYearFactory(academic_year=self.current_academic_year)
-
-        GroupElementYearFactory(
-            parent=an_education_group,
-            child_branch=group_element_child.parent,
-        )
         formations = _get_formations_by_educ_group_year(self.learning_unit_yr_1)
 
-        self.assertCountEqual(formations.get(group_element_child.id),
-                              [an_education_group])
+        self.assertCountEqual(formations.get(self.group_element_child.id),
+                              [self.an_education_group])
 
+    def test_add_training_data(self):
+        formations = _add_training_data(self.learning_unit_yr_1)
+
+        expected = "{} {} {} {}".format(
+            '',
+            self.an_education_group_parent.partial_acronym,
+            "({})".format(
+                '{0:.2f}'.format(self.learning_unit_yr_1.credits)
+            ),
+            " {} - {} ".format(PARENT_ACRONYM, PARENT_TITLE)
+        )
+
+        self.assertEqual(formations, expected)

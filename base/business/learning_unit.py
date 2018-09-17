@@ -277,7 +277,7 @@ def _concatenate_training_data(formations_by_educ_group_year, group_element_year
         training_string,
         group_element_year.parent.partial_acronym if group_element_year.parent.partial_acronym else EMPTY,
         "({})".format(
-            str(group_element_year.child_leaf.credits) if group_element_year.child_leaf.credits else DASH),
+        '{0:.2f}'.format(group_element_year.child_leaf.credits) if group_element_year.child_leaf.credits else DASH),
         _get_trainings(group_element_year, formations_by_educ_group_year)
     )
     return training_string
