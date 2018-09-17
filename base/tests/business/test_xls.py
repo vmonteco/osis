@@ -188,12 +188,12 @@ class TestLearningUnitXls(TestCase):
         )
         an_education_group = EducationGroupYearFactory(academic_year=self.current_academic_year)
 
-        group_element_root = GroupElementYearFactory(
+        GroupElementYearFactory(
             parent=an_education_group,
             child_branch=group_element_child.parent,
         )
         formations = _get_formations_by_educ_group_year(self.learning_unit_yr_1)
 
-        self.assertEqual(formations.get(group_element_child.id),
-                         [an_education_group])
+        self.assertCountEqual(formations.get(group_element_child.id),
+                              [an_education_group])
 
