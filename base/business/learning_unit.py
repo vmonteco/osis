@@ -122,11 +122,13 @@ WITH_GRP = 'with_grp'
 HEADER_TEACHERS = _('List of teachers')
 HEADER_PROGRAMS = _('Programs')
 
-DEFAULT_LEGEND_STYLES = {Style(fill=PatternFill(patternType='solid', fgColor=CREATION_COLOR)): ['A2'],
-                         Style(fill=PatternFill(patternType='solid', fgColor=MODIFICATION_COLOR)): ['A3'],
-                         Style(fill=PatternFill(patternType='solid', fgColor=SUPPRESSION_COLOR)): ['A4'],
-                         Style(fill=PatternFill(patternType='solid', fgColor=TRANSFORMATION_COLOR)): ['A5'],
-                         Style(fill=PatternFill(patternType='solid', fgColor=TRANSFORMATION_AND_MODIFICATION)): ['A6'], }
+DEFAULT_LEGEND_STYLES = {
+    Style(fill=PatternFill(patternType='solid', fgColor=CREATION_COLOR)): ['A2'],
+    Style(fill=PatternFill(patternType='solid', fgColor=MODIFICATION_COLOR)): ['A3'],
+    Style(fill=PatternFill(patternType='solid', fgColor=SUPPRESSION_COLOR)): ['A4'],
+    Style(fill=PatternFill(patternType='solid', fgColor=TRANSFORMATION_COLOR)): ['A5'],
+    Style(fill=PatternFill(patternType='solid', fgColor=TRANSFORMATION_AND_MODIFICATION)): ['A6'],
+}
 SPACES = '  '
 
 
@@ -277,7 +279,7 @@ def _concatenate_training_data(formations_by_educ_group_year, group_element_year
         training_string,
         group_element_year.parent.partial_acronym if group_element_year.parent.partial_acronym else EMPTY,
         "({})".format(
-        '{0:.2f}'.format(group_element_year.child_leaf.credits) if group_element_year.child_leaf.credits else DASH),
+            '{0:.2f}'.format(group_element_year.child_leaf.credits) if group_element_year.child_leaf.credits else DASH),
         _get_trainings(group_element_year, formations_by_educ_group_year)
     )
     return training_string
