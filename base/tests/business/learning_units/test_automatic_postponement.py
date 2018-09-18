@@ -24,11 +24,10 @@
 #
 ##############################################################################
 from unittest import mock
-from unittest.mock import patch, Mock
+from unittest.mock import Mock
 
 from django.db import Error
 from django.test import TestCase
-from django.urls import reverse
 
 from base.business.learning_units.automatic_postponement import fetch_learning_unit_to_postpone
 from base.models.learning_unit_year import LearningUnitYear
