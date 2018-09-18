@@ -226,7 +226,7 @@ def get_entity_acronym(an_entity):
 
 
 def create_xls(user, found_learning_units, filters):
-    titles = LEARNING_UNIT_TITLES_PART1  + LEARNING_UNIT_TITLES_PART2
+    titles = LEARNING_UNIT_TITLES_PART1 + LEARNING_UNIT_TITLES_PART2
     working_sheets_data = prepare_xls_content(found_learning_units)
     parameters = {xls_build.DESCRIPTION: XLS_DESCRIPTION,
                   xls_build.USER: get_name_or_username(user),

@@ -64,15 +64,20 @@ PROPOSAL_LINE_STYLES = {
 }
 WRAP_TEXT_STYLE = Style(alignment=Alignment(wrapText=True, vertical="top"), )
 WRAP = 'WRAP'
+DASH = '-'
+EMPTY = ''
+WITH_ATTRIBUTIONS = 'with_attributions'
+WITH_GRP = 'with_grp'
 
-def prepare_xls_content(found_learning_units,
+
+def prepare_xls_content(learning_units,
                         with_grp=False,
                         with_attributions=False):
     return [
         extract_xls_data_from_learning_unit(lu,
                                             with_grp,
                                             with_attributions)
-        for lu in found_learning_units
+        for lu in learning_units
         ]
 
 
@@ -228,7 +233,7 @@ def _get_colored_rows(learning_units):
     return colored_cells
 
 
-def _get_attribution_line( an_attribution):
+def _get_attribution_line(an_attribution):
     return "{} - {} : {} - {} : {} - {} : {} - {} : {} - {} : {} - {} : {} ".format(
         an_attribution.get('person'),
         _('function'),
@@ -335,18 +340,4 @@ def _get_data_part1(learning_unit_yr):
 
 
 def _append_attributions(learning_unit_yr):
-    # attributions_line = ''
-    # cpt = 0
-    # for key, value in learning_unit_yr.attribution_charge_news.items():
-    #     if cpt > 0:
-    #         attributions_line += CARRIAGE_RETURN
-    #     attributions_line = _get_attribution_line(attributions_line, value)
-    #     cpt += 1
-    # return attributions_line
     return '\n'.join([_get_attribution_line(value) for value in learning_unit_yr.attribution_charge_news.values()])
-
-
-DASH = '-'
-EMPTY = ''
-WITH_ATTRIBUTIONS = 'with_attributions'
-WITH_GRP = 'with_grp'
