@@ -3872,6 +3872,9 @@ msgstr ""
 msgid "comment (internal)"
 msgstr ""
 
+msgid "activities in English"
+msgstr ""
+
 msgid "education group achievement"
 msgstr ""
 
