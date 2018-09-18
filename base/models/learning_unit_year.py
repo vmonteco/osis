@@ -30,7 +30,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator, RegexVa
 from django.db import models
 from django.db.models import Q
 from django.utils.functional import cached_property
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ngettext
 
 from base.models import entity_container_year as mdl_entity_container_year
 from base.models.academic_year import current_academic_year, compute_max_academic_year_adjournment, AcademicYear, \
@@ -41,6 +41,7 @@ from base.models.enums import learning_unit_year_subtypes, internship_subtypes, 
 from base.models.enums.learning_container_year_types import COURSE, INTERNSHIP
 from base.models.enums.learning_unit_year_periodicity import PERIODICITY_TYPES, ANNUAL, BIENNIAL_EVEN, BIENNIAL_ODD
 from base.models.learning_unit import LEARNING_UNIT_ACRONYM_REGEX_ALL, REGEX_BY_SUBTYPE
+from base.views.common import display_success_messages, display_error_messages
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
 
 AUTHORIZED_REGEX_CHARS = "$*+.^"
@@ -61,6 +62,30 @@ class LearningUnitYearAdmin(SerializableModelAdmin):
                     'status')
     list_filter = ('academic_year', 'decimal_scores', 'summary_locked')
     search_fields = ['acronym', 'structure__acronym', 'external_id']
+    actions = [
+        'resend_messages_to_queue',
+        'apply_learning_unit_year_postponement'
+    ]
+
+    def apply_learning_unit_year_postponement(self, request, queryset):
+        # Potential circular imports
+        from base.business.learning_units.automatic_postponement import fetch_learning_unit_to_postpone
+
+        result, errors = fetch_learning_unit_to_postpone(queryset)
+        count = len(result)
+        display_success_messages(
+            request, ngettext(
+                '%(count)d learning unit has been postponed with success',
+                '%(count)d learning units has been postponed with success', count
+            ) % {'count': count}
+        )
+        if errors:
+            display_error_messages(request, "{} : {}".format(
+                _("The following learning units ended with error"),
+                ", ".join([str(error) for error in errors])
+            ))
+
+    apply_learning_unit_year_postponement.short_description = _("Apply postponement on learning unit year")
 
 
 class LearningUnitYearWithContainerManager(models.Manager):

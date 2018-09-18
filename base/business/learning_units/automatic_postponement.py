@@ -23,7 +23,8 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.db import transaction
+from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
+from django.db import transaction, Error
 
 from base.business.learning_units.edition import duplicate_learning_unit_year
 from base.models.academic_year import compute_max_academic_year_adjournment, AcademicYear
@@ -31,8 +32,11 @@ from base.models.learning_unit_year import LearningUnitYear
 
 
 # This method will be execute through a celery worker.
-def fetch_learning_unit_to_postpone():
-    """ Fetch all learning unit how need a postponement. """
+def fetch_learning_unit_to_postpone(queryset=None):
+    """ Fetch all learning units who need a postponement. """
+    if not queryset:
+        queryset = LearningUnitYear.objects.all()
+
     last_academic_year = AcademicYear.objects.get(year=compute_max_academic_year_adjournment())
     penultimate_academic_year = last_academic_year.past()
 
@@ -42,7 +46,7 @@ def fetch_learning_unit_to_postpone():
     # List of UE already existing in N+6
 
     # We take all learning unit years from N+5 academic year
-    qs_luy = LearningUnitYear.objects.filter(academic_year=penultimate_academic_year)
+    qs_luy = queryset.filter(academic_year=penultimate_academic_year)
     # Create filters to know which luys must be copied to N+6
     luys_already_duplicated = qs_luy.filter(learning_unit__learningunityear__academic_year=last_academic_year)
     luys_to_not_duplicate = qs_luy.filter(learning_unit__end_year__lt=last_academic_year.year)
@@ -50,14 +54,19 @@ def fetch_learning_unit_to_postpone():
 
     # Extend all learning unit until last_academic_year
     result = []
-
+    errors = []
     for luy in luys_to_duplicate:
-        with transaction.atomic():
-            result.append(duplicate_learning_unit_year(luy, last_academic_year))
+        try:
+            with transaction.atomic():
+                result.append(duplicate_learning_unit_year(luy, last_academic_year))
+        # General catch to be sure to not stop the rest of the duplication
+        except (Error, ObjectDoesNotExist, MultipleObjectsReturned):
+            errors.append(luy)
 
     # send statistics to the managers
     # List of UE to duplicate
     # List of UE not to be duplicated
     # List of UE already existing in N+6
+    # Result
 
-    return result
+    return result, errors

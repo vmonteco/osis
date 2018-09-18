@@ -23,7 +23,12 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from unittest import mock
+from unittest.mock import patch, Mock
+
+from django.db import Error
 from django.test import TestCase
+from django.urls import reverse
 
 from base.business.learning_units.automatic_postponement import fetch_learning_unit_to_postpone
 from base.models.learning_unit_year import LearningUnitYear
@@ -45,8 +50,9 @@ class TestFetchLearningUnitToPostpone(TestCase):
         )
 
         self.assertEqual(LearningUnitYear.objects.count(), 1)
-        result = fetch_learning_unit_to_postpone()
+        result, errors = fetch_learning_unit_to_postpone()
         self.assertEqual(len(result), 1)
+        self.assertFalse(errors)
 
     def test_luy_to_not_duplicated(self):
         # The learning unit is over
@@ -58,8 +64,9 @@ class TestFetchLearningUnitToPostpone(TestCase):
             academic_year=self.academic_years[-2],
         )
         self.assertEqual(LearningUnitYear.objects.count(), 1)
-        result = fetch_learning_unit_to_postpone()
+        result, errors = fetch_learning_unit_to_postpone()
         self.assertEqual(len(result), 0)
+        self.assertFalse(errors)
 
     def test_luy_already_duplicated(self):
         LearningUnitYearFactory(
@@ -71,8 +78,20 @@ class TestFetchLearningUnitToPostpone(TestCase):
             academic_year=self.academic_years[-1],
         )
         self.assertEqual(LearningUnitYear.objects.count(), 2)
-        result = fetch_learning_unit_to_postpone()
+        result, errors = fetch_learning_unit_to_postpone()
         self.assertEqual(len(result), 0)
+        self.assertFalse(errors)
 
+    @mock.patch('base.business.learning_units.automatic_postponement.duplicate_learning_unit_year')
+    def test_luy_to_duplicate_with_error(self, mock_method):
+        mock_method.side_effect = Mock(side_effect=Error("test error"))
 
+        luy_with_error = LearningUnitYearFactory(
+            learning_unit=self.learning_unit,
+            academic_year=self.academic_years[-2],
+        )
+        self.assertEqual(LearningUnitYear.objects.count(), 1)
 
+        result, errors = fetch_learning_unit_to_postpone()
+        self.assertEqual(errors, [luy_with_error])
+        self.assertEqual(len(result), 0)
