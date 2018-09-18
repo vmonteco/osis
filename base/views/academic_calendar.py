@@ -32,16 +32,24 @@ from base import models as mdl
 from base.forms.academic_calendar import AcademicCalendarForm
 from base.models.academic_calendar import AcademicCalendar
 from base.models.enums import academic_calendar_type
+from base.models.enums.academic_calendar_type import ACADEMIC_CATEGORY, PROJECT_CATEGORY
 from base.models.utils.utils import get_object_or_none
 from . import layout
 
 
-def _build_gantt_json(academic_calendar_list):
+def _build_gantt_json(academic_calendar_list, show_academic_events, show_project_events):
     today = datetime.date.today()
     academic_calendar_data = []
     for calendar in academic_calendar_list:
+        category = calendar.get_category()
+
         if calendar.start_date is None or calendar.end_date is None:
             continue
+        if category == ACADEMIC_CATEGORY and not show_academic_events:
+            continue
+        if category == PROJECT_CATEGORY and not show_project_events:
+            continue
+
         if today <= calendar.start_date:
             progress = 0
         elif calendar.start_date < today < calendar.end_date:
@@ -56,7 +64,7 @@ def _build_gantt_json(academic_calendar_list):
             'end_date': calendar.end_date.strftime('%d-%m-%Y'),
             'color': academic_calendar_type.CALENDAR_TYPES_COLORS.get(calendar.reference, '#337ab7'),
             'progress': progress,
-            'category': calendar.get_category(),
+            'category': category,
         }
         academic_calendar_data.append(data)
     return {
@@ -76,24 +84,23 @@ def _get_undated_calendars(academic_calendar_list):
 @permission_required('base.can_access_academic_calendar', raise_exception=True)
 def academic_calendars(request):
     academic_year = None
+    show_academic_events = True
+    show_project_events = request.user.is_superuser
     academic_years = mdl.academic_year.find_academic_years()
-    academic_year_calendar = mdl.academic_year.current_academic_year()
+    academic_year_calendar = mdl.academic_year.starting_academic_year()
 
     if academic_year_calendar:
         academic_year = academic_year_calendar.id
 
     academic_calendar_list = mdl.academic_calendar.find_academic_calendar_by_academic_year(academic_year)
-    academic_calendar_json = _build_gantt_json(academic_calendar_list)
+    academic_calendar_json = _build_gantt_json(academic_calendar_list, show_academic_events, show_project_events)
     undated_calendars_list = _get_undated_calendars(academic_calendar_list)
+    show_gantt_diagram = bool(len(academic_calendar_json['data']))
 
     return layout.render(
         request,
         "academic_calendars.html",
-        {
-            'academic_years': academic_years,
-            'academic_calendar_json': academic_calendar_json,
-            'undated_calendars_list': undated_calendars_list,
-        }
+        locals()
     )
 
 
@@ -101,6 +108,8 @@ def academic_calendars(request):
 @permission_required('base.can_access_academic_calendar', raise_exception=True)
 def academic_calendars_search(request):
     academic_year = request.GET['academic_year']
+    show_academic_events = request.GET.get('show_academic_events')
+    show_project_events = request.GET.get('show_project_events') and request.user.is_superuser
     academic_years = mdl.academic_year.find_academic_years()
 
     if academic_year is None:
@@ -110,8 +119,9 @@ def academic_calendars_search(request):
 
     academic_year = int(academic_year)
     academic_calendar_list = mdl.academic_calendar.find_academic_calendar_by_academic_year(academic_year)
-    academic_calendar_json = _build_gantt_json(academic_calendar_list)
+    academic_calendar_json = _build_gantt_json(academic_calendar_list, show_academic_events, show_project_events)
     undated_calendars_list = _get_undated_calendars(academic_calendar_list)
+    show_gantt_diagram = bool(len(academic_calendar_json['data']))
 
     return layout.render(request, "academic_calendars.html", locals())
 
