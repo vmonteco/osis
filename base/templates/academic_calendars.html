@@ -99,7 +99,7 @@
 
     <script type="text/javascript">
         function formatDate(date){
-            month = date.getMonth() + 1
+            month = date.getMonth() + 1;
             return date.getDate() + "/" + month + "/" + date.getFullYear()
         }
 
@@ -120,7 +120,7 @@
 
         gantt.config.tooltip_hide_timeout = 500;
         gantt.templates.tooltip_text = function(start,end,task){
-            days = task.duration + 1 // include end_date in duration
+            days = task.duration + 1; // include end_date in duration
             if(days <= 1){
                 duration = days + " {% trans 'day'%}"
             }
