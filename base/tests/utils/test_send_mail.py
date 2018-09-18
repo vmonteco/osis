@@ -25,6 +25,7 @@
 ##############################################################################
 from django.test import TestCase
 
+from base.models.learning_unit_year import LearningUnitYear
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from osis_common.models import message_template
 from base.utils import send_mail
@@ -68,9 +69,12 @@ class TestSendMessage(TestCase):
             'The learning unit TEST has been successfully deleted for all years'
         ]
 
+        self.luys_to_postpone = LearningUnitYear.objects.all()
+        self.luys_already_existing = LearningUnitYear.objects.all()
+        self.luys_ending_this_year = LearningUnitYear.objects.all()
+
         add_message_template_html()
         add_message_template_txt()
-
 
     @patch("osis_common.messaging.send_message.EmailMultiAlternatives", autospec=True)
     def test_send_mail_after_the_learning_unit_year_deletion(self, mock_class):
@@ -85,6 +89,36 @@ class TestSendMessage(TestCase):
         recipients = call_args[0][3]
         attachments = call_args[1]
         self.assertIn(self.learning_unit_year.acronym, subject)
+        self.assertEqual(len(recipients), 2)
+        self.assertIsNone(attachments['attachments'])
+
+    @patch("osis_common.messaging.send_message.EmailMultiAlternatives", autospec=True)
+    def test_send_mail_before_copying_out_the_learning_unit_years_from_one_year_to_the_next(self, mock_class):
+        mock_class.send.return_value = None
+        self.assertIsInstance(mock_class, EmailMultiAlternatives)
+        send_mail.send_mail_before_copying_out_the_luys_from_one_year_to_the_next(self.persons,
+                                                                                  self.academic_year,
+                                                                                  self.luys_to_postpone,
+                                                                                  self.luys_already_existing,
+                                                                                  self.luys_ending_this_year)
+        call_args = mock_class.call_args
+        recipients = call_args[0][3]
+        attachments = call_args[1]
+        self.assertEqual(len(recipients), 2)
+        self.assertIsNone(attachments['attachments'])
+
+    @patch("osis_common.messaging.send_message.EmailMultiAlternatives", autospec=True)
+    def test_send_mail_after_copying_out_the_learning_unit_years_from_one_year_to_the_next(self, mock_class):
+        mock_class.send.return_value = None
+        self.assertIsInstance(mock_class, EmailMultiAlternatives)
+        send_mail.send_mail_after_copying_out_the_luys_from_one_year_to_the_next(self.persons,
+                                                                                 self.academic_year,
+                                                                                 self.luys_to_postpone,
+                                                                                 self.luys_already_existing,
+                                                                                 self.luys_ending_this_year)
+        call_args = mock_class.call_args
+        recipients = call_args[0][3]
+        attachments = call_args[1]
         self.assertEqual(len(recipients), 2)
         self.assertIsNone(attachments['attachments'])
 

@@ -96,6 +96,38 @@ def send_mail_after_the_learning_unit_year_deletion(managers, acronym, academic_
     return message_service.send_messages(message_content)
 
 
+def send_mail_before_copying_out_the_luys_from_one_year_to_the_next(
+        managers, academic_year, luys_to_postpone, luys_already_existing, luys_ending_this_year):
+    html_template_ref = 'luy_before_auto_postponement_html'
+    txt_template_ref = 'luy_before_auto_postponement_txt'
+    receivers = [message_config.create_receiver(manager.id, manager.email, manager.language) for manager in managers]
+    template_base_data = {'academic_year': academic_year.year,
+                          'end_academic_year': academic_year.year+6,
+                          'luys_to_postpone': luys_to_postpone.count(),
+                          'luys_already_existing': luys_already_existing.count(),
+                          'luys_ending_this_year': luys_ending_this_year.count(),
+                          }
+    message_content = message_config.create_message_content(html_template_ref, txt_template_ref, None, receivers,
+                                                            template_base_data, None, None)
+    return message_service.send_messages(message_content)
+
+
+def send_mail_after_copying_out_the_luys_from_one_year_to_the_next(
+        managers, academic_year, luys_to_postpone, luys_already_existing, luys_ending_this_year):
+    html_template_ref = 'luy_after_auto_postponement_html'
+    txt_template_ref = 'luy_after_auto_postponement_txt'
+    receivers = [message_config.create_receiver(manager.id, manager.email, manager.language) for manager in managers]
+    template_base_data = {'academic_year': academic_year.year,
+                          'end_academic_year': academic_year.year+6,
+                          'luys_to_postpone': luys_to_postpone.count(),
+                          'luys_already_existing': luys_already_existing.count(),
+                          'luys_ending_this_year': luys_ending_this_year.count(),
+                          }
+    message_content = message_config.create_message_content(html_template_ref, txt_template_ref, None, receivers,
+                                                            template_base_data, None, None)
+    return message_service.send_messages(message_content)
+
+
 def send_mail_cancellation_learning_unit_proposals(manager, tuple_proposals_results, research_criteria):
     html_template_ref = 'learning_unit_proposal_canceled_html'
     txt_template_ref = 'learning_unit_proposal_canceled_txt'
