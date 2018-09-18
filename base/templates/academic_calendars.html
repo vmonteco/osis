@@ -128,8 +128,10 @@
                 duration = days + " {% trans 'days'%}"
             }
 
-            return "<b>" + task.text + "</b><br>" + formatDate(task.start_date) + " - " + formatDate(task.end_date)
-            + " (" + duration +  ") <br>" + task.category
+            return "<b>" + task.text + "</b><br>"
+            + task.category + "<br>"
+            + formatDate(task.start_date) + " - " + formatDate(task.end_date)
+            + " (" + duration +  ") <br>"
             + "<a href=\"{% url 'academic_calendars' %}" + task.id + "\">"
             + "{% trans 'details'%}</a>";
         };
