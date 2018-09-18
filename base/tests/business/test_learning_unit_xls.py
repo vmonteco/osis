@@ -35,7 +35,7 @@ from base.business.learning_unit_xls import DEFAULT_LEGEND_STYLES, SPACES, PROPO
     _get_significant_volume, _initialize_component_data, _prepare_legend_ws_data, _get_wrapped_cells, _get_colored_rows, \
     _get_attribution_line, _get_col_letter, _get_formations_by_educ_group_year, _add_training_data
 from base.models.enums import proposal_type, proposal_state
-from base.tests.factories.academic_year import create_current_academic_year
+from base.tests.factories.academic_year import create_current_academic_year, AcademicYearFactory
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
 from base.tests.factories.learning_component_year import LearningComponentYearFactory
 from base.tests.factories.education_group_year import EducationGroupYearFactory
@@ -56,7 +56,7 @@ ROOT_ACRONYM='DRTI'
 class TestLearningUnitXls(TestCase):
 
     def setUp(self):
-        self.current_academic_year = create_current_academic_year()
+        self.current_academic_year = AcademicYearFactory(year=2017)
         self.learning_container_yr = LearningContainerYearFactory(academic_year=self.current_academic_year)
         self.learning_unit_yr_1 = LearningUnitYearFactory(academic_year=self.current_academic_year,
                                                           learning_container_year=self.learning_container_yr,
@@ -86,7 +86,7 @@ class TestLearningUnitXls(TestCase):
                                                             title=PARENT_TITLE,
                                                             partial_acronym=PARENT_PARTIAL_ACRONYM)
 
-        GroupElementYearFactory(
+        self.group_element_child2 = GroupElementYearFactory(
             parent=self.an_education_group,
             child_branch=self.group_element_child.parent,
         )
@@ -190,10 +190,8 @@ class TestLearningUnitXls(TestCase):
         self.assertEqual(_prepare_legend_ws_data(), expected)
 
     def test_get_formations_by_educ_group_year(self):
-
         formations = _get_formations_by_educ_group_year(self.learning_unit_yr_1)
-
-        self.assertCountEqual(formations.get(self.group_element_child.id),
+        self.assertCountEqual(formations.get(self.an_education_group_parent.id),
                               [self.an_education_group])
 
     def test_add_training_data(self):
