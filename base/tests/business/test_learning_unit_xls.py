@@ -23,7 +23,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-
+import datetime
 from django.test import TestCase
 
 from django.utils.translation import ugettext_lazy as _
@@ -33,9 +33,9 @@ from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFact
 from base.tests.factories.person import PersonFactory
 from base.business.learning_unit_xls import DEFAULT_LEGEND_STYLES, SPACES, PROPOSAL_LINE_STYLES, _update_volumes_data, \
     _get_significant_volume, _initialize_component_data, _prepare_legend_ws_data, _get_wrapped_cells, _get_colored_rows, \
-    _get_attribution_line, _get_col_letter, _get_formations_by_educ_group_year, _add_training_data
+    _get_attribution_line, _get_col_letter, _get_formations_by_educ_group_year, _add_training_data, _get_data_part1
 from base.models.enums import proposal_type, proposal_state
-from base.tests.factories.academic_year import create_current_academic_year, AcademicYearFactory
+from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
 from base.tests.factories.learning_component_year import LearningComponentYearFactory
 from base.tests.factories.education_group_year import EducationGroupYearFactory
@@ -44,6 +44,9 @@ from base.models.enums import learning_component_year_type
 from osis_common.document import xls_build
 from base.models.enums import education_group_categories
 from base.tests.factories.education_group_type import EducationGroupTypeFactory
+from base.tests.factories.business.learning_units import GenerateContainer
+from base.tests.factories.entity_version import EntityVersionFactory
+from base.models.enums import entity_type, organization_type
 
 COL_TEACHERS_LETTER = 'L'
 COL_PROGRAMS_LETTER = 'Z'
@@ -90,6 +93,22 @@ class TestLearningUnitXls(TestCase):
             parent=self.an_education_group,
             child_branch=self.group_element_child.parent,
         )
+        generatorContainer = GenerateContainer(datetime.date.today().year-2, datetime.date.today().year)
+        self.learning_unit_year_with_entities=generatorContainer.generated_container_years[0].learning_unit_year_full
+        entities = [
+            EntityVersionFactory(
+                start_date=datetime.datetime(1900, 1, 1),
+                end_date=None,
+                entity_type=entity_type.FACULTY,
+                entity__organization__type=organization_type.MAIN
+            ) for _ in range(4)
+            ]
+        self.learning_unit_year_with_entities.entities = {'REQUIREMENT_ENTITY': entities[0], 'ALLOCATION_ENTITY': entities[1]}
+        self.proposal_creation_3 = ProposalLearningUnitFactory(
+            learning_unit_year=self.learning_unit_year_with_entities,
+            state=proposal_state.ProposalState.ACCEPTED.name,
+            type=proposal_type.ProposalType.CREATION.name,
+        )
 
     def test_get_wrapped_cells_with_teachers_and_programs(self):
         styles = _get_wrapped_cells([self.learning_unit_yr_1, self.learning_unit_yr_2],
@@ -123,7 +142,7 @@ class TestLearningUnitXls(TestCase):
                                             self.proposal_creation_2.learning_unit_year]),
                          {PROPOSAL_LINE_STYLES.get(self.proposal_creation_1.type): [3, 4]})
 
-    def test_get_attribution_line(self):
+    def test_get_attributions_line(self):
         a_person = PersonFactory(last_name="Smith", first_name='Aaron')
         attribution_dict = {
             'LECTURING': 10,
@@ -207,3 +226,12 @@ class TestLearningUnitXls(TestCase):
         )
 
         self.assertEqual(formations, expected)
+
+    def test_get_data_part1(self):
+        luy = self.proposal_creation_3.learning_unit_year
+        data = _get_data_part1(luy)
+        self.assertEqual(data[0], luy.acronym)
+        self.assertEqual(data[1], luy.academic_year.name)
+        self.assertEqual(data[2], luy.complete_title)
+        self.assertEqual(data[6], _(self.proposal_creation_1.type))
+        self.assertEqual(data[7], _(self.proposal_creation_1.state))

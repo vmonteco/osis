@@ -297,7 +297,7 @@ def _get_data_part2(learning_unit_yr, with_attributions):
     volumes = _get_volumes(learning_unit_yr)
     lu_data_part2 = []
     if with_attributions:
-        lu_data_part2.append(_append_attributions(learning_unit_yr))
+        lu_data_part2.append(_append_attributions(learning_unit_yr.attribution_charge_news))
     volume_lecturing = volumes.get(learning_component_year_type.LECTURING)
     volumes_practical = volumes.get(learning_component_year_type.PRACTICAL_EXERCISES)
     lu_data_part2.extend([
@@ -334,10 +334,11 @@ def _get_data_part1(learning_unit_yr):
         xls_build.translate(proposal.state) if proposal else '',
         learning_unit_yr.credits,
         get_entity_acronym(learning_unit_yr.entities.get('ALLOCATION_ENTITY')),
-        learning_unit_yr.complete_title_english.lstrip(),
+        learning_unit_yr.complete_title_english,
     ]
     return lu_data_part1
 
 
-def _append_attributions(learning_unit_yr):
-    return '\n'.join([_get_attribution_line(value) for value in learning_unit_yr.attribution_charge_news.values()])
+def _append_attributions(attribution_charge_news):
+    print(attribution_charge_news)
+    return '\n'.join([_get_attribution_line(value) for value in attribution_charge_news.values()])
