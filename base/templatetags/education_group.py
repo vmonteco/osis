@@ -23,6 +23,8 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+import operator
+
 from django import template
 from django.core.exceptions import PermissionDenied
 from django.urls import reverse
@@ -422,3 +424,59 @@ def _custom_link_pdf_content(context, action, onclick):
             text=text,
         )
     )
+
+
+@register.inclusion_tag("blocks/dl/dl_with_parent.html", takes_context=True)
+def dl_with_parent(context, dl_title, key=None, class_dl="", default_value=None):
+    """
+    Tag to render <dl> for details of education_group.
+    If the fetched value does not exist for the current education_group_year,
+    the method will try to fetch the parent's value and display it in another style
+    (strong, blue).
+
+    :param context: context of the page given by django inclusion tag
+    :param dl_title: text to display in <dt>
+    :param key: attr to fetch value from education_group_year (can be a property)
+    :param class_dl: additional html class
+    :param default_value: display a default value in <dd> if no value was found.
+    :return: dict
+    """
+
+    if not key:
+        key = dl_title
+
+    education_group_year = context.get('education_group_year')
+    value = _fetch_value_with_attrgetter(education_group_year, key)
+
+    if value is None or value == "":
+        parent = context.get("parent")
+        parent_value = _fetch_value_with_attrgetter(parent, key)
+    else:
+        parent, parent_value = None, None
+
+    return {
+        'label': _(dl_title),
+        'value': _bool_to_string(value),
+        'parent_value': _bool_to_string(parent_value),
+        'class_dl': class_dl,
+        'default_value': default_value,
+    }
+
+
+def _bool_to_string(value):
+    if value is None:
+        return value
+
+    # In this case, None has a different value meaning than usual (maybe)
+    if isinstance(value, bool):
+        return "yes" if value else "no"
+
+    return str(value)
+
+
+def _fetch_value_with_attrgetter(obj, attrs):
+    """ Use attrgetter to support attrs with '.' """
+    try:
+        return obj and operator.attrgetter(attrs)(obj)
+    except AttributeError:
+        return None

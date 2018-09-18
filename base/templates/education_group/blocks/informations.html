@@ -1,5 +1,5 @@
 {% load staticfiles %}
-{% load i18n %}
+{% load i18n education_group %}
 {% comment "License" %}
     * OSIS stands for Open Student Information System. It's an application
     * designed to manage the core business of higher education institutions,
@@ -27,116 +27,22 @@
 <div class="panel panel-default">
     <div class="panel-body">
         <div class="row">
-            <div class="col-md-6">
-                <label>{% trans 'acronym' %}</label><br>
-                {% if education_group_year.acronym %}
-                    {{ education_group_year.acronym }}
-                {% elif parent.acronym %}
-                    <strong class="text-primary">{{ parent.acronym }}</strong>
-                {% endif %}
-            </div>
-            <div class="col-md-6">
-                <label>{% trans 'code'%}</label><br>
-                {% if education_group_year.partial_acronym %}
-                    {{ education_group_year.partial_acronym }}
-                {% elif parent.partial_acronym %}
-                    <strong class="text-primary">{{ parent.partial_acronym }}</strong>
-                {% endif %}
-            </div>
-        </div>
-        <br>
-        <div class="row">
-            <div class="col-md-6">
-                <label>{% trans 'category' %}</label><br>
-                {% if education_group_year.education_group_type.category %}
-                    {% trans education_group_year.education_group_type.category %}
-                {%else%}
-                    <strong class="text-primary">{% trans parent.education_group_type.category %}</strong><br>
-                {% endif %}
-            </div>
-            <div class="col-md-6">
-                <label>{% trans 'training_type' %}</label><br>
-                {% if education_group_year.education_group_type %}
-                    {% trans education_group_year.education_group_type.name %}
-                {% elif parent.education_group_type %}
-                    <strong class="text-primary">{% trans parent.education_group_type.name %}</strong><br>
-                {% endif %}
-            </div>
-        </div>
-        {% if education_group_year.education_group_type.category != 'GROUP' %}
-            <br>
-            <div class="row">
-                <div class="col-md-6">
-                    <label>{% trans 'status' %}</label><br>
-                    {%if education_group_year.active %}
-                        {% trans education_group_year.active %}
-                    {% elif parent.active %}
-                        <strong class="text-primary">{% trans parent.active %}</strong>
-                    {% endif %}
-                </div>
-                <div class="col-md-6">
-                    <label>{% trans 'schedule_type' %}</label><br>
-                    {% if education_group_year.schedule_type %}
-                        {% trans education_group_year.schedule_type %}
-                    {% elif parent.schedule_type %}
-                        <strong class="text-primary">{% trans parent.schedule_type %}</strong>
-                    {% endif %}
-                </div>
-            </div>
-        {% endif %}
-        <br>
-        <div class="row">
-            <dl class="col-md-6">
-                <dt>
-                    {% trans 'credits' %}
-                </dt>
-                <dd>
-                    {% if education_group_year.credits %}
-                        {{ education_group_year.credits }}
-                    {% elif parent.credits %}
-                        <strong class="text-primary">{{ parent.credits }}</strong>
-                    {% endif %}
-                </dd>
-            </dl>
-            <dl class="col-md-6">
-                <dt>
-                    {% trans 'type of constraint'|capfirst %}
-                </dt>
-                <dd>
-                    {% if education_group_year.constraint_type %}
-                        {{ education_group_year.get_constraint_type_display }}
-                    {% elif parent.constraint_type %}
-                        <strong class="text-primary">{{ parent.get_constraint_type_display }}</strong>
-                    {% endif %}
-                </dd>
-            </dl>
+            {% dl_with_parent 'acronym' class_dl="col-md-6" %}
+            {% dl_with_parent  'code' 'partial_acronym' class_dl="col-md-6" %}
+            {% dl_with_parent  'category' 'education_group_type.category' class_dl="col-md-6" %}
+            {% dl_with_parent  'training_type' 'education_group_type.name' class_dl="col-md-6" %}
 
-            <dl class="col-md-6">
-                <dt>
-                    {% trans 'minimum constraint'|capfirst %}
-                </dt>
-                <dd>
-                    {% if education_group_year.min_constraint %}
-                        {{ education_group_year.min_constraint }}
-                    {% elif parent.min_constraint %}
-                        <strong class="text-primary">{{ parent.min_constraint }}</strong>
-                    {% endif %}
-                </dd>
-            </dl>
-            <dl class="col-md-6">
-                <dt>
-                    {% trans 'maximum constraint'|capfirst %}
-                </dt>
-                <dd>
-                    {% if education_group_year.max_constraint %}
-                        {{ education_group_year.max_constraint }}
-                    {% elif parent.max_constraint %}
-                        <strong class="text-primary">{{ parent.max_constraint }}</strong>
-                    {% endif %}
-                </dd>
-            </dl>
+            {% if education_group_year.education_group_type.category != 'GROUP' %}
+                {% dl_with_parent  'status' 'active' class_dl="col-md-6" %}
+                {% dl_with_parent  'schedule_type' class_dl="col-md-6" %}
+            {% endif %}
+
+            {% dl_with_parent 'credits' class_dl="col-md-6" %}
+            {% dl_with_parent 'type of constraint' 'verbose_constraint_type' class_dl="col-md-6" %}
+            {% dl_with_parent 'minimum constraint' 'min_constraint' class_dl="col-md-6" %}
+            {% dl_with_parent 'maximum constraint' 'max_constraint' class_dl="col-md-6" %}
         </div>
-        <br>
+
         <div>
             <label>{% trans 'title_in_french' %}</label>
             <strong class="text-primary">{{ parent.title | default_if_none:'' }}</strong><br>

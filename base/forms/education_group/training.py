@@ -75,6 +75,7 @@ class TrainingEducationGroupYearForm(EducationGroupYearModelForm):
             "dissertation",
             "internship",
             "primary_language",
+            "english_activities",
             "other_language_activities",
             "keywords",
             "active",
