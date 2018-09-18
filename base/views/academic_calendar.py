@@ -84,11 +84,12 @@ def _get_undated_calendars(academic_calendar_list):
 @permission_required('base.can_access_academic_calendar', raise_exception=True)
 def academic_calendars(request):
     academic_year = request.GET.get('academic_year') or mdl.academic_year.starting_academic_year().pk
-    show_academic_events = request.GET.get('show_academic_events')
-    show_project_events = request.GET.get('show_project_events') and request.user.is_superuser
+    academic_year = int(academic_year)
     academic_years = mdl.academic_year.find_academic_years()
 
-    academic_year = int(academic_year)
+    show_academic_events = request.GET.get('show_academic_events')
+    show_project_events = request.GET.get('show_project_events') and request.user.is_superuser
+
     academic_calendar_list = mdl.academic_calendar.find_academic_calendar_by_academic_year(academic_year)
     academic_calendar_json = _build_gantt_json(academic_calendar_list, show_academic_events, show_project_events)
     undated_calendars_list = _get_undated_calendars(academic_calendar_list)
@@ -97,7 +98,15 @@ def academic_calendars(request):
     return layout.render(
         request,
         "academic_calendars.html",
-        locals()
+        {
+            'academic_year': academic_year,
+            'academic_years': academic_years,
+            'show_academic_events': show_academic_events,
+            'show_project_events': show_project_events,
+            'academic_calendar_json': academic_calendar_json,
+            'undated_calendars_list': undated_calendars_list,
+            'show_gantt_diagram': show_gantt_diagram,
+        }
     )
 
 
