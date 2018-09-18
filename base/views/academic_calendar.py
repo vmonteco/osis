@@ -32,8 +32,6 @@ from base import models as mdl
 from base.forms.academic_calendar import AcademicCalendarForm
 from base.models.academic_calendar import AcademicCalendar
 from base.models.enums import academic_calendar_type
-from base.models.enums.academic_calendar_type import ACADEMIC_CALENDAR_TYPES, ACADEMIC_CATEGORY, PROJECT_CATEGORY, \
-    PROJECT_CALENDAR_TYPES
 from base.models.utils.utils import get_object_or_none
 from . import layout
 
@@ -58,21 +56,12 @@ def _build_gantt_json(academic_calendar_list):
             'end_date': calendar.end_date.strftime('%d-%m-%Y'),
             'color': academic_calendar_type.CALENDAR_TYPES_COLORS.get(calendar.reference, '#337ab7'),
             'progress': progress,
-            'category': _get_category(calendar),
+            'category': calendar.get_category(),
         }
         academic_calendar_data.append(data)
     return {
         "data": academic_calendar_data
     }
-
-
-def _get_category(calendar):
-    if calendar.reference in ACADEMIC_CALENDAR_TYPES:
-        return ACADEMIC_CATEGORY
-    elif calendar.reference in PROJECT_CALENDAR_TYPES:
-        return PROJECT_CATEGORY
-    else:
-        return ''
 
 
 def _get_undated_calendars(academic_calendar_list):

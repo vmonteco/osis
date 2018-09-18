@@ -111,7 +111,7 @@
 
         gantt.config.readonly = true;
         gantt.config.columns = [
-            {name:"text", label:" ", width:"*", align: "left" },
+            {name:"text", label:" ", width:"*", align: "left"},
         ];
 
         gantt.templates.task_text=function(start,end,task){
@@ -129,10 +129,18 @@
             }
 
             return "<b>" + task.text + "</b><br>" + formatDate(task.start_date) + " - " + formatDate(task.end_date)
-            + " (" + duration +  ") <br>"
+            + " (" + duration +  ") <br>" + task.category
             + "<a href=\"{% url 'academic_calendars' %}" + task.id + "\">"
             + "{% trans 'details'%}</a>";
         };
+
+        /* Update lines style for project events */
+        let setRowStyleFunction = function (start, end, task) {
+            if (task.category === 'PROJECT')
+                return "projectRow";
+        };
+        gantt.templates.grid_row_class = setRowStyleFunction; // update first cell style
+        gantt.templates.task_row_class = setRowStyleFunction; // update end of row style
 
         var markerId = gantt.addMarker({
             start_date: new Date() // this is today
