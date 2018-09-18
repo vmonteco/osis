@@ -27,6 +27,7 @@ from django.test import TestCase
 
 from base.models.learning_unit_year import LearningUnitYear
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
+from base.tests.factories.person import PersonWithPermissionsFactory
 from osis_common.models import message_template
 from base.utils import send_mail
 from unittest.mock import patch
@@ -42,6 +43,8 @@ class TestSendMessage(TestCase):
         self.person_1 = test_person.create_person("person_1", last_name="test", email="person1@test.com")
         self.person_2 = test_person.create_person("person_2", last_name="test", email="person2@test.com")
         self.persons = [self.person_1, self.person_2]
+
+        self.person_3 = PersonWithPermissionsFactory("can_receive_emails_about_automatic_postponement")
 
         self.academic_year = test_academic_year.create_academic_year()
         self.learning_unit_year = LearningUnitYearFactory(acronym="TEST",
@@ -93,14 +96,13 @@ class TestSendMessage(TestCase):
         self.assertIsNone(attachments['attachments'])
 
     @patch("osis_common.messaging.send_message.EmailMultiAlternatives", autospec=True)
-    def test_send_mail_before_copying_out_the_learning_unit_years_from_one_year_to_the_next(self, mock_class):
+    def test_send_mail_before_annual_procedure_of_automatic_postponement(self, mock_class):
         mock_class.send.return_value = None
         self.assertIsInstance(mock_class, EmailMultiAlternatives)
-        send_mail.send_mail_before_copying_out_the_luys_from_one_year_to_the_next(self.persons,
-                                                                                  self.academic_year,
-                                                                                  self.luys_to_postpone,
-                                                                                  self.luys_already_existing,
-                                                                                  self.luys_ending_this_year)
+        send_mail.send_mail_before_annual_procedure_of_automatic_postponement(self.academic_year,
+                                                                              self.luys_to_postpone,
+                                                                              self.luys_already_existing,
+                                                                              self.luys_ending_this_year)
         call_args = mock_class.call_args
         recipients = call_args[0][3]
         attachments = call_args[1]
@@ -108,14 +110,14 @@ class TestSendMessage(TestCase):
         self.assertIsNone(attachments['attachments'])
 
     @patch("osis_common.messaging.send_message.EmailMultiAlternatives", autospec=True)
-    def test_send_mail_after_copying_out_the_learning_unit_years_from_one_year_to_the_next(self, mock_class):
+    def test_send_mail_after_annual_procedure_of_automatic_postponement(self, mock_class):
         mock_class.send.return_value = None
         self.assertIsInstance(mock_class, EmailMultiAlternatives)
-        send_mail.send_mail_after_copying_out_the_luys_from_one_year_to_the_next(self.persons,
-                                                                                 self.academic_year,
-                                                                                 self.luys_to_postpone,
-                                                                                 self.luys_already_existing,
-                                                                                 self.luys_ending_this_year)
+        send_mail.send_mail_after_annual_procedure_of_automatic_postponement(self.academic_year,
+                                                                             self.luys_to_postpone,
+                                                                             self.luys_already_existing,
+                                                                             self.luys_ending_this_year,
+                                                                             self.msg_list)
         call_args = mock_class.call_args
         recipients = call_args[0][3]
         attachments = call_args[1]

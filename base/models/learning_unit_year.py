@@ -148,6 +148,10 @@ class LearningUnitYear(SerializableModel, ExtraManagerLearningUnitYear):
     class Meta:
         unique_together = ('learning_unit', 'academic_year',)
 
+        permissions = (
+            ("can_receive_emails_about_automatic_postponement", "Can receive emails about automatic postponement"),
+        )
+
     def __str__(self):
         return u"%s - %s" % (self.academic_year, self.acronym)
 
