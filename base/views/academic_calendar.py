@@ -38,24 +38,12 @@ from . import layout
 
 
 def _build_gantt_json(academic_calendar_list, show_academic_events, show_project_events):
-    today = datetime.date.today()
     academic_calendar_data = []
     for calendar in academic_calendar_list:
         category = calendar.get_category()
 
-        if calendar.start_date is None or calendar.end_date is None:
+        if _item_must_be_skipped(calendar, category, show_academic_events, show_project_events):
             continue
-        if category == ACADEMIC_CATEGORY and not show_academic_events:
-            continue
-        if category == PROJECT_CATEGORY and not show_project_events:
-            continue
-
-        if today <= calendar.start_date:
-            progress = 0
-        elif calendar.start_date < today < calendar.end_date:
-            progress = (today - calendar.start_date) / (calendar.end_date - calendar.start_date)
-        else:
-            progress = 1
 
         data = {
             'id': calendar.pk,
@@ -63,13 +51,31 @@ def _build_gantt_json(academic_calendar_list, show_academic_events, show_project
             'start_date': calendar.start_date.strftime('%d-%m-%Y'),
             'end_date': calendar.end_date.strftime('%d-%m-%Y'),
             'color': academic_calendar_type.CALENDAR_TYPES_COLORS.get(calendar.reference, '#337ab7'),
-            'progress': progress,
+            'progress': _compute_progress(calendar),
             'category': category,
         }
         academic_calendar_data.append(data)
     return {
         "data": academic_calendar_data
     }
+
+
+def _compute_progress(calendar):
+    today = datetime.date.today()
+    if today <= calendar.start_date:
+        progress = 0
+    elif calendar.start_date < today < calendar.end_date:
+        progress = (today - calendar.start_date) / (calendar.end_date - calendar.start_date)
+    else:
+        progress = 1
+    return progress
+
+
+def _item_must_be_skipped(calendar, category, show_academic_events, show_project_events):
+    return calendar.start_date is None or \
+        calendar.end_date is None or \
+        (category == ACADEMIC_CATEGORY and not show_academic_events) or \
+        (category == PROJECT_CATEGORY and not show_project_events)
 
 
 def _get_undated_calendars(academic_calendar_list):
