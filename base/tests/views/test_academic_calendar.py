@@ -32,6 +32,7 @@ from django.test import TestCase, RequestFactory
 from base.forms.academic_calendar import AcademicCalendarForm
 from base.models.academic_year import AcademicYear
 from base.models.enums import academic_calendar_type
+from base.models.enums.academic_calendar_type import ACADEMIC_CATEGORY
 from base.tests.factories.academic_calendar import AcademicCalendarFactory
 from base.tests.factories.academic_year import AcademicYearFactory
 
@@ -86,7 +87,7 @@ class AcademicCalendarViewTestCase(TestCase):
 
         request_factory = RequestFactory()
 
-        request = request_factory.get(reverse('academic_calendars'))
+        request = request_factory.get(reverse('academic_calendars') + "?show_academic_events=on")
         request.user = mock.Mock()
 
         from base.views.academic_calendar import academic_calendars
@@ -102,17 +103,17 @@ class AcademicCalendarViewTestCase(TestCase):
     @mock.patch('django.contrib.auth.decorators')
     @mock.patch('base.views.layout.render')
     def test_academic_calendars_search(self, mock_render, mock_decorators):
-        from base.views.academic_calendar import academic_calendars_search
+        from base.views.academic_calendar import academic_calendars
 
         mock_decorators.login_required = lambda x: x
         mock_decorators.permission_required = lambda *args, **kwargs: lambda func: func
 
         request_factory = RequestFactory()
-        get_data = {'academic_year': self.academic_year_1.id}
-        request = request_factory.get(reverse('academic_calendars_search'), get_data)
+        get_data = {'academic_year': self.academic_year_1.id, 'show_academic_events': 'on'}
+        request = request_factory.get(reverse('academic_calendars'), get_data)
         request.user = mock.Mock()
 
-        academic_calendars_search(request)
+        academic_calendars(request)
 
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
@@ -124,12 +125,16 @@ class AcademicCalendarViewTestCase(TestCase):
         self.assertDictEqual(
             context['academic_calendar_json'],
             {'data': [
-                {'color': academic_calendar_type.CALENDAR_TYPES_COLORS.get(calendar.reference, '#337ab7'),
-                 'text': calendar.title,
-                 'start_date': calendar.start_date.strftime('%d-%m-%Y'),
-                 'end_date': calendar.end_date.strftime('%d-%m-%Y'),
-                 'progress': 0,
-                 'id': calendar.id}]}
+                {
+                    'color': academic_calendar_type.CALENDAR_TYPES_COLORS.get(calendar.reference, '#337ab7'),
+                    'text': calendar.title,
+                    'start_date': calendar.start_date.strftime('%d-%m-%Y'),
+                    'end_date': calendar.end_date.strftime('%d-%m-%Y'),
+                    'progress': 0,
+                    'id': calendar.id,
+                    'category': ACADEMIC_CATEGORY,
+                }
+            ]}
         )
 
     @mock.patch('django.contrib.auth.decorators')
