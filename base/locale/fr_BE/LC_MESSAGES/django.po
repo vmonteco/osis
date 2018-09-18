@@ -3885,7 +3885,7 @@ msgstr "Acquis d'apprentissage d'organisation de formation"
 msgid "education group detailed achievement"
 msgstr "Acquis d'apprentissage détaillé d'organisation de formation"
 
-msgid "Produce configurable xls of learning units"
+msgid "Produce a customizable xls of learning units"
 msgstr "Produire une liste personnalisable des unités d'enseignement"
 
 msgid "Configurable list of learning units"
@@ -3894,8 +3894,8 @@ msgstr "Liste personnalisée des unités d'enseignement"
 msgid "Do you want to export the following informations"
 msgstr "Désirez-vous exporter les informations suivantes"
 
-msgid "With programs"
-msgstr "Programmes/Regroupements"
+msgid "Programs/gathering"
+msgstr "Programmes/regroupements"
 
 msgid "List of teachers"
 msgstr "Liste des enseignants"

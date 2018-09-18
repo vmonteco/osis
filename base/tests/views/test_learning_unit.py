@@ -96,8 +96,8 @@ from cms.tests.factories.translated_text import TranslatedTextFactory
 from osis_common.document import xls_build
 from reference.tests.factories.country import CountryFactory
 from reference.tests.factories.language import LanguageFactory
-from base.business.learning_unit import LEARNING_UNIT_TITLES_PART1, LEARNING_UNIT_TITLES_PART2, get_entity_acronym, \
-    _get_absolute_credits
+from base.business.learning_unit import LEARNING_UNIT_TITLES_PART1, LEARNING_UNIT_TITLES_PART2, get_entity_acronym
+from base.business.learning_unit_xls import _get_absolute_credits
 
 
 @override_flag('learning_unit_create', active=True)
@@ -1439,34 +1439,11 @@ class TestCreateXls(TestCase):
         self.assertTrue(a_form.is_valid())
         found_learning_units = a_form.get_activity_learning_units()
         learning_unit_business.create_xls(self.user, found_learning_units, None)
-        xls_data = [[self.learning_unit_year.acronym,
-                     self.learning_unit_year.academic_year.name,
-                     self.learning_unit_year.complete_title.lstrip(),
+        xls_data = [[self.learning_unit_year.academic_year.name, self.learning_unit_year.acronym,
+                     self.learning_unit_year.complete_title,
                      xls_build.translate(self.learning_unit_year.learning_container_year.container_type),
-                     xls_build.translate(self.learning_unit_year.subtype),
-                     None,
-                     '',
-                     '',
-                     self.learning_unit_year.credits,
-                     None,
-                     self.learning_unit_year.complete_title_english.lstrip(),
-                     xls_build.translate(self.learning_unit_year.periodicity),
-                     xls_build.translate(self.learning_unit_year.status),
-                     '',
-                     '',
-                     '',
-                     '',
-                     '',
-                     '',
-                     '',
-                     '',
-                     xls_build.translate(self.learning_unit_year.quadrimester),
-                     xls_build.translate(self.learning_unit_year.session),
-                     self.learning_unit_year.language if self.learning_unit_year.language else "",
-                     _get_absolute_credits(self.learning_unit_year),
-                     ]
-
-                    ]
+                     xls_build.translate(self.learning_unit_year.subtype), None, None, self.learning_unit_year.credits,
+                     xls_build.translate(self.learning_unit_year.status)]]
         expected_argument = _generate_xls_build_parameter(xls_data, self.user)
         mock_generate_xls.assert_called_with(expected_argument, None)
 
