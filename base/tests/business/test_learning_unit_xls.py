@@ -32,8 +32,9 @@ from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
 from base.tests.factories.person import PersonFactory
 from base.business.learning_unit_xls import DEFAULT_LEGEND_STYLES, SPACES, PROPOSAL_LINE_STYLES, _update_volumes_data, \
-    _get_significant_volume, _initialize_component_data, _prepare_legend_ws_data, _get_wrapped_cells, _get_colored_rows, \
-    _get_attribution_line, _get_col_letter, _get_formations_by_educ_group_year, _add_training_data, _get_data_part1
+    _get_significant_volume, _initialize_component_data, _prepare_legend_ws_data, _get_wrapped_cells, \
+    _get_colored_rows, _get_attribution_line, _get_col_letter, _get_formations_by_educ_group_year, _add_training_data, \
+    _get_data_part1, _get_parameters_configurable_list, WRAP_TEXT_STYLE, HEADER_PROGRAMS, XLS_DESCRIPTION, CREATION_COLOR
 from base.models.enums import proposal_type, proposal_state
 from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
@@ -47,6 +48,8 @@ from base.tests.factories.education_group_type import EducationGroupTypeFactory
 from base.tests.factories.business.learning_units import GenerateContainer
 from base.tests.factories.entity_version import EntityVersionFactory
 from base.models.enums import entity_type, organization_type
+from base.tests.factories.user import UserFactory
+from collections import defaultdict
 
 COL_TEACHERS_LETTER = 'L'
 COL_PROGRAMS_LETTER = 'Z'
@@ -235,3 +238,20 @@ class TestLearningUnitXls(TestCase):
         self.assertEqual(data[2], luy.complete_title)
         self.assertEqual(data[6], _(self.proposal_creation_1.type))
         self.assertEqual(data[7], _(self.proposal_creation_1.state))
+
+    def test_get_parameters_configurable_list(self):
+        user_name = 'Ducon'
+        an_user = UserFactory(username=user_name)
+        titles = ['title1', 'title2']
+        learning_units = [self.learning_unit_yr_1, self.learning_unit_yr_2]
+        param = _get_parameters_configurable_list(learning_units, titles, an_user)
+        self.assertEqual(param.get(xls_build.DESCRIPTION), XLS_DESCRIPTION)
+        self.assertEqual(param.get(xls_build.USER), user_name)
+        self.assertEqual(param.get(xls_build.HEADER_TITLES), titles)
+        self.assertEqual(param.get(xls_build.STYLED_CELLS), {WRAP_TEXT_STYLE: []})
+        self.assertEqual(param.get(xls_build.COLORED_ROWS), {})
+
+        titles.append(HEADER_PROGRAMS)
+
+        param = _get_parameters_configurable_list(learning_units, titles, an_user)
+        self.assertEqual(param.get(xls_build.STYLED_CELLS), {WRAP_TEXT_STYLE: ['C2', 'C3']})

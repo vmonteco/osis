@@ -119,7 +119,7 @@ def create_xls_with_parameters(user, learning_units, filters, extra_configuratio
     return xls_build.generate_xls(ws_data, filters)
 
 
-def _get_parameters_configurable_list(found_learning_units, titles, user):
+def _get_parameters_configurable_list(learning_units, titles, user):
     parameters = {
         xls_build.DESCRIPTION: XLS_DESCRIPTION,
         xls_build.USER: get_name_or_username(user),
@@ -128,12 +128,12 @@ def _get_parameters_configurable_list(found_learning_units, titles, user):
         xls_build.WS_TITLE: WORKSHEET_TITLE,
         xls_build.STYLED_CELLS: {
             WRAP_TEXT_STYLE: _get_wrapped_cells(
-                found_learning_units,
+                learning_units,
                 _get_col_letter(titles, HEADER_PROGRAMS),
                 _get_col_letter(titles, HEADER_TEACHERS)
             )
         },
-        xls_build.COLORED_ROWS: _get_colored_rows(found_learning_units),
+        xls_build.COLORED_ROWS: _get_colored_rows(learning_units),
     }
     return parameters
 
