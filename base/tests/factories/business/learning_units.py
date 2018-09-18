@@ -69,7 +69,7 @@ def create_learning_unit_with_context(academic_year, structure, entity, acronym)
 
 
 class LearningUnitsMixin:
-    this_year = start_year = last_year = starting_academic_year = starting_academic_year = None
+    this_year = start_year = last_year = starting_academic_year = None
     old_academic_year = last_academic_year = oldest_academic_year = latest_academic_year = None
     learning_unit = learning_unit_year = learning_container_year = None
     list_of_academic_years = []
