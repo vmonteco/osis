@@ -33,6 +33,7 @@ from django.contrib.auth.decorators import login_required, permission_required, 
 from django.contrib.auth.views import login as django_login
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.shortcuts import redirect
+from django.urls import reverse
 from django.utils import translation
 from django.utils.translation import ugettext_lazy as _
 
@@ -158,7 +159,18 @@ def data_maintenance(request):
 @login_required
 @permission_required('base.can_access_academicyear', raise_exception=True)
 def academic_year(request):
-    return layout.render(request, "academic_year.html", {'section': 'academic_year'})
+    url_academic_calendars = reverse('academic_calendars') + "?show_academic_events=on"
+    if request.user.is_superuser:
+        url_academic_calendars += "&show_project_events=on"
+
+    return layout.render(
+        request,
+        "academic_year.html",
+        {
+            'section': 'academic_year',
+            'url_academic_calendars': url_academic_calendars,
+        }
+    )
 
 
 @login_required
