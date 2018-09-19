@@ -30,22 +30,22 @@ from base.business.learning_units.edition import duplicate_learning_unit_year
 from base.models.academic_year import compute_max_academic_year_adjournment, AcademicYear
 from base.models.learning_unit_year import LearningUnitYear
 
-
-# This method will be execute through a celery worker.
 from base.utils.send_mail import send_mail_before_annual_procedure_of_automatic_postponement, \
     send_mail_after_annual_procedure_of_automatic_postponement
 
 
+# TODO This method will be execute through a celery worker.
 def fetch_learning_unit_to_postpone(queryset=None):
-    """ Fetch all learning units who need a postponement. """
     if not queryset:
         queryset = LearningUnitYear.objects.all()
 
+    # Fetch N+6 and N+5 academic_years
     last_academic_year = AcademicYear.objects.get(year=compute_max_academic_year_adjournment())
     penultimate_academic_year = last_academic_year.past()
 
     # We take all learning unit years from N+5 academic year
     qs_luy = queryset.filter(academic_year=penultimate_academic_year)
+
     # Create filters to know which luys must be copied to N+6
     luys_already_duplicated = qs_luy.filter(learning_unit__learningunityear__academic_year=last_academic_year)
     luys_to_not_duplicate = qs_luy.filter(learning_unit__end_year__lt=last_academic_year.year)
@@ -55,7 +55,16 @@ def fetch_learning_unit_to_postpone(queryset=None):
     send_mail_before_annual_procedure_of_automatic_postponement(last_academic_year, luys_to_duplicate,
                                                                 luys_already_duplicated, luys_to_not_duplicate)
 
-    # Extend all learning unit until last_academic_year
+    result, errors = extend_learning_units_until_last_academic_year(last_academic_year, luys_to_duplicate)
+
+    # send statistics with results to the managers
+    send_mail_after_annual_procedure_of_automatic_postponement(last_academic_year, result, luys_already_duplicated,
+                                                               luys_to_not_duplicate, errors)
+
+    return result, errors
+
+
+def extend_learning_units_until_last_academic_year(last_academic_year, luys_to_duplicate):
     result = []
     errors = []
     for luy in luys_to_duplicate:
@@ -65,9 +74,5 @@ def fetch_learning_unit_to_postpone(queryset=None):
         # General catch to be sure to not stop the rest of the duplication
         except (Error, ObjectDoesNotExist, MultipleObjectsReturned):
             errors.append(luy)
-
-    # send statistics to the managers
-    send_mail_after_annual_procedure_of_automatic_postponement(last_academic_year, result, luys_already_duplicated,
-                                                               luys_to_not_duplicate, errors)
 
     return result, errors

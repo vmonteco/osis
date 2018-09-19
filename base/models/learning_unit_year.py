@@ -41,7 +41,6 @@ from base.models.enums import learning_unit_year_subtypes, internship_subtypes, 
 from base.models.enums.learning_container_year_types import COURSE, INTERNSHIP
 from base.models.enums.learning_unit_year_periodicity import PERIODICITY_TYPES, ANNUAL, BIENNIAL_EVEN, BIENNIAL_ODD
 from base.models.learning_unit import LEARNING_UNIT_ACRONYM_REGEX_ALL, REGEX_BY_SUBTYPE
-from base.views.common import display_success_messages, display_error_messages
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
 
 AUTHORIZED_REGEX_CHARS = "$*+.^"
@@ -70,13 +69,14 @@ class LearningUnitYearAdmin(SerializableModelAdmin):
     def apply_learning_unit_year_postponement(self, request, queryset):
         # Potential circular imports
         from base.business.learning_units.automatic_postponement import fetch_learning_unit_to_postpone
+        from base.views.common import display_success_messages, display_error_messages
 
         result, errors = fetch_learning_unit_to_postpone(queryset)
         count = len(result)
         display_success_messages(
             request, ngettext(
                 '%(count)d learning unit has been postponed with success',
-                '%(count)d learning units has been postponed with success', count
+                '%(count)d learning units have been postponed with success', count
             ) % {'count': count}
         )
         if errors:
