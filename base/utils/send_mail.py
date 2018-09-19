@@ -29,22 +29,21 @@ Utility files for mail sending
 """
 import datetime
 
-from django.contrib.auth.models import Permission, User
+from django.contrib.auth.models import Permission
 from django.contrib.messages import ERROR
 from django.db.models import Q
 from django.utils.translation import ugettext as _
 from openpyxl import Workbook
-from openpyxl.writer.excel import save_virtual_workbook, save_workbook
+from openpyxl.writer.excel import save_virtual_workbook
 
 from assessments.business import score_encoding_sheet
+from base.models import person as person_mdl
 from base.models.academic_year import current_academic_year
 from base.models.person import Person
-from osis_common.document.xls_build import _adjust_column_width
-
-from osis_common.models import message_history as message_history_mdl
-from osis_common.messaging import message_config, send_message as message_service
-from base.models import person as person_mdl
 from osis_common.document import paper_sheet, xls_build
+from osis_common.document.xls_build import _adjust_column_width
+from osis_common.messaging import message_config, send_message as message_service
+from osis_common.models import message_history as message_history_mdl
 
 EDUCATIONAL_INFORMATION_UPDATE_TXT = 'educational_information_update_txt'
 
@@ -106,7 +105,7 @@ def send_mail_before_annual_procedure_of_automatic_postponement(
     html_template_ref = 'luy_before_auto_postponement_html'
     txt_template_ref = 'luy_before_auto_postponement_txt'
 
-    permission = Permission.objects.filter(codename='can_receive_mails_about_automatic_postponement')
+    permission = Permission.objects.filter(codename='can_receive_emails_about_automatic_postponement')
     managers = Person.objects.filter(Q(user__groups__permissions=permission) | Q(user__user_permissions=permission))\
         .distinct()
 
@@ -127,7 +126,7 @@ def send_mail_after_annual_procedure_of_automatic_postponement(
     html_template_ref = 'luy_after_auto_postponement_html'
     txt_template_ref = 'luy_after_auto_postponement_txt'
 
-    permission = Permission.objects.filter(codename='base.can_receive_mails_about_automatic_postponement')
+    permission = Permission.objects.filter(codename='can_receive_emails_about_automatic_postponement')
     managers = Person.objects.filter(Q(user__groups__permissions=permission) | Q(user__user_permissions=permission))\
         .distinct()
 

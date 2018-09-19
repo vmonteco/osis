@@ -32,6 +32,10 @@ from base.models.learning_unit_year import LearningUnitYear
 
 
 # This method will be execute through a celery worker.
+from base.utils.send_mail import send_mail_before_annual_procedure_of_automatic_postponement, \
+    send_mail_after_annual_procedure_of_automatic_postponement
+
+
 def fetch_learning_unit_to_postpone(queryset=None):
     """ Fetch all learning units who need a postponement. """
     if not queryset:
@@ -40,17 +44,16 @@ def fetch_learning_unit_to_postpone(queryset=None):
     last_academic_year = AcademicYear.objects.get(year=compute_max_academic_year_adjournment())
     penultimate_academic_year = last_academic_year.past()
 
-    # send statistics to the managers
-    # List of UE to duplicate
-    # List of UE not to be duplicated
-    # List of UE already existing in N+6
-
     # We take all learning unit years from N+5 academic year
     qs_luy = queryset.filter(academic_year=penultimate_academic_year)
     # Create filters to know which luys must be copied to N+6
     luys_already_duplicated = qs_luy.filter(learning_unit__learningunityear__academic_year=last_academic_year)
     luys_to_not_duplicate = qs_luy.filter(learning_unit__end_year__lt=last_academic_year.year)
     luys_to_duplicate = qs_luy.difference(luys_already_duplicated, luys_to_not_duplicate)
+
+    # send statistics to the managers
+    send_mail_before_annual_procedure_of_automatic_postponement(last_academic_year, luys_to_duplicate,
+                                                                luys_already_duplicated, luys_to_not_duplicate)
 
     # Extend all learning unit until last_academic_year
     result = []
@@ -64,9 +67,7 @@ def fetch_learning_unit_to_postpone(queryset=None):
             errors.append(luy)
 
     # send statistics to the managers
-    # List of UE to duplicate
-    # List of UE not to be duplicated
-    # List of UE already existing in N+6
-    # Result
+    send_mail_after_annual_procedure_of_automatic_postponement(last_academic_year, result, luys_already_duplicated,
+                                                               luys_to_not_duplicate, errors)
 
     return result, errors

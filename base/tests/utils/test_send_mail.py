@@ -121,7 +121,7 @@ class TestSendMessage(TestCase):
         call_args = mock_class.call_args
         recipients = call_args[0][3]
         attachments = call_args[1]
-        self.assertEqual(len(recipients), 2)
+        self.assertEqual(len(recipients), 1)
         self.assertIsNone(attachments['attachments'])
 
     @patch("osis_common.messaging.send_message.EmailMultiAlternatives", autospec=True)
