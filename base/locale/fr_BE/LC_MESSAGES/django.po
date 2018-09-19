@@ -3893,3 +3893,9 @@ msgstr "au terme de ce programme, le diplômé est capable de"
 
 msgid "skills and achievements"
 msgstr "compétences et acquis"
+
+msgid "academic events"
+msgstr "événements académiques"
+
+msgid "project events"
+msgstr "événements projet"

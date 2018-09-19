@@ -3886,3 +3886,9 @@ msgstr ""
 
 msgid "skills and achievements"
 msgstr ""
+
+msgid "academic events"
+msgstr ""
+
+msgid "project events"
+msgstr ""

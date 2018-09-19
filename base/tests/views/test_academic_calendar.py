@@ -34,6 +34,8 @@ from base.models.academic_year import AcademicYear
 from base.models.enums import academic_calendar_type
 from base.tests.factories.academic_calendar import AcademicCalendarFactory
 from base.tests.factories.academic_year import AcademicYearFactory
+from base.tests.factories.user import SuperUserFactory
+from base.views.academic_calendar import academic_calendars, academic_calendar_form
 
 now = datetime.datetime.now()
 today = datetime.date.today()
@@ -41,42 +43,23 @@ today = datetime.date.today()
 
 class AcademicCalendarViewTestCase(TestCase):
     def setUp(self):
-        self.academic_year_1 = AcademicYearFactory.build(start_date=today.replace(year=today.year + 1),
-                                                         end_date=today.replace(year=today.year + 2),
-                                                         year=today.year + 1)
-        self.academic_year_2 = AcademicYearFactory.build(start_date=today.replace(year=today.year + 2),
-                                                         end_date=today.replace(year=today.year + 3),
-                                                         year=today.year + 2)
-        self.academic_year_3 = AcademicYearFactory.build(start_date=today.replace(year=today.year + 3),
-                                                         end_date=today.replace(year=today.year + 4),
-                                                         year=today.year + 3)
-        self.academic_year_4 = AcademicYearFactory.build(start_date=today.replace(year=today.year + 4),
-                                                         end_date=today.replace(year=today.year + 5),
-                                                         year=today.year + 4)
-        self.academic_year_5 = AcademicYearFactory.build(start_date=today.replace(year=today.year + 5),
-                                                         end_date=today.replace(year=today.year + 6),
-                                                         year=today.year + 5)
-        self.academic_year_6 = AcademicYearFactory.build(start_date=today.replace(year=today.year + 6),
-                                                         end_date=today.replace(year=today.year + 7),
-                                                         year=today.year + 6)
-        self.current_academic_year = AcademicYearFactory.build(start_date=today,
-                                                               end_date=today.replace(year=today.year + 1),
-                                                               year=today.year)
-        self.current_academic_year.save()
-        super(AcademicYear, self.academic_year_1).save()
-        super(AcademicYear, self.academic_year_2).save()
-        super(AcademicYear, self.academic_year_3).save()
-        super(AcademicYear, self.academic_year_4).save()
-        super(AcademicYear, self.academic_year_5).save()
-        super(AcademicYear, self.academic_year_6).save()
+        self.academic_years = [
+            AcademicYearFactory.build(
+                start_date=today.replace(year=today.year + i),
+                end_date=today.replace(year=today.year + 1 + i),
+                year=today.year + i
+            )
+            for i in range(7)
+        ]
 
-        self.current_academic_calendar = AcademicCalendarFactory(academic_year=self.current_academic_year)
-        self.academic_calendar_1 = AcademicCalendarFactory(academic_year=self.academic_year_1)
-        AcademicCalendarFactory(academic_year=self.academic_year_2)
-        AcademicCalendarFactory(academic_year=self.academic_year_3)
-        AcademicCalendarFactory(academic_year=self.academic_year_4)
-        AcademicCalendarFactory(academic_year=self.academic_year_5)
-        AcademicCalendarFactory(academic_year=self.academic_year_6)
+        self.academic_years[0].save()
+        for i in range(1, 7):
+            super(AcademicYear, self.academic_years[i]).save()
+
+        self.academic_calendars = [
+            AcademicCalendarFactory(academic_year=self.academic_years[i])
+            for i in range(7)
+        ]
 
     @mock.patch('django.contrib.auth.decorators')
     @mock.patch('base.views.layout.render')
@@ -86,10 +69,8 @@ class AcademicCalendarViewTestCase(TestCase):
 
         request_factory = RequestFactory()
 
-        request = request_factory.get(reverse('academic_calendars'))
+        request = request_factory.get(reverse('academic_calendars') + "?show_academic_events=on")
         request.user = mock.Mock()
-
-        from base.views.academic_calendar import academic_calendars
 
         academic_calendars(request)
 
@@ -97,39 +78,105 @@ class AcademicCalendarViewTestCase(TestCase):
         request, template, context = mock_render.call_args[0]
 
         self.assertEqual(template, 'academic_calendars.html')
-        self._compare_academic_calendar_json(context, self.current_academic_calendar)
+        self._compare_academic_calendar_json(context, self.academic_calendars[0])
 
     @mock.patch('django.contrib.auth.decorators')
     @mock.patch('base.views.layout.render')
     def test_academic_calendars_search(self, mock_render, mock_decorators):
-        from base.views.academic_calendar import academic_calendars_search
-
         mock_decorators.login_required = lambda x: x
         mock_decorators.permission_required = lambda *args, **kwargs: lambda func: func
 
         request_factory = RequestFactory()
-        get_data = {'academic_year': self.academic_year_1.id}
-        request = request_factory.get(reverse('academic_calendars_search'), get_data)
+        get_data = {'academic_year': self.academic_years[1].id, 'show_academic_events': 'on'}
+        request = request_factory.get(reverse('academic_calendars'), get_data)
         request.user = mock.Mock()
 
-        academic_calendars_search(request)
+        academic_calendars(request)
 
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
 
         self.assertEqual(template, 'academic_calendars.html')
-        self._compare_academic_calendar_json(context, self.academic_calendar_1)
+        self._compare_academic_calendar_json(context, self.academic_calendars[1])
 
     def _compare_academic_calendar_json(self, context, calendar):
         self.assertDictEqual(
             context['academic_calendar_json'],
             {'data': [
-                {'color': academic_calendar_type.CALENDAR_TYPES_COLORS.get(calendar.reference, '#337ab7'),
-                 'text': calendar.title,
-                 'start_date': calendar.start_date.strftime('%d-%m-%Y'),
-                 'end_date': calendar.end_date.strftime('%d-%m-%Y'),
-                 'progress': 0,
-                 'id': calendar.id}]}
+                {
+                    'color': academic_calendar_type.CALENDAR_TYPES_COLORS.get(calendar.reference, '#337ab7'),
+                    'text': calendar.title,
+                    'start_date': calendar.start_date.strftime('%d-%m-%Y'),
+                    'end_date': calendar.end_date.strftime('%d-%m-%Y'),
+                    'progress': 0,
+                    'id': calendar.id,
+                    'category': academic_calendar_type.ACADEMIC_CATEGORY,
+                }
+            ]}
+        )
+
+    @mock.patch('django.contrib.auth.decorators')
+    @mock.patch('base.views.layout.render')
+    def test_project_calendars_search(self, mock_render, mock_decorators):
+        mock_decorators.login_required = lambda x: x
+        mock_decorators.permission_required = lambda *args, **kwargs: lambda func: func
+
+        self.academic_calendars[1].reference = academic_calendar_type.TESTING
+        self.academic_calendars[1].start_date = today.replace(day=today.day - 1)
+        self.academic_calendars[1].end_date = today.replace(day=today.day + 1)
+        self.academic_calendars[1].save()
+
+        request_factory = RequestFactory()
+        get_data = {'academic_year': self.academic_years[1].id, 'show_project_events': 'on'}
+        request = request_factory.get(reverse('academic_calendars'), get_data)
+        request.user = SuperUserFactory()
+
+        academic_calendars(request)
+
+        self.assertTrue(mock_render.called)
+        request, template, context = mock_render.call_args[0]
+
+        self.assertEqual(template, 'academic_calendars.html')
+        self._compare_project_calendar_json(context, self.academic_calendars[1], 0.5)
+
+    @mock.patch('django.contrib.auth.decorators')
+    @mock.patch('base.views.layout.render')
+    def test_project_calendars_search_progress_1(self, mock_render, mock_decorators):
+        mock_decorators.login_required = lambda x: x
+        mock_decorators.permission_required = lambda *args, **kwargs: lambda func: func
+
+        self.academic_calendars[1].reference = academic_calendar_type.TESTING
+        self.academic_calendars[1].start_date = today.replace(day=today.day - 10)
+        self.academic_calendars[1].end_date = today.replace(day=today.day - 1)
+        self.academic_calendars[1].save()
+
+        request_factory = RequestFactory()
+        get_data = {'academic_year': self.academic_years[1].id, 'show_project_events': 'on'}
+        request = request_factory.get(reverse('academic_calendars'), get_data)
+        request.user = SuperUserFactory()
+
+        academic_calendars(request)
+
+        self.assertTrue(mock_render.called)
+        request, template, context = mock_render.call_args[0]
+
+        self.assertEqual(template, 'academic_calendars.html')
+        self._compare_project_calendar_json(context, self.academic_calendars[1], 1)
+
+    def _compare_project_calendar_json(self, context, calendar, progress):
+        self.assertDictEqual(
+            context['academic_calendar_json'],
+            {'data': [
+                {
+                    'color': academic_calendar_type.CALENDAR_TYPES_COLORS.get(calendar.reference, '#337ab7'),
+                    'text': calendar.title,
+                    'start_date': calendar.start_date.strftime('%d-%m-%Y'),
+                    'end_date': calendar.end_date.strftime('%d-%m-%Y'),
+                    'progress': progress,
+                    'id': calendar.id,
+                    'category': academic_calendar_type.PROJECT_CATEGORY,
+                }
+            ]}
         )
 
     @mock.patch('django.contrib.auth.decorators')
@@ -138,23 +185,24 @@ class AcademicCalendarViewTestCase(TestCase):
         mock_decorators.login_required = lambda x: x
         mock_decorators.permission_required = lambda *args, **kwargs: lambda func: func
 
-        from base.views.academic_calendar import academic_calendar_form
-
         request_factory = RequestFactory()
-
         request = request_factory.get(reverse('academic_calendars'))
         request.user = mock.Mock()
 
-        academic_calendar_form(request, self.academic_calendar_1.id)
+        academic_calendar_form(request, self.academic_calendars[1].id)
 
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
 
         self.assertEqual(template, 'academic_calendar_form.html')
         self.assertIsInstance(context['form'], AcademicCalendarForm)
+        self.assertEqual(
+            context['url_academic_calendars'],
+            reverse('academic_calendars') + "?show_academic_events=on&show_project_events=on"
+        )
 
         data = {
-            "academic_year": self.academic_year_1.pk,
+            "academic_year": self.academic_years[1].pk,
             "title": "Academic event",
             "description": "Description of an academic event",
             "start_date": datetime.date.today(),
@@ -163,9 +211,8 @@ class AcademicCalendarViewTestCase(TestCase):
 
         request = request_factory.post(reverse('academic_calendars'), data)
         request.user = mock.Mock()
-        academic_calendar_form(request, self.academic_calendar_1.id)
+        academic_calendar_form(request, self.academic_calendars[1].id)
 
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
         self.assertEqual(template, 'academic_calendar.html')
-

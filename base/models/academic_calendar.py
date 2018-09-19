@@ -95,6 +95,13 @@ class AcademicCalendar(SerializableModel):
         if self.start_date is None or self.end_date is None:
             raise AttributeError(_('dates_mandatory_error'))
 
+    def get_category(self):
+        if self.reference in _list_types(academic_calendar_type.ACADEMIC_CALENDAR_TYPES):
+            return academic_calendar_type.ACADEMIC_CATEGORY
+        elif self.reference in _list_types(academic_calendar_type.PROJECT_CALENDAR_TYPES):
+            return academic_calendar_type.PROJECT_CATEGORY
+        return ''
+
     def __str__(self):
         return u"%s %s" % (self.academic_year, self.title)
 
@@ -157,3 +164,7 @@ def is_academic_calendar_has_started(academic_year, reference, date=None):
             reference=reference,
             start_date__lte=date,
     ).exists()
+
+
+def _list_types(calendar_types):
+    return [calendar_type[0] for calendar_type in calendar_types]
