@@ -23,17 +23,18 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from unittest.mock import patch
+
+from django.core.mail.message import EmailMultiAlternatives
 from django.test import TestCase
 
 from base.models.learning_unit_year import LearningUnitYear
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from base.tests.factories.person import PersonWithPermissionsFactory
-from osis_common.models import message_template
-from base.utils import send_mail
-from unittest.mock import patch
-from base.tests.models import test_person, test_academic_year, test_learning_unit_year, test_offer_year, \
+from base.tests.models import test_person, test_academic_year, test_offer_year, \
     test_exam_enrollment
-from django.core.mail.message import EmailMultiAlternatives
+from base.utils import send_mail
+from osis_common.models import message_template
 
 LEARNING_UNIT_YEARS_VARIABLE_PARAGRAPH_ = "<p>{{ learning_unit_years }}/p>"
 
