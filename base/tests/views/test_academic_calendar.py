@@ -35,6 +35,7 @@ from base.models.enums import academic_calendar_type
 from base.tests.factories.academic_calendar import AcademicCalendarFactory
 from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.user import SuperUserFactory
+from base.views.academic_calendar import academic_calendars, academic_calendar_form
 
 now = datetime.datetime.now()
 today = datetime.date.today()
@@ -71,8 +72,6 @@ class AcademicCalendarViewTestCase(TestCase):
         request = request_factory.get(reverse('academic_calendars') + "?show_academic_events=on")
         request.user = mock.Mock()
 
-        from base.views.academic_calendar import academic_calendars
-
         academic_calendars(request)
 
         self.assertTrue(mock_render.called)
@@ -84,8 +83,6 @@ class AcademicCalendarViewTestCase(TestCase):
     @mock.patch('django.contrib.auth.decorators')
     @mock.patch('base.views.layout.render')
     def test_academic_calendars_search(self, mock_render, mock_decorators):
-        from base.views.academic_calendar import academic_calendars
-
         mock_decorators.login_required = lambda x: x
         mock_decorators.permission_required = lambda *args, **kwargs: lambda func: func
 
@@ -121,8 +118,6 @@ class AcademicCalendarViewTestCase(TestCase):
     @mock.patch('django.contrib.auth.decorators')
     @mock.patch('base.views.layout.render')
     def test_project_calendars_search(self, mock_render, mock_decorators):
-        from base.views.academic_calendar import academic_calendars
-
         mock_decorators.login_required = lambda x: x
         mock_decorators.permission_required = lambda *args, **kwargs: lambda func: func
 
@@ -144,12 +139,9 @@ class AcademicCalendarViewTestCase(TestCase):
         self.assertEqual(template, 'academic_calendars.html')
         self._compare_project_calendar_json(context, self.academic_calendars[1], 0.5)
 
-
     @mock.patch('django.contrib.auth.decorators')
     @mock.patch('base.views.layout.render')
     def test_project_calendars_search_progress_1(self, mock_render, mock_decorators):
-        from base.views.academic_calendar import academic_calendars
-
         mock_decorators.login_required = lambda x: x
         mock_decorators.permission_required = lambda *args, **kwargs: lambda func: func
 
@@ -193,10 +185,7 @@ class AcademicCalendarViewTestCase(TestCase):
         mock_decorators.login_required = lambda x: x
         mock_decorators.permission_required = lambda *args, **kwargs: lambda func: func
 
-        from base.views.academic_calendar import academic_calendar_form
-
         request_factory = RequestFactory()
-
         request = request_factory.get(reverse('academic_calendars'))
         request.user = mock.Mock()
 
@@ -223,4 +212,3 @@ class AcademicCalendarViewTestCase(TestCase):
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
         self.assertEqual(template, 'academic_calendar.html')
-
