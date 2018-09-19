@@ -90,6 +90,7 @@ def _get_undated_calendars(academic_calendar_list):
 @login_required
 @permission_required('base.can_access_academic_calendar', raise_exception=True)
 def academic_calendars(request):
+    # TODO :: Use a Django form instead of hardcoded form in template academic_calendars.html
     academic_year = request.GET.get('academic_year') or mdl.academic_year.starting_academic_year().pk
     academic_year = int(academic_year)
     academic_years = mdl.academic_year.find_academic_years()
