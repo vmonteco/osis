@@ -188,7 +188,8 @@ class EducationGroupYear(models.Model):
         max_length=20,
         choices=activity_presence.ACTIVITY_PRESENCES,
         blank=True,
-        null=True
+        null=True,
+        verbose_name=_("activities in English")
     )
 
     other_language_activities = models.CharField(
@@ -433,6 +434,14 @@ class EducationGroupYear(models.Model):
             "min": self.min_constraint if self.min_constraint else "",
             "max": self.max_constraint if self.max_constraint else ""
         }
+
+    @property
+    def verbose_constraint_type(self):
+        return self.get_constraint_type_display()
+
+    @property
+    def verbose_duration(self):
+        return "{} {}".format(self.duration, _(self.duration_unit))
 
     class Meta:
         verbose_name = _("education group year")
