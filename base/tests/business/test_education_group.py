@@ -81,10 +81,7 @@ class EducationGroupTestCase(TestCase):
         # Create structure
         self._create_basic_entity_structure()
         # Create education group with 'CHIM' as entity management
-        self.education_group_year = EducationGroupYearFactory()
-        OfferYearEntityFactory(education_group_year=self.education_group_year,
-                               type=offer_year_entity_type.ENTITY_MANAGEMENT,
-                               entity=self.chim_entity)
+        self.education_group_year = EducationGroupYearFactory(management_entity=self.chim_entity)
 
     def test_can_user_edit_administrative_data_no_permission(self):
         """Without permission/group, we cannot access to administrative data ==> Refused"""
