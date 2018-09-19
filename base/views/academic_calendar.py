@@ -27,6 +27,7 @@ import datetime
 
 from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import get_object_or_404
+from django.urls import reverse
 
 from base import models as mdl
 from base.forms.academic_calendar import AcademicCalendarForm
@@ -120,7 +121,14 @@ def academic_calendars(request):
 @permission_required('base.can_access_academic_calendar', raise_exception=True)
 def academic_calendar_read(request, academic_calendar_id):
     academic_calendar = get_object_or_404(mdl.academic_calendar.AcademicCalendar, pk=academic_calendar_id)
-    return layout.render(request, "academic_calendar.html", {'academic_calendar': academic_calendar})
+    return layout.render(
+        request,
+        "academic_calendar.html",
+        {
+            'academic_calendar': academic_calendar,
+            'url_academic_calendars': build_url_academic_calendars(request),
+        }
+    )
 
 
 @login_required
@@ -136,4 +144,19 @@ def academic_calendar_form(request, academic_calendar_id):
         if academic_cal_form.is_valid():
             academic_cal_form.save()
             return academic_calendar_read(request, academic_cal_form.instance.id)
-    return layout.render(request, "academic_calendar_form.html", {'form': academic_cal_form})
+    return layout.render(
+        request,
+        "academic_calendar_form.html",
+        {
+            'form': academic_cal_form,
+            'url_academic_calendars': build_url_academic_calendars(request),
+        }
+    )
+
+
+def build_url_academic_calendars(request):
+    url_academic_calendars = reverse('academic_calendars') + "?show_academic_events=on"
+    if request.user.is_superuser:
+        url_academic_calendars += "&show_project_events=on"
+
+    return url_academic_calendars
