@@ -164,3 +164,19 @@ class TestContent(TestCase):
         self.assertIn(self.group_element_year_2, geys)
         self.assertIn(self.group_element_year_3, geys)
         self.assertNotIn(self.group_element_year_without_container, geys)
+
+
+class TestEducationGroupSkillsAchievements(TestCase):
+    def setUp(self):
+
+        self.education_group_year = EducationGroupYearFactory()
+        self.user = UserFactory()
+        self.person = PersonFactory(user=self.user)
+        self.user.user_permissions.add(Permission.objects.get(codename="can_access_education_group"))
+        self.client.force_login(self.user)
+
+
+    def test_get(self):
+        response = self.client.get(reverse("education_group_skills_achievements", args=[self.education_group_year.pk, self.education_group_year.pk]))
+
+        self.assertEqual(response.status_code, 200)

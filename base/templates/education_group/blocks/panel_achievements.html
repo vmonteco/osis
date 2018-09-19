@@ -77,13 +77,16 @@
         $('.collapse_span').on('click', function() {
             $(this).toggleClass('glyphicon-chevron-right').toggleClass('glyphicon-chevron-down');
         });
+
         $('.collapse_span_updown').on('click', function() {
+            let target = $(this).data("target");
             $(this).toggleClass('glyphicon-chevron-up').toggleClass('glyphicon-chevron-down');
+
             if ($(this).hasClass('glyphicon-chevron-up')) {
-                $($(this).data("target")).hide("slow")
+                $(target).hide("slow")
             }
             else {
-                $($(this).data("target")).show("slow")
+                $(target).show("slow")
             }
         });
     });
