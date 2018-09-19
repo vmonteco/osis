@@ -3880,3 +3880,9 @@ msgstr ""
 
 msgid "education group detailed achievement"
 msgstr ""
+
+msgid "on successful completion of this program, each student is able to"
+msgstr ""
+
+msgid "skills and achievements"
+msgstr ""

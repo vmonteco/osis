@@ -49,6 +49,7 @@ from cms import models as mdl_cms
 from cms.enums import entity_name
 from cms.models.translated_text import TranslatedText
 from cms.models.translated_text_label import TranslatedTextLabel
+from reference.models.language import FR_CODE_LANGUAGE, EN_CODE_LANGUAGE
 
 CODE_SCS = 'code_scs'
 TITLE = 'title'
@@ -349,4 +350,19 @@ class EducationGroupYearAdmissionCondition(EducationGroupGenericDetailView):
             'record': record,
         })
 
+        return context
+
+
+class EducationGroupSkillsAchievements(EducationGroupGenericDetailView):
+    template_name = "education_group/tab_skills_achievements.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({'LANGUAGE_CODE_FR': settings.LANGUAGE_CODE_FR, 'LANGUAGE_CODE_EN': settings.LANGUAGE_CODE_EN})
+        educ_group_achievements = self.object.educationgroupachievement_set.all()\
+                                             .prefetch_related('educationgroupdetailedachievement_set')
+        context["education_group_achievements"] = {
+            settings.LANGUAGE_CODE_FR: filter(lambda obj: obj.language.is_french(), educ_group_achievements),
+            settings.LANGUAGE_CODE_EN: filter(lambda obj: obj.language.is_english(), educ_group_achievements),
+        }
         return context
