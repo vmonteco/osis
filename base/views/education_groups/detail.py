@@ -356,13 +356,24 @@ class EducationGroupYearAdmissionCondition(EducationGroupGenericDetailView):
 class EducationGroupSkillsAchievements(EducationGroupGenericDetailView):
     template_name = "education_group/tab_skills_achievements.html"
 
+    def get_achievements(self):
+        return self.object.educationgroupachievement_set.all().prefetch_related('educationgroupdetailedachievement_set')
+
+    def get_french_achievements(self):
+        return self.get_achievements().filter(language__code=FR_CODE_LANGUAGE)
+
+    def get_english_achievements(self):
+        return self.get_achievements().filter(language__code=EN_CODE_LANGUAGE)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context.update({'LANGUAGE_CODE_FR': settings.LANGUAGE_CODE_FR, 'LANGUAGE_CODE_EN': settings.LANGUAGE_CODE_EN})
-        educ_group_achievements = self.object.educationgroupachievement_set.all()\
-                                             .prefetch_related('educationgroupdetailedachievement_set')
-        context["education_group_achievements"] = {
-            settings.LANGUAGE_CODE_FR: filter(lambda obj: obj.language.is_french(), educ_group_achievements),
-            settings.LANGUAGE_CODE_EN: filter(lambda obj: obj.language.is_english(), educ_group_achievements),
-        }
+
+        context.update(
+            {
+                'LANGUAGE_CODE_FR': settings.LANGUAGE_CODE_FR,
+                'LANGUAGE_CODE_EN': settings.LANGUAGE_CODE_EN
+             }
+        )
+
+        context["education_group_achievements"] = [self.get_french_achievements(), self.get_english_achievements()]
         return context

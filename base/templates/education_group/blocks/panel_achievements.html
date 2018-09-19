@@ -24,24 +24,67 @@
 * at the root of the source code of this program.  If not,
 * see http://www.gnu.org/licenses/.
 {% endcomment %}
-<div class="panel panel-default" style="margin-top: 10px;">
-    <div class="panel-heading">
-        <div class="row">
-            <div class="col-md-6">
-                {% language LANGUAGE_CODE_FR %}
-                    {% trans 'on successful completion of this program, each student is able to'|capfirst %} :
-                {% endlanguage %}
-            </div>
-            <div class="col-md-6">
-                {% language LANGUAGE_CODE_EN %}
-                    {% trans 'on successful completion of this program, each student is able to'|capfirst %} :
-                {% endlanguage %}
-            </div>
-        </div>
-    </div>
-    <div class="panel-body">
-        <div class="row">
+<br>
+<table class="table table-responsive">
+    <thead class="table_header">
+    <tr>
+        <th>
+            {% language LANGUAGE_CODE_FR %}
+                {% trans 'on successful completion of this program, each student is able to'|capfirst %} :
+            {% endlanguage %}
+        </th>
+        <th>
+            {% language LANGUAGE_CODE_EN %}
+                {% trans 'on successful completion of this program, each student is able to'|capfirst %} :
+            {% endlanguage %}
+        </th>
+        <th class="align-right">
+            <span data-target="#achivements_body" class="glyphicon glyphicon-chevron-down collapse_span_updown">
+            </span>
+        </th>
+    </tr>
+    </thead>
+    <tbody id="achivements_body" class="collapse in">
+    <tr>
+        {% for list_achievement in education_group_achievements %}
+            <td>
+                {% for achievement in list_achievement %}
+                    <div class="row">
+                        <div class="col-md-1">
+                            <span data-toggle="collapse" data-target="#detail_{{ achievement.pk }}"
+                                  class="glyphicon glyphicon-chevron-right collapse_span">
+                            </span>
+                        </div>
+                        <div class="col-md-11">
+                            {{ achievement.text | safe }}
+                            <ol id="detail_{{ achievement.pk }}" class="collapse">
+                                {% for detail_achievement in achievement.educationgroupdetailedachievement_set.all %}
+                                    <li>{{ detail_achievement.text | safe }}</li>
+                                {% endfor %}
+                            </ol>
+                            <hr>
+                        </div>
+                    </div>
+                {% endfor %}
+            </td>
+        {% endfor %}
+    </tr>
+    </tbody>
+</table>
 
-        </div>
-    </div>
-</div>
+<script>
+    $(function() {
+        $('.collapse_span').on('click', function() {
+            $(this).toggleClass('glyphicon-chevron-right').toggleClass('glyphicon-chevron-down');
+        });
+        $('.collapse_span_updown').on('click', function() {
+            $(this).toggleClass('glyphicon-chevron-up').toggleClass('glyphicon-chevron-down');
+            if ($(this).hasClass('glyphicon-chevron-up')) {
+                $($(this).data("target")).hide("slow")
+            }
+            else {
+                $($(this).data("target")).show("slow")
+            }
+        });
+    });
+</script>
