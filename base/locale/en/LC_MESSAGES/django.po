@@ -3880,3 +3880,9 @@ msgstr ""
 
 msgid "education group detailed achievement"
 msgstr ""
+
+msgid "academic events"
+msgstr ""
+
+msgid "project events"
+msgstr ""

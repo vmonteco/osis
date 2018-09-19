@@ -56,7 +56,6 @@ urlpatterns = [
 
     url(r'^academic_calendars/', include([
         url(r'^$', academic_calendar.academic_calendars, name='academic_calendars'),
-        url(r'^search$', academic_calendar.academic_calendars_search, name='academic_calendars_search'),
         url(r'^(?P<academic_calendar_id>[0-9]+)/$', academic_calendar.academic_calendar_read,
             name='academic_calendar_read'),
         url(r'^form(?:/(?P<academic_calendar_id>[0-9]+))?/$', academic_calendar.academic_calendar_form,

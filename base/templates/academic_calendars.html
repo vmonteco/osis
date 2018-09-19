@@ -42,20 +42,28 @@
 <div class="panel panel-default">
   <div class="panel-body">
     <div class="row">
-      <form  method="get" action="{% url 'academic_calendars_search'%}" >
+      <form  method="get" action="{% url 'academic_calendars' %}" >
         <div class="col-md-2">
           <label for="slt_academic_year" >{% trans 'academic_year'%}</label>
           <select class="form-control" id="slt_academic_year"  name="academic_year" value="{{ academic_year }}">
             {% for v in academic_years %}
-              {% if v.id == academic_year %}
-                <option selected value="{{ v.id }}">{{ v }}</option>
-              {% else %}
-                <option value="{{ v.id }}">{{ v }}</option>
-              {% endif %}
+              <option value="{{ v.id }}" {% if v.id == academic_year %}selected {% endif %} >
+                  {{ v }}
+              </option>
             {% endfor %}
           </select>
         </div>
-        <div class="col-md-10">
+        <div class="col-md-2">
+            <label>{% trans "academic events" as academic_events %}{{ academic_events|title }}</label><br>
+            <input type="checkbox" name="show_academic_events" title="show_academic_events" {% if show_academic_events %}checked{% endif %} />
+        </div>
+        {% if request.user.is_superuser %}
+            <div class="col-md-2">
+                <label>{% trans "project events" as project_events %}{{ project_events|title }}</label><br>
+                <input type="checkbox" name="show_project_events" title="show_project_events" {% if show_project_events %}checked{% endif %}/>
+            </div>
+        {% endif %}
+        <div class="col-md-6">
             <br>
             <button type="submit" id="bt_submit_academic_calendar_search" class="btn btn-primary" role="button"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button>
             {% if request.user.is_superuser %}
@@ -66,14 +74,13 @@
     </div>
     <br>
     <div id="gantt">
-      {% if academic_calendar_list|length == 0 %}
-        <label class="alert alert-info" style="margin:5px">{% trans 'no_result' %}</label>
-      {% endif %}
-      {% if academic_calendar_list|length > 0%}
+      {% if show_gantt_diagram %}
         <div id="gantt_div"></div>
+      {% else %}
+          <label class="alert alert-info" style="margin:5px">{% trans 'no_result' %}</label>
       {% endif %}
     </div>
-    {% if undated_calendars_list|length > 0%}
+    {% if undated_calendars_list|length > 0 %}
       <div id="undated_calendars">
         <br>{% trans 'undated_events' %} :
         <ul>
@@ -99,7 +106,7 @@
 
     <script type="text/javascript">
         function formatDate(date){
-            month = date.getMonth() + 1
+            month = date.getMonth() + 1;
             return date.getDate() + "/" + month + "/" + date.getFullYear()
         }
 
@@ -111,7 +118,7 @@
 
         gantt.config.readonly = true;
         gantt.config.columns = [
-            {name:"text", label:" ", width:"*", align: "left" },
+            {name:"text", label:" ", width:"*", align: "left"},
         ];
 
         gantt.templates.task_text=function(start,end,task){
@@ -120,7 +127,7 @@
 
         gantt.config.tooltip_hide_timeout = 500;
         gantt.templates.tooltip_text = function(start,end,task){
-            days = task.duration + 1 // include end_date in duration
+            days = task.duration + 1; // include end_date in duration
             if(days <= 1){
                 duration = days + " {% trans 'day'%}"
             }
@@ -128,11 +135,20 @@
                 duration = days + " {% trans 'days'%}"
             }
 
-            return "<b>" + task.text + "</b><br>" + formatDate(task.start_date) + " - " + formatDate(task.end_date)
+            return "<b>" + task.text + "</b><br>"
+            + formatDate(task.start_date) + " - " + formatDate(task.end_date)
             + " (" + duration +  ") <br>"
             + "<a href=\"{% url 'academic_calendars' %}" + task.id + "\">"
             + "{% trans 'details'%}</a>";
         };
+
+        /* Update lines style for project events */
+        let setRowStyleFunction = function (start, end, task) {
+            if (task.category === 'PROJECT')
+                return "projectRow";
+        };
+        gantt.templates.grid_row_class = setRowStyleFunction; // update first cell style
+        gantt.templates.task_row_class = setRowStyleFunction; // update end of row style
 
         var markerId = gantt.addMarker({
             start_date: new Date() // this is today
