@@ -9,8 +9,8 @@
 - Le nom d'une fonction doit être explicite et claire sur ce qu'elle fait (un 'get_' renvoie un élément, un 'search_' renvoie une liste d'élements...)
 
 ### Documentation du code :
-- Documenter les fonctions (paramètres, fonctionnement, ce qu'elle renvoie)
-- Ne pas hésiter à laisser une ligne de commentaire dans le code, décrivant brièvement le fonctionnement d'algorithme plus compliqué/plus longs
+- Privilégier un nommage pertinent et explicite des fonctions/variables plutôt qu'une documentation exhaustive. En effet, chaque commentaire/texte écrit demande un effort supplémentaire de maintenance de cohérence entre ce texte (non solvable) et l'algorithme implémenté.
+- Dans la continuité du point précédent, si un algorithme est trop complexe et difficilement explicite uniquement à travers le nommage de fonctions/variables, laisser un commentaire explicatif concis et précis peut être pertinent.
 
 ### Clés de traduction :
 - Toutes les variables et msgid (traduction) sont écrites en minuscules avec un '_' (underscore) comme séparateur 
