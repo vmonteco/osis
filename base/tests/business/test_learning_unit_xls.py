@@ -25,7 +25,6 @@
 ##############################################################################
 import datetime
 from django.test import TestCase
-from unittest import mock
 from django.utils.translation import ugettext_lazy as _
 
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
@@ -35,7 +34,7 @@ from base.business.learning_unit_xls import DEFAULT_LEGEND_STYLES, SPACES, PROPO
     _get_significant_volume, VOLUMES_INITIALIZED, _prepare_legend_ws_data, _get_wrapped_cells, \
     _get_colored_rows, _get_attribution_line, _get_col_letter, _get_formations_by_educ_group_year, _add_training_data, \
     _get_data_part1, _get_parameters_configurable_list, WRAP_TEXT_STYLE, HEADER_PROGRAMS, XLS_DESCRIPTION, \
-    CREATION_COLOR, _get_absolute_credits, EMPTY, _get_volumes
+    _get_absolute_credits, _get_volumes
 from base.models.enums import proposal_type, proposal_state
 from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
@@ -50,7 +49,6 @@ from base.tests.factories.business.learning_units import GenerateContainer
 from base.tests.factories.entity_version import EntityVersionFactory
 from base.models.enums import entity_type, organization_type
 from base.tests.factories.user import UserFactory
-from collections import defaultdict
 
 COL_TEACHERS_LETTER = 'L'
 COL_PROGRAMS_LETTER = 'Z'
@@ -272,7 +270,7 @@ class TestLearningUnitXls(TestCase):
             child_branch=None,
             child_leaf=luy
         )
-        self.assertEqual(_get_absolute_credits(luy), EMPTY)
+        self.assertEqual(_get_absolute_credits(luy), '')
 
     def test_get_volumes(self):
         learning_container_luy = LearningContainerYearFactory(academic_year=self.current_academic_year)

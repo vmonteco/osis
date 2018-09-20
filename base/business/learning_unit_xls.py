@@ -136,16 +136,12 @@ def _get_parameters_configurable_list(learning_units, titles, user):
     return parameters
 
 
-def _get_trainings(group_element_year, formations_by_educ_group_year):
-    return  " - ".join(["{} - {}".format(training.acronym, training.title) for training in formations_by_educ_group_year.get(group_element_year.parent_id)])
-
-
 def _get_absolute_credits(learning_unit_yr):
     group_elements_years = mdl_base.group_element_year.search(child_leaf=learning_unit_yr) \
         .select_related("child_leaf", "parent__education_group_type").order_by('parent__partial_acronym')
     if group_elements_years:
         return group_elements_years.first().child_leaf.credits \
-            if group_elements_years.first().child_leaf.credits else EMPTY
+            if group_elements_years.first().child_leaf.credits else ''
 
 
 def _get_volumes(learning_unit_yr):
@@ -256,7 +252,8 @@ def _get_formations_by_educ_group_year(learning_unit_yr):
 
 def _add_training_data(learning_unit_yr):
     formations_by_educ_group_year = _get_formations_by_educ_group_year(learning_unit_yr)
-    return " \n".join(["{}".format(_concatenate_training_data(formations_by_educ_group_year, group_element_year)) for group_element_year in learning_unit_yr.group_elements_years])
+    return " \n".join(["{}".format(_concatenate_training_data(formations_by_educ_group_year, group_element_year)) for
+                       group_element_year in learning_unit_yr.group_elements_years])
 
 
 def _concatenate_training_data(formations_by_educ_group_year, group_element_year):
@@ -264,7 +261,8 @@ def _concatenate_training_data(formations_by_educ_group_year, group_element_year
         group_element_year.parent.partial_acronym if group_element_year.parent.partial_acronym else '',
         "({})".format(
             '{0:.2f}'.format(group_element_year.child_leaf.credits) if group_element_year.child_leaf.credits else '-'),
-        _get_trainings(group_element_year, formations_by_educ_group_year)
+        " - ".join(["{} - {}".format(training.acronym, training.title) for training in
+                       formations_by_educ_group_year.get(group_element_year.parent_id)])
     )
     return training_string
 
@@ -273,7 +271,7 @@ def _get_data_part2(learning_unit_yr, with_attributions):
     volumes = _get_volumes(learning_unit_yr)
     lu_data_part2 = []
     if with_attributions:
-        lu_data_part2.append(_append_attributions(learning_unit_yr.attribution_charge_news))
+        lu_data_part2.append(" \n".join([_get_attribution_line(value) for value in learning_unit_yr.attribution_charge_news.values()]))
     volume_lecturing = volumes.get(learning_component_year_type.LECTURING)
     volumes_practical = volumes.get(learning_component_year_type.PRACTICAL_EXERCISES)
     lu_data_part2.extend([
@@ -313,7 +311,3 @@ def _get_data_part1(learning_unit_yr):
         learning_unit_yr.complete_title_english,
     ]
     return lu_data_part1
-
-
-def _append_attributions(attribution_charge_news):
-    return '\n'.join([_get_attribution_line(value) for value in attribution_charge_news.values()])
