@@ -34,10 +34,22 @@ from base.models import academic_calendar, offer_year_calendar, academic_year
 from base.models.enums import academic_calendar_type
 
 
+def _get_sorted_choices(li):
+    return sorted(((a, _(b)) for (a, b) in li), key=itemgetter(1))
+
+
 class AcademicCalendarForm(bootstrap.BootstrapModelForm):
-    REFERENCE_CHOICE_FIELD = BLANK_CHOICE_DASH + \
-                             sorted([(a, _(b)) for (a, b) in academic_calendar_type.CALENDAR_TYPES],
-                                    key=itemgetter(1))
+    REFERENCE_CHOICE_FIELD = (
+        BLANK_CHOICE_DASH[0],
+        (
+            _("academic events").capitalize(),
+            _get_sorted_choices(academic_calendar_type.ACADEMIC_CALENDAR_TYPES)
+        ),
+        (
+            _("project events").capitalize(),
+            _get_sorted_choices(academic_calendar_type.PROJECT_CALENDAR_TYPES)
+         ),
+    )
 
     academic_year = forms.ModelChoiceField(queryset=academic_year.AcademicYear.objects.all().order_by('year'),
                                            widget=forms.Select(), empty_label=None)
