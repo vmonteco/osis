@@ -34,7 +34,7 @@ from base.business.learning_unit_xls import DEFAULT_LEGEND_STYLES, SPACES, PROPO
     _get_significant_volume, VOLUMES_INITIALIZED, _prepare_legend_ws_data, _get_wrapped_cells, \
     _get_colored_rows, _get_attribution_line, _get_col_letter, _get_formations_by_educ_group_year, _add_training_data, \
     _get_data_part1, _get_parameters_configurable_list, WRAP_TEXT_STYLE, HEADER_PROGRAMS, XLS_DESCRIPTION, \
-    _get_absolute_credits, _get_volumes
+    _get_absolute_credits, _get_volumes, _get_data_part2
 from base.models.enums import proposal_type, proposal_state
 from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
@@ -49,6 +49,12 @@ from base.tests.factories.business.learning_units import GenerateContainer
 from base.tests.factories.entity_version import EntityVersionFactory
 from base.models.enums import entity_type, organization_type
 from base.tests.factories.user import UserFactory
+from base.models.enums import learning_unit_year_periodicity
+from attribution.tests.factories.attribution_charge_new import AttributionChargeNewFactory
+from attribution.business import attribution_charge_new
+from attribution.tests.factories.attribution_new import AttributionNewFactory
+from base.tests.factories.tutor import TutorFactory
+from base.tests.factories.learning_unit_component import LearningUnitComponentFactory
 
 COL_TEACHERS_LETTER = 'L'
 COL_PROGRAMS_LETTER = 'Z'
@@ -298,3 +304,90 @@ class TestLearningUnitXls(TestCase):
                          {'VOLUME_TOTAL': 15, 'PLANNED_CLASSES': 1, 'VOLUME_Q1': 10, 'VOLUME_Q2': 5})
         self.assertEqual(volumes.get('PRACTICAL_EXERCISES'),
                          {'VOLUME_TOTAL': 20, 'PLANNED_CLASSES': 1, 'VOLUME_Q1': 10, 'VOLUME_Q2': 10})
+
+    def test_get_data_part2(self):
+        learning_container_luy = LearningContainerYearFactory(academic_year=self.current_academic_year)
+        luy = LearningUnitYearFactory(academic_year=self.current_academic_year,
+                                      learning_container_year=learning_container_luy,
+                                      periodicity=learning_unit_year_periodicity.ANNUAL,
+                                      status=True,
+                                      language=None,
+                                      )
+
+        component_lecturing = LearningComponentYearFactory(
+            learning_container_year=learning_container_luy,
+            type=learning_component_year_type.LECTURING,
+            hourly_volume_total_annual=15,
+            hourly_volume_partial_q1=10,
+            hourly_volume_partial_q2=5,
+            planned_classes=1
+        )
+        component_practical = LearningComponentYearFactory(
+            learning_container_year=learning_container_luy,
+            type=learning_component_year_type.PRACTICAL_EXERCISES,
+            hourly_volume_total_annual=15,
+            hourly_volume_partial_q1=10,
+            hourly_volume_partial_q2=5,
+            planned_classes=1
+        )
+        LearningUnitComponentFactory(learning_unit_year=luy, learning_component_year=component_lecturing)
+        LearningUnitComponentFactory(learning_unit_year=luy, learning_component_year=component_practical)
+        a_tutor = TutorFactory()
+
+        an_attribution = AttributionNewFactory(
+            tutor=a_tutor,
+            start_year=2017
+        )
+
+        attribution_charge_new_lecturing = AttributionChargeNewFactory(learning_component_year=component_lecturing,
+                                                                       attribution=an_attribution,
+                                                                       allocation_charge=15.0)
+        attribution_charge_new_practical = AttributionChargeNewFactory(learning_component_year=component_practical,
+                                                                       attribution=an_attribution,
+                                                                       allocation_charge=5.0)
+
+        luy.attribution_charge_news = attribution_charge_new.find_attribution_charge_new_by_learning_unit_year(luy)
+        expected_common = [
+            xls_build.translate(luy.periodicity),
+            xls_build.translate(luy.status),
+            component_lecturing.hourly_volume_total_annual,
+            component_lecturing.hourly_volume_partial_q1,
+            component_lecturing.hourly_volume_partial_q2,
+            component_lecturing.planned_classes,
+            component_practical.hourly_volume_total_annual,
+            component_practical.hourly_volume_partial_q1,
+            component_practical.hourly_volume_partial_q2,
+            component_practical.planned_classes,
+            xls_build.translate(luy.quadrimester),
+            xls_build.translate(luy.session),
+            "",
+            ''
+        ]
+        self.assertEqual(_get_data_part2(luy, False), expected_common)
+        self.assertEqual(_get_data_part2(luy, True),
+                         expected_attribution_data(attribution_charge_new_lecturing, attribution_charge_new_practical,
+                                                   expected_common,
+                                                   luy))
+
+
+def expected_attribution_data(attribution_charge_new_lecturing, attribution_charge_new_practical, expected, luy):
+    expected_attribution = None
+    for k, v in luy.attribution_charge_news.items():
+        expected_attribution = v
+    expected_attribution = "{} - {} : {} - {} : {} - {} : {} - {} : {} - {} : {} - {} : {} ".format(
+        expected_attribution.get('person'),
+        _('function'),
+        _(expected_attribution.get('function')),
+        _('substitute'),
+        '',
+        _('Beg. of attribution'),
+        expected_attribution.get('start_year'),
+        _('Attribution duration'),
+        expected_attribution.get('duration'),
+        _('Attrib. vol1'),
+        attribution_charge_new_lecturing.allocation_charge,
+        _('Attrib. vol2'),
+        attribution_charge_new_practical.allocation_charge, )
+    ex = [expected_attribution]
+    ex.extend(expected)
+    return ex

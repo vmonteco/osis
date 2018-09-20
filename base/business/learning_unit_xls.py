@@ -142,6 +142,7 @@ def _get_absolute_credits(learning_unit_yr):
     if group_elements_years:
         return group_elements_years.first().child_leaf.credits \
             if group_elements_years.first().child_leaf.credits else ''
+    return ''
 
 
 def _get_volumes(learning_unit_yr):
