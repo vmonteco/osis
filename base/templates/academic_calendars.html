@@ -58,28 +58,30 @@
           </select>
         </div>
         <div class="col-md-2">
-            <table>
-                <tr>
-                    <td><label>{% trans "academic events" as academic_events %}{{ academic_events|title }}</label></td>
-                    <td style="padding-left: 0.5em; padding-top: 4px;">
-                        <label class="switch">
-                          <input type="checkbox" name="show_academic_events" title="{{ academic_events|title }}" onclick='this.form.submit();' {% if show_academic_events %}checked{% endif %} />
-                          <span class="slider round"></span>
-                        </label>
-                    </td>
-                </tr>
-                {% if request.user.is_superuser %}
-                <tr>
-                    <td><label>{% trans "project events" as project_events %}{{ project_events|title }}</label><br></td>
-                    <td style="padding-left: 0.5em; padding-top: 4px;">
-                        <label class="switch">
-                          <input type="checkbox" name="show_project_events" title="{{ project_events|title }}" onclick='this.form.submit();' {% if show_project_events %}checked{% endif %} />
-                          <span class="slider round"></span>
-                        </label>
-                    </td>
-                </tr>
-                {% endif %}
-            </table>
+            {% if request.user.is_superuser %}
+                <table>
+                    <tr>
+                        <td><label>{% trans "academic events" as academic_events %}{{ academic_events|title }}</label></td>
+                        <td style="padding-left: 0.5em; padding-top: 4px;">
+                            <label class="switch">
+                              <input type="checkbox" name="show_academic_events" title="{{ academic_events|title }}" onclick='this.form.submit();' {% if show_academic_events %}checked{% endif %} />
+                              <span class="slider round"></span>
+                            </label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><label>{% trans "project events" as project_events %}{{ project_events|title }}</label><br></td>
+                        <td style="padding-left: 0.5em; padding-top: 4px;">
+                            <label class="switch">
+                              <input type="checkbox" name="show_project_events" title="{{ project_events|title }}" onclick='this.form.submit();' {% if show_project_events %}checked{% endif %} />
+                              <span class="slider round"></span>
+                            </label>
+                        </td>
+                    </tr>
+                </table>
+            {% else %}
+                <input type="hidden" name="show_academic_events" title="{{ academic_events|title }}" value="on" />
+            {% endif %}
         </div>
         <div class="col-md-8">
             {% if request.user.is_superuser %}
