@@ -114,12 +114,3 @@ class TestRead(TestCase):
             "credits": self.group_element_year_2.relative_credits or self.group_element_year_2.child_leaf.credits or 0
         }
         self.assertEqual(self.group_element_year_2.verbose, verbose_leaf)
-
-    def test_exclude_reference_link_type(self):
-        self.group_element_year_1.link_type=REFERENCE
-        self.group_element_year_1.save()
-        self.group_element_year_3.link_type = REFERENCE
-        self.group_element_year_3.save()
-        result = get_verbose_children(self.education_group_year_1)
-        context_waiting = []
-        self.assertEqual(result, context_waiting)

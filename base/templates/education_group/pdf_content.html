@@ -121,6 +121,15 @@
             </tr>
             </thead>
             <tbody>
+            {% if root.constraint_type %}
+            <tr>
+                <td>
+                    <div style="font-style: italic;font-size: 11px;">
+                        {{ root.verbose_constraint }}
+                    </div>
+                </td>
+            </tr>
+            {% endif %}
             <tr>
                 <td>
                     <img src="{% static 'img/education_group_year/mandatory.png' %}" height="10" width="10">
