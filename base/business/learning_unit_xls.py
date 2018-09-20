@@ -39,6 +39,7 @@ from base.models.enums.proposal_type import ProposalType
 from openpyxl.utils import get_column_letter
 from collections import defaultdict
 # List of key that a user can modify
+VOLUMES_INITIALIZED = {'VOLUME_TOTAL': 0, 'PLANNED_CLASSES': 0, 'VOLUME_Q1': 0, 'VOLUME_Q2': 0}
 
 TRANSFORMATION_AND_MODIFICATION_COLOR = Color('808000')
 TRANSFORMATION_COLOR = Color('ff6600')
@@ -63,9 +64,6 @@ PROPOSAL_LINE_STYLES = {
     ProposalType.TRANSFORMATION_AND_MODIFICATION.name: Style(font=Font(color=TRANSFORMATION_AND_MODIFICATION_COLOR),),
 }
 WRAP_TEXT_STYLE = Style(alignment=Alignment(wrapText=True, vertical="top"), )
-WRAP = 'WRAP'
-DASH = '-'
-EMPTY = ''
 WITH_ATTRIBUTIONS = 'with_attributions'
 WITH_GRP = 'with_grp'
 
@@ -139,17 +137,12 @@ def _get_parameters_configurable_list(learning_units, titles, user):
 
 
 def _get_trainings(group_element_year, formations_by_educ_group_year):
-    ch = ''
-    for cpt, training in enumerate(formations_by_educ_group_year.get(group_element_year.parent_id)):
-        if cpt > 0:
-            ch += " - "
-        ch = "{} {} - {} ".format(ch, training.acronym, training.title)
-    return ch
+    return  " - ".join(["{} - {}".format(training.acronym, training.title) for training in formations_by_educ_group_year.get(group_element_year.parent_id)])
 
 
 def _get_absolute_credits(learning_unit_yr):
     group_elements_years = mdl_base.group_element_year.search(child_leaf=learning_unit_yr) \
-        .select_related("parent", "child_leaf", "parent__education_group_type").order_by('parent__partial_acronym')
+        .select_related("child_leaf", "parent__education_group_type").order_by('parent__partial_acronym')
     if group_elements_years:
         return group_elements_years.first().child_leaf.credits \
             if group_elements_years.first().child_leaf.credits else EMPTY
@@ -157,11 +150,10 @@ def _get_absolute_credits(learning_unit_yr):
 
 def _get_volumes(learning_unit_yr):
     volumes = {
-        learning_component_year_type.LECTURING: _initialize_component_data(),
-        learning_component_year_type.PRACTICAL_EXERCISES: _initialize_component_data()
+        learning_component_year_type.LECTURING: VOLUMES_INITIALIZED,
+        learning_component_year_type.PRACTICAL_EXERCISES: VOLUMES_INITIALIZED
     }
     data_components = get_same_container_year_components(learning_unit_yr, True)
-
     for component in data_components.get('components'):
         if component.get('learning_component_year').type in (learning_component_year_type.LECTURING,
                                                              learning_component_year_type.PRACTICAL_EXERCISES):
@@ -170,14 +162,15 @@ def _get_volumes(learning_unit_yr):
     return volumes
 
 
-def _update_volumes_data(compo, volumes):
-    vol_to_update = volumes.get(compo.get('learning_component_year').type)
+def _update_volumes_data(component, volumes_param):
+    volumes = volumes_param.copy()
+    vol_to_update = volumes.get(component.get('learning_component_year').type).copy()
     key_of_value_to_update = ['VOLUME_TOTAL', 'VOLUME_Q1', 'VOLUME_Q2', 'PLANNED_CLASSES']
     for key in key_of_value_to_update:
-        if compo.get('volumes').get(key):
-            vol_to_update[key] = vol_to_update.get(key) + compo.get('volumes').get(key)
+        if component.get('volumes').get(key):
+            vol_to_update[key] = vol_to_update.get(key) + component.get('volumes').get(key)
 
-    volumes[compo.get('learning_component_year').type] = vol_to_update
+    volumes[component.get('learning_component_year').type] = vol_to_update
     return volumes
 
 
@@ -185,15 +178,6 @@ def _get_significant_volume(volume):
     if volume and volume > 0:
         return volume
     return ''
-
-
-def _initialize_component_data():
-    return {
-        'VOLUME_TOTAL': 0,
-        'PLANNED_CLASSES': 0,
-        'VOLUME_Q1': 0,
-        'VOLUME_Q2': 0
-    }
 
 
 def _prepare_legend_ws_data():
@@ -272,22 +256,14 @@ def _get_formations_by_educ_group_year(learning_unit_yr):
 
 def _add_training_data(learning_unit_yr):
     formations_by_educ_group_year = _get_formations_by_educ_group_year(learning_unit_yr)
-    training_string = EMPTY
-    for cpt, group_element_year in enumerate(learning_unit_yr.group_elements_years):
-        if cpt > 0:
-            training_string += " \n"
-        training_string = _concatenate_training_data(formations_by_educ_group_year, group_element_year, training_string)
-
-    return training_string
+    return " \n".join(["{}".format(_concatenate_training_data(formations_by_educ_group_year, group_element_year)) for group_element_year in learning_unit_yr.group_elements_years])
 
 
-def _concatenate_training_data(formations_by_educ_group_year, group_element_year, training_string_param):
-    training_string = training_string_param
-    training_string = "{} {} {} {}".format(
-        training_string,
-        group_element_year.parent.partial_acronym if group_element_year.parent.partial_acronym else EMPTY,
+def _concatenate_training_data(formations_by_educ_group_year, group_element_year):
+    training_string = "{} {} {}".format(
+        group_element_year.parent.partial_acronym if group_element_year.parent.partial_acronym else '',
         "({})".format(
-            '{0:.2f}'.format(group_element_year.child_leaf.credits) if group_element_year.child_leaf.credits else DASH),
+            '{0:.2f}'.format(group_element_year.child_leaf.credits) if group_element_year.child_leaf.credits else '-'),
         _get_trainings(group_element_year, formations_by_educ_group_year)
     )
     return training_string
@@ -340,5 +316,4 @@ def _get_data_part1(learning_unit_yr):
 
 
 def _append_attributions(attribution_charge_news):
-    print(attribution_charge_news)
     return '\n'.join([_get_attribution_line(value) for value in attribution_charge_news.values()])

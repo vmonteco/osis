@@ -32,7 +32,7 @@ from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
 from base.tests.factories.person import PersonFactory
 from base.business.learning_unit_xls import DEFAULT_LEGEND_STYLES, SPACES, PROPOSAL_LINE_STYLES, _update_volumes_data, \
-    _get_significant_volume, _initialize_component_data, _prepare_legend_ws_data, _get_wrapped_cells, \
+    _get_significant_volume, VOLUMES_INITIALIZED, _prepare_legend_ws_data, _get_wrapped_cells, \
     _get_colored_rows, _get_attribution_line, _get_col_letter, _get_formations_by_educ_group_year, _add_training_data, \
     _get_data_part1, _get_parameters_configurable_list, WRAP_TEXT_STYLE, HEADER_PROGRAMS, XLS_DESCRIPTION, \
     CREATION_COLOR, _get_absolute_credits, EMPTY, _get_volumes
@@ -181,8 +181,8 @@ class TestLearningUnitXls(TestCase):
 
     def test_update_volumes_data(self):
         volumes = {
-            learning_component_year_type.LECTURING: _initialize_component_data(),
-            learning_component_year_type.PRACTICAL_EXERCISES: _initialize_component_data()
+            learning_component_year_type.LECTURING: VOLUMES_INITIALIZED,
+            learning_component_year_type.PRACTICAL_EXERCISES: VOLUMES_INITIALIZED
         }
         lecturing_data = {'PLANNED_CLASSES': 1, 'VOLUME_Q1': 10, 'VOLUME_TOTAL': 50, 'VOLUME_Q2': 40}
         compo = {
@@ -195,7 +195,7 @@ class TestLearningUnitXls(TestCase):
         self.assertCountEqual(volumes_updated.get(learning_component_year_type.LECTURING),
                               lecturing_data)
         self.assertCountEqual(volumes_updated.get(learning_component_year_type.PRACTICAL_EXERCISES),
-                              _initialize_component_data())
+                              VOLUMES_INITIALIZED)
 
     def test_prepare_legend_ws_data(self):
         expected = {
@@ -221,13 +221,12 @@ class TestLearningUnitXls(TestCase):
     def test_add_training_data(self):
         formations = _add_training_data(self.learning_unit_yr_1)
 
-        expected = "{} {} {} {}".format(
-            '',
+        expected = "{} {} {}".format(
             self.an_education_group_parent.partial_acronym,
             "({})".format(
                 '{0:.2f}'.format(self.learning_unit_yr_1.credits)
             ),
-            " {} - {} ".format(PARENT_ACRONYM, PARENT_TITLE)
+            "{} - {}".format(PARENT_ACRONYM, PARENT_TITLE)
         )
 
         self.assertEqual(formations, expected)
@@ -276,8 +275,12 @@ class TestLearningUnitXls(TestCase):
         self.assertEqual(_get_absolute_credits(luy), EMPTY)
 
     def test_get_volumes(self):
+        learning_container_luy = LearningContainerYearFactory(academic_year=self.current_academic_year)
+        luy = LearningUnitYearFactory(academic_year=self.current_academic_year,
+                                      learning_container_year=learning_container_luy)
+
         LearningComponentYearFactory(
-            learning_container_year=self.learning_container_luy1,
+            learning_container_year=learning_container_luy,
             type=learning_component_year_type.LECTURING,
             hourly_volume_total_annual=15,
             hourly_volume_partial_q1=10,
@@ -285,14 +288,14 @@ class TestLearningUnitXls(TestCase):
             planned_classes=1
         )
         LearningComponentYearFactory(
-            learning_container_year=self.learning_container_luy1,
+            learning_container_year=learning_container_luy,
             type=learning_component_year_type.PRACTICAL_EXERCISES,
             hourly_volume_total_annual=20,
             hourly_volume_partial_q1=10,
             hourly_volume_partial_q2=10,
             planned_classes=1
         )
-        volumes = _get_volumes(self.learning_unit_yr_1)
+        volumes = _get_volumes(luy)
         self.assertEqual(volumes.get('LECTURING'),
                          {'VOLUME_TOTAL': 15, 'PLANNED_CLASSES': 1, 'VOLUME_Q1': 10, 'VOLUME_Q2': 5})
         self.assertEqual(volumes.get('PRACTICAL_EXERCISES'),
