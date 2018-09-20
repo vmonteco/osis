@@ -31,6 +31,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from base.forms import bootstrap
 from base.models import academic_calendar, offer_year_calendar, academic_year
+from base.models.academic_year import starting_academic_year
 from base.models.enums import academic_calendar_type
 
 
@@ -39,13 +40,20 @@ class AcademicCalendarForm(bootstrap.BootstrapModelForm):
                              sorted([(a, _(b)) for (a, b) in academic_calendar_type.CALENDAR_TYPES],
                                     key=itemgetter(1))
 
-    academic_year = forms.ModelChoiceField(queryset=academic_year.AcademicYear.objects.all().order_by('year'),
-                                           widget=forms.Select(), empty_label=None)
+    academic_year = forms.ModelChoiceField(
+        queryset=academic_year.AcademicYear.objects.all().order_by('year'),
+        widget=forms.Select(),
+        empty_label=None,
+    )
     reference = forms.ChoiceField(choices=REFERENCE_CHOICE_FIELD, required=False)
 
     class Meta:
         model = academic_calendar.AcademicCalendar
         exclude = ['external_id', 'changed']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['academic_year'].initial = starting_academic_year()
 
     def save(self, commit=True):
         instance = super(AcademicCalendarForm, self).save(commit=False)
