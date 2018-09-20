@@ -25,7 +25,7 @@
 ##############################################################################
 import datetime
 from django.test import TestCase
-
+from unittest import mock
 from django.utils.translation import ugettext_lazy as _
 
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
@@ -34,7 +34,8 @@ from base.tests.factories.person import PersonFactory
 from base.business.learning_unit_xls import DEFAULT_LEGEND_STYLES, SPACES, PROPOSAL_LINE_STYLES, _update_volumes_data, \
     _get_significant_volume, _initialize_component_data, _prepare_legend_ws_data, _get_wrapped_cells, \
     _get_colored_rows, _get_attribution_line, _get_col_letter, _get_formations_by_educ_group_year, _add_training_data, \
-    _get_data_part1, _get_parameters_configurable_list, WRAP_TEXT_STYLE, HEADER_PROGRAMS, XLS_DESCRIPTION, CREATION_COLOR
+    _get_data_part1, _get_parameters_configurable_list, WRAP_TEXT_STYLE, HEADER_PROGRAMS, XLS_DESCRIPTION, \
+    CREATION_COLOR, _get_absolute_credits, EMPTY, _get_volumes
 from base.models.enums import proposal_type, proposal_state
 from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
@@ -63,9 +64,9 @@ class TestLearningUnitXls(TestCase):
 
     def setUp(self):
         self.current_academic_year = AcademicYearFactory(year=2017)
-        self.learning_container_yr = LearningContainerYearFactory(academic_year=self.current_academic_year)
+        self.learning_container_luy1 = LearningContainerYearFactory(academic_year=self.current_academic_year)
         self.learning_unit_yr_1 = LearningUnitYearFactory(academic_year=self.current_academic_year,
-                                                          learning_container_year=self.learning_container_yr,
+                                                          learning_container_year=self.learning_container_luy1,
                                                           credits=50)
         self.learning_unit_yr_2 = LearningUnitYearFactory()
 
@@ -178,14 +179,14 @@ class TestLearningUnitXls(TestCase):
         self.assertEqual(_get_significant_volume(None), '')
         self.assertEqual(_get_significant_volume(0), '')
 
-    def test_get_volumes(self):
+    def test_update_volumes_data(self):
         volumes = {
             learning_component_year_type.LECTURING: _initialize_component_data(),
             learning_component_year_type.PRACTICAL_EXERCISES: _initialize_component_data()
         }
         lecturing_data = {'PLANNED_CLASSES': 1, 'VOLUME_Q1': 10, 'VOLUME_TOTAL': 50, 'VOLUME_Q2': 40}
         compo = {
-            'learning_component_year': LearningComponentYearFactory(learning_container_year=self.learning_container_yr,
+            'learning_component_year': LearningComponentYearFactory(learning_container_year=self.learning_container_luy1,
                                                                     type=learning_component_year_type.LECTURING),
             'volumes': lecturing_data
         }
@@ -255,3 +256,43 @@ class TestLearningUnitXls(TestCase):
 
         param = _get_parameters_configurable_list(learning_units, titles, an_user)
         self.assertEqual(param.get(xls_build.STYLED_CELLS), {WRAP_TEXT_STYLE: ['C2', 'C3']})
+
+    def test_get_absolute_credits(self):
+        credits_luy = 15
+        luy = LearningUnitYearFactory(credits=credits_luy)
+        GroupElementYearFactory(
+            child_branch=None,
+            child_leaf=luy
+        )
+        self.assertEqual(_get_absolute_credits(luy), credits_luy)
+
+    def test_get_absolute_credits_empty(self):
+        luy = LearningUnitYearFactory(credits=None)
+        GroupElementYearFactory(
+            child_branch=None,
+            child_leaf=luy
+        )
+        self.assertEqual(_get_absolute_credits(luy), EMPTY)
+
+    def test_get_volumes(self):
+        LearningComponentYearFactory(
+            learning_container_year=self.learning_container_luy1,
+            type=learning_component_year_type.LECTURING,
+            hourly_volume_total_annual=15,
+            hourly_volume_partial_q1=10,
+            hourly_volume_partial_q2=5,
+            planned_classes=1
+        )
+        LearningComponentYearFactory(
+            learning_container_year=self.learning_container_luy1,
+            type=learning_component_year_type.PRACTICAL_EXERCISES,
+            hourly_volume_total_annual=20,
+            hourly_volume_partial_q1=10,
+            hourly_volume_partial_q2=10,
+            planned_classes=1
+        )
+        volumes = _get_volumes(self.learning_unit_yr_1)
+        self.assertEqual(volumes.get('LECTURING'),
+                         {'VOLUME_TOTAL': 15, 'PLANNED_CLASSES': 1, 'VOLUME_Q1': 10, 'VOLUME_Q2': 5})
+        self.assertEqual(volumes.get('PRACTICAL_EXERCISES'),
+                         {'VOLUME_TOTAL': 20, 'PLANNED_CLASSES': 1, 'VOLUME_Q1': 10, 'VOLUME_Q2': 10})
