@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -23,19 +23,28 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import factory
-import factory.fuzzy
+from django.db import models
+from django.utils.translation import ugettext_lazy as _
 
-from base.models.education_group_year import EducationGroupYear
-from base.tests.factories.learning_unit_year import LearningUnitYearFactory
-from reference.tests.factories.language import LanguageFactory
+from ckeditor.fields import RichTextField
+from ordered_model.admin import OrderedModelAdmin
+
+from ordered_model.models import OrderedModel
 
 
-class EducationGroupAchievementFactory(factory.django.DjangoModelFactory):
+class AbstractEducationGroupAchievementAdmin(OrderedModelAdmin):
+    list_display = ('code_name', 'order', 'move_up_down_links')
+    readonly_fields = ['order']
+    search_fields = ['code_name', 'order']
+
+
+class AbstractEducationGroupAchievement(OrderedModel):
+    external_id = models.CharField(max_length=100, blank=True, null=True, db_index=True)
+    changed = models.DateTimeField(null=True, auto_now=True)
+    code_name = models.CharField(max_length=100, verbose_name=_('code'))
+
+    english_text = RichTextField(null=True, verbose_name=_('text in English'))
+    french_text = RichTextField(null=True, verbose_name=_('text in French'))
+
     class Meta:
-        model = "base.EducationGroupAchievement"
-
-    code_name = factory.Sequence(lambda n: 'AA %02d' % n)
-    french_text = factory.fuzzy.FuzzyText('label_', 20)
-    english_text = factory.fuzzy.FuzzyText('label_', 20)
-    education_group_year = factory.SubFactory(EducationGroupYear)
+        abstract = True
