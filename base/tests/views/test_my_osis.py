@@ -65,7 +65,7 @@ class MyOsisViewTestCase(TestCase):
             reference=academic_calendar_type.SUMMARY_COURSE_SUBMISSION)
 
         self.tutor = TutorFactory(person=self.person)
-
+        # FIXME CHANGE LEARNINGUNITYEARFACTORY FOR AVOID MULTI ACADEMIC YEAR
         self.learning_container_year = LearningContainerYearFactory(academic_year=academic_year)
         self.learning_unit_year = LearningUnitYearFakerFactory(academic_year=academic_year,
                                                                learning_container_year=self.learning_container_year)
