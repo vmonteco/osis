@@ -31,7 +31,6 @@ from django.utils.translation import ugettext_lazy as _
 
 from base.forms import bootstrap
 from base.models import academic_calendar, offer_year_calendar, academic_year
-from base.models.academic_year import starting_academic_year
 from base.models.enums import academic_calendar_type
 
 
@@ -53,7 +52,7 @@ class AcademicCalendarForm(bootstrap.BootstrapModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['academic_year'].initial = starting_academic_year()
+        self.fields['academic_year'].initial = academic_year.starting_academic_year()
 
     def save(self, commit=True):
         instance = super(AcademicCalendarForm, self).save(commit=False)
