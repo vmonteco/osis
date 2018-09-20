@@ -39,9 +39,9 @@
 {% endblock %}
 
 {% block panel_body %}
-    {% for text in body_list %}
+    {% for obj in body_list %}
         <div class="col-md-6">
-            {{ text | safe }}
+            {{ obj.text | safe }}
         </div>
     {% endfor %}
 {% endblock %}
