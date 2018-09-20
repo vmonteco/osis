@@ -96,8 +96,9 @@ def shorten_learning_unit(learning_unit_to_edit, new_academic_year):
 # TODO :: Use LearningUnitPostponementForm to extend/shorten a LearningUnit and remove all this code
 def extend_learning_unit(learning_unit_to_edit, new_academic_year):
     result = []
-    last_learning_unit_year = LearningUnitYear.objects.filter(learning_unit=learning_unit_to_edit
-                                                              ).order_by('academic_year').last()
+    last_learning_unit_year = LearningUnitYear.objects.filter(
+        learning_unit=learning_unit_to_edit
+    ).order_by('academic_year').last()
 
     _check_extend_partim(last_learning_unit_year, new_academic_year)
 
@@ -106,7 +107,7 @@ def extend_learning_unit(learning_unit_to_edit, new_academic_year):
 
     with transaction.atomic():
         for ac_year in get_next_academic_years(learning_unit_to_edit, new_academic_year.year):
-            new_luy = _duplicate_learning_unit_year(last_learning_unit_year, ac_year)
+            new_luy = duplicate_learning_unit_year(last_learning_unit_year, ac_year)
             result.append(create_learning_unit_year_creation_message(new_luy, 'learning_unit_successfuly_created'))
 
     return result
@@ -131,7 +132,7 @@ def _update_end_year_field(lu, year):
     return _('learning_unit_updated').format(acronym=lu.acronym)
 
 
-def _duplicate_learning_unit_year(old_learn_unit_year, new_academic_year):
+def duplicate_learning_unit_year(old_learn_unit_year, new_academic_year):
     duplicated_luy = update_related_object(old_learn_unit_year, 'academic_year', new_academic_year)
     duplicated_luy.attribution_procedure = None
     duplicated_luy.learning_container_year = _duplicate_learning_container_year(duplicated_luy, new_academic_year)
