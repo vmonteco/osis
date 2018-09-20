@@ -3904,5 +3904,5 @@ msgstr ""
 msgid "Apply postponement on learning unit year"
 msgstr ""
 
-msgid "Are you sure you want to delete the event %(event)s ?"
+msgid "Are you sure you want to delete the event"
 msgstr ""
