@@ -32,7 +32,6 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.db.models import F, Case, When
-from django.utils.functional import cached_property
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
@@ -63,7 +62,7 @@ LINK_TYPE = "link_type"
 NUMBER_SESSIONS = 3
 
 CMS_LABEL_CERTIFICAT_AIM = 'certificate_aim'
-CMS_LABEL_ADDITIONAL_INFORMATION = 'additional_information'
+CMS_LABEL_ADDITIONAL_INFORMATION = 'additional_informations'
 
 
 @method_decorator(login_required, name='dispatch')
@@ -379,22 +378,23 @@ class EducationGroupSkillsAchievements(EducationGroupGenericDetailView):
                 reference=self.get_object().id,
                 text_labels_name=text_labels
             ).select_related('text_label')
-        return list(filter(
-            lambda obj: obj.text_label.label == text_label_name and obj.language == language_code,
-            self.cms_translated_texts
-        ))
+        return next(
+            (obj for obj in self.cms_translated_texts
+             if obj.text_label.label == text_label_name and obj.language == language_code),
+            None
+        )
 
     def get_french_certificate_aim(self):
-        return self.find_translated_texts(CMS_LABEL_CERTIFICAT_AIM, FR_CODE_LANGUAGE)
+        return self.find_translated_texts(CMS_LABEL_CERTIFICAT_AIM, settings.LANGUAGE_CODE_FR)
 
     def get_english_certificate_aim(self):
-        return self.find_translated_texts(CMS_LABEL_CERTIFICAT_AIM, EN_CODE_LANGUAGE)
+        return self.find_translated_texts(CMS_LABEL_CERTIFICAT_AIM, settings.LANGUAGE_CODE_EN)
 
     def get_french_additional_info(self):
-        return self.find_translated_texts(CMS_LABEL_ADDITIONAL_INFORMATION, FR_CODE_LANGUAGE)
+        return self.find_translated_texts(CMS_LABEL_ADDITIONAL_INFORMATION, settings.LANGUAGE_CODE_FR)
 
     def get_english_additional_info(self):
-        return self.find_translated_texts(CMS_LABEL_ADDITIONAL_INFORMATION, EN_CODE_LANGUAGE)
+        return self.find_translated_texts(CMS_LABEL_ADDITIONAL_INFORMATION, settings.LANGUAGE_CODE_EN)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

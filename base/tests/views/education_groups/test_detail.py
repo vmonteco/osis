@@ -26,6 +26,7 @@
 from django.contrib.auth.models import Permission
 from django.test import TestCase
 from django.urls import reverse
+from django.conf import settings
 
 from base.tests.factories.education_group_achievement import EducationGroupAchievementFactory
 from base.tests.factories.education_group_year import EducationGroupYearFactory
@@ -212,20 +213,20 @@ class TestEducationGroupSkillsAchievements(TestCase):
             entity=entity_name.OFFER_YEAR,
             reference=self.education_group_year.id,
             text_label__label=CMS_LABEL_CERTIFICAT_AIM,
-            language=FR_CODE_LANGUAGE,
+            language=settings.LANGUAGE_CODE_FR,
         )
         certificate_aim_english = TranslatedTextFactory(
             entity=entity_name.OFFER_YEAR,
             reference=self.education_group_year.id,
             text_label__label=CMS_LABEL_CERTIFICAT_AIM,
-            language=EN_CODE_LANGUAGE,
+            language=settings.LANGUAGE_CODE_EN,
         )
         response = self._call_url_as_http_get()
         self.assertEqual(
-            response.context["certificate_aim"][0][0], certificate_aim_french
+            response.context["certificate_aim"][0], certificate_aim_french
         )
         self.assertEqual(
-            response.context["certificate_aim"][1][0], certificate_aim_english
+            response.context["certificate_aim"][1], certificate_aim_english
         )
 
     def test_get__additional_informations(self):
@@ -233,18 +234,18 @@ class TestEducationGroupSkillsAchievements(TestCase):
             entity=entity_name.OFFER_YEAR,
             reference=self.education_group_year.id,
             text_label__label=CMS_LABEL_ADDITIONAL_INFORMATION,
-            language=FR_CODE_LANGUAGE,
+            language=settings.LANGUAGE_CODE_FR,
         )
         additional_infos_english = TranslatedTextFactory(
             entity=entity_name.OFFER_YEAR,
             reference=self.education_group_year.id,
             text_label__label=CMS_LABEL_ADDITIONAL_INFORMATION,
-            language=EN_CODE_LANGUAGE,
+            language=settings.LANGUAGE_CODE_EN,
         )
         response = self._call_url_as_http_get()
         self.assertEqual(
-            response.context["additional_informations"][0][0], additional_infos_french
+            response.context["additional_informations"][0], additional_infos_french
         )
         self.assertEqual(
-            response.context["additional_informations"][1][0], additional_infos_english
+            response.context["additional_informations"][1], additional_infos_english
         )
