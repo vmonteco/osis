@@ -3913,3 +3913,6 @@ msgstr "Appliquer le report sur les unités d'enseignement annualisées"
 
 msgid "Are you sure you want to delete the event"
 msgstr "Êtes-vous certain de vouloir supprimer l'événement"
+
+msgid "The event has been deleted successfully"
+msgstr "L'événement a été supprimé avec succès"
