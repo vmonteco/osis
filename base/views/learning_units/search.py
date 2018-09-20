@@ -41,7 +41,7 @@ from base.forms.common import TooManyResultsException
 from base.forms.learning_unit.comparison import SelectComparisonYears
 from base.forms.learning_unit.search_form import LearningUnitYearForm, ExternalLearningUnitYearForm
 from base.forms.proposal.learning_unit_proposal import LearningUnitProposalForm, ProposalStateModelForm
-from base.models.academic_year import current_academic_year, get_last_academic_years
+from base.models.academic_year import current_academic_year, get_last_academic_years, starting_academic_year
 from base.models.enums import learning_container_year_types, learning_unit_year_subtypes
 from base.models.person import Person, find_by_user
 from base.models.proposal_learning_unit import ProposalLearningUnit
@@ -106,7 +106,7 @@ def learning_units_search(request, search_type):
         'container_types': learning_container_year_types.LEARNING_CONTAINER_YEAR_TYPES,
         'types': learning_unit_year_subtypes.LEARNING_UNIT_YEAR_SUBTYPES,
         'learning_units': found_learning_units,
-        'current_academic_year': current_academic_year(),
+        'current_academic_year': starting_academic_year(),
         'experimental_phase': True,
         'search_type': search_type,
         'is_faculty_manager': a_person.is_faculty_manager(),

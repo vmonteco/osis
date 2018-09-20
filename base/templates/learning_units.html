@@ -83,14 +83,11 @@
             {% trans 'external_search'%}
         </a>
     </li>
-    {% if is_faculty_manager %}
-        <li role="presentation" {% if search_type == 4 %} class="active" {% endif %}>
-            <a href="{% url 'learning_units_summary' %}" role="tab" id="lnk_summary_list">
-                {% trans 'summary_list' %}
-            </a>
-        </li>
-    {% endif %}
-
+    <li role="presentation" {% if search_type == 4 %} class="active" {% endif %}>
+        <a href="{% url 'learning_units_summary' %}" role="tab" id="lnk_summary_list">
+            {% trans 'summary_list' %}
+        </a>
+    </li>
 </ul>
 {% if search_type == 3 %}
     {% include 'learning_unit/by_proposal.html' %}

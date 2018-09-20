@@ -61,10 +61,17 @@ class ManageMyCoursesViewTestCase(TestCase):
         cls.user = cls.person.user
         cls.tutor = TutorFactory(person=cls.person)
         cls.current_ac_year = create_current_academic_year()
-        ac_year_in_future = GenerateAcademicYear(start_year=cls.current_ac_year.year+1,
-                                                 end_year=cls.current_ac_year.year+5)
+        ac_year_in_future = GenerateAcademicYear(start_year=cls.current_ac_year.year + 1,
+                                                 end_year=cls.current_ac_year.year + 5)
         cls.academic_calendar = AcademicCalendarFactory(academic_year=cls.current_ac_year,
-                                                        reference=academic_calendar_type.SUMMARY_COURSE_SUBMISSION)
+                                                        reference=academic_calendar_type.SUMMARY_COURSE_SUBMISSION,
+                                                        start_date=cls.current_ac_year.start_date,
+                                                        end_date=cls.current_ac_year.end_date)
+        cls.academic_calendar_in_future = AcademicCalendarFactory(
+            academic_year=ac_year_in_future.academic_years[0],
+            reference=academic_calendar_type.SUMMARY_COURSE_SUBMISSION,
+            start_date=ac_year_in_future.academic_years[0].start_date,
+            end_date=ac_year_in_future.academic_years[0].end_date)
         # Create multiple attribution in different academic years
         for ac_year in [cls.current_ac_year] + ac_year_in_future.academic_years:
             AttributionFactory(
@@ -197,6 +204,7 @@ class TestManageEducationalInformation(TestCase):
 
 class ManageMyCoursesMixin(TestCase):
     """This mixin is used in context of edition of pedagogy data for tutor"""
+
     @classmethod
     def setUpTestData(cls):
         cls.current_academic_year = create_current_academic_year()

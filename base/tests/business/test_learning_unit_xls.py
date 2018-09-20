@@ -55,13 +55,12 @@ from collections import defaultdict
 COL_TEACHERS_LETTER = 'L'
 COL_PROGRAMS_LETTER = 'Z'
 PARENT_PARTIAL_ACRONYM = 'LDROI'
-PARENT_ACRONYM='LBIR'
-PARENT_TITLE='TITLE 1'
-ROOT_ACRONYM='DRTI'
+PARENT_ACRONYM = 'LBIR'
+PARENT_TITLE = 'TITLE 1'
+ROOT_ACRONYM = 'DRTI'
 
 
 class TestLearningUnitXls(TestCase):
-
     def setUp(self):
         self.current_academic_year = AcademicYearFactory(year=2017)
         self.learning_container_luy1 = LearningContainerYearFactory(academic_year=self.current_academic_year)
@@ -97,8 +96,8 @@ class TestLearningUnitXls(TestCase):
             parent=self.an_education_group,
             child_branch=self.group_element_child.parent,
         )
-        generatorContainer = GenerateContainer(datetime.date.today().year-2, datetime.date.today().year)
-        self.learning_unit_year_with_entities=generatorContainer.generated_container_years[0].learning_unit_year_full
+        generatorContainer = GenerateContainer(datetime.date.today().year - 2, datetime.date.today().year)
+        self.learning_unit_year_with_entities = generatorContainer.generated_container_years[0].learning_unit_year_full
         entities = [
             EntityVersionFactory(
                 start_date=datetime.datetime(1900, 1, 1),
@@ -107,7 +106,8 @@ class TestLearningUnitXls(TestCase):
                 entity__organization__type=organization_type.MAIN
             ) for _ in range(4)
             ]
-        self.learning_unit_year_with_entities.entities = {'REQUIREMENT_ENTITY': entities[0], 'ALLOCATION_ENTITY': entities[1]}
+        self.learning_unit_year_with_entities.entities = {'REQUIREMENT_ENTITY': entities[0],
+                                                          'ALLOCATION_ENTITY': entities[1]}
         self.proposal_creation_3 = ProposalLearningUnitFactory(
             learning_unit_year=self.learning_unit_year_with_entities,
             state=proposal_state.ProposalState.ACCEPTED.name,
@@ -171,7 +171,7 @@ class TestLearningUnitXls(TestCase):
                              _('Attrib. vol1'),
                              10,
                              _('Attrib. vol2'),
-                             15,)
+                             15, )
                          )
 
     def test_get_significant_volume(self):
@@ -186,8 +186,9 @@ class TestLearningUnitXls(TestCase):
         }
         lecturing_data = {'PLANNED_CLASSES': 1, 'VOLUME_Q1': 10, 'VOLUME_TOTAL': 50, 'VOLUME_Q2': 40}
         compo = {
-            'learning_component_year': LearningComponentYearFactory(learning_container_year=self.learning_container_luy1,
-                                                                    type=learning_component_year_type.LECTURING),
+            'learning_component_year': LearningComponentYearFactory(
+                learning_container_year=self.learning_container_luy1,
+                type=learning_component_year_type.LECTURING),
             'volumes': lecturing_data
         }
         volumes_updated = _update_volumes_data(compo, volumes)
