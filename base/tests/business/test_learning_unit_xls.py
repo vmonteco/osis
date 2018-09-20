@@ -32,7 +32,7 @@ from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFact
 from base.tests.factories.person import PersonFactory
 from base.business.learning_unit_xls import DEFAULT_LEGEND_STYLES, SPACES, PROPOSAL_LINE_STYLES, _update_volumes_data, \
     _get_significant_volume, VOLUMES_INITIALIZED, _prepare_legend_ws_data, _get_wrapped_cells, \
-    _get_colored_rows, _get_attribution_line, _get_col_letter, _get_formations_by_educ_group_year, _add_training_data, \
+    _get_colored_rows, _get_attribution_line, _get_col_letter, _get_trainings_by_educ_group_year, _add_training_data, \
     _get_data_part1, _get_parameters_configurable_list, WRAP_TEXT_STYLE, HEADER_PROGRAMS, XLS_DESCRIPTION, \
     _get_absolute_credits, _get_volumes, _get_data_part2
 from base.models.enums import proposal_type, proposal_state
@@ -218,7 +218,7 @@ class TestLearningUnitXls(TestCase):
         self.assertEqual(_prepare_legend_ws_data(), expected)
 
     def test_get_formations_by_educ_group_year(self):
-        formations = _get_formations_by_educ_group_year(self.learning_unit_yr_1)
+        formations = _get_trainings_by_educ_group_year(self.learning_unit_yr_1)
         self.assertCountEqual(formations.get(self.an_education_group_parent.id),
                               [self.an_education_group])
 

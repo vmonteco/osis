@@ -38,6 +38,7 @@ from openpyxl.styles import Alignment, Style, PatternFill, Color, Font
 from base.models.enums.proposal_type import ProposalType
 from openpyxl.utils import get_column_letter
 from collections import defaultdict
+from base.models.education_group_year import EducationGroupYear
 # List of key that a user can modify
 VOLUMES_INITIALIZED = {'VOLUME_TOTAL': 0, 'PLANNED_CLASSES': 0, 'VOLUME_Q1': 0, 'VOLUME_Q2': 0}
 
@@ -239,20 +240,14 @@ def _get_col_letter(titles, title_search):
     return None
 
 
-def _get_formations_by_educ_group_year(learning_unit_yr):
-    groups = []
-
-    learning_unit_yr.group_elements_years = mdl_base.group_element_year.search(child_leaf=learning_unit_yr) \
-        .select_related("parent", "child_leaf", "parent__education_group_type") \
-        .order_by('parent__partial_acronym')
-    groups.extend(learning_unit_yr.group_elements_years)
-    education_groups_years = [group_element_year.parent for group_element_year in groups]
+def _get_trainings_by_educ_group_year(learning_unit_yr):
+    education_groups_years = EducationGroupYear.objects.filter(groupelementyear__child_leaf=learning_unit_yr)
     return mdl_base.group_element_year \
         .find_learning_unit_formations(education_groups_years, parents_as_instances=True)
 
 
 def _add_training_data(learning_unit_yr):
-    formations_by_educ_group_year = _get_formations_by_educ_group_year(learning_unit_yr)
+    formations_by_educ_group_year = _get_trainings_by_educ_group_year(learning_unit_yr)
     return " \n".join(["{}".format(_concatenate_training_data(formations_by_educ_group_year, group_element_year)) for
                        group_element_year in learning_unit_yr.group_elements_years])
 
