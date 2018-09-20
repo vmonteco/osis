@@ -3,7 +3,7 @@
 {% load staticfiles %}
 {% comment "License" %}
 * OSIS stands for Open Student Information System. It's an application
-* designed to manage the core business of higher education institutions,
+* designed to manage the core business of higher education institutions,com
 * such as universities, faculties, institutes and professional schools.
 * The core business involves the administration of students, teachers,
 * courses, programs and so on.
@@ -27,30 +27,34 @@
 
 
 {% block content %}
-
-<div class="panel panel-default">
-    <div class="panel-heading">
-        <div class="row">
-            {% include "education_group/blocks/hamburger_button.html" %}
-            <div class="pull-right" style="margin-right: 15px;">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <div class="row">
+                {% include "education_group/blocks/hamburger_button.html" %}
+                <div class="pull-right" style="margin-right: 15px;">
                     {% include "education_group/blocks/dropdown/identification_actions_bar.html" with dropdirection="dropdown"%}
+                </div>
             </div>
         </div>
-    </div>
 
-    <div class="panel-body" id="tabs">
-         <div class="tab-content" id="tab_content">
+        <div class="panel-body" id="tabs">
+            <div class="tab-content" id="tab_content">
                 <div role="tabpanel" class="tab-pane active" id="content">
                     <div class="row" style="display:flex;">
                         {% include "education_group/training_tree.html" %}
                         <div id="panel-data" class="col-md-12" style="height: 100%;">
-                            {% include "education_group/tabs.html" %}
 
-                            {% include "education_group/blocks/panel_achievements.html" %}
+                            {% include "education_group/tabs.html" %}
+                            <br>
+                            <div class="panel-group">
+                                {% include "education_group/blocks/panel/panel_generic_fr_en.html" with id="certificate" title="the program aims" body_list=certificate_aim %}
+                                {% include "education_group/blocks/panel/panel_achievements.html" with id="achievement" %}
+                                {% include "education_group/blocks/panel/panel_generic_fr_en.html" with id="additionnal" title="additional informations" body_list=additional_informations %}
+                            </div>
                         </div>
                     </div>
                 </div>
-         </div>
+            </div>
+        </div>
     </div>
-</div>
 {% endblock %}
