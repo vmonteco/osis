@@ -29,6 +29,10 @@
  * see http://www.gnu.org/licenses/.
 {% endcomment %}
 
+{% block style %}
+    <link rel="stylesheet" href="{% static 'css/toggle-switch.css' %}">
+{% endblock %}
+
 {% block breadcrumb %}
   <li><a href="{% url 'catalog' %}" id="lnk_catalog">{% trans 'formation_catalogue'%}</a></li>
   <li><a href="{% url 'academic_year' %}" id="lnk_academic_year">{% trans 'academic_year'%}</a></li>
@@ -45,7 +49,7 @@
       <form  method="get" action="{% url 'academic_calendars' %}" >
         <div class="col-md-2">
           <label for="slt_academic_year" >{% trans 'academic_year'%}</label>
-          <select class="form-control" id="slt_academic_year"  name="academic_year" value="{{ academic_year }}">
+          <select class="form-control" id="slt_academic_year"  name="academic_year" value="{{ academic_year }}" onchange='this.form.submit();'>
             {% for v in academic_years %}
               <option value="{{ v.id }}" {% if v.id == academic_year %}selected {% endif %} >
                   {{ v }}
@@ -54,18 +58,32 @@
           </select>
         </div>
         <div class="col-md-2">
-            <label>{% trans "academic events" as academic_events %}{{ academic_events|title }}</label><br>
-            <input type="checkbox" name="show_academic_events" title="show_academic_events" {% if show_academic_events %}checked{% endif %} />
+            {% if request.user.is_superuser %}
+                <table>
+                    <tr>
+                        <td><label>{% trans "academic events" as academic_events %}{{ academic_events|title }}</label></td>
+                        <td style="padding-left: 0.5em; padding-top: 4px;">
+                            <label class="switch">
+                              <input type="checkbox" name="show_academic_events" title="{{ academic_events|title }}" onclick='this.form.submit();' {% if show_academic_events %}checked{% endif %} />
+                              <span class="slider round"></span>
+                            </label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><label>{% trans "project events" as project_events %}{{ project_events|title }}</label><br></td>
+                        <td style="padding-left: 0.5em; padding-top: 4px;">
+                            <label class="switch">
+                              <input type="checkbox" name="show_project_events" title="{{ project_events|title }}" onclick='this.form.submit();' {% if show_project_events %}checked{% endif %} />
+                              <span class="slider round"></span>
+                            </label>
+                        </td>
+                    </tr>
+                </table>
+            {% else %}
+                <input type="hidden" name="show_academic_events" title="{{ academic_events|title }}" value="on" />
+            {% endif %}
         </div>
-        {% if request.user.is_superuser %}
-            <div class="col-md-2">
-                <label>{% trans "project events" as project_events %}{{ project_events|title }}</label><br>
-                <input type="checkbox" name="show_project_events" title="show_project_events" {% if show_project_events %}checked{% endif %}/>
-            </div>
-        {% endif %}
-        <div class="col-md-6">
-            <br>
-            <button type="submit" id="bt_submit_academic_calendar_search" class="btn btn-primary" role="button"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button>
+        <div class="col-md-8">
             {% if request.user.is_superuser %}
                 <a href="{% url 'academic_calendar_form' %}" id="lnk_academic_calendar_create" class="btn btn-default" role="button"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></a>
             {% endif %}
