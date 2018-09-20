@@ -360,6 +360,7 @@ class EducationGroupYearAdmissionCondition(EducationGroupGenericDetailView):
 
 class EducationGroupSkillsAchievements(EducationGroupGenericDetailView):
     template_name = "education_group/tab_skills_achievements.html"
+    cms_translated_texts = None
 
     def get_achievements(self):
         return self.object.educationgroupachievement_set.all().prefetch_related('educationgroupdetailedachievement_set')
@@ -379,7 +380,7 @@ class EducationGroupSkillsAchievements(EducationGroupGenericDetailView):
                 text_labels_name=text_labels
             ).select_related('text_label')
         return list(filter(
-            lambda obj: obj.text_label.name == text_label_name and obj.language == language_code,
+            lambda obj: obj.text_label.label == text_label_name and obj.language == language_code,
             self.cms_translated_texts
         ))
 
@@ -387,13 +388,13 @@ class EducationGroupSkillsAchievements(EducationGroupGenericDetailView):
         return self.find_translated_texts(CMS_LABEL_CERTIFICAT_AIM, FR_CODE_LANGUAGE)
 
     def get_english_certificate_aim(self):
-        return self.find_translated_texts(CMS_LABEL_CERTIFICAT_AIM, FR_CODE_LANGUAGE)
+        return self.find_translated_texts(CMS_LABEL_CERTIFICAT_AIM, EN_CODE_LANGUAGE)
 
     def get_french_additional_info(self):
         return self.find_translated_texts(CMS_LABEL_ADDITIONAL_INFORMATION, FR_CODE_LANGUAGE)
 
     def get_english_additional_info(self):
-        return self.find_translated_texts(CMS_LABEL_ADDITIONAL_INFORMATION, FR_CODE_LANGUAGE)
+        return self.find_translated_texts(CMS_LABEL_ADDITIONAL_INFORMATION, EN_CODE_LANGUAGE)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
