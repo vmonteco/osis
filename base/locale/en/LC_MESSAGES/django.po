@@ -3884,6 +3884,12 @@ msgstr ""
 msgid "on successful completion of this program, each student is able to"
 msgstr ""
 
+msgid "the program aims"
+msgstr ""
+
+msgid "additional informations"
+msgstr ""
+
 msgid "skills and achievements"
 msgstr ""
 
