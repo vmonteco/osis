@@ -192,20 +192,12 @@ class TestEducationGroupSkillsAchievements(TestCase):
         return response
 
     def test_get__achievements(self):
-        achievement_fr = EducationGroupAchievementFactory(
-            education_group_year=self.education_group_year,
-            language=LanguageFactory(code=FR_CODE_LANGUAGE))
-        achievement_en = EducationGroupAchievementFactory(
-            education_group_year=self.education_group_year,
-            language=LanguageFactory(code=EN_CODE_LANGUAGE))
+        achievement = EducationGroupAchievementFactory(education_group_year=self.education_group_year)
 
         response = self._call_url_as_http_get()
 
         self.assertEqual(
-            response.context["education_group_achievements"][0][0], achievement_fr
-        )
-        self.assertEqual(
-            response.context["education_group_achievements"][1][0], achievement_en
+            response.context["education_group_achievements"][0], achievement
         )
 
     def test_get__certificate_aim(self):

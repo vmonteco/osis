@@ -33,14 +33,6 @@ class Migration(migrations.Migration):
             name='french_text',
             field=ckeditor.fields.RichTextField(null=True, verbose_name='text in French'),
         ),
-        migrations.RemoveField(
-            model_name='educationgroupachievement',
-            name='language',
-        ),
-        migrations.RemoveField(
-            model_name='educationgroupachievement',
-            name='text',
-        ),
         migrations.AlterUniqueTogether(
             name='educationgroupachievement',
             unique_together=set([('code_name', 'education_group_year')]),
@@ -55,6 +47,14 @@ class Migration(migrations.Migration):
         ),
         migrations.RemoveField(
             model_name='educationgroupdetailedachievement',
+            name='text',
+        ),
+        migrations.RemoveField(
+            model_name='educationgroupachievement',
+            name='language',
+        ),
+        migrations.RemoveField(
+            model_name='educationgroupachievement',
             name='text',
         ),
     ]

@@ -36,6 +36,6 @@ class EducationGroupAchievementFactory(factory.django.DjangoModelFactory):
         model = "base.EducationGroupAchievement"
 
     code_name = factory.Sequence(lambda n: 'AA %02d' % n)
-    text = factory.fuzzy.FuzzyText('label_', 20)
+    french_text = factory.fuzzy.FuzzyText('label_', 20)
+    english_text = factory.fuzzy.FuzzyText('label_', 20)
     education_group_year = factory.SubFactory(EducationGroupYear)
-    language = factory.SubFactory(LanguageFactory)
