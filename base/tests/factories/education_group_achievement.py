@@ -6,7 +6,7 @@
 #    The core business involves the administration of students, teachers,
 #    courses, programs and so on.
 #
-#    Copyright (C) 2015-2017 Université catholique de Louvain (http://www.uclouvain.be)
+#    Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -23,33 +23,19 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.db import models
-from django.utils.translation import ugettext_lazy as _
+import factory
+import factory.fuzzy
 
-from base.models.abstracts.abstract_achievement import AbstractAchievement, AbstractAchievementAdmin
-
-
-class EducationGroupAchievementAdmin(AbstractAchievementAdmin):
-    raw_id_fields = ('education_group_year',)
-
-    def get_list_display(self, request):
-        return ('education_group_year',) + super().get_list_display(request)
-
-    def get_search_fields(self, request):
-        return ['education_group_year__acronym'] + super().get_search_fields(request)
+from base.models.education_group_year import EducationGroupYear
+from base.tests.factories.learning_unit_year import LearningUnitYearFactory
+from reference.tests.factories.language import LanguageFactory
 
 
-class EducationGroupAchievement(AbstractAchievement):
-    education_group_year = models.ForeignKey(
-        'EducationGroupYear',
-        verbose_name=_("education group year"),
-        on_delete=models.CASCADE,
-    )
-    order_with_respect_to = ('education_group_year', 'language')
-
+class EducationGroupAchievementFactory(factory.django.DjangoModelFactory):
     class Meta:
-        unique_together = ("code_name", "education_group_year", "language")
-        verbose_name = _("education group achievement")
+        model = "base.EducationGroupAchievement"
 
-    def __str__(self):
-        return u'{} - {} (order {})'.format(self.education_group_year, self.code_name, self.order)
+    code_name = factory.Sequence(lambda n: 'AA %02d' % n)
+    text = factory.fuzzy.FuzzyText('label_', 20)
+    education_group_year = factory.SubFactory(EducationGroupYear)
+    language = factory.SubFactory(LanguageFactory)

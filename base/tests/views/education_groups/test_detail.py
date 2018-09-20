@@ -27,6 +27,7 @@ from django.contrib.auth.models import Permission
 from django.test import TestCase
 from django.urls import reverse
 
+from base.tests.factories.education_group_achievement import EducationGroupAchievementFactory
 from base.tests.factories.education_group_year import EducationGroupYearFactory
 from base.tests.factories.group_element_year import GroupElementYearFactory
 from base.tests.factories.learning_component_year import LearningComponentYearFactory
@@ -34,6 +35,8 @@ from base.tests.factories.learning_unit_component import LearningUnitComponentFa
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.user import UserFactory
+from reference.models.language import FR_CODE_LANGUAGE, EN_CODE_LANGUAGE
+from reference.tests.factories.language import LanguageFactory
 
 
 class TestDetail(TestCase):
@@ -164,3 +167,36 @@ class TestContent(TestCase):
         self.assertIn(self.group_element_year_2, geys)
         self.assertIn(self.group_element_year_3, geys)
         self.assertNotIn(self.group_element_year_without_container, geys)
+
+
+class TestEducationGroupSkillsAchievements(TestCase):
+    def setUp(self):
+
+        self.education_group_year = EducationGroupYearFactory()
+        self.achievement_fr = EducationGroupAchievementFactory(
+            education_group_year=self.education_group_year,
+            language=LanguageFactory(code=FR_CODE_LANGUAGE))
+        self.achievement_en = EducationGroupAchievementFactory(
+            education_group_year=self.education_group_year,
+            language=LanguageFactory(code=EN_CODE_LANGUAGE))
+
+        self.user = UserFactory()
+        self.person = PersonFactory(user=self.user)
+        self.user.user_permissions.add(Permission.objects.get(codename="can_access_education_group"))
+        self.client.force_login(self.user)
+
+    def test_get(self):
+
+        response = self.client.get(
+            reverse("education_group_skills_achievements",
+                    args=[self.education_group_year.pk, self.education_group_year.pk])
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        self.assertEqual(
+            response.context["education_group_achievements"][0][0], self.achievement_fr
+        )
+        self.assertEqual(
+            response.context["education_group_achievements"][1][0], self.achievement_en
+        )

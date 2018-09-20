@@ -1,0 +1,93 @@
+{% load staticfiles %}
+{% load i18n %}
+
+{% comment "License" %}
+* OSIS stands for Open Student Information System. It's an application
+* designed to manage the core business of higher education institutions,
+* such as universities, faculties, institutes and professional schools.
+* The core business involves the administration of students, teachers,
+* courses, programs and so on.
+*
+* Copyright (C) 2015-2018 Université catholique de Louvain (http://www.uclouvain.be)
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* A copy of this license - GNU General Public License - is available
+* at the root of the source code of this program.  If not,
+* see http://www.gnu.org/licenses/.
+{% endcomment %}
+<br>
+<table class="table table-responsive">
+    <thead class="table_header">
+    <tr>
+        <th>
+            {% language LANGUAGE_CODE_FR %}
+                {% trans 'on successful completion of this program, each student is able to'|capfirst %} :
+            {% endlanguage %}
+        </th>
+        <th>
+            {% language LANGUAGE_CODE_EN %}
+                {% trans 'on successful completion of this program, each student is able to'|capfirst %} :
+            {% endlanguage %}
+        </th>
+        <th class="align-right">
+            <span data-target="#achivements_body" class="glyphicon glyphicon-chevron-down collapse_span_updown">
+            </span>
+        </th>
+    </tr>
+    </thead>
+    <tbody id="achivements_body" class="collapse in">
+    <tr>
+        {% for list_achievement in education_group_achievements %}
+            <td>
+                {% for achievement in list_achievement %}
+                    <div class="row">
+                        <div class="col-md-1">
+                            <span data-toggle="collapse" data-target="#detail_{{ achievement.pk }}"
+                                  class="glyphicon glyphicon-chevron-right collapse_span">
+                            </span>
+                        </div>
+                        <div class="col-md-11">
+                            {{ achievement.text | safe }}
+                            <ol id="detail_{{ achievement.pk }}" class="collapse">
+                                {% for detail_achievement in achievement.educationgroupdetailedachievement_set.all %}
+                                    <li>{{ detail_achievement.text | safe }}</li>
+                                {% endfor %}
+                            </ol>
+                            <hr>
+                        </div>
+                    </div>
+                {% endfor %}
+            </td>
+        {% endfor %}
+    </tr>
+    </tbody>
+</table>
+
+<script>
+    $(function() {
+        $('.collapse_span').on('click', function() {
+            $(this).toggleClass('glyphicon-chevron-right').toggleClass('glyphicon-chevron-down');
+        });
+
+        $('.collapse_span_updown').on('click', function() {
+            let target = $(this).data("target");
+            $(this).toggleClass('glyphicon-chevron-up').toggleClass('glyphicon-chevron-down');
+
+            if ($(this).hasClass('glyphicon-chevron-up')) {
+                $(target).hide("slow")
+            }
+            else {
+                $(target).show("slow")
+            }
+        });
+    });
+</script>
