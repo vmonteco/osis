@@ -47,6 +47,7 @@ from base.models.enums import education_group_categories, academic_calendar_type
 from base.models.person import Person
 from cms import models as mdl_cms
 from cms.enums import entity_name
+from cms.models import translated_text
 from cms.models.translated_text import TranslatedText
 from cms.models.translated_text_label import TranslatedTextLabel
 from reference.models.language import FR_CODE_LANGUAGE, EN_CODE_LANGUAGE
@@ -59,6 +60,9 @@ BLOCK = "block"
 QUADRIMESTER_DEROGATION = "quadrimester_derogation"
 LINK_TYPE = "link_type"
 NUMBER_SESSIONS = 3
+
+CMS_LABEL_CERTIFICAT_AIM = 'certificate_aim'
+CMS_LABEL_ADDITIONAL_INFORMATION = 'additional_informations'
 
 
 @method_decorator(login_required, name='dispatch')
@@ -355,6 +359,7 @@ class EducationGroupYearAdmissionCondition(EducationGroupGenericDetailView):
 
 class EducationGroupSkillsAchievements(EducationGroupGenericDetailView):
     template_name = "education_group/tab_skills_achievements.html"
+    cms_translated_texts = None
 
     def get_achievements(self):
         return self.object.educationgroupachievement_set.all().prefetch_related('educationgroupdetailedachievement_set')
@@ -364,6 +369,32 @@ class EducationGroupSkillsAchievements(EducationGroupGenericDetailView):
 
     def get_english_achievements(self):
         return self.get_achievements().filter(language__code=EN_CODE_LANGUAGE)
+
+    def find_translated_texts(self, text_label_name, language_code):
+        if self.cms_translated_texts is None:
+            text_labels = [CMS_LABEL_CERTIFICAT_AIM, CMS_LABEL_ADDITIONAL_INFORMATION]
+            self.cms_translated_texts = translated_text.search(
+                entity=entity_name.OFFER_YEAR,
+                reference=self.get_object().id,
+                text_labels_name=text_labels
+            ).select_related('text_label')
+        return next(
+            (obj for obj in self.cms_translated_texts
+             if obj.text_label.label == text_label_name and obj.language == language_code),
+            None
+        )
+
+    def get_french_certificate_aim(self):
+        return self.find_translated_texts(CMS_LABEL_CERTIFICAT_AIM, settings.LANGUAGE_CODE_FR)
+
+    def get_english_certificate_aim(self):
+        return self.find_translated_texts(CMS_LABEL_CERTIFICAT_AIM, settings.LANGUAGE_CODE_EN)
+
+    def get_french_additional_info(self):
+        return self.find_translated_texts(CMS_LABEL_ADDITIONAL_INFORMATION, settings.LANGUAGE_CODE_FR)
+
+    def get_english_additional_info(self):
+        return self.find_translated_texts(CMS_LABEL_ADDITIONAL_INFORMATION, settings.LANGUAGE_CODE_EN)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -376,4 +407,6 @@ class EducationGroupSkillsAchievements(EducationGroupGenericDetailView):
         )
 
         context["education_group_achievements"] = [self.get_french_achievements(), self.get_english_achievements()]
+        context["certificate_aim"] = [self.get_french_certificate_aim(), self.get_english_certificate_aim()]
+        context["additional_informations"] = [self.get_french_additional_info(), self.get_english_additional_info()]
         return context
