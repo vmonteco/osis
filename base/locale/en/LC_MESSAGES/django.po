@@ -3885,6 +3885,7 @@ msgid "academic events"
 msgstr ""
 
 msgid "project events"
+msgstr ""
 
 msgid "%(count)d learning unit has been postponed with success"
 msgid_plural "%(count)d learning units have been postponed with success"
