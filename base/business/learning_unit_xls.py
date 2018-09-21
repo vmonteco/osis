@@ -80,6 +80,7 @@ LEARNING_UNIT_TITLES_PART1 = [
     str(_('title_in_english')),
 ]
 
+
 def prepare_xls_content(learning_units,
                         with_grp=False,
                         with_attributions=False):
@@ -317,7 +318,8 @@ def _get_data_part1(learning_unit_yr):
         # FIXME Condition to remove when the LearningUnitYear.learning_continer_year_id will be null=false
         if learning_unit_yr.learning_container_year else "",
         xls_build.translate(learning_unit_yr.subtype),
-        _get_entity_faculty_acronym(learning_unit_yr.entities.get('REQUIREMENT_ENTITY'), learning_unit_yr.academic_year),
+        _get_entity_faculty_acronym(learning_unit_yr.entities.get('REQUIREMENT_ENTITY'),
+                                    learning_unit_yr.academic_year),
         xls_build.translate(proposal.type) if proposal else '',
         xls_build.translate(proposal.state) if proposal else '',
         learning_unit_yr.credits,
