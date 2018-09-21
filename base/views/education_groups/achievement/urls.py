@@ -25,33 +25,43 @@
 ############################################################################
 from django.conf.urls import url, include
 
-from base.views.education_groups.education_group_achievement.actions import EducationGroupAchievementAction, \
+from base.views.education_groups.achievement.create import CreateEducationGroupAchievement, \
+    CreateEducationGroupDetailedAchievement
+from base.views.education_groups.achievement.update import EducationGroupAchievementAction, \
     EducationGroupDetailedAchievementAction, UpdateEducationGroupAchievement, UpdateEducationGroupDetailedAchievement
-from base.views.education_groups.education_group_achievement.detail import EducationGroupSkillsAchievements
+from base.views.education_groups.achievement.detail import EducationGroupSkillsAchievements
 
 urlpatterns = [
     url(r'^$',
         EducationGroupSkillsAchievements.as_view(),
         name='education_group_skills_achievements'),
 
-    url(r'^actions/(?P<education_group_achievement_pk>[0-9]+)$',
-        EducationGroupAchievementAction.as_view(),
-        name='education_group_achievements_actions'),
+    url(r'^create',
+        CreateEducationGroupAchievement.as_view(),
+        name='create_education_group_achievement'),
 
-    url(r'^update/(?P<education_group_achievement_pk>[0-9]+)$',
-        UpdateEducationGroupAchievement.as_view(),
-        name='update_education_group_achievement'),
+    url(r'^(?P<education_group_achievement_pk>[0-9]+)/', include([
+        url(r'^actions$',
+            EducationGroupAchievementAction.as_view(),
+            name='education_group_achievements_actions'),
 
-    url(r'detailed/', include([
-        url(r'^actions/(?P<education_group_detail_achievement_pk>[0-9]+)$',
-            EducationGroupDetailedAchievementAction.as_view(),
-            name='education_group_detailed_achievements_actions'),
+        url(r'^update$',
+            UpdateEducationGroupAchievement.as_view(),
+            name='update_education_group_achievement'),
 
-        url(r'^update/(?P<education_group_detail_achievement_pk>[0-9]+)$',
-            UpdateEducationGroupDetailedAchievement.as_view(),
-            name='update_education_group_detailed_achievement'),
+        url(r'^create',
+            CreateEducationGroupDetailedAchievement.as_view(),
+            name='create_education_group_detailed_achievement'),
 
-    ]))
+        url(r'(?P<education_group_detail_achievement_pk>[0-9]+)/', include([
+            url(r'^actions$',
+                EducationGroupDetailedAchievementAction.as_view(),
+                name='education_group_detailed_achievements_actions'),
 
+            url(r'^update$',
+                UpdateEducationGroupDetailedAchievement.as_view(),
+                name='update_education_group_detailed_achievement'),
 
+        ]))
+    ])),
 ]

@@ -36,7 +36,7 @@ from base.tests.factories.learning_unit_component import LearningUnitComponentFa
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.user import UserFactory
-from base.views.education_groups.education_group_achievement.detail import CMS_LABEL_CERTIFICAT_AIM, \
+from base.views.education_groups.achievement.detail import CMS_LABEL_CERTIFICAT_AIM, \
     CMS_LABEL_ADDITIONAL_INFORMATION
 from cms.enums import entity_name
 from cms.tests.factories.translated_text import TranslatedTextFactory

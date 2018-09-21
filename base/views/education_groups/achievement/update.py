@@ -23,59 +23,16 @@
 #    see http://www.gnu.org/licenses/.
 #
 ############################################################################
-from ckeditor.widgets import CKEditorWidget
-from django import forms
 from django.http import HttpResponseRedirect
-from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import FormView, UpdateView
-from django.views.generic.detail import SingleObjectMixin
 
-from base.models.education_group_achievement import EducationGroupAchievement
-from base.models.education_group_detailed_achievement import EducationGroupDetailedAchievement
+from base.forms.education_group.achievement import ActionForm, EducationGroupAchievementForm, \
+    EducationGroupDetailedAchievementForm
 from base.views.common import display_error_messages
 from base.views.common_classes import AjaxTemplateMixin
-
-ACTION_CHOICES = [('up', 'up'), ('down', 'down'), ('delete', 'delete')]
-
-
-class EducationGroupAchievementForm(forms.ModelForm):
-    french_text = forms.CharField(widget=CKEditorWidget(config_name='minimal'), required=False)
-    english_text = forms.CharField(widget=CKEditorWidget(config_name='minimal'), required=False)
-
-    class Meta:
-        model = EducationGroupAchievement
-        fields = ["code_name", "french_text", "english_text"]
-
-
-class EducationGroupDetailedAchievementForm(EducationGroupAchievementForm):
-    class Meta(EducationGroupAchievementForm.Meta):
-        model = EducationGroupDetailedAchievement
-
-
-class ActionForm(forms.Form):
-    action = forms.ChoiceField(choices=ACTION_CHOICES, required=True)
-
-
-class EducationGroupAchievementMixin(SingleObjectMixin):
-    model = EducationGroupAchievement
-    context_object_name = "education_group_achievement"
-    pk_url_kwarg = 'education_group_achievement_pk'
-
-    def get_success_url(self):
-        return reverse(
-            "education_group_skills_achievements",
-            args=[
-                self.kwargs['root_id'],
-                self.kwargs['education_group_year_id'],
-            ]
-        )
-
-
-class EducationGroupDetailedAchievementMixin(EducationGroupAchievementMixin):
-    model = EducationGroupDetailedAchievement
-    context_object_name = "education_group_detail_achievement"
-    pk_url_kwarg = 'education_group_detail_achievement_pk'
+from base.views.education_groups.achievement.common import EducationGroupAchievementMixin, \
+    EducationGroupDetailedAchievementMixin
 
 
 class EducationGroupAchievementAction(EducationGroupAchievementMixin, FormView):
@@ -102,7 +59,7 @@ class UpdateEducationGroupAchievement(AjaxTemplateMixin, EducationGroupAchieveme
 
 
 class UpdateEducationGroupDetailedAchievement(EducationGroupDetailedAchievementMixin, UpdateEducationGroupAchievement):
-    pass
+    form_class = EducationGroupDetailedAchievementForm
 
 
 class EducationGroupDetailedAchievementAction(EducationGroupDetailedAchievementMixin, EducationGroupAchievementAction):
