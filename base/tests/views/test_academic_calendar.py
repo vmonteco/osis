@@ -77,7 +77,7 @@ class AcademicCalendarViewTestCase(TestCase):
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
 
-        self.assertEqual(template, 'academic_calendars.html')
+        self.assertEqual(template, 'academic_calendar/academic_calendars.html')
         self._compare_academic_calendar_json(context, self.academic_calendars[0])
 
     @mock.patch('django.contrib.auth.decorators')
@@ -96,7 +96,7 @@ class AcademicCalendarViewTestCase(TestCase):
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
 
-        self.assertEqual(template, 'academic_calendars.html')
+        self.assertEqual(template, 'academic_calendar/academic_calendars.html')
         self._compare_academic_calendar_json(context, self.academic_calendars[1])
 
     def _compare_academic_calendar_json(self, context, calendar):
@@ -136,7 +136,7 @@ class AcademicCalendarViewTestCase(TestCase):
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
 
-        self.assertEqual(template, 'academic_calendars.html')
+        self.assertEqual(template, 'academic_calendar/academic_calendars.html')
         self._compare_project_calendar_json(context, self.academic_calendars[1], 0.5)
 
     @mock.patch('django.contrib.auth.decorators')
@@ -160,7 +160,7 @@ class AcademicCalendarViewTestCase(TestCase):
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
 
-        self.assertEqual(template, 'academic_calendars.html')
+        self.assertEqual(template, 'academic_calendar/academic_calendars.html')
         self._compare_project_calendar_json(context, self.academic_calendars[1], 1)
 
     def _compare_project_calendar_json(self, context, calendar, progress):
@@ -194,7 +194,7 @@ class AcademicCalendarViewTestCase(TestCase):
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
 
-        self.assertEqual(template, 'academic_calendar_form.html')
+        self.assertEqual(template, 'academic_calendar/academic_calendar_form.html')
         self.assertIsInstance(context['form'], AcademicCalendarForm)
         self.assertEqual(
             context['url_academic_calendars'],
