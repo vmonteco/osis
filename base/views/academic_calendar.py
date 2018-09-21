@@ -28,6 +28,7 @@ import datetime
 from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
+from django.utils.translation import ugettext_lazy as _
 from django.views.generic import DeleteView
 
 from base import models as mdl
@@ -171,7 +172,7 @@ def can_delete_academic_calendar(user, academic_calendar):
 
 
 class AcademicCalendarDelete(DeleteView, RulesRequiredMixin):
-    success_message = "The event has been deleted successfully"
+    success_message = "The event \"%(event)s\" has been deleted successfully"
     model = AcademicCalendar
 
     # RulesRequiredMixin
@@ -182,6 +183,9 @@ class AcademicCalendarDelete(DeleteView, RulesRequiredMixin):
         return build_url_academic_calendars(self.request)
 
     def delete(self, request, *args, **kwargs):
+        success_message = _(self.success_message) % {
+            "event": get_object_or_404(AcademicCalendar, pk=kwargs.get('pk'))
+        }
         result = super().delete(request, *args, **kwargs)
-        common.display_success_messages(request, _(self.success_message))
+        common.display_success_messages(request, success_message)
         return result

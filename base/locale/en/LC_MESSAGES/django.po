@@ -3913,5 +3913,5 @@ msgstr ""
 msgid "Are you sure you want to delete the event"
 msgstr ""
 
-msgid "The event has been deleted successfully"
+msgid "The event \"%(event)s\" has been deleted successfully"
 msgstr ""
