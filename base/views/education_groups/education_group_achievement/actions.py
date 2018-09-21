@@ -43,10 +43,6 @@ class EducationGroupAchievementForm(forms.ModelForm):
     french_text = forms.CharField(widget=CKEditorWidget(config_name='minimal'), required=False)
     english_text = forms.CharField(widget=CKEditorWidget(config_name='minimal'), required=False)
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        print(self.data)
-
     class Meta:
         model = EducationGroupAchievement
         fields = ["code_name", "french_text", "english_text"]
