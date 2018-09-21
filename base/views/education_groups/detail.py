@@ -364,12 +364,6 @@ class EducationGroupSkillsAchievements(EducationGroupGenericDetailView):
     def get_achievements(self):
         return self.object.educationgroupachievement_set.all().prefetch_related('educationgroupdetailedachievement_set')
 
-    def get_french_achievements(self):
-        return self.get_achievements().filter(language__code=FR_CODE_LANGUAGE)
-
-    def get_english_achievements(self):
-        return self.get_achievements().filter(language__code=EN_CODE_LANGUAGE)
-
     def find_translated_texts(self, text_label_name, language_code):
         if self.cms_translated_texts is None:
             text_labels = [CMS_LABEL_CERTIFICAT_AIM, CMS_LABEL_ADDITIONAL_INFORMATION]
@@ -406,7 +400,7 @@ class EducationGroupSkillsAchievements(EducationGroupGenericDetailView):
              }
         )
 
-        context["education_group_achievements"] = [self.get_french_achievements(), self.get_english_achievements()]
+        context["education_group_achievements"] = self.get_achievements()
         context["certificate_aim"] = [self.get_french_certificate_aim(), self.get_english_certificate_aim()]
         context["additional_informations"] = [self.get_french_additional_info(), self.get_english_additional_info()]
         return context

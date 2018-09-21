@@ -39,26 +39,38 @@
 {% endblock %}
 
 {% block panel_body %}
-    {% for list_achievement in education_group_achievements %}
-        <div class="col-md-6">
-            {% for achievement in list_achievement %}
+
+    {% for achievement in education_group_achievements %}
+        <div class="row">
+            <div class="col-md-1">
+                <span data-toggle="collapse" data-target=".ol_collapse_{{ achievement.pk }}"
+                      class="glyphicon glyphicon-chevron-right collapse_span pull-right">
+                </span>
+            </div>
+            <div class="col-md-11">
                 <div class="row">
-                    <div class="col-md-1">
-                            <span data-toggle="collapse" data-target="#detail_{{ achievement.pk }}"
-                                  class="glyphicon glyphicon-chevron-right collapse_span">
-                            </span>
-                    </div>
-                    <div class="col-md-11">
-                        {{ achievement.text | safe }}
-                        <ol id="detail_{{ achievement.pk }}" class="collapse">
+
+                    <div class="col-md-6">
+                        {{ achievement.french_text | safe }}
+                        <ol class="collapse in ol_collapse_{{ achievement.pk }}">
                             {% for detail_achievement in achievement.educationgroupdetailedachievement_set.all %}
-                                <li>{{ detail_achievement.text | safe }}</li>
+                                <li>{{ detail_achievement.french_text | safe }}</li>
                             {% endfor %}
                         </ol>
-                        <hr>
                     </div>
+
+                    <div class="col-md-6">
+                        {{ achievement.english_text | safe }}
+                        <ol class="collapse in ol_collapse_{{ achievement.pk }}">
+                            {% for detail_achievement in achievement.educationgroupdetailedachievement_set.all %}
+                                <li>{{ detail_achievement.english_text | safe }}</li>
+                            {% endfor %}
+                        </ol>
+                    </div>
+
                 </div>
-            {% endfor %}
+                <hr>
+            </div>
         </div>
     {% endfor %}
 
