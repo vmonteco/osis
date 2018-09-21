@@ -37,7 +37,7 @@ from base.utils.send_mail import send_mail_before_annual_procedure_of_automatic_
 # TODO This method will be execute through a celery worker.
 def fetch_learning_unit_to_postpone(queryset=None):
     if not queryset:
-        queryset = LearningUnitYear.objects.all()
+        queryset = LearningUnitYear.objects_with_container.all()
 
     # Fetch N+6 and N+5 academic_years
     last_academic_year = AcademicYear.objects.get(year=compute_max_academic_year_adjournment())
