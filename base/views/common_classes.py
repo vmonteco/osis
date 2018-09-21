@@ -31,7 +31,7 @@ from django.http import JsonResponse
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import DeleteView
 
-from base.views.common import display_success_messages
+from base.views import common
 
 
 class FlagMixin:
@@ -124,5 +124,5 @@ class DeleteViewWithDependencies(FlagMixin, RulesRequiredMixin, AjaxTemplateMixi
 
     def delete(self, request, *args, **kwargs):
         result = super().delete(request, *args, **kwargs)
-        display_success_messages(request, _(self.success_message))
+        common.display_success_messages(request, _(self.success_message))
         return result
