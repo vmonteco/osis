@@ -44,10 +44,10 @@
         <div class="row">
             <div class="col-md-1">
                 <span data-toggle="collapse" data-target=".ol_collapse_{{ achievement.pk }}"
-                      class="glyphicon glyphicon-chevron-right collapse_span pull-right">
+                      class="glyphicon glyphicon-chevron-right collapse_span">
                 </span>
             </div>
-            <div class="col-md-11">
+            <div class="col-md-9">
                 <div class="row">
 
                     <div class="col-md-6">
@@ -67,9 +67,29 @@
                             {% endfor %}
                         </ol>
                     </div>
-
                 </div>
                 <hr>
+            </div>
+            <div class="col-md-2">
+                <div class="btn-group pull-right" role="group" aria-label="actions">
+                    <button type="submit" title="{% trans 'up' %}"  class="btn btn-default btn-sm"
+                            id="btn_operation_up_{{ achievement.id }}"
+                            name="action" value="up" {% if forloop.counter0 == 0 %}disabled{% endif %} >
+                        <i class="fa fa-arrow-up"></i>
+                    </button>
+
+                    <button type="submit" title="{% trans 'down' %}" class="btn btn-default btn-sm"
+                            id="btn_operation_down_{{ achievement.id }}"
+                            name="action" value="down" {% if forloop.last %}disabled{% endif %}>
+                        <i class="fa fa-arrow-down"></i>
+                    </button>
+
+                    <button type="submit" title="{% trans 'delete' %}"  class="btn btn-default btn-sm"
+                            id="btn_operation_delete_{{ achievement.id }}"
+                            name="action" value="delete">
+                        <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                    </button>
+                </div>
             </div>
         </div>
     {% endfor %}
