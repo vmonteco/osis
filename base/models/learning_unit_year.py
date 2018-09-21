@@ -71,7 +71,7 @@ class LearningUnitYearAdmin(SerializableModelAdmin):
         from base.business.learning_units.automatic_postponement import fetch_learning_unit_to_postpone
         from base.views.common import display_success_messages, display_error_messages
 
-        result, errors = fetch_learning_unit_to_postpone(queryset)
+        result, errors = fetch_learning_unit_to_postpone(queryset.filter(learning_container_year__isnull=False))
         count = len(result)
         display_success_messages(
             request, ngettext(
@@ -193,6 +193,16 @@ class LearningUnitYear(SerializableModel, ExtraManagerLearningUnitYear):
                     filter(None, [self.learning_container_year.common_title, self.specific_title]))
             return complete_title
         return ""
+
+    @property
+    def complete_title_english(self):
+        complete_title_english = self.specific_title_english
+        if self.learning_container_year:
+            complete_title_english = ' '.join(filter(None, [
+                self.learning_container_year.common_title_english,
+                self.specific_title_english,
+            ]))
+        return complete_title_english
 
     @property
     def container_common_title(self):

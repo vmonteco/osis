@@ -25,6 +25,7 @@
 ##############################################################################
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
+from ordered_model.models import OrderedModel
 
 from base.models.abstracts.abstract_education_group_achievement import AbstractEducationGroupAchievement, \
     AbstractEducationGroupAchievementAdmin
@@ -48,7 +49,7 @@ class EducationGroupDetailedAchievement(AbstractEducationGroupAchievement):
     )
     order_with_respect_to = ('education_group_achievement',)
 
-    class Meta:
+    class Meta(OrderedModel.Meta):
         unique_together = ("code_name", "education_group_achievement")
         verbose_name = _("education group detailed achievement")
 
