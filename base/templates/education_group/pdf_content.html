@@ -158,11 +158,16 @@
                     {% trans 'For approval' %}
                 </div>
             {% endif %}
+            <br>&emsp;
             <br>
-            <br>
-            <div style="margin-left: 50px;">
+            <div style="display: inline;margin-left: 50px;">
                 {% trans "Student's signature"  %}
             </div>
+            {% if root.is_minor %}
+                <div style="display: inline;margin-left: 267px;">
+                    {{ program_manager.person.full_name }}
+                </div>
+            {% endif %}
         </div>
     </div>
 </div>
