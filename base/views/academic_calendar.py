@@ -36,7 +36,8 @@ from base.models.academic_calendar import AcademicCalendar
 from base.models.enums import academic_calendar_type
 from base.models.enums.academic_calendar_type import ACADEMIC_CATEGORY, PROJECT_CATEGORY
 from base.models.utils.utils import get_object_or_none
-# from base.views import common
+from base.views import common
+from base.views.common_classes import RulesRequiredMixin
 from . import layout
 
 
@@ -169,7 +170,7 @@ def can_delete_academic_calendar(user, academic_calendar):
     return user.is_superuser()
 
 
-class AcademicCalendarDelete(DeleteView):
+class AcademicCalendarDelete(DeleteView, RulesRequiredMixin):
     success_message = "The event has been deleted successfully"
     model = AcademicCalendar
 
@@ -182,5 +183,5 @@ class AcademicCalendarDelete(DeleteView):
 
     def delete(self, request, *args, **kwargs):
         result = super().delete(request, *args, **kwargs)
-        # common.display_success_messages(request, _(self.success_message))
+        common.display_success_messages(request, _(self.success_message))
         return result
