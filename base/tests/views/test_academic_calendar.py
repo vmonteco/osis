@@ -27,13 +27,16 @@ import datetime
 from unittest import mock
 
 from django.core.urlresolvers import reverse
+from django.http import HttpResponseForbidden
 from django.test import TestCase, RequestFactory
 
 from base.forms.academic_calendar import AcademicCalendarForm
+from base.models.academic_calendar import AcademicCalendar
 from base.models.academic_year import AcademicYear
 from base.models.enums import academic_calendar_type
 from base.tests.factories.academic_calendar import AcademicCalendarFactory
 from base.tests.factories.academic_year import AcademicYearFactory
+from base.tests.factories.person import PersonFactory
 from base.tests.factories.user import SuperUserFactory
 from base.views.academic_calendar import academic_calendars, academic_calendar_form
 
@@ -215,4 +218,50 @@ class AcademicCalendarViewTestCase(TestCase):
 
         self.assertTrue(mock_render.called)
         request, template, context = mock_render.call_args[0]
-        self.assertEqual(template, 'academic_calendar.html')
+        self.assertEqual(template, 'academic_calendar/academic_calendar.html')
+
+
+class AcademicCalendarDeleteTestCase(TestCase):
+    def setUp(self):
+        self.academic_years = [
+            AcademicYearFactory.build(
+                start_date=today.replace(year=today.year + i),
+                end_date=today.replace(year=today.year + 1 + i),
+                year=today.year + i
+            )
+            for i in range(7)
+        ]
+
+        self.academic_years[0].save()
+        for i in range(1, 7):
+            super(AcademicYear, self.academic_years[i]).save()
+
+        self.academic_calendars = [
+            AcademicCalendarFactory(academic_year=self.academic_years[i])
+            for i in range(7)
+        ]
+
+        self.user = SuperUserFactory()
+        self.person = PersonFactory(user=self.user)
+        self.client.force_login(self.person.user)
+        self.url = reverse('academic_calendar_delete', kwargs={'pk': self.academic_calendars[1].pk})
+
+    def test_academic_calendar_delete_not_superuser(self):
+        self.user.is_superuser = False
+        self.user.save()
+
+        response = self.client.post(self.url)
+
+        self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
+        self.assertTemplateUsed(response, "access_denied.html")
+
+    def test_academic_calendar_delete(self):
+        response = self.client.post(self.url)
+
+        self.assertRedirects(
+            response,
+            reverse('academic_calendars') + "?show_academic_events=on&show_project_events=on"
+        )
+
+        with self.assertRaises(AcademicCalendar.DoesNotExist):
+            self.academic_calendars[1].refresh_from_db()
