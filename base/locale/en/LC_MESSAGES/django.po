@@ -3881,10 +3881,33 @@ msgstr ""
 msgid "education group detailed achievement"
 msgstr ""
 
+msgid "on successful completion of this program, each student is able to"
+msgstr ""
+
+msgid "the program aims"
+msgstr ""
+
+msgid "additional informations"
+msgstr ""
+
+msgid "skills and achievements"
+msgstr ""
+
 msgid "academic events"
 msgstr ""
 
 msgid "project events"
+msgstr ""
+
+msgid "%(count)d learning unit has been postponed with success"
+msgid_plural "%(count)d learning units have been postponed with success"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "The following learning units ended with error"
+msgstr ""
+
+msgid "Apply postponement on learning unit year"
 msgstr ""
 
 msgid "Produce a customizable xls of learning units"

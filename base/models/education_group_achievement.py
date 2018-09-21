@@ -23,8 +23,9 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.utils.translation import ugettext_lazy as _
 from django.db import models
+from django.utils.translation import ugettext_lazy as _
+from ordered_model.models import OrderedModel
 
 from base.models.abstracts.abstract_achievement import AbstractAchievement, AbstractAchievementAdmin
 
@@ -47,7 +48,7 @@ class EducationGroupAchievement(AbstractAchievement):
     )
     order_with_respect_to = ('education_group_year', 'language')
 
-    class Meta:
+    class Meta(OrderedModel.Meta):
         unique_together = ("code_name", "education_group_year", "language")
         verbose_name = _("education group achievement")
 

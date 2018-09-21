@@ -85,6 +85,8 @@ urlpatterns = [
             ]))
         ])),
         url(r'^utilization/$', detail.EducationGroupUsing.as_view(), name='education_group_utilization'),
+        url(r'^skills_achievements/$', detail.EducationGroupSkillsAchievements.as_view(),
+            name='education_group_skills_achievements'),
         url(r'^admission_conditions/$',
             detail.EducationGroupYearAdmissionCondition.as_view(),
             name='education_group_year_admission_condition_edit'),

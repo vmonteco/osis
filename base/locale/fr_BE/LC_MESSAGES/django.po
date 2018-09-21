@@ -3888,11 +3888,34 @@ msgstr "Acquis d'apprentissage d'organisation de formation"
 msgid "education group detailed achievement"
 msgstr "Acquis d'apprentissage détaillé d'organisation de formation"
 
+msgid "on successful completion of this program, each student is able to"
+msgstr "au terme de ce programme, le diplômé est capable de"
+
+msgid "the program aims"
+msgstr "le programme vise"
+
+msgid "additional informations"
+msgstr "informations complémentaires"
+
+msgid "skills and achievements"
+msgstr "compétences et acquis"
+
 msgid "academic events"
 msgstr "événements académiques"
 
 msgid "project events"
 msgstr "événements projet"
+
+msgid "%(count)d learning unit has been postponed with success"
+msgid_plural "%(count)d learning units have been postponed with success"
+msgstr[0] "%(count)d unité d'enseignement a été reportée avec succès"
+msgstr[1] "%(count)d unitéq d'enseignement ont été reportées avec succès"
+
+msgid "The following learning units ended with error"
+msgstr "Les unités d'enseignement suivantes se sont terminées par une erreur"
+
+msgid "Apply postponement on learning unit year"
+msgstr "Appliquer le report sur les unités d'enseignement annualisées"
 
 msgid "Produce a customizable xls of learning units"
 msgstr "Produire une liste personnalisable des unités d'enseignement"
