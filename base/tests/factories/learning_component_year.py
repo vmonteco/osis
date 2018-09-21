@@ -45,3 +45,9 @@ class LearningComponentYearFactory(factory.django.DjangoModelFactory):
     hourly_volume_partial_q1 = None
     hourly_volume_partial_q2 = None
 
+    @factory.post_generation
+    def consistency_of_planned_classes(self, create, extracted, ** kwargs):
+        if self.hourly_volume_total_annual is None or self.hourly_volume_total_annual == 0:
+            self.planned_classes = 0
+        else:
+            self.planned_classes = 1
