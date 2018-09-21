@@ -30,7 +30,7 @@ from base.views.education_groups.group_element_year.read import pdf_content
 from base.views.education_groups.learning_unit import detail as learning_unit_detail, update as learning_unit_update
 from base.views.education_groups.select import education_group_select, learning_unit_select
 from . import search, create, detail, update, delete, group_element_year
-
+from .education_group_achievement.urls import urlpatterns as urlpatterns_achievement
 
 urlpatterns = [
 
@@ -85,8 +85,9 @@ urlpatterns = [
             ]))
         ])),
         url(r'^utilization/$', detail.EducationGroupUsing.as_view(), name='education_group_utilization'),
-        url(r'^skills_achievements/$', detail.EducationGroupSkillsAchievements.as_view(),
-            name='education_group_skills_achievements'),
+
+        url(r'^skills_achievements/', include(urlpatterns_achievement)),
+
         url(r'^admission_conditions/$',
             detail.EducationGroupYearAdmissionCondition.as_view(),
             name='education_group_year_admission_condition_edit'),

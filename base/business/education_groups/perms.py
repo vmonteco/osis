@@ -156,7 +156,7 @@ def get_education_group_year_eligible_management_entities(education_group):
         return [education_group.management_entity]
     else:
         eligible_entities = []
-        for group in group_element_year.find_by_child_branch(education_group).select_related('parent'):
+        for group in education_group.child_branch.all().select_related('parent'):
             eligible_entities = eligible_entities + get_education_group_year_eligible_management_entities(group.parent)
 
         return eligible_entities

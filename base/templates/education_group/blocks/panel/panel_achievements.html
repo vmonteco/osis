@@ -59,25 +59,28 @@
                     </div>
 
                     <div class="col-md-2">
-                        <div class="btn-group pull-right" role="group" aria-label="actions">
-                            <button type="submit" title="{% trans 'up' %}"  class="btn btn-default"
-                                    id="btn_operation_up_{{ achievement.id }}"
-                                    name="action" value="up" {% if forloop.counter0 == 0 %}disabled{% endif %} >
-                                <i class="fa fa-arrow-up"></i>
-                            </button>
+                        <form action="{% url "education_group_achievements_actions" parent.pk education_group_year.pk achievement.pk %}" method="post">
+                            {% csrf_token %}
+                            <div class="btn-group pull-right" role="group" aria-label="actions">
+                                <button type="submit" title="{% trans 'up' %}"  class="btn btn-default"
+                                        id="btn_operation_up_{{ achievement.id }}"
+                                        name="action" value="up" {% if forloop.counter0 == 0 %}disabled{% endif %} >
+                                    <i class="fa fa-arrow-up"></i>
+                                </button>
 
-                            <button type="submit" title="{% trans 'down' %}" class="btn btn-default"
-                                    id="btn_operation_down_{{ achievement.id }}"
-                                    name="action" value="down" {% if forloop.last %}disabled{% endif %}>
-                                <i class="fa fa-arrow-down"></i>
-                            </button>
+                                <button type="submit" title="{% trans 'down' %}" class="btn btn-default"
+                                        id="btn_operation_down_{{ achievement.id }}"
+                                        name="action" value="down" {% if forloop.last %}disabled{% endif %}>
+                                    <i class="fa fa-arrow-down"></i>
+                                </button>
 
-                            <button type="submit" title="{% trans 'delete' %}"  class="btn btn-default"
-                                    id="btn_operation_delete_{{ achievement.id }}"
-                                    name="action" value="delete">
-                                <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-                            </button>
-                        </div>
+                                <button type="submit" title="{% trans 'delete' %}"  class="btn btn-default"
+                                        id="btn_operation_delete_{{ achievement.id }}"
+                                        name="action" value="delete">
+                                    <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                                </button>
+                            </div>
+                        </form>
                     </div>
                 </div>
                 <br>
@@ -96,6 +99,8 @@
 
 
                                 <div class="col-md-2">
+                                    <form action="{% url "education_group_detailed_achievements_actions" parent.pk education_group_year.pk detail_achievement.pk %}" method="post">
+                                    {% csrf_token %}
                                     <div class="btn-group pull-right btn-group-sm" role="group" aria-label="actions">
                                         <button type="submit" title="{% trans 'up' %}"  class="btn btn-default"
                                                 id="btn_operation_up_{{ detail_achievement.id }}"
@@ -115,6 +120,8 @@
                                             <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
                                         </button>
                                     </div>
+                                </form>
+
                                 </div>
                             </div>
 
