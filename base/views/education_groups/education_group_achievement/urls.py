@@ -23,10 +23,10 @@
 #    see http://www.gnu.org/licenses/.
 #
 ############################################################################
-from django.conf.urls import url
+from django.conf.urls import url, include
 
-from base.views.education_groups.education_group_achievement.actions import EducationGroupAchievementsAction, \
-    EducationGroupDetailedAchievementsAction
+from base.views.education_groups.education_group_achievement.actions import EducationGroupAchievementAction, \
+    EducationGroupDetailedAchievementAction, UpdateEducationGroupAchievement, UpdateEducationGroupDetailedAchievement
 from base.views.education_groups.education_group_achievement.detail import EducationGroupSkillsAchievements
 
 urlpatterns = [
@@ -35,10 +35,23 @@ urlpatterns = [
         name='education_group_skills_achievements'),
 
     url(r'^actions/(?P<education_group_achievement_pk>[0-9]+)$',
-        EducationGroupAchievementsAction.as_view(),
+        EducationGroupAchievementAction.as_view(),
         name='education_group_achievements_actions'),
 
-    url(r'^detailed_actions/(?P<education_group_detail_achievement_pk>[0-9]+)$',
-        EducationGroupDetailedAchievementsAction.as_view(),
-        name='education_group_detailed_achievements_actions'),
+    url(r'^update/(?P<education_group_achievement_pk>[0-9]+)$',
+        UpdateEducationGroupAchievement.as_view(),
+        name='update_education_group_achievement'),
+
+    url(r'detailed/', include([
+        url(r'^actions/(?P<education_group_detail_achievement_pk>[0-9]+)$',
+            EducationGroupDetailedAchievementAction.as_view(),
+            name='education_group_detailed_achievements_actions'),
+
+        url(r'^update/(?P<education_group_detail_achievement_pk>[0-9]+)$',
+            UpdateEducationGroupDetailedAchievement.as_view(),
+            name='update_education_group_detailed_achievement'),
+
+    ]))
+
+
 ]

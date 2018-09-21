@@ -23,31 +23,48 @@
 #    see http://www.gnu.org/licenses/.
 #
 ############################################################################
+from ckeditor.widgets import CKEditorWidget
 from django import forms
-from django.urls import reverse_lazy, reverse
+from django.http import HttpResponseRedirect
+from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
-from django.views.generic import FormView
+from django.views.generic import FormView, UpdateView
 from django.views.generic.detail import SingleObjectMixin
 
 from base.models.education_group_achievement import EducationGroupAchievement
 from base.models.education_group_detailed_achievement import EducationGroupDetailedAchievement
 from base.views.common import display_error_messages
+from base.views.common_classes import AjaxTemplateMixin
 
 ACTION_CHOICES = [('up', 'up'), ('down', 'down'), ('delete', 'delete')]
+
+
+class EducationGroupAchievementForm(forms.ModelForm):
+    french_text = forms.CharField(widget=CKEditorWidget(config_name='minimal'), required=False)
+    english_text = forms.CharField(widget=CKEditorWidget(config_name='minimal'), required=False)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        print(self.data)
+
+    class Meta:
+        model = EducationGroupAchievement
+        fields = ["code_name", "french_text", "english_text"]
+
+
+class EducationGroupDetailedAchievementForm(EducationGroupAchievementForm):
+    class Meta(EducationGroupAchievementForm.Meta):
+        model = EducationGroupDetailedAchievement
 
 
 class ActionForm(forms.Form):
     action = forms.ChoiceField(choices=ACTION_CHOICES, required=True)
 
 
-class EducationGroupAchievementsAction(SingleObjectMixin, FormView):
-    """ Redirect actions to corresponding views """
-
+class EducationGroupAchievementMixin(SingleObjectMixin):
     model = EducationGroupAchievement
     context_object_name = "education_group_achievement"
     pk_url_kwarg = 'education_group_achievement_pk'
-    form_class = ActionForm
-    http_method_names = ('post',)
 
     def get_success_url(self):
         return reverse(
@@ -57,6 +74,17 @@ class EducationGroupAchievementsAction(SingleObjectMixin, FormView):
                 self.kwargs['education_group_year_id'],
             ]
         )
+
+
+class EducationGroupDetailedAchievementMixin(EducationGroupAchievementMixin):
+    model = EducationGroupDetailedAchievement
+    context_object_name = "education_group_detail_achievement"
+    pk_url_kwarg = 'education_group_detail_achievement_pk'
+
+
+class EducationGroupAchievementAction(EducationGroupAchievementMixin, FormView):
+    form_class = ActionForm
+    http_method_names = ('post',)
 
     def form_valid(self, form):
         if form.cleaned_data['action'] == 'up':
@@ -69,12 +97,17 @@ class EducationGroupAchievementsAction(SingleObjectMixin, FormView):
 
     def form_invalid(self, form):
         display_error_messages(self.request, _("Invalid action"))
-        return super().form_invalid(form)
+        return HttpResponseRedirect(self.get_success_url())
 
 
-class EducationGroupDetailedAchievementsAction(EducationGroupAchievementsAction):
-    """ Redirect actions to corresponding views """
+class UpdateEducationGroupAchievement(AjaxTemplateMixin, EducationGroupAchievementMixin, UpdateView):
+    template_name = "education_group/blocks/form/update_achievement.html"
+    form_class = EducationGroupAchievementForm
 
-    model = EducationGroupDetailedAchievement
-    context_object_name = "education_group_detail_achievement"
-    pk_url_kwarg = 'education_group_detail_achievement_pk'
+
+class UpdateEducationGroupDetailedAchievement(EducationGroupDetailedAchievementMixin, UpdateEducationGroupAchievement):
+    pass
+
+
+class EducationGroupDetailedAchievementAction(EducationGroupDetailedAchievementMixin, EducationGroupAchievementAction):
+    pass
