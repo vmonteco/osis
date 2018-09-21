@@ -377,6 +377,7 @@ def _generate_xls_build_parameter(xls_data, user):
             xls_build.HEADER_TITLES_KEY: EDUCATION_GROUP_TITLES,
             xls_build.WORKSHEET_TITLE_KEY: _(WORKSHEET_TITLE),
             xls_build.STYLED_CELLS: None,
+            xls_build.COLORED_ROWS: None,
         }]
     }
 
@@ -391,6 +392,7 @@ def _generate_xls_administrative_data_build_parameter(xls_data, user):
             xls_build.HEADER_TITLES_KEY: _get_translated_header_titles(),
             xls_build.WORKSHEET_TITLE_KEY: _(WORKSHEET_TITLE_ADMINISTRATIVE),
             xls_build.STYLED_CELLS: None,
+            xls_build.COLORED_ROWS: None,
         }]
     }
 
