@@ -26,6 +26,7 @@
 import datetime
 
 from django.contrib.auth.decorators import login_required, permission_required
+from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
@@ -168,22 +169,26 @@ def build_url_academic_calendars(request):
 
 
 def can_delete_academic_calendar(user, academic_calendar):
-    return user.is_superuser()
+    if not user.is_superuser:
+        raise PermissionDenied
+    return True
 
 
-class AcademicCalendarDelete(DeleteView, RulesRequiredMixin):
-    success_message = "The event \"%(event)s\" has been deleted successfully"
+class AcademicCalendarDelete(RulesRequiredMixin, DeleteView):
     model = AcademicCalendar
 
     # RulesRequiredMixin
     raise_exception = True
     rules = [can_delete_academic_calendar]
 
+    def _call_rule(self, rule):
+        return rule(self.request.user, self.get_object())
+
     def get_success_url(self):
         return build_url_academic_calendars(self.request)
 
     def delete(self, request, *args, **kwargs):
-        success_message = _(self.success_message) % {
+        success_message = _("The event \"%(event)s\" has been deleted successfully") % {
             "event": get_object_or_404(AcademicCalendar, pk=kwargs.get('pk'))
         }
         result = super().delete(request, *args, **kwargs)
