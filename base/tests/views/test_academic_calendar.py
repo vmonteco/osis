@@ -223,28 +223,16 @@ class AcademicCalendarViewTestCase(TestCase):
 
 class AcademicCalendarDeleteTestCase(TestCase):
     def setUp(self):
-        self.academic_years = [
-            AcademicYearFactory.build(
-                start_date=today.replace(year=today.year + i),
-                end_date=today.replace(year=today.year + 1 + i),
-                year=today.year + i
-            )
-            for i in range(7)
-        ]
-
-        self.academic_years[0].save()
-        for i in range(1, 7):
-            super(AcademicYear, self.academic_years[i]).save()
-
-        self.academic_calendars = [
-            AcademicCalendarFactory(academic_year=self.academic_years[i])
-            for i in range(7)
-        ]
-
+        academic_year = AcademicYearFactory(
+                start_date=today.replace(year=today.year),
+                end_date=today.replace(year=today.year + 1),
+                year=today.year
+        )
+        self.academic_calendar = AcademicCalendarFactory(academic_year=academic_year)
         self.user = SuperUserFactory()
         self.person = PersonFactory(user=self.user)
         self.client.force_login(self.person.user)
-        self.url = reverse('academic_calendar_delete', kwargs={'pk': self.academic_calendars[1].pk})
+        self.url = reverse('academic_calendar_delete', kwargs={'pk': self.academic_calendar.pk})
 
     def test_academic_calendar_delete_not_superuser(self):
         self.user.is_superuser = False
@@ -264,4 +252,4 @@ class AcademicCalendarDeleteTestCase(TestCase):
         )
 
         with self.assertRaises(AcademicCalendar.DoesNotExist):
-            self.academic_calendars[1].refresh_from_db()
+            self.academic_calendar.refresh_from_db()
