@@ -38,7 +38,6 @@ from openpyxl.styles import Alignment, Style, PatternFill, Color, Font
 from base.models.enums.proposal_type import ProposalType
 from openpyxl.utils import get_column_letter
 from collections import defaultdict
-from base.models.education_group_year import EducationGroupYear
 # List of key that a user can modify
 VOLUMES_INITIALIZED = {'VOLUME_TOTAL': 0, 'PLANNED_CLASSES': 0, 'VOLUME_Q1': 0, 'VOLUME_Q2': 0}
 
