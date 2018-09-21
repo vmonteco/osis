@@ -3941,3 +3941,6 @@ msgstr "Proposition de transformation"
 
 msgid "Transformation/modification proposal"
 msgstr "Proposition de transform. - modif."
+
+msgid "fac. level"
+msgstr "niveau fac."

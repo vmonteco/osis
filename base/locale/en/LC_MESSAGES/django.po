@@ -3934,3 +3934,6 @@ msgstr ""
 
 msgid "Transformation/modification proposal"
 msgstr ""
+
+msgid "fac. level"
+msgstr ""

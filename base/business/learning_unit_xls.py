@@ -27,8 +27,7 @@
 from django.utils.translation import ugettext_lazy as _
 
 from base import models as mdl_base
-from base.business.learning_unit import LEARNING_UNIT_TITLES_PART1, \
-    LEARNING_UNIT_TITLES_PART2,  XLS_DESCRIPTION, XLS_FILENAME, \
+from base.business.learning_unit import LEARNING_UNIT_TITLES_PART2,  XLS_DESCRIPTION, XLS_FILENAME, \
     WORKSHEET_TITLE, get_same_container_year_components, get_entity_acronym
 from base.business.xls import get_name_or_username
 from osis_common.document import xls_build
@@ -67,6 +66,19 @@ WRAP_TEXT_STYLE = Style(alignment=Alignment(wrapText=True, vertical="top"), )
 WITH_ATTRIBUTIONS = 'with_attributions'
 WITH_GRP = 'with_grp'
 
+LEARNING_UNIT_TITLES_PART1 = [
+    str(_('code')),
+    str(_('academic_year_small')),
+    str(_('title')),
+    str(_('type')),
+    str(_('subtype')),
+    "{} ({})".format(_('requirement_entity_small'), _('fac. level')),
+    str(_('proposal_type')),
+    str(_('proposal_status')),
+    str(_('credits')),
+    str(_('allocation_entity_small')),
+    str(_('title_in_english')),
+]
 
 def prepare_xls_content(learning_units,
                         with_grp=False,
@@ -305,7 +317,7 @@ def _get_data_part1(learning_unit_yr):
         # FIXME Condition to remove when the LearningUnitYear.learning_continer_year_id will be null=false
         if learning_unit_yr.learning_container_year else "",
         xls_build.translate(learning_unit_yr.subtype),
-        get_entity_acronym(learning_unit_yr.entities.get('REQUIREMENT_ENTITY')),
+        _get_entity_faculty_acronym(learning_unit_yr.entities.get('REQUIREMENT_ENTITY'), learning_unit_yr.academic_year),
         xls_build.translate(proposal.type) if proposal else '',
         xls_build.translate(proposal.state) if proposal else '',
         learning_unit_yr.credits,
@@ -313,3 +325,10 @@ def _get_data_part1(learning_unit_yr):
         learning_unit_yr.complete_title_english,
     ]
     return lu_data_part1
+
+
+def _get_entity_faculty_acronym(an_entity, academic_yr):
+    if an_entity:
+        faculty_entity = an_entity.find_faculty_version(academic_yr)
+        return faculty_entity.acronym if faculty_entity else None
+    return None
