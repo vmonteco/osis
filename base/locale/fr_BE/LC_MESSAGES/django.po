@@ -3967,3 +3967,9 @@ msgstr "Proposition de transform. - modif."
 
 msgid "fac. level"
 msgstr "niveau fac."
+
+msgid "Are you sure you want to delete the event"
+msgstr "Êtes-vous certain de vouloir supprimer l'événement"
+
+msgid "The event \"%(event)s\" has been deleted successfully"
+msgstr "L'événement \"%(event)s\" a été supprimé avec succès"
