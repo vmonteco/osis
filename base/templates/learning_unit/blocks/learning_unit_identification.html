@@ -1,4 +1,6 @@
 {% load bootstrap3 %}
+{% load i18n %}
+{% load l10n %}
 
 <div class="row">
     {% bootstrap_field learning_unit_year_form.acronym form_group_class="acronym-group col-md-4" %}
@@ -11,7 +13,12 @@
 <br>
 
 <div class="row">
-    {% bootstrap_field learning_unit_year_form.credits form_group_class="col-md-3" field_class="ignore-js-validator" %}
+    <div class="col-md-3">
+        <label>{% trans 'credits'%}</label><br>
+        <input type="number" step="0.5" id='id_credits' name='credits'
+               value="{{ learning_unit_year_form.credits.value|floatformat }}"
+               class="form-control ignore-js-validator"></input>
+    </div>
     {% bootstrap_field learning_unit_year_form.periodicity form_group_class="col-md-3" %}
     {% bootstrap_field learning_unit_year_form.status form_group_class="col-md-2" %}
     {% bootstrap_field learning_unit_year_form.language form_group_class="col-md-4" %}

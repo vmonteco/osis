@@ -60,7 +60,7 @@
                             </td>
                             <td>{{ external_learning_unit_yr.learning_unit_year.complete_title | default_if_none:'' }}</td>
                             <td>{{ external_learning_unit_yr.learning_unit_year.campus.organization | default_if_none:''}}</td>
-                            <td>{{ external_learning_unit_yr.external_credits | default_if_none:''}}</td>
+                            <td>{{ external_learning_unit_yr.external_credits.normalize | default_if_none:''}}</td>
                             <td>
                                 {% if external_learning_unit_yr.learning_unit_year.status %}
                                     <span class="glyphicon glyphicon-ok-circle" aria-hidden="true" style="color:green;"
