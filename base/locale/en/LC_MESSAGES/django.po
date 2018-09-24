@@ -3967,5 +3967,5 @@ msgstr ""
 msgid "The event \"%(event)s\" has been deleted successfully"
 msgstr ""
 
-msgid "name of the teacher responsible"
+msgid "Name of the teacher responsible"
 msgstr ""

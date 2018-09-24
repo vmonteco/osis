@@ -3974,5 +3974,5 @@ msgstr "Êtes-vous certain de vouloir supprimer l'événement"
 msgid "The event \"%(event)s\" has been deleted successfully"
 msgstr "L'événement \"%(event)s\" a été supprimé avec succès"
 
-msgid "name of the teacher responsible"
+msgid "Name of the teacher responsible"
 msgstr "Nom du professeur responsable de programme"
