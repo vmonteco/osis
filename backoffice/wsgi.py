@@ -79,6 +79,5 @@ if hasattr(settings, 'QUEUES') and settings.QUEUES:
         except (ConnectionClosed, ChannelClosed, AMQPConnectionError, ConnectionError) as e:
             LOGGER.exception("Couldn't connect to the QueueServer")
 
-if hasattr(settings, 'ENABLED_CELERY') and settings.ENABLED_CELERY:
-    # Ensure that celery app is loaded
-    from .celery import app as celery_app
+# Ensure that celery app is loaded
+from .celery import app as celery_app
