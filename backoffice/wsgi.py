@@ -78,3 +78,6 @@ if hasattr(settings, 'QUEUES') and settings.QUEUES:
                                                      send_json_scores_sheets_to_response_queue).start()
         except (ConnectionClosed, ChannelClosed, AMQPConnectionError, ConnectionError) as e:
             LOGGER.exception("Couldn't connect to the QueueServer")
+
+# Ensure that celery app is loaded
+from .celery import app as celery_app
