@@ -202,7 +202,7 @@ class LearningUnitYearTest(TestCase):
         common_title = 'Zoology'
 
         luy = LearningUnitYearFactory(specific_title=specific_title, learning_container_year__common_title=common_title)
-        self.assertEqual(luy.complete_title, '{} {}'.format(common_title, specific_title))
+        self.assertEqual(luy.complete_title, '{} - {}'.format(common_title, specific_title))
 
     def test_common_title_property(self):
         self.assertEqual(self.learning_unit_year.container_common_title,

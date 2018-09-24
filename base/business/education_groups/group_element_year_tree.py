@@ -42,9 +42,9 @@ class NodeBranchJsTree:
     def generate_children(self):
         result = []
         for group_element_year in self.get_queryset():
-            if group_element_year.child_branch:
+            if group_element_year.child_branch and group_element_year.child_branch != self.root:
                 result.append(NodeBranchJsTree(self.root, group_element_year))
-            else:
+            elif group_element_year.child_leaf:
                 result.append(NodeLeafJsTree(self.root, group_element_year))
 
         return result

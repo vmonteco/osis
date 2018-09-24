@@ -184,3 +184,8 @@ input[type="text"].ui-autocomplete-input:disabled ~ .results_on_deck .ui-icon{
 .navbar-fixed-bottom {
     z-index: 10;
 }
+
+/* Styles for dhtmlxGantt (calendar) */
+.projectRow{
+  	background-color: lightgray!important
+}

@@ -24,7 +24,6 @@
 #
 ##############################################################################
 from django.core.exceptions import PermissionDenied
-from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _, pgettext
 
 from base.models import group_element_year
@@ -79,7 +78,7 @@ def is_education_group_creation_period_opened(education_group, raise_exception=F
         can_raise_exception(raise_exception, result, "The education group edition period is not open.")
 
     # During the edition period, the manager can only edit the N+1 education_group_year.
-    elif education_group.academic_year != ac.get().academic_year.next():
+    elif education_group and education_group.academic_year != ac.get().academic_year.next():
         can_raise_exception(
             raise_exception, result, "this education group is not editable during this period."
         )

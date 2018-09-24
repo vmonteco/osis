@@ -26,7 +26,9 @@
 from django.contrib.auth.models import Permission
 from django.test import TestCase
 from django.urls import reverse
+from django.conf import settings
 
+from base.tests.factories.education_group_achievement import EducationGroupAchievementFactory
 from base.tests.factories.education_group_year import EducationGroupYearFactory
 from base.tests.factories.group_element_year import GroupElementYearFactory
 from base.tests.factories.learning_component_year import LearningComponentYearFactory
@@ -34,6 +36,11 @@ from base.tests.factories.learning_unit_component import LearningUnitComponentFa
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.user import UserFactory
+from base.views.education_groups.detail import CMS_LABEL_CERTIFICAT_AIM, CMS_LABEL_ADDITIONAL_INFORMATION
+from cms.enums import entity_name
+from cms.tests.factories.translated_text import TranslatedTextFactory
+from reference.models.language import FR_CODE_LANGUAGE, EN_CODE_LANGUAGE
+from reference.tests.factories.language import LanguageFactory
 
 
 class TestDetail(TestCase):
@@ -164,3 +171,73 @@ class TestContent(TestCase):
         self.assertIn(self.group_element_year_2, geys)
         self.assertIn(self.group_element_year_3, geys)
         self.assertNotIn(self.group_element_year_without_container, geys)
+
+
+class TestEducationGroupSkillsAchievements(TestCase):
+    def setUp(self):
+
+        self.education_group_year = EducationGroupYearFactory()
+
+        self.user = UserFactory()
+        self.person = PersonFactory(user=self.user)
+        self.user.user_permissions.add(Permission.objects.get(codename="can_access_education_group"))
+        self.client.force_login(self.user)
+
+    def _call_url_as_http_get(self):
+        response = self.client.get(
+            reverse("education_group_skills_achievements",
+                    args=[self.education_group_year.pk, self.education_group_year.pk])
+        )
+        self.assertEqual(response.status_code, 200)
+        return response
+
+    def test_get__achievements(self):
+        achievement = EducationGroupAchievementFactory(education_group_year=self.education_group_year)
+
+        response = self._call_url_as_http_get()
+
+        self.assertEqual(
+            response.context["education_group_achievements"][0], achievement
+        )
+
+    def test_get__certificate_aim(self):
+        certificate_aim_french = TranslatedTextFactory(
+            entity=entity_name.OFFER_YEAR,
+            reference=self.education_group_year.id,
+            text_label__label=CMS_LABEL_CERTIFICAT_AIM,
+            language=settings.LANGUAGE_CODE_FR,
+        )
+        certificate_aim_english = TranslatedTextFactory(
+            entity=entity_name.OFFER_YEAR,
+            reference=self.education_group_year.id,
+            text_label__label=CMS_LABEL_CERTIFICAT_AIM,
+            language=settings.LANGUAGE_CODE_EN,
+        )
+        response = self._call_url_as_http_get()
+        self.assertEqual(
+            response.context["certificate_aim"][0], certificate_aim_french
+        )
+        self.assertEqual(
+            response.context["certificate_aim"][1], certificate_aim_english
+        )
+
+    def test_get__additional_informations(self):
+        additional_infos_french = TranslatedTextFactory(
+            entity=entity_name.OFFER_YEAR,
+            reference=self.education_group_year.id,
+            text_label__label=CMS_LABEL_ADDITIONAL_INFORMATION,
+            language=settings.LANGUAGE_CODE_FR,
+        )
+        additional_infos_english = TranslatedTextFactory(
+            entity=entity_name.OFFER_YEAR,
+            reference=self.education_group_year.id,
+            text_label__label=CMS_LABEL_ADDITIONAL_INFORMATION,
+            language=settings.LANGUAGE_CODE_EN,
+        )
+        response = self._call_url_as_http_get()
+        self.assertEqual(
+            response.context["additional_informations"][0], additional_infos_french
+        )
+        self.assertEqual(
+            response.context["additional_informations"][1], additional_infos_english
+        )

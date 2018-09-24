@@ -1983,6 +1983,12 @@ msgstr "Submission of exam scores"
 msgid "TEACHING_CHARGE_APPLICATION"
 msgstr "Teaching charge application"
 
+msgid "TESTING"
+msgstr "Testing"
+
+msgid "RELEASE"
+msgstr "Release"
+
 msgid "field_is_required"
 msgstr "This field is required"
 
@@ -3812,10 +3818,10 @@ msgstr ""
 msgid "Add potential courses"
 msgstr ""
 
-msgid "Made in ..................."
+msgid "Made in"
 msgstr ""
 
-msgid "on ......./......./......."
+msgid "on"
 msgstr ""
 
 msgid "For approval"
@@ -3864,4 +3870,102 @@ msgid "Opening to Adults"
 msgstr ""
 
 msgid "comment (internal)"
+msgstr ""
+
+msgid "activities in English"
+msgstr ""
+
+msgid "education group achievement"
+msgstr ""
+
+msgid "education group detailed achievement"
+msgstr ""
+
+msgid "on successful completion of this program, each student is able to"
+msgstr ""
+
+msgid "the program aims"
+msgstr ""
+
+msgid "additional informations"
+msgstr ""
+
+msgid "skills and achievements"
+msgstr ""
+
+msgid "academic events"
+msgstr ""
+
+msgid "project events"
+msgstr ""
+
+msgid "%(count)d learning unit has been postponed with success"
+msgid_plural "%(count)d learning units have been postponed with success"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "The following learning units ended with error"
+msgstr ""
+
+msgid "Apply postponement on learning unit year"
+msgstr ""
+
+msgid "Produce a customizable xls of learning units"
+msgstr ""
+
+msgid "Configurable list of learning units"
+msgstr ""
+
+msgid "Do you want to export the following informations"
+msgstr ""
+
+msgid "Programs/gathering"
+msgstr ""
+
+msgid "List of teachers"
+msgstr ""
+
+msgid "Beg. of attribution"
+msgstr ""
+
+msgid "Attribution duration"
+msgstr ""
+
+msgid "Attrib. vol1"
+msgstr ""
+
+msgid "Attrib. vol2"
+msgstr ""
+
+msgid "Absolute credits"
+msgstr ""
+
+msgid "Hourly vol."
+msgstr ""
+
+msgid "1st quadri"
+msgstr ""
+
+msgid "2nd quadri"
+msgstr ""
+
+msgid "Suppression proposal"
+msgstr ""
+
+msgid "Transformation proposal"
+msgstr ""
+
+msgid "Transformation/modification proposal"
+msgstr ""
+
+msgid "fac. level"
+msgstr ""
+
+msgid "Are you sure you want to delete the event"
+msgstr ""
+
+msgid "The event \"%(event)s\" has been deleted successfully"
+msgstr ""
+
+msgid "Name of the teacher responsible"
 msgstr ""

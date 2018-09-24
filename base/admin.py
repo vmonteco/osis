@@ -26,7 +26,7 @@
 from django.contrib import admin
 
 from base.models import *
-from base.models import validation_rule
+from base.models import validation_rule, education_group_achievement, education_group_detailed_achievement
 
 admin.site.register(academic_calendar.AcademicCalendar,
                     academic_calendar.AcademicCalendarAdmin)
@@ -207,3 +207,9 @@ admin.site.register(authorized_relationship.AuthorizedRelationship,
 
 admin.site.register(validation_rule.ValidationRule,
                     validation_rule.ValidationRuleAdmin)
+
+admin.site.register(education_group_achievement.EducationGroupAchievement,
+                    education_group_achievement.EducationGroupAchievementAdmin)
+
+admin.site.register(education_group_detailed_achievement.EducationGroupDetailedAchievement,
+                    education_group_detailed_achievement.EducationGroupDetailedAchievementAdmin)
