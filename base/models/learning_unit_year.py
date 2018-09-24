@@ -186,19 +186,16 @@ class LearningUnitYear(SerializableModel, ExtraManagerLearningUnitYear):
 
     @property
     def complete_title(self):
-        if self.specific_title:
-            complete_title = self.specific_title
-            if self.learning_container_year:
-                complete_title = ' - '.join(
-                    filter(None, [self.learning_container_year.common_title, self.specific_title]))
-            return complete_title
-        return ""
+        complete_title = self.specific_title
+        if self.learning_container_year:
+            complete_title = ' - '.join(filter(None, [self.learning_container_year.common_title, self.specific_title]))
+        return complete_title
 
     @property
     def complete_title_english(self):
         complete_title_english = self.specific_title_english
         if self.learning_container_year:
-            complete_title_english = ' '.join(filter(None, [
+            complete_title_english = ' - '.join(filter(None, [
                 self.learning_container_year.common_title_english,
                 self.specific_title_english,
             ]))
