@@ -3963,3 +3963,12 @@ msgstr ""
 
 msgid "fac. level"
 msgstr ""
+
+msgid "Are you sure you want to delete the event"
+msgstr ""
+
+msgid "The event \"%(event)s\" has been deleted successfully"
+msgstr ""
+
+msgid "Name of the teacher responsible"
+msgstr ""

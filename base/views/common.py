@@ -38,7 +38,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from base import models as mdl
 from base.models.utils import native
-from base.views.academic_calendar import build_url_academic_calendars
+from base.views import academic_calendar
 from . import layout
 
 ITEMS_PER_PAGE = 25
@@ -164,7 +164,6 @@ def academic_year(request):
         "academic_year.html",
         {
             'section': 'academic_year',
-            'url_academic_calendars': build_url_academic_calendars(request),
         }
     )
 

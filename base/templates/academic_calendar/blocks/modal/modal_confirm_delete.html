@@ -1,7 +1,5 @@
-{% extends "layout.html" %}
-{% load staticfiles %}
-{% load i18n %}
-
+{% extends 'blocks/modal/generic_modal.html' %}
+{% load i18n bootstrap3 %}
 {% comment "License" %}
 * OSIS stands for Open Student Information System. It's an application
 * designed to manage the core business of higher education institutions,
@@ -26,30 +24,20 @@
 * see http://www.gnu.org/licenses/.
 {% endcomment %}
 
-{% block breadcrumb %}
-  <li><a href="{% url 'catalog' %}" id="lnk_catalog">{% trans 'formation_catalogue'%}</a></li>
-  <li class="active">{% trans 'academic_year' %}</li>
-{% endblock %}
-{% block content %}
-<div class="page-header">
-    <h2>{% trans 'academic_year'%}</h2>
-</div>
-<div class="panel panel-default">
-    <div class="panel-body">
-        <div class="row">
-            {% if perms.base.can_access_academic_calendar %}
-            <div class="col-md-1"><i class="fa fa-map" style="font-size: 400%; color: #6699FF;"></i></div>
-            <div class="col-md-5">
-                <h4 class="media-heading"><a href="{% url "academic_calendars" %}" id="lnk_academic_calendars">{% trans 'academic_calendar'%}</a></h4>
-                <p>{% trans 'academic_calendar_management'%}</p>
-            </div>
-            {% endif %}
-            <div class="col-md-6">
+{% block modal_id %}modalDeleteCalendar{% endblock %}
 
-            </div>
-        </div>
-        <br>
-
-    </div>
-</div>
+{% block modal_content %}
+    <form method="POST" action="{% url 'academic_calendar_delete' pk=academic_calendar.pk %}">
+        {% csrf_token %}
+        <div class="modal-body">
+            {% trans "Are you sure you want to delete the event" %}"{{ academic_calendar }}" ?
+         </div>
+         <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">{% trans "cancel" %}</button>
+            <button type="submit" class="btn btn-danger">
+                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                {% trans "delete" %}
+            </button>
+         </div>
+    </form>
 {% endblock %}
