@@ -199,10 +199,6 @@ class AcademicCalendarViewTestCase(TestCase):
 
         self.assertEqual(template, 'academic_calendar/academic_calendar_form.html')
         self.assertIsInstance(context['form'], AcademicCalendarForm)
-        self.assertEqual(
-            context['url_academic_calendars'],
-            reverse('academic_calendars') + "?show_academic_events=on&show_project_events=on"
-        )
 
         data = {
             "academic_year": self.academic_years[1].pk,
@@ -248,7 +244,7 @@ class AcademicCalendarDeleteTestCase(TestCase):
 
         self.assertRedirects(
             response,
-            reverse('academic_calendars') + "?show_academic_events=on&show_project_events=on"
+            reverse('academic_calendars')
         )
 
         with self.assertRaises(AcademicCalendar.DoesNotExist):
