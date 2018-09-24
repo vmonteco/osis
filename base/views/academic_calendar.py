@@ -38,6 +38,7 @@ from base.models.academic_calendar import AcademicCalendar
 from base.models.enums import academic_calendar_type
 from base.models.enums.academic_calendar_type import ACADEMIC_CATEGORY, PROJECT_CATEGORY
 from base.models.utils.utils import get_object_or_none
+from base.utils.cache import cache_filter
 from base.views import common
 from base.views.common_classes import RulesRequiredMixin
 from . import layout
@@ -94,12 +95,13 @@ def _get_undated_calendars(academic_calendar_list):
 
 @login_required
 @permission_required('base.can_access_academic_calendar', raise_exception=True)
+@cache_filter(show_academic_events='on', show_project_events='on')
 def academic_calendars(request):
     # TODO :: Use a Django form instead of hardcoded form in template academic_calendars.html
     academic_year = request.GET.get('academic_year') or mdl.academic_year.starting_academic_year().pk
     academic_year = int(academic_year)
     academic_years = mdl.academic_year.find_academic_years()
-
+    print(request.GET)
     show_academic_events = request.GET.get('show_academic_events')
     show_project_events = request.GET.get('show_project_events') and request.user.is_superuser
 
@@ -132,7 +134,6 @@ def academic_calendar_read(request, academic_calendar_id):
         "academic_calendar/academic_calendar.html",
         {
             'academic_calendar': academic_calendar,
-            'url_academic_calendars': build_url_academic_calendars(request),
         }
     )
 
@@ -155,17 +156,8 @@ def academic_calendar_form(request, academic_calendar_id):
         "academic_calendar/academic_calendar_form.html",
         {
             'form': academic_cal_form,
-            'url_academic_calendars': build_url_academic_calendars(request),
         }
     )
-
-
-def build_url_academic_calendars(request):
-    url_academic_calendars = reverse('academic_calendars') + "?show_academic_events=on"
-    if request.user.is_superuser:
-        url_academic_calendars += "&show_project_events=on"
-
-    return url_academic_calendars
 
 
 def can_delete_academic_calendar(user, academic_calendar):
@@ -185,7 +177,7 @@ class AcademicCalendarDelete(RulesRequiredMixin, DeleteView):
         return rule(self.request.user, self.get_object())
 
     def get_success_url(self):
-        return build_url_academic_calendars(self.request)
+        return reverse('academic_calendars')
 
     def delete(self, request, *args, **kwargs):
         success_message = _("The event \"%(event)s\" has been deleted successfully") % {
