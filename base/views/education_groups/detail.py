@@ -350,5 +350,3 @@ class EducationGroupYearAdmissionCondition(EducationGroupGenericDetailView):
         })
 
         return context
-
-
