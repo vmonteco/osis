@@ -305,10 +305,10 @@ def get_progress_by_learning_unit_years_and_offer_years(user,
         .annotate(total_exam_enrollments=Count('id'),
                   learning_unit_enrollment__learning_unit_year__acronym=
                   F('learning_unit_enrollment__learning_unit_year__acronym'),
-                  learning_unit_enrollment__learning_unit_year__title= Concat(
-                      'learning_unit_enrollment__learning_unit_year__learning_container_year__common_title',
-                      'learning_unit_enrollment__learning_unit_year__specific_title'
-                  ),
+                  learning_unit_enrollment__learning_unit_year__specific_title=
+                             F('learning_unit_enrollment__learning_unit_year__specific_title'),
+                  learning_unit_enrollment__learning_unit_year__learning_container_year__common_title=
+                             F('learning_unit_enrollment__learning_unit_year__learning_container_year__common_title'),
                   exam_enrollments_encoded=Sum(Case(
                       When(Q(score_final__isnull=False)|Q(justification_final__isnull=False),then=1),
                       default=0,
