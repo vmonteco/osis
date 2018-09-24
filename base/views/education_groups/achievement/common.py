@@ -34,17 +34,24 @@ from base.models.education_group_year import EducationGroupYear
 
 class EducationGroupAchievementMixin(SingleObjectMixin):
     model = EducationGroupAchievement
-    context_object_name = "achievement"
+    context_object_name = "education_group_achievement"
     pk_url_kwarg = 'education_group_achievement_pk'
 
     def get_success_url(self):
-        return reverse(
+        # Redirect to a page fragment
+        url = reverse(
             "education_group_skills_achievements",
             args=[
                 self.kwargs['root_id'],
                 self.kwargs['education_group_year_id'],
             ]
         )
+
+        if hasattr(self, "object"):
+            # Remove the last / otherwise URL will be malformed
+            url = url.rstrip('/') + "#{}_{}".format(self.context_object_name, self.object.pk)
+
+        return url
 
     def get_education_group_year(self):
         return get_object_or_404(EducationGroupYear, pk=self.kwargs['education_group_year_id'])

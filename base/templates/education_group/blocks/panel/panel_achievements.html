@@ -39,7 +39,6 @@
 {% endblock %}
 
 {% block panel_body %}
-
     {% for achievement in education_group_achievements %}
 
         <div class="row">
@@ -49,7 +48,7 @@
                 </span>
             </div>
             <div class="col-md-11">
-                <div class="row">
+                <div class="row" id="education_group_achievement_{{ achievement.pk }}">
                     <div class="col-md-5">
                         {{ achievement.french_text | safe }}
                     </div>
@@ -62,6 +61,10 @@
                         <form action="{% url "education_group_achievements_actions" parent.pk education_group_year.pk achievement.pk %}" method="post">
                             {% csrf_token %}
                             <div class="btn-group pull-right" role="group" aria-label="actions">
+                                <button type="button" title="{% trans 'update' %}"  class="btn btn-default"
+                                        id="btn_operation_update_{{ achievement.pk }}">
+                                    <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+                                </button>
                                 <button type="submit" title="{% trans 'up' %}"  class="btn btn-default"
                                         name="action" value="up" {% if forloop.counter0 == 0 %}disabled{% endif %} >
                                     <i class="fa fa-arrow-up"></i>
@@ -79,9 +82,7 @@
 
                             </div>
                         </form>
-                        <button title="{% trans 'update' %}"  class="btn btn-default" id="btn_operation_update_{{ achievement.pk }}">
-                            <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
-                        </button>
+
                         {% url 'update_education_group_achievement' root.pk education_group_year.pk achievement.pk as update_url %}
                         {% include "blocks/modal/modal_ajax.html" with modal_url=update_url click_id="btn_operation_update_"|addstr:achievement.pk form_id="form_achievement" %}
                     </div>
@@ -91,7 +92,7 @@
                 <div id="row_detail_achievement_{{ achievement.pk }}" class="row collapse in" style="padding-left: 20px">
                     <div class="col-md-12">
                         {% for detail_achievement in achievement.educationgroupdetailedachievement_set.all %}
-                            <div class="row" >
+                            <div class="row" id="education_group_detail_achievement_{{ detail_achievement.pk }}">
                                 <div class="col-md-5">
                                     {{ detail_achievement.french_text | safe }}
                                 </div>
@@ -105,6 +106,10 @@
                                     <form action="{% url "education_group_detailed_achievements_actions" parent.pk education_group_year.pk  achievement.pk detail_achievement.pk %}" method="post">
                                         {% csrf_token %}
                                         <div class="btn-group pull-right btn-group-sm" role="group" aria-label="actions">
+                                            <button  type="button" title="{% trans 'update' %}"  class="btn btn-default"
+                                                     id="btn_operation_update_detail_{{ detail_achievement.pk }}">
+                                                <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+                                            </button>
                                             <button type="submit" title="{% trans 'up' %}"  class="btn btn-default"
                                                     name="action" value="up" {% if forloop.counter0 == 0 %}disabled{% endif %} >
                                                 <i class="fa fa-arrow-up"></i>
@@ -120,21 +125,19 @@
                                                 <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
                                             </button>
                                         </div>
+                                        {% url 'update_education_group_detailed_achievement' root.pk education_group_year.pk achievement.pk detail_achievement.pk as update_url %}
+                                        {% include "blocks/modal/modal_ajax.html" with modal_url=update_url click_id="btn_operation_update_detail_"|addstr:detail_achievement.pk form_id="form_achievement" %}
                                     </form>
-                                    <button title="{% trans 'update' %}"  class="btn btn-default btn-sm" id="btn_operation_update_detail_{{ detail_achievement.pk }}">
-                                        <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
-                                    </button>
-                                    {% url 'update_education_group_detailed_achievement' root.pk education_group_year.pk achievement.pk detail_achievement.pk as update_url %}
-                                    {% include "blocks/modal/modal_ajax.html" with modal_url=update_url click_id="btn_operation_update_detail_"|addstr:detail_achievement.pk form_id="form_achievement" %}
+
                                 </div>
                             </div>
                         {% endfor %}
 
-<button title="{% trans 'create' %}"  class="btn btn-default btn-sm" id="btn_operation_create_detail_{{ achievement.pk }}">
-    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
-</button>
-{% url 'create_education_group_detailed_achievement' root.pk education_group_year.pk achievement.pk as create_url %}
-{% include "blocks/modal/modal_ajax.html" with modal_url=create_url click_id="btn_operation_create_detail_"|addstr:achievement.pk form_id="form_achievement" %}
+                        <button title="{% trans 'create' %}"  class="btn btn-default btn-sm" id="btn_operation_create_detail_{{ achievement.pk }}">
+                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                        </button>
+                        {% url 'create_education_group_detailed_achievement' root.pk education_group_year.pk achievement.pk as create_url %}
+                        {% include "blocks/modal/modal_ajax.html" with modal_url=create_url click_id="btn_operation_create_detail_"|addstr:achievement.pk form_id="form_achievement" %}
 
                     </div>
                 </div>
@@ -155,6 +158,3 @@
         });
     </script>
 {% endblock %}
-
-
-
