@@ -33,7 +33,6 @@ from django.views.generic import FormView
 
 from base.forms.education_group.common import SelectLanguage
 from base.models.education_group_year import EducationGroupYear
-from base.models.enums.link_type import REFERENCE
 from base.views.common_classes import FlagMixin, AjaxTemplateMixin
 from osis_common.document.pdf_build import render_pdf
 
