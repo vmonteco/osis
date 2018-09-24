@@ -42,7 +42,6 @@ from osis_common.document.pdf_build import render_pdf
 def pdf_content(request, root_id, education_group_year_id, language):
     education_group_year = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
     tree = get_verbose_children(education_group_year)
-    program_manager = find_by_education_group(education_group_year.education_group).first()
 
     context = {
         'root': education_group_year,
