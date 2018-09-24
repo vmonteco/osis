@@ -101,6 +101,7 @@ def academic_calendars(request):
     academic_year = request.GET.get('academic_year') or mdl.academic_year.starting_academic_year().pk
     academic_year = int(academic_year)
     academic_years = mdl.academic_year.find_academic_years()
+
     show_academic_events = request.GET.get('show_academic_events')
     show_project_events = request.GET.get('show_project_events') and request.user.is_superuser
 
