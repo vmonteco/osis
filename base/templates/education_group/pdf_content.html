@@ -154,7 +154,7 @@
                 {% trans 'on' %} ......./......./.......
             </div>&emsp; &emsp;
             {% if root.is_minor %}
-                <div style="display: inline;margin-left: 150px;">
+                <div style="display: inline;margin-left: 110px;">
                     {% trans 'For approval' %}
                 </div>
             {% endif %}
@@ -164,8 +164,8 @@
                 {% trans "Student's signature"  %}
             </div>
             {% if root.is_minor %}
-                <div style="display: inline;margin-left: 267px;">
-                    {{ program_manager.person.full_name }}
+                <div style="display: inline;margin-left: 227px;">
+                    {% trans "name of the teacher responsible"  %}
                 </div>
             {% endif %}
         </div>

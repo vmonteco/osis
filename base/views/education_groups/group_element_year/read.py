@@ -33,7 +33,6 @@ from django.views.generic import FormView
 
 from base.forms.education_group.common import SelectLanguage
 from base.models.education_group_year import EducationGroupYear
-from base.models.enums.link_type import REFERENCE
 from base.models.program_manager import find_by_education_group
 from base.views.common_classes import FlagMixin, AjaxTemplateMixin
 from osis_common.document.pdf_build import render_pdf
@@ -50,7 +49,6 @@ def pdf_content(request, root_id, education_group_year_id, language):
         'tree': tree,
         'language': language,
         'created': datetime.datetime.now(),
-        'program_manager': program_manager
     }
     with translation.override(language):
         return render_pdf(
