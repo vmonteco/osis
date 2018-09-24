@@ -634,10 +634,9 @@ class LearningUnitYearWarningsTest(TestCase):
         self.assertCountEqual(
             self.luy_full.warnings,
             [excepted_error])
-
+        self.assertIn(excepted_error, self.luy_full.warnings)
 
     def test_warning_planned_classes_and_volume_zero(self):
-        """In this test, we ensure that the warning is not displayed when of credits is an interger"""
         self.luy_full.credits = Decimal(5)
         self.luy_full.save()
         self.learning_component_year_full_lecturing.hourly_volume_partial_q1 = 0
@@ -652,3 +651,4 @@ class LearningUnitYearWarningsTest(TestCase):
         self.assertCountEqual(
             self.luy_full._check_learning_component_year_warnings(),
             [excepted_error])
+        self.assertIn(excepted_error, self.luy_full._check_learning_component_year_warnings())
