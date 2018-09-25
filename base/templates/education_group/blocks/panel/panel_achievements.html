@@ -60,6 +60,7 @@
                     <div class="col-md-2">
                         <form action="{% url "education_group_achievements_actions" parent.pk education_group_year.pk achievement.pk %}" method="post">
                             {% csrf_token %}
+
                             <div class="btn-group pull-right" role="group" aria-label="actions">
                                 <button type="button" title="{% trans 'update' %}"  class="btn btn-default"
                                         id="btn_operation_update_{{ achievement.pk }}">

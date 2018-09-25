@@ -39,7 +39,7 @@ from base.models.enums import academic_calendar_type
 from base.models.enums.academic_calendar_type import ACADEMIC_CATEGORY, PROJECT_CATEGORY
 from base.models.utils.utils import get_object_or_none
 from base.views import common
-from base.views.common_classes import RulesRequiredMixin
+from base.views.mixins import RulesRequiredMixin
 from . import layout
 
 

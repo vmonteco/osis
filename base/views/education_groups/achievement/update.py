@@ -27,10 +27,11 @@ from django.http import HttpResponseRedirect
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import FormView, UpdateView
 
+from base.business.education_groups.perms import is_eligible_to_change_achievement
 from base.forms.education_group.achievement import ActionForm, EducationGroupAchievementForm, \
     EducationGroupDetailedAchievementForm
 from base.views.common import display_error_messages
-from base.views.common_classes import AjaxTemplateMixin
+from base.views.mixins import AjaxTemplateMixin
 from base.views.education_groups.achievement.common import EducationGroupAchievementMixin, \
     EducationGroupDetailedAchievementMixin
 
@@ -38,6 +39,7 @@ from base.views.education_groups.achievement.common import EducationGroupAchieve
 class EducationGroupAchievementAction(EducationGroupAchievementMixin, FormView):
     form_class = ActionForm
     http_method_names = ('post',)
+    rules = [is_eligible_to_change_achievement]
 
     def form_valid(self, form):
         if form.cleaned_data['action'] == 'up':
@@ -56,6 +58,7 @@ class EducationGroupAchievementAction(EducationGroupAchievementMixin, FormView):
 class UpdateEducationGroupAchievement(AjaxTemplateMixin, EducationGroupAchievementMixin, UpdateView):
     template_name = "education_group/blocks/form/update_achievement.html"
     form_class = EducationGroupAchievementForm
+    rules = [is_eligible_to_change_achievement]
 
 
 class UpdateEducationGroupDetailedAchievement(EducationGroupDetailedAchievementMixin, UpdateEducationGroupAchievement):

@@ -25,8 +25,9 @@
 ############################################################################
 from django.views.generic import CreateView
 
+from base.business.education_groups.perms import is_eligible_to_add_achievement
 from base.forms.education_group.achievement import EducationGroupAchievementForm, EducationGroupDetailedAchievementForm
-from base.views.common_classes import AjaxTemplateMixin
+from base.views.mixins import AjaxTemplateMixin
 from base.views.education_groups.achievement.common import EducationGroupAchievementMixin, \
     EducationGroupDetailedAchievementMixin
 
@@ -34,16 +35,18 @@ from base.views.education_groups.achievement.common import EducationGroupAchieve
 class CreateEducationGroupAchievement(AjaxTemplateMixin, EducationGroupAchievementMixin, CreateView):
     template_name = "education_group/blocks/form/update_achievement.html"
     form_class = EducationGroupAchievementForm
+    rules = [is_eligible_to_add_achievement]
 
     def form_valid(self, form):
-        form.instance.education_group_year = self.get_education_group_year()
+        form.instance.education_group_year = self.education_group_year
         return super().form_valid(form)
 
 
 class CreateEducationGroupDetailedAchievement(AjaxTemplateMixin, EducationGroupDetailedAchievementMixin, CreateView):
     form_class = EducationGroupDetailedAchievementForm
     template_name = "education_group/blocks/form/update_achievement.html"
+    rules = [is_eligible_to_add_achievement]
 
     def form_valid(self, form):
-        form.instance.education_group_achievement = self.get_education_group_achievement()
+        form.instance.education_group_achievement = self.education_group_achievement
         return super().form_valid(form)
