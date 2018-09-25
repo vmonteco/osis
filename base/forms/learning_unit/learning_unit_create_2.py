@@ -242,6 +242,8 @@ class FullForm(LearningUnitBaseForm):
     def _disable_fields_as_faculty_manager(self):
         faculty_type_not_restricted = [t[0] for t in LEARNING_CONTAINER_YEAR_TYPES_FOR_FACULTY]
         if self.proposal:
+            # ID FIELD CAN NOT BE DEACTIVATED WITH FACULTY MANAGER
+            # TODO: THIS IS A FIX, BUT A BETTER SOLUTION SHOULD BE FIND
             self.disable_fields(FACULTY_OPEN_FIELDS - set([ID_FIELD]))
         elif self.instance.learning_container_year and \
                 self.instance.learning_container_year.container_type not in faculty_type_not_restricted:
