@@ -49,10 +49,10 @@
     </div>
 
     <div class="panel-body panel-collapse collapse in" id="body_{{ id }}">
-        <div class="row">
-            <div class="col-md-11">
-                <div class="row">
-                    {% block panel_body %}
+        {% block panel_body %}
+            <div class="row">
+                <div class="col-md-11">
+                    <div class="row">
 
                         <div class="col-md-6">
                             {% block panel_body_0 %}{% endblock %}
@@ -61,13 +61,14 @@
                         <div class="col-md-6">
                             {% block panel_body_1 %}{% endblock %}
                         </div>
-                    {% endblock %}
-                </div>
+                    </div>
 
-                <div class="col-md-1">
+                    <div class="col-md-1">
+                        {% block actions %}{% endblock %}
+                    </div>
                 </div>
             </div>
-        </div>
+        {% endblock %}
     </div>
 </div>
 <br>

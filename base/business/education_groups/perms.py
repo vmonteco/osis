@@ -26,7 +26,6 @@
 from django.core.exceptions import PermissionDenied
 from django.utils.translation import ugettext_lazy as _, pgettext
 
-from base.models import group_element_year
 from base.models.academic_calendar import AcademicCalendar
 from base.models.education_group_type import find_authorized_types
 from base.models.enums import academic_calendar_type
@@ -154,9 +153,9 @@ def check_authorized_type(education_group, category, raise_exception=False):
 def get_education_group_year_eligible_management_entities(education_group):
     if education_group and education_group.management_entity:
         return [education_group.management_entity]
-    else:
-        eligible_entities = []
-        for group in group_element_year.find_by_child_branch(education_group).select_related('parent'):
-            eligible_entities = eligible_entities + get_education_group_year_eligible_management_entities(group.parent)
 
-        return eligible_entities
+    eligible_entities = []
+    for group in education_group.child_branch.all().select_related('parent'):
+        eligible_entities += get_education_group_year_eligible_management_entities(group.parent)
+
+    return eligible_entities
