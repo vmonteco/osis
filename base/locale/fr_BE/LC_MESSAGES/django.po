@@ -3909,7 +3909,7 @@ msgstr "événements projet"
 msgid "%(count)d learning unit has been postponed with success"
 msgid_plural "%(count)d learning units have been postponed with success"
 msgstr[0] "%(count)d unité d'enseignement a été reportée avec succès"
-msgstr[1] "%(count)d unitéq d'enseignement ont été reportées avec succès"
+msgstr[1] "%(count)d unités d'enseignement ont été reportées avec succès"
 
 msgid "The following learning units ended with error"
 msgstr "Les unités d'enseignement suivantes se sont terminées par une erreur"
