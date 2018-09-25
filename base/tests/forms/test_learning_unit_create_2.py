@@ -35,7 +35,7 @@ from django.utils.translation import ugettext_lazy as _
 from base.forms.learning_unit.entity_form import EntityContainerBaseForm
 from base.forms.learning_unit.learning_unit_create import LearningUnitYearModelForm, \
     LearningUnitModelForm, LearningContainerYearModelForm, LearningContainerModelForm, DEFAULT_ACRONYM_COMPONENT
-from base.forms.learning_unit.learning_unit_create_2 import FullForm, FACULTY_OPEN_FIELDS
+from base.forms.learning_unit.learning_unit_create_2 import FullForm, FACULTY_OPEN_FIELDS, ID_FIELD
 from base.models.academic_year import AcademicYear
 from base.models.entity_component_year import EntityComponentYear
 from base.models.entity_container_year import EntityContainerYear
@@ -217,7 +217,7 @@ class TestFullFormInit(LearningUnitFullFormContextMixin):
             proposal=True
         )
 
-        for elem in FACULTY_OPEN_FIELDS:
+        for elem in FACULTY_OPEN_FIELDS - set([ID_FIELD]):
             self.assertEqual(form.fields[elem].disabled, True)
             self.assertEqual(form.fields['academic_year'].disabled, True)
 
