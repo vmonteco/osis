@@ -32,6 +32,7 @@ from django.urls import reverse
 from base.tests.factories.education_group_achievement import EducationGroupAchievementFactory
 from base.tests.factories.education_group_year import EducationGroupYearFactory
 from base.tests.factories.person import PersonFactory
+from base.tests.factories.person_entity import PersonEntityFactory
 from base.tests.factories.user import UserFactory
 
 
@@ -47,6 +48,8 @@ class TestEducationGroupAchievementAction(TestCase):
         self.user = UserFactory()
         self.person = PersonFactory(user=self.user)
         self.user.user_permissions.add(Permission.objects.get(codename="can_access_education_group"))
+        self.user.user_permissions.add(Permission.objects.get(codename="change_educationgroupachievement"))
+        PersonEntityFactory(person=self.person, entity=self.education_group_year.management_entity)
         self.client.force_login(self.user)
 
     def test_form_valid_up(self):
@@ -123,6 +126,8 @@ class TestUpdateEducationGroupAchievement(TestCase):
         self.user = UserFactory()
         self.person = PersonFactory(user=self.user)
         self.user.user_permissions.add(Permission.objects.get(codename="can_access_education_group"))
+        self.user.user_permissions.add(Permission.objects.get(codename="change_educationgroupachievement"))
+        PersonEntityFactory(person=self.person, entity=self.education_group_year.management_entity)
         self.client.force_login(self.user)
 
     def test_update(self):
@@ -141,3 +146,17 @@ class TestUpdateEducationGroupAchievement(TestCase):
         self.achievement_2.refresh_from_db()
         self.assertEqual(self.achievement_2.code_name, code)
 
+    def test_permission_denied(self):
+        self.user.user_permissions.remove(Permission.objects.get(codename="change_educationgroupachievement"))
+        code = "The life is like a box of chocolates"
+        response = self.client.post(
+            reverse(
+                "update_education_group_achievement",
+                args=[
+                    self.education_group_year.pk,
+                    self.education_group_year.pk,
+                    self.achievement_2.pk,
+                ]), data={"code_name": code}
+        )
+
+        self.assertEqual(response.status_code, 403)
