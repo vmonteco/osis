@@ -33,6 +33,7 @@ from base.models.education_group_detailed_achievement import EducationGroupDetai
 from base.tests.factories.education_group_achievement import EducationGroupAchievementFactory
 from base.tests.factories.education_group_year import EducationGroupYearFactory
 from base.tests.factories.person import PersonFactory
+from base.tests.factories.person_entity import PersonEntityFactory
 from base.tests.factories.user import UserFactory
 
 
@@ -44,6 +45,8 @@ class TestCreateEducationGroupAchievement(TestCase):
         self.user = UserFactory()
         self.person = PersonFactory(user=self.user)
         self.user.user_permissions.add(Permission.objects.get(codename="can_access_education_group"))
+        self.user.user_permissions.add(Permission.objects.get(codename="add_educationgroupachievement"))
+        PersonEntityFactory(person=self.person, entity=self.education_group_year.management_entity)
         self.client.force_login(self.user)
 
     def test_create(self):
@@ -75,3 +78,18 @@ class TestCreateEducationGroupAchievement(TestCase):
 
         self.assertEqual(response.status_code, 302)
         self.assertEqual(EducationGroupDetailedAchievement.objects.filter(education_group_achievement=achievement).count(), 1)
+
+    def test_permission_denied(self):
+        self.user.user_permissions.remove(Permission.objects.get(codename="add_educationgroupachievement"))
+        code = "The life is like a box of chocolates"
+
+        response = self.client.post(
+            reverse(
+                "create_education_group_achievement",
+                args=[
+                    self.education_group_year.pk,
+                    self.education_group_year.pk,
+                ]), data={"code_name": code}
+        )
+
+        self.assertEqual(response.status_code, 403)
