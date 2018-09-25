@@ -26,10 +26,15 @@
 from ckeditor.widgets import CKEditorWidget
 from django import forms
 
+from base.business.learning_units.achievement import UP, DOWN, DELETE
 from base.models.education_group_achievement import EducationGroupAchievement
 from base.models.education_group_detailed_achievement import EducationGroupDetailedAchievement
 
-ACTION_CHOICES = [('up', 'up'), ('down', 'down'), ('delete', 'delete')]
+ACTION_CHOICES = [
+    (UP, UP),
+    (DOWN, DOWN),
+    (DELETE, DELETE)
+]
 
 
 class EducationGroupAchievementForm(forms.ModelForm):
