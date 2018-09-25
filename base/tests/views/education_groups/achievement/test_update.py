@@ -146,3 +146,17 @@ class TestUpdateEducationGroupAchievement(TestCase):
         self.achievement_2.refresh_from_db()
         self.assertEqual(self.achievement_2.code_name, code)
 
+    def test_permission_denied(self):
+        self.user.user_permissions.remove(Permission.objects.get(codename="change_educationgroupachievement"))
+        code = "The life is like a box of chocolates"
+        response = self.client.post(
+            reverse(
+                "update_education_group_achievement",
+                args=[
+                    self.education_group_year.pk,
+                    self.education_group_year.pk,
+                    self.achievement_2.pk,
+                ]), data={"code_name": code}
+        )
+
+        self.assertEqual(response.status_code, 403)
