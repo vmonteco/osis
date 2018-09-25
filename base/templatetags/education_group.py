@@ -480,9 +480,7 @@ def _fetch_value_with_attrgetter(obj, attrs):
 
 @register.simple_tag(takes_context=True)
 def permission_change_achievement(context):
-    result =  _get_permission(context, is_eligible_to_change_achievement)[1]
-    print(result)
-    return result
+    return _get_permission(context, is_eligible_to_change_achievement)[1]
 
 
 @register.simple_tag(takes_context=True)
