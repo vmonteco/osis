@@ -54,8 +54,7 @@ FACULTY_OPEN_FIELDS = {
     'common_title_english',
     'specific_title_english',
     "status",
-    "professional_integration",
-    "id"  # THIS IS A FIX, BUT A BETTER SOLUTION SHOULD BE FIND
+    "professional_integration"
 }
 
 
