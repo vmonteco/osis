@@ -40,10 +40,6 @@
 
 {% block panel_body %}
     {% for achievement in education_group_achievements %}
-        {% url "education_group_achievements_actions" parent.pk education_group_year.pk achievement.pk as action_url%}
-        {% url 'update_education_group_achievement' root.pk education_group_year.pk achievement.pk as update_url %}
-        {% url 'create_education_group_achievement' root.pk education_group_year.pk as create_url %}
-
         <div class="row">
             <div class="col-md-1">
                 <span data-toggle="collapse" data-target="#row_detail_achievement_{{ achievement.pk }}"
@@ -61,7 +57,8 @@
                     </div>
 
                     <div class="col-md-2">
-
+                        {% url "education_group_achievements_actions" parent.pk education_group_year.pk achievement.pk as action_url%}
+                        {% url 'update_education_group_achievement' root.pk education_group_year.pk achievement.pk as update_url %}
                         {% include "education_group/blocks/form/achievement_action_bar.html" with obj=achievement %}
                     </div>
                 </div>
@@ -70,6 +67,7 @@
                 <div id="row_detail_achievement_{{ achievement.pk }}" class="row collapse in" style="padding-left: 20px">
                     <div class="col-md-12">
                         {% for detail_achievement in achievement.educationgroupdetailedachievement_set.all %}
+
                             {% url "education_group_detailed_achievements_actions" parent.pk education_group_year.pk  achievement.pk detail_achievement.pk as action_url %}
                             {% url 'update_education_group_detailed_achievement' root.pk education_group_year.pk achievement.pk detail_achievement.pk as update_url %}
                             {% url 'create_education_group_detailed_achievement' root.pk education_group_year.pk achievement.pk as create_url %}
@@ -84,7 +82,6 @@
                                 </div>
 
                                 <div class="col-md-2">
-
                                     {% include "education_group/blocks/form/achievement_action_bar.html" with obj=detail_achievement additional_class="btn-group-sm" %}
                                 </div>
                             </div>
@@ -100,6 +97,8 @@
             </div>
         </div>
     {% endfor %}
+
+    {% url 'create_education_group_achievement' root.pk education_group_year.pk as create_url %}
     <button title="{% trans 'create' %}"  class="btn btn-default" id="btn_operation_create" {% permission_create_achievement %}>
         <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
     </button>
