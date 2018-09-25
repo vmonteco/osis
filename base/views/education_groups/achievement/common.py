@@ -50,7 +50,7 @@ class EducationGroupAchievementMixin(RulesRequiredMixin, SingleObjectMixin):
             ]
         )
 
-        obj = getattr(self, "object", self.get_object())
+        obj = getattr(self, "object", None) or self.get_object()
         if obj:
             # Remove the last / otherwise URL will be malformed
             url = url.rstrip('/') + "#{}_{}".format(self.context_object_name, obj.pk)
