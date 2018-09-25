@@ -164,7 +164,6 @@ def academic_year(request):
         "academic_year.html",
         {
             'section': 'academic_year',
-            'url_academic_calendars': academic_calendar.build_url_academic_calendars(request),
         }
     )
 

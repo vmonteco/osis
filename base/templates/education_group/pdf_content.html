@@ -154,15 +154,20 @@
                 {% trans 'on' %} ......./......./.......
             </div>&emsp; &emsp;
             {% if root.is_minor %}
-                <div style="display: inline;margin-left: 150px;">
+                <div style="display: inline;margin-left: 110px;">
                     {% trans 'For approval' %}
                 </div>
             {% endif %}
+            <br>&emsp;
             <br>
-            <br>
-            <div style="margin-left: 50px;">
+            <div style="display: inline;margin-left: 50px;">
                 {% trans "Student's signature"  %}
             </div>
+            {% if root.is_minor %}
+                <div style="display: inline;margin-left: 227px;">
+                    {% trans "Name of the teacher responsible"  %}
+                </div>
+            {% endif %}
         </div>
     </div>
 </div>
