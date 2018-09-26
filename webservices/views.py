@@ -125,8 +125,13 @@ def process_message(context, education_group_year, items):
 
 
 def process_section(context, education_group_year, item):
+    assert isinstance(context, Context)
+    assert isinstance(education_group_year, EducationGroupYear)
+    assert isinstance(item, str) and item.strip()
+
     m_intro = re.match(INTRO_PATTERN, item)
     m_common = re.match(COMMON_PATTERN, item)
+
     if m_intro:
         egy = EducationGroupYear.objects.filter(partial_acronym__iexact=m_intro.group('acronym'),
                                                 academic_year__year=context.year).first()
@@ -147,6 +152,11 @@ def process_section(context, education_group_year, item):
 
 
 def new_context(education_group_year, iso_language, language, original_acronym):
+    assert isinstance(education_group_year, EducationGroupYear)
+    assert isinstance(iso_language, str) and iso_language in ('fr-be', 'en')
+    assert isinstance(language, str) and language in ('fr', 'en')
+    assert isinstance(original_acronym, str)
+
     title = get_title_of_education_group_year(education_group_year, iso_language)
     partial_acronym = education_group_year.partial_acronym.upper()
     acronym = education_group_year.acronym.upper()
@@ -169,6 +179,10 @@ def new_context(education_group_year, iso_language, language, original_acronym):
 
 
 def parameters_validation(acronym, language, year):
+    assert isinstance(acronym, str)
+    assert isinstance(language, str)
+    assert isinstance(year, (str, int))
+
     year = int(year)
     iso_language = LANGUAGES.get(language)
     if not iso_language:
@@ -180,6 +194,10 @@ def parameters_validation(acronym, language, year):
 
 
 def insert_section(context, education_group_year, text_label):
+    assert isinstance(context, Context)
+    assert isinstance(education_group_year, EducationGroupYear)
+    assert isinstance(text_label, TextLabel)
+
     translated_text_label = TranslatedTextLabel.objects.filter(text_label=text_label,
                                                                language=context.language).first()
 
