@@ -141,7 +141,7 @@ class EducationGroupGeneralInformation(EducationGroupGenericDetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        is_common_education_group_year = self.object.acronym == 'common'
+        is_common_education_group_year = self.object.acronym.startswith('common-')
 
         context.update({
             'is_common_education_group_year': is_common_education_group_year,
@@ -151,13 +151,14 @@ class EducationGroupGeneralInformation(EducationGroupGenericDetailView):
 
         return context
 
-    def get_sections_with_translated_labels(self, is_common_education_group_year):
+    def get_sections_with_translated_labels(self, is_common_education_group_year=None):
         # Load the info from the common education group year
         common_education_group_year = None
         if not is_common_education_group_year:
             common_education_group_year = EducationGroupYear.objects.filter(
-                acronym__iexact='common',
-                academic_year=self.object.academic_year
+                education_group_type=self.object.education_group_type,
+                academic_year=self.object.academic_year,
+                acronym__startswith='common-',
             ).first()
 
         # Load the labels
@@ -175,16 +176,17 @@ class EducationGroupGeneralInformation(EducationGroupGenericDetailView):
     def get_translated_labels_and_content(self, section, user_language, common_education_group_year):
         records = []
         for label, selectors in section.labels:
-            selectors = set(selectors.split(','))
-            if 'specific' in selectors:
-                translations = self.get_content_translations_for_label(
-                    self.object, label, user_language, 'specific')
-                records.append(translations)
+            selectors = selectors.split(',')
+            for selector in selectors:
+                if selector == 'specific':
+                    translations = self.get_content_translations_for_label(
+                        self.object, label, user_language, 'specific')
+                    records.append(translations)
 
-            if 'common' in selectors and common_education_group_year is not None:
-                translations = self.get_content_translations_for_label(
-                    common_education_group_year, label, user_language, 'common')
-                records.append(translations)
+                if selector == 'common' and common_education_group_year is not None:
+                    translations = self.get_content_translations_for_label(
+                        common_education_group_year, label, user_language, 'common')
+                    records.append(translations)
         return records
 
     def get_content_translations_for_label(self, education_group_year, label, user_language, type):
@@ -340,7 +342,7 @@ class EducationGroupYearAdmissionCondition(EducationGroupGenericDetailView):
             'info': {
                 'is_specific': is_specific,
                 'is_common': is_common,
-                'is_bachelor': acronym == 'common-bacs',
+                'is_bachelor': acronym == 'common-1ba',
                 'is_master': is_master,
                 'show_components_for_agreg_and_mc': is_common and use_standard_text,
                 'show_free_text': is_specific and (is_master or use_standard_text),
