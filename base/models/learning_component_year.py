@@ -117,11 +117,11 @@ class LearningComponentYear(SerializableModel):
             _warnings.append("{} ({})".format(
                 inconsitent_msg,
                 _('Vol_global is not equal to Vol_tot * planned_classes')))
-        if self.planned_classes == 0 and vol_total_annual > 0:
+        if planned_classes == 0 and vol_total_annual > 0:
             _warnings.append("{} ({})".format(
                 inconsitent_msg,
                 _('planned classes cannot be 0 while volume is greater than 0')))
-        if self.planned_classes > 0 and vol_total_annual == 0:
+        if planned_classes > 0 and vol_total_annual == 0:
             _warnings.append("{} ({})".format(
                 inconsitent_msg,
                 _('planned classes cannot be greather than 0 while volume is equal to 0')))
