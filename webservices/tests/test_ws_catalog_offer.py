@@ -26,7 +26,6 @@
 import datetime
 
 import django
-import prettyprinter
 from django.test import TestCase
 
 from base.models.admission_condition import AdmissionCondition, AdmissionConditionLine

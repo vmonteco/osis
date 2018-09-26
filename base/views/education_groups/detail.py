@@ -177,7 +177,7 @@ class EducationGroupGeneralInformation(EducationGroupGenericDetailView):
         records = []
         for label, selectors in section.labels:
             records.extend(
-                self.get_selectors(common_education_group_year, label, records, selectors, user_language)
+                self.get_selectors(common_education_group_year, label, selectors, user_language)
             )
         return records
 
