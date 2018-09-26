@@ -140,9 +140,15 @@ def process_section(context, education_group_year, item):
 
         return insert_section_if_checked(context, egy, text_label)
     elif m_common:
-        egy = EducationGroupYear.objects.filter(acronym__iexact='common',
-                                                academic_year__year=context.year).first()
-        text_label = TextLabel.objects.filter(entity=OFFER_YEAR, label=m_common.group('section_name')).first()
+        egy = EducationGroupYear.objects.filter(
+            acronym__startswith='common-',
+            education_group_type=education_group_year.education_group_type,
+            academic_year__year=context.year
+        ).first()
+        text_label = TextLabel.objects.filter(
+            entity=OFFER_YEAR,
+            label=m_common.group('section_name')
+        ).first()
         return insert_section_if_checked(context, egy, text_label)
     else:
         text_label = TextLabel.objects.filter(entity=OFFER_YEAR, label=item).first()
@@ -232,7 +238,7 @@ def get_value_from_ac(admission_condition, field, context):
 
 
 def response_for_bachelor(context):
-    education_group_year = EducationGroupYear.objects.filter(acronym__iexact='common-bacs',
+    education_group_year = EducationGroupYear.objects.filter(acronym__iexact='common-1ba',
                                                              academic_year=context.academic_year).first()
 
     result = {

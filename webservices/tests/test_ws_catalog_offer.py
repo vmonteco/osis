@@ -23,7 +23,10 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+import datetime
 
+import django
+import prettyprinter
 from django.test import TestCase
 
 from base.models.admission_condition import AdmissionCondition, AdmissionConditionLine
@@ -34,6 +37,7 @@ from cms.tests.factories.translated_text import TranslatedTextRandomFactory
 from cms.tests.factories.translated_text_label import TranslatedTextLabelFactory
 from webservices.tests.helper import Helper
 from webservices.utils import convert_sections_list_of_dict_to_dict
+from webservices.views import new_context
 
 
 def remove_conditions_admission(sections):
@@ -263,7 +267,8 @@ class WsCatalogOfferPostTestCase(TestCase, Helper):
         education_group_year = EducationGroupYearFactory(acronym='actu2m')
 
         common_education_group_year = EducationGroupYearFactory(
-            acronym='common',
+            acronym='common-2m',
+            education_group_type=education_group_year.education_group_type,
             academic_year=education_group_year.academic_year,
         )
 
@@ -547,7 +552,7 @@ class WsOfferCatalogAdmissionsCondition(TestCase, Helper):
     def test_admission_conditions_for_bachelors_with_common(self):
         education_group_year = EducationGroupYearFactory(acronym='hist1ba')
 
-        education_group_year_common = EducationGroupYearFactory(acronym='common-bacs',
+        education_group_year_common = EducationGroupYearFactory(acronym='common-1ba',
                                                                 academic_year=education_group_year.academic_year)
 
         admission_condition_common = AdmissionCondition.objects.create(
@@ -671,3 +676,119 @@ class WsOfferCatalogAdmissionsCondition(TestCase, Helper):
         useless, condition_admissions_section = remove_conditions_admission(response_json['sections'])
         sections = condition_admissions_section['content']['sections']
         self.assertEqual(len(sections['university_bachelors']['records']['ucl_bachelors']), 1)
+
+
+class WebServiceParametersValidationTestCase(TestCase):
+    def test(self):
+        from webservices.views import parameters_validation
+        education_group_year = EducationGroupYearFactory()
+
+        egy, iso_language, year = parameters_validation(education_group_year.acronym,
+                                                        'fr',
+                                                        education_group_year.academic_year.year)
+
+        self.assertEqual(education_group_year, egy)
+        self.assertEqual(iso_language, 'fr-be')
+        self.assertEqual(year, education_group_year.academic_year.year)
+
+    def test_language_raise_404(self):
+        education_group_year = EducationGroupYearFactory()
+        with self.assertRaises(django.http.response.Http404):
+            from webservices.views import parameters_validation
+            parameters_validation(education_group_year.acronym, 'nl',
+                                  education_group_year.academic_year.year)
+
+    def test_acronym_raise_404(self):
+        with self.assertRaises(django.http.response.Http404):
+            from webservices.views import parameters_validation
+            parameters_validation('doesnotexists', 'fr', datetime.date.today().year)
+
+    def test_academic_year_raise_404(self):
+        education_group_year = EducationGroupYearFactory()
+        with self.assertRaises(django.http.response.Http404):
+            from webservices.views import parameters_validation
+            parameters_validation(education_group_year.acronym, 'fr',
+                                  datetime.date.today().year + 50)
+
+
+class WebServiceNewContextTestCase(TestCase):
+    def test(self):
+        education_group_year = EducationGroupYearFactory()
+
+        context = new_context(education_group_year, 'fr-be', 'fr', education_group_year.acronym)
+
+        self.assertEqual(context.acronym, education_group_year.acronym)
+        self.assertEqual(context.year, education_group_year.academic_year.year)
+        self.assertEqual(context.title, education_group_year.title)
+        self.assertEqual(context.academic_year, education_group_year.academic_year)
+        self.assertEqual(context.language, 'fr-be')
+        self.assertEqual(context.suffix_language, '')
+
+        self.assertEqual(context.description['sections'], [])
+
+
+class ProcessSectionTestCase(TestCase):
+    def test_find_common_text(self):
+        from webservices.views import process_section
+        education_group_year = EducationGroupYearFactory(acronym='actu2m')
+        education_group_year_common = EducationGroupYearFactory(
+            education_group_type=education_group_year.education_group_type,
+            academic_year=education_group_year.academic_year,
+            acronym='common-2m')
+
+        context = new_context(education_group_year, 'fr-be', 'fr', education_group_year.acronym)
+
+        text_label = TextLabelFactory(label='caap', entity='offer_year')
+        translated_text_label = TranslatedTextLabelFactory(text_label=text_label, language=context.language)
+        tt = TranslatedTextRandomFactory(text_label=text_label,
+                                         language=context.language,
+                                         reference=str(education_group_year_common.id),
+                                         entity=text_label.entity)
+
+        section = process_section(context, education_group_year, 'caap-commun')
+        self.assertEqual(translated_text_label.text_label, text_label)
+        self.assertEqual(section['label'], translated_text_label.label)
+        self.assertEqual(section['content'], tt.text)
+
+    def test_raise_with_unknown_common_text(self):
+        from webservices.views import process_section
+        education_group_year = EducationGroupYearFactory(acronym='actu2m')
+        education_group_year_common = EducationGroupYearFactory(
+            education_group_type=education_group_year.education_group_type,
+            academic_year=education_group_year.academic_year,
+            acronym='common-2m')
+
+        context = new_context(education_group_year, 'fr-be', 'fr', education_group_year.acronym)
+
+        text_label = TextLabelFactory(label='caap', entity='offer_year')
+        translated_text_label = TranslatedTextLabelFactory(text_label=text_label, language=context.language)
+        tt = TranslatedTextRandomFactory(text_label=text_label,
+                                         language=context.language,
+                                         reference=str(education_group_year_common.id),
+                                         entity=text_label.entity)
+
+        section = process_section(context, education_group_year, 'nothing-commun')
+        self.assertIsNone(section['label'])
+
+    def test_intro(self):
+        from webservices.views import process_section
+        education_group_year_random = EducationGroupYearFactory()
+        education_group_year = EducationGroupYearFactory(
+            partial_acronym='ldvld100i',
+            academic_year=education_group_year_random.academic_year
+        )
+        context = new_context(education_group_year_random,
+                              'fr-be', 'fr', education_group_year_random.acronym)
+
+        text_label = TextLabelFactory(entity='offer_year', label='intro')
+        translated_text_label = TranslatedTextLabelFactory(text_label=text_label, language=context.language)
+        tt = TranslatedTextRandomFactory(text_label=text_label,
+                                         language=context.language,
+                                         reference=str(education_group_year.id),
+                                         entity=text_label.entity)
+
+        section = process_section(context, education_group_year, 'intro-ldvld100i')
+
+        self.assertEqual(translated_text_label.text_label, text_label)
+        self.assertEqual(section['label'], translated_text_label.label)
+        self.assertEqual(section['content'], tt.text)
