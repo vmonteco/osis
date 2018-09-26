@@ -1,3 +1,4 @@
+import unittest
 from unittest import mock
 
 from django.test import TestCase
@@ -15,10 +16,10 @@ class ImportReddotTestCase(TestCase):
         self.command.suffix_language = '' if lang == 'fr-be' else '_en'
 
     def test_load_admission_conditions_for_bachelor(self):
-        education_group_year_common = EducationGroupYearFactory(acronym='common')
+        education_group_year_common = EducationGroupYearFactory(acronym='common-1ba')
         item = {
             'year': education_group_year_common.academic_year.year,
-            'acronym': 'bacs',
+            'acronym': '1ba',
             'info': {
                 'alert_message': {'text-common': 'Alert Message'},
                 'ca_bacs_cond_generales': {'text-common': 'General Conditions'},
@@ -28,22 +29,28 @@ class ImportReddotTestCase(TestCase):
             }
         }
 
-        self.command.load_admission_conditions_for_bachelor(item, education_group_year_common.academic_year.year)
+        self.command.load_admission_conditions_for_bachelor(
+            item,
+            education_group_year_common.academic_year.year
+        )
 
-        common_bacs = EducationGroupYear.objects.filter(academic_year=education_group_year_common.academic_year,
-                                                        acronym='common-bacs').first()
+        common_bacs = EducationGroupYear.objects.filter(
+            academic_year=education_group_year_common.academic_year,
+            acronym='common-1ba'
+        ).first()
 
         admission_condition = AdmissionCondition.objects.get(education_group_year=common_bacs)
+        info = item['info']
         self.assertEqual(admission_condition.text_alert_message,
-                         item['info']['alert_message']['text-common'])
+                         info['alert_message']['text-common'])
         self.assertEqual(admission_condition.text_ca_bacs_cond_generales,
-                         item['info']['ca_bacs_cond_generales']['text-common'])
+                         info['ca_bacs_cond_generales']['text-common'])
         self.assertEqual(admission_condition.text_ca_bacs_cond_particulieres,
-                         item['info']['ca_bacs_cond_particulieres']['text-common'])
+                         info['ca_bacs_cond_particulieres']['text-common'])
         self.assertEqual(admission_condition.text_ca_bacs_examen_langue,
-                         item['info']['ca_bacs_examen_langue']['text-common'])
+                         info['ca_bacs_examen_langue']['text-common'])
         self.assertEqual(admission_condition.text_ca_bacs_cond_speciales,
-                         item['info']['ca_bacs_cond_speciales']['text-common'])
+                         info['ca_bacs_cond_speciales']['text-common'])
 
     def test_save_condition_line_of_row_with_no_admission_condition_line(self):
         education_group_year = EducationGroupYearFactory()
