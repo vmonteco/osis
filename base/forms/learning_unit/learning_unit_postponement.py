@@ -132,10 +132,11 @@ class LearningUnitPostponementForm:
                     if ac_year not in existing_ac_years:
                         data_to_insert = None
                         if data:
-                            data_to_insert = data.copy() if data else None
+                            data_to_insert = data.copy()
                             data_to_insert["acronym_0"] = existing_learn_unit_years[0].acronym[0]
                             data_to_insert["acronym_1"] = existing_learn_unit_years[0].acronym[1:]
-                            data_to_insert["container_type"] = existing_learn_unit_years[0].learning_container_year.container_type
+                            data_to_insert["container_type"] = \
+                                existing_learn_unit_years[0].learning_container_year.container_type
                             data_to_insert["academic_year"] = str(ac_year.id)
                         to_insert.append(self._instantiate_base_form_as_insert(ac_year, data_to_insert))
             else:
