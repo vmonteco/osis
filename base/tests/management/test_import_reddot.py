@@ -1,3 +1,4 @@
+import unittest
 from unittest import mock
 
 from django.test import TestCase
@@ -252,3 +253,18 @@ class CreateCommonOfferForAcademicYearTest(TestCase):
         self.assertEqual(EducationGroupYear.objects.count(), 1)
         create_common_offer_for_academic_year(academic_year.year)
         self.assertEqual(EducationGroupYear.objects.count(), 2)
+
+class CreateOffersTest(unittest.TestCase):
+    @mock.patch('base.management.commands.import_reddot.import_common_offer')
+    def test_import_common_offer(self, mock_import_offer):
+        context, offers = None, [{'type': 'common'}]
+        from base.management.commands.import_reddot import create_offers
+        create_offers(context, offers, None)
+        mock_import_offer.assert_called()
+
+    @mock.patch('base.management.commands.import_reddot.import_offer')
+    def test_import_offer(self, mock_import_offer):
+        context, offers = None, [{'type': 'not-common'}]
+        from base.management.commands.import_reddot import create_offers
+        create_offers(context, offers, None)
+        mock_import_offer.assert_called()
