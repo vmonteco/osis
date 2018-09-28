@@ -36,7 +36,7 @@ from base import models as mdl
 from base.forms.academic_calendar import AcademicCalendarForm
 from base.models.academic_calendar import AcademicCalendar
 from base.models.enums import academic_calendar_type
-from base.models.enums.academic_calendar_type import ACADEMIC_CATEGORY, PROJECT_CATEGORY
+from base.models.enums.academic_calendar_type import ACADEMIC_CATEGORY, PROJECT_CATEGORY, AD_HOC_CATEGORY
 from base.models.utils.utils import get_object_or_none
 from base.utils.cache import cache_filter
 from base.views import common
@@ -82,7 +82,8 @@ def _item_must_be_skipped(calendar, category, show_academic_events, show_project
     return calendar.start_date is None or \
         calendar.end_date is None or \
         (category == ACADEMIC_CATEGORY and not show_academic_events) or \
-        (category == PROJECT_CATEGORY and not show_project_events)
+        (category == PROJECT_CATEGORY and not show_project_events) or \
+        category == AD_HOC_CATEGORY
 
 
 def _get_undated_calendars(academic_calendar_list):
@@ -104,10 +105,11 @@ def academic_calendars(request):
 
     show_academic_events = request.GET.get('show_academic_events')
     show_project_events = request.GET.get('show_project_events') and request.user.is_superuser
-
+    show_ad_hoc_events = request.GET.get('show_ad_hoc_events') and request.user.is_superuser
     academic_calendar_list = mdl.academic_calendar.find_academic_calendar_by_academic_year(academic_year)
     academic_calendar_json = _build_gantt_json(academic_calendar_list, show_academic_events, show_project_events)
     undated_calendars_list = _get_undated_calendars(academic_calendar_list)
+    ad_hoc_list = _build_gantt_markers_data(academic_calendar_list, show_ad_hoc_events)
     show_gantt_diagram = bool(len(academic_calendar_json['data']))
 
     return layout.render(
@@ -121,6 +123,8 @@ def academic_calendars(request):
             'academic_calendar_json': academic_calendar_json,
             'undated_calendars_list': undated_calendars_list,
             'show_gantt_diagram': show_gantt_diagram,
+            'ad_hoc_list': ad_hoc_list,
+            'show_ad_hoc_events': show_ad_hoc_events,
         }
     )
 
@@ -186,3 +190,18 @@ class AcademicCalendarDelete(RulesRequiredMixin, DeleteView):
         result = super().delete(request, *args, **kwargs)
         common.display_success_messages(request, success_message)
         return result
+
+
+def _build_gantt_markers_data(academic_calendar_list, show_adoc_events):
+    academic_calendar_data = []
+    for calendar in academic_calendar_list:
+        category = calendar.get_category()
+        if category == 'AD_HOC' and show_adoc_events and calendar.start_date:
+            data = {
+                'id': calendar.pk,
+                'text': calendar.title,
+                'start_date': calendar.start_date.strftime('%d-%m-%Y'),
+            }
+            academic_calendar_data.append(data)
+    return {'ad_hoc_events': academic_calendar_data}
+
