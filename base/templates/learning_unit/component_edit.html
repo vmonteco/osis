@@ -36,7 +36,8 @@
                         : {% trans learning_component_year.type %}
                     {% endif %}
                     {% if learning_component_year.acronym %}
-                        /{{ learning_component_year.acronym }}
+                        {# FIXME :: Temporary solution - waiting for business clarification about "components" concept (untyped, ...)#}
+                        /{% if learning_component_year.acronym == 'NT' %}{% trans 'LECTURING' %}{% else %}{{ learning_component_year.acronym }}{% endif %}
                     {% endif %}
 
                 </h4>

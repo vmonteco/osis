@@ -1985,6 +1985,12 @@ msgstr "Soumission des feuilles de note"
 msgid "TEACHING_CHARGE_APPLICATION"
 msgstr "Application pour charges d'enseignement"
 
+msgid "TESTING"
+msgstr "Tests"
+
+msgid "RELEASE"
+msgstr "Release"
+
 msgid "field_is_required"
 msgstr "Ce champ est obligatoire."
 
@@ -2957,8 +2963,8 @@ msgstr "Les volumes sont inconsistants"
 msgid "Volumes of {} are inconsistent"
 msgstr "Les volumes de {} sont inconsistants"
 
-msgid "planned classes cannot be 0"
-msgstr "le nombre de classes prévues ne peut être 0"
+msgid "planned classes cannot be 0 while volume is greater than 0"
+msgstr "le nombre de classes prévues ne peut être 0 si le volume est supérieur à 0"
 
 msgid "Vol_tot is not equal to vol_q1 + vol_q2"
 msgstr "Le volume annuel doit être égal à la somme des volumes de Q1 et de Q2"
@@ -2968,6 +2974,9 @@ msgstr "Le volume global doit être égal au volume annuel multiplié par le nom
 
 msgid "At least a partim volume value is greater than corresponding volume of parent"
 msgstr "Au moins une valeur de volume d'un partim est supérieure à celle du volume correspondant du parent"
+
+msgid "planned classes cannot be greather than 0 while volume is equal to 0"
+msgstr "le nombre de classes prévues ne peut être supérieur à 0 si le volume est égal à 0"
 
 msgid "url of the learning unit"
 msgstr "URL de l'unité d'enseignement"
@@ -3873,8 +3882,100 @@ msgstr "Ouverture aux adultes"
 msgid "comment (internal)"
 msgstr "commentaire (interne)"
 
+msgid "activities in English"
+msgstr "activités en anglais"
+
 msgid "education group achievement"
 msgstr "Acquis d'apprentissage d'organisation de formation"
 
 msgid "education group detailed achievement"
 msgstr "Acquis d'apprentissage détaillé d'organisation de formation"
+
+msgid "on successful completion of this program, each student is able to"
+msgstr "au terme de ce programme, le diplômé est capable de"
+
+msgid "the program aims"
+msgstr "le programme vise"
+
+msgid "additional informations"
+msgstr "informations complémentaires"
+
+msgid "skills and achievements"
+msgstr "compétences et acquis"
+
+msgid "academic events"
+msgstr "événements académiques"
+
+msgid "project events"
+msgstr "événements projet"
+
+msgid "%(count)d learning unit has been postponed with success"
+msgid_plural "%(count)d learning units have been postponed with success"
+msgstr[0] "%(count)d unité d'enseignement a été reportée avec succès"
+msgstr[1] "%(count)d unités d'enseignement ont été reportées avec succès"
+
+msgid "The following learning units ended with error"
+msgstr "Les unités d'enseignement suivantes se sont terminées par une erreur"
+
+msgid "Apply postponement on learning unit year"
+msgstr "Appliquer le report sur les unités d'enseignement annualisées"
+
+msgid "Produce a customizable xls of learning units"
+msgstr "Produire une liste personnalisable des unités d'enseignement"
+
+msgid "Configurable list of learning units"
+msgstr "Liste personnalisée des unités d'enseignement"
+
+msgid "Do you want to export the following informations"
+msgstr "Désirez-vous exporter les informations suivantes"
+
+msgid "Programs/gathering"
+msgstr "Programmes/regroupements"
+
+msgid "List of teachers"
+msgstr "Liste des enseignants"
+
+msgid "Beg. of attribution"
+msgstr "Déb. attribution"
+
+msgid "Attribution duration"
+msgstr "Durée attribution"
+
+msgid "Attrib. vol1"
+msgstr ""
+
+msgid "Attrib. vol2"
+msgstr ""
+
+msgid "Absolute credits"
+msgstr "Crédits absolus"
+
+msgid "Hourly vol."
+msgstr "Vol. hor."
+
+msgid "1st quadri"
+msgstr "1er quadri"
+
+msgid "2nd quadri"
+msgstr "2ieme quadri"
+
+msgid "Suppression proposal"
+msgstr "Proposition de suppression"
+
+msgid "Transformation proposal"
+msgstr "Proposition de transformation"
+
+msgid "Transformation/modification proposal"
+msgstr "Proposition de transform. - modif."
+
+msgid "fac. level"
+msgstr "niveau fac."
+
+msgid "Are you sure you want to delete the event"
+msgstr "Êtes-vous certain de vouloir supprimer l'événement"
+
+msgid "The event \"%(event)s\" has been deleted successfully"
+msgstr "L'événement \"%(event)s\" a été supprimé avec succès"
+
+msgid "Name of the teacher responsible"
+msgstr "Nom du professeur responsable de programme"

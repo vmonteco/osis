@@ -77,7 +77,7 @@ class AcademicCalendar(SerializableModel):
     highlight_title = models.CharField(max_length=50, blank=True, null=True)
     highlight_description = models.CharField(max_length=255, blank=True, null=True)
     highlight_shortcut = models.CharField(max_length=255, blank=True, null=True)
-    reference = models.CharField(choices=academic_calendar_type.ACADEMIC_CALENDAR_TYPES, max_length=50)
+    reference = models.CharField(choices=academic_calendar_type.CALENDAR_TYPES, max_length=50)
 
     objects = AcademicCalendarQuerySet.as_manager()
 
@@ -94,6 +94,13 @@ class AcademicCalendar(SerializableModel):
     def validation_mandatory_dates(self):
         if self.start_date is None or self.end_date is None:
             raise AttributeError(_('dates_mandatory_error'))
+
+    def get_category(self):
+        if self.reference in _list_types(academic_calendar_type.ACADEMIC_CALENDAR_TYPES):
+            return academic_calendar_type.ACADEMIC_CATEGORY
+        elif self.reference in _list_types(academic_calendar_type.PROJECT_CALENDAR_TYPES):
+            return academic_calendar_type.PROJECT_CATEGORY
+        return ''
 
     def __str__(self):
         return u"%s %s" % (self.academic_year, self.title)
@@ -157,3 +164,7 @@ def is_academic_calendar_has_started(academic_year, reference, date=None):
             reference=reference,
             start_date__lte=date,
     ).exists()
+
+
+def _list_types(calendar_types):
+    return [calendar_type[0] for calendar_type in calendar_types]

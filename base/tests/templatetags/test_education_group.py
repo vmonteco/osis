@@ -35,11 +35,11 @@ from base.models.enums.education_group_categories import TRAINING, MINI_TRAINING
 from base.templatetags.education_group import li_with_deletion_perm, button_with_permission, BUTTON_TEMPLATE, \
     button_order_with_permission, BUTTON_ORDER_TEMPLATE, li_with_create_perm_training, \
     li_with_create_perm_mini_training, li_with_create_perm_group, link_detach_education_group, \
-    link_pdf_content_education_group, button_edit_administrative_data
+    link_pdf_content_education_group, button_edit_administrative_data, dl_with_parent
 from base.tests.factories.academic_calendar import AcademicCalendarFactory
 from base.tests.factories.academic_year import create_current_academic_year, AcademicYearFactory
 from base.tests.factories.authorized_relationship import AuthorizedRelationshipFactory
-from base.tests.factories.education_group_year import TrainingFactory, MiniTrainingFactory
+from base.tests.factories.education_group_year import TrainingFactory, MiniTrainingFactory, EducationGroupYearFactory
 from base.tests.factories.person import FacultyManagerFactory, CentralManagerFactory
 from base.tests.factories.person_entity import PersonEntityFactory
 
@@ -302,3 +302,58 @@ class TestEducationGroupAsFacultyManagerTag(TestCase):
         self.assertEqual(result["is_disabled"], "disabled")
         self.assertEqual(result["text"], _("edit"))
 
+
+class TestEducationGroupDlWithParent(TestCase):
+    def setUp(self):
+        self.parent = EducationGroupYearFactory()
+        self.education_group_year = EducationGroupYearFactory()
+        self.context = {
+            'parent': self.parent,
+            'education_group_year': self.education_group_year,
+        }
+
+    def test_dl_value_in_education_group(self):
+        response = dl_with_parent(self.context, "acronym")
+        self.assertEqual(response["value"], self.education_group_year.acronym)
+        self.assertEqual(response["label"], _("acronym"))
+        self.assertEqual(response["parent_value"], None)
+
+    def test_dl_value_in_parent(self):
+        self.education_group_year.acronym = ""
+        response = dl_with_parent(self.context, "acronym")
+        self.assertEqual(response["value"], "")
+        self.assertEqual(response["label"], _("acronym"))
+        self.assertEqual(response["parent_value"], self.parent.acronym)
+
+    def test_dl_default_value(self):
+        self.education_group_year.acronym = ""
+        self.parent.acronym = ""
+        response = dl_with_parent(self.context, "acronym", default_value="avada kedavra")
+
+        self.assertEqual(response["value"], "")
+        self.assertEqual(response["label"], _("acronym"))
+        self.assertEqual(response["parent_value"], "")
+        self.assertEqual(response["default_value"], "avada kedavra")
+
+    def test_dl_with_bool(self):
+        self.education_group_year.partial_deliberation = False
+        response = dl_with_parent(self.context, "partial_deliberation")
+        self.assertEqual(response["value"], "no")
+        self.assertEqual(response["parent_value"], None)
+
+        self.education_group_year.partial_deliberation = True
+        response = dl_with_parent(self.context, "partial_deliberation")
+        self.assertEqual(response["value"], "yes")
+        self.assertEqual(response["parent_value"], None)
+
+        self.education_group_year.partial_deliberation = None
+        self.parent.partial_deliberation = True
+        response = dl_with_parent(self.context, "partial_deliberation")
+        self.assertEqual(response["value"], None)
+        self.assertEqual(response["parent_value"], "yes")
+
+    def test_dl_invalid_key(self):
+        self.education_group_year.partial_deliberation = False
+        response = dl_with_parent(self.context, "partial_deliberation", "not_a_real_attr")
+        self.assertEqual(response["value"], None)
+        self.assertEqual(response["parent_value"], None)

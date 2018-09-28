@@ -304,6 +304,11 @@ class SimplifiedVolumeForm(forms.ModelForm):
 
     def _create_structure_components(self, commit):
         self.instance.learning_container_year = self._learning_unit_year.learning_container_year
+
+        if self.instance.hourly_volume_total_annual is None or self.instance.hourly_volume_total_annual == 0:
+            self.instance.planned_classes = 0
+        else:
+            self.instance.planned_classes = 1
         instance = super().save(commit)
         LearningUnitComponent.objects.get_or_create(
             learning_unit_year=self._learning_unit_year,
