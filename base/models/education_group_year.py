@@ -54,7 +54,13 @@ class EducationGroupYearAdmin(OsisModelAdmin):
     search_fields = ['acronym']
 
 
+class EducationGroupYearManager(models.Manager):
+    def look_for_common(self, **kwargs):
+        return self.filter(acronym__startswith='common-', **kwargs)
+
+
 class EducationGroupYear(models.Model):
+    objects = EducationGroupYearManager()
     external_id = models.CharField(max_length=100, blank=True, null=True, db_index=True)
     changed = models.DateTimeField(null=True, auto_now=True)
 

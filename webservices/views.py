@@ -140,8 +140,7 @@ def process_section(context, education_group_year, item):
 
         return insert_section_if_checked(context, egy, text_label)
     elif m_common:
-        egy = EducationGroupYear.objects.filter(
-            acronym__startswith='common-',
+        egy = EducationGroupYear.objects.look_for_common(
             education_group_type=education_group_year.education_group_type,
             academic_year__year=context.year
         ).first()

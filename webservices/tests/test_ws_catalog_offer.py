@@ -29,7 +29,12 @@ import django
 from django.test import TestCase
 
 from base.models.admission_condition import AdmissionCondition, AdmissionConditionLine
-from base.tests.factories.education_group_year import EducationGroupYearFactory
+from base.tests.factories.education_group_year import (
+    EducationGroupYearFactory,
+    EducationGroupYearCommonMasterFactory,
+    EducationGroupYearMasterFactory,
+    EducationGroupYearCommonBachelorFactory
+)
 from cms.enums.entity_name import OFFER_YEAR
 from cms.tests.factories.text_label import TextLabelFactory
 from cms.tests.factories.translated_text import TranslatedTextRandomFactory
@@ -263,11 +268,9 @@ class WsCatalogOfferPostTestCase(TestCase, Helper):
                 })
 
     def test_with_one_section_with_common(self):
-        education_group_year = EducationGroupYearFactory(acronym='actu2m')
+        education_group_year = EducationGroupYearMasterFactory()
 
-        common_education_group_year = EducationGroupYearFactory(
-            acronym='common-2m',
-            education_group_type=education_group_year.education_group_type,
+        common_education_group_year = EducationGroupYearCommonMasterFactory(
             academic_year=education_group_year.academic_year,
         )
 
@@ -454,7 +457,7 @@ class WsCatalogOfferPostTestCase(TestCase, Helper):
         self.assertEqual(len(response_sections), 0)
 
     def test_no_translation_for_term(self):
-        education_group_year = EducationGroupYearFactory(acronym='actu2m')
+        education_group_year = EducationGroupYearMasterFactory()
 
         iso_language, language = 'fr-be', 'fr'
 
@@ -490,7 +493,7 @@ class WsCatalogOfferPostTestCase(TestCase, Helper):
         self.assertEqual(response_sections, sections)
 
     def test_no_corresponding_term(self):
-        education_group_year = EducationGroupYearFactory(acronym='actu2m')
+        education_group_year = EducationGroupYearMasterFactory()
 
         message = {
             'anac': str(education_group_year.academic_year.year),
@@ -551,8 +554,9 @@ class WsOfferCatalogAdmissionsCondition(TestCase, Helper):
     def test_admission_conditions_for_bachelors_with_common(self):
         education_group_year = EducationGroupYearFactory(acronym='hist1ba')
 
-        education_group_year_common = EducationGroupYearFactory(acronym='common-1ba',
-                                                                academic_year=education_group_year.academic_year)
+        education_group_year_common = EducationGroupYearCommonBachelorFactory(
+            academic_year=education_group_year.academic_year
+        )
 
         admission_condition_common = AdmissionCondition.objects.create(
             education_group_year=education_group_year_common,
@@ -593,16 +597,19 @@ class WsOfferCatalogAdmissionsCondition(TestCase, Helper):
         })
 
     def test_admission_conditions_for_master(self):
-        education_group_year = EducationGroupYearFactory(acronym='actu2m')
+        education_group_year = EducationGroupYearMasterFactory()
 
         admission_condition = AdmissionCondition.objects.create(education_group_year=education_group_year)
         admission_condition.text_university_bachelors = 'text_university_bachelors'
         admission_condition.save()
 
-        education_group_year_common = EducationGroupYearFactory(acronym='common-2m',
-                                                                academic_year=education_group_year.academic_year)
+        education_group_year_common = EducationGroupYearCommonMasterFactory(
+            academic_year=education_group_year.academic_year
+        )
 
-        admission_condition_common = AdmissionCondition.objects.create(education_group_year=education_group_year_common)
+        admission_condition_common = AdmissionCondition.objects.create(
+            education_group_year=education_group_year_common
+        )
         admission_condition_common.text_free = 'text_free'
         admission_condition_common.text_personalized_access = 'text_personalized_access'
         admission_condition_common.text_adults_taking_up_university_training = 'text_adults_taking_up_university_training'
@@ -639,12 +646,12 @@ class WsOfferCatalogAdmissionsCondition(TestCase, Helper):
                          admission_condition_common.text_admission_enrollment_procedures)
 
     def test_admission_conditions_for_master_with_diplomas(self):
-        education_group_year = EducationGroupYearFactory(acronym='actu2m')
+        education_group_year = EducationGroupYearMasterFactory()
 
         admission_condition = AdmissionCondition.objects.create(education_group_year=education_group_year)
 
-        education_group_year_common = EducationGroupYearFactory(acronym='common-2m',
-                                                                academic_year=education_group_year.academic_year)
+        EducationGroupYearCommonMasterFactory(academic_year=education_group_year.academic_year)
+
         acl = AdmissionConditionLine.objects.create(admission_condition=admission_condition)
         acl.section = 'ucl_bachelors'
         acl.diploma = 'diploma'
@@ -729,11 +736,10 @@ class WebServiceNewContextTestCase(TestCase):
 class ProcessSectionTestCase(TestCase):
     def test_find_common_text(self):
         from webservices.views import process_section
-        education_group_year = EducationGroupYearFactory(acronym='actu2m')
-        education_group_year_common = EducationGroupYearFactory(
-            education_group_type=education_group_year.education_group_type,
+        education_group_year = EducationGroupYearMasterFactory()
+        education_group_year_common = EducationGroupYearCommonMasterFactory(
             academic_year=education_group_year.academic_year,
-            acronym='common-2m')
+        )
 
         context = new_context(education_group_year, 'fr-be', 'fr', education_group_year.acronym)
 
@@ -751,11 +757,10 @@ class ProcessSectionTestCase(TestCase):
 
     def test_raise_with_unknown_common_text(self):
         from webservices.views import process_section
-        education_group_year = EducationGroupYearFactory(acronym='actu2m')
-        education_group_year_common = EducationGroupYearFactory(
-            education_group_type=education_group_year.education_group_type,
-            academic_year=education_group_year.academic_year,
-            acronym='common-2m')
+        education_group_year = EducationGroupYearMasterFactory()
+        education_group_year_common = EducationGroupYearCommonMasterFactory(
+            academic_year=education_group_year.academic_year
+        )
 
         context = new_context(education_group_year, 'fr-be', 'fr', education_group_year.acronym)
 

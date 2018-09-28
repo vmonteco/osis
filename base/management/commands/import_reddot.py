@@ -183,7 +183,7 @@ def import_common_offer(context, offer, mapping_label_text_label):
     * common-2mc
     * ...
     """
-    qs = EducationGroupYear.objects.filter(acronym__startswith='common-', academic_year__year=offer['year'])
+    qs = EducationGroupYear.objects.look_for_common(academic_year__year=offer['year'])
     for record in qs:
         import_offer_and_items(offer, record, mapping_label_text_label, context)
 

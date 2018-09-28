@@ -11,7 +11,7 @@ from base.models.education_group_year import EducationGroupYear
 from base.models.enums import education_group_types, education_group_categories
 from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.education_group import EducationGroupFactory
-from base.tests.factories.education_group_year import EducationGroupYearFactory
+from base.tests.factories.education_group_year import EducationGroupYearFactory, EducationGroupYearCommonMasterFactory
 
 
 class ImportReddotTestCase(TestCase):
@@ -208,7 +208,7 @@ class ImportReddotTestCase(TestCase):
 
     @mock.patch('base.management.commands.import_reddot.import_offer_and_items')
     def test_import_common_offer(self, mocker):
-        education_group_year_list = [EducationGroupYearFactory(acronym='common-2m')]
+        education_group_year_list = [EducationGroupYearCommonMasterFactory()]
         from base.management.commands.import_reddot import import_common_offer
         context = None
         offer = {'year': education_group_year_list[0].academic_year.year}
@@ -220,6 +220,7 @@ OFFERS = [
     {'name': education_group_types.BACHELOR, 'category': education_group_categories.TRAINING, 'code': '1BA'},
     {'name': education_group_types.PGRM_MASTER_120, 'category': education_group_categories.TRAINING, 'code': '2M'},
 ]
+
 
 
 @mock.patch('base.management.commands.import_reddot.OFFERS', OFFERS)
@@ -249,7 +250,7 @@ class CreateCommonOfferForAcademicYearTest(TestCase):
         from base.management.commands.import_reddot import create_common_offer_for_academic_year
         education_group = EducationGroupFactory(start_year=academic_year.year, end_year=academic_year.year + 1)
         self.assertEqual(EducationGroupYear.objects.count(), 0)
-        EducationGroupYearFactory(academic_year=academic_year, acronym='common-2m')
+        EducationGroupYearCommonMasterFactory(academic_year=academic_year)
         self.assertEqual(EducationGroupYear.objects.count(), 1)
         create_common_offer_for_academic_year(academic_year.year)
         self.assertEqual(EducationGroupYear.objects.count(), 2)

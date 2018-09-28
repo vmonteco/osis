@@ -50,6 +50,15 @@ from cms.enums import entity_name
 from cms.models.translated_text import TranslatedText
 from cms.models.translated_text_label import TranslatedTextLabel
 
+SECTIONS_WITH_TEXT = (
+    'ucl_bachelors',
+    'others_bachelors_french',
+    'bachelors_dutch',
+    'foreign_bachelors',
+    'graduates',
+    'masters'
+)
+
 CODE_SCS = 'code_scs'
 TITLE = 'title'
 CREDITS_MIN = "credits_min"
@@ -155,10 +164,9 @@ class EducationGroupGeneralInformation(EducationGroupGenericDetailView):
         # Load the info from the common education group year
         common_education_group_year = None
         if not is_common_education_group_year:
-            common_education_group_year = EducationGroupYear.objects.filter(
+            common_education_group_year = EducationGroupYear.objects.look_for_common(
                 education_group_type=self.object.education_group_type,
                 academic_year=self.object.academic_year,
-                acronym__startswith='common-',
             ).first()
 
         # Load the labels
@@ -337,8 +345,7 @@ class EducationGroupYearAdmissionCondition(EducationGroupGenericDetailView):
         admission_condition, created = AdmissionCondition.objects.get_or_create(education_group_year=self.object)
 
         record = {}
-        for section in ('ucl_bachelors', 'others_bachelors_french', 'bachelors_dutch', 'foreign_bachelors',
-                        'graduates', 'masters'):
+        for section in SECTIONS_WITH_TEXT:
             record[section] = AdmissionConditionLine.objects.filter(admission_condition=admission_condition,
                                                                     section=section)
 
