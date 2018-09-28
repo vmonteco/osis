@@ -1,13 +1,17 @@
+from celery.schedules import crontab
+
 from backoffice.celery import app as celery_app
+from base.business.learning_units.automatic_postponement import fetch_learning_unit_to_postpone
+from base.models.learning_unit_year import LearningUnitYear
 
 celery_app.conf.beat_schedule.update({
-    'Ma man': {
-        'task': 'base.tasks.print_random_number',
-        'schedule': 30.0,
-        'args': ("hello",)
+    'Extend learning units': {
+        'task': 'base.tasks.extend_learning_units',
+        'schedule': crontab(day_of_week=15, month_of_year=7)
     },
 })
 
 @celery_app.task
-def print_str(string_to_print):
-    print(string_to_print)
+def extend_learning_units():
+    results, errors = fetch_learning_unit_to_postpone()
+    return errors
