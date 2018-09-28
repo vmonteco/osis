@@ -50,7 +50,13 @@ class AcademicCalendarForm(bootstrap.BootstrapModelForm):
         (
             _("project events").capitalize(),
             _get_sorted_choices(academic_calendar_type.PROJECT_CALENDAR_TYPES)
-         ),
+        ),
+        (
+            _("release events").capitalize(),
+            _get_sorted_choices((
+                (academic_calendar_type.RELEASE, academic_calendar_type.RELEASE),
+            ))
+        ),
     )
 
     academic_year = forms.ModelChoiceField(
