@@ -10,6 +10,7 @@ celery_app.conf.beat_schedule.update({
     },
 })
 
+
 @celery_app.task
 def extend_learning_units():
     results, errors = fetch_learning_unit_to_postpone()
