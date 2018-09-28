@@ -173,6 +173,11 @@ class EducationGroupYearModelForm(ValidationRuleEducationGroupTypeMixin, Permiss
         field.required = False
         field.required = False
 
+    def clean_acronym(self):
+        data_cleaned = self.cleaned_data.get('acronym')
+        if data_cleaned:
+            return data_cleaned.upper()
+
 
 class EducationGroupModelForm(PermissionFieldEducationGroupMixin, forms.ModelForm):
     category = None

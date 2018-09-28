@@ -109,7 +109,7 @@ class TestRead(TestCase):
 
         verbose_leaf = _("%(acronym)s %(title)s [%(volumes)s] (%(credits)s credits)") % {
             "acronym": self.group_element_year_2.child_leaf.acronym,
-            "title": self.group_element_year_2.child_leaf.specific_title,
+            "title": self.group_element_year_2.child_leaf.complete_title,
             "volumes": volume_total_verbose(components),
             "credits": self.group_element_year_2.relative_credits or self.group_element_year_2.child_leaf.credits or 0
         }

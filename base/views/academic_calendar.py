@@ -40,7 +40,7 @@ from base.models.enums.academic_calendar_type import ACADEMIC_CATEGORY, PROJECT_
 from base.models.utils.utils import get_object_or_none
 from base.utils.cache import cache_filter
 from base.views import common
-from base.views.common_classes import RulesRequiredMixin
+from base.views.mixins import RulesRequiredMixin
 from . import layout
 
 
