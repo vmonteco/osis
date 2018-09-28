@@ -36,7 +36,7 @@ from django.http import HttpResponseForbidden, HttpResponseNotFound, HttpRespons
 from django.test import TestCase, RequestFactory
 from waffle.testutils import override_flag
 
-from base.models.admission_condition import AdmissionCondition, AdmissionConditionLine
+from base.models.admission_condition import AdmissionCondition, AdmissionConditionLine, CONDITION_ADMISSION_ACCESSES
 from base.models.enums import education_group_categories, academic_calendar_type
 from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.education_group_language import EducationGroupLanguageFactory
@@ -862,7 +862,7 @@ class AdmissionConditionEducationGroupYearTest(TestCase):
             'diploma': 'Diploma',
             'conditions': 'Conditions',
             'remarks': 'Remarks',
-            'access': 'Access',
+            'access': 'direct_access',
         })
 
         request = RequestFactory().get('/')
@@ -920,7 +920,7 @@ class AdmissionConditionEducationGroupYearTest(TestCase):
             'diploma': 'Diploma',
             'conditions': 'Conditions',
             'remarks': 'Remarks',
-            'access': 'Access',
+            'access': 'direct_access',
         }
         request = RequestFactory().post('/', form)
         response = education_group_year_admission_condition_update_line_post(request,
@@ -945,7 +945,7 @@ class AdmissionConditionEducationGroupYearTest(TestCase):
             'diploma': 'Diploma',
             'conditions': 'Conditions',
             'remarks': 'Remarks',
-            'access': 'Access',
+            'access': CONDITION_ADMISSION_ACCESSES[2][0]
         }
         request = RequestFactory().post('/', form)
         result = education_group_year_admission_condition_update_line_post(request,
@@ -961,13 +961,13 @@ class AdmissionConditionEducationGroupYearTest(TestCase):
 
         admission_condition_line = mock.Mock(diploma='diploma',
                                              conditions='conditions',
-                                             access='access',
+                                             access=CONDITION_ADMISSION_ACCESSES[2][0],
                                              remarks='remarks')
 
         response = get_content_of_admission_condition_line('updated', admission_condition_line, '')
         self.assertEqual(response['message'], 'updated')
         self.assertEqual(response['diploma'], 'diploma')
-        self.assertEqual(response['access'], 'access')
+        self.assertEqual(response['access'], CONDITION_ADMISSION_ACCESSES[2][0])
 
     @mock.patch('base.views.education_group.education_group_year_admission_condition_update_text_post')
     @mock.patch('base.views.education_group.education_group_year_admission_condition_update_text_get')
