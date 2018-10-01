@@ -162,7 +162,6 @@ class TestIsAcademicCalendarHasStarted(TestCase):
     def test_project_calendar_types(self):
         excepted_project_calendar_types = (
             (academic_calendar_type.TESTING, academic_calendar_type.TESTING),
-            (academic_calendar_type.RELEASE, academic_calendar_type.RELEASE),
         )
         self.assertCountEqual(
             academic_calendar_type.PROJECT_CALENDAR_TYPES,
@@ -171,6 +170,8 @@ class TestIsAcademicCalendarHasStarted(TestCase):
 
     def test_calendar_types(self):
         self.assertCountEqual(
-            academic_calendar_type.ACADEMIC_CALENDAR_TYPES + academic_calendar_type.PROJECT_CALENDAR_TYPES,
+            academic_calendar_type.ACADEMIC_CALENDAR_TYPES +
+            academic_calendar_type.PROJECT_CALENDAR_TYPES +
+            academic_calendar_type.AD_HOC_CALENDAR_TYPES,
             academic_calendar_type.CALENDAR_TYPES
         )
