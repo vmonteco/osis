@@ -77,6 +77,8 @@ INSTALLED_APPS = (
     'ordered_model',
     'waffle',
     'ajax_select',
+    'django_celery_beat',
+    'django_celery_results',
 )
 
 MIDDLEWARE = (
@@ -211,6 +213,17 @@ LOGO_OSIS_URL = os.environ.get('LOGO_OSIS_URL', '')
 # They are used to ensure the migration of Data between Osis and other application (ex : Osis <> Osis-Portal)
 # See in settings.dev.example to configure the queues
 QUEUES = {}
+
+
+# Celery settings
+CELERY_BROKER_URL = "amqp://{user}:{password}@{host}:{port}".format(
+    user=os.environ.get('RABBITMQ_USER', 'guest'),
+    password=os.environ.get('RABBITMQ_PASSWORD', 'guest'),
+    host=os.environ.get('RABBITMQ_HOST', 'localhost'),
+    port=os.environ.get('RABBITMQ_PORT', '5672')
+)
+CELERY_CELERYBEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
+CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', 'django-db')
 
 # Additionnal Locale Path
 # Add local path in your environment settings (ex: dev.py)
