@@ -44,6 +44,16 @@ from cms.models.text_label import TextLabel
 from cms.models.translated_text import TranslatedText
 from cms.models.translated_text_label import TranslatedTextLabel
 
+BACHELOR_FIELDS = (
+    'alert_message', 'ca_bacs_cond_generales', 'ca_bacs_cond_particulieres', 'ca_bacs_examen_langue',
+    'ca_bacs_cond_speciales'
+)
+
+COMMON_FIELDS = (
+    'alert_message', 'personalized_access', 'admission_enrollment_procedures', 'adults_taking_up_university_training',
+    'ca_cond_generales', 'ca_maitrise_fr', 'ca_allegement', 'ca_ouv_adultes'
+)
+
 OFFERS = [
     {'name': education_group_types.AGREGATION, 'category': education_group_categories.TRAINING, 'code': '2A'},
     {'name': education_group_types.CERTIFICATE_OF_PARTICIPATION, 'category': education_group_categories.TRAINING,
@@ -358,8 +368,7 @@ class Command(BaseCommand):
         admission_condition, created = AdmissionCondition.objects.get_or_create(
             education_group_year=education_group_year)
 
-        for text_label in ('alert_message', 'ca_bacs_cond_generales', 'ca_bacs_cond_particulieres',
-                           'ca_bacs_examen_langue', 'ca_bacs_cond_speciales'):
+        for text_label in BACHELOR_FIELDS:
             if text_label in item['info']:
                 self.set_admission_condition_value(admission_condition, text_label,
                                                    item['info'][text_label]['text-common'])
@@ -385,9 +394,7 @@ class Command(BaseCommand):
             admission_condition, created = AdmissionCondition.objects.get_or_create(
                 education_group_year=education_group_year)
 
-            if text_label in ('alert_message', 'personalized_access', 'admission_enrollment_procedures',
-                              'adults_taking_up_university_training', 'ca_cond_generales', 'ca_maitrise_fr',
-                              'ca_allegement', 'ca_ouv_adultes'):
+            if text_label in COMMON_FIELDS:
                 self.set_admission_condition_value(admission_condition, text_label, value)
             elif text_label == 'introduction':
                 self.set_admission_condition_value(admission_condition, 'standard', value)

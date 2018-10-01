@@ -43,7 +43,7 @@ from base.business.education_groups import perms
 from base.business.education_groups.group_element_year_tree import NodeBranchJsTree
 from base.models.admission_condition import AdmissionCondition, AdmissionConditionLine
 from base.models.education_group_year import EducationGroupYear
-from base.models.enums import education_group_categories, academic_calendar_type
+from base.models.enums import education_group_categories, academic_calendar_type, education_group_types
 from base.models.person import Person
 from cms import models as mdl_cms
 from cms.enums import entity_name
@@ -355,7 +355,7 @@ class EducationGroupYearAdmissionCondition(EducationGroupGenericDetailView):
             'info': {
                 'is_specific': is_specific,
                 'is_common': is_common,
-                'is_bachelor': acronym == 'common-1ba',
+                'is_bachelor': is_common and self.object.education_group_type.name == education_group_types.BACHELOR,
                 'is_master': is_master,
                 'show_components_for_agreg_and_mc': is_common and use_standard_text,
                 'show_free_text': is_specific and (is_master or use_standard_text),
