@@ -11,7 +11,11 @@ from base.models.education_group_year import EducationGroupYear
 from base.models.enums import education_group_types, education_group_categories
 from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.education_group import EducationGroupFactory
-from base.tests.factories.education_group_year import EducationGroupYearFactory, EducationGroupYearCommonMasterFactory
+from base.tests.factories.education_group_year import (
+    EducationGroupYearFactory,
+    EducationGroupYearCommonMasterFactory,
+    EducationGroupYearCommonBachelorFactory
+)
 
 
 class ImportReddotTestCase(TestCase):
@@ -21,7 +25,7 @@ class ImportReddotTestCase(TestCase):
         self.command.suffix_language = '' if lang == 'fr-be' else '_en'
 
     def test_load_admission_conditions_for_bachelor(self):
-        education_group_year_common = EducationGroupYearFactory(acronym='common-1ba')
+        education_group_year_common = EducationGroupYearCommonBachelorFactory()
         item = {
             'year': education_group_year_common.academic_year.year,
             'acronym': '1ba',
