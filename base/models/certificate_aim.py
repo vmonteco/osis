@@ -47,6 +47,12 @@ class CertificateAim(models.Model):
         auto_now=True,
     )
 
+    code = models.PositiveIntegerField(
+        verbose_name=_("aim number"),
+        db_index=True,
+        unique=True,
+    )
+
     section = models.PositiveIntegerField(
         verbose_name=_("section"),
         db_index=True,

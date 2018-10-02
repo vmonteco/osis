@@ -390,6 +390,12 @@ class EducationGroupYear(models.Model):
         verbose_name=_("comment (internal)"),
     )
 
+    certificate_aims = models.ManyToManyField(
+        "base.CertificateAim",
+        through="EducationGroupCertificateAim",
+        related_name="education_group_years",
+    )
+
     def __str__(self):
         return "{} - {} - {}".format(
             self.partial_acronym,
