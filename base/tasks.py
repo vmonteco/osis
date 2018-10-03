@@ -1,3 +1,5 @@
+import datetime
+
 from celery.schedules import crontab
 
 from backoffice.celery import app as celery_app
@@ -14,4 +16,6 @@ celery_app.conf.beat_schedule.update({
 @celery_app.task
 def extend_learning_units():
     results, errors = fetch_learning_unit_to_postpone()
-    return errors
+    return {
+        "errors": [str(error) for error in errors]
+    }
