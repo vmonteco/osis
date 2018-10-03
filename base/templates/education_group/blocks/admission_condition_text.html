@@ -34,8 +34,11 @@
            data-form="{{ update_text_url }}?section={{ section_name }}&amp;language=en">
             <span class="glyphicon glyphicon-flag" style="font-size: 16px;" aria-hidden="true"></span>
         </a>
-        {% endif %}
+    {% endif %}
     </h3>
-    <div id="text_{{ section }}">{{ field|safe }}</div>
+    <div class="row">
+        <div class="col-md-6" id="text_{{ section }}">{{ field|safe }}</div>
+        <div class="col-md-6" id="text_{{ section }}_en">{{ field_en|safe }}</div>
+    </div>
     <hr/>
 </div>
