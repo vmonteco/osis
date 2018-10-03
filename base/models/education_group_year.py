@@ -447,7 +447,9 @@ class EducationGroupYear(models.Model):
 
     @property
     def verbose_duration(self):
-        return "{} {}".format(self.duration, _(self.duration_unit))
+        if self.duration and self.duration_unit:
+            return "{} {}".format(self.duration, _(self.duration_unit))
+        return ""
 
     class Meta:
         verbose_name = _("education group year")
