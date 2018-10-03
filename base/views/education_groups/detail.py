@@ -31,7 +31,7 @@ from django import forms
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import PermissionRequiredMixin
-from django.db.models import F, Case, When
+from django.db.models import F, Case, When, Prefetch
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
@@ -42,6 +42,8 @@ from base.business.education_group import assert_category_of_education_group_yea
 from base.business.education_groups import perms
 from base.business.education_groups.group_element_year_tree import NodeBranchJsTree
 from base.models.admission_condition import AdmissionCondition, AdmissionConditionLine
+from base.models.certificate_aim import CertificateAim
+from base.models.education_group_certificate_aim import EducationGroupCertificateAim
 from base.models.education_group_year import EducationGroupYear
 from base.models.enums import education_group_categories, academic_calendar_type
 from base.models.person import Person
@@ -132,6 +134,10 @@ class EducationGroupRead(EducationGroupGenericDetailView):
 class EducationGroupDiplomas(EducationGroupGenericDetailView):
     template_name = "education_group/tab_diplomas.html"
     limited_by_category = (education_group_categories.TRAINING,)
+
+    def get_queryset(self):
+        prefetch_aims = Prefetch('certificate_aims', queryset=CertificateAim.objects.all().order_by('code', 'section'))
+        return super().get_queryset().prefetch_related(prefetch_aims)
 
 
 class EducationGroupGeneralInformation(EducationGroupGenericDetailView):
