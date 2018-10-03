@@ -106,7 +106,7 @@ msgid "after_submission_a_message_must_be_sent"
 msgstr "Si un encodage est soumis , um message est envoyé au professeur de ce cours"
 
 msgid "aim number"
-msgstr "Numéro de l'attendu"
+msgstr "numéro de l'attendu"
 
 msgid "all"
 msgstr "Tout"
@@ -1056,7 +1056,7 @@ msgid "search_for_an_organization"
 msgstr "Recherche d'organisations"
 
 msgid "section"
-msgstr "Rubrique"
+msgstr "rubrique"
 
 msgid "SECTOR"
 msgstr "Secteur"
