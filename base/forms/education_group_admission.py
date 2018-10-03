@@ -40,6 +40,7 @@ class UpdateLineForm(forms.Form):
 
 
 class UpdateTextForm(forms.Form):
-    text = RichTextFormField(required=False, config_name='minimal')
+    PARAMETERS_FOR_RICH_TEXT = dict(required=False, config_name='minimal')
+    text_fr = RichTextFormField(**PARAMETERS_FOR_RICH_TEXT)
+    text_en = RichTextFormField(**PARAMETERS_FOR_RICH_TEXT)
     section = forms.CharField(widget=forms.HiddenInput())
-    language = forms.CharField(widget=forms.HiddenInput())
