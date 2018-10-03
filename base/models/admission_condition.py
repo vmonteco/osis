@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.db import models
 from ordered_model.models import OrderedModel
 
@@ -74,16 +75,11 @@ from django.utils.translation import ugettext_lazy as _
 
 
 CONDITION_ADMISSION_ACCESSES = [
-    # ('-', '-'),
-    # ('Sur dossier: accès direct ou moyennant compléments de formation', _('Sur dossier: accès direct ou moyennant compléments de formation')),
-    # ('Accès direct', _('Accès direct')),
-    # ('Accès moyennant compléments de formation', _('Accès moyennant compléments de formation'))
     ('-', '-'),
     ('on_the_file', _('On the file: direct access or access with additional training')),
     ('direct_access', _('Direct Access')),
     ('access_with_training', _('Access with additional training')),
 ]
-
 
 
 class AdmissionConditionLine(OrderedModel):
@@ -93,7 +89,8 @@ class AdmissionConditionLine(OrderedModel):
     # this external_id is used just for the import, once reddot is dead, we could remove it.
     external_id = models.CharField(max_length=32, null=True, db_index=True)
 
-    access = models.CharField(choices=CONDITION_ADMISSION_ACCESSES, max_length=32)
+    access = models.CharField(choices=CONDITION_ADMISSION_ACCESSES, max_length=32,
+                              default=CONDITION_ADMISSION_ACCESSES[0][0])
 
     diploma = models.TextField(default='')
     conditions = models.TextField(default='')
@@ -109,6 +106,11 @@ class AdmissionConditionLine(OrderedModel):
     class Meta(OrderedModel.Meta):
         ordering = ('admission_condition', 'section', 'order')
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+        if self.access not in dict(CONDITION_ADMISSION_ACCESSES):
+            raise ValidationError({'access': _('{} is not an accepted value').format(self.access)})
 
 class AdmissionConditionLineAdmin(osis_model_admin.OsisModelAdmin):
     list_display = ('name', 'section')
