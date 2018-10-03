@@ -27,6 +27,7 @@ import factory.fuzzy
 
 from base.models.education_group_year import EducationGroupYear
 from base.models.enums import education_group_categories, active_status, schedule_type
+from base.models.enums.education_group_types import BACHELOR, PGRM_MASTER_120
 from base.models.learning_unit_year import MAXIMUM_CREDITS, MINIMUM_CREDITS
 from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.campus import CampusFactory
@@ -77,3 +78,22 @@ class TrainingFactory(EducationGroupYearFactory):
 class GroupFactory(EducationGroupYearFactory):
     education_group_type = factory.SubFactory('base.tests.factories.education_group_type.EducationGroupTypeFactory',
                                               category=education_group_categories.GROUP)
+
+
+class EducationGroupYearCommonBachelorFactory(EducationGroupYearFactory):
+    acronym = 'common-1ba'
+    education_group_type = factory.SubFactory(
+        'base.tests.factories.education_group_type.ExistingEducationGroupTypeFactory',
+        name=BACHELOR
+    )
+
+
+class EducationGroupYearCommonMasterFactory(EducationGroupYearFactory):
+    acronym = 'common-2m'
+    education_group_type = factory.SubFactory(
+        'base.tests.factories.education_group_type.ExistingEducationGroupTypeFactory',
+        name=PGRM_MASTER_120
+    )
+
+class EducationGroupYearMasterFactory(EducationGroupYearCommonMasterFactory):
+    acronym = 'actu2m'

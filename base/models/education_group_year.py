@@ -54,7 +54,13 @@ class EducationGroupYearAdmin(OsisModelAdmin):
     search_fields = ['acronym']
 
 
+class EducationGroupYearManager(models.Manager):
+    def look_for_common(self, **kwargs):
+        return self.filter(acronym__startswith='common-', **kwargs)
+
+
 class EducationGroupYear(models.Model):
+    objects = EducationGroupYearManager()
     external_id = models.CharField(max_length=100, blank=True, null=True, db_index=True)
     changed = models.DateTimeField(null=True, auto_now=True)
 
@@ -447,7 +453,9 @@ class EducationGroupYear(models.Model):
 
     @property
     def verbose_duration(self):
-        return "{} {}".format(self.duration, _(self.duration_unit))
+        if self.duration and self.duration_unit:
+            return "{} {}".format(self.duration, _(self.duration_unit))
+        return ""
 
     class Meta:
         verbose_name = _("education group year")

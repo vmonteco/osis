@@ -3979,3 +3979,12 @@ msgstr "L'événement \"%(event)s\" a été supprimé avec succès"
 
 msgid "Name of the teacher responsible"
 msgstr "Nom du professeur responsable de programme"
+
+msgid "On the file: direct access or access with additional training"
+msgstr "Sur dossier: accès direct ou moyennant compléments de formation"
+
+msgid "Direct Access"
+msgstr "Accès direct"
+
+msgid "Access with additional training"
+msgstr "Accès moyennant compléments de formation"
