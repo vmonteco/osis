@@ -20,8 +20,7 @@ from base.tests.factories.person import PersonFactory
 from base.tests.factories.user import UserFactory
 from cms.enums import entity_name
 from cms.tests.factories.text_label import TextLabelFactory
-from cms.tests.factories.translated_text import TranslatedTextRandomFactory, TranslatedTextFactory, \
-    EnglishTranslatedTextRandomFactory
+from cms.tests.factories.translated_text import TranslatedTextRandomFactory, EnglishTranslatedTextRandomFactory
 from cms.tests.factories.translated_text_label import TranslatedTextLabelFactory
 
 try:
@@ -150,9 +149,13 @@ class TestEducationGroupYear(SeleniumTestCase):
         self.text_label = TextLabelFactory(label='welcome_introduction',
                                            entity=entity_name.OFFER_YEAR)
 
-        self.translated_text_label = TranslatedTextLabelFactory(text_label=self.text_label,
-                                                                label='Introduction')
+        TranslatedTextLabelFactory(text_label=self.text_label,
+                                   language="fr-be",
+                                   label='Introduction')
 
+        TranslatedTextLabelFactory(text_label=self.text_label,
+                                   language="en",
+                                   label='Introduction')
         # fr-be
         TranslatedTextRandomFactory(text_label=self.text_label,
                                     entity=self.text_label.entity,
