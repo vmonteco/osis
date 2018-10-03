@@ -204,4 +204,3 @@ def _build_gantt_markers_data(academic_calendar_list, show_adoc_events):
             }
             academic_calendar_data.append(data)
     return {'ad_hoc_events': academic_calendar_data}
-
