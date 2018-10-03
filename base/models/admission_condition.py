@@ -1,5 +1,6 @@
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.utils.translation import ugettext_lazy as _
 from ordered_model.models import OrderedModel
 
 from osis_common.models import osis_model_admin
@@ -71,9 +72,6 @@ class AdmissionConditionAdmin(osis_model_admin.OsisModelAdmin):
         return obj.education_group_year.acronym
 
 
-from django.utils.translation import ugettext_lazy as _
-
-
 CONDITION_ADMISSION_ACCESSES = [
     ('-', '-'),
     ('on_the_file', _('On the file: direct access or access with additional training')),
@@ -111,6 +109,7 @@ class AdmissionConditionLine(OrderedModel):
 
         if self.access not in dict(CONDITION_ADMISSION_ACCESSES):
             raise ValidationError({'access': _('{} is not an accepted value').format(self.access)})
+
 
 class AdmissionConditionLineAdmin(osis_model_admin.OsisModelAdmin):
     list_display = ('name', 'section')
