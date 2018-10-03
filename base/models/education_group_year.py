@@ -24,7 +24,7 @@
 #
 ##############################################################################
 from django.core.exceptions import ValidationError
-from django.core.validators import RegexValidator
+from django.core.validators import RegexValidator, MinValueValidator
 from django.db import models
 from django.db.models import Count, OuterRef, Exists
 from django.urls import reverse
@@ -268,7 +268,8 @@ class EducationGroupYear(models.Model):
     duration = models.PositiveIntegerField(
         blank=True,
         null=True,
-        verbose_name=_('duration')
+        verbose_name=_('duration'),
+        validators=[MinValueValidator(1)]
     )
 
     duration_unit = models.CharField(
