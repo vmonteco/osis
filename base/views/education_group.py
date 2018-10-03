@@ -183,21 +183,19 @@ def get_content_of_admission_condition_line(message, admission_condition_line, l
         'id': admission_condition_line.id,
         'diploma': getattr(admission_condition_line, 'diploma' + lang, ''),
         'conditions': getattr(admission_condition_line, 'conditions' + lang, ''),
-        'access': getattr(admission_condition_line, 'access' + lang, ''),
+        'access': admission_condition_line.access,
         'remarks': getattr(admission_condition_line, 'remarks' + lang, ''),
     }
 
 
 def education_group_year_admission_condition_update_line_post(request, root_id, education_group_year_id):
     creation_mode = request.POST.get('admission_condition_line') == ''
-
     if creation_mode:
         # bypass the validation of the form
         request.POST = request.POST.copy()
         request.POST.update({'admission_condition_line': 0})
 
     form = UpdateLineForm(request.POST)
-
     if form.is_valid():
         save_form_to_admission_condition_line(education_group_year_id, creation_mode, form)
 
@@ -219,8 +217,12 @@ def save_form_to_admission_condition_line(education_group_year_id, creation_mode
         admission_condition_line = AdmissionConditionLine.objects.create(
             admission_condition=education_group_year.admissioncondition,
             section=section)
-    for key in ('diploma', 'conditions', 'access', 'remarks'):
+
+    admission_condition_line.access = form.cleaned_data['access']
+
+    for key in ('diploma', 'conditions', 'remarks'):
         setattr(admission_condition_line, key + lang, form.cleaned_data[key])
+
     admission_condition_line.save()
 
 

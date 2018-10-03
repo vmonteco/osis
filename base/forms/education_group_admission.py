@@ -26,6 +26,8 @@
 from ckeditor.fields import RichTextFormField
 from django import forms
 
+from base.models.admission_condition import CONDITION_ADMISSION_ACCESSES
+
 
 class UpdateLineForm(forms.Form):
     admission_condition_line = forms.IntegerField(widget=forms.HiddenInput())
@@ -33,7 +35,7 @@ class UpdateLineForm(forms.Form):
     language = forms.CharField(widget=forms.HiddenInput())
     diploma = forms.CharField(widget=forms.Textarea, required=False)
     conditions = forms.CharField(widget=forms.Textarea, required=False)
-    access = forms.CharField(widget=forms.Textarea, required=False)
+    access = forms.ChoiceField(choices=CONDITION_ADMISSION_ACCESSES, required=False)
     remarks = forms.CharField(widget=forms.Textarea, required=False)
 
 
