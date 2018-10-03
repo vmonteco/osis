@@ -1017,11 +1017,12 @@ class AdmissionConditionEducationGroupYearTest(TestCase):
         root_id = self.education_group_parent.id
         education_group_year_id = self.education_group_child.id
 
-        request = RequestFactory().post('/', {
-            'language': 'fr',
+        values = {
             'section': 'free',
-            'text': 'Superman'
-        })
+            'text_fr': 'Texte en Français',
+            'text_en': 'Text in English'
+        }
+        request = RequestFactory().post('/', values)
 
         AdmissionCondition.objects.create(education_group_year=self.education_group_child)
 
@@ -1029,7 +1030,8 @@ class AdmissionConditionEducationGroupYearTest(TestCase):
         response = education_group_year_admission_condition_update_text_post(request, root_id, education_group_year_id)
 
         self.education_group_child.admissioncondition.refresh_from_db()
-        self.assertEqual(self.education_group_child.admissioncondition.text_free, 'Superman')
+        self.assertEqual(self.education_group_child.admissioncondition.text_free, values['text_fr'])
+        self.assertEqual(self.education_group_child.admissioncondition.text_free_en, values['text_en'])
         self.assertEqual(response.status_code, 302)
 
     @mock.patch('base.forms.education_group_admission.UpdateTextForm.is_valid', return_value=False)
