@@ -191,5 +191,8 @@ input[type="text"].ui-autocomplete-input:disabled ~ .results_on_deck .ui-icon{
 }
 
 .releaseCol{
-    background-color: green!important
+    background-color: teal!important
+}
+.releaseCol a{
+    color: white;
 }

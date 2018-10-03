@@ -189,7 +189,7 @@
             gantt.addMarker({
                 start_date: new Date(parts[2],mm , parts[0]),
                 css: 'releaseCol',
-                title: get_release_title(parts[0], parts[1], parts[2], data[i]['id']),
+                text: get_release_title(parts[0], parts[1], parts[2], data[i]['id']),
             });
         }
 
@@ -198,7 +198,7 @@
         gantt.parse({{ academic_calendar_json|safe }},"json");
 
         function get_release_title(d,m,y, id){
-            return "<b>" + gettext('release') + " : " + d + "/" + m + "/" +  y + "</b><br>"
+            return "<b>" + gettext('Release') + " : " + d + "/" + m + "/" +  y + "</b><br>"
                     + "<br>"
                     + "<a href=\"{% url 'academic_calendars' %}" + id + "\">"
                     + "{% trans 'details'%}</a>";
