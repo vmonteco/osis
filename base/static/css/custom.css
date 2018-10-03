@@ -138,18 +138,6 @@ table.volumes thead{
     font-weight: normal;
 }
 
-.notification:after {
-    content: "";
-    display: block;
-    position: absolute;
-    width: 10px;
-    height: 10px;
-    background: red;
-    top: -2px;
-    right: 0;
-    border-radius: 50%;
-}
-
 /* Override style for trash in ajax-multi-select*/
 input[type="text"].ui-autocomplete-input:disabled ~ .results_on_deck .ui-icon{
     display: none!important;
