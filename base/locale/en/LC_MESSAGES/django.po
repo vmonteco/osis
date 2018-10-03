@@ -3911,6 +3911,9 @@ msgstr ""
 msgid "project events"
 msgstr ""
 
+msgid "ad hoc events"
+msgstr ""
+
 msgid "%(count)d learning unit has been postponed with success"
 msgid_plural "%(count)d learning units have been postponed with success"
 msgstr[0] ""
@@ -3980,4 +3983,13 @@ msgid "The event \"%(event)s\" has been deleted successfully"
 msgstr ""
 
 msgid "Name of the teacher responsible"
+msgstr ""
+
+msgid "On the file: direct access or access with additional training"
+msgstr ""
+
+msgid "Direct Access"
+msgstr ""
+
+msgid "Access with additional training"
 msgstr ""

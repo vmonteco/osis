@@ -36,7 +36,7 @@ from django.http import HttpResponseForbidden, HttpResponseNotFound, HttpRespons
 from django.test import TestCase, RequestFactory
 from waffle.testutils import override_flag
 
-from base.models.admission_condition import AdmissionCondition, AdmissionConditionLine
+from base.models.admission_condition import AdmissionCondition, AdmissionConditionLine, CONDITION_ADMISSION_ACCESSES
 from base.models.enums import education_group_categories, academic_calendar_type
 from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.certificate_aim import CertificateAimFactory
@@ -840,7 +840,7 @@ class AdmissionConditionEducationGroupYearTest(TestCase):
             'id': admission_condition_line.id,
             'diploma': 'Diploma',
             'conditions': 'Conditions',
-            'access': 'Access',
+            'access': CONDITION_ADMISSION_ACCESSES[2][0],
             'remarks': 'Remarks'
         }
 
@@ -882,7 +882,7 @@ class AdmissionConditionEducationGroupYearTest(TestCase):
             'diploma': 'Diploma',
             'conditions': 'Conditions',
             'remarks': 'Remarks',
-            'access': 'Access',
+            'access': CONDITION_ADMISSION_ACCESSES[2][0],
         })
 
         request = RequestFactory().get('/')
@@ -905,7 +905,7 @@ class AdmissionConditionEducationGroupYearTest(TestCase):
             'diploma': 'Diploma',
             'conditions': 'Conditions',
             'remarks': 'Remarks',
-            'access': 'Access',
+            'access': CONDITION_ADMISSION_ACCESSES[2][0],
         })
 
         queryset = AdmissionConditionLine.objects.filter(admission_condition=admission_condition)
@@ -940,7 +940,7 @@ class AdmissionConditionEducationGroupYearTest(TestCase):
             'diploma': 'Diploma',
             'conditions': 'Conditions',
             'remarks': 'Remarks',
-            'access': 'Access',
+            'access': CONDITION_ADMISSION_ACCESSES[2][0],
         }
         request = RequestFactory().post('/', form)
         response = education_group_year_admission_condition_update_line_post(request,
@@ -965,7 +965,7 @@ class AdmissionConditionEducationGroupYearTest(TestCase):
             'diploma': 'Diploma',
             'conditions': 'Conditions',
             'remarks': 'Remarks',
-            'access': 'Access',
+            'access': CONDITION_ADMISSION_ACCESSES[2][0]
         }
         request = RequestFactory().post('/', form)
         result = education_group_year_admission_condition_update_line_post(request,
@@ -981,13 +981,13 @@ class AdmissionConditionEducationGroupYearTest(TestCase):
 
         admission_condition_line = mock.Mock(diploma='diploma',
                                              conditions='conditions',
-                                             access='access',
+                                             access=CONDITION_ADMISSION_ACCESSES[2][0],
                                              remarks='remarks')
 
         response = get_content_of_admission_condition_line('updated', admission_condition_line, '')
         self.assertEqual(response['message'], 'updated')
         self.assertEqual(response['diploma'], 'diploma')
-        self.assertEqual(response['access'], 'access')
+        self.assertEqual(response['access'], CONDITION_ADMISSION_ACCESSES[2][0])
 
     @mock.patch('base.views.education_group.education_group_year_admission_condition_update_text_post')
     @mock.patch('base.views.education_group.education_group_year_admission_condition_update_text_get')
@@ -1037,11 +1037,12 @@ class AdmissionConditionEducationGroupYearTest(TestCase):
         root_id = self.education_group_parent.id
         education_group_year_id = self.education_group_child.id
 
-        request = RequestFactory().post('/', {
-            'language': 'fr',
+        values = {
             'section': 'free',
-            'text': 'Superman'
-        })
+            'text_fr': 'Texte en Français',
+            'text_en': 'Text in English'
+        }
+        request = RequestFactory().post('/', values)
 
         AdmissionCondition.objects.create(education_group_year=self.education_group_child)
 
@@ -1049,7 +1050,8 @@ class AdmissionConditionEducationGroupYearTest(TestCase):
         response = education_group_year_admission_condition_update_text_post(request, root_id, education_group_year_id)
 
         self.education_group_child.admissioncondition.refresh_from_db()
-        self.assertEqual(self.education_group_child.admissioncondition.text_free, 'Superman')
+        self.assertEqual(self.education_group_child.admissioncondition.text_free, values['text_fr'])
+        self.assertEqual(self.education_group_child.admissioncondition.text_free_en, values['text_en'])
         self.assertEqual(response.status_code, 302)
 
     @mock.patch('base.forms.education_group_admission.UpdateTextForm.is_valid', return_value=False)

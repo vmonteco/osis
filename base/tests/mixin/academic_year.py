@@ -23,24 +23,21 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from ckeditor.fields import RichTextFormField
-from django import forms
+from unittest.mock import patch
 
-from base.models.admission_condition import CONDITION_ADMISSION_ACCESSES
-
-
-class UpdateLineForm(forms.Form):
-    admission_condition_line = forms.IntegerField(widget=forms.HiddenInput())
-    section = forms.CharField(widget=forms.HiddenInput())
-    language = forms.CharField(widget=forms.HiddenInput())
-    diploma = forms.CharField(widget=forms.Textarea, required=False)
-    conditions = forms.CharField(widget=forms.Textarea, required=False)
-    access = forms.ChoiceField(choices=CONDITION_ADMISSION_ACCESSES, required=False)
-    remarks = forms.CharField(widget=forms.Textarea, required=False)
+from base.models import academic_year
 
 
-class UpdateTextForm(forms.Form):
-    PARAMETERS_FOR_RICH_TEXT = dict(required=False, config_name='minimal')
-    text_fr = RichTextFormField(**PARAMETERS_FOR_RICH_TEXT)
-    text_en = RichTextFormField(**PARAMETERS_FOR_RICH_TEXT)
-    section = forms.CharField(widget=forms.HiddenInput())
+class AcademicYearMockMixin:
+    """
+        This mixin allow mocking function current_academic_year() / starting_academic_year()
+        in order to decouple test from system time
+    """
+    def mock_academic_year(self, current_academic_year=None, starting_academic_year=None):
+        self.patch_academic_year = patch.multiple(
+            academic_year,
+            current_academic_year=lambda: current_academic_year,
+            starting_academic_year=lambda: starting_academic_year
+        )
+        self.patch_academic_year.start()
+        self.addCleanup(self.patch_academic_year.stop)
