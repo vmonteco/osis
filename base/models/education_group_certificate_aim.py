@@ -34,6 +34,7 @@ class EducationGroupCertificateAimAdmin(OsisModelAdmin):
     list_display = ('education_group_year', 'certificate_aim', 'changed')
     search_fields = ('education_group_year__acronym', 'certificate_aim__description')
     list_filter = ('certificate_aim__section',)
+    ordering = ('education_group_year__acronym',)
 
 
 class EducationGroupCertificateAim(models.Model):
@@ -49,9 +50,15 @@ class EducationGroupCertificateAim(models.Model):
         auto_now=True,
     )
 
-    education_group_year = models.ForeignKey(EducationGroupYear)
+    education_group_year = models.ForeignKey(
+        EducationGroupYear,
+        on_delete=models.CASCADE,
+    )
 
-    certificate_aim = models.ForeignKey(CertificateAim)
+    certificate_aim = models.ForeignKey(
+        CertificateAim,
+        on_delete=models.PROTECT,
+    )
 
     def __str__(self):
         return "{} - {}".format(self.education_group_year, self.certificate_aim)
