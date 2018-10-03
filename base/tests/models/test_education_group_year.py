@@ -28,7 +28,7 @@ from django.test import TestCase
 from django.utils.translation import ugettext_lazy as _
 
 from base.models.education_group_year import find_by_id, search, find_with_enrollments_count
-from base.models.enums import education_group_categories
+from base.models.enums import education_group_categories, duration_unit
 from base.models.enums.constraint_type import CREDITS
 from base.models.exceptions import MaximumOneParentAllowedException
 from base.tests.factories.academic_year import AcademicYearFactory, create_current_academic_year
@@ -272,3 +272,29 @@ class TestFindWithEnrollmentsCount(TestCase):
         result = find_with_enrollments_count(self.learning_unit_year)
         expected_list_order = [group_2.parent, group_3.parent, group_1.parent]
         self.assertEqual(list(result), expected_list_order)
+
+
+class EducationGroupYearVerboseTest(TestCase):
+    def setUp(self):
+        self.education_group_year = EducationGroupYearFactory()
+
+    def test_verbose_duration_case_no_empty_property(self):
+        self.education_group_year.duration = 1
+        self.education_group_year.duration_unit = duration_unit.QUADRIMESTER
+
+        expected = '{} {}'.format(1, _(duration_unit.QUADRIMESTER))
+        self.assertEqual(self.education_group_year.verbose_duration, expected)
+
+    def test_verbose_duration_case_no_duration(self):
+        self.education_group_year.duration = None
+        self.education_group_year.duration_unit = duration_unit.QUADRIMESTER
+
+        expected = ''
+        self.assertEqual(self.education_group_year.verbose_duration, expected)
+
+    def test_verbose_duration_case_no_duration_unit(self):
+        self.education_group_year.duration = 1
+        self.education_group_year.duration_unit = None
+
+        expected = ''
+        self.assertEqual(self.education_group_year.verbose_duration, expected)

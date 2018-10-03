@@ -15,7 +15,7 @@
 #
 #    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #    GNU General Public License for more details.
 #
 #    A copy of this license - GNU General Public License - is available
@@ -23,25 +23,19 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import operator
+from unittest.mock import patch
 
-import factory
-
-from factory.django import DjangoModelFactory
-
-from base.models.enums import education_group_categories, education_group_types
+from base.models import session_exam_calendar
 
 
-class EducationGroupTypeFactory(DjangoModelFactory):
-    class Meta:
-        model = "base.EducationGroupType"
-
-    external_id = factory.Sequence(lambda n: '10000000%02d' % n)
-    category = education_group_categories.TRAINING
-    name = factory.Iterator(education_group_types.TYPES, getter=operator.itemgetter(0))
-
-
-class ExistingEducationGroupTypeFactory(EducationGroupTypeFactory):
-    class Meta:
-        model = 'base.EducationGroupType'
-        django_get_or_create = ('category', 'name')
+class SessionExamCalendarMockMixin:
+    """
+        This mixin allow mocking function current_session_exam() in order to decouple test from system time
+    """
+    def mock_session_exam_calendar(self, current_session_exam=None):
+        self.patch_session_exam_calendar = patch.multiple(
+            session_exam_calendar,
+            current_session_exam=lambda *args, **kwargs: current_session_exam
+        )
+        self.patch_session_exam_calendar.start()
+        self.addCleanup(self.patch_session_exam_calendar.stop)
