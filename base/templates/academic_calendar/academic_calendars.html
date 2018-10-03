@@ -177,7 +177,7 @@
         gantt.templates.grid_row_class = setRowStyleFunction; // update first cell style
         gantt.templates.task_row_class = setRowStyleFunction; // update end of row style
 
-        var markerId = gantt.addMarker({
+        gantt.addMarker({
             start_date: new Date() // this is today
         });
 
@@ -198,12 +198,10 @@
         gantt.parse({{ academic_calendar_json|safe }},"json");
 
         function get_release_title(d,m,y, id){
-            return "<b>" + gettext('Release') + " : " + d + "/" + m + "/" +  y + "</b><br>"
+            return "<b>" + gettext('Release') + " : " + d + "/" + m + "/" +  y + "</b>"
                     + "<br>"
                     + "<a href=\"{% url 'academic_calendars' %}" + id + "\">"
                     + "{% trans 'details'%}</a>";
-
-
         }
     </script>
 {% endblock %}
