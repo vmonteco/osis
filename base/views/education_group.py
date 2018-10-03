@@ -183,7 +183,7 @@ def get_content_of_admission_condition_line(message, admission_condition_line, l
         'id': admission_condition_line.id,
         'diploma': getattr(admission_condition_line, 'diploma' + lang, ''),
         'conditions': getattr(admission_condition_line, 'conditions' + lang, ''),
-        'access': getattr(admission_condition_line, 'access' + lang, ''),
+        'access': admission_condition_line.access,
         'remarks': getattr(admission_condition_line, 'remarks' + lang, ''),
     }
 

@@ -224,12 +224,15 @@ def insert_section_if_checked(context, education_group_year, text_label):
 
 
 def admission_condition_line_to_dict(context, admission_condition_line):
-    fields = ('diploma', 'conditions', 'access', 'remarks')
+    fields = ('diploma', 'conditions', 'remarks')
 
-    return {
+    result = {
         field: (getattr(admission_condition_line, field + context.suffix_language) or '').strip()
         for field in fields
     }
+
+    result['access'] = admission_condition_line.access
+    return result
 
 
 def get_value_from_ac(admission_condition, field, context):

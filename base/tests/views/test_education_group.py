@@ -820,7 +820,7 @@ class AdmissionConditionEducationGroupYearTest(TestCase):
             'id': admission_condition_line.id,
             'diploma': 'Diploma',
             'conditions': 'Conditions',
-            'access': 'Access',
+            'access': CONDITION_ADMISSION_ACCESSES[2][0],
             'remarks': 'Remarks'
         }
 
@@ -862,7 +862,7 @@ class AdmissionConditionEducationGroupYearTest(TestCase):
             'diploma': 'Diploma',
             'conditions': 'Conditions',
             'remarks': 'Remarks',
-            'access': 'direct_access',
+            'access': CONDITION_ADMISSION_ACCESSES[2][0],
         })
 
         request = RequestFactory().get('/')
@@ -885,7 +885,7 @@ class AdmissionConditionEducationGroupYearTest(TestCase):
             'diploma': 'Diploma',
             'conditions': 'Conditions',
             'remarks': 'Remarks',
-            'access': 'Access',
+            'access': CONDITION_ADMISSION_ACCESSES[2][0],
         })
 
         queryset = AdmissionConditionLine.objects.filter(admission_condition=admission_condition)
@@ -920,7 +920,7 @@ class AdmissionConditionEducationGroupYearTest(TestCase):
             'diploma': 'Diploma',
             'conditions': 'Conditions',
             'remarks': 'Remarks',
-            'access': 'direct_access',
+            'access': CONDITION_ADMISSION_ACCESSES[2][0],
         }
         request = RequestFactory().post('/', form)
         response = education_group_year_admission_condition_update_line_post(request,
