@@ -1,6 +1,5 @@
 <!doctype html>
-{% load staticfiles %}
-{% load i18n %}
+{% load staticfiles i18n %}
 {% load analytical %}
 
 {% comment "License" %}
@@ -216,10 +215,7 @@
                             </ul>
                         </li>
                         <li>
-                            <button class="btn btn-default btn-lg btn-link">
-                                <span class="glyphicon glyphicon-bell"></span>
-                            </button>
-                            <span class="badge badge-notify">3</span>
+                            {% include "blocks/notifications.html" %}
                         </li>
                     {% else %}
                         <li><a href="{% url 'login' %}" id="lnk_login"><span class="glyphicon glyphicon-lock"

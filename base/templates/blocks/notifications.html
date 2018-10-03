@@ -1,0 +1,24 @@
+{% load notifications %}
+{%  get_notifications as list_notifications %}
+
+<div class="dropdown">
+    <button id="notifications_dropdown" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+            class="btn btn-default btn-lg btn-link">
+        <span class="glyphicon glyphicon-bell"></span>
+    </button>
+    <span class="badge badge-notify">{{ list_notifications|length }}</span>
+    <ul class="dropdown-menu" aria-labelledby="dLabel">
+
+        {% for notification in list_notifications %}
+            <li>
+                {{ notification.start_date|date:"d/n" }}:
+                <br>
+                <small>{{ notification.title }} </small>
+            </li>
+            {% if not forloop.last%}
+                <li class="divider"></li>
+            {% endif %}
+        {% endfor %}
+
+    </ul>
+</div>
