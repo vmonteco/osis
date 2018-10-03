@@ -1,5 +1,3 @@
-import datetime
-
 from celery.schedules import crontab
 
 from backoffice.celery import app as celery_app
