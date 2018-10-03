@@ -268,6 +268,7 @@ class EducationGroupYear(models.Model):
     duration = models.PositiveIntegerField(
         blank=True,
         null=True,
+        default=1,  # We must set a default value for duration because duration_unit have a default value
         verbose_name=_('duration'),
         validators=[MinValueValidator(1)]
     )
