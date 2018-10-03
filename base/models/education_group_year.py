@@ -568,6 +568,7 @@ class EducationGroupYear(models.Model):
             self.clean_constraint_type()
         else:
             self.clean_min_max()
+        self.clean_duration_data()
 
     def clean_constraint_type(self):
         # If min or max has been set, constraint_type is required
@@ -593,6 +594,12 @@ class EducationGroupYear(models.Model):
                     "min": _("minimum constraint").title(),
                 }
             })
+
+    def clean_duration_data(self):
+        if self.duration_unit is not None and self.duration is None:
+            raise ValidationError({'duration': _("field_is_required")})
+        elif self.duration is not None and self.duration_unit is None:
+            raise ValidationError({'duration_unit': _("field_is_required")})
 
 
 def find_by_id(an_id):

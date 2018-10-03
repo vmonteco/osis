@@ -23,10 +23,13 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+import operator
+
 import factory.fuzzy
 
 from base.models.education_group_year import EducationGroupYear
 from base.models.enums import education_group_categories, active_status, schedule_type
+from base.models.enums.duration_unit import DURATION_UNIT
 from base.models.enums.education_group_types import BACHELOR, PGRM_MASTER_120
 from base.models.learning_unit_year import MAXIMUM_CREDITS, MINIMUM_CREDITS
 from base.tests.factories.academic_year import AcademicYearFactory
@@ -63,6 +66,8 @@ class EducationGroupYearFactory(factory.django.DjangoModelFactory):
     schedule_type = schedule_type.DAILY
     weighting = False
     default_learning_unit_enrollment = False
+    duration_unit = factory.Iterator(DURATION_UNIT, getter=operator.itemgetter(0))
+    duration = factory.fuzzy.FuzzyInteger(1, 5)
 
 
 class MiniTrainingFactory(EducationGroupYearFactory):

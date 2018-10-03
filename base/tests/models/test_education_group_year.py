@@ -194,7 +194,6 @@ class EducationGroupYearTest(TestCase):
 
 
 class EducationGroupYearCleanTest(TestCase):
-
     def test_clean_constraint(self):
 
         e = EducationGroupYearFactory(min_constraint=12, max_constraint=20, constraint_type=CREDITS)
@@ -217,6 +216,18 @@ class EducationGroupYearCleanTest(TestCase):
 
     def test_clean_min_gt_max(self):
         e = EducationGroupYearFactory(min_constraint=20, max_constraint=10, constraint_type=CREDITS)
+
+        with self.assertRaises(ValidationError):
+            e.clean()
+
+    def test_clean_case_no_duration_with_duration_unit(self):
+        e = EducationGroupYearFactory(duration=None, duration_unit=duration_unit.QUADRIMESTER)
+
+        with self.assertRaises(ValidationError):
+            e.clean()
+
+    def test_clean_case_no_duration_unit_with_duration(self):
+        e = EducationGroupYearFactory(duration=1, duration_unit=None)
 
         with self.assertRaises(ValidationError):
             e.clean()
