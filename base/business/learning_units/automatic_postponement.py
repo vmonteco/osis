@@ -29,12 +29,10 @@ from django.db import transaction, Error
 from base.business.learning_units.edition import duplicate_learning_unit_year
 from base.models.academic_year import compute_max_academic_year_adjournment, AcademicYear
 from base.models.learning_unit_year import LearningUnitYear
-
 from base.utils.send_mail import send_mail_before_annual_procedure_of_automatic_postponement, \
     send_mail_after_annual_procedure_of_automatic_postponement
 
 
-# TODO This method will be execute through a celery worker.
 def fetch_learning_unit_to_postpone(queryset=None):
     if not queryset:
         queryset = LearningUnitYear.objects_with_container.all()
