@@ -29,6 +29,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from base.models import learning_class_year
 from base.models.enums import learning_component_year_type, learning_container_year_types
+from base.models.enums.component_type import LECTURING, PRACTICAL_EXERCISES
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
 
 
@@ -82,7 +83,11 @@ class LearningComponentYear(SerializableModel):
     def complete_acronym(self):
         queryset = self.learningunitcomponent_set
         learning_unit_acronym = queryset.all().values_list('learning_unit_year__acronym', flat=True).get()
-        return '{}/{}'.format(learning_unit_acronym, self.acronym)
+        # FIXME :: Temporary solution - waiting for business clarification about "components" concept (untyped, ...)
+        if self.acronym == 'NT':
+            return '{}/PM'.format(learning_unit_acronym)
+        else:
+            return '{}/{}'.format(learning_unit_acronym, self.acronym)
 
     @property
     def real_classes(self):
@@ -112,27 +117,23 @@ class LearningComponentYear(SerializableModel):
             _warnings.append("{} ({})".format(
                 inconsitent_msg,
                 _('Vol_global is not equal to Vol_tot * planned_classes')))
-        if self.planned_classes == 0:
+        if planned_classes == 0 and vol_total_annual > 0:
             _warnings.append("{} ({})".format(
                 inconsitent_msg,
-                _('planned classes cannot be 0')))
+                _('planned classes cannot be 0 while volume is greater than 0')))
+        if planned_classes > 0 and vol_total_annual == 0:
+            _warnings.append("{} ({})".format(
+                inconsitent_msg,
+                _('planned classes cannot be greather than 0 while volume is equal to 0')))
         return _warnings
 
 
 def volume_total_verbose(learning_component_years):
-    sum_q1 = sum([learning_component_year.hourly_volume_partial_q1
-                  for learning_component_year in learning_component_years
-                  if learning_component_year.hourly_volume_partial_q1])
-    sum_q2 = sum([learning_component_year.hourly_volume_partial_q2
-                  for learning_component_year in learning_component_years
-                  if learning_component_year.hourly_volume_partial_q2])
-    q1 = volumes_format(sum_q1)
-    q2 = volumes_format(sum_q2)
-    return "%(q1)s + %(q2)s" % {"q1": q1, "q2": q2}
-
-
-def volumes_format(sum):
-    return "%(sum)sh" % {"sum": float(sum)} if sum else '-h'
+    q1 = next((component['total'] for component in learning_component_years
+               if component['type'] == LECTURING), 0)
+    q2 = next((component['total'] for component in learning_component_years
+               if component['type'] == PRACTICAL_EXERCISES), 0)
+    return "%(q1)gh + %(q2)gh" % {"q1": q1, "q2": q2}
 
 
 def find_by_id(learning_component_year_id):

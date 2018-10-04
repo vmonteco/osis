@@ -26,14 +26,13 @@
 import datetime
 import string
 
-import factory
 import factory.fuzzy
 from factory.django import DjangoModelFactory
 from faker import Faker
 
-from osis_common.utils.datetime import get_tzinfo
 from base.tests.factories.mandate import MandateFactory
 from base.tests.factories.person import PersonFactory
+
 fake = Faker()
 
 
@@ -56,8 +55,8 @@ class MandataryFactory(DjangoModelFactory):
         model = "base.Mandatary"
 
     external_id = factory.fuzzy.FuzzyText(length=10, chars=string.digits)
-    changed = factory.fuzzy.FuzzyDateTime(datetime.datetime(2016, 1, 1, tzinfo=get_tzinfo()),
-                                          datetime.datetime(2017, 3, 1, tzinfo=get_tzinfo()))
+    changed = factory.fuzzy.FuzzyNaiveDateTime(datetime.datetime(2016, 1, 1),
+                                          datetime.datetime(2017, 3, 1))
     mandate = factory.SubFactory(MandateFactory)
     person = factory.SubFactory(PersonFactory)
     start_date = factory.LazyAttribute(generate_start_date)

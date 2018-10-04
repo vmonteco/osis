@@ -23,24 +23,14 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+import datetime
+
 from django.test import TestCase
 
-from base.business import learning_unit_year_with_context
-from base.business.entity_version import find_entity_version_descendants, find_entity_version_according_academic_year
-from base.models.enums import entity_container_year_link_type as entity_types, organization_type, \
-    entity_container_year_link_type
-from base.tests.factories.entity import EntityFactory
-from base.tests.factories.entity_component_year import EntityComponentYearFactory
-from base.tests.factories.entity_container_year import EntityContainerYearFactory
-from base.tests.factories.entity_version import EntityVersionFactory
-from base.tests.factories.learning_component_year import LearningComponentYearFactory
-from base.tests.factories.learning_container_year import LearningContainerYearFactory
+from base.business.entity_version import find_entity_version_according_academic_year
 from base.tests.factories.academic_year import AcademicYearFactory
-import datetime
-from django.utils.translation import ugettext_lazy as _
-
-from base.tests.factories.organization import OrganizationFactory
-from reference.tests.factories.country import CountryFactory
+from base.tests.factories.entity import EntityFactory
+from base.tests.factories.entity_version import EntityVersionFactory
 
 
 class EntityVersionTestCase(TestCase):
@@ -62,10 +52,6 @@ class EntityVersionTestCase(TestCase):
 
             self.entity_parent = child_entity_version.entity
             self.entity_versions.append(child_entity_version)
-
-    def test_find_entity_version_descendants(self):
-        descendants_id = find_entity_version_descendants(self.entity_versions[0], self.current_academic_year.start_date)
-        self.assertEqual(len(descendants_id), 19)
 
     def test_find_entity_version_according_academic_year(self):
         entity = EntityFactory()

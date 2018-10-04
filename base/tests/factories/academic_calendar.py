@@ -24,12 +24,14 @@
 #
 ##############################################################################
 import datetime
+import operator
 import string
 
 import factory.fuzzy
 from django.utils import timezone
 
-from base.models.enums.academic_calendar_type import SUMMARY_COURSE_SUBMISSION
+from base.models.enums.academic_calendar_type import SUMMARY_COURSE_SUBMISSION, EDUCATION_GROUP_EDITION, \
+    ACADEMIC_CALENDAR_TYPES
 from base.tests.factories.academic_year import AcademicYearFactory
 from osis_common.utils.datetime import get_tzinfo
 
@@ -53,8 +55,12 @@ class AcademicCalendarFactory(factory.DjangoModelFactory):
         model = 'base.AcademicCalendar'
 
     external_id = factory.fuzzy.FuzzyText(length=10, chars=string.digits)
-    changed = factory.fuzzy.FuzzyDateTime(datetime.datetime(2016, 1, 1, tzinfo=get_tzinfo()),
-                                          datetime.datetime(2017, 3, 1, tzinfo=get_tzinfo()))
+
+    changed = factory.fuzzy.FuzzyNaiveDateTime(
+        datetime.datetime(2016, 1, 1),
+        datetime.datetime(2017, 3, 1)
+    )
+
     academic_year = factory.SubFactory(AcademicYearFactory)
     title = factory.Sequence(lambda n: 'Academic Calendar - %d' % n)
     start_date = factory.LazyAttribute(generate_start_date)
@@ -62,7 +68,7 @@ class AcademicCalendarFactory(factory.DjangoModelFactory):
     highlight_title = factory.Sequence(lambda n: 'Highlight - %d' % n)
     highlight_description = factory.Sequence(lambda n: 'Description - %d' % n)
     highlight_shortcut = factory.Sequence(lambda n: 'Shortcut Highlight - %d' % n)
-    reference = None
+    reference = factory.Iterator(ACADEMIC_CALENDAR_TYPES, getter=operator.itemgetter(0))
 
 
 class AcademicCalendarExamSubmissionFactory(AcademicCalendarFactory):
@@ -71,3 +77,7 @@ class AcademicCalendarExamSubmissionFactory(AcademicCalendarFactory):
 
 class AcademicCalendarSummaryCourseSubmissionFactory(AcademicCalendarFactory):
     reference = SUMMARY_COURSE_SUBMISSION
+
+
+class AcademicCalendarEducationGroupEditionFactory(AcademicCalendarFactory):
+    reference = EDUCATION_GROUP_EDITION

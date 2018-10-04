@@ -40,7 +40,7 @@ from base.models.enums.attribution_procedure import EXTERNAL
 from base.models.enums.learning_container_year_types import OTHER_COLLECTIVE, OTHER_INDIVIDUAL, MASTER_THESIS, COURSE
 from base.models.enums.learning_unit_year_subtypes import FULL, PARTIM
 from base.models.enums.proposal_type import ProposalType
-from base.models.person import FACULTY_MANAGER_GROUP, CENTRAL_MANAGER_GROUP
+from base.models.person import FACULTY_MANAGER_GROUP, CENTRAL_MANAGER_GROUP, Person
 from base.models.proposal_learning_unit import ProposalLearningUnit
 from base.tests.factories.academic_year import AcademicYearFactory, create_current_academic_year
 from base.tests.factories.business.learning_units import GenerateContainer, GenerateAcademicYear
@@ -190,15 +190,17 @@ class PermsTestCase(TestCase):
         luy = generated_container_first_year.learning_unit_year_full
         a_person = self.create_person_with_permission_and_group(FACULTY_MANAGER_GROUP)
 
-        self.assertFalse(perms.is_eligible_to_edit_proposal(None, a_person))
-
-        a_proposal = ProposalLearningUnitFactory(state=proposal_state.ProposalState.CENTRAL.name,
-                                                 type=proposal_type.ProposalType.SUPPRESSION.name,
-                                                 learning_unit_year=luy)
-
-        self.assertFalse(perms.is_eligible_to_edit_proposal(a_proposal, a_person))
+        a_proposal = ProposalLearningUnitFactory(
+            state=proposal_state.ProposalState.CENTRAL.name,
+            type=proposal_type.ProposalType.SUPPRESSION.name,
+            learning_unit_year=luy
+        )
 
         PersonEntityFactory(entity=an_requirement_entity, person=a_person)
+
+        self.assertFalse(perms.is_eligible_to_edit_proposal(None, a_person))
+
+        self.assertFalse(perms.is_eligible_to_edit_proposal(a_proposal, a_person))
 
         self.assertFalse(perms.is_eligible_to_edit_proposal(a_proposal, a_person))
 
@@ -443,8 +445,12 @@ class TestIsEligibleToConsolidateLearningUnitProposal(TestCase):
                     learning_container_year=proposal.learning_unit_year.learning_container_year,
                     type=entity_container_year_link_type.REQUIREMENT_ENTITY
                 )
+
                 PersonEntityFactory(person=self.person_with_right_to_consolidate,
                                     entity=entity_container.entity)
+                # Refresh permissions
+                self.person_with_right_to_consolidate = Person.objects.get(pk=self.person_with_right_to_consolidate.pk)
+
                 self.assertTrue(is_eligible_to_consolidate_proposal(proposal, self.person_with_right_to_consolidate))
 
 

@@ -23,11 +23,13 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django.utils.translation import ugettext_lazy as _
 
 from base.models.education_group_year import find_by_id, search, find_with_enrollments_count
-from base.models.enums import education_group_categories
+from base.models.enums import education_group_categories, duration_unit
+from base.models.enums.constraint_type import CREDITS
 from base.models.exceptions import MaximumOneParentAllowedException
 from base.tests.factories.academic_year import AcademicYearFactory, create_current_academic_year
 from base.tests.factories.education_group_type import EducationGroupTypeFactory
@@ -139,6 +141,97 @@ class EducationGroupYearTest(TestCase):
         children_group_element_years = self.education_group_year_1.children_group_element_years
         self.assertListEqual(list(children_group_element_years), [])
 
+    def test_direct_parents_of_branch(self):
+        GroupElementYearFactory(
+            parent=self.education_group_year_2,
+            child_branch=self.education_group_year_1
+        )
+        GroupElementYearFactory(
+            parent=self.education_group_year_4,
+            child_branch=self.education_group_year_1
+        )
+        GroupElementYearFactory(
+            parent=self.education_group_year_5,
+            child_branch=self.education_group_year_4
+        )
+
+        self.assertCountEqual(
+            self.education_group_year_1.direct_parents_of_branch,
+            [
+                self.education_group_year_2,
+                self.education_group_year_3,
+                self.education_group_year_4,
+            ]
+        )
+
+    def test_ascendants_of_branch(self):
+        GroupElementYearFactory(
+            parent=self.education_group_year_2,
+            child_branch=self.education_group_year_1
+        )
+        GroupElementYearFactory(
+            parent=self.education_group_year_4,
+            child_branch=self.education_group_year_1
+        )
+        GroupElementYearFactory(
+            parent=self.education_group_year_5,
+            child_branch=self.education_group_year_4
+        )
+        GroupElementYearFactory(
+            parent=self.education_group_year_5,
+            child_branch=self.education_group_year_1
+        )
+
+        self.assertCountEqual(
+            self.education_group_year_1.ascendants_of_branch,
+            [
+                self.education_group_year_2,
+                self.education_group_year_3,
+                self.education_group_year_4,
+                self.education_group_year_5,
+            ]
+        )
+
+
+class EducationGroupYearCleanTest(TestCase):
+    def test_clean_constraint(self):
+
+        e = EducationGroupYearFactory(min_constraint=12, max_constraint=20, constraint_type=CREDITS)
+        try:
+            e.clean()
+        except ValidationError:
+            self.fail()
+
+    def test_clean_no_constraint_type(self):
+        e = EducationGroupYearFactory(min_constraint=12, max_constraint=20, constraint_type=None)
+
+        with self.assertRaises(ValidationError):
+            e.clean()
+
+    def test_clean_no_min_max(self):
+        e = EducationGroupYearFactory(min_constraint=None, max_constraint=None, constraint_type=CREDITS)
+
+        with self.assertRaises(ValidationError):
+            e.clean()
+
+    def test_clean_min_gt_max(self):
+        e = EducationGroupYearFactory(min_constraint=20, max_constraint=10, constraint_type=CREDITS)
+
+        with self.assertRaises(ValidationError):
+            e.clean()
+
+    def test_clean_case_no_duration_with_duration_unit(self):
+        e = EducationGroupYearFactory(duration=None, duration_unit=duration_unit.QUADRIMESTER)
+
+        with self.assertRaises(ValidationError):
+            e.clean()
+
+    def test_clean_case_no_duration_unit_with_duration(self):
+        e = EducationGroupYearFactory(duration=1, duration_unit=None)
+
+        with self.assertRaises(ValidationError):
+            e.clean()
+
 
 class TestFindWithEnrollmentsCount(TestCase):
     """Unit tests on find_with_enrollments_count()"""
@@ -190,3 +283,29 @@ class TestFindWithEnrollmentsCount(TestCase):
         result = find_with_enrollments_count(self.learning_unit_year)
         expected_list_order = [group_2.parent, group_3.parent, group_1.parent]
         self.assertEqual(list(result), expected_list_order)
+
+
+class EducationGroupYearVerboseTest(TestCase):
+    def setUp(self):
+        self.education_group_year = EducationGroupYearFactory()
+
+    def test_verbose_duration_case_no_empty_property(self):
+        self.education_group_year.duration = 1
+        self.education_group_year.duration_unit = duration_unit.QUADRIMESTER
+
+        expected = '{} {}'.format(1, _(duration_unit.QUADRIMESTER))
+        self.assertEqual(self.education_group_year.verbose_duration, expected)
+
+    def test_verbose_duration_case_no_duration(self):
+        self.education_group_year.duration = None
+        self.education_group_year.duration_unit = duration_unit.QUADRIMESTER
+
+        expected = ''
+        self.assertEqual(self.education_group_year.verbose_duration, expected)
+
+    def test_verbose_duration_case_no_duration_unit(self):
+        self.education_group_year.duration = 1
+        self.education_group_year.duration_unit = None
+
+        expected = ''
+        self.assertEqual(self.education_group_year.verbose_duration, expected)

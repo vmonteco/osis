@@ -23,15 +23,14 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import factory
-import factory.fuzzy
-import string
 import datetime
+import string
 
-from base.tests.factories.person import PersonFactory
-from base.tests.factories.offer_year import OfferYearFactory
+import factory.fuzzy
+
 from base.tests.factories.education_group import EducationGroupFactory
-from osis_common.utils.datetime import get_tzinfo
+from base.tests.factories.offer_year import OfferYearFactory
+from base.tests.factories.person import PersonFactory
 
 
 class ProgramManagerFactory(factory.django.DjangoModelFactory):
@@ -40,8 +39,8 @@ class ProgramManagerFactory(factory.django.DjangoModelFactory):
         django_get_or_create = ('person', 'offer_year')
 
     external_id = factory.fuzzy.FuzzyText(length=10, chars=string.digits)
-    changed = factory.fuzzy.FuzzyDateTime(datetime.datetime(2016, 1, 1, tzinfo=get_tzinfo()),
-                                          datetime.datetime(2017, 3, 1, tzinfo=get_tzinfo()))
+    changed = factory.fuzzy.FuzzyNaiveDateTime(datetime.datetime(2016, 1, 1),
+                                          datetime.datetime(2017, 3, 1))
     person = factory.SubFactory(PersonFactory)
     offer_year = factory.SubFactory(OfferYearFactory)
     education_group = factory.SubFactory(EducationGroupFactory)

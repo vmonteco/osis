@@ -23,6 +23,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from django.core.exceptions import ValidationError
 from django.test import TestCase
 from base.models.education_group_year import EducationGroupYear
 from base.tests.factories.academic_year import AcademicYearFactory
@@ -41,4 +42,26 @@ class EducationGroupTest(TestCase):
                                                                      education_group=education_group)
         self.assertEqual(education_group.most_recent_acronym, most_recent_educ_group_year.acronym)
 
+    def test_clean_case_start_year_greater_than_end_year_error(self):
+        education_group = EducationGroupFactory.build(
+            start_year=2000,
+            end_year=1999
+        )
+        with self.assertRaises(ValidationError):
+            education_group.clean()
 
+    def test_clean_case_start_year_equals_to_end_year_no_error(self):
+        education_group = EducationGroupFactory.build(
+            start_year=2000,
+            end_year=2000
+        )
+        education_group.clean()
+        education_group.save()
+
+    def test_clean_case_start_year_lower_to_end_year_no_error(self):
+        education_group = EducationGroupFactory.build(
+            start_year=1999,
+            end_year=2000
+        )
+        education_group.clean()
+        education_group.save()

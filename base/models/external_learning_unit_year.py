@@ -52,7 +52,9 @@ class ExternalLearningUnitYear(models.Model):
         verbose_name=_('external_code')
     )
 
-    external_credits = models.IntegerField(
+    external_credits = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
         verbose_name=_('local_credits'),
         validators=[
             MinValueValidator(MINIMUM_CREDITS),

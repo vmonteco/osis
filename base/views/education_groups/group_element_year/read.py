@@ -23,36 +23,59 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+import datetime
 
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
+from django.urls import reverse
+from django.utils import translation
+from django.views.generic import FormView
 
+from base.forms.education_group.common import SelectLanguage
 from base.models.education_group_year import EducationGroupYear
+from base.views.mixins import FlagMixin, AjaxTemplateMixin
 from osis_common.document.pdf_build import render_pdf
 
 
 @login_required
-def pdf_content(request, root_id, education_group_year_id):
-    parent = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
-    tree = get_verbose_children(parent)
+def pdf_content(request, root_id, education_group_year_id, language):
+    education_group_year = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
+    tree = get_verbose_children(education_group_year)
+
     context = {
-        'parent': parent,
+        'root': education_group_year,
         'tree': tree,
+        'language': language,
+        'created': datetime.datetime.now(),
     }
-    return render_pdf(
-        request,
-        context=context,
-        filename=parent.acronym,
-        template='education_group/pdf_content.html'
-    )
+    with translation.override(language):
+        return render_pdf(
+            request,
+            context=context,
+            filename=education_group_year.acronym,
+            template='education_group/pdf_content.html',
+        )
 
 
-def get_verbose_children(parent):
+def get_verbose_children(education_group_year):
     result = []
 
-    for group_element_year in parent.children:
+    for group_element_year in education_group_year.children:
         result.append(group_element_year)
         if group_element_year.child_branch:
             result.append(get_verbose_children(group_element_year.child_branch))
 
     return result
+
+
+class ReadEducationGroupTypeView(FlagMixin, AjaxTemplateMixin, FormView):
+    flag = "pdf_content"
+    template_name = "education_group/group_element_year/pdf_content.html"
+    form_class = SelectLanguage
+
+    def form_valid(self, form):
+        self.kwargs['language'] = form.cleaned_data['language']
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse(pdf_content, kwargs=self.kwargs)

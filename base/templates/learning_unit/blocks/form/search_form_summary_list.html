@@ -14,3 +14,7 @@
     {% bootstrap_field form.requirement_entity_acronym form_group_class="col-md-2" %}
     {% bootstrap_field form.allocation_entity_acronym form_group_class="col-md-2" %}
 {% endblock %}
+
+{% block extras %}
+    <input type="hidden" id="xls_status" name="xls_status">
+{% endblock %}

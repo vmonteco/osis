@@ -24,10 +24,9 @@
 #
 ##############################################################################
 from django.db import models
-from django.db.models import QuerySet
+from django.utils.functional import cached_property
 
 from base.models import entity_version
-from base.models.entity import Entity
 from base.models.entity_version import EntityVersion
 from osis_common.models.osis_model_admin import OsisModelAdmin
 
@@ -58,43 +57,10 @@ class PersonEntity(models.Model):
     def __str__(self):
         return u"%s" % self.person
 
+    @cached_property
+    def descendants(self):
+        if not self.with_child:
+            return {self.entity.id}
 
-def find_entities_by_person(person):
-    person_entities = PersonEntity.objects.filter(person=person).select_related('entity')
-
-    entities = set()
-    entities |= {pers_ent.entity for pers_ent in person_entities if not pers_ent.with_child}
-    entities_with_child = [pers_ent.entity for pers_ent in person_entities if pers_ent.with_child]
-    entities_data = entity_version.build_current_entity_version_structure_in_memory()
-    for entity_with_child in entities_with_child:
-        entities.add(entity_with_child)
-        entity_data = entities_data.get(entity_with_child.id)
-        if entity_data:
-            entities |= set([ent_version.entity for ent_version in entity_data['all_children']])
-    return list(entities)
-
-
-def is_attached_entities(person, entities):
-    if isinstance(entities, QuerySet):
-        admissible_entities = list(entities.values_list('pk', flat=True))
-    else:
-        admissible_entities = entities
-
-    qs = PersonEntity.objects.filter(person=person)
-    if qs.filter(entity__in=admissible_entities).exists():
-        return True
-    elif qs.filter(entity__in=_entity_ancestors(entities), with_child=True).exists():
-        return True
-    else:
-        return False
-
-
-def _entity_ancestors(entity_list):
-    ancestors = list(EntityVersion.objects.filter(entity__in=entity_list).exclude(parent__isnull=True)
-                     .values_list('parent', flat=True))
-
-    parents = Entity.objects.filter(pk__in=ancestors)
-    if parents.exists():
-        ancestors.extend(_entity_ancestors(parents))
-
-    return ancestors or []
+        # Create a set of all entity under the parent
+        return set(row['entity_id'] for row in EntityVersion.objects.get_tree(self.entity))

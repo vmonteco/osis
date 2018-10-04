@@ -23,21 +23,15 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-
 from django import forms
-from django.db import transaction
-from django.db.models import Prefetch
-from django.urls import reverse
 from django.utils.functional import lazy
 from django.utils.translation import ugettext_lazy as _
 
 from base import models as mdl
 from base.business.learning_unit_year_with_context import append_latest_entities
-from base.forms.learning_unit import search_form as learning_units_form
 from base.forms.common import get_clean_data, TooManyResultsException
 from base.forms.learning_unit.search_form import LearningUnitSearchForm
-from base.models import entity_version
-from base.models.enums import entity_container_year_link_type, proposal_type, proposal_state
+from base.models.enums import proposal_type, proposal_state
 from base.models.proposal_learning_unit import ProposalLearningUnit
 
 
@@ -77,47 +71,26 @@ class LearningUnitProposalForm(LearningUnitSearchForm):
         required=False
     )
 
-    def is_valid(self):
-        if not super().is_valid():
-            return False
-
-        return True
-
     def clean(self):
         if not self._has_criteria():
             self.add_error(None, _('minimum_one_criteria'))
-        if self.cleaned_data \
-                and mdl.proposal_learning_unit.count_search_results(**self.cleaned_data) > \
-                LearningUnitSearchForm.MAX_RECORDS:
-            raise TooManyResultsException
+
         return get_clean_data(self.cleaned_data)
 
     def get_proposal_learning_units(self):
-        clean_data = self.cleaned_data
+        learning_units = self.get_queryset().filter(proposallearningunit__isnull=False)
 
-        entity_version_prefetch = Prefetch('entity__entityversion_set',
-                                           queryset=mdl.entity_version.search(),
-                                           to_attr='entity_versions')
+        learning_units = mdl.proposal_learning_unit.filter_proposal_fields(learning_units, **self.cleaned_data)
 
-        entity_container_prefetch = Prefetch('learning_unit_year__learning_container_year__entitycontaineryear_set',
-                                             queryset=mdl.entity_container_year.search(
-                                                 link_type=[entity_container_year_link_type.ALLOCATION_ENTITY,
-                                                            entity_container_year_link_type.REQUIREMENT_ENTITY])
-                                             .prefetch_related(entity_version_prefetch),
-                                             to_attr='entity_containers_year')
+        if self.cleaned_data and learning_units.count() > LearningUnitSearchForm.MAX_RECORDS:
+            raise TooManyResultsException
 
-        clean_data['learning_container_year_id'] = learning_units_form.get_filter_learning_container_ids(clean_data)
+        for learning_unit in learning_units:
+            # TODO Use an annotate
+            append_latest_entities(learning_unit, None)
 
-        proposal = mdl.proposal_learning_unit.search(**clean_data) \
-            .select_related('learning_unit_year__academic_year', 'learning_unit_year__learning_container_year',
-                            'learning_unit_year__learning_container_year__academic_year') \
-            .prefetch_related(entity_container_prefetch) \
-            .order_by('learning_unit_year__academic_year__year', 'learning_unit_year__acronym')
-
-        for learning_unit_proposal in proposal:
-            append_latest_entities(learning_unit_proposal.learning_unit_year, None)
-
-        return proposal
+        # TODO It'll be easier to return a queryset of learningunits
+        return [learning_unit.proposallearningunit for learning_unit in learning_units]
 
 
 class ProposalStateModelForm(forms.ModelForm):

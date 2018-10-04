@@ -27,6 +27,7 @@
 {% url 'education_group_read' root.pk education_group_year.pk as url_identification_tab %}
 {% url 'education_group_diplomas' root.pk education_group_year.pk as url_diplomas_tab %}
 {% url 'education_group_general_informations' root.pk education_group_year.pk as url_general_informations_tab %}
+{% url 'education_group_skills_achievements' root.pk education_group_year.pk as url_skill_achievements_tab %}
 {% url 'education_group_administrative' root.pk education_group_year.pk as url_administrative_tab %}
 {% url 'education_group_content' root.pk education_group_year.pk as url_content_tab %}
 {% url 'education_group_admission' root.pk education_group_year.pk as url_admission_conditions_tab %}
@@ -52,6 +53,12 @@
             {% trans 'general_informations' %}
         </a>
     </li>
+    <li role="presentation" {% if request.path == url_skill_achievements_tab %} class="active" {% endif %}>
+        <a id="link_skill_achievements"
+           href="{% url 'education_group_skills_achievements' root.pk education_group_year.pk %}{% if group_to_parent %}?group_to_parent={{ group_to_parent }}{% endif %}" role="tab">
+            {% trans 'skills and achievements'|capfirst %}
+        </a>
+    </li>
     {% endif %}
     {% if education_group_year.education_group_type.category == "TRAINING" %}
     <li role="presentation" {% if request.path == url_administrative_tab %} class="active" {% endif %}>
@@ -64,6 +71,11 @@
     <li role="presentation" {% if request.path == url_content_tab %} class="active" {% endif %}>
         <a id="link_content" href="{% url 'education_group_content' root.pk education_group_year.pk %}{% if group_to_parent %}?group_to_parent={{ group_to_parent }}{% endif %}" role="tab">
             {% trans 'content' %}
+        </a>
+    </li>
+    <li role="presentation" {% if request.path == url_utilization_tab %} class="active" {% endif %}>
+        <a id="link_utilization" href="{% url 'education_group_utilization' root.pk education_group_year.pk %}{% if group_to_parent %}?group_to_parent={{ group_to_parent }}{% endif %}" role="tab">
+            {% trans 'Utilizations' %}
         </a>
     </li>
     <li role="presentation" {% if request.path == url_admission_conditions_tab %} class="active"{% endif %}>

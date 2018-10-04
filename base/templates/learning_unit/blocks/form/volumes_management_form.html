@@ -26,7 +26,7 @@
 * see http://www.gnu.org/licenses/.
 {% endcomment %}
 
-<form role="form" method="POST" action="">
+<form role="form" method="POST" action="" novalidate>
     {% csrf_token %}
     <table class="table volumes">
         {% for learning_unit, formset in formsets.items %}
@@ -60,7 +60,8 @@
                     <tr>
                         <td>
                             <abbr title="{{ form.title_help }}">
-                                {{ form.title }}
+                                {# FIXME :: Temporary solution - waiting for business clarification about "components" concept (untyped, ...)#}
+                                {% if form.title == 'NT' %}PM{% else %}{{ form.title }}{% endif %}
                             </abbr>
                         </td>
                         <td></td>{% bootstrap_form_errors form %}

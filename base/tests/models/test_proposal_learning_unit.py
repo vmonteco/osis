@@ -25,6 +25,8 @@
 ##############################################################################
 from django.test import TestCase
 from django.utils import timezone
+
+from base.models.learning_unit_year import LearningUnitYear
 from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
@@ -80,42 +82,28 @@ class TestSearchCases(TestCase):
                                                                     state=proposal_state.ProposalState.CENTRAL,
                                                                     entity=self.entity_1)
 
-    def test_search_by_academic_year(self):
-        results = proposal_learning_unit.search(academic_year_id=self.an_academic_year.id)
-        self.check_search_result(results)
-
-    def test_search_by_acronym(self):
-        results = proposal_learning_unit.search(acronym=self.an_acronym)
-        self.check_search_result(results)
-
-        results = proposal_learning_unit.search(acronym=self.an_acronym[2:])
-        self.check_search_result(results)
-
     def test_search_by_proposal_type(self):
-        results = proposal_learning_unit.search(proposal_type=self.a_proposal_learning_unit.type)
+        qs = LearningUnitYear.objects.all()
+        results = proposal_learning_unit.filter_proposal_fields(qs, proposal_type=self.a_proposal_learning_unit.type)
         self.check_search_result(results)
 
     def test_search_by_proposal_state(self):
-        results = proposal_learning_unit.search(proposal_state=self.a_proposal_learning_unit.state)
+        qs = LearningUnitYear.objects.all()
+        results = proposal_learning_unit.filter_proposal_fields(qs, proposal_state=self.a_proposal_learning_unit.state)
         self.check_search_result(results)
 
     def test_search_by_folder_id(self):
-        results = proposal_learning_unit.search(folder_id=self.a_proposal_learning_unit.folder_id)
+        qs = LearningUnitYear.objects.all()
+        results = proposal_learning_unit.filter_proposal_fields(qs, folder_id=self.a_proposal_learning_unit.folder_id)
         self.check_search_result(results)
 
     def test_search_by_entity_folder(self):
-        results = proposal_learning_unit.search(entity_folder_id=self.a_proposal_learning_unit.entity.id)
+        qs = LearningUnitYear.objects.all()
+        results = proposal_learning_unit.filter_proposal_fields(qs, entity_folder_id=self.a_proposal_learning_unit.entity.id)
         self.check_search_result(results)
-
-    def test_search_by_proposal_learning_container_yr(self):
-        results = proposal_learning_unit.search(learning_container_year_id=self.learning_container_yr.id)
-        self.check_search_result(results)
-
-    def test_search_by_proposal_list_learning_container_yr(self):
-        self.check_search_result(proposal_learning_unit.search(learning_container_year_id=[self.learning_container_yr.id]))
 
     def check_search_result(self, results):
-        self.assertCountEqual(results, [self.a_proposal_learning_unit])
+        self.assertCountEqual(results, [self.a_proposal_learning_unit.learning_unit_year])
 
     def test_find_distinct_folder_entities(self):
         entity_2 = EntityFactory()

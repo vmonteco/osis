@@ -35,7 +35,7 @@ from django.utils.translation import ugettext_lazy as _
 from base.forms.learning_unit.entity_form import EntityContainerBaseForm
 from base.forms.learning_unit.learning_unit_create import LearningUnitYearModelForm, \
     LearningUnitModelForm, LearningContainerYearModelForm, LearningContainerModelForm, DEFAULT_ACRONYM_COMPONENT
-from base.forms.learning_unit.learning_unit_create_2 import FullForm, FACULTY_OPEN_FIELDS
+from base.forms.learning_unit.learning_unit_create_2 import FullForm, FACULTY_OPEN_FIELDS, ID_FIELD
 from base.models.academic_year import AcademicYear
 from base.models.entity_component_year import EntityComponentYear
 from base.models.entity_container_year import EntityContainerYear
@@ -217,7 +217,7 @@ class TestFullFormInit(LearningUnitFullFormContextMixin):
             proposal=True
         )
 
-        for elem in FACULTY_OPEN_FIELDS:
+        for elem in FACULTY_OPEN_FIELDS - set([ID_FIELD]):
             self.assertEqual(form.fields[elem].disabled, True)
             self.assertEqual(form.fields['academic_year'].disabled, True)
 
@@ -380,12 +380,16 @@ class TestFullFormIsValid(LearningUnitFullFormContextMixin):
 
     def test_update_case_correct_data(self):
         now = datetime.datetime.now()
-        learn_unit_structure = GenerateContainer(now.year, now.year)
         self.post_data['periodicity'] = ANNUAL
-        learn_unit_year = LearningUnitYear.objects.get(learning_unit=learn_unit_structure.learning_unit_full,
+        learn_unit_year = LearningUnitYear.objects.get(learning_unit=self.learn_unit_structure.learning_unit_full,
                                                        academic_year=AcademicYear.objects.get(year=now.year))
-        form = _instanciate_form(learn_unit_year.academic_year, post_data=self.post_data, person=self.person,
-                                 learning_unit_instance=learn_unit_year.learning_unit)
+        form = _instanciate_form(
+            learn_unit_year.academic_year,
+            post_data=self.post_data,
+            person=self.person,
+            learning_unit_instance=learn_unit_year.learning_unit
+        )
+
         self.assertTrue(form.is_valid(), form.errors)
 
     @mock.patch('base.forms.learning_unit.learning_unit_create.LearningUnitModelForm.is_valid',
@@ -449,7 +453,7 @@ class TestFullFormIsValid(LearningUnitFullFormContextMixin):
 
     def test_update_case_credits_too_high_3_digits(self):
         post_data = dict(self.post_data)
-        post_data['credits'] = factory.fuzzy.FuzzyInteger(MAXIMUM_CREDITS + 1, 999, 2).fuzz()
+        post_data['credits'] = factory.fuzzy.FuzzyDecimal(MAXIMUM_CREDITS + 1, 999, 2).fuzz()
 
         form = _instanciate_form(self.learning_unit_year.academic_year, post_data=post_data, person=self.person,
                                  learning_unit_instance=self.learning_unit_year.learning_unit)
@@ -461,7 +465,7 @@ class TestFullFormIsValid(LearningUnitFullFormContextMixin):
 
     def test_update_case_credits_too_high_4_digits(self):
         post_data = dict(self.post_data)
-        post_data['credits'] = factory.fuzzy.FuzzyInteger(1000, 100000, 2).fuzz()
+        post_data['credits'] = factory.fuzzy.FuzzyDecimal(1000, 100000, 2).fuzz()
 
         form = _instanciate_form(self.learning_unit_year.academic_year, post_data=post_data, person=self.person,
                                  learning_unit_instance=self.learning_unit_year.learning_unit)

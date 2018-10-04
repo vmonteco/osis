@@ -31,7 +31,7 @@ from django.test import TestCase
 from rest_framework.reverse import reverse
 from waffle.testutils import override_flag
 
-from base.models.enums import proposal_state, entity_container_year_link_type
+from base.models.enums import proposal_state, entity_container_year_link_type, learning_unit_year_subtypes
 from base.tests.factories.academic_year import create_current_academic_year
 from base.tests.factories.entity_container_year import EntityContainerYearFactory
 from base.tests.factories.entity_version import EntityVersionFactory
@@ -44,9 +44,14 @@ from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFact
 class TestConsolidate(TestCase):
     @classmethod
     def setUpTestData(cls):
-        create_current_academic_year()
+        current_academic_year = create_current_academic_year()
 
-        cls.proposal = ProposalLearningUnitFactory(state=proposal_state.ProposalState.ACCEPTED.name)
+        cls.proposal = ProposalLearningUnitFactory(
+            state=proposal_state.ProposalState.ACCEPTED.name,
+            learning_unit_year__subtype=learning_unit_year_subtypes.FULL,
+            learning_unit_year__academic_year=current_academic_year,
+            learning_unit_year__learning_container_year__academic_year=current_academic_year
+        )
         cls.learning_unit_year = cls.proposal.learning_unit_year
 
         cls.person = PersonFactory()

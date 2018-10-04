@@ -24,6 +24,7 @@
 #
 ##############################################################################
 import collections
+import datetime
 import json
 import pathlib
 from itertools import chain
@@ -31,14 +32,84 @@ from itertools import chain
 from django.conf import settings
 from django.core.management import BaseCommand, CommandError
 from django.db.models import Q
+from django.db.transaction import atomic
 
 from base.models.academic_year import AcademicYear
 from base.models.admission_condition import AdmissionCondition, AdmissionConditionLine
+from base.models.education_group import EducationGroup
 from base.models.education_group_type import EducationGroupType
 from base.models.education_group_year import EducationGroupYear
+from base.models.enums import education_group_types, education_group_categories
 from cms.models.text_label import TextLabel
 from cms.models.translated_text import TranslatedText
 from cms.models.translated_text_label import TranslatedTextLabel
+
+BACHELOR_FIELDS = (
+    'alert_message', 'ca_bacs_cond_generales', 'ca_bacs_cond_particulieres', 'ca_bacs_examen_langue',
+    'ca_bacs_cond_speciales'
+)
+
+COMMON_FIELDS = (
+    'alert_message', 'personalized_access', 'admission_enrollment_procedures', 'adults_taking_up_university_training',
+    'ca_cond_generales', 'ca_maitrise_fr', 'ca_allegement', 'ca_ouv_adultes'
+)
+
+OFFERS = [
+    {'name': education_group_types.AGREGATION, 'category': education_group_categories.TRAINING, 'code': '2A'},
+    {'name': education_group_types.CERTIFICATE_OF_PARTICIPATION, 'category': education_group_categories.TRAINING,
+     'code': '8FC'},
+    {'name': education_group_types.CERTIFICATE_OF_SUCCESS, 'category': education_group_categories.TRAINING,
+     'code': '7FC'},
+    {'name': education_group_types.CERTIFICATE_OF_HOLDING_CREDITS, 'category': education_group_categories.TRAINING,
+     'code': '9FC'},
+    {'name': education_group_types.BACHELOR, 'category': education_group_categories.TRAINING, 'code': '1BA'},
+    {'name': education_group_types.CERTIFICAT, 'category': education_group_categories.TRAINING, 'code': 'CE'},
+    {'name': education_group_types.CAPAES, 'category': education_group_categories.TRAINING, 'code': '2CE'},
+    {'name': education_group_types.RESEARCH_CERTIFICAT, 'category': education_group_categories.TRAINING, 'code': '3CE'},
+    {'name': education_group_types.UNIVERSITY_FIRST_CYCLE_CERTIFICAT, 'category': education_group_categories.TRAINING,
+     'code': '1FC'},
+    {'name': education_group_types.UNIVERSITY_SECOND_CYCLE_CERTIFICAT, 'category': education_group_categories.TRAINING,
+     'code': '2FC'},
+    {'name': education_group_types.PGRM_MASTER_120, 'category': education_group_categories.TRAINING, 'code': '2M'},
+    {'name': education_group_types.MASTER_M1, 'category': education_group_categories.TRAINING, 'code': '2M1'},
+    {'name': education_group_types.MASTER_MC, 'category': education_group_categories.TRAINING, 'code': '2MC'},
+    {'name': education_group_types.STAGIAIRE, 'category': education_group_categories.TRAINING, 'code': 'ST'},
+]
+
+
+def create_common_offer_for_academic_year(year):
+    academic_year = AcademicYear.objects.get(year=year)
+    education_group = EducationGroup.objects.filter(start_year=academic_year.year,
+                                                    end_year=academic_year.year + 1).first()
+    if not education_group:
+        education_group = EducationGroup.objects.create(start_year=academic_year.year,
+                                                        end_year=academic_year.year + 1)
+    for offer in OFFERS:
+        education_group_type = EducationGroupType.objects.get(
+            name=offer['name'],
+            category=offer['category']
+        )
+
+        code = offer['code'].lower()
+
+        acronym = 'common-{}'.format(code)
+        education_group_year = EducationGroupYear.objects.filter(academic_year=academic_year,
+                                                                 acronym=acronym).first()
+        if not education_group_year:
+
+            EducationGroupYear.objects.create(
+                academic_year=academic_year,
+                education_group=education_group,
+                acronym=acronym,
+                title=acronym,
+                education_group_type=education_group_type,
+                title_english=acronym
+            )
+        else:
+            education_group_year.title = acronym
+            education_group_year.title_english = acronym
+            education_group_year.education_group_type = education_group_type
+            education_group_year.save()
 
 
 def get_text_label(entity, label):
@@ -115,9 +186,24 @@ def get_mapping_label_texts(context, labels):
     return mapping_label_text_label
 
 
+def import_common_offer(context, offer, mapping_label_text_label):
+    """
+    Comme nous recevons une seule offre 'common', nous dispatchons les textes aux offres specifiques communes
+    * common-1ba
+    * common-2mc
+    * ...
+    """
+    qs = EducationGroupYear.objects.look_for_common(academic_year__year=offer['year'])
+    for record in qs:
+        import_offer_and_items(offer, record, mapping_label_text_label, context)
+
+
 def create_offers(context, offers, mapping_label_text_label):
     for offer in offers:
-        import_offer(context, offer, mapping_label_text_label)
+        if offer['type'] == 'common':
+            import_common_offer(context, offer, mapping_label_text_label)
+        else:
+            import_offer(context, offer, mapping_label_text_label)
 
 
 def import_offer(context, offer, mapping_label_text_label):
@@ -156,6 +242,7 @@ class Command(BaseCommand):
         parser.add_argument('--common', action='store_true', dest='is_common',
                             help='Import the common terms for the conditions')
 
+    @atomic
     def handle(self, *args, **options):
         path = check_parameters(options['file'])
         self.stdout.write(self.style.SUCCESS('file: {}'.format(path)))
@@ -164,7 +251,11 @@ class Command(BaseCommand):
 
         self.iso_language = options['language']
         self.json_content = json.loads(path.read_text())
-        self.lang = '' if self.iso_language == 'fr-be' else '_en'
+        self.suffix_language = '' if self.iso_language == 'fr-be' else '_en'
+
+        this_year = datetime.date.today().year - 1
+        for year in range(this_year, this_year + 6):
+            create_common_offer_for_academic_year(year)
 
         if options['is_conditions']:
             self.load_admission_conditions()
@@ -183,20 +274,12 @@ class Command(BaseCommand):
 
         mapping_label_text_label = get_mapping_label_texts(context, labels)
 
-        # FIXME: EducationGroupType is not required on the EducationGroupYear, but we use the category of the type in
-        # base.business.education_group.assert_category_of_education_group_year
-        # without this type, there is a crash during the rendering of the template
-        education_group_type = EducationGroupType.objects.filter(name='Master en un an', category='TRAINING').first()
-        queryset = EducationGroupYear.objects.filter(acronym='common', education_group_type__isnull=True)
-        queryset.update(education_group_type=education_group_type)
-
         create_offers(context, self.json_content, mapping_label_text_label)
 
     def load_admission_conditions(self):
         for item in self.json_content:
             year = item['year']
             acronym = item['acronym']
-
             if acronym == 'bacs':
                 self.load_admission_conditions_for_bachelor(item, year)
             else:
@@ -229,28 +312,29 @@ class Command(BaseCommand):
     def save_condition_line_of_row(self, admission_condition, line):
         diploma = '\n'.join(map(str.strip, line['diploma'].splitlines()))
         fields = {
-            'diploma' + self.lang: diploma,
-            'conditions' + self.lang: line['conditions'] or '',
-            'access' + self.lang: line['access'],
-            'remarks' + self.lang: line['remarks']
+            'diploma' + self.suffix_language: diploma,
+            'conditions' + self.suffix_language: line['conditions'] or '',
+            'access': line['access'],
+            'remarks' + self.suffix_language: line['remarks']
         }
 
         queryset = AdmissionConditionLine.objects.filter(section=line['title'],
                                                          admission_condition=admission_condition,
                                                          external_id=line['external_id'])
         if not queryset.count():
-            AdmissionConditionLine.objects.create(
+            acl = AdmissionConditionLine(
                 section=line['title'],
                 admission_condition=admission_condition,
                 external_id=line['external_id'],
                 **fields
             )
+            acl.save()
         else:
             acl = queryset.first()
-            setattr(acl, 'diploma' + self.lang, diploma)
-            setattr(acl, 'conditions' + self.lang, line['conditions'] or '')
-            setattr(acl, 'access' + self.lang, line['access'])
-            setattr(acl, 'remarks' + self.lang, line['remarks'])
+            setattr(acl, 'access', line['access'])
+            setattr(acl, 'diploma' + self.suffix_language, diploma)
+            setattr(acl, 'conditions' + self.suffix_language, line['conditions'] or '')
+            setattr(acl, 'remarks' + self.suffix_language, line['remarks'])
             acl.save()
 
     def save_text_of_conditions(self, admission_condition, item):
@@ -264,7 +348,7 @@ class Command(BaseCommand):
                          'adults_taking_up_university_training'):
                 self.set_admission_condition_value(admission_condition, key, value['text'])
             else:
-                raise Exception('This case is not handled')
+                raise Exception('This case is not handled %s' % key)
 
     def set_values_for_text_row_of_condition_admission(self, admission_condition, line):
         section = line['section']
@@ -272,68 +356,53 @@ class Command(BaseCommand):
                        'holders_second_university_degree'):
             self.set_admission_condition_value(admission_condition, section, line['text'])
         else:
-            raise Exception('This case is not handled')
+            raise Exception('This case is not handled %s' % section)
 
     def load_admission_conditions_for_bachelor(self, item, year):
         academic_year = AcademicYear.objects.get(year=year)
-        education_group_year_common = EducationGroupYear.objects.get(
+
+        education_group_year = EducationGroupYear.objects.get(
             academic_year=academic_year,
-            acronym='common'
+            acronym='common-1ba'
         )
-        # FIXME: EducationGroupType is not required on the EducationGroupYear, but we use the category of the type in
-        # base.business.education_group.assert_category_of_education_group_year
-        # without this type, there is a crash during the rendering of the template
-        education_group_type = EducationGroupType.objects.filter(name='Bachelier', category='TRAINING').first()
-        education_group_year, created = EducationGroupYear.objects.get_or_create(
-            academic_year=academic_year,
-            acronym='common-bacs',
-            education_group=education_group_year_common.education_group,
-            defaults={
-                'education_group_type': education_group_type,
-            }
-        )
+
         admission_condition, created = AdmissionCondition.objects.get_or_create(
             education_group_year=education_group_year)
-        self.set_admission_condition_value(admission_condition, 'bachelor', item['info']['text'])
+
+        for text_label in BACHELOR_FIELDS:
+            if text_label in item['info']:
+                self.set_admission_condition_value(admission_condition, text_label,
+                                                   item['info'][text_label]['text-common'])
         admission_condition.save()
 
     def load_admission_conditions_common(self):
         year = self.json_content.pop('year')
-        education_group_year_common = EducationGroupYear.objects.get(
-            academic_year__year=year,
-            acronym='common'
-        )
 
         academic_year = AcademicYear.objects.get(year=year)
 
         for key, value in self.json_content.items():
             offer_type, text_label = key.split('.')
 
-            # FIXME: EducationGroupType is not required on the EducationGroupYear, but we use the category of the type in
-            # base.business.education_group.assert_category_of_education_group_year
-            # without this type, there is a crash during the rendering of the template
-            education_group_type = EducationGroupType.objects.filter(name='Master en un an', category='TRAINING').first()
-            education_group_year, created = EducationGroupYear.objects.get_or_create(
+            if offer_type == '9ce':
+                # 9ce is a certificate
+                offer_type = 'ce'
+
+            education_group_year = EducationGroupYear.objects.get(
                 academic_year=academic_year,
-                acronym='common-{}'.format(offer_type),
-                education_group=education_group_year_common.education_group,
-                defaults={
-                    'education_group_type': education_group_type,
-                }
+                acronym='common-{}'.format(offer_type)
             )
 
             admission_condition, created = AdmissionCondition.objects.get_or_create(
                 education_group_year=education_group_year)
 
-            if text_label in ('alert_message', 'personalized_access', 'admission_enrollment_procedures',
-                              'adults_taking_up_university_training'):
+            if text_label in COMMON_FIELDS:
                 self.set_admission_condition_value(admission_condition, text_label, value)
             elif text_label == 'introduction':
                 self.set_admission_condition_value(admission_condition, 'standard', value)
             else:
-                raise Exception('This case is not handled')
+                raise Exception('This case is not handled %s' % text_label)
 
             admission_condition.save()
 
     def set_admission_condition_value(self, admission_condition, field, value):
-        setattr(admission_condition, 'text_' + field + self.lang, value)
+        setattr(admission_condition, 'text_' + field + self.suffix_language, value)

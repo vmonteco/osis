@@ -24,11 +24,14 @@
 #
 ##############################################################################
 from django.contrib.auth.decorators import login_required, permission_required
+from django.shortcuts import redirect
+from django.views.decorators.http import require_POST
 
 from base.forms.search.search_tutor import TutorSearchForm
 from base.models.tutor import Tutor
 from base.views import layout
 from base.views.common import paginate_queryset
+from base.utils.cache import clear_cached_filter
 
 
 @login_required
@@ -46,3 +49,11 @@ def search_tutors(request):
         "form": form,
         "tutors": tutors
     })
+
+
+@login_required
+@require_POST
+def clear_filter(request):
+    clear_cached_filter(request)
+    path = request.POST['current_url']
+    return redirect(path)

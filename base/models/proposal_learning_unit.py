@@ -24,13 +24,14 @@
 #
 ##############################################################################
 from django.contrib.postgres.fields import JSONField
-from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
+from base.models import entity_version
+from base.models.entity import Entity
 from base.models.enums import proposal_type, proposal_state
+from base.models.utils.utils import get_object_or_none
 from osis_common.models.osis_model_admin import OsisModelAdmin
-from base.models import entity, entity_version, learning_unit_year
 
 
 class ProposalLearningUnitAdmin(OsisModelAdmin):
@@ -71,47 +72,38 @@ class ProposalLearningUnit(models.Model):
 
 
 def find_by_learning_unit_year(a_learning_unit_year):
-    try:
-        return ProposalLearningUnit.objects.get(learning_unit_year=a_learning_unit_year)
-    except ProposalLearningUnit.DoesNotExist:
-        return None
+    return get_object_or_none(ProposalLearningUnit, learning_unit_year=a_learning_unit_year)
 
 
 def find_by_learning_unit(a_learning_unit):
-    try:
-        return ProposalLearningUnit.objects.get(learning_unit_year__learning_unit=a_learning_unit)
-    except ObjectDoesNotExist:
-        return None
+    return get_object_or_none(ProposalLearningUnit, learning_unit_year__learning_unit=a_learning_unit)
 
 
-def search(entity_folder_id=None, folder_id=None, proposal_type=None,
-           proposal_state=None, **kwargs):
+def filter_proposal_fields(queryset, **kwargs):
+    """ Filter of proposal search on a LearningUnitYearQueryset """
 
-    learning_unit_year_qs = learning_unit_year.search(**kwargs)
-    queryset = ProposalLearningUnit.objects.filter(learning_unit_year__in=learning_unit_year_qs)
+    entity_folder_id = kwargs.get('entity_folder_id')
+    folder_id = kwargs.get('folder_id')
+    proposal_type = kwargs.get('proposal_type')
+    proposal_state = kwargs.get('proposal_state')
 
     if entity_folder_id:
-        queryset = queryset.filter(entity_id=entity_folder_id)
+        queryset = queryset.filter(proposallearningunit__entity_id=entity_folder_id)
 
     if folder_id:
-        queryset = queryset.filter(folder_id=folder_id)
+        queryset = queryset.filter(proposallearningunit__folder_id=folder_id)
 
     if proposal_type:
-        queryset = queryset.filter(type=proposal_type)
+        queryset = queryset.filter(proposallearningunit__type=proposal_type)
 
     if proposal_state:
-        queryset = queryset.filter(state=proposal_state)
+        queryset = queryset.filter(proposallearningunit__state=proposal_state)
 
-    return queryset.select_related('learning_unit_year')
-
-
-def count_search_results(**kwargs):
-    return search(**kwargs).count()
+    return queryset
 
 
 def find_distinct_folder_entities():
-    entities = ProposalLearningUnit.objects.distinct('entity').values_list('entity__id', flat=True)
-    return entity.Entity.objects.filter(pk__in=entities)
+    return Entity.objects.filter(proposallearningunit__isnull=False).distinct()
 
 
 def is_learning_unit_year_in_proposal(luy):

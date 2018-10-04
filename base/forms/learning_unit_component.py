@@ -26,6 +26,7 @@
 from django import forms
 
 from base import models as mdl
+from base.forms.common import STEP_HALF_INTEGER
 from base.models.learning_component_year import LearningComponentYear
 
 
@@ -36,7 +37,11 @@ class LearningUnitComponentEditForm(forms.ModelForm):
         model = LearningComponentYear
         fields = ['comment']
         widgets = {
-            'comment': forms.Textarea(attrs={'class': 'form-control', 'rows': 5})
+            'comment': forms.Textarea(attrs={'class': 'form-control', 'rows': 5}),
+            'hourly_volume_total_annual': forms.NumberInput(attrs={'step': STEP_HALF_INTEGER}),
+            'hourly_volume_partial_q1': forms.NumberInput(attrs={'step': STEP_HALF_INTEGER}),
+            'hourly_volume_partial_q2': forms.NumberInput(attrs={'step': STEP_HALF_INTEGER}),
+            'volume_declared_vacant': forms.NumberInput(attrs={'step': STEP_HALF_INTEGER}),
         }
 
     def __init__(self, *args, **kwargs):

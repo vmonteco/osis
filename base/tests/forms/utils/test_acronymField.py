@@ -23,8 +23,6 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from pprint import pprint
-
 from django.test import SimpleTestCase
 
 from base.forms.utils.acronym_field import AcronymField, _create_first_letter_choices

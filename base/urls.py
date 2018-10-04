@@ -56,11 +56,12 @@ urlpatterns = [
 
     url(r'^academic_calendars/', include([
         url(r'^$', academic_calendar.academic_calendars, name='academic_calendars'),
-        url(r'^search$', academic_calendar.academic_calendars_search, name='academic_calendars_search'),
         url(r'^(?P<academic_calendar_id>[0-9]+)/$', academic_calendar.academic_calendar_read,
             name='academic_calendar_read'),
         url(r'^form(?:/(?P<academic_calendar_id>[0-9]+))?/$', academic_calendar.academic_calendar_form,
             name='academic_calendar_form'),
+        url(r'^delete(?:/(?P<pk>[0-9]+))?/$', academic_calendar.AcademicCalendarDelete.as_view(),
+            name='academic_calendar_delete'),
     ])),
 
     url(r'^academic_year/$', common.academic_year, name='academic_year'),
@@ -172,7 +173,8 @@ urlpatterns = [
                     name="teaching_material_edit"),
                 url(r'^(?P<teaching_material_id>[0-9]+)/delete/', teaching_material.delete,
                     name="teaching_material_delete")
-            ]))
+            ])),
+            url(r'^comparison/$', learning_unit.learning_unit_comparison, name="learning_unit_comparison"),
         ])),
         url(r'^check/(?P<subtype>[A-Z]+)$', base.views.learning_units.common.check_acronym, name="check_acronym"),
         url(r'^email_educational_information_update/$',
@@ -262,6 +264,7 @@ urlpatterns = [
         ]))
     ])),
     url(r'^ajax_select/', include(ajax_select_urls)),
+    url(r'^clear_filter/$', base.views.search.clear_filter, name="clear_filter"),
 
 ]
 
