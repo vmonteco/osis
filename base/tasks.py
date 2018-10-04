@@ -7,7 +7,7 @@ from base.business.learning_units.automatic_postponement import fetch_learning_u
 celery_app.conf.beat_schedule.update({
     'Extend learning units': {
         'task': 'base.tasks.extend_learning_units',
-        'schedule': crontab( minute=0, hour=0, day_of_month=15, month_of_year=7)
+        'schedule': crontab(minute=0, hour=0, day_of_month=15, month_of_year=7)
     },
 })
 
