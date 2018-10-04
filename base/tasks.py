@@ -3,11 +3,6 @@ from celery.schedules import crontab
 from backoffice.celery import app as celery_app
 from base.business.learning_units.automatic_postponement import fetch_learning_unit_to_postpone, \
     serialize_postponement_results
-from celery.schedules import crontab
-
-from backoffice.celery import app as celery_app
-from base.business.learning_units.automatic_postponement import fetch_learning_unit_to_postpone, \
-    serialize_postponement_results
 
 celery_app.conf.beat_schedule.update({
     'Extend learning units': {
