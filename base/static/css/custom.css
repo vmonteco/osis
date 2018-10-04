@@ -196,3 +196,10 @@ input[type="text"].ui-autocomplete-input:disabled ~ .results_on_deck .ui-icon{
 .projectRow{
   	background-color: lightgray!important
 }
+
+.releaseCol{
+    background-color: teal!important
+}
+.releaseCol a{
+    color: white;
+}

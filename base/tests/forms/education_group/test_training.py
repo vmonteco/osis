@@ -184,7 +184,7 @@ class TestPostponementEducationGroupYearMixin(TestCase):
             EducationGroupYear.objects.filter(
                 education_group=self.education_group_year.education_group).count(), 7
         )
-        self.assertEqual(len(form.warnings), 13)
+        self.assertEqual(len(form.warnings), 15)
 
     def test_save_with_postponement_m2m(self):
         domains = [DomainFactory(name="Alchemy"), DomainFactory(name="Muggle Studies")]

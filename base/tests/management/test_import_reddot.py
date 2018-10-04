@@ -4,7 +4,7 @@ from unittest import mock
 from django.test import TestCase
 
 from base.management.commands import import_reddot
-from base.models.admission_condition import AdmissionCondition, AdmissionConditionLine
+from base.models.admission_condition import AdmissionCondition, AdmissionConditionLine, CONDITION_ADMISSION_ACCESSES
 from base.models.education_group import EducationGroup
 from base.models.education_group_type import EducationGroupType
 from base.models.education_group_year import EducationGroupYear
@@ -16,6 +16,11 @@ from base.tests.factories.education_group_year import (
     EducationGroupYearCommonMasterFactory,
     EducationGroupYearCommonBachelorFactory
 )
+
+OFFERS = [
+    {'name': education_group_types.BACHELOR, 'category': education_group_categories.TRAINING, 'code': '1BA'},
+    {'name': education_group_types.PGRM_MASTER_120, 'category': education_group_categories.TRAINING, 'code': '2M'},
+]
 
 
 class ImportReddotTestCase(TestCase):
@@ -73,7 +78,7 @@ class ImportReddotTestCase(TestCase):
             'title': 'ucl_bachelors',
             'diploma': 'Diploma',
             'conditions': 'Conditions',
-            'access': 'Access',
+            'access': CONDITION_ADMISSION_ACCESSES[2][0],
             'remarks': 'Remarks',
             'external_id': '1234567890'
         }
@@ -97,7 +102,7 @@ class ImportReddotTestCase(TestCase):
             'title': 'ucl_bachelors',
             'diploma': 'Diploma',
             'conditions': 'Conditions',
-            'access': 'Access',
+            'access': CONDITION_ADMISSION_ACCESSES[2][0],
             'remarks': 'Remarks',
             'external_id': '1234567890'
         }
@@ -220,13 +225,6 @@ class ImportReddotTestCase(TestCase):
         mocker.assert_called_with(offer, education_group_year_list[0], None, context)
 
 
-OFFERS = [
-    {'name': education_group_types.BACHELOR, 'category': education_group_categories.TRAINING, 'code': '1BA'},
-    {'name': education_group_types.PGRM_MASTER_120, 'category': education_group_categories.TRAINING, 'code': '2M'},
-]
-
-
-
 @mock.patch('base.management.commands.import_reddot.OFFERS', OFFERS)
 class CreateCommonOfferForAcademicYearTest(TestCase):
     def test_with_existing_education_group_year(self):
@@ -258,6 +256,7 @@ class CreateCommonOfferForAcademicYearTest(TestCase):
         self.assertEqual(EducationGroupYear.objects.count(), 1)
         create_common_offer_for_academic_year(academic_year.year)
         self.assertEqual(EducationGroupYear.objects.count(), 2)
+
 
 class CreateOffersTest(unittest.TestCase):
     @mock.patch('base.management.commands.import_reddot.import_common_offer')

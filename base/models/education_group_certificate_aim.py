@@ -23,24 +23,42 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from ckeditor.fields import RichTextFormField
-from django import forms
+from django.db import models
 
-from base.models.admission_condition import CONDITION_ADMISSION_ACCESSES
-
-
-class UpdateLineForm(forms.Form):
-    admission_condition_line = forms.IntegerField(widget=forms.HiddenInput())
-    section = forms.CharField(widget=forms.HiddenInput())
-    language = forms.CharField(widget=forms.HiddenInput())
-    diploma = forms.CharField(widget=forms.Textarea, required=False)
-    conditions = forms.CharField(widget=forms.Textarea, required=False)
-    access = forms.ChoiceField(choices=CONDITION_ADMISSION_ACCESSES, required=False)
-    remarks = forms.CharField(widget=forms.Textarea, required=False)
+from base.models.certificate_aim import CertificateAim
+from base.models.education_group_year import EducationGroupYear
+from osis_common.models.osis_model_admin import OsisModelAdmin
 
 
-class UpdateTextForm(forms.Form):
-    PARAMETERS_FOR_RICH_TEXT = dict(required=False, config_name='minimal')
-    text_fr = RichTextFormField(**PARAMETERS_FOR_RICH_TEXT)
-    text_en = RichTextFormField(**PARAMETERS_FOR_RICH_TEXT)
-    section = forms.CharField(widget=forms.HiddenInput())
+class EducationGroupCertificateAimAdmin(OsisModelAdmin):
+    list_display = ('education_group_year', 'certificate_aim', 'changed')
+    search_fields = ('education_group_year__acronym', 'certificate_aim__description')
+    list_filter = ('certificate_aim__section',)
+    ordering = ('education_group_year__acronym',)
+
+
+class EducationGroupCertificateAim(models.Model):
+    external_id = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True,
+        db_index=True,
+    )
+
+    changed = models.DateTimeField(
+        null=True,
+        auto_now=True,
+    )
+
+    education_group_year = models.ForeignKey(
+        EducationGroupYear,
+        on_delete=models.CASCADE,
+    )
+
+    certificate_aim = models.ForeignKey(
+        CertificateAim,
+        on_delete=models.PROTECT,
+    )
+
+    def __str__(self):
+        return "{} - {}".format(self.education_group_year, self.certificate_aim)

@@ -314,7 +314,7 @@ class Command(BaseCommand):
         fields = {
             'diploma' + self.suffix_language: diploma,
             'conditions' + self.suffix_language: line['conditions'] or '',
-            'access' + self.suffix_language: line['access'],
+            'access': line['access'],
             'remarks' + self.suffix_language: line['remarks']
         }
 
@@ -322,17 +322,18 @@ class Command(BaseCommand):
                                                          admission_condition=admission_condition,
                                                          external_id=line['external_id'])
         if not queryset.count():
-            AdmissionConditionLine.objects.create(
+            acl = AdmissionConditionLine(
                 section=line['title'],
                 admission_condition=admission_condition,
                 external_id=line['external_id'],
                 **fields
             )
+            acl.save()
         else:
             acl = queryset.first()
+            setattr(acl, 'access', line['access'])
             setattr(acl, 'diploma' + self.suffix_language, diploma)
             setattr(acl, 'conditions' + self.suffix_language, line['conditions'] or '')
-            setattr(acl, 'access' + self.suffix_language, line['access'])
             setattr(acl, 'remarks' + self.suffix_language, line['remarks'])
             acl.save()
 

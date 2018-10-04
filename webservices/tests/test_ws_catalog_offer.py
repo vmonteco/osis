@@ -28,13 +28,13 @@ import datetime
 import django
 from django.test import TestCase
 
-from base.models.admission_condition import AdmissionCondition, AdmissionConditionLine
+from base.models.admission_condition import AdmissionCondition, AdmissionConditionLine, CONDITION_ADMISSION_ACCESSES
 from base.tests.factories.education_group_year import (
-    EducationGroupYearFactory,
     EducationGroupYearCommonMasterFactory,
     EducationGroupYearMasterFactory,
     EducationGroupYearCommonBachelorFactory
 )
+from base.tests.factories.education_group_year import EducationGroupYearFactory
 from cms.enums.entity_name import OFFER_YEAR
 from cms.tests.factories.text_label import TextLabelFactory
 from cms.tests.factories.translated_text import TranslatedTextRandomFactory
@@ -657,7 +657,7 @@ class WsOfferCatalogAdmissionsCondition(TestCase, Helper):
         acl.diploma = 'diploma'
         acl.conditions = 'conditions'
         acl.remarks = 'remarks'
-        acl.access = 'access'
+        acl.access = CONDITION_ADMISSION_ACCESSES[2][0]
         acl.save()
 
         iso_language, language = 'fr-be', 'fr'

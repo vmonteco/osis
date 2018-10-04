@@ -23,24 +23,47 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from ckeditor.fields import RichTextFormField
-from django import forms
-
-from base.models.admission_condition import CONDITION_ADMISSION_ACCESSES
-
-
-class UpdateLineForm(forms.Form):
-    admission_condition_line = forms.IntegerField(widget=forms.HiddenInput())
-    section = forms.CharField(widget=forms.HiddenInput())
-    language = forms.CharField(widget=forms.HiddenInput())
-    diploma = forms.CharField(widget=forms.Textarea, required=False)
-    conditions = forms.CharField(widget=forms.Textarea, required=False)
-    access = forms.ChoiceField(choices=CONDITION_ADMISSION_ACCESSES, required=False)
-    remarks = forms.CharField(widget=forms.Textarea, required=False)
+from django.db import models
+from django.utils.translation import ugettext_lazy as _
+from osis_common.models.osis_model_admin import OsisModelAdmin
 
 
-class UpdateTextForm(forms.Form):
-    PARAMETERS_FOR_RICH_TEXT = dict(required=False, config_name='minimal')
-    text_fr = RichTextFormField(**PARAMETERS_FOR_RICH_TEXT)
-    text_en = RichTextFormField(**PARAMETERS_FOR_RICH_TEXT)
-    section = forms.CharField(widget=forms.HiddenInput())
+class CertificateAimAdmin(OsisModelAdmin):
+    list_display = ('section', 'description', 'changed')
+    search_fields = ('description',)
+    list_filter = ('section',)
+
+
+class CertificateAim(models.Model):
+    external_id = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True,
+        db_index=True,
+    )
+
+    changed = models.DateTimeField(
+        null=True,
+        auto_now=True,
+    )
+
+    code = models.PositiveIntegerField(
+        verbose_name=_("aim number"),
+        db_index=True,
+        unique=True,
+    )
+
+    section = models.PositiveIntegerField(
+        verbose_name=_("section"),
+        db_index=True,
+    )
+
+    description = models.CharField(
+        verbose_name=_("description"),
+        max_length=1024,
+        db_index=True,
+        unique=True,
+    )
+
+    def __str__(self):
+        return "{} {}".format(self.section, self.description)
