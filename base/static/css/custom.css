@@ -134,12 +134,17 @@ table.volumes thead{
     background-color: #d9534f;
 }
 
-.badge-notify{
-   background:red;
-   position:relative;
-   top: -10px;
-   left: -40px;
-  }
+.notification:after {
+    content: "";
+    display: block;
+    position: absolute;
+    width: 11px;
+    height: 11px;
+    background: red;
+    top: -3px;
+    right: 0;
+    border-radius: 50%;
+}
 
 .no_label{
     font-weight: normal;
