@@ -145,8 +145,7 @@ class EducationGroupDiplomas(EducationGroupGenericDetailView):
     limited_by_category = (education_group_categories.TRAINING,)
 
     def get_queryset(self):
-        prefetch_aims = Prefetch('certificate_aims', queryset=CertificateAim.objects.all().order_by('code', 'section'))
-        return super().get_queryset().prefetch_related(prefetch_aims)
+        return super().get_queryset().prefetch_related('certificate_aims')
 
 
 class EducationGroupGeneralInformation(EducationGroupGenericDetailView):

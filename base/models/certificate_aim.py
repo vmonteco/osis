@@ -65,5 +65,8 @@ class CertificateAim(models.Model):
         unique=True,
     )
 
+    class Meta:
+        ordering = ('code', 'section')
+
     def __str__(self):
         return "{} {}".format(self.section, self.description)
