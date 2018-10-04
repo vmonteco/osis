@@ -119,6 +119,9 @@ class EducationGroupYearModelForm(ValidationRuleEducationGroupTypeMixin, Permiss
             "education_group_type": EducationGroupTypeModelChoiceField,
         }
         fields = []
+        widgets = {
+            "duration": forms.NumberInput(attrs={'min': 1}),
+        }
 
     def __init__(self, *args, education_group_type=None, **kwargs):
         self.parent = kwargs.pop("parent", None)
