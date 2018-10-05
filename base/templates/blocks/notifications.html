@@ -9,7 +9,7 @@
     <ul class="dropdown-menu" aria-labelledby="dLabel">
         {% for notification in list_notifications %}
             <li>
-                <small>{{ notification.verb }} </small>
+                <small>{{ notification }} </small>
             </li>
             {% if not forloop.last %}
             <li class="divider"></li>

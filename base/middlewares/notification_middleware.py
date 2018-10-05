@@ -71,4 +71,4 @@ def send_academic_calendar_notifications(user):
 
 
 def make_cache_key(user):
-    return "notification_last_read_user_{}".format(user.pk)
+    return "notifications_last_read_user_{}".format(user.pk)
