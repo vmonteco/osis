@@ -9,9 +9,7 @@
     <ul class="dropdown-menu" aria-labelledby="dLabel">
         {% for notification in list_notifications %}
             <li>
-                <strong>{{ notification.start_date|date:"d/n" }}</strong>:
-                <br>
-                <small>{{ notification.title }} </small>
+                <small>{{ notification.verb }} </small>
             </li>
             {% if not forloop.last %}
             <li class="divider"></li>

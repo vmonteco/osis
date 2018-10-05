@@ -196,33 +196,33 @@ class TestGetStartingAcademicCalendar(TestCase):
         ]
 
     def test_when_inputing_nothing(self):
-        qs = academic_calendar.AcademicCalendar.objects.starting_before()
+        qs = academic_calendar.AcademicCalendar.objects.starting_within()
         self.assertEqual(list(qs), [])
 
     def test_when_inputing_only_days(self):
-        qs = academic_calendar.AcademicCalendar.objects.starting_before(days=5)
+        qs = academic_calendar.AcademicCalendar.objects.starting_within(days=5)
         self.assertCountEqual(list(qs),
                               self.academic_calendars_in_4_day)
 
-        qs = academic_calendar.AcademicCalendar.objects.starting_before(days=10)
+        qs = academic_calendar.AcademicCalendar.objects.starting_within(days=10)
         self.assertCountEqual(list(qs),
                               self.academic_calendars_in_4_day + self.academic_calendars_in_1_week_and_3_days)
 
     def test_when_inputing_only_weeks(self):
-        qs = academic_calendar.AcademicCalendar.objects.starting_before(weeks=1)
+        qs = academic_calendar.AcademicCalendar.objects.starting_within(weeks=1)
         self.assertCountEqual(list(qs),
                               self.academic_calendars_in_4_day)
 
-        qs = academic_calendar.AcademicCalendar.objects.starting_before(weeks=2)
+        qs = academic_calendar.AcademicCalendar.objects.starting_within(weeks=2)
         self.assertCountEqual(list(qs),
                               self.academic_calendars_in_4_day + self.academic_calendars_in_1_week_and_3_days +
                               self.academic_calendars_in_2_weeks)
 
     def test_when_inputing_days_and_weeks(self):
-        qs = academic_calendar.AcademicCalendar.objects.starting_before(weeks=1, days=2)
+        qs = academic_calendar.AcademicCalendar.objects.starting_within(weeks=1, days=2)
         self.assertCountEqual(list(qs),
                               self.academic_calendars_in_4_day)
 
-        qs = academic_calendar.AcademicCalendar.objects.starting_before(weeks=1, days=5)
+        qs = academic_calendar.AcademicCalendar.objects.starting_within(weeks=1, days=5)
         self.assertCountEqual(list(qs),
                               self.academic_calendars_in_4_day + self.academic_calendars_in_1_week_and_3_days)

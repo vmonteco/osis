@@ -25,15 +25,10 @@
 ##############################################################################
 from django import template
 
-from base.models import academic_calendar
-
 register = template.Library()
 
 
 @register.simple_tag(takes_context=True)
-def notifications_number(context):
-    return academic_calendar.AcademicCalendar.objects.open_calendars().count()
-
-@register.simple_tag(takes_context=True)
 def get_notifications(context):
-    return academic_calendar.AcademicCalendar.objects.open_calendars().order_by("start_date", "end_date")
+    user = context["request"].user
+    return user.notifications.unread()
