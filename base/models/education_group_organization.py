@@ -33,7 +33,7 @@ from osis_common.models.osis_model_admin import OsisModelAdmin
 class EducationGroupOrganizationAdmin(OsisModelAdmin):
     list_display = ('education_group_year', 'organization')
     raw_id_fields = ('education_group_year', 'organization')
-    search_fields = ['education_group_year']
+    search_fields = ['education_group_year__acronym']
 
 
 class EducationGroupOrganization(models.Model):
