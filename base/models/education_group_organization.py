@@ -46,6 +46,8 @@ class EducationGroupOrganization(models.Model):
     diploma = models.CharField(max_length=40,
                                choices=diploma_coorganization.DiplomaCoorganizationTypes.choices(),
                                default=diploma_coorganization.DiplomaCoorganizationTypes.NOT_CONCERNED.value)
+    diploma_printing = models.BooleanField(default=False)
+    annexe_printing = models.BooleanField(default=False)
 
     _address = None
 
