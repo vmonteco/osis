@@ -46,6 +46,8 @@ class EducationGroupOrganization(models.Model):
     diploma = models.CharField(max_length=40,
                                choices=diploma_coorganization.DiplomaCoorganizationTypes.choices(),
                                default=diploma_coorganization.DiplomaCoorganizationTypes.NOT_CONCERNED.value)
+    is_producing_cerfificate = models.BooleanField(default=False)
+    is_producing_annexe = models.BooleanField(default=False)
 
     _address = None
 
