@@ -1,4 +1,4 @@
-##############################################################################
+############################################################################
 #
 #    OSIS stands for Open Student Information System. It's an application
 #    designed to manage the core business of higher education institutions,
@@ -22,12 +22,21 @@
 #    at the root of the source code of this program.  If not,
 #    see http://www.gnu.org/licenses/.
 #
-##############################################################################
-from enum import Enum
-from base.models.utils.utils import ChoiceEnum
+############################################################################
+import factory.fuzzy
+import string
+from osis_common.utils.datetime import get_tzinfo
+from factory.django import DjangoModelFactory
+from faker import Faker
+fake = Faker()
 
 
-class DiplomaCoorganizationTypes(ChoiceEnum):
-    UNIQUE = "UNIQUE"
-    SEPARATE = "SEPARATE"
-    NOT_CONCERNED = "NOT_CONCERNED"
+class CertificateAimFactory(DjangoModelFactory):
+    class Meta:
+        model = "base.CertificateAim"
+
+    external_id = factory.fuzzy.FuzzyText(length=10)
+    changed = fake.date_time_this_decade(before_now=True, after_now=True, tzinfo=get_tzinfo())
+    code = factory.fuzzy.FuzzyInteger(0)
+    section = factory.fuzzy.FuzzyInteger(1, 4)
+    description = factory.fuzzy.FuzzyText(length=10, chars=string.digits)

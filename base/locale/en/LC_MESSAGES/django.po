@@ -105,6 +105,9 @@ msgstr "Administration"
 msgid "after_submission_a_message_must_be_sent"
 msgstr "If scores are submitted , a message is sent to all the professors of the learning unit"
 
+msgid "aim number"
+msgstr ""
+
 msgid "all"
 msgstr "All"
 
@@ -158,6 +161,9 @@ msgstr "Cancel"
 
 msgid "catalogue"
 msgstr "Catalogue"
+
+msgid "certificate aims"
+msgstr ""
 
 msgid "chair_of_the_exam_board"
 msgstr "Chair of the exam board"
@@ -1031,6 +1037,9 @@ msgstr "Search for an entity"
 
 msgid "search_for_an_organization"
 msgstr "Search for an organization"
+
+msgid "section"
+msgstr ""
 
 msgid "SECTOR"
 msgstr "Sector"
