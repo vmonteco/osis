@@ -29,7 +29,7 @@ from notifications.signals import notify
 
 from base.models.academic_calendar import AcademicCalendar
 from base.utils.notifications import get_notifications_last_date_read_for_user, \
-    set_notifications_last_read_as_now_for_user
+    set_notifications_last_read_as_now_for_user, are_notifications_already_loaded
 
 ALERT_WEEK = 2
 
@@ -38,7 +38,8 @@ class NotificationMiddleware(object):
         self.get_response = get_response
 
     def __call__(self, request):
-        send_academic_calendar_notifications(request.user)
+        if not are_notifications_already_loaded(request.user):
+            send_academic_calendar_notifications(request.user)
 
         response = self.get_response(request)
         return response
