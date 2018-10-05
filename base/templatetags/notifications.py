@@ -24,28 +24,15 @@
 #
 ##############################################################################
 from django import template
-from base.utils.cache import cache
+
+from base.utils.notifications import get_user_notifications
 
 register = template.Library()
 
-CACHE_NOTIFICATIONS_TIMEOUT = 1800 # seconds -> 30 min
 
 @register.simple_tag(takes_context=True)
 def get_notifications(context):
     user = context["request"].user
 
-    cache_key = make_cache_key(user)
-    notifications_cached = cache.get(cache_key, [])
+    return get_user_notifications(user)
 
-    if notifications_cached:
-        return notifications_cached
-
-    notifications = [notification.verb for notification in user.notifications.unread()]
-
-    cache.set(cache_key, notifications, CACHE_NOTIFICATIONS_TIMEOUT)
-
-    return notifications
-
-
-def make_cache_key(user):
-    return "notifications_user_{}".format(user.pk)

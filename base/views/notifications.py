@@ -23,36 +23,19 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import datetime
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse
+from django.views.decorators.http import require_POST
 
-from notifications.signals import notify
-
-from base.models.academic_calendar import AcademicCalendar
-from base.utils.notifications import get_notifications_last_date_read_for_user, \
-    set_notifications_last_read_as_now_for_user
-
-ALERT_WEEK = 2
-
-class NotificationMiddleware(object):
-    def __init__(self, get_response):
-        self.get_response = get_response
-
-    def __call__(self, request):
-        send_academic_calendar_notifications(request.user)
-
-        response = self.get_response(request)
-        return response
+from base.utils import notifications
+from osis_common.decorators.ajax import ajax_required
 
 
-def send_academic_calendar_notifications(user):
-    date_last_read = get_notifications_last_date_read_for_user(user)
-
-    ac_qs = AcademicCalendar.objects.starting_within(weeks=ALERT_WEEK).order_by("start_date", "end_date")
-
-    if date_last_read:
-        ac_qs = ac_qs.filter(start_date__gt=date_last_read+datetime.timedelta(weeks=ALERT_WEEK))
-
-    for ac_obj in ac_qs:
-        notify.send(ac_obj, recipient=user, verb=str(ac_obj))
-
-    set_notifications_last_read_as_now_for_user(user)
+# TODO Empty cache notifications for user
+@login_required
+@ajax_required
+@require_POST
+def clear_user_notifications(request):
+    user = request.user
+    notifications.clear_user_notifications(user)
+    return HttpResponse()
