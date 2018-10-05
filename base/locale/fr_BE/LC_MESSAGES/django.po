@@ -4006,3 +4006,15 @@ msgstr "Accès direct"
 
 msgid "Access with additional training"
 msgstr "Accès moyennant compléments de formation"
+
+msgid "Producing certificat"
+msgstr "Production du diplôme / certificat"
+
+msgid "Producing annexe"
+msgstr "Production du supplément / annexe"
+
+msgid "UCL Diploma"
+msgstr "Diplôme avec l'UCL"
+
+msgid "Reference institution"
+msgstr "Institution de référence"
