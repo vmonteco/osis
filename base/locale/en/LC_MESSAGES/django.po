@@ -3984,3 +3984,6 @@ msgstr ""
 
 msgid "Access with additional training"
 msgstr ""
+
+msgid "%(number_notifications)s notification(s)"
+msgstr ""
