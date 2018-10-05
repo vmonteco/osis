@@ -70,14 +70,14 @@
                                             {% if label|get_item:'fr-be' %}
                                                 <span {% if label.type == 'common' %}class="education_group_year-common italic"{% endif %}>{{ label|get_item:'fr-be'|truncatewords_html:40|safe }}</span>
                                             {% else %}
-                                                <span class="italic">{{ _('Add the French content of this paragraph') }}</span>
+                                                <span class="italic">{% trans 'Add the French content of this paragraph' %}</span>
                                             {% endif %}
                                         </div>
                                         <div class="col-md-6" id="content_en_{{ label.type }}_{{ label.label }}">
                                             {% if label|get_item:'en' %}
                                                 <span {% if label.type == 'common' %}class="education_group_year-common italic"{% endif %}>{{ label|get_item:'en'|truncatewords_html:40|safe }}</span>
                                             {% else %}
-                                                <span class="italic">{{ _('Add the English content of this paragraph') }}</span>
+                                                <span class="italic">{% trans 'Add the English content of this paragraph' %}</span>
                                             {% endif %}
                                         </div>
                                     </div>
