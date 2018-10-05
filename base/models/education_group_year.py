@@ -265,7 +265,7 @@ class EducationGroupYear(models.Model):
         verbose_name=_('keywords')
     )
 
-    duration = models.PositiveIntegerField(
+    duration = models.IntegerField(
         blank=True,
         null=True,
         default=1,  # We must set a default value for duration because duration_unit have a default value
