@@ -8,7 +8,7 @@ function redirect_after_success(modal, xhr) {
     }
 }
 
-let formAjaxSubmit = function (form, modal) {
+var formAjaxSubmit = function (form, modal) {
     $(form).submit(function (e) {
         // Added preventDefaut so as to not add anchor "href" to address bar
         e.preventDefault();
