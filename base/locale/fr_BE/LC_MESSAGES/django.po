@@ -3891,6 +3891,12 @@ msgstr "Acquis d'apprentissage d'organisation de formation"
 msgid "education group detailed achievement"
 msgstr "Acquis d'apprentissage détaillé d'organisation de formation"
 
+msgid "text in English"
+msgstr "texte en anglais"
+
+msgid "text in French"
+msgstr "texte en français"
+
 msgid "on successful completion of this program, each student is able to"
 msgstr "au terme de ce programme, le diplômé est capable de"
 

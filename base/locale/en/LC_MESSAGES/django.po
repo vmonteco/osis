@@ -3884,6 +3884,12 @@ msgstr ""
 msgid "education group detailed achievement"
 msgstr ""
 
+msgid "text in English"
+msgstr ""
+
+msgid "text in French"
+msgstr ""
+
 msgid "on successful completion of this program, each student is able to"
 msgstr ""
 
