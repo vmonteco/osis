@@ -227,7 +227,8 @@ class FullForm(LearningUnitBaseForm):
     def _restrict_academic_years_choice(self, postposal):
         if postposal:
             starting_academic_year = academic_year.starting_academic_year()
-            end_year_range = MAX_ACADEMIC_YEAR_FACULTY if self.person.is_faculty_manager() else MAX_ACADEMIC_YEAR_CENTRAL
+            end_year_range = MAX_ACADEMIC_YEAR_FACULTY if self.person.is_faculty_manager() \
+                else MAX_ACADEMIC_YEAR_CENTRAL
 
             self.fields["academic_year"].queryset = academic_year.find_academic_years(
                 start_year=starting_academic_year.year,
