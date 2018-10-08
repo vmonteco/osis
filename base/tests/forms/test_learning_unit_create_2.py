@@ -272,10 +272,11 @@ class TestFullFormInit(LearningUnitFullFormContextMixin):
                          learn_unit_year.learning_container_year)
 
     def test_academic_years_restriction_for_central_manager(self):
-        faculty_group = Group.objects.get(name='central_managers')
-        self.person.user.groups.add(faculty_group)
+        central_group = Group.objects.get(name='central_managers')
+        self.person.user.groups.add(central_group)
         form = FullForm(self.person, self.learning_unit_year.academic_year,
-                        start_year=self.learning_unit_year.academic_year.year)
+                        start_year=self.learning_unit_year.academic_year.year,
+                        postposal=True)
         actual_choices = [choice[0] for choice in form.fields["academic_year"].choices if choice[0] != '']
         expected_choices = [acy.id for acy in self.acs[3:10]]
 
@@ -285,7 +286,8 @@ class TestFullFormInit(LearningUnitFullFormContextMixin):
         faculty_group = Group.objects.get(name='faculty_managers')
         self.person.user.groups.add(faculty_group)
         form = FullForm(self.person, self.learning_unit_year.academic_year,
-                        start_year=self.learning_unit_year.academic_year.year)
+                        start_year=self.learning_unit_year.academic_year.year,
+                        postposal=True)
         actual_choices = [choice[0] for choice in form.fields["academic_year"].choices if choice[0] != '']
         expected_choices = [acy.id for acy in self.acs[3:6]]
         self.assertCountEqual(actual_choices, expected_choices)

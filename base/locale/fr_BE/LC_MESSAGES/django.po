@@ -3900,6 +3900,12 @@ msgstr "Acquis d'apprentissage d'organisation de formation"
 msgid "education group detailed achievement"
 msgstr "Acquis d'apprentissage détaillé d'organisation de formation"
 
+msgid "text in English"
+msgstr "texte en anglais"
+
+msgid "text in French"
+msgstr "texte en français"
+
 msgid "on successful completion of this program, each student is able to"
 msgstr "au terme de ce programme, le diplômé est capable de"
 
@@ -4003,3 +4009,15 @@ msgstr "Accès moyennant compléments de formation"
 
 msgid "%(number_notifications)s notification(s)"
 msgstr "%(number_notifications)s notification(s)"
+
+msgid "Producing certificat"
+msgstr "Production du diplôme / certificat"
+
+msgid "Producing annexe"
+msgstr "Production du supplément / annexe"
+
+msgid "UCL Diploma"
+msgstr "Diplôme avec l'UCL"
+
+msgid "Reference institution"
+msgstr "Institution de référence"
