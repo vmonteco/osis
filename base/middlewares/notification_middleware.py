@@ -33,6 +33,7 @@ from base.utils.notifications import get_notifications_last_date_read_for_user, 
 
 ALERT_WEEK = 2
 
+
 class NotificationMiddleware(object):
     def __init__(self, get_response):
         self.get_response = get_response

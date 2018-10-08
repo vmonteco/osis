@@ -28,7 +28,7 @@ import time
 
 from base.utils.cache import cache
 
-CACHE_NOTIFICATIONS_TIMEOUT = 1800 # seconds -> 30 min
+CACHE_NOTIFICATIONS_TIMEOUT = 1800  # seconds -> 30 min
 NOTIFICATIONS_KEY = "notifications_user_{}"
 NOTIFICATIONS_TIMESTAMP = "notifications_last_read_user_{}"
 
@@ -57,6 +57,7 @@ def clear_user_notifications(user):
     cache.delete(cache_key)
 
     user.notifications.mark_all_as_deleted()
+
 
 def are_notifications_already_loaded(user):
     cache_key = make_notifications_cache_key(user)
