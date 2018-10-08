@@ -23,11 +23,16 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+import datetime
+from unittest.mock import MagicMock, Mock
+
 from django.test import TestCase
 
 from base.tests.factories.user import UserFactory
 from base.utils.cache import cache
-from base.utils.notifications import make_notifications_cache_key, are_notifications_already_loaded
+from base.utils.notifications import make_notifications_cache_key, are_notifications_already_loaded, \
+    get_notifications_last_date_read_for_user, set_notifications_last_read_as_today_for_user, clear_user_notifications, \
+    get_notifications_in_cache, get_user_notifications
 
 
 class TestNotificationsBaseClass(TestCase):
@@ -50,6 +55,25 @@ class TestNotificationsBaseClass(TestCase):
     def tearDown(self):
         cache.clear()
 
+class TestGetUserNotifications(TestNotificationsBaseClass):
+    def test_when_data_in_cache(self):
+        self.assertEqual(self.notifications,
+                         get_user_notifications(self.user_with_data))
+
+    def test_when_should_return_unread_data_if_data_not_in_cache(self):
+        self.assertEqual([],
+                         get_user_notifications(self.user_without_data))
+
+
+class TestClearNotifications(TestNotificationsBaseClass):
+    def test_do_not_raise_exception_when_no_cache_data(self):
+        clear_user_notifications(self.user_without_data)
+        self.assertIsNone(get_notifications_in_cache(self.user_without_data))
+
+    def test_cache_for_user_should_be_empty_after_clear(self):
+        clear_user_notifications(self.user_with_data)
+        self.assertIsNone(get_notifications_in_cache(self.user_with_data))
+
 
 class TestAreNotificationsAlreadyLoaded(TestNotificationsBaseClass):
     def test_return_false_when_key_user_data_not_in_cache(self):
@@ -60,3 +84,14 @@ class TestAreNotificationsAlreadyLoaded(TestNotificationsBaseClass):
 
     def test_return_true_when_data_in_cache(self):
         self.assertTrue(are_notifications_already_loaded(self.user_with_data))
+
+
+class TestCacheTimestamp(TestNotificationsBaseClass):
+    def test_get_last_date_read_should_return_none_if_user_never_read_notifications_before(self):
+        self.assertIsNone(get_notifications_last_date_read_for_user(self.user_without_data))
+
+    def test_return_date_last_set(self):
+        today = datetime.date.today()
+        set_notifications_last_read_as_today_for_user(self.user_without_data)
+        self.assertEqual(today,
+                         get_notifications_last_date_read_for_user(self.user_without_data))

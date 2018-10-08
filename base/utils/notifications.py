@@ -34,22 +34,22 @@ NOTIFICATIONS_TIMESTAMP = "notifications_last_read_user_{}"
 
 
 def get_user_notifications(user):
+    notifications_cached = get_notifications_in_cache(user)
+    return notifications_cached if notifications_cached is not None else set_notifications_in_cache(user)
+
+
+def get_notifications_in_cache(user):
     cache_key = make_notifications_cache_key(user)
-    notifications_cached = cache.get(cache_key, [])
+    return cache.get(cache_key)
 
-    if notifications_cached:
-        return notifications_cached
 
+def set_notifications_in_cache(user):
+    cache_key = make_notifications_cache_key(user)
     notifications = [notification.verb for notification in user.notifications.unread()]
 
     cache.set(cache_key, notifications, CACHE_NOTIFICATIONS_TIMEOUT)
 
     return notifications
-
-
-def are_notifications_already_loaded(user):
-    cache_key = make_notifications_cache_key(user)
-    return bool(cache.get(cache_key) is not None)
 
 
 def clear_user_notifications(user):
@@ -58,6 +58,10 @@ def clear_user_notifications(user):
 
     user.notifications.mark_all_as_deleted()
 
+def are_notifications_already_loaded(user):
+    cache_key = make_notifications_cache_key(user)
+    return cache_key in cache
+
 
 def get_notifications_last_date_read_for_user(user):
     cache_key = make_notifications_timestamp_cache_key(user)
@@ -65,7 +69,7 @@ def get_notifications_last_date_read_for_user(user):
     return datetime.date.fromtimestamp(float(timestamp_last_read)) if timestamp_last_read else None
 
 
-def set_notifications_last_read_as_now_for_user(user):
+def set_notifications_last_read_as_today_for_user(user):
     cache_key = make_notifications_timestamp_cache_key(user)
     cache.set(cache_key, str(time.time()))
 

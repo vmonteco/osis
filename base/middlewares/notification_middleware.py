@@ -29,7 +29,7 @@ from notifications.signals import notify
 
 from base.models.academic_calendar import AcademicCalendar
 from base.utils.notifications import get_notifications_last_date_read_for_user, \
-    set_notifications_last_read_as_now_for_user, are_notifications_already_loaded
+    set_notifications_last_read_as_today_for_user, are_notifications_already_loaded
 
 ALERT_WEEK = 2
 
@@ -56,4 +56,4 @@ def send_academic_calendar_notifications(user):
     for ac_obj in ac_qs:
         notify.send(ac_obj, recipient=user, verb=str(ac_obj))
 
-    set_notifications_last_read_as_now_for_user(user)
+    set_notifications_last_read_as_today_for_user(user)
