@@ -47,7 +47,6 @@ class NotificationMiddleware(object):
 
 def send_academic_calendar_notifications(user):
     date_last_read = get_notifications_last_date_read_for_user(user)
-
     ac_qs = AcademicCalendar.objects.starting_within(weeks=ALERT_WEEK).order_by("start_date", "end_date")
 
     if date_last_read:
