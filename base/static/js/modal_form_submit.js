@@ -23,7 +23,7 @@ var formAjaxSubmit = function (form, modal) {
                 if ($(xhr).find('.has-error').length > 0) {
                     $(modal).find('.modal-content').html(xhr);
                     // Add compatibility with ckeditor and related textareas
-                    BindTextArea();
+                    bindTextArea();
                     formAjaxSubmit(form, modal);
                 } else {
                     redirect_after_success(modal, xhr);
@@ -38,7 +38,7 @@ var formAjaxSubmit = function (form, modal) {
 
 
 // CKEDITOR needs to dynamically bind the textareas during an XMLHttpRequest requests
-function BindTextArea() {
+function bindTextArea() {
     $("textarea[data-type='ckeditortype']").each( function () {
         CKEDITOR.replace($(this).attr('id'), $(this).data('config'));
     });

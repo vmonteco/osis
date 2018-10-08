@@ -36,7 +36,7 @@
     $("#{{ click_id }}:enabled, #{{ click_id }}:not('.disabled')").click(function (e) {
         $('#form-modal-content').load('{{ modal_url }}', function () {
             $('#form-modal').modal('toggle');
-            BindTextArea();
+            bindTextArea();
             formAjaxSubmit('#form-modal-body form', '#form-modal');
         });
     });
