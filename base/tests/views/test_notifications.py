@@ -29,15 +29,14 @@ from django.http import HttpResponse, HttpResponseForbidden, HttpResponseNotAllo
 from django.test import TestCase
 from django.urls import reverse
 
-from base.tests.factories.person import PersonFactory
+from base.tests.factories.user import UserFactory
 
 
 class TestClearUserNotifications(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        cls.person = PersonFactory()
-        cls.user = cls.person.user
+        cls.user = UserFactory()
 
         cls.url = reverse("clear_notifications")
 

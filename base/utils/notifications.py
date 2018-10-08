@@ -49,7 +49,7 @@ def get_user_notifications(user):
 
 def are_notifications_already_loaded(user):
     cache_key = make_notifications_cache_key(user)
-    return bool(cache.get(cache_key, []))
+    return bool(cache.get(cache_key) is not None)
 
 
 def clear_user_notifications(user):

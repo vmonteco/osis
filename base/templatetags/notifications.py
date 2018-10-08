@@ -35,4 +35,3 @@ def get_notifications(context):
     user = context["request"].user
 
     return get_user_notifications(user)
-
