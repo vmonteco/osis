@@ -204,7 +204,8 @@ class LearningUnitPostponementForm:
             'academic_year': ac_year,
             'start_year': start_year,
             'data': data.copy() if data else None,
-            'learning_unit_full_instance': self.learning_unit_full_instance
+            'learning_unit_full_instance': self.learning_unit_full_instance,
+            'postposal': not data
         }
         return FullForm(**form_kwargs) if self.subtype == learning_unit_year_subtypes.FULL else \
             PartimForm(**form_kwargs)
