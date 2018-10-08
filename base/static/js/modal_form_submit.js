@@ -40,7 +40,6 @@ let formAjaxSubmit = function (form, modal) {
 // CKEDITOR needs to dynamically bind the textareas during an XMLHttpRequest requests
 function BindTextArea() {
     $("textarea[data-type='ckeditortype']").each( function () {
-        console.log($(this).attr('id'));
         CKEDITOR.replace($(this).attr('id'), $(this).data('config'));
     });
 }
