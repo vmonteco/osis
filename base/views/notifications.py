@@ -31,7 +31,6 @@ from base.utils import notifications
 from osis_common.decorators.ajax import ajax_required
 
 
-# TODO Empty cache notifications for user
 @login_required
 @ajax_required
 @require_POST
