@@ -167,8 +167,11 @@ class TestPostponementEducationGroupYearMixin(TestCase):
         self.assertEqual(len(form.warnings), 0, form.warnings)
 
     def test_save_with_postponement_error(self):
-        EducationGroupYearFactory(academic_year=self.list_acs[4],
-                                  education_group=self.education_group_year.education_group)
+        EducationGroupYearFactory(
+            academic_year=self.list_acs[4],
+            education_group=self.education_group_year.education_group,
+            duration=100
+        )
 
         form = TrainingForm(
             self.data,

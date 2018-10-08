@@ -21,6 +21,8 @@
 * at the root of the source code of this program.  If not,
 * see http://www.gnu.org/licenses/.
 {% endcomment %}
+{% load i18n %}
+
 <div id="{{ section }}">
     <h3>{{ text }}{% if can_edit_information %}
         {% url 'education_group_year_admission_condition_update_text' root.pk education_group_year.pk as update_text_url %}
@@ -36,14 +38,14 @@
             {% if field %}
                 {{ field|safe }}
             {% else %}
-                <span class="italic">{{ _('Add the French content of this paragraph') }}</span>
+                <span class="italic">{% trans 'Add the French content of this paragraph' %}</span>
             {% endif %}
         </div>
         <div class="col-md-6" id="text_{{ section }}_en">
             {% if field_en %}
                 {{ field_en|safe }}
             {% else %}
-                <span class="italic">{{ _('Add the English content of this paragraph') }}</span>
+                <span class="italic">{% trans 'Add the English content of this paragraph' %}</span>
             {% endif %}
         </div>
     </div>
