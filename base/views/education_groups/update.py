@@ -23,10 +23,13 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from dal import autocomplete
 from django import forms
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
+from django.utils.functional import lazy
+from django.utils.html import format_html
 from django.utils.translation import ugettext_lazy as _
 from waffle.decorators import waffle_flag
 
@@ -35,6 +38,9 @@ from base.forms.education_group.group import GroupForm
 from base.forms.education_group.mini_training import MiniTrainingForm
 from base.forms.education_group.training import TrainingForm
 from base import models as mdl_base
+from base.forms.utils.choice_field import BLANK_CHOICE, add_blank
+from base.models.certificate_aim import CertificateAim
+from base.models.education_group_certificate_aim import EducationGroupCertificateAim
 from base.models.education_group_year import EducationGroupYear
 from base.models.enums import education_group_categories
 from base.views import layout
@@ -149,6 +155,41 @@ def _update_training(request, education_group_year, root):
         "form_education_group_year": form_education_group_year.forms[forms.ModelForm],
         "form_education_group": form_education_group_year.forms[EducationGroupModelForm]
     })
+
+
+# TODO :: unit test on postponement
+class CertificateAimAutocomplete(autocomplete.Select2QuerySetView):
+    def get_queryset(self):
+        # Don't forget to filter out results depending on the visitor !
+        if not self.request.user.is_authenticated():
+            return CertificateAim.objects.none()
+
+        # TODO :: unit test on ordering by section then code
+        qs = CertificateAim.objects.all()
+
+        if self.q:
+            # qs = qs.objects.filter(Q(description__contains=self.q) | Q(code=self.q))
+            if self.q.isdigit():
+                qs = qs.filter(code=self.q)
+            else:
+                qs = qs.filter(description__icontains=self.q)
+
+        section = self.forwarded.get('section', None)
+        if section:
+            qs = qs.filter(section=section)
+
+        return qs
+
+    def _get_label(self, result):
+        # truncated_description = result.description[0:min(20, len(result.description))]
+        # return format_html('<p title="{}">{} - {} {}...</p>', result.description, result.section, result.code, truncated_description)
+        return format_html('<p>{} - {} {}</p>', result.section, result.code, result.description)
+
+    def get_result_label(self, result):
+        return self._get_label(result)
+
+    def get_selected_result_label(self, result):
+        return self._get_label(result)
 
 
 def _update_mini_training(request, education_group_year, root):

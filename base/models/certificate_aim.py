@@ -69,4 +69,4 @@ class CertificateAim(models.Model):
         ordering = ('code', 'section')
 
     def __str__(self):
-        return "{} {}".format(self.section, self.description)
+        return "{} - {} {}".format(self.section, self.code, self.description)
