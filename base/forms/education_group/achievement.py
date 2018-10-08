@@ -25,6 +25,7 @@
 ############################################################################
 from ckeditor.widgets import CKEditorWidget
 from django import forms
+from django.utils.translation import ugettext_lazy as _
 
 from base.business.learning_units.achievement import UP, DOWN
 from base.models.education_group_achievement import EducationGroupAchievement
@@ -37,8 +38,17 @@ ACTION_CHOICES = [
 
 
 class EducationGroupAchievementForm(forms.ModelForm):
-    french_text = forms.CharField(widget=CKEditorWidget(config_name='minimal'), required=False)
-    english_text = forms.CharField(widget=CKEditorWidget(config_name='minimal'), required=False)
+    french_text = forms.CharField(
+        widget=CKEditorWidget(config_name='minimal'),
+        required=False,
+        label=_('text in French')
+    )
+
+    english_text = forms.CharField(
+        widget=CKEditorWidget(config_name='minimal'),
+        required=False,
+        label=_('text in English')
+    )
 
     class Meta:
         model = EducationGroupAchievement
