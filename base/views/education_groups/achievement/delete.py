@@ -23,32 +23,17 @@
 #    see http://www.gnu.org/licenses/.
 #
 ############################################################################
-from ckeditor.widgets import CKEditorWidget
-from django import forms
-
-from base.business.learning_units.achievement import UP, DOWN
-from base.models.education_group_achievement import EducationGroupAchievement
-from base.models.education_group_detailed_achievement import EducationGroupDetailedAchievement
-
-ACTION_CHOICES = [
-    (UP, UP),
-    (DOWN, DOWN),
-]
+from base.business.education_groups.perms import is_eligible_to_delete_achievement
+from base.views.education_groups.achievement.common import EducationGroupAchievementMixin, \
+    EducationGroupDetailedAchievementMixin
+from base.views.mixins import DeleteViewWithDependencies
 
 
-class EducationGroupAchievementForm(forms.ModelForm):
-    french_text = forms.CharField(widget=CKEditorWidget(config_name='minimal'), required=False)
-    english_text = forms.CharField(widget=CKEditorWidget(config_name='minimal'), required=False)
-
-    class Meta:
-        model = EducationGroupAchievement
-        fields = ["code_name", "french_text", "english_text"]
+class DeleteEducationGroupAchievement(EducationGroupAchievementMixin, DeleteViewWithDependencies):
+    template_name = "education_group/delete.html"
+    rules = [is_eligible_to_delete_achievement]
 
 
-class EducationGroupDetailedAchievementForm(EducationGroupAchievementForm):
-    class Meta(EducationGroupAchievementForm.Meta):
-        model = EducationGroupDetailedAchievement
-
-
-class ActionForm(forms.Form):
-    action = forms.ChoiceField(choices=ACTION_CHOICES, required=True)
+class DeleteEducationGroupDetailedAchievement(EducationGroupDetailedAchievementMixin, DeleteViewWithDependencies):
+    template_name = "education_group/delete.html"
+    rules = [is_eligible_to_delete_achievement]

@@ -40,7 +40,7 @@ class FlagMixin:
     flag = None
 
     def dispatch(self, request, *args, **kwargs):
-        if not self.flag or not waffle.flag_is_active(request, self.flag):
+        if self.flag and not waffle.flag_is_active(request, self.flag):
             raise Http404
         return super().dispatch(request, *args, **kwargs)
 
