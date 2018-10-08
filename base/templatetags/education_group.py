@@ -38,7 +38,8 @@ from backoffice.settings import base
 from base.business.education_group import can_user_edit_administrative_data
 from base.business.education_groups.perms import is_eligible_to_delete_education_group, \
     is_eligible_to_change_education_group, is_eligible_to_add_training, \
-    is_eligible_to_add_mini_training, is_eligible_to_add_group, is_eligible_to_change_achievement
+    is_eligible_to_add_mini_training, is_eligible_to_add_group, is_eligible_to_change_achievement, \
+    is_eligible_to_delete_achievement
 from base.models.enums.learning_unit_year_periodicity import BIENNIAL_EVEN, BIENNIAL_ODD, ANNUAL
 
 OPTIONAL_PNG = base.STATIC_URL + 'img/education_group_year/optional.png'
@@ -481,6 +482,11 @@ def _fetch_value_with_attrgetter(obj, attrs):
 @register.simple_tag(takes_context=True)
 def permission_change_achievement(context):
     return _get_permission(context, is_eligible_to_change_achievement)[1]
+
+
+@register.simple_tag(takes_context=True)
+def permission_delete_achievement(context):
+    return _get_permission(context, is_eligible_to_delete_achievement)[1]
 
 
 @register.simple_tag(takes_context=True)

@@ -72,6 +72,11 @@ def is_eligible_to_change_achievement(person, education_group, raise_exception=F
            check_link_to_management_entity(education_group, person, raise_exception)
 
 
+def is_eligible_to_delete_achievement(person, education_group, raise_exception=False):
+    return check_permission(person, "base.delete_educationgroupachievement", raise_exception) and \
+           check_link_to_management_entity(education_group, person, raise_exception)
+
+
 def is_eligible_to_delete_education_group(person, education_group, raise_exception=False):
     return check_permission(person, "base.delete_educationgroup", raise_exception) and \
            _is_eligible_education_group(person, education_group, raise_exception)
