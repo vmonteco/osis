@@ -236,7 +236,7 @@ class FullForm(LearningUnitBaseForm):
             )
 
     def _disable_fields(self):
-        if self.person.is_faculty_manager():
+        if self.person.is_faculty_manager() and not self.person.is_central_manager():
             self._disable_fields_as_faculty_manager()
         else:
             self._disable_fields_as_central_manager()
