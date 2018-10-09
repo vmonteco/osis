@@ -37,6 +37,7 @@ from base.forms.education_group.common import CommonBaseForm, EducationGroupMode
     MainEntitiesVersionChoiceField, EducationGroupYearModelForm
 from base.forms.utils.choice_field import add_blank
 from base.models.certificate_aim import CertificateAim
+from base.models.education_group_certificate_aim import EducationGroupCertificateAim
 from base.models.education_group_year_domain import EducationGroupYearDomain
 from base.models.entity_version import get_last_version
 from base.models.enums import education_group_categories, rate_code, decree_category
@@ -146,6 +147,7 @@ class TrainingEducationGroupYearForm(EducationGroupYearModelForm):
         education_group_year.save()
         if not self.fields['secondary_domains'].disabled:
             self.save_secondary_domains()
+        self.save_certificate_aims()
         return education_group_year
 
     def save_secondary_domains(self):
@@ -155,6 +157,14 @@ class TrainingEducationGroupYearForm(EducationGroupYearModelForm):
             EducationGroupYearDomain.objects.get_or_create(
                 education_group_year=self.instance,
                 domain_id=domain_id,
+            )
+
+    def save_certificate_aims(self):
+        self.instance.certificate_aims.clear()
+        for certificate_aim in self.cleaned_data["certificate_aims"]:
+            EducationGroupCertificateAim.objects.get_or_create(
+                education_group_year=self.instance,
+                certificate_aim=certificate_aim,
             )
 
 
