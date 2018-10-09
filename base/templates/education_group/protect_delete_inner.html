@@ -7,11 +7,15 @@
 {% endif %}
 
             <p>{% blocktrans %}You can not delete this object because some dependencies are protected{% endblocktrans %}</p>
-            <ul>
-                {% for protected_object in protected_messages %}
-                    <li>{{ protected_object }}</li>
-                {% endfor %}
-            </ul>
+            {% for p in protected_messages %}
+                <label>{{ p.education_group_year }}</label>
+                <ul>
+                    {% for protected_object in p.messages %}
+                        <li>{{ protected_object }}</li>
+                    {% endfor %}
+                </ul>
+                <br>
+            {% endfor %}
 
 {% if request.is_ajax %}
     </div>

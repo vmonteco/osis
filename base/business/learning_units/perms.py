@@ -31,7 +31,8 @@ from waffle.models import Flag
 
 from base.business.institution import find_summary_course_submission_dates_for_entity_version
 from base.models import proposal_learning_unit, tutor
-from base.models.academic_year import current_academic_year, MAX_ACADEMIC_YEAR_FACULTY, MAX_ACADEMIC_YEAR_CENTRAL
+from base.models.academic_year import MAX_ACADEMIC_YEAR_FACULTY, MAX_ACADEMIC_YEAR_CENTRAL, \
+    starting_academic_year
 from base.models.entity import Entity
 from base.models.entity_version import find_last_entity_version_by_learning_unit_year_id
 from base.models.enums import learning_container_year_types, entity_container_year_link_type
@@ -40,9 +41,8 @@ from base.models.enums.proposal_state import ProposalState
 from base.models.enums.proposal_type import ProposalType
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import is_person_linked_to_entity_in_charge_of_learning_unit
-from base.models.person_entity import is_attached_entities
-from osis_common.utils.perms import conjunction, disjunction, negation, BasePerm
 from osis_common.utils.datetime import get_tzinfo, convert_date_to_datetime
+from osis_common.utils.perms import conjunction, disjunction, negation, BasePerm
 
 FACULTY_UPDATABLE_CONTAINER_TYPES = (learning_container_year_types.COURSE,
                                      learning_container_year_types.DISSERTATION,
@@ -144,7 +144,7 @@ def _is_person_eligible_to_edit_proposal_based_on_state(proposal, person):
     if proposal.state != ProposalState.FACULTY.name:
         return False
     if (proposal.type == ProposalType.MODIFICATION.name and
-            proposal.learning_unit_year.academic_year.year != current_academic_year().year + 1):
+            proposal.learning_unit_year.academic_year.year != starting_academic_year().year + 1):
         return False
     return True
 
@@ -198,7 +198,7 @@ def is_learning_unit_year_in_proposal(learning_unit_year, _):
 
 
 def is_academic_year_in_range_to_create_partim(learning_unit_year, person):
-    current_acy = current_academic_year()
+    current_acy = starting_academic_year()
     luy_acy = learning_unit_year.academic_year
     max_range = MAX_ACADEMIC_YEAR_FACULTY if person.is_faculty_manager() else MAX_ACADEMIC_YEAR_CENTRAL
 
@@ -234,7 +234,7 @@ def _is_attached_to_initial_entity(learning_unit_proposal, a_person):
             not learning_unit_proposal.initial_data["entities"].get(REQUIREMENT_ENTITY):
         return False
     initial_entity_requirement_id = learning_unit_proposal.initial_data["entities"][REQUIREMENT_ENTITY]
-    return is_attached_entities(a_person, Entity.objects.filter(pk=initial_entity_requirement_id))
+    return a_person.is_attached_entities(Entity.objects.filter(pk=initial_entity_requirement_id))
 
 
 def _is_container_type_course_dissertation_or_internship(learning_unit_year, _):

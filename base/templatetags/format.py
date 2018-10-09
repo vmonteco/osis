@@ -23,10 +23,12 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from urllib.parse import urlsplit, urlunsplit
+
 from django import template
+from django.http import QueryDict
 from django.template.defaultfilters import date
 from django.utils.translation import ugettext_lazy as _
-
 
 register = template.Library()
 
@@ -64,3 +66,21 @@ def join_with_spaces(array, arg):
 def addstr(arg1, arg2):
     """concatenate arg1 & arg2"""
     return str(arg1) + str(arg2)
+
+
+@register.simple_tag
+def url_add_query(url, **kwargs):
+    """
+    Append a querystring to a url.
+    """
+
+    parsed = urlsplit(url)
+    querystring = QueryDict(parsed.query, mutable=True)
+    querystring.update(kwargs)
+    return urlunsplit(parsed._replace(query=querystring.urlencode()))
+
+
+@register.filter
+def db_table_with_pk(prefix, obj):
+    """ Use to generate html ids"""
+    return "{}_{}_{}".format(prefix, obj._meta.db_table, obj.pk)

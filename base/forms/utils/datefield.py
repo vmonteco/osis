@@ -27,11 +27,8 @@ import datetime
 
 from django import forms
 from django.core.exceptions import ValidationError
-from django.forms.utils import to_current_timezone
-from django.utils import formats, timezone
+from django.utils import formats
 from django.utils.translation import ugettext_lazy as _
-
-from osis_common.utils.datetime import get_tzinfo
 
 DATE_FORMAT = '%d/%m/%Y'
 TIME_FORMAT = '%H:%M'
@@ -92,7 +89,6 @@ class DateTimePickerInput(forms.MultiWidget):
 
     def decompress(self, value):
         if value:
-            value = to_current_timezone(value)
             return [value.date(), value.time().replace(microsecond=0)]
         return [None, None]
 

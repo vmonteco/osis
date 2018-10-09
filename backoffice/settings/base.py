@@ -29,6 +29,9 @@ import sys
 from django.core.urlresolvers import reverse_lazy
 from django.utils.translation import ugettext_lazy as _
 
+# Used in base.views.education_groups.detail.EducationGroupGeneralInformation#get_sections_with_translated_labels
+from .portal_conf import SECTION_LIST
+
 BASE_DIR = os.path.dirname((os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 # SECURITY Settings
@@ -52,6 +55,8 @@ MESSAGE_STORAGE = os.environ.get('MESSAGE_STORAGE', 'django.contrib.messages.sto
 # Specific apps (all osis modules except base and reference(mandatory) + env specific apps like sentry)
 # have to be defined in environment settings (ex: dev.py)
 INSTALLED_APPS = (
+    'dal',  # Dependency from 'partnership' module (Django auto-complete-light)
+    'dal_select2',  # Dependency from 'partnership' module (Django auto-complete-light)
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -63,6 +68,7 @@ INSTALLED_APPS = (
     'ckeditor',
     'osis_common',
     'reference',
+    'rules_management',
     'base',
     'statici18n',
     'rest_framework',
@@ -71,6 +77,8 @@ INSTALLED_APPS = (
     'ordered_model',
     'waffle',
     'ajax_select',
+    'django_celery_beat',
+    'django_celery_results',
 )
 
 MIDDLEWARE = (
@@ -96,6 +104,7 @@ if TESTING:
 APPS_TO_TEST = (
     'osis_common',
     'reference',
+    'rules_management',
     'base',
 )
 TEST_RUNNER = os.environ.get('TEST_RUNNER', 'osis_common.tests.runner.InstalledAppsTestRunner')
@@ -148,7 +157,7 @@ LANGUAGE_CODE_EN = 'en'
 # You can change default values for internalizations settings in your .env file
 USE_I18N = os.environ.get('USE_I18N', 'True').lower() == 'true'
 USE_L10N = os.environ.get('USE_L10N', 'True').lower() == 'true'
-USE_TZ = os.environ.get('USE_TZ', 'True').lower() == 'true'
+USE_TZ = os.environ.get('USE_TZ', 'False').lower() == 'true'
 TIME_ZONE = os.environ.get('TIME_ZONE', 'Europe/Brussels')
 
 # Static files (CSS, JavaScript, Images) and Media
@@ -204,6 +213,17 @@ LOGO_OSIS_URL = os.environ.get('LOGO_OSIS_URL', '')
 # They are used to ensure the migration of Data between Osis and other application (ex : Osis <> Osis-Portal)
 # See in settings.dev.example to configure the queues
 QUEUES = {}
+
+
+# Celery settings
+CELERY_BROKER_URL = "amqp://{user}:{password}@{host}:{port}".format(
+    user=os.environ.get('RABBITMQ_USER', 'guest'),
+    password=os.environ.get('RABBITMQ_PASSWORD', 'guest'),
+    host=os.environ.get('RABBITMQ_HOST', 'localhost'),
+    port=os.environ.get('RABBITMQ_PORT', '5672')
+)
+CELERY_CELERYBEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
+CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', 'django-db')
 
 # Additionnal Locale Path
 # Add local path in your environment settings (ex: dev.py)

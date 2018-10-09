@@ -46,34 +46,32 @@ class TestDetach(TestCase):
         cls.group_element_year = GroupElementYearFactory(parent=cls.education_group_year)
         cls.person = CentralManagerFactory()
         cls.person.user.user_permissions.add(Permission.objects.get(codename="can_access_education_group"))
-        cls.url = reverse(
-            "group_element_year_management",
-            kwargs={
-                "root_id": cls.education_group_year.id,
-                "education_group_year_id": cls.education_group_year.id,
-                "group_element_year_id": cls.group_element_year.id
-            }
-        )
-        cls.post_valid_data = {'action': 'detach'}
+        cls.url = reverse("education_groups_management")
+        cls.post_valid_data = {
+            "root_id": cls.education_group_year.id,
+            "element_id": cls.education_group_year.id,
+            "group_element_year_id": cls.group_element_year.id,
+            'action': 'detach',
+        }
 
     def setUp(self):
         self.client.force_login(self.person.user)
 
     def test_edit_case_user_not_logged(self):
         self.client.logout()
-        response = self.client.post(self.url, self.post_valid_data)
+        response = self.client.post(self.url, data=self.post_valid_data)
 
         self.assertRedirects(response, '/login/?next={}'.format(self.url))
 
     @override_flag('education_group_update', active=False)
     def test_detach_case_flag_disabled(self):
-        response = self.client.post(self.url, self.post_valid_data)
+        response = self.client.post(self.url, data=self.post_valid_data)
         self.assertEqual(response.status_code, HttpResponseNotFound.status_code)
         self.assertTemplateUsed(response, "page_not_found.html")
 
     @mock.patch("base.business.education_groups.perms.is_eligible_to_change_education_group", return_value=False)
     def test_detach_case_user_not_have_access(self, mock_permission):
-        response = self.client.post(self.url, self.post_valid_data)
+        response = self.client.post(self.url, data=self.post_valid_data)
         self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
         self.assertTemplateUsed(response, "access_denied.html")
 
@@ -93,17 +91,11 @@ class TestDetach(TestCase):
     @mock.patch("base.business.education_groups.perms.is_eligible_to_change_education_group")
     def test_detach_case_post_success(self, mock_permission, mock_delete):
         mock_permission.return_value = True
-        response = self.client.post(self.url, data=self.post_valid_data, follow=True)
-        self.assertEqual(response.status_code, HttpResponse.status_code)
-        self.assertTrue(mock_delete.called)
-
-    @mock.patch("base.models.group_element_year.GroupElementYear.delete")
-    @mock.patch("base.business.education_groups.perms.is_eligible_to_change_education_group")
-    def test_detach_case_post_success_redirection(self, mock_permission, mock_delete):
-        mock_permission.return_value = True
-        response = self.client.post(self.url, data=self.post_valid_data)
-        redirected_url = reverse('education_group_read', args=[
+        http_referer = reverse('education_group_read', args=[
             self.education_group_year.id,
             self.education_group_year.id
         ])
-        self.assertRedirects(response, redirected_url)
+        response = self.client.post(self.url, data=self.post_valid_data, follow=True, HTTP_REFERER=http_referer)
+        self.assertEqual(response.status_code, HttpResponse.status_code)
+        self.assertRedirects(response, http_referer)
+        self.assertTrue(mock_delete.called)

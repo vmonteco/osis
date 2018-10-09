@@ -24,8 +24,9 @@
 #
 ##############################################################################
 from django.db import models
-from osis_common.models.osis_model_admin import OsisModelAdmin
+
 from base.models.education_group_type import EducationGroupType
+from osis_common.models.osis_model_admin import OsisModelAdmin
 
 
 class AuthorizedRelationshipAdmin(OsisModelAdmin):
@@ -40,3 +41,10 @@ class AuthorizedRelationship(models.Model):
 
     def __str__(self):
         return '{} - {}'.format(self.parent_type, self.child_type)
+
+
+def find_by_parent_and_child_types(parent_type, child_type):
+    return AuthorizedRelationship.objects.filter(
+        parent_type=parent_type,
+        child_type=child_type,
+    )

@@ -49,6 +49,7 @@
                     <thead class="components">
                         <tr>
                             <th></th>
+                            <th>{% trans 'LU' %}</th>
                             <th>{% trans 'components' %}</th>
                             <th>{% trans 'code' %}</th>
                             <th>{% trans 'volume_partial' %}</th>
@@ -69,7 +70,6 @@
                             {% block additional_entities_titles %}
                                 {% include "learning_unit/blocks/additional_entities_titles.html" %}
                             {% endblock %}
-                            <th>{% trans 'lu_usage' %}</th>
                             <th></th>
                         </tr>
                     </thead>
@@ -94,48 +94,49 @@
                                     </a>
                                 {% endif %}
                             </td>
+                            <td>{{ component.learning_unit_usage }}</td>
                             <td>{% if component.learning_component_year.type %}
                                     {% trans component.learning_component_year.type %}
                                 {% endif %}
                             </td>
-                            <td>/{{ component.learning_component_year.acronym  | default_if_none:'' }}</td>
-                            <td>{{ component.volumes.VOLUME_Q1 | default_if_none:'' }}</td>
-                            <td>{{ component.volumes.VOLUME_Q2 | default_if_none:'' }}</td>
-                            <td>{{ component.volumes.VOLUME_TOTAL | default_if_none:''}}</td>
+                            <td>/
+                                {# FIXME :: Temporary solution - waiting for business clarification about "components" concept (untyped, ...)#}
+                                {% if component.learning_component_year.acronym == 'NT' %}PM{% else %}{{ component.learning_component_year.acronym  | default_if_none:'' }}{% endif %}</td>
+                            <td>{{ component.volumes.VOLUME_Q1.normalize | default_if_none:'' }}</td>
+                            <td>{{ component.volumes.VOLUME_Q2.normalize | default_if_none:'' }}</td>
+                            <td>{{ component.volumes.VOLUME_TOTAL.normalize | default_if_none:''}}</td>
                             <td>
                                 <span class="badge fixed_width {{ component.learning_component_year.planned_classes |get_css_class:component.learning_component_year.real_classes }}">
                                     {{ component.learning_component_year.real_classes| default_if_none:'0' }} /
                                         {{ component.learning_component_year.planned_classes| default_if_none:'0' }}
                                 </span>
                             </td>
-                            <td>{{ component.volumes.VOLUME_GLOBAL | default_if_none:''}}</td>
+                            <td>{{ component.volumes.VOLUME_GLOBAL.normalize | default_if_none:''}}</td>
                             {% block additional_requirement_entity_volumes %}
                                 {% include "learning_unit/blocks/additional_requirement_entity_volumes.html" %}
                             {% endblock %}
-                            <td>{{ component.learning_unit_usage }}</td>
                             <td></td>
                         </tr>
                         {% with component_number=forloop.counter0 classes_count=component.learning_component_year.classes|length|add:"1" %}
                                 <tr class="class_year class_year_head collapse collapse_classes{{ component_number }}">
                                     <td rowspan="{{ classes_count }}"></td>
                                     <td rowspan="{{ classes_count }}">{% trans 'classes' %}</td>
+                                    <td colspan="1">{% trans 'LU' %}</td>
                                     <td colspan="2">{% trans 'code' %}</td>
-                                    <td colspan="5">{% trans 'description' %}</td>
-                                    <td>{% trans 'lu_usage' %}</td>
+                                    <td colspan="6">{% trans 'description' %}</td>
                                 </tr>
                             {% for learning_class_year in component.learning_component_year.classes|dictsort:"acronym" %}
                                 <tr class="class_year collapse collapse_classes{{ component_number }}">
+                                    <td colspan="1">{{ learning_class_year.used_by_learning_units_year }}</td>
                                     <td colspan="2">
                                         /{% if component.learning_component_year.type_letter_acronym %}
                                             {{ component.learning_component_year.type_letter_acronym }}
                                          {% endif %}
                                          - {{ learning_class_year.acronym }}
                                     </td>
-                                    <td colspan="5">
+                                    <td colspan="6">
                                         {{ learning_class_year.description|default_if_none:'' }}
                                     </td>
-                                    <td>{{ learning_class_year.used_by_learning_units_year }}</td>
-
                                 </tr>
                             {% endfor %}
                         {% endwith %}

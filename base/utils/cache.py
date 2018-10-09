@@ -24,10 +24,11 @@
 #
 ##############################################################################
 import logging
+from functools import wraps
 
 from django.conf import settings
 from django.core.cache import caches, InvalidCacheBackendError
-from functools import wraps
+from django.http import QueryDict
 
 CACHE_FILTER_TIMEOUT = None
 PREFIX_CACHE_KEY = 'cache_filter'
@@ -40,14 +41,14 @@ except InvalidCacheBackendError:
     cache = caches["default"]
 
 
-def cache_filter(param_list=None):
+def cache_filter(exclude_params=None, **default_values):
     def decorator(func):
         @wraps(func)
         def inner(request, *args, **kwargs):
             try:
                 if request.GET:
-                    _save_filter_to_cache(request, param_list)
-                _restore_filter_from_cache(request, param_list)
+                    _save_filter_to_cache(request, exclude_params=exclude_params)
+                _restore_filter_from_cache(request, **default_values)
             except Exception:
                 logger.exception('An error occurred with cache system')
             return func(request, *args, **kwargs)
@@ -55,26 +56,34 @@ def cache_filter(param_list=None):
     return decorator
 
 
-def _save_filter_to_cache(request, param_list):
-    param_to_cache = {key: value for key, value in request.GET.items() if key in param_list} if param_list \
-                     else request.GET
-    key = _get_filter_key(request)
+def _save_filter_to_cache(request, exclude_params=None):
+    if exclude_params is None:
+        exclude_params = []
+    param_to_cache = {key: value for key, value in request.GET.items() if key not in exclude_params}
+    key = _get_filter_key(request.user, request.path)
     cache.set(key, param_to_cache, timeout=CACHE_FILTER_TIMEOUT)
 
 
-def _restore_filter_from_cache(request, param_list):
+def _restore_filter_from_cache(request, **default_values):
     cached_value = _get_from_cache(request)
-    if cached_value:
-        request.GET = {key: value for key, value in cached_value.items() if key in param_list} if param_list \
-                      else cached_value
+    new_get_request = QueryDict(mutable=True)
+    if cached_value is None:
+        new_get_request.update({**request.GET.dict(), **default_values})
+    else:
+        new_get_request.update({**request.GET.dict(), **cached_value})
+    request.GET = new_get_request
 
 
 def _get_from_cache(request):
-    key = _get_filter_key(request)
+    key = _get_filter_key(request.user, request.path)
     return cache.get(key)
 
 
-def _get_filter_key(request):
-    user = request.user
-    path = request.path
+def clear_cached_filter(request):
+    path = request.POST['current_url']
+    key = _get_filter_key(request.user, path)
+    cache.delete(key)
+
+
+def _get_filter_key(user, path):
     return "_".join([PREFIX_CACHE_KEY, str(user.id), path])

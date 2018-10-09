@@ -37,8 +37,12 @@ class CampusFactory(factory.DjangoModelFactory):
         model = 'base.Campus'
 
     external_id = factory.fuzzy.FuzzyText(length=10, chars=string.digits)
-    changed = factory.fuzzy.FuzzyDateTime(datetime.datetime(2016, 1, 1, tzinfo=get_tzinfo()),
-                                          datetime.datetime(2017, 3, 1, tzinfo=get_tzinfo()))
+
+    changed = factory.fuzzy.FuzzyNaiveDateTime(
+        datetime.datetime(2016, 1, 1),
+        datetime.datetime(2017, 3, 1)
+    )
+
     name = factory.Faker('first_name')
     organization = factory.SubFactory(OrganizationFactory)
     is_administration = False

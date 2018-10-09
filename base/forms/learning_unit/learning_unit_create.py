@@ -26,6 +26,7 @@
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 
+from base.forms.common import STEP_HALF_INTEGER
 from base.forms.utils.acronym_field import AcronymField, PartimAcronymField, split_acronym
 from base.forms.utils.choice_field import add_blank
 from base.models.campus import find_main_campuses
@@ -127,6 +128,9 @@ class LearningUnitYearModelForm(forms.ModelForm):
                 'max_whole_digits': _('Ensure this value is less than or equal to {max_value}.').format(
                     max_value=MAXIMUM_CREDITS)
             }
+        }
+        widgets = {
+            'credits': forms.NumberInput(attrs={'step': STEP_HALF_INTEGER}),
         }
 
     def post_clean(self, container_type):

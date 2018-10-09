@@ -26,6 +26,7 @@
 from django.contrib import admin
 
 from base.models import *
+from base.models import validation_rule, education_group_achievement, education_group_detailed_achievement
 
 admin.site.register(academic_calendar.AcademicCalendar,
                     academic_calendar.AcademicCalendarAdmin)
@@ -42,8 +43,14 @@ admin.site.register(admission_condition.AdmissionConditionLine,
 admin.site.register(campus.Campus,
                     campus.CampusAdmin)
 
+admin.site.register(certificate_aim.CertificateAim,
+                    certificate_aim.CertificateAimAdmin)
+
 admin.site.register(education_group.EducationGroup,
                     education_group.EducationGroupAdmin)
+
+admin.site.register(education_group_certificate_aim.EducationGroupCertificateAim,
+                    education_group_certificate_aim.EducationGroupCertificateAimAdmin)
 
 admin.site.register(education_group_language.EducationGroupLanguage,
                     education_group_language.EducationGroupLanguageAdmin)
@@ -165,6 +172,9 @@ admin.site.register(person_address.PersonAddress,
 admin.site.register(person_entity.PersonEntity,
                     person_entity.PersonEntityAdmin)
 
+admin.site.register(prerequisite.Prerequisite,
+                    prerequisite.PrerequisiteAdmin)
+
 admin.site.register(program_manager.ProgramManager,
                     program_manager.ProgramManagerAdmin)
 
@@ -200,3 +210,12 @@ admin.site.register(tutor.Tutor,
 
 admin.site.register(authorized_relationship.AuthorizedRelationship,
                     authorized_relationship.AuthorizedRelationshipAdmin)
+
+admin.site.register(validation_rule.ValidationRule,
+                    validation_rule.ValidationRuleAdmin)
+
+admin.site.register(education_group_achievement.EducationGroupAchievement,
+                    education_group_achievement.EducationGroupAchievementAdmin)
+
+admin.site.register(education_group_detailed_achievement.EducationGroupDetailedAchievement,
+                    education_group_detailed_achievement.EducationGroupDetailedAchievementAdmin)

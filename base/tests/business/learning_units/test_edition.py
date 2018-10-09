@@ -332,16 +332,24 @@ class LearningUnitEditionTestCase(TestCase):
         allocation_entity.save()
 
         # Link to another entity for requirement
-        an_entity = EntityFactory()
-        EntityVersionFactory(entity=an_entity, parent=None, end_date=None, acronym="AREC")
-        requirement_entity = EntityContainerYearFactory(learning_container_year=another_learning_container_year,
-                                                        type=entity_container_year_link_type.REQUIREMENT_ENTITY,
-                                                        entity=an_entity)
+        entityversion = EntityVersionFactory(parent=None, end_date=None, acronym="AREC")
+
+        requirement_entity = EntityContainerYearFactory(
+            learning_container_year=another_learning_container_year,
+            type=entity_container_year_link_type.REQUIREMENT_ENTITY,
+            entity=entityversion.entity
+        )
 
         error_list = business_edition._check_postponement_conflict_on_entity_container_year(
-            self.learning_container_year, another_learning_container_year)
+            self.learning_container_year, another_learning_container_year
+        )
+
         self.assertIsInstance(error_list, list)
         self.assertEqual(len(error_list), 2)
+
+        # invalidate cache
+        del self.requirement_entity.entity.most_recent_acronym
+
         generic_error = "The value of field '%(field)s' is different between year %(year)s - %(value)s " \
                         "and year %(next_year)s - %(next_value)s"
         # Error : Requirement entity diff

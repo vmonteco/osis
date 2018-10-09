@@ -35,7 +35,7 @@ from base.forms.learning_unit.entity_form import EntitiesVersionChoiceField
 from base.forms.learning_unit.learning_unit_create_2 import FullForm
 from base.forms.learning_unit.learning_unit_partim import PartimForm
 from base.models.academic_year import current_academic_year
-from base.models.entity_version import find_main_entities_version, get_last_version
+from base.models.entity_version import find_pedagogical_entities_version, get_last_version
 from base.models.enums import learning_unit_year_subtypes
 from base.models.enums.proposal_type import ProposalType
 from base.models.learning_unit_year import get_by_id
@@ -43,7 +43,7 @@ from base.models.proposal_learning_unit import ProposalLearningUnit
 
 
 class ProposalLearningUnitForm(forms.ModelForm):
-    entity = EntitiesVersionChoiceField(queryset=find_main_entities_version())
+    entity = EntitiesVersionChoiceField(queryset=find_pedagogical_entities_version())
 
     def __init__(self, data, person, *args, initial=None, **kwargs):
         super().__init__(data, *args, initial=initial, **kwargs)

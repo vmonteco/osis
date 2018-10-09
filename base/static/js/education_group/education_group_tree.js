@@ -13,7 +13,7 @@ function showOrHideTree() {
 }
 
 
-function modifyPanelAttribute(collapse_style_display, panel_collapse_class, panel_data_class){
+function modifyPanelAttribute(collapse_style_display, panel_collapse_class, panel_data_class) {
     document.getElementById('collapse').style.display = collapse_style_display;
     document.getElementById('panel-collapse').className = panel_collapse_class;
     document.getElementById('panel-data').className = panel_data_class;
@@ -22,141 +22,139 @@ function modifyPanelAttribute(collapse_style_display, panel_collapse_class, pane
 
 $(document).ready(function () {
     var $documentTree = $('#panel_file_tree');
-    $documentTree.bind("loaded.jstree", function (event, data) {
-        data.instance.open_all();
-    });
-    $documentTree.bind("changed.jstree", function (event, data) {
-        document.location.href = data.node.a_attr.href;
-    });
 
-    $documentTree.jstree({
-        "core" : {
-           "check_callback" : true
-        },
-        "plugins" : [ "contextmenu" ],
-        "contextmenu" : {
-            "select_node": false,
-            "items" : {
-              "select" : {
-                  "label" : gettext("Select"),
-                  "action" : function (data) {
-                    var inst = $.jstree.reference(data.reference),
-                        obj = inst.get_node(data.reference);
-                    var education_group_year_id = obj.li_attr.id.split('_').slice(-1)[0]
-                    $.ajax({
-                        url: '../select/',
-                        data: {'child_to_cache_id' : education_group_year_id},
-                        type: 'POST',
-                        dataType: 'json',
-                    });
-                  },
-                  "icon": "fa fa-check-square"
-              },
+    $documentTree.bind("state_ready.jstree", function (event, data) {
 
-              "move" : {
-                 "label" : gettext("Move"),
-                 "action" : function (data) {
-                    var inst = $.jstree.reference(data.reference),
-                        obj = inst.get_node(data.reference);
-                    var args = obj.li_attr.id.split('_');
-                    var group_element_year = args[1];
-                    if (group_element_year === '-') {
-                        group_element_year = 0
-                    }
-                    var education_group_year_id = args[2];
-                    /*
-                    * TODO : Use tree_management proxy instead of building URLs here
-                    * */
-                    var detach_url = "/educationgroups/"
-                       + root_id
-                       + "/"
-                       + education_group_year_id
-                       + "/content/"
-                       + group_element_year
-                       + "/management/?action=detach&source="
-                       + url_resolver_match;
+        // Bind the redirection only when the tree is ready,
+        // however, it reload the page during the loading
+        $documentTree.bind("select_node.jstree", function (event, data) {
+            document.location.href = data.node.a_attr.href;
+        });
 
-                    $.ajax({
-                        url: '../select/',
-                        data: {'child_to_cache_id' : education_group_year_id},
-                        type: 'POST',
-                        dataType: 'json',
-                    });
-
-                    $('#form-modal-content').load(detach_url, function () {
-                        $('#form-modal').modal('toggle');
-                        formAjaxSubmit('#form-modal-body form', '#form-modal');
-                    });
-                  },
-                  "icon": "fa fa-arrow-circle-o-right"
-              },
-
-              "detach" : {
-                 "label" : gettext("Detach"),
-                 "action" : function (data) {
-                    var inst = $.jstree.reference(data.reference),
-                        obj = inst.get_node(data.reference);
-                    var args = obj.li_attr.id.split('_');
-                    var group_element_year = args[1];
-                    if (group_element_year === '-') {
-                        group_element_year = 0
-                    }
-                    var education_group_year_id = args[2];
-
-                    var detach_url = "/educationgroups/"
-                       + root_id
-                       + "/"
-                       + education_group_year_id
-                       + "/content/"
-                       + group_element_year
-                       + "/management/?action=detach&source="
-                       + url_resolver_match;
-
-                    $('#form-modal-content').load(detach_url, function () {
-                        $('#form-modal').modal('toggle');
-                        formAjaxSubmit('#form-modal-body form', '#form-modal');
-                    });
-                  },
-                  "icon": "fa fa-cut"
-              },
-
-              "attach" : {
-                 "label" : gettext("Attach"),
-                 "separator_before": true,
-                 "action" : function (data) {
-                    var inst = $.jstree.reference(data.reference),
-                        obj = inst.get_node(data.reference);
-                    var args = obj.li_attr.id.split('_');
-                    var group_element_year = args[1];
-                    if (group_element_year === '-') {
-                        group_element_year = 0
-                    }
-                    var education_group_year_id = args[2];
-
-                    var attach_url = "/educationgroups/"
-                        + root_id
-                        + "/"
-                        + education_group_year_id
-                        + "/content/"
-                        + group_element_year
-                        + "/management/?action=attach";
-                    window.location.href = attach_url;
-                  },
-                  "icon": "fa fa-paperclip"
-              },
-            }
+        // if the tree has never been loaded, execute open_all by default.
+        if ($.vakata.storage.get(data.instance.settings.state.key) === null) {
+            $(this).jstree('open_all');
         }
     });
 
-    $("#tree_open_all").click(function(){
-        $documentTree.jstree("open_all");
+    function get_data_from_tree(data) {
+        var inst = $.jstree.reference(data.reference),
+            obj = inst.get_node(data.reference);
 
-    });
+        return {
+            group_element_year_id: obj.a_attr.group_element_year,
+            element_id: obj.a_attr.element_id,
+            element_type: obj.a_attr.element_type
+        };
+    }
 
-    $("#tree_close_all").click(function(){
-        $documentTree.jstree("close_all");
+    function build_url_data(element_id, group_element_year_id, action) {
+        var data = {
+            'root_id': root_id,
+            'element_id': element_id,
+            'group_element_year_id': group_element_year_id,
+            'action': action,
+            'source': url_resolver_match
+        };
+        return jQuery.param(data);
+    }
 
-    });
+    $documentTree.jstree({
+            "core": {
+                "check_callback": true,
+                "data": tree,
+            },
+            "plugins": [
+                "contextmenu",
+                // Plugin to save the state of the node (collapsed or not)
+                "state",
+            ],
+            "state": {
+                // the key is important if you have multiple trees in the same domain
+                // The key includes the root_id
+                "key": location.pathname.split('/', 3).join('/'),
+                "opened":true,
+                "selected": false,
+            },
+            "contextmenu": {
+                "select_node": false,
+                "items": {
+                    "select": {
+                        "label": gettext("Select"),
+                        "action": function (data) {
+                            var __ret = get_data_from_tree(data);
+                            var element_id = __ret.element_id;
+                            var group_element_year_id = __ret.group_element_year_id;
+                            $.ajax({
+                                url: management_url,
+                                dataType: 'json',
+                                data: {'element_id': element_id, 'group_element_year_id': group_element_year_id, 'action': 'select'},
+                                type: 'POST',
+                                success: function (jsonResponse) {
+                                    displayInfoMessage(jsonResponse, 'message_info_container')
+                                }
+                            });
+                        }
+                    },
+
+                    "attach": {
+                        "label": gettext("Attach"),
+                        "separator_before": true,
+                        "action": function (data) {
+                            var __ret = get_data_from_tree(data);
+                            var group_element_year_id = __ret.group_element_year_id;
+                            var element_id = __ret.element_id;
+                            var attach_data = build_url_data(element_id, group_element_year_id, 'attach');
+                            window.location.href = management_url + "?" + attach_data;
+                        },
+                        "_disabled": function (data) {
+                            var __ret = get_data_from_tree(data);
+                            return __ret.element_type === "learningunityear";
+                        }
+                    },
+
+                    "detach": {
+                        "label": gettext("Detach"),
+                        "action": function (data) {
+                            var __ret = get_data_from_tree(data);
+                            var group_element_year_id = __ret.group_element_year_id;
+                            var element_id = __ret.element_id;
+                            if (group_element_year_id === '0') {
+                                return;
+                            }
+
+                            var detach_data = build_url_data(element_id, group_element_year_id, 'detach');
+
+                            $('#form-modal-content').load(management_url, detach_data, function (response, status, xhr) {
+                                if ( status === "success" ){
+                                    $('#form-modal').modal('toggle');
+                                    formAjaxSubmit('#form-modal-body form', '#form-modal');
+                                }
+                                else {
+                                    window.location.href = management_url + "?" + detach_data
+                                }
+
+                            });
+
+                            $.ajax({
+                                url: management_url,
+                                dataType: 'json',
+                                data: {'element_id': element_id, 'group_element_year_id': group_element_year_id, 'action': 'select'},
+                                type: 'POST',
+                                success: function (jsonResponse) {
+                                    displayInfoMessage(jsonResponse, 'message_info_container')
+                                }
+                            });
+                        },
+                        "_disabled": function (data) {
+                            var __ret = get_data_from_tree(data);
+                            return __ret.group_element_year_id === null; // tree's root cannot be detached
+                        }
+                    }
+                }
+            }
+        }
+    );
 
     showOrHideTree();
 

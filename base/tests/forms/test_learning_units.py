@@ -187,10 +187,11 @@ class TestLearningUnitForm(TestCase):
             "acronym": "LDROI1001"
         }
 
-    @patch("base.models.learning_unit_year.count_search_results")
-    def test_case_maximum_results_reached(self, mock_count):
-        mock_count.return_value = LearningUnitSearchForm.MAX_RECORDS + 1
+    def test_case_maximum_results_reached(self):
+        LearningUnitYearFactory(acronym="LDROI1001", academic_year=self.academic_yr)
+
         form = search_form.LearningUnitYearForm(data=self.get_valid_data())
+        form.MAX_RECORDS = 0
         form.is_valid()
 
         with self.assertRaises(TooManyResultsException):

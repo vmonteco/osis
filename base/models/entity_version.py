@@ -23,6 +23,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+import collections
 import datetime
 from collections import OrderedDict
 
@@ -34,26 +35,32 @@ from django.utils.timezone import now
 
 from base.models.entity import Entity
 from base.models.enums import entity_type
-from base.models.enums.entity_type import MAIN_ENTITY_TYPE
+from base.models.enums.entity_type import PEDAGOGICAL_ENTITY_TYPES
 from base.models.enums.organization_type import MAIN
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
 from osis_common.utils.datetime import get_tzinfo
 
+PEDAGOGICAL_ENTITY_ADDED_EXCEPTIONS = [
+    "ILV",
+    "IUFC",
+]
+
+
 SQL_RECURSIVE_QUERY = """\
 WITH RECURSIVE under_entity AS (
 
-    SELECT id, acronym, parent_id, entity_id, '{{}}'::int[] as parents, '{date}'::date as date, 0 as level
-    FROM base_entityversion where entity_id={entity}
+    SELECT id, acronym, parent_id, entity_id, '{{}}'::INT[] AS parents, '{date}'::DATE AS date, 0 AS level
+    FROM base_entityversion WHERE entity_id IN ({list_entities})
 
     UNION ALL
 
     SELECT b.id,
-        b.acronym,
-        b.parent_id,
-        b.entity_id,
-        parents || b.parent_id,
-        u.date,
-        u.level + 1
+           b.acronym,
+           b.parent_id,
+           b.entity_id,
+           parents || b.parent_id,
+           u.date,
+           u.level + 1
 
     FROM under_entity AS u, base_entityversion AS b
     WHERE (u.entity_id=b.parent_id) AND (
@@ -103,21 +110,48 @@ class EntityVersionQuerySet(models.QuerySet):
     def entity(self, entity):
         return self.filter(entity=entity)
 
-    def get_tree(self, entity, date=None):
+    def get_tree(self, entities, date=None):
+        """
+        Create a list of all descendants of given entities
+
+        :param entities: int, Entity, QuerysetEntity, [int], [Entity]
+        :param date: Date
+        :return: list(dict))
+        """
+        list_entities_id = []
+
         if not date:
             date = now()
 
-        if isinstance(entity, Entity):
-            entity = entity.pk
+        # Convert the entity in list
+        if not isinstance(entities, collections.Iterable):
+            entities = [entities]
+
+        # Extract from the list the ids
+        for entity in entities:
+            if isinstance(entity, Entity):
+                entity = entity.pk
+
+            list_entities_id.append(str(entity))
 
         with connection.cursor() as cursor:
-            cursor.execute(SQL_RECURSIVE_QUERY.format(entity=entity, date=date))
+            cursor.execute(SQL_RECURSIVE_QUERY.format(list_entities=','.join(list_entities_id), date=date))
 
-            return cursor.fetchall()
+            return [
+                {
+                    'id': row[0],
+                    'acronym': row[1],
+                    'parent_id': row[2],
+                    'entity_id': row[3],
+                    'parents': row[4],
+                    'date': row[5],
+                    'level': row[6],
+                } for row in cursor.fetchall()
+            ]
 
     def descendants(self, entity, date=None):
-        tree = self.get_tree(entity.pk, date)
-        return self.filter(pk__in=[node[0] for node in tree[1:]]).order_by('acronym')
+        tree = self.get_tree(entity, date)
+        return self.filter(pk__in=[node['id'] for node in tree[1:]]).order_by('acronym')
 
 
 class EntityVersion(SerializableModel):
@@ -203,14 +237,14 @@ class EntityVersion(SerializableModel):
 
     @cached_property
     def descendants(self):
-        return EntityVersion.objects.descendants(self.entity)
+        return EntityVersion.objects.descendants([self.entity])
 
     @cached_property
     def children(self):
         return self._direct_children()
 
     def find_descendants(self, date=None):
-        return EntityVersion.objects.descendants(self.entity, date)
+        return EntityVersion.objects.descendants([self.entity], date)
 
     def find_faculty_version(self, academic_yr):
         if self.entity_type == entity_type.FACULTY:
@@ -256,17 +290,17 @@ class EntityVersion(SerializableModel):
             return False
 
     def get_organogram_data(self, limit=3):
-        tree = EntityVersion.objects.get_tree(self.entity_id)
+        tree = EntityVersion.objects.get_tree([self.entity_id])
 
         nodes = OrderedDict()
-        for (id, acronym, parent_id, entity_id, parents, date, level) in tree:
-            node = Node(id, acronym, parent_id, level)
-            nodes[entity_id] = node
+        for row in tree:
+            node = Node(row['id'], row['acronym'], row['parent_id'], row['level'])
+            nodes[row['entity_id']] = node
 
-            if parent_id in nodes:
-                nodes[parent_id].append_child(node)
+            if row['parent_id'] in nodes:
+                nodes[row['parent_id']].append_child(node)
 
-        return nodes[tree[0][3]].to_json(limit)
+        return nodes[tree[0]['entity_id']].to_json(limit)
 
 
 def find(acronym, date=None):
@@ -450,9 +484,13 @@ def _get_all_children(entity_version_id, direct_children_by_entity_version_id):
     return all_children
 
 
-def find_main_entities_version():
+def find_pedagogical_entities_version():
     return find_all_current_entities_version().filter(
-        entity_type__in=MAIN_ENTITY_TYPE, entity__organization__type=MAIN).order_by('acronym')
+        Q(entity__organization__type=MAIN),
+        Q(entity_type__in=PEDAGOGICAL_ENTITY_TYPES) | Q(acronym__in=PEDAGOGICAL_ENTITY_ADDED_EXCEPTIONS),
+    ).order_by(
+        'acronym'
+    )
 
 
 def find_latest_version_by_entity(entity, date):

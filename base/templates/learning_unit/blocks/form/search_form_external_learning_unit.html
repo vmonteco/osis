@@ -34,7 +34,16 @@
 
 {% block search_form_row_2 %}
     {% bootstrap_field form.country form_group_class="col-md-3" %}
-    {% bootstrap_field form.city form_group_class="col-md-4" %}
+    {% bootstrap_field form.city form_group_class="col-md-3" %}
     {% bootstrap_field form.campus form_group_class="col-md-4" %}
 {% endblock %}
 
+{% block search_form_buttons %}
+    <div class="col-md-2">
+        <br>
+        <div class="btn-toolbar">
+            {% bootstrap_button "" value=_('learning_unit_search') button_type="submit" button_class="btn-primary" icon="search" %}
+            {% include 'blocks/button/button_filter_refresh.html' %}
+        </div>
+    </div>
+{% endblock %}

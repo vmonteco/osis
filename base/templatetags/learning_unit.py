@@ -29,8 +29,10 @@ from django.utils.translation import ugettext_lazy as _
 
 from base.models.learning_unit_year import find_lt_learning_unit_year_with_different_acronym
 from base.models.proposal_learning_unit import ProposalLearningUnit
+from base.business.learning_units.comparison import DEFAULT_VALUE_FOR_NONE
 
 register = template.Library()
+DIFFERENCE_CSS = "style='color:#5CB85C;'"
 
 
 @register.filter
@@ -136,3 +138,29 @@ def _get_acronym_from_proposal(luy):
     if proposal and proposal.initial_data and proposal.initial_data.get('learning_unit_year'):
         return proposal.initial_data['learning_unit_year']['acronym']
     return None
+
+
+@register.simple_tag
+def value_label(values_dict, key, sub_key, key_comp):
+    data = values_dict.get(key)
+    if data:
+        val = data.get(sub_key)
+        return _get_label(data, key_comp, val)
+    return DEFAULT_VALUE_FOR_NONE
+
+
+def _get_label(data, key_comp, val):
+    if val != data.get(key_comp):
+        return mark_safe("<label {}>{}</label>"
+                         .format(DIFFERENCE_CSS, DEFAULT_VALUE_FOR_NONE if val is None else val))
+    else:
+        return mark_safe("{}".format(DEFAULT_VALUE_FOR_NONE if val is None else val))
+
+
+@register.simple_tag
+def changed_label(value, other1=None):
+    if value != other1:
+        return mark_safe(
+            "<label {}>{}</label>".format(DIFFERENCE_CSS, DEFAULT_VALUE_FOR_NONE if value is None else value))
+    else:
+        return mark_safe("{}".format(DEFAULT_VALUE_FOR_NONE if value is None else value))

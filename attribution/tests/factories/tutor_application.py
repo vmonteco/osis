@@ -23,15 +23,16 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import string
 import datetime
-import factory
+import string
+
 import factory.fuzzy
 from faker import Faker
+
+from attribution.models.enums import function
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
 from base.tests.factories.tutor import TutorFactory
 from osis_common.utils.datetime import get_tzinfo
-from attribution.models.enums import function
 
 fake = Faker()
 
@@ -47,5 +48,5 @@ class TutorApplicationFactory(factory.django.DjangoModelFactory):
     learning_container_year = factory.SubFactory(LearningContainerYearFactory)
     volume_lecturing = factory.fuzzy.FuzzyDecimal(99)
     volume_pratical_exercice = factory.fuzzy.FuzzyDecimal(99)
-    last_changed = factory.fuzzy.FuzzyDateTime(datetime.datetime(2016, 1, 1, tzinfo=get_tzinfo()),
-                                               datetime.datetime(2017, 3, 1, tzinfo=get_tzinfo()))
+    last_changed = factory.fuzzy.FuzzyNaiveDateTime(datetime.datetime(2016, 1, 1),
+                                               datetime.datetime(2017, 3, 1))

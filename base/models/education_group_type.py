@@ -23,7 +23,10 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+import collections
+
 from django.db import models
+from django.db.models import Case, When
 from django.utils.translation import ugettext_lazy as _
 
 from base.models.enums import education_group_categories
@@ -38,9 +41,23 @@ class EducationGroupTypeAdmin(OsisModelAdmin):
     search_fields = ['name', 'category']
 
 
+class EducationGroupTypeQueryset(models.QuerySet):
+
+    def order_by_translated_name(self):
+        query_set_dict = self.in_bulk()
+        if query_set_dict:
+            pk_list = sorted(query_set_dict, key=lambda education_grp_type: _(query_set_dict[education_grp_type].name))
+            preserved = Case(*[When(pk=pk, then=pos) for pos, pk in enumerate(pk_list)])
+            return self.order_by(preserved)
+        return self
+
+
 class EducationGroupTypeManager(models.Manager):
-    def get_by_natural_key(self, category, name):
-        return self.get(category=category, name=name)
+    def get_queryset(self):
+        return EducationGroupTypeQueryset(self.model, using=self._db)
+
+    def get_by_natural_key(self, external_id):
+        return self.get(external_id=external_id)
 
 
 class EducationGroupType(models.Model):
@@ -49,15 +66,24 @@ class EducationGroupType(models.Model):
 
     external_id = models.CharField(max_length=100, blank=True, null=True, db_index=True)
     changed = models.DateTimeField(null=True, auto_now=True)
-    category = models.CharField(max_length=25, choices=education_group_categories.CATEGORIES,
-                                default=education_group_categories.TRAINING, verbose_name=_('type'))
-    name = models.CharField(max_length=255, verbose_name=_('training_type'))
+
+    category = models.CharField(
+        max_length=25,
+        choices=education_group_categories.CATEGORIES,
+        default=education_group_categories.TRAINING,
+        verbose_name=_('category'),
+    )
+
+    name = models.CharField(
+        max_length=255,
+        verbose_name=_('training_type'),
+    )
 
     def __str__(self):
         return u"%s" % self.name
 
     def natural_key(self):
-        return self.category, self.name
+        return (self.external_id,)
 
 
 def search(**kwargs):
@@ -69,10 +95,6 @@ def search(**kwargs):
     return queryset
 
 
-def find_all():
-    return EducationGroupType.objects.order_by('name')
-
-
 def find_authorized_types(category=None, parents=None):
     if category:
         queryset = search(category=category)
@@ -80,13 +102,16 @@ def find_authorized_types(category=None, parents=None):
         queryset = EducationGroupType.objects.all()
 
     if parents:
+        if not isinstance(parents, collections.Iterable):
+            parents = [parents]
+
         # Consecutive filters : we want to match all types not any types
         for parent in parents:
             queryset = queryset.filter(
                 authorized_child_type__parent_type__educationgroupyear=parent
             )
 
-    return queryset.order_by('name')
+    return queryset.order_by_translated_name()
 
 
 def find_by_name(name=None):

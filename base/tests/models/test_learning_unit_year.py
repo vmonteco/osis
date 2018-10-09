@@ -23,6 +23,8 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from decimal import Decimal
+
 from django.db.models import QuerySet
 from django.test import TestCase
 from django.utils.translation import ugettext_lazy as _
@@ -44,6 +46,7 @@ from base.tests.factories.academic_year import create_current_academic_year
 from base.tests.factories.business.learning_units import GenerateAcademicYear, GenerateContainer
 from base.tests.factories.entity_container_year import EntityContainerYearFactory
 from base.tests.factories.external_learning_unit_year import ExternalLearningUnitYearFactory
+from base.tests.factories.learning_component_year import LearningComponentYearFactory
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
 from base.tests.factories.learning_unit import LearningUnitFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory, create_learning_units_year
@@ -102,7 +105,7 @@ class LearningUnitYearTest(TestCase):
 
         result = list(selected_learning_unit_year.find_gte_learning_units_year().values_list('academic_year__year',
                                                                                              flat=True))
-        self.assertListEqual(result, list(range(2007,2018)))
+        self.assertListEqual(result, list(range(2007, 2018)))
 
     def test_find_gte_learning_units_year_case_no_future(self):
         learning_unit = LearningUnitFactory()
@@ -121,7 +124,7 @@ class LearningUnitYearTest(TestCase):
         selected_learning_unit_year = dict_learning_unit_year[2007]
 
         result = list(selected_learning_unit_year.find_gt_learning_units_year().values_list('academic_year__year',
-                                                                                             flat=True))
+                                                                                            flat=True))
         self.assertListEqual(result, list(range(2008, 2018)))
 
     def test_find_gt_learning_units_year_case_no_future(self):
@@ -131,7 +134,7 @@ class LearningUnitYearTest(TestCase):
         selected_learning_unit_year = dict_learning_unit_year[2017]
 
         result = list(selected_learning_unit_year.find_gt_learning_units_year().values_list('academic_year__year',
-                                                                                             flat=True))
+                                                                                            flat=True))
         self.assertEqual(result, [])
 
     def test_get_learning_unit_parent(self):
@@ -165,7 +168,6 @@ class LearningUnitYearTest(TestCase):
         self.assertEqual(learning_unit_year.search(title=a_common_title)[0], luy)
         self.assertEqual(learning_unit_year.search(title=common_part)[0], luy)
         self.assertEqual(learning_unit_year.search(title=a_specific_title)[0], luy)
-
 
     def test_find_max_credits_of_partims(self):
         self.partim_1 = LearningUnitYearFactory(academic_year=self.academic_year,
@@ -201,7 +203,7 @@ class LearningUnitYearTest(TestCase):
         common_title = 'Zoology'
 
         luy = LearningUnitYearFactory(specific_title=specific_title, learning_container_year__common_title=common_title)
-        self.assertEqual(luy.complete_title, '{} {}'.format(common_title, specific_title))
+        self.assertEqual(luy.complete_title, '{} - {}'.format(common_title, specific_title))
 
     def test_common_title_property(self):
         self.assertEqual(self.learning_unit_year.container_common_title,
@@ -588,3 +590,65 @@ class LearningUnitYearWarningsTest(TestCase):
         luy_partim.periodicity = learning_unit_year_periodicity.BIENNIAL_ODD
         result = luy_partim._check_partim_parent_periodicity()
         self.assertFalse(result)
+
+    def test_warning_when_credits_is_not_an_interger(self):
+        """In this test, we ensure that the warning of credits is not interger"""
+        self.luy_full.credits = Decimal(5.5)
+        self.luy_full.save()
+        expected_result = [
+            _("The credits value should be an integer")
+        ]
+        result = self.luy_full._check_credits_is_integer()
+        self.assertEqual(result, expected_result)
+
+    def test_no_warning_when_credits_is_an_interger(self):
+        """In this test, we ensure that the warning is not displayed when of credits is an interger"""
+        self.luy_full.credits = Decimal(5)
+        self.luy_full.save()
+        self.assertFalse(self.luy_full._check_credits_is_integer())
+
+
+    def test_warning_planned_classes_zero_and_volume(self):
+
+        self.luy_full.credits = self.luy_full.credits + 1
+        self.luy_full.save()
+
+        test_cases = [
+            {'vol_q1': 10, 'vol_q2': 20, 'vol_tot_annual': 30, 'planned_classes': 0, 'vol_tot_global': 60}
+        ]
+
+        for case in test_cases:
+            with self.subTest(case=case):
+                self.learning_component_year_full_lecturing.hourly_volume_partial_q1 = case.get('vol_q1')
+                self.learning_component_year_full_lecturing.hourly_volume_partial_q2 = case.get('vol_q2')
+                self.learning_component_year_full_lecturing.hourly_volume_total_annual = case.get('vol_tot_annual')
+                self.learning_component_year_full_lecturing.planned_classes = case.get('planned_classes')
+                self.learning_component_year_full_lecturing.save()
+
+                self.entity_component_year_full_lecturing_requirement.repartition_volume = 0
+                self.entity_component_year_full_lecturing_requirement.save()
+        excepted_error = "{} ({})".format(
+            _('Volumes of {} are inconsistent').format(self.learning_component_year_full_lecturing.complete_acronym),
+            _('planned classes cannot be 0 while volume is greater than 0'))
+
+        self.assertCountEqual(
+            self.luy_full.warnings,
+            [excepted_error])
+        self.assertIn(excepted_error, self.luy_full.warnings)
+
+    def test_warning_planned_classes_and_volume_zero(self):
+        self.luy_full.credits = Decimal(5)
+        self.luy_full.save()
+        self.learning_component_year_full_lecturing.hourly_volume_partial_q1 = 0
+        self.learning_component_year_full_lecturing.hourly_volume_partial_q2 = 0
+        self.learning_component_year_full_lecturing.hourly_volume_total_annual = 0
+        self.learning_component_year_full_lecturing.planned_classes = 1
+        self.learning_component_year_full_lecturing.save()
+
+        excepted_error = "{} ({})".format(
+            _('Volumes of {} are inconsistent').format(self.learning_component_year_full_lecturing.complete_acronym),
+            _('planned classes cannot be greather than 0 while volume is equal to 0'))
+        self.assertCountEqual(
+            self.luy_full._check_learning_component_year_warnings(),
+            [excepted_error])
+        self.assertIn(excepted_error, self.luy_full._check_learning_component_year_warnings())

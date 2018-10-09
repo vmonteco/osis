@@ -32,7 +32,6 @@ from factory.django import DjangoModelFactory
 from base.models.learning_unit_year import MINIMUM_CREDITS, MAXIMUM_CREDITS
 from base.tests.factories.entity import EntityFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
-from osis_common.utils.datetime import get_tzinfo
 from base.tests.factories.person import PersonFactory
 
 
@@ -41,10 +40,10 @@ class ExternalLearningUnitYearFactory(DjangoModelFactory):
         model = "base.ExternalLearningUnitYear"
         
     external_id = factory.fuzzy.FuzzyText(length=10, chars=string.digits)
-    changed = factory.fuzzy.FuzzyDateTime(datetime.datetime(2016, 1, 1, tzinfo=get_tzinfo()),
-                                          datetime.datetime(2017, 3, 1, tzinfo=get_tzinfo()))
+    changed = factory.fuzzy.FuzzyNaiveDateTime(datetime.datetime(2016, 1, 1),
+                                          datetime.datetime(2017, 3, 1))
     external_acronym = factory.fuzzy.FuzzyText(length=10, chars=string.digits)
-    external_credits = factory.fuzzy.FuzzyInteger(MINIMUM_CREDITS, MAXIMUM_CREDITS)
+    external_credits = factory.fuzzy.FuzzyDecimal(MINIMUM_CREDITS, MAXIMUM_CREDITS, precision=0)
 
     learning_unit_year = factory.SubFactory(LearningUnitYearFactory)
     requesting_entity = factory.SubFactory(EntityFactory)

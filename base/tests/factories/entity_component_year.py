@@ -25,12 +25,10 @@
 ##############################################################################
 import datetime
 
-import factory
 import factory.fuzzy
 
 from base.tests.factories.entity_container_year import EntityContainerYearFactory
 from base.tests.factories.learning_component_year import LearningComponentYearFactory
-from osis_common.utils.datetime import get_tzinfo
 
 
 class EntityComponentYearFactory(factory.django.DjangoModelFactory):
@@ -38,8 +36,10 @@ class EntityComponentYearFactory(factory.django.DjangoModelFactory):
         model = "base.EntityComponentYear"
 
     external_id = factory.Sequence(lambda n: '10000000%02d' % n)
-    changed = factory.fuzzy.FuzzyDateTime(datetime.datetime(2016, 1, 1, tzinfo=get_tzinfo()),
-                                          datetime.datetime(2017, 3, 1, tzinfo=get_tzinfo()))
+    changed = factory.fuzzy.FuzzyNaiveDateTime(
+        datetime.datetime(2016, 1, 1),
+        datetime.datetime(2017, 3, 1,)
+    )
 
     entity_container_year = factory.SubFactory(EntityContainerYearFactory)
     learning_component_year = factory.SubFactory(LearningComponentYearFactory)

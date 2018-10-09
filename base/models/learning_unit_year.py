@@ -30,11 +30,11 @@ from django.core.validators import MinValueValidator, MaxValueValidator, RegexVa
 from django.db import models
 from django.db.models import Q
 from django.utils.functional import cached_property
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ngettext
 
 from base.models import entity_container_year as mdl_entity_container_year
-from base.models.academic_year import current_academic_year, compute_max_academic_year_adjournment, AcademicYear, \
-    MAX_ACADEMIC_YEAR_FACULTY
+from base.models.academic_year import compute_max_academic_year_adjournment, AcademicYear, \
+    MAX_ACADEMIC_YEAR_FACULTY, starting_academic_year
 from base.models.enums import active_status, learning_container_year_types
 from base.models.enums import learning_unit_year_subtypes, internship_subtypes, \
     learning_unit_year_session, entity_container_year_link_type, quadrimesters, attribution_procedure
@@ -45,7 +45,7 @@ from osis_common.models.serializable_model import SerializableModel, Serializabl
 
 AUTHORIZED_REGEX_CHARS = "$*+.^"
 REGEX_ACRONYM_CHARSET = "[A-Z0-9" + AUTHORIZED_REGEX_CHARS + "]+"
-MINIMUM_CREDITS = 0
+MINIMUM_CREDITS = 0.0
 MAXIMUM_CREDITS = 500
 
 
@@ -61,6 +61,31 @@ class LearningUnitYearAdmin(SerializableModelAdmin):
                     'status')
     list_filter = ('academic_year', 'decimal_scores', 'summary_locked')
     search_fields = ['acronym', 'structure__acronym', 'external_id']
+    actions = [
+        'resend_messages_to_queue',
+        'apply_learning_unit_year_postponement'
+    ]
+
+    def apply_learning_unit_year_postponement(self, request, queryset):
+        # Potential circular imports
+        from base.business.learning_units.automatic_postponement import fetch_learning_unit_to_postpone
+        from base.views.common import display_success_messages, display_error_messages
+
+        result, errors = fetch_learning_unit_to_postpone(queryset.filter(learning_container_year__isnull=False))
+        count = len(result)
+        display_success_messages(
+            request, ngettext(
+                '%(count)d learning unit has been postponed with success',
+                '%(count)d learning units have been postponed with success', count
+            ) % {'count': count}
+        )
+        if errors:
+            display_error_messages(request, "{} : {}".format(
+                _("The following learning units ended with error"),
+                ", ".join([str(error) for error in errors])
+            ))
+
+    apply_learning_unit_year_postponement.short_description = _("Apply postponement on learning unit year")
 
 
 class LearningUnitYearWithContainerManager(models.Manager):
@@ -79,7 +104,7 @@ class ExtraManagerLearningUnitYear(models.Model):
 
 class LearningUnitYear(SerializableModel, ExtraManagerLearningUnitYear):
     external_id = models.CharField(max_length=100, blank=True, null=True, db_index=True)
-    academic_year = models.ForeignKey(AcademicYear,  verbose_name=_('academic_year'),
+    academic_year = models.ForeignKey(AcademicYear, verbose_name=_('academic_year'),
                                       validators=[academic_year_validator])
     learning_unit = models.ForeignKey('LearningUnit')
     learning_container_year = models.ForeignKey('LearningContainerYear', null=True)
@@ -92,7 +117,7 @@ class LearningUnitYear(SerializableModel, ExtraManagerLearningUnitYear):
                                               verbose_name=_('english_title_proper_to_UE'))
     subtype = models.CharField(max_length=50, choices=learning_unit_year_subtypes.LEARNING_UNIT_YEAR_SUBTYPES,
                                default=learning_unit_year_subtypes.FULL)
-    credits = models.IntegerField(null=True,
+    credits = models.DecimalField(null=True, max_digits=5, decimal_places=2,
                                   validators=[MinValueValidator(MINIMUM_CREDITS), MaxValueValidator(MAXIMUM_CREDITS)],
                                   verbose_name=_('credits'))
     decimal_scores = models.BooleanField(default=False)
@@ -112,7 +137,7 @@ class LearningUnitYear(SerializableModel, ExtraManagerLearningUnitYear):
 
     professional_integration = models.BooleanField(default=False, verbose_name=_('professional_integration'))
 
-    campus = models.ForeignKey('Campus', null=True)
+    campus = models.ForeignKey('Campus', null=True, verbose_name=_("learning_location"))
 
     language = models.ForeignKey('reference.Language', null=True, verbose_name=_('language'))
 
@@ -122,6 +147,10 @@ class LearningUnitYear(SerializableModel, ExtraManagerLearningUnitYear):
 
     class Meta:
         unique_together = ('learning_unit', 'academic_year',)
+
+        permissions = (
+            ("can_receive_emails_about_automatic_postponement", "Can receive emails about automatic postponement"),
+        )
 
     def __str__(self):
         return u"%s - %s" % (self.academic_year, self.acronym)
@@ -159,8 +188,18 @@ class LearningUnitYear(SerializableModel, ExtraManagerLearningUnitYear):
     def complete_title(self):
         complete_title = self.specific_title
         if self.learning_container_year:
-            complete_title = ' '.join(filter(None, [self.learning_container_year.common_title, self.specific_title]))
+            complete_title = ' - '.join(filter(None, [self.learning_container_year.common_title, self.specific_title]))
         return complete_title
+
+    @property
+    def complete_title_english(self):
+        complete_title_english = self.specific_title_english
+        if self.learning_container_year:
+            complete_title_english = ' - '.join(filter(None, [
+                self.learning_container_year.common_title_english,
+                self.specific_title_english,
+            ]))
+        return complete_title_english
 
     @property
     def container_common_title(self):
@@ -236,9 +275,9 @@ class LearningUnitYear(SerializableModel, ExtraManagerLearningUnitYear):
         if not self.learning_container_year:
             return False
 
-        current_year = current_academic_year().year
+        starting_year = starting_academic_year().year
         year = self.academic_year.year
-        return current_year <= year <= current_year + MAX_ACADEMIC_YEAR_FACULTY
+        return starting_year <= year <= starting_year + MAX_ACADEMIC_YEAR_FACULTY
 
     def is_full(self):
         return self.subtype == learning_unit_year_subtypes.FULL
@@ -275,6 +314,7 @@ class LearningUnitYear(SerializableModel, ExtraManagerLearningUnitYear):
     def warnings(self):
         if self._warnings is None:
             self._warnings = []
+            self._warnings.extend(self._check_credits_is_integer())
             self._warnings.extend(self._check_partim_parent_credits())
             self._warnings.extend(self._check_internship_subtype())
             self._warnings.extend(self._check_partim_parent_status())
@@ -283,6 +323,13 @@ class LearningUnitYear(SerializableModel, ExtraManagerLearningUnitYear):
             self._warnings.extend(self._check_learning_container_year_warnings())
             self._warnings.extend(self._check_entity_container_year_warnings())
         return self._warnings
+
+    # TODO: Currently, we should warning user that the credits is not an integer
+    def _check_credits_is_integer(self):
+        warnings = []
+        if self.credits and self.credits % 1 != 0:
+            warnings.append(_('The credits value should be an integer'))
+        return warnings
 
     def _check_partim_parent_credits(self):
         children = self.get_partims_related()
@@ -390,7 +437,7 @@ def search(academic_year_id=None, acronym=None, learning_container_year_id=None,
         queryset = queryset.filter(learning_unit=learning_unit)
 
     if title:
-        queryset = queryset.\
+        queryset = queryset. \
             filter(Q(specific_title__iregex=title) | Q(learning_container_year__common_title__iregex=title))
 
     if subtype:
@@ -437,10 +484,6 @@ def convert_status_bool(status):
     return boolean
 
 
-def count_search_results(**kwargs):
-    return search(**kwargs).count()
-
-
 def find_gte_year_acronym(academic_yr, acronym):
     return LearningUnitYear.objects.filter(academic_year__year__gte=academic_yr.year,
                                            acronym__iexact=acronym)
@@ -484,17 +527,17 @@ def find_latest_by_learning_unit(a_learning_unit):
 def find_lt_learning_unit_year_with_different_acronym(a_learning_unit_yr):
     return LearningUnitYear.objects.filter(learning_unit__id=a_learning_unit_yr.learning_unit.id,
                                            academic_year__year__lt=a_learning_unit_yr.academic_year.year,
-                                           proposallearningunit__isnull=True)\
-        .order_by('-academic_year')\
+                                           proposallearningunit__isnull=True) \
+        .order_by('-academic_year') \
         .exclude(acronym__iexact=a_learning_unit_yr.acronym).first()
 
 
 def find_learning_unit_years_by_academic_year_tutor_attributions(academic_year, tutor):
     """ In this function, only learning unit year with containers is visible! [no classes] """
     qs = LearningUnitYear.objects_with_container.filter(
-            academic_year=academic_year,
-            attribution__tutor=tutor,
-         ).distinct().order_by('academic_year__year', 'acronym')
+        academic_year=academic_year,
+        attribution__tutor=tutor,
+    ).distinct().order_by('academic_year__year', 'acronym')
     return qs
 
 

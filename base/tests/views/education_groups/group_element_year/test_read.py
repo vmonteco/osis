@@ -23,11 +23,12 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.http import HttpResponseRedirect
+from django.db.models import F, When, Case
 from django.test import TestCase
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
+from base.models.enums.link_type import REFERENCE
 from base.models.learning_component_year import LearningComponentYear, volume_total_verbose
 from base.tests.factories.education_group_year import EducationGroupYearFactory
 from base.tests.factories.group_element_year import GroupElementYearFactory
@@ -43,11 +44,11 @@ class TestRead(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.person = PersonFactory()
-        cls.education_group_year_1 = EducationGroupYearFactory()
-        cls.education_group_year_2 = EducationGroupYearFactory()
-        cls.education_group_year_3 = EducationGroupYearFactory()
-        cls.learning_unit_year_1 = LearningUnitYearFactory()
-        cls.learning_unit_year_2 = LearningUnitYearFactory()
+        cls.education_group_year_1 = EducationGroupYearFactory(title_english="")
+        cls.education_group_year_2 = EducationGroupYearFactory(title_english="")
+        cls.education_group_year_3 = EducationGroupYearFactory(title_english="")
+        cls.learning_unit_year_1 = LearningUnitYearFactory(specific_title_english="")
+        cls.learning_unit_year_2 = LearningUnitYearFactory(specific_title_english="")
         cls.learning_component_year_1 = LearningComponentYearFactory(
             learning_container_year=cls.learning_unit_year_1.learning_container_year, hourly_volume_partial_q1=10,
             hourly_volume_partial_q2=10)
@@ -61,20 +62,31 @@ class TestRead(TestCase):
             learning_component_year=cls.learning_component_year_2,
             learning_unit_year=cls.learning_unit_year_1)
         cls.group_element_year_1 = GroupElementYearFactory(parent=cls.education_group_year_1,
-                                                           child_branch=cls.education_group_year_2)
+                                                           child_branch=cls.education_group_year_2,
+                                                           comment="commentaire",
+                                                           comment_english="english")
         cls.group_element_year_2 = GroupElementYearFactory(parent=cls.education_group_year_2,
                                                            child_branch=None,
-                                                           child_leaf=cls.learning_unit_year_1)
+                                                           child_leaf=cls.learning_unit_year_1,
+                                                           comment="commentaire",
+                                                           comment_english="english")
         cls.group_element_year_3 = GroupElementYearFactory(parent=cls.education_group_year_1,
-                                                           child_branch=cls.education_group_year_3)
+                                                           child_branch=cls.education_group_year_3,
+                                                           comment="commentaire",
+                                                           comment_english="english")
         cls.group_element_year_4 = GroupElementYearFactory(parent=cls.education_group_year_3,
                                                            child_branch=None,
-                                                           child_leaf=cls.learning_unit_year_2)
+                                                           child_leaf=cls.learning_unit_year_2,
+                                                           comment="commentaire",
+                                                           comment_english="english")
         cls.a_superuser = SuperUserFactory()
 
     def test_pdf_content(self):
         self.client.force_login(self.a_superuser)
-        url = reverse("pdf_content", args=[self.education_group_year_1.id, self.education_group_year_1.id])
+        url = reverse("pdf_content", args=[self.education_group_year_1.id, self.education_group_year_2.id, "fr-be"])
+        response = self.client.get(url)
+        self.assertTemplateUsed(response, 'education_group/pdf_content.html')
+        url = reverse("pdf_content", args=[self.education_group_year_1.id, self.education_group_year_2.id, "en"])
         response = self.client.get(url)
         self.assertTemplateUsed(response, 'education_group/pdf_content.html')
 
@@ -91,11 +103,13 @@ class TestRead(TestCase):
         self.assertEqual(self.group_element_year_1.verbose, verbose_branch)
 
         components = LearningComponentYear.objects.filter(
-            learningunitcomponent__learning_unit_year=self.group_element_year_2.child_leaf
-        )
+            learningunitcomponent__learning_unit_year=self.group_element_year_2.child_leaf).annotate(
+            total=Case(When(hourly_volume_total_annual=None, then=0),
+                       default=F('hourly_volume_total_annual'))).values('type', 'total')
+
         verbose_leaf = _("%(acronym)s %(title)s [%(volumes)s] (%(credits)s credits)") % {
             "acronym": self.group_element_year_2.child_leaf.acronym,
-            "title": self.group_element_year_2.child_leaf.specific_title,
+            "title": self.group_element_year_2.child_leaf.complete_title,
             "volumes": volume_total_verbose(components),
             "credits": self.group_element_year_2.relative_credits or self.group_element_year_2.child_leaf.credits or 0
         }

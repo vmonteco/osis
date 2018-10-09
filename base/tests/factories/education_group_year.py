@@ -23,10 +23,14 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+import operator
+
 import factory.fuzzy
 
 from base.models.education_group_year import EducationGroupYear
 from base.models.enums import education_group_categories, active_status, schedule_type
+from base.models.enums.duration_unit import DURATION_UNIT
+from base.models.enums.education_group_types import BACHELOR, PGRM_MASTER_120
 from base.models.learning_unit_year import MAXIMUM_CREDITS, MINIMUM_CREDITS
 from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.campus import CampusFactory
@@ -45,8 +49,8 @@ class EducationGroupYearFactory(factory.django.DjangoModelFactory):
 
     education_group = factory.SubFactory(EducationGroupFactory)
     academic_year = factory.SubFactory(AcademicYearFactory)
-    acronym = factory.Sequence(lambda n: 'Education%d' % n)
-    partial_acronym = factory.Sequence(lambda n: 'SCS%d' % n)
+    acronym = factory.Sequence(lambda n: 'ED%d' % n)
+    partial_acronym = factory.Sequence(lambda n: 'SCS%03dT' % n)
     title = factory.LazyAttribute(generate_title)
     title_english = factory.LazyAttribute(generate_title)
     education_group_type = factory.SubFactory(EducationGroupTypeFactory)
@@ -54,14 +58,16 @@ class EducationGroupYearFactory(factory.django.DjangoModelFactory):
     administration_entity = factory.SubFactory(EntityFactory)
     main_teaching_campus = factory.SubFactory(CampusFactory)
     credits = factory.fuzzy.FuzzyInteger(MINIMUM_CREDITS, MAXIMUM_CREDITS)
-    min_credits = factory.fuzzy.FuzzyInteger(MAXIMUM_CREDITS)
-    max_credits = factory.fuzzy.FuzzyInteger(MINIMUM_CREDITS)
+    min_constraint = factory.fuzzy.FuzzyInteger(MINIMUM_CREDITS, MAXIMUM_CREDITS)
+    max_constraint = factory.lazy_attribute(lambda a: a.min_constraint)
     remark = factory.fuzzy.FuzzyText(length=255)
     remark_english = factory.fuzzy.FuzzyText(length=255)
     active = active_status.ACTIVE
     schedule_type = schedule_type.DAILY
     weighting = False
     default_learning_unit_enrollment = False
+    duration_unit = factory.Iterator(DURATION_UNIT, getter=operator.itemgetter(0))
+    duration = factory.fuzzy.FuzzyInteger(1, 5)
 
 
 class MiniTrainingFactory(EducationGroupYearFactory):
@@ -77,3 +83,22 @@ class TrainingFactory(EducationGroupYearFactory):
 class GroupFactory(EducationGroupYearFactory):
     education_group_type = factory.SubFactory('base.tests.factories.education_group_type.EducationGroupTypeFactory',
                                               category=education_group_categories.GROUP)
+
+
+class EducationGroupYearCommonBachelorFactory(EducationGroupYearFactory):
+    acronym = 'common-1ba'
+    education_group_type = factory.SubFactory(
+        'base.tests.factories.education_group_type.ExistingEducationGroupTypeFactory',
+        name=BACHELOR
+    )
+
+
+class EducationGroupYearCommonMasterFactory(EducationGroupYearFactory):
+    acronym = 'common-2m'
+    education_group_type = factory.SubFactory(
+        'base.tests.factories.education_group_type.ExistingEducationGroupTypeFactory',
+        name=PGRM_MASTER_120
+    )
+
+class EducationGroupYearMasterFactory(EducationGroupYearCommonMasterFactory):
+    acronym = 'actu2m'

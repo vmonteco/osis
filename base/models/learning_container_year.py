@@ -33,6 +33,8 @@ from base.models.enums import learning_unit_year_subtypes, learning_container_ye
 from base.models.enums import vacant_declaration_type
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
 
+FIELDS_FOR_COMPARISON = ['team', 'is_vacant', 'type_declaration_vacant']
+
 
 class LearningContainerYearAdmin(SerializableModelAdmin):
     list_display = ('learning_container', 'academic_year', 'container_type', 'acronym', 'common_title')

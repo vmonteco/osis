@@ -29,7 +29,6 @@ import string
 import datetime
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from base.tests.factories.offer_enrollment import OfferEnrollmentFactory
-from osis_common.utils.datetime import get_tzinfo
 
 
 class LearningUnitEnrollmentFactory(factory.django.DjangoModelFactory):
@@ -37,8 +36,8 @@ class LearningUnitEnrollmentFactory(factory.django.DjangoModelFactory):
         model = "base.LearningUnitEnrollment"
 
     external_id = factory.fuzzy.FuzzyText(length=10, chars=string.digits)
-    changed = factory.fuzzy.FuzzyDateTime(datetime.datetime(2016, 1, 1, tzinfo=get_tzinfo()),
-                                          datetime.datetime(2017, 3, 1, tzinfo=get_tzinfo()))
-    date_enrollment = datetime.datetime.now(tz=get_tzinfo())
+    changed = factory.fuzzy.FuzzyNaiveDateTime(datetime.datetime(2016, 1, 1),
+                                          datetime.datetime(2017, 3, 1))
+    date_enrollment = datetime.datetime.now()
     learning_unit_year = factory.SubFactory(LearningUnitYearFactory)
     offer_enrollment = factory.SubFactory(OfferEnrollmentFactory)

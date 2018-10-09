@@ -50,6 +50,14 @@ class AcademicYear(SerializableModel):
     def name(self):
         return self.__str__()
 
+    @property
+    def is_even(self):
+        return self.year % 2 == 0
+
+    @property
+    def is_odd(self):
+        return self.year % 2 == 1
+
     def save(self, *args, **kwargs):
         if self.start_date and self.year != self.start_date.year:
             raise AttributeError("The start date should be in the same year of the academic year.")

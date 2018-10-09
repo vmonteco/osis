@@ -23,14 +23,18 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from collections import OrderedDict
+
 from django.test import TestCase
 from django.utils.translation import ugettext_lazy as _
-from base.templatetags.learning_unit import get_difference_css, has_proposal, get_previous_acronym
+from base.templatetags.learning_unit import get_difference_css, has_proposal, get_previous_acronym, value_label, \
+    DIFFERENCE_CSS
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory, create_learning_units_year
 from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
 from base.tests.factories.proposal_learning_unit import ProposalLearningUnitFactory
 from base.tests.factories.learning_unit import LearningUnitFactory
 from base.models.proposal_learning_unit import ProposalLearningUnit
+from django.utils.safestring import mark_safe
 
 LABEL_VALUE_BEFORE_PROPROSAL = _('value_before_proposal')
 
@@ -93,3 +97,26 @@ class LearningUnitTagTest(TestCase):
                                     initial_data={'learning_unit_year': {'acronym': initial_acronym}})
 
         self.assertEqual(get_previous_acronym(l_unit), initial_acronym)
+
+    def test_value_label_equal_values(self):
+        data = self.get_dict_data()
+        key = 'REQUIREMENT_ENTITY'
+        sub_key = 'next'
+        value_to_comp = 'current'
+
+        self.assertCountEqual(value_label(data, key,sub_key=sub_key, key_comp=value_to_comp),
+                              mark_safe("{}".format('DEXT')))
+
+    def get_dict_data(self):
+        return OrderedDict([('REQUIREMENT_ENTITY', {'current': 'DEXT', 'next': 'DEXT', 'prev': None}),
+                            ("campus", {'current': 'campus 1', 'next': 'campus 2', 'prev': 'campus1'})
+                            ])
+
+    def test_value_label_different_values(self):
+        data = self.get_dict_data()
+        key = 'campus'
+        sub_key = 'next'
+        value_to_comp = 'current'
+
+        self.assertCountEqual(value_label(data, key, sub_key=sub_key, key_comp=value_to_comp),
+                              mark_safe("<label {}>{}</label>".format(DIFFERENCE_CSS, 'campus 2')))

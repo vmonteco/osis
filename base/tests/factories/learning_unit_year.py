@@ -31,17 +31,17 @@ import factory.fuzzy
 from factory.django import DjangoModelFactory
 from faker import Faker
 
+from base.models.enums import attribution_procedure
 from base.models.enums import internship_subtypes
 from base.models.enums import learning_unit_year_periodicity
-from base.models.enums import quadrimesters
 from base.models.enums import learning_unit_year_session
 from base.models.enums import learning_unit_year_subtypes
+from base.models.enums import quadrimesters
 from base.models.learning_unit_year import MINIMUM_CREDITS, MAXIMUM_CREDITS
 from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.campus import CampusFactory
 from base.tests.factories.learning_container_year import LearningContainerYearFactory
 from base.tests.factories.learning_unit import LearningUnitFactory, LearningUnitFakerFactory
-from osis_common.utils.datetime import get_tzinfo
 from reference.tests.factories.language import LanguageFactory
 
 fake = Faker()
@@ -60,14 +60,14 @@ class LearningUnitYearFactory(DjangoModelFactory):
     academic_year = factory.SubFactory(AcademicYearFactory)
     learning_unit = factory.SubFactory(LearningUnitFactory)
     learning_container_year = factory.SubFactory(LearningContainerYearFactory)
-    changed = factory.fuzzy.FuzzyDateTime(datetime.datetime(2016, 1, 1, tzinfo=get_tzinfo()),
-                                          datetime.datetime(2017, 3, 1, tzinfo=get_tzinfo()))
+    changed = factory.fuzzy.FuzzyNaiveDateTime(datetime.datetime(2016, 1, 1),
+                                          datetime.datetime(2017, 3, 1))
     acronym = factory.Sequence(lambda n: 'LFAC%04d' % n)
     specific_title = factory.Sequence(lambda n: 'Learning unit year - %d' % n)
     specific_title_english = factory.Sequence(lambda n: 'Learning unit year english - %d' % n)
     subtype = factory.Iterator(learning_unit_year_subtypes.LEARNING_UNIT_YEAR_SUBTYPES, getter=operator.itemgetter(0))
     internship_subtype = factory.Iterator(internship_subtypes.INTERNSHIP_SUBTYPES, getter=operator.itemgetter(0))
-    credits = factory.fuzzy.FuzzyInteger(MINIMUM_CREDITS, MAXIMUM_CREDITS)
+    credits = factory.fuzzy.FuzzyDecimal(MINIMUM_CREDITS, MAXIMUM_CREDITS, precision=0)
     decimal_scores = False
     status = True
     session = factory.Iterator(learning_unit_year_session.LEARNING_UNIT_YEAR_SESSION, getter=operator.itemgetter(0))
@@ -88,13 +88,13 @@ class LearningUnitYearFakerFactory(DjangoModelFactory):
     academic_year = factory.LazyAttribute(lambda obj: obj.learning_container_year.academic_year)
     learning_unit = factory.SubFactory(LearningUnitFakerFactory)
     learning_container_year = factory.SubFactory(LearningContainerYearFactory)
-    changed = fake.date_time_this_decade(before_now=True, after_now=True, tzinfo=get_tzinfo())
+    changed = fake.date_time_this_decade(before_now=True, after_now=True)
     acronym = factory.LazyAttribute(lambda obj: obj.learning_container_year.acronym)
     specific_title = factory.LazyAttribute(lambda obj: obj.learning_container_year.common_title)
     specific_title_english = None
     subtype = factory.Iterator(learning_unit_year_subtypes.LEARNING_UNIT_YEAR_SUBTYPES, getter=operator.itemgetter(0))
     internship_subtype = factory.Iterator(internship_subtypes.INTERNSHIP_SUBTYPES, getter=operator.itemgetter(0))
-    credits = factory.fuzzy.FuzzyInteger(MINIMUM_CREDITS, MAXIMUM_CREDITS)
+    credits = factory.fuzzy.FuzzyDecimal(MINIMUM_CREDITS, MAXIMUM_CREDITS, precision=0)
     decimal_scores = False
     status = True
     session = factory.Iterator(learning_unit_year_session.LEARNING_UNIT_YEAR_SESSION, getter=operator.itemgetter(0))
@@ -105,3 +105,21 @@ class LearningUnitYearFakerFactory(DjangoModelFactory):
     campus = factory.SubFactory(CampusFactory)
     periodicity = factory.Iterator(learning_unit_year_periodicity.PERIODICITY_TYPES, getter=operator.itemgetter(0))
 
+
+def create_learning_unit_year(academic_yr, title, learning_unit):
+    return LearningUnitYearFactory(acronym='LDROI1001',
+                                   academic_year=academic_yr,
+                                   subtype=learning_unit_year_subtypes.FULL,
+                                   status=True,
+                                   internship_subtype=None,
+                                   credits=5,
+                                   periodicity=learning_unit_year_periodicity.ANNUAL,
+                                   language=None,
+                                   professional_integration=True,
+                                   specific_title=title,
+                                   specific_title_english=None,
+                                   quadrimester=quadrimesters.Q1,
+                                   session=learning_unit_year_session.SESSION_123,
+                                   attribution_procedure=attribution_procedure.EXTERNAL,
+                                   learning_unit=learning_unit
+                                   )

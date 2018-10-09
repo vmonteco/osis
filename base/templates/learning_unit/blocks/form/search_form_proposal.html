@@ -44,8 +44,12 @@
 {% endblock %}
 
 {% block search_form_buttons %}
-    <div class="col-md-1 text-right" style="line-height:55px;">
-        {% bootstrap_button "" value=_('search') button_type="submit" button_class="btn-primary" icon="search" %}
+    <div class="col-md-2">
+        <br>
+        <div class="btn-toolbar">
+            {% bootstrap_button "" value=_('search') button_type="submit" button_class="btn-primary" icon="search" %}
+            {% include 'blocks/button/button_filter_refresh.html' %}
+        </div>
     </div>
 {% endblock %}
 
