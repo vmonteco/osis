@@ -162,11 +162,9 @@ class CertificateAimAutocomplete(autocomplete.Select2QuerySetView):
         if not self.request.user.is_authenticated():
             return CertificateAim.objects.none()
 
-        # TODO :: unit test on ordering by section then code
         qs = CertificateAim.objects.all()
 
         if self.q:
-            # qs = qs.objects.filter(Q(description__contains=self.q) | Q(code=self.q))
             if self.q.isdigit():
                 qs = qs.filter(code=self.q)
             else:
