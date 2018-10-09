@@ -1,6 +1,6 @@
 {% extends "education_group/layout_detail.html" %}
 {% load i18n %}
-{% load static staticfiles bootstrap3 %}
+{% load staticfiles bootstrap3 %}
 {% comment "License" %}
 * OSIS stands for Open Student Information System. It's an application
 * designed to manage the core business of higher education institutions,
@@ -32,10 +32,4 @@
 
 {% block content %}
     {% include "education_group/blocks/form/training.html" %}
-{% endblock %}
-
-{% block script %}
-    <script>
-        $('div span span').on('keypress keyup keydown', function(e) { preventBackspaceFromDeletingItem(e); });
-    </script>
 {% endblock %}
