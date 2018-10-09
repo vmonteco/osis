@@ -35,7 +35,8 @@ from django.utils.translation import ugettext_lazy as _
 from base.forms.learning_unit.entity_form import EntityContainerBaseForm
 from base.forms.learning_unit.learning_unit_create import LearningUnitYearModelForm, \
     LearningUnitModelForm, LearningContainerYearModelForm, LearningContainerModelForm, DEFAULT_ACRONYM_COMPONENT
-from base.forms.learning_unit.learning_unit_create_2 import FullForm, FACULTY_OPEN_FIELDS, ID_FIELD
+from base.forms.learning_unit.learning_unit_create_2 import FullForm, FACULTY_OPEN_FIELDS, ID_FIELD, \
+    FULL_READ_ONLY_FIELDS
 from base.models.academic_year import AcademicYear
 from base.models.entity_component_year import EntityComponentYear
 from base.models.entity_container_year import EntityContainerYear
@@ -57,7 +58,7 @@ from base.models.learning_container_year import LearningContainerYear
 from base.models.learning_unit import LearningUnit
 from base.models.learning_unit_component import LearningUnitComponent
 from base.models.learning_unit_year import LearningUnitYear, MAXIMUM_CREDITS
-from base.models.person import FACULTY_MANAGER_GROUP
+from base.models.person import FACULTY_MANAGER_GROUP, CENTRAL_MANAGER_GROUP
 from base.tests.factories.academic_year import create_current_academic_year, AcademicYearFactory
 from base.tests.factories.business.entities import create_entities_hierarchy
 from base.tests.factories.business.learning_units import GenerateContainer, GenerateAcademicYear
@@ -292,8 +293,19 @@ class TestFullFormInit(LearningUnitFullFormContextMixin):
         expected_choices = [acy.id for acy in self.acs[3:6]]
         self.assertCountEqual(actual_choices, expected_choices)
 
+    def test_disable_fields_full_with_faculty_manager_and_central_manager(self):
+        self.person.user.groups.add(Group.objects.get(name=FACULTY_MANAGER_GROUP))
+        central_group = Group.objects.get(name=CENTRAL_MANAGER_GROUP)
+        self.person.user.groups.add(central_group)
+        form = FullForm(self.person, self.learning_unit_year.academic_year,
+                        learning_unit_instance=self.learning_unit_year.learning_unit)
+        disabled_fields = {key for key, value in form.fields.items() if value.disabled}
+        self.assertEqual(disabled_fields, FULL_READ_ONLY_FIELDS.union({'internship_subtype'}))
+
     def tearDown(self):
-        faculty_group = Group.objects.get(name='faculty_managers')
+        faculty_group = Group.objects.get(name=FACULTY_MANAGER_GROUP)
+        self.person.user.groups.remove(faculty_group)
+        faculty_group = Group.objects.get(name=CENTRAL_MANAGER_GROUP)
         self.person.user.groups.remove(faculty_group)
 
 
@@ -514,7 +526,7 @@ class TestFullFormSave(LearningUnitFullFormContextMixin):
             self.assertEqual(current_count, initial_count, model_class.objects.all())
 
     def test_default_acronym_component(self):
-        default_acronym_component={
+        default_acronym_component = {
             LECTURING: "PM",
             PRACTICAL_EXERCISES: "PP",
             None: "NT"
@@ -614,7 +626,7 @@ class TestFullFormSave(LearningUnitFullFormContextMixin):
             EntityComponentYear.objects.filter(
                 learning_component_year__in=learning_component_year_list).count(), 1)
         learning_component_year = LearningComponentYear.objects.get(
-                learning_container_year=saved_luy.learning_container_year, type=None)
+            learning_container_year=saved_luy.learning_container_year, type=None)
         self.assertEqual(learning_component_year.acronym, DEFAULT_ACRONYM_COMPONENT[None])
         self.assertEqual(learning_component_year.type, None)
 
