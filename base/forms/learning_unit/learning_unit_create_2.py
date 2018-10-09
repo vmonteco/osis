@@ -207,7 +207,7 @@ class FullForm(LearningUnitBaseForm):
     subtype = learning_unit_year_subtypes.FULL
 
     def __init__(self, person, academic_year, learning_unit_instance=None, data=None, start_year=None, proposal=False,
-                 *args, **kwargs):
+                 postposal=None, *args, **kwargs):
         if not learning_unit_instance and not start_year:
             raise AttributeError("Should set at least learning_unit_instance or start_year instance.")
         self.academic_year = academic_year
@@ -222,19 +222,21 @@ class FullForm(LearningUnitBaseForm):
         if self.instance:
             self._disable_fields()
         else:
-            self._restrict_academic_years_choice()
+            self._restrict_academic_years_choice(postposal)
 
-    def _restrict_academic_years_choice(self):
-        starting_academic_year = academic_year.starting_academic_year()
-        end_year_range = MAX_ACADEMIC_YEAR_FACULTY if self.person.is_faculty_manager() else MAX_ACADEMIC_YEAR_CENTRAL
+    def _restrict_academic_years_choice(self, postposal):
+        if postposal:
+            starting_academic_year = academic_year.starting_academic_year()
+            end_year_range = MAX_ACADEMIC_YEAR_FACULTY if self.person.is_faculty_manager() \
+                else MAX_ACADEMIC_YEAR_CENTRAL
 
-        self.fields["academic_year"].queryset = academic_year.find_academic_years(
-            start_year=starting_academic_year.year,
-            end_year=starting_academic_year.year + end_year_range
-        )
+            self.fields["academic_year"].queryset = academic_year.find_academic_years(
+                start_year=starting_academic_year.year,
+                end_year=starting_academic_year.year + end_year_range
+            )
 
     def _disable_fields(self):
-        if self.person.is_faculty_manager():
+        if self.person.is_faculty_manager() and not self.person.is_central_manager():
             self._disable_fields_as_faculty_manager()
         else:
             self._disable_fields_as_central_manager()

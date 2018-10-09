@@ -105,6 +105,9 @@ msgstr "Administration"
 msgid "after_submission_a_message_must_be_sent"
 msgstr "If scores are submitted , a message is sent to all the professors of the learning unit"
 
+msgid "aim number"
+msgstr ""
+
 msgid "all"
 msgstr "All"
 
@@ -158,6 +161,9 @@ msgstr "Cancel"
 
 msgid "catalogue"
 msgstr "Catalogue"
+
+msgid "certificate aims"
+msgstr ""
 
 msgid "chair_of_the_exam_board"
 msgstr "Chair of the exam board"
@@ -1031,6 +1037,9 @@ msgstr "Search for an entity"
 
 msgid "search_for_an_organization"
 msgstr "Search for an organization"
+
+msgid "section"
+msgstr ""
 
 msgid "SECTOR"
 msgstr "Sector"
@@ -3884,6 +3893,12 @@ msgstr ""
 msgid "education group detailed achievement"
 msgstr ""
 
+msgid "text in English"
+msgstr ""
+
+msgid "text in French"
+msgstr ""
+
 msgid "on successful completion of this program, each student is able to"
 msgstr ""
 
@@ -3900,6 +3915,9 @@ msgid "academic events"
 msgstr ""
 
 msgid "project events"
+msgstr ""
+
+msgid "ad hoc events"
 msgstr ""
 
 msgid "%(count)d learning unit has been postponed with success"
@@ -3971,4 +3989,28 @@ msgid "The event \"%(event)s\" has been deleted successfully"
 msgstr ""
 
 msgid "Name of the teacher responsible"
+msgstr ""
+
+msgid "On the file: direct access or access with additional training"
+msgstr ""
+
+msgid "Direct Access"
+msgstr ""
+
+msgid "Access with additional training"
+msgstr ""
+
+msgid "%(number_notifications)s notification(s)"
+msgstr ""
+
+msgid "Producing certificat"
+msgstr ""
+
+msgid "Producing annexe"
+msgstr ""
+
+msgid "UCL Diploma"
+msgstr ""
+
+msgid "Reference institution"
 msgstr ""

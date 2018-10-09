@@ -8,7 +8,7 @@ function redirect_after_success(modal, xhr) {
     }
 }
 
-let formAjaxSubmit = function (form, modal) {
+var formAjaxSubmit = function (form, modal) {
     $(form).submit(function (e) {
         // Added preventDefaut so as to not add anchor "href" to address bar
         e.preventDefault();
@@ -22,6 +22,8 @@ let formAjaxSubmit = function (form, modal) {
                 //Stay on the form if there are errors.
                 if ($(xhr).find('.has-error').length > 0) {
                     $(modal).find('.modal-content').html(xhr);
+                    // Add compatibility with ckeditor and related textareas
+                    bindTextArea();
                     formAjaxSubmit(form, modal);
                 } else {
                     redirect_after_success(modal, xhr);
@@ -33,3 +35,18 @@ let formAjaxSubmit = function (form, modal) {
         });
     });
 };
+
+
+// CKEDITOR needs to dynamically bind the textareas during an XMLHttpRequest requests
+function bindTextArea() {
+    $("textarea[data-type='ckeditortype']").each( function () {
+        CKEDITOR.replace($(this).attr('id'), $(this).data('config'));
+    });
+}
+
+// Before submitting, we need to update textarea with ckeditor element.
+function CKupdate(){
+    for (let instance in CKEDITOR.instances )
+        CKEDITOR.instances[instance].updateElement();
+}
+

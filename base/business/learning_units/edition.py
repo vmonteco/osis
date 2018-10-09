@@ -44,6 +44,7 @@ from base.models.entity_version import EntityVersion
 from base.models.enums import learning_unit_year_periodicity, learning_unit_year_subtypes
 from base.models.enums.entity_container_year_link_type import ENTITY_TYPE_LIST
 from base.models.learning_container_year import LearningContainerYear
+from base.models.learning_unit_component import LearningUnitComponent
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.proposal_learning_unit import is_learning_unit_year_in_proposal
 from cms.models import translated_text
@@ -182,10 +183,12 @@ def _duplicate_entity_container_year(new_lcy, new_academic_year):
 
 def _duplicate_learning_component_year(new_learn_container_year, new_learn_unit_year):
     for old_component in learning_component_year.find_by_learning_container_year(new_learn_container_year.copied_from):
-        new_component = update_related_object(old_component, 'learning_container_year', new_learn_container_year)
-        _duplicate_learning_class_year(new_component)
-        _duplicate_learning_unit_component(new_component, new_learn_unit_year)
-        _duplicate_entity_component_year(new_component)
+        if not LearningUnitComponent.objects.filter(
+                learning_component_year__type=old_component.type, learning_unit_year=new_learn_unit_year).exists():
+            new_component = update_related_object(old_component, 'learning_container_year', new_learn_container_year)
+            _duplicate_learning_class_year(new_component)
+            _duplicate_learning_unit_component(new_component, new_learn_unit_year)
+            _duplicate_entity_component_year(new_component)
 
 
 def _duplicate_entity_component_year(new_component):

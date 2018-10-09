@@ -40,7 +40,7 @@ import base.views.learning_units.update
 from attribution.views import attribution, tutor_application
 from base.views import learning_achievement, search, education_groups
 from base.views import learning_unit, offer, common, institution, organization, academic_calendar, \
-    my_osis, entity, student
+    my_osis, entity, student, notifications
 from base.views import teaching_material
 from base.views.learning_units.external import create as create_external
 from base.views.learning_units.external.search import filter_cities_by_country, filter_campus_by_city
@@ -265,6 +265,7 @@ urlpatterns = [
     ])),
     url(r'^ajax_select/', include(ajax_select_urls)),
     url(r'^clear_filter/$', base.views.search.clear_filter, name="clear_filter"),
+    url(r'^notifications/clear/$', base.views.notifications.clear_user_notifications, name="clear_notifications")
 
 ]
 

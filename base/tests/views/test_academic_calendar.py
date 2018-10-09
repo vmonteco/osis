@@ -125,8 +125,8 @@ class AcademicCalendarViewTestCase(TestCase):
         mock_decorators.permission_required = lambda *args, **kwargs: lambda func: func
 
         self.academic_calendars[1].reference = academic_calendar_type.TESTING
-        self.academic_calendars[1].start_date = today.replace(day=today.day - 1)
-        self.academic_calendars[1].end_date = today.replace(day=today.day + 1)
+        self.academic_calendars[1].start_date = today - datetime.timedelta(days=1)
+        self.academic_calendars[1].end_date = today + datetime.timedelta(days=1)
         self.academic_calendars[1].save()
 
         request_factory = RequestFactory()
@@ -149,8 +149,8 @@ class AcademicCalendarViewTestCase(TestCase):
         mock_decorators.permission_required = lambda *args, **kwargs: lambda func: func
 
         self.academic_calendars[1].reference = academic_calendar_type.TESTING
-        self.academic_calendars[1].start_date = today.replace(day=today.day - 10)
-        self.academic_calendars[1].end_date = today.replace(day=today.day - 1)
+        self.academic_calendars[1].start_date = today - datetime.timedelta(days=10)
+        self.academic_calendars[1].end_date = today - datetime.timedelta(days=1)
         self.academic_calendars[1].save()
 
         request_factory = RequestFactory()
