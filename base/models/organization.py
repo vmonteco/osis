@@ -24,13 +24,14 @@
 #
 ##############################################################################
 from django.db import models
+from django.utils.functional import cached_property
 
 from base.models.enums import organization_type
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
 
 
 class OrganizationAdmin(SerializableModelAdmin):
-    list_display = ('name', 'acronym', 'prefix', 'type', 'changed')
+    list_display = ('name', 'acronym', 'type', 'changed')
     search_fields = ['acronym', 'name']
 
 
@@ -45,26 +46,42 @@ class OrganizationWithVersionManager(models.Manager):
 class Organization(SerializableModel):
     external_id = models.CharField(max_length=100, blank=True, null=True, db_index=True)
     changed = models.DateTimeField(null=True, auto_now=True)
-    name = models.CharField(max_length=255)
-    code = models.CharField(max_length=50, blank=True, null=True)
-    acronym = models.CharField(max_length=20, blank=True, null=True)
-    website = models.URLField(max_length=255, blank=True, null=True)
-    type = models.CharField(max_length=30, blank=True, null=True, choices=organization_type.ORGANIZATION_TYPE,
-                            default='UNKNOWN')
-    start_date = models.DateTimeField(null=True)
-    end_date = models.DateTimeField(null=True)
-    prefix = models.CharField(max_length=30, blank=True, null=True)
-    logo = models.ImageField(upload_to='organization_logos', null=True, blank=True)
+
+    type = models.CharField(
+        max_length=30,
+        blank=True,
+        choices=organization_type.ORGANIZATION_TYPE,
+    )
 
     objects_version = OrganizationWithVersionManager()
 
+    @cached_property
+    def latest_version(self):
+        return self.organizationversion_set.order_by("start_date").last()
+
     def __str__(self):
-        return self.name
+        return "{}".format(self.latest_version)
 
     class Meta:
         permissions = (
             ("can_access_organization", "Can access organization"),
         )
+
+    @cached_property
+    def name(self):
+        return getattr(self.latest_version, "name", "")
+
+    @cached_property
+    def logo(self):
+        return getattr(self.latest_version, "logo", None)
+
+    @cached_property
+    def acronym(self):
+        return getattr(self.latest_version, "acronym", "")
+
+    @cached_property
+    def website(self):
+        return getattr(self.latest_version, "website", "")
 
     @property
     def country(self):

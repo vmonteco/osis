@@ -23,11 +23,12 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.forms import ModelForm
-from base.models import organization
-
-
-class OrganizationForm(ModelForm):
-    class Meta:
-        model = organization.Organization
-        fields = ['acronym', 'name', 'website', 'prefix']
+# from django.forms import ModelForm
+#
+# from base.models.organization_version import OrganizationVersion
+#
+#
+# class OrganizationForm(ModelForm):
+#     class Meta:
+#         model = OrganizationVersion  # TODO in the first time we can create only version of organization
+#         fields = ['acronym', 'name', 'website', 'prefix']

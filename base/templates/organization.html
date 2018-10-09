@@ -32,105 +32,107 @@
 {% endblock %}
 
 {% block content %}
-<div class="page-header">
-    <h3>{{ organization.acronym | default_if_none:'' }}</h3>
-</div>
+    <div class="page-header">
+        <h3>{{ object.acronym }}</h3>
+    </div>
 
-{% url 'organization_edit' organization_id=organization.id as url_identification_edit %}
+    <div class="panel panel-default">
+        <div class="panel-body" id="tabs">
+            <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" class="active">
+                    <a data-toggle="tab" href="#tab_identification" role="tab">
+                        {% trans 'identification'%}
+                    </a>
+                </li>
+                <li role="presentation">
+                    <a data-toggle="tab" href="#tab_campus_list" role="tab">
+                        {% trans 'campus'%}
+                    </a>
+                </li>
+            </ul>
+            <div class="tab-content">
+                <div id="tab_identification" class="tab-pane fade in active">
+                    <br>
+                    <div class="row">
+                        <img class="img-responsive col-md-2" src="{{ object.logo.url }}" alt="logo">
 
-<div class="panel panel-default">
-    <div class="panel-body" id="tabs">
-        <ul class="nav nav-tabs" role="tablist">
-            <li role="presentation" class="active">
-                <a data-toggle="tab" href="#tab_identification" role="tab">
-                    {% trans 'identification'%}
-                </a>
-            </li>
-             <li role="presentation">
-                <a data-toggle="tab" href="#tab_campus_list" role="tab">
-                    {% trans 'campus'%}
-                </a>
-            </li>
-        </ul>
-        <div class="tab-content">
-            <div id="tab_identification" class="tab-pane fade in active">
-                <br>
-                <div class="row">
-                    <div class="col-md-4">
-                        <label>{% trans 'acronym' %}</label><br>
-                        {{ organization.acronym | default_if_none:'-' }}
+                        <dl class="col-md-4">
+                            <dt>{% trans 'organization_name'%}</dt>
+                            <dd>{{ object.name | title }}</dd>
+                        </dl>
+                        <dl class="col-md-4">
+                            <dt>{% trans 'website' %}</dt>
+                            <dd><a href="{{ object.website }}">{{ object.website }}</a></dd>
+                        </dl>
+                        <dl class="col-md-2">
+                            <dt>{% trans 'type' %}</dt>
+                            <dd>{{ object.organization.get_type_display }}</dd>
+                        </dl>
+                        <dl class="col-md-2">
+                            <dt>{% trans 'start_date' %}</dt>
+                            <dd>{{ object.start_date }}</dd>
+                        </dl>
+                        <dl class="col-md-2">
+                            <dt>{% trans 'end_date' %}</dt>
+                            <dd>{{ object.end_date | default_if_none:'-' }}</dd>
+                        </dl>
                     </div>
-                    <div class="col-md-4">
-                        <label>{% trans 'organization_name'%}</label><br>
-                        {{ organization.name | default_if_none:'-' }}
-                    </div>
-                    <div class="col-md-4">
-                        <label>{% trans 'reference'%}</label><br>
-                        {{ organization.reference | default_if_none:'-' }}
-                    </div>
-                </div>
-                <br>
-                <div class="row">
-                    <div class="col-md-4">
-                        <label>{% trans 'website' %}</label><br>
-                        {{ organization.website | default_if_none:'-' }}
-                    </div>
-                    <div class="col-md-8">
-                        <label>{% trans 'type' %}</label><br>
-                        {% if organization.type %}  {% trans organization.type %} {% else %} - {% endif %}
-                    </div>
-                </div>
-                <br>
+                    <br>
+                    {% with object.organization.organizationaddress_set.all as addresses %}
+                        {% if addresses %}
+                            <label>{% trans 'address(ses)' %}</label>
+                            <br>
+                            <div class="row">
+                                {% for address in addresses %}
+                                    <div class="col-md-3">
+                                        <div class="list-group">
+                                            <a href="{% url 'organization_address_read' address.id %}" class="list-group-item">
+                                                <h4 class="list-group-item-heading">{{ address.label | default_if_none:'' }}</h4>
+                                                <p class="list-group-item-text">
+                                                <address>
+                                                    {{ address.location | default_if_none:'' }}<br>
+                                                    {{ address.postal_code | default_if_none:'' }} {{ address.city | default_if_none:'' }} <br>
+                                                    {{ address.country | default_if_none:'' }}
+                                                </address>
+                                            </a>
+                                        </div>
+                                    </div>
+                                {%endfor%}
+                            </div>
+                        {%else%}
+                            <br>
+                        {%endif%}
+                    {% endwith %}
 
-                {% if organization_addresses %}
-                <label>{% trans 'address(ses)' %}</label>
-                <br>
-                <div class="row">
-                    {% for address in organization_addresses %}
-                    <div class="col-md-3">
-                        <div class="list-group">
-                            <a href="{% url 'organization_address_read' organization_address_id=address.id %}" class="list-group-item">
-                                <h4 class="list-group-item-heading">{{ address.label | default_if_none:'' }}</h4>
-                                <p class="list-group-item-text">
-                                <address>
-                                    {{ address.location | default_if_none:'' }}<br>
-                                    {{ address.postal_code | default_if_none:'' }} {{ address.city | default_if_none:''}} <br>
-                                    {{ address.country | default_if_none:'' }}
-                                </address>
-                                </p>
+                    {% if request.user.is_superuser %}
+                        <div class="pull-right">
+                            {% url 'organization_edit' object.id as url_identification_edit %}
+
+                            <a href="{{ url_identification_edit }}" title="{% trans 'edit' %}"
+                               class="btn btn-primary" role="button" id="bt_organization_edit">
+                                <span class="glyphicon glyphicon-edit" aria-hidden="true"></span> {% trans 'edit' %}
                             </a>
                         </div>
-                    </div>
-                    {%endfor%}
+                    {% endif %}
                 </div>
-                {%else%}
-                <br>
-                {%endif%}
 
-                {% if request.user.is_superuser %}
-                    <div class="pull-right">
-                        <a href="{{ url_identification_edit }}" title="{% trans 'edit' %}"
-                           class="btn btn-primary" role="button" id="bt_organization_edit">
-                            <span class="glyphicon glyphicon-edit" aria-hidden="true"></span> {% trans 'edit' %}
-                        </a>
-                    </div>
-                {% endif %}
-            </div>
-            <div id="tab_campus_list" class="tab-pane fade">
-                <table class="table">
-                    <thead>
-                        <th>{% trans 'name'|title %}</th>
-                    </thead>
-                    <tbody>
-                        {% for camp in campus %}
+                <div id="tab_campus_list" class="tab-pane fade">
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>{% trans 'name'|title %}</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for campus in object.organization.campus_set.all %}
                             <tr>
-                                <td> {{camp.name | default_if_none:''}} </td>
+                                <td> {{ campus.name | default_if_none:''}} </td>
                             </tr>
                         {% endfor %}
-                    </tbody>
-                </table>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
-</div>
 {% endblock %}

@@ -23,6 +23,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ############################################################################
+import django_filters
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
@@ -73,6 +74,7 @@ class OrganizationVersion(models.Model):
     )
 
     end_date = models.DateTimeField(
+        blank=True,
         null=True,
         verbose_name=_("end date")
     )
@@ -92,3 +94,12 @@ class OrganizationVersion(models.Model):
 
     def __str__(self):
         return "{}".format(self.name)
+
+
+class OrganizationFilter(django_filters.FilterSet):
+    acronym = django_filters.CharFilter(lookup_expr='icontains')
+    name = django_filters.CharFilter(lookup_expr='icontains')
+
+    class Meta:
+        model = OrganizationVersion
+        fields = ['name', 'acronym', 'organization__type']
