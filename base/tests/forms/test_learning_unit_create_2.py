@@ -295,8 +295,7 @@ class TestFullFormInit(LearningUnitFullFormContextMixin):
 
     def test_disable_fields_full_with_faculty_manager_and_central_manager(self):
         self.person.user.groups.add(Group.objects.get(name=FACULTY_MANAGER_GROUP))
-        central_group = Group.objects.get(name=CENTRAL_MANAGER_GROUP)
-        self.person.user.groups.add(central_group)
+        self.person.user.groups.add(Group.objects.get(name=CENTRAL_MANAGER_GROUP))
         form = FullForm(self.person, self.learning_unit_year.academic_year,
                         learning_unit_instance=self.learning_unit_year.learning_unit)
         disabled_fields = {key for key, value in form.fields.items() if value.disabled}
@@ -305,8 +304,8 @@ class TestFullFormInit(LearningUnitFullFormContextMixin):
     def tearDown(self):
         faculty_group = Group.objects.get(name=FACULTY_MANAGER_GROUP)
         self.person.user.groups.remove(faculty_group)
-        faculty_group = Group.objects.get(name=CENTRAL_MANAGER_GROUP)
-        self.person.user.groups.remove(faculty_group)
+        central_group = Group.objects.get(name=CENTRAL_MANAGER_GROUP)
+        self.person.user.groups.remove(central_group)
 
 
 class TestFullFormIsValid(LearningUnitFullFormContextMixin):
