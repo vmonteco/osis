@@ -157,10 +157,8 @@ def _update_training(request, education_group_year, root):
     })
 
 
-# TODO :: unit test on postponement
 class CertificateAimAutocomplete(autocomplete.Select2QuerySetView):
     def get_queryset(self):
-        # Don't forget to filter out results depending on the visitor !
         if not self.request.user.is_authenticated():
             return CertificateAim.objects.none()
 
@@ -180,16 +178,8 @@ class CertificateAimAutocomplete(autocomplete.Select2QuerySetView):
 
         return qs
 
-    def _get_label(self, result):
-        # truncated_description = result.description[0:min(20, len(result.description))]
-        # return format_html('<p title="{}">{} - {} {}...</p>', result.description, result.section, result.code, truncated_description)
-        return format_html('<p>{} - {} {}</p>', result.section, result.code, result.description)
-
     def get_result_label(self, result):
-        return self._get_label(result)
-
-    def get_selected_result_label(self, result):
-        return self._get_label(result)
+        return format_html('<p>{} - {} {}</p>', result.section, result.code, result.description)
 
 
 def _update_mini_training(request, education_group_year, root):

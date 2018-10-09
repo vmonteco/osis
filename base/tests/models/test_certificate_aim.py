@@ -15,7 +15,7 @@
 #
 #    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 #    GNU General Public License for more details.
 #
 #    A copy of this license - GNU General Public License - is available
@@ -24,22 +24,18 @@
 #
 ##############################################################################
 from django.test import TestCase
-
-from base.forms.utils.choice_field import add_blank
-from base.models.learning_unit_year import LearningUnitYear
-from base.tests.factories.learning_unit_year import LearningUnitYearFactory
+from base.tests.factories.certificate_aim import CertificateAimFactory
 
 
-class TestAddBlank(TestCase):
-    def test_add_blank_list(self):
-        result = add_blank([('yoda', 'jediMaster')])
-        self.assertEqual(result, [(None, '---------'), ('yoda', 'jediMaster')])
+class TestCertificateAim(TestCase):
+    def setUp(self):
+        self.certificate_aim = CertificateAimFactory(
+            section=9,
+            code=987,
+            description="Description of the certificate aim"
+        )
 
-    def test_add_blank_tuple(self):
-        result = add_blank((('yoda', 'jediMaster'),))
-        self.assertEqual(result, ((None, '---------'), ('yoda', 'jediMaster')))
-
-    def test_add_blank_queryset(self):
-        luy = LearningUnitYearFactory()
-        result = add_blank(LearningUnitYear.objects.all().values_list('id', 'acronym'))
-        self.assertEqual(result, [(None, '---------'), (luy.id, luy.acronym)])
+    def test__str__(self):
+        error_msg = "This __str__ representation is used into MultipleSelect (Django-autocomplete-light) " \
+                    "into view 'EducationGroupDiplomas.as_view()'"
+        self.assertEqual(str(self.certificate_aim), "9 - 987 Description of the certificate aim", error_msg)
