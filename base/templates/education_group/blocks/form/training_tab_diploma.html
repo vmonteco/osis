@@ -37,17 +37,36 @@
         {% bootstrap_label  label_certificate_aims %}
         <br>
 
-        <div class="col-md-4">
-            {% trans 'filter by section'|capfirst as label_section %}
-            <p>{{ label_section }} : </p>
-            {% bootstrap_field form_education_group_year.section show_label=False %}
+        <div class="row">
+            <div class="col-md-4">
+                {% trans 'filter by section'|capfirst as label_section %}
+                <p>{{ label_section }} : </p>
+                {% bootstrap_field form_education_group_year.section show_label=False %}
+            </div>
+            <div class="col-md-8"></div>
         </div>
         <br>
-        <div class="col-sm-12 col-md-12">
-            {{ form_education_group_year.certificate_aims }}
+        <div class="row">
+            <div class="col-sm-12 col-md-12">
+                {{ form_education_group_year.certificate_aims }}
+            </div>
         </div>
         <br>
     </div>
 
     <div class="col-md-6"></div>
 </div>
+
+{{ form_education_group_year.media }}
+
+<style>
+    /* Overrided to get items in list */
+    .select2-container .select2-selection--multiple {
+        box-sizing: border-box;
+        cursor: pointer;
+        display: inline-grid;
+        min-height: 32px;
+        user-select: none;
+        -webkit-user-select: none;
+    }
+</style>
