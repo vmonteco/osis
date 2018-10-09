@@ -49,32 +49,7 @@
                 </div>
 
                 <div role="tabpanel" class="tab-pane" id="diplomas_certificates">
-                    <div class="row">
-                        <div class="col-md-6">
-                                {% bootstrap_field form_education_group_year.joint_diploma %}
-                            <br>
-                                {% bootstrap_field form_education_group_year.diploma_printing_title %}
-                            <br>
-                                {% bootstrap_field form_education_group_year.professional_title %}
-                            <br>
-                                {% trans 'certificate aims'|capfirst as label_certificate_aims %}
-                                {% bootstrap_label  label_certificate_aims %}
-                                <br>
-
-                                <div class="col-md-4">
-                                    {% trans 'filter by section'|capfirst as label_section %}
-                                    <p>{{ label_section }} : </p>
-                                    {% bootstrap_field form_education_group_year.section show_label=False %}
-                                </div>
-                                <br>
-                                <div class="col-sm-12 col-md-12">
-                                    {{ form_education_group_year.certificate_aims }}
-                                </div>
-                            <br>
-                        </div>
-
-                        <div class="col-md-6"></div>
-                    </div>
+                    {% include "education_group/blocks/form/training_tab_diploma.html" %}
                 </div>
             </div>
         </div>
