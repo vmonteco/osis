@@ -183,7 +183,8 @@ def _duplicate_entity_container_year(new_lcy, new_academic_year):
 
 def _duplicate_learning_component_year(new_learn_container_year, new_learn_unit_year):
     for old_component in learning_component_year.find_by_learning_container_year(new_learn_container_year.copied_from):
-        if not LearningUnitComponent.objects.filter(learning_component_year__type=old_component.type, learning_unit_year=new_learn_unit_year).exists():
+        if not LearningUnitComponent.objects.filter(
+                learning_component_year__type=old_component.type, learning_unit_year=new_learn_unit_year).exists():
             new_component = update_related_object(old_component, 'learning_container_year', new_learn_container_year)
             _duplicate_learning_class_year(new_component)
             _duplicate_learning_unit_component(new_component, new_learn_unit_year)
