@@ -163,6 +163,9 @@ admin.site.register(organization.Organization,
 admin.site.register(organization_address.OrganizationAddress,
                     organization_address.OrganizationAddressAdmin)
 
+admin.site.register(organization_version.OrganizationVersion,
+                    organization_version.OrganizationVersionAdmin)
+
 admin.site.register(person.Person,
                     person.PersonAdmin)
 

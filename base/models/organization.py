@@ -34,6 +34,14 @@ class OrganizationAdmin(SerializableModelAdmin):
     search_fields = ['acronym', 'name']
 
 
+class OrganizationWithVersionManager(models.Manager):
+    """
+    This manager will automatically load all related version of this organization
+    """
+    def get_queryset(self):
+        return super().get_queryset().prefetch_related("organization_version")
+
+
 class Organization(SerializableModel):
     external_id = models.CharField(max_length=100, blank=True, null=True, db_index=True)
     changed = models.DateTimeField(null=True, auto_now=True)
@@ -47,6 +55,8 @@ class Organization(SerializableModel):
     end_date = models.DateTimeField(null=True)
     prefix = models.CharField(max_length=30, blank=True, null=True)
     logo = models.ImageField(upload_to='organization_logos', null=True, blank=True)
+
+    objects_version = OrganizationWithVersionManager()
 
     def __str__(self):
         return self.name
