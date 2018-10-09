@@ -600,7 +600,7 @@ class TestCertificateAimAutocomplete(TestCase):
         self._assert_result_is_correct(response)
 
     def test_assert_searching_on_description(self):
-        # When searching on "code"
+        # When searching on "description"
         self.client.force_login(user=self.super_user)
         response = self.client.get(self.url, data={'q': 'descr'})
         self._assert_result_is_correct(response)
