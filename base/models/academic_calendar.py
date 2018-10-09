@@ -65,6 +65,11 @@ class AcademicCalendarQuerySet(models.QuerySet):
 
         return self.filter(start_date__lte=date, end_date__gt=date)
 
+    def starting_within(self, days=0, weeks=0):
+        today = timezone.now()
+        today_with_range = today + timezone.timedelta(days=days, weeks=weeks)
+        return self.filter(start_date__range=(today, today_with_range))
+
 
 class AcademicCalendar(SerializableModel):
     external_id = models.CharField(max_length=100, blank=True, null=True, db_index=True)
@@ -100,6 +105,8 @@ class AcademicCalendar(SerializableModel):
             return academic_calendar_type.ACADEMIC_CATEGORY
         elif self.reference in _list_types(academic_calendar_type.PROJECT_CALENDAR_TYPES):
             return academic_calendar_type.PROJECT_CATEGORY
+        elif self.reference in _list_types(academic_calendar_type.AD_HOC_CALENDAR_TYPES):
+            return academic_calendar_type.AD_HOC_CATEGORY
         return ''
 
     def __str__(self):

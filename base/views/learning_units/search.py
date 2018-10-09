@@ -70,7 +70,7 @@ def learning_units_search(request, search_type):
     form = LearningUnitYearForm(request.GET or None,
                                 service_course_search=service_course_search,
                                 borrowed_course_search=borrowed_course_search,
-                                initial={'academic_year_id': current_academic_year()})
+                                initial={'academic_year_id': starting_academic_year()})
     found_learning_units = []
     try:
         if form.is_valid():
