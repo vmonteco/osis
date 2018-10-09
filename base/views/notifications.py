@@ -15,7 +15,7 @@
 #
 #    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #    GNU General Public License for more details.
 #
 #    A copy of this license - GNU General Public License - is available
@@ -23,25 +23,18 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import factory.fuzzy
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse
+from django.views.decorators.http import require_POST
 
-from .text_label import TextLabelFactory
-
-
-class TranslatedTextFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = "cms.TranslatedText"
-
-    language = 'fr-be'  # French default
-    text_label = factory.SubFactory(TextLabelFactory)
-    entity = factory.fuzzy.FuzzyText(prefix="Entity ", length=15)
-    reference = factory.fuzzy.FuzzyInteger(1, 10)
-    text = None
+from base.utils import notifications
+from osis_common.decorators.ajax import ajax_required
 
 
-class TranslatedTextRandomFactory(TranslatedTextFactory):
-    text = factory.Faker('paragraph', nb_sentences=3, variable_nb_sentences=True, ext_word_list=None)
-
-
-class EnglishTranslatedTextRandomFactory(TranslatedTextRandomFactory):
-    language = 'en'
+@login_required
+@ajax_required
+@require_POST
+def clear_user_notifications(request):
+    user = request.user
+    notifications.clear_user_notifications(user)
+    return HttpResponse()

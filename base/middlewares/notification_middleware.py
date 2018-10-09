@@ -15,7 +15,7 @@
 #
 #    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #    GNU General Public License for more details.
 #
 #    A copy of this license - GNU General Public License - is available
@@ -23,25 +23,37 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import factory.fuzzy
+import datetime
 
-from .text_label import TextLabelFactory
+from notifications.signals import notify
 
+from base.models.academic_calendar import AcademicCalendar
+from base.utils.notifications import get_notifications_last_date_read_for_user, \
+    set_notifications_last_read_as_today_for_user, are_notifications_already_loaded
 
-class TranslatedTextFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = "cms.TranslatedText"
-
-    language = 'fr-be'  # French default
-    text_label = factory.SubFactory(TextLabelFactory)
-    entity = factory.fuzzy.FuzzyText(prefix="Entity ", length=15)
-    reference = factory.fuzzy.FuzzyInteger(1, 10)
-    text = None
+ALERT_WEEK = 2
 
 
-class TranslatedTextRandomFactory(TranslatedTextFactory):
-    text = factory.Faker('paragraph', nb_sentences=3, variable_nb_sentences=True, ext_word_list=None)
+class NotificationMiddleware(object):
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        if not are_notifications_already_loaded(request.user):
+            send_academic_calendar_notifications(request.user)
+
+        response = self.get_response(request)
+        return response
 
 
-class EnglishTranslatedTextRandomFactory(TranslatedTextRandomFactory):
-    language = 'en'
+def send_academic_calendar_notifications(user):
+    date_last_read = get_notifications_last_date_read_for_user(user)
+    ac_qs = AcademicCalendar.objects.starting_within(weeks=ALERT_WEEK).order_by("start_date", "end_date")
+
+    if date_last_read:
+        ac_qs = ac_qs.filter(start_date__gt=date_last_read+datetime.timedelta(weeks=ALERT_WEEK))
+
+    for ac_obj in ac_qs:
+        notify.send(ac_obj, recipient=user, verb=str(ac_obj))
+
+    set_notifications_last_read_as_today_for_user(user)
