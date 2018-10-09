@@ -23,16 +23,28 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+import datetime
+
 import factory
-from base.models.enums import organization_type
+from factory.fuzzy import FuzzyDate
+
+from base.tests.factories.organization import OrganizationFactory
 from osis_common.utils.datetime import get_tzinfo
 
 
-class OrganizationFactory(factory.DjangoModelFactory):
+class OrganizationVersionFactory(factory.DjangoModelFactory):
     class Meta:
-        model = 'base.Organization'
+        model = 'base.OrganizationVersion'
 
     external_id = factory.Faker('text', max_nb_chars=100)
     changed = factory.Faker('date_time_this_month', tzinfo=get_tzinfo())
 
-    type = factory.Iterator(organization_type.ORGANIZATION_TYPE, getter=lambda c: c[0])
+    name = factory.Faker('text', max_nb_chars=255)
+    acronym = factory.Faker('text', max_nb_chars=15)
+    website = factory.Faker('url')
+    prefix = factory.Faker('text', max_nb_chars=30)
+
+    start_date = FuzzyDate(datetime.date(2015, 1, 1),
+                           datetime.date(2015, 6, 30)).fuzz()
+
+    organization = factory.SubFactory(OrganizationFactory)

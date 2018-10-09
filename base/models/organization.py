@@ -39,7 +39,7 @@ class OrganizationWithVersionManager(models.Manager):
     This manager will automatically load all related version of this organization
     """
     def get_queryset(self):
-        return super().get_queryset().prefetch_related("organization_version")
+        return super().get_queryset().prefetch_related("organizationversion_set")
 
 
 class Organization(SerializableModel):

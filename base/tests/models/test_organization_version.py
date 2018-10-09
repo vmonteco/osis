@@ -1,6 +1,6 @@
 ##############################################################################
 #
-# OSIS stands for Open Student Information System. It's an application
+#    OSIS stands for Open Student Information System. It's an application
 #    designed to manage the core business of higher education institutions,
 #    such as universities, faculties, institutes and professional schools.
 #    The core business involves the administration of students, teachers,
@@ -23,16 +23,23 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import factory
-from base.models.enums import organization_type
-from osis_common.utils.datetime import get_tzinfo
+
+from django.test import TestCase
+
+from base.models.organization import Organization
+from base.tests.factories.organization import OrganizationFactory
+from base.tests.factories.organization_version import OrganizationVersionFactory
 
 
-class OrganizationFactory(factory.DjangoModelFactory):
-    class Meta:
-        model = 'base.Organization'
+class OrganizationVersionTest(TestCase):
+    def setUp(self):
+        self.organization = OrganizationFactory()
+        self.organization_version_1 = OrganizationVersionFactory(organization=self.organization)
+        self.organization_version_2 = OrganizationVersionFactory(organization=self.organization)
+        self.organization_version_3 = OrganizationVersionFactory(organization=self.organization)
+        self.organization_version_4 = OrganizationVersionFactory(organization=self.organization)
 
-    external_id = factory.Faker('text', max_nb_chars=100)
-    changed = factory.Faker('date_time_this_month', tzinfo=get_tzinfo())
-
-    type = factory.Iterator(organization_type.ORGANIZATION_TYPE, getter=lambda c: c[0])
+    def test_objects_version_manager(self):
+        """ Objects version manager has to prefetch organization_version """
+        with self.assertNumQueries(2):
+            Organization.objects_version.get(pk=self.organization.pk)
