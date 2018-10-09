@@ -79,6 +79,7 @@ INSTALLED_APPS = (
     'ajax_select',
     'django_celery_beat',
     'django_celery_results',
+    'notifications',
 )
 
 MIDDLEWARE = (
@@ -93,6 +94,7 @@ MIDDLEWARE = (
     'django.middleware.security.SecurityMiddleware',
     'base.middlewares.extra_http_responses_midleware.ExtraHttpResponsesMiddleware',
     'waffle.middleware.WaffleMiddleware',
+    'base.middlewares.notification_middleware.NotificationMiddleware',
 )
 
 INTERNAL_IPS = ()
@@ -413,3 +415,8 @@ if CACHE_ENABLED:
     }
 
 WAFFLE_FLAG_DEFAULT = os.environ.get("WAFFLE_FLAG_DEFAULT", "False").lower() == 'true'
+
+
+DJANGO_NOTIFICATIONS_CONFIG = {
+    'SOFT_DELETE': True
+}

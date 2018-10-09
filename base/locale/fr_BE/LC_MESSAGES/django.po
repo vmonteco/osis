@@ -4007,6 +4007,9 @@ msgstr "Accès direct"
 msgid "Access with additional training"
 msgstr "Accès moyennant compléments de formation"
 
+msgid "%(number_notifications)s notification(s)"
+msgstr "%(number_notifications)s notification(s)"
+
 msgid "Producing certificat"
 msgstr "Production du diplôme / certificat"
 
