@@ -39,7 +39,7 @@ class EntitiesVersionChoiceField(forms.ModelChoiceField):
     entity_version = None
 
     def label_from_instance(self, obj):
-        return obj.acronym
+        return obj.verbose_title
 
     def clean(self, value):
         ev_data = super().clean(value)
@@ -50,6 +50,7 @@ class EntitiesVersionChoiceField(forms.ModelChoiceField):
 class EntityContainerYearModelForm(forms.ModelForm):
     entity = EntitiesVersionChoiceField(queryset=find_pedagogical_entities_version())
     entity_type = ''
+    country = forms.IntegerField()
 
     def __init__(self, *args, **kwargs):
         self.person = kwargs.pop('person')

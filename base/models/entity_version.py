@@ -187,6 +187,11 @@ class EntityVersion(SerializableModel):
         now = datetime.datetime.now().date()
         return (not self.end_date) or (self.end_date and self.start_date < now < self.end_date)
 
+    @property
+    def verbose_title(self):
+        complete_title = ' - '.join(filter(None, [self.acronym, self.title]))
+        return complete_title
+
     def can_save_entity_version(self):
         return self.count_entity_versions_same_entity_overlapping_dates() == 0 and \
                self.count_entity_versions_same_acronym_overlapping_dates() == 0 and \
