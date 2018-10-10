@@ -33,6 +33,7 @@ from base.models.entity_version import find_pedagogical_entities_version, get_la
 from base.models.enums.entity_container_year_link_type import REQUIREMENT_ENTITY, ALLOCATION_ENTITY, \
     ADDITIONAL_REQUIREMENT_ENTITY_1, ADDITIONAL_REQUIREMENT_ENTITY_2, ENTITY_TYPE_LIST
 from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES_MUST_HAVE_SAME_ENTITIES
+from reference.models.country import Country
 
 
 class EntitiesVersionChoiceField(forms.ModelChoiceField):
@@ -50,6 +51,9 @@ class EntitiesVersionChoiceField(forms.ModelChoiceField):
 class EntityContainerYearModelForm(forms.ModelForm):
     entity = EntitiesVersionChoiceField(queryset=find_pedagogical_entities_version())
     entity_type = ''
+    country = forms.ModelChoiceField(queryset=Country.objects.filter(entity__isnull=False)
+                                     .distinct().order_by('name'),
+                                     required=False, label=_("country"))
 
     def __init__(self, *args, **kwargs):
         self.person = kwargs.pop('person')
@@ -119,9 +123,9 @@ class Additional1EntityContainerYearModelForm(EntityContainerYearModelForm):
         field.widget.attrs = {
             'onchange':
                 'updateAdditionalEntityEditability(this.value, "id_additional_requirement_entity_2", false)',
-                'disable': 'disable',
-                'id': 'id_additional_requirement_entity_1'
-            }
+            'disable': 'disable',
+            'id': 'id_additional_requirement_entity_1'
+        }
 
 
 class Additional2EntityContainerYearModelForm(EntityContainerYearModelForm):

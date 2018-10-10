@@ -106,10 +106,29 @@
                         <div class="panel panel-default">
                             <div class="panel-body">
                                 {% bootstrap_field learning_unit_year_form.campus %}
-                                {% bootstrap_field entity_container_form.0.entity %}
-                                {% bootstrap_field entity_container_form.1.entity %}
-                                {% bootstrap_field entity_container_form.2.entity %}
-                                {% bootstrap_field entity_container_form.3.entity %}
+                                <div class="row">
+                                    {% bootstrap_field entity_container_form.0.entity form_group_class="col-md-9" %}
+                                    {% bootstrap_field entity_container_form.0.country form_group_class="col-md-3" %}
+                                </div>
+                                <br>
+                                <div class="row">
+                                    {% bootstrap_field entity_container_form.1.entity form_group_class="col-md-9" %}
+                                    <br>
+                                    {% bootstrap_field entity_container_form.1.country show_label=False form_group_class="col-md-3" %}
+                                </div>
+                                <br>
+                                <div class="row">
+                                    {% bootstrap_field entity_container_form.2.entity form_group_class="col-md-9" %}
+                                    <br>
+                                    {% bootstrap_field entity_container_form.2.country show_label=False form_group_class="col-md-3" %}
+                                </div>
+                                <br>
+                                <div class="row">
+                                    {% bootstrap_field entity_container_form.3.entity form_group_class="col-md-9" %}
+                                    <br>
+                                    {% bootstrap_field entity_container_form.3.country show_label=False form_group_class="col-md-3" %}
+                                </div>
+                                <br>
                                 <div class="row">
                                     {% bootstrap_field learning_unit_year_form.academic_year form_group_class="col-md-7" %}
                                     {% if learning_unit_form.end_year %}
