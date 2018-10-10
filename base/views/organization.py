@@ -41,7 +41,7 @@ from . import layout
 class OrganizationSearch(PermissionRequiredMixin, ListView):
     model = OrganizationVersion
     paginate_by = 20
-    template_name = "organizations.html"
+    template_name = "organization/organizations.html"
 
     filter_search = OrganizationFilter
     permission_required = 'base.can_access_organization'
@@ -60,7 +60,7 @@ class OrganizationSearch(PermissionRequiredMixin, ListView):
 
 class DetailOrganizationVersion(PermissionRequiredMixin, DetailView):
     model = OrganizationVersion
-    template_name = "organization.html"
+    template_name = "organization/organization.html"
 
     permission_required = 'base.can_access_organization'
     raise_exception = True
@@ -68,20 +68,25 @@ class DetailOrganizationVersion(PermissionRequiredMixin, DetailView):
     pk_url_kwarg = "organization_id"
 
 
-class UpdateOrganizationVersion(UpdateView):
+class UpdateOrganizationVersion(PermissionRequiredMixin, UpdateView):
     model = OrganizationVersion
+    fields = ("acronym", "name", "website", "prefix", "start_date", "end_date", "logo")
+    template_name = "organization/organization_form.html"
+    pk_url_kwarg = "organization_id"
+
+    permission_required = 'base.can_access_organization'
+    raise_exception = True
 
 
-
-@login_required
-@permission_required('base.can_access_organization', raise_exception=True)
-def organization_read(request, organization_id):
-    object = get_object_or_404(Organization, pk=organization_id)
-
-    structures = object.structure_set.filter(part_of__isnull=True)
-    organization_addresses = object.organizationaddress_set.order_by("label")
-    campus = object.campus_set.order_by("name")
-    return render(request, "organization.html", locals())
+# @login_required
+# @permission_required('base.can_access_organization', raise_exception=True)
+# def organization_read(request, organization_id):
+#     object = get_object_or_404(Organization, pk=organization_id)
+#
+#     structures = object.structure_set.filter(part_of__isnull=True)
+#     organization_addresses = object.organizationaddress_set.order_by("label")
+#     campus = object.campus_set.order_by("name")
+#     return render(request, "organization/organization.html", locals())
 
 
 # @login_required

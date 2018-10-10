@@ -54,7 +54,7 @@
                 <div id="tab_identification" class="tab-pane fade in active">
                     <br>
                     <div class="row">
-                        <img class="img-responsive col-md-2" src="{{ object.logo.url }}" alt="logo">
+                        <img class="img-responsive col-md-2" src="{{ object.logo.url|default_if_none:'#' }}" alt="no-logo">
 
                         <dl class="col-md-4">
                             <dt>{% trans 'organization_name'%}</dt>
@@ -106,9 +106,7 @@
 
                     {% if request.user.is_superuser %}
                         <div class="pull-right">
-                            {% url 'organization_edit' object.id as url_identification_edit %}
-
-                            <a href="{{ url_identification_edit }}" title="{% trans 'edit' %}"
+                            <a href="{% url 'organization_edit' object.id %}" title="{% trans 'edit' %}"
                                class="btn btn-primary" role="button" id="bt_organization_edit">
                                 <span class="glyphicon glyphicon-edit" aria-hidden="true"></span> {% trans 'edit' %}
                             </a>

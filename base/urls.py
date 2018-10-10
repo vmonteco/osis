@@ -225,12 +225,10 @@ urlpatterns = [
     url(r'^organizations/', include([
         url(r'^$', organization.OrganizationSearch.as_view(), name='organizations'),
         url(r'^search$', organization.OrganizationSearch.as_view(), name='organizations_search'),
-        # url(r'^save/$', organization.organization_new, name='organization_save_new'),
         # url(r'^create/$', organization.organization_create, name='organization_create'),
         url(r'^(?P<organization_id>[0-9]+)/', include([
             url(r'^$', organization.DetailOrganizationVersion.as_view(), name='organization_read'),
-            # url(r'^edit/$', organization.organization_edit, name='organization_edit'),
-            # url(r'^save/$', organization.organization_save, name='organization_save'),
+            url(r'^edit/$', organization.UpdateOrganizationVersion.as_view(), name='organization_edit'),
         ])),
     ])),
 
