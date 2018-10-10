@@ -25,22 +25,40 @@
 ##############################################################################
 import datetime
 import itertools
+import pickle
 import time
 
 from base.utils.cache import cache
-
-CACHE_NOTIFICATIONS_TIMEOUT = 1800  # seconds -> 30 min
-NOTIFICATIONS_UNREAD_KEY = "notifications_unread_user_{}"
-NOTIFICATIONS_READ_KEY = "notifications_read_user_{}"
+CACHE_NOTIFICATIONS_TIMEOUT = 300  # seconds -> 30 min
+NOTIFICATIONS_KEY = "notifications_unread_user_{}"
 NOTIFICATIONS_TIMESTAMP = "notifications_last_read_user_{}"
 
-READ_STATE = "read"
-UNREAD_STATE = "unread"
+def cache_queryset_function(function):
+    def wrapper(user, *args, **kwargs):
+        cache_key = make_notifications_cache_key(user)
+
+        pickled_qs = cache.get(cache_key)
+        if pickled_qs:
+            return pickle.loads(pickled_qs)
+
+        qs = function(user, *args, **kwargs)
+        cache.set(cache_key, pickle.dumps(qs), CACHE_NOTIFICATIONS_TIMEOUT)
+        return qs
+    return wrapper
 
 
+def invalidate_cache(function):
+    def wrapper(user, *args, **kwargs):
+        cache_key = make_notifications_cache_key(user)
+        cache.delete(cache_key)
+        return function(user, *args, **kwargs)
+    return wrapper
+
+
+@cache_queryset_function
 def get_user_notifications(user):
-    return list(itertools.chain(get_user_unread_notifications(user),
-                           get_user_read_notifications(user)))
+    return user.notifications.all().order_by("-unread")
+
 
 def get_user_unread_notifications(user):
     return user.notifications.unread()
@@ -50,12 +68,14 @@ def get_user_read_notifications(user):
     return user.notifications.read()
 
 
+@invalidate_cache
 def mark_notifications_as_read(user):
     user.notifications.mark_all_as_read()
 
 
+@invalidate_cache
 def clear_user_notifications(user):
-    user.notifications.mark_all_as_deleted()
+    user.notifications.all().delete()
 
 
 def get_notifications_last_time_read_for_user(user):
@@ -71,3 +91,7 @@ def set_notifications_last_read_as_now_for_user(user):
 
 def make_notifications_timestamp_cache_key(user):
     return NOTIFICATIONS_TIMESTAMP.format(user.pk)
+
+
+def make_notifications_cache_key(user):
+    return NOTIFICATIONS_KEY.format(user.pk)

@@ -24,6 +24,7 @@
 #
 ##############################################################################
 import logging
+import pickle
 from functools import wraps
 
 from django.conf import settings
@@ -87,3 +88,4 @@ def clear_cached_filter(request):
 
 def _get_filter_key(user, path):
     return "_".join([PREFIX_CACHE_KEY, str(user.id), path])
+
