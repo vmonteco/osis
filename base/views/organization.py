@@ -34,9 +34,9 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.generic import ListView, DetailView, UpdateView
 
 from base import models as mdl
-from base.models.organization_version import OrganizationFilter, OrganizationVersion
+from base.models.organization_version import OrganizationVersion
+from base.forms.organization import OrganizationFilter
 from reference import models as mdlref
-from . import layout
 
 
 class OrganizationSearch(PermissionRequiredMixin, ListView):

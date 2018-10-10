@@ -23,12 +23,15 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-# from django.forms import ModelForm
-#
-# from base.models.organization_version import OrganizationVersion
-#
-#
-# class OrganizationForm(ModelForm):
-#     class Meta:
-#         model = OrganizationVersion  # TODO in the first time we can create only version of organization
-#         fields = ['acronym', 'name', 'website', 'prefix']
+import django_filters
+
+from base.models.organization_version import OrganizationVersion
+
+
+class OrganizationFilter(django_filters.FilterSet):
+    acronym = django_filters.CharFilter(lookup_expr='icontains')
+    name = django_filters.CharFilter(lookup_expr='icontains')
+
+    class Meta:
+        model = OrganizationVersion
+        fields = ['name', 'acronym', 'organization__type']

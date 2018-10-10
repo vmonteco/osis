@@ -23,7 +23,6 @@
 #    see http://www.gnu.org/licenses/.
 #
 ############################################################################
-import django_filters
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
@@ -98,12 +97,3 @@ class OrganizationVersion(models.Model):
 
     def get_absolute_url(self):
         return reverse("organization_read", args=[self.pk])
-
-
-class OrganizationFilter(django_filters.FilterSet):
-    acronym = django_filters.CharFilter(lookup_expr='icontains')
-    name = django_filters.CharFilter(lookup_expr='icontains')
-
-    class Meta:
-        model = OrganizationVersion
-        fields = ['name', 'acronym', 'organization__type']
