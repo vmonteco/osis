@@ -28,10 +28,10 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.db.utils import IntegrityError
 from django.http import HttpResponseRedirect
-from django.shortcuts import redirect, render, get_object_or_404
+from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
-from django.views.generic import DetailView, UpdateView
+from django.views.generic import DetailView
 from django_filters.views import FilterView
 
 from base import models as mdl
@@ -63,7 +63,9 @@ class DetailOrganization(PermissionRequiredMixin, DetailView):
 
     def get_object(self, queryset=None):
         # TODO set onetoone link between entity and organization
-        return EntityVersion.objects.filter(parent__isnull=True, entity__organization=self.kwargs[self.pk_url_kwarg]).first()
+        return EntityVersion.objects.filter(
+            parent__isnull=True, entity__organization=self.kwargs[self.pk_url_kwarg]
+        ).first()
 
 
 @login_required
@@ -86,10 +88,14 @@ def organization_address_edit(request, organization_address_id):
     organization_address = mdl.organization_address.find_by_id(organization_address_id)
     organization_id = organization_address.organization.id
     countries = mdlref.country.find_all()
-    return layout.render(request, "organization/organization_address_form.html",
-                  {'organization_address': organization_address,
-                   'organization_id': organization_id,
-                   'countries': countries})
+    return layout.render(
+        request, "organization/organization_address_form.html",
+        {
+            'organization_address': organization_address,
+            'organization_id': organization_id,
+            'countries': countries
+        }
+    )
 
 
 @login_required
@@ -137,9 +143,9 @@ def organization_address_create(request, organization_address_id):
     organization = mdl.organization.find_by_id(organization_address_id)
     countries = mdlref.country.find_all()
     return layout.render(request, "organization/organization_address_form.html",
-                  {'organization_address': organization_address,
-                   'organization_id': organization.id,
-                   'countries': countries})
+                         {'organization_address': organization_address,
+                          'organization_id': organization.id,
+                          'countries': countries})
 
 
 @login_required
