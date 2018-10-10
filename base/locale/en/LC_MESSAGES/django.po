@@ -4000,7 +4000,7 @@ msgstr ""
 msgid "Access with additional training"
 msgstr ""
 
-msgid "%(number_notifications)s notification(s)"
+msgid "%(number_notifications)s unread notification(s)"
 msgstr ""
 
 msgid "Producing certificat"

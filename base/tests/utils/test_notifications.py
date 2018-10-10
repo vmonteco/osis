@@ -30,8 +30,8 @@ from django.test import TestCase
 
 from base.tests.factories.user import UserFactory
 from base.utils.cache import cache
-from base.utils.notifications import make_notifications_cache_key, are_notifications_already_loaded, \
-    get_notifications_last_date_read_for_user, set_notifications_last_read_as_today_for_user, clear_user_notifications, \
+from base.utils.notifications import make_notifications_unread_cache_key, are_notifications_already_loaded, \
+    get_notifications_last_time_read_for_user, set_notifications_last_read_as_now_for_user, clear_user_notifications, \
     get_notifications_in_cache, get_user_notifications
 
 
@@ -49,7 +49,7 @@ class TestNotificationsBaseClass(TestCase):
         self.set_cache_data(self.user_with_empty_data, [])
 
     def set_cache_data(self, user, data):
-        cache_key = make_notifications_cache_key(user)
+        cache_key = make_notifications_unread_cache_key(user)
         cache.set(cache_key, data)
 
     def tearDown(self):
@@ -88,10 +88,10 @@ class TestAreNotificationsAlreadyLoaded(TestNotificationsBaseClass):
 
 class TestCacheTimestamp(TestNotificationsBaseClass):
     def test_get_last_date_read_should_return_none_if_user_never_read_notifications_before(self):
-        self.assertIsNone(get_notifications_last_date_read_for_user(self.user_without_data))
+        self.assertIsNone(get_notifications_last_time_read_for_user(self.user_without_data))
 
     def test_return_date_last_set(self):
         today = datetime.date.today()
-        set_notifications_last_read_as_today_for_user(self.user_without_data)
+        set_notifications_last_read_as_now_for_user(self.user_without_data)
         self.assertEqual(today,
-                         get_notifications_last_date_read_for_user(self.user_without_data))
+                         get_notifications_last_time_read_for_user(self.user_without_data))
