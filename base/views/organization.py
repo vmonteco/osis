@@ -27,12 +27,13 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.db.utils import IntegrityError
-from django.shortcuts import redirect, get_object_or_404, render
+from django.http import HttpResponseRedirect
+from django.shortcuts import redirect, render
+from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import ListView, DetailView, UpdateView
 
 from base import models as mdl
-from base.models.organization import Organization
 from base.models.organization_version import OrganizationFilter, OrganizationVersion
 from reference import models as mdlref
 from . import layout
@@ -78,70 +79,18 @@ class UpdateOrganizationVersion(PermissionRequiredMixin, UpdateView):
     raise_exception = True
 
 
-# @login_required
-# @permission_required('base.can_access_organization', raise_exception=True)
-# def organization_read(request, organization_id):
-#     object = get_object_or_404(Organization, pk=organization_id)
-#
-#     structures = object.structure_set.filter(part_of__isnull=True)
-#     organization_addresses = object.organizationaddress_set.order_by("label")
-#     campus = object.campus_set.order_by("name")
-#     return render(request, "organization/organization.html", locals())
-
-
-# @login_required
-# @permission_required('base.can_access_organization', raise_exception=True)
-# def organization_new(request):
-#     return organization_save(request, None)
-#
-#
-# @login_required
-# @permission_required('base.can_access_organization', raise_exception=True)
-# def organization_save(request, organization_id):
-#     form = OrganizationForm(data=request.POST)
-#     if organization_id:
-#         organization = mdl.organization.find_by_id(organization_id)
-#     else:
-#         organization = mdl.organization.Organization()
-#
-#     # get the screen modifications
-#     organization.acronym = request.POST.get('acronym')
-#     organization.name = request.POST.get('name')
-#     organization.website = request.POST.get('website')
-#     organization.reference = request.POST.get('reference')
-#     organization.type = request.POST.get('type_choices')
-#
-#     if form.is_valid():
-#         organization.save()
-#         return HttpResponseRedirect(reverse('organization_read', kwargs={'organization_id': organization.id}))
-#     else:
-#         return layout.render(request, "organization_form.html", {'organization': organization,
-#                                                                  'form': form})
-#
-#
-# @login_required
-# @permission_required('base.can_access_organization', raise_exception=True)
-# def organization_edit(request, organization_id):
-#     organization = mdl.organization.find_by_id(organization_id)
-#     return layout.render(request, "organization_form.html", {'organization': organization,
-#                                                              'types': organization_type.ORGANIZATION_TYPE})
-#
-#
-# @login_required
-# @permission_required('base.can_access_organization', raise_exception=True)
-# def organization_create(request):
-#     organization = mdl.organization.Organization()
-#     return layout.render(request, "organization_form.html", {'organization': organization,
-#                                                              'types': organization_type.ORGANIZATION_TYPE})
-
-
 @login_required
 @permission_required('base.can_access_organization', raise_exception=True)
 def organization_address_read(request, organization_address_id):
     organization_address = mdl.organization_address.find_by_id(organization_address_id)
     organization_id = organization_address.organization.id
-    return layout.render(request, "organization_address.html", {'organization_address': organization_address,
-                                                                'organization_id': organization_id})
+    return render(
+        request, "organization/organization_address.html",
+        {
+            'organization_address': organization_address,
+            'organization_id': organization_id
+        }
+    )
 
 
 @login_required
@@ -150,9 +99,10 @@ def organization_address_edit(request, organization_address_id):
     organization_address = mdl.organization_address.find_by_id(organization_address_id)
     organization_id = organization_address.organization.id
     countries = mdlref.country.find_all()
-    return layout.render(request, "organization_address_form.html", {'organization_address': organization_address,
-                                                                     'organization_id': organization_id,
-                                                                     'countries': countries})
+    return render(request, "organization/organization_address_form.html",
+                  {'organization_address': organization_address,
+                   'organization_id': organization_id,
+                   'countries': countries})
 
 
 @login_required
@@ -178,7 +128,9 @@ def organization_address_save(request, organization_address_id):
 
     organization_address.save()
 
-    return organization_read(request, organization_address.organization.id)
+    return HttpResponseRedirect(
+        reverse("organization_address_read", args=[organization_address.pk])
+    )
 
 
 @login_required
@@ -190,21 +142,24 @@ def organization_address_new(request):
         messages.error(request, _("organization_address_save_error"))
         return redirect('organizations')
 
+
 @login_required
 @permission_required('base.can_access_organization', raise_exception=True)
 def organization_address_create(request, organization_address_id):
     organization_address = mdl.organization_address.OrganizationAddress()
     organization = mdl.organization.find_by_id(organization_address_id)
     countries = mdlref.country.find_all()
-    return layout.render(request, "organization_address_form.html", {'organization_address': organization_address,
-                                                                     'organization_id': organization.id,
-                                                                     'countries': countries})
+    return render(request, "organization/organization_address_form.html",
+                  {'organization_address': organization_address,
+                   'organization_id': organization.id,
+                   'countries': countries})
 
 
 @login_required
 @permission_required('base.can_access_organization', raise_exception=True)
 def organization_address_delete(request, organization_address_id):
     organization_address = mdl.organization_address.find_by_id(organization_address_id)
-    organization = organization_address.organization
     organization_address.delete()
-    return organization_read(request, organization.id)
+    return HttpResponseRedirect(
+        reverse("organization_read", args=[organization_address.organization.latest_version.pk])
+    )

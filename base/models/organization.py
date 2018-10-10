@@ -53,7 +53,7 @@ class Organization(SerializableModel):
         choices=organization_type.ORGANIZATION_TYPE,
     )
 
-    objects_version = OrganizationWithVersionManager()
+    objects = OrganizationWithVersionManager()
 
     @cached_property
     def latest_version(self):

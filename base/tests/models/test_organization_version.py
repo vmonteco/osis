@@ -41,5 +41,5 @@ class OrganizationVersionTest(TestCase):
 
     def test_objects_version_manager(self):
         """ Objects version manager has to prefetch organization_version """
-        with self.assertNumQueries(2):
-            Organization.objects_version.get(pk=self.organization.pk)
+        with self.assertNumQueries(1):
+            Organization.objects.get(pk=self.organization.pk)
