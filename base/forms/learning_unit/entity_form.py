@@ -50,7 +50,6 @@ class EntitiesVersionChoiceField(forms.ModelChoiceField):
 class EntityContainerYearModelForm(forms.ModelForm):
     entity = EntitiesVersionChoiceField(queryset=find_pedagogical_entities_version())
     entity_type = ''
-    country = forms.IntegerField()
 
     def __init__(self, *args, **kwargs):
         self.person = kwargs.pop('person')
