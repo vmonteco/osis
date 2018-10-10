@@ -56,7 +56,6 @@ from base.tests.factories.group_element_year import GroupElementYearFactory
 from base.tests.factories.mandatary import MandataryFactory
 from base.tests.factories.offer_year_calendar import OfferYearCalendarFactory
 from base.tests.factories.organization import OrganizationFactory
-from base.tests.factories.organization_version import OrganizationVersionFactory
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.person_entity import PersonEntityFactory
 from base.tests.factories.program_manager import ProgramManagerFactory
@@ -131,7 +130,7 @@ class EducationGroupTestCase(TestCase):
         self.assertTrue(can_user_edit_administrative_data(self.user, self.education_group_year))
 
     def _create_basic_entity_structure(self):
-        self.organization = OrganizationVersionFactory(name="Université catholique de Louvain", acronym="UCL").organization
+        self.organization = OrganizationFactory()
         # Create entities UCL
         self.root_entity = _create_entity_and_version_related_to(self.organization, "UCL")
         # SST entity

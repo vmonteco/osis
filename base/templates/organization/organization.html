@@ -54,15 +54,17 @@
                 <div id="tab_identification" class="tab-pane fade in active">
                     <br>
                     <div class="row">
-                        <img class="img-responsive col-md-2" src="{{ object.logo.url|default_if_none:'#' }}" alt="no-logo">
-
+                        {% if object.logo %}
+                            <img class="img-responsive col-md-2" src="{{ object.logo.url|default_if_none:'#' }}" alt="no-logo">
+                        {% endif %}
                         <dl class="col-md-4">
+
                             <dt>{% trans 'organization_name'%}</dt>
-                            <dd>{{ object.name | title }}</dd>
+                            <dd>{{ object.title | title }}</dd>
                         </dl>
                         <dl class="col-md-4">
                             <dt>{% trans 'website' %}</dt>
-                            <dd><a href="{{ object.website }}">{{ object.website }}</a></dd>
+                            <dd><a href="{{ object.entity.website }}">{{ object.entity.website }}</a></dd>
                         </dl>
                         <dl class="col-md-2">
                             <dt>{% trans 'type' %}</dt>
@@ -78,7 +80,7 @@
                         </dl>
                     </div>
                     <br>
-                    {% with object.organization.organizationaddress_set.all as addresses %}
+                    {% with object.entity.organization.organizationaddress_set.all as addresses %}
                         {% if addresses %}
                             <label>{% trans 'address(ses)' %}</label>
                             <br>
@@ -104,14 +106,6 @@
                         {%endif%}
                     {% endwith %}
 
-                    {% if request.user.is_superuser %}
-                        <div class="pull-right">
-                            <a href="{% url 'organization_edit' object.id %}" title="{% trans 'edit' %}"
-                               class="btn btn-primary" role="button" id="bt_organization_edit">
-                                <span class="glyphicon glyphicon-edit" aria-hidden="true"></span> {% trans 'edit' %}
-                            </a>
-                        </div>
-                    {% endif %}
                 </div>
 
                 <div id="tab_campus_list" class="tab-pane fade">

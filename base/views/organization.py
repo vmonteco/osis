@@ -28,7 +28,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.db.utils import IntegrityError
 from django.http import HttpResponseRedirect
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect, render, get_object_or_404
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import DetailView, UpdateView
@@ -36,7 +36,9 @@ from django_filters.views import FilterView
 
 from base import models as mdl
 from base.forms.organization import OrganizationFilter
+from base.models.entity_version import EntityVersion
 from base.models.organization import Organization
+from base.views import layout
 from reference import models as mdlref
 
 
@@ -51,7 +53,7 @@ class OrganizationSearch(PermissionRequiredMixin, FilterView):
 
 
 class DetailOrganization(PermissionRequiredMixin, DetailView):
-    model = Organization
+    model = EntityVersion
     template_name = "organization/organization.html"
 
     permission_required = 'base.can_access_organization'
@@ -59,15 +61,9 @@ class DetailOrganization(PermissionRequiredMixin, DetailView):
 
     pk_url_kwarg = "organization_id"
 
-
-class UpdateOrganization(PermissionRequiredMixin, UpdateView):
-    model = Organization
-    fields = ("acronym", "name", "website", "prefix", "start_date", "end_date", "logo")
-    template_name = "organization/organization_form.html"
-    pk_url_kwarg = "organization_id"
-
-    permission_required = 'base.can_access_organization'
-    raise_exception = True
+    def get_object(self, queryset=None):
+        # TODO set onetoone link between entity and organization
+        return EntityVersion.objects.filter(parent__isnull=True, entity__organization=self.kwargs[self.pk_url_kwarg]).first()
 
 
 @login_required
@@ -90,7 +86,7 @@ def organization_address_edit(request, organization_address_id):
     organization_address = mdl.organization_address.find_by_id(organization_address_id)
     organization_id = organization_address.organization.id
     countries = mdlref.country.find_all()
-    return render(request, "organization/organization_address_form.html",
+    return layout.render(request, "organization/organization_address_form.html",
                   {'organization_address': organization_address,
                    'organization_id': organization_id,
                    'countries': countries})
@@ -140,7 +136,7 @@ def organization_address_create(request, organization_address_id):
     organization_address = mdl.organization_address.OrganizationAddress()
     organization = mdl.organization.find_by_id(organization_address_id)
     countries = mdlref.country.find_all()
-    return render(request, "organization/organization_address_form.html",
+    return layout.render(request, "organization/organization_address_form.html",
                   {'organization_address': organization_address,
                    'organization_id': organization.id,
                    'countries': countries})
@@ -152,5 +148,5 @@ def organization_address_delete(request, organization_address_id):
     organization_address = mdl.organization_address.find_by_id(organization_address_id)
     organization_address.delete()
     return HttpResponseRedirect(
-        reverse("organization_read", args=[organization_address.organization.latest_version.pk])
+        reverse("organization_read", args=[organization_address.organization.pk])
     )

@@ -166,8 +166,13 @@ class EntityVersion(SerializableModel):
     parent = models.ForeignKey('Entity', related_name='parent_of', blank=True, null=True)
     start_date = models.DateField(db_index=True)
     end_date = models.DateField(db_index=True, blank=True, null=True)
-    logo = models.ImageField(verbose_name=_("logo"), blank=True, null=True)
 
+    logo = models.ImageField(
+        upload_to='organization_logos',
+        null=True,
+        blank=True,
+        verbose_name=_("logo")
+    )
     objects = EntityVersionQuerySet.as_manager()
 
     def __str__(self):
