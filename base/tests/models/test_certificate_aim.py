@@ -15,7 +15,7 @@
 #
 #    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 #    GNU General Public License for more details.
 #
 #    A copy of this license - GNU General Public License - is available
@@ -23,15 +23,19 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.db.models import QuerySet
+from django.test import TestCase
+from base.tests.factories.certificate_aim import CertificateAimFactory
 
-BLANK_CHOICE = [(None, "---------")]
 
+class TestCertificateAim(TestCase):
+    def setUp(self):
+        self.certificate_aim = CertificateAimFactory(
+            section=9,
+            code=987,
+            description="Description of the certificate aim"
+        )
 
-def add_blank(choices):
-    if isinstance(choices, QuerySet):
-        choices = list(choices)
-    if isinstance(choices, list):
-        return BLANK_CHOICE + choices
-
-    return tuple(BLANK_CHOICE) + choices
+    def test__str__(self):
+        error_msg = "This __str__ representation is used into MultipleSelect (Django-autocomplete-light) " \
+                    "into view 'EducationGroupDiplomas.as_view()'"
+        self.assertEqual(str(self.certificate_aim), "9 - 987 Description of the certificate aim", error_msg)

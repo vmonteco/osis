@@ -446,6 +446,9 @@ msgstr "The file must be a valid 'XLSX' excel file"
 msgid "file_production_date"
 msgstr "Excel file production date"
 
+msgid "filter by section"
+msgstr ""
+
 msgid "students_deliberated_are_not_shown"
 msgstr "Students deliberated are not shown"
 
