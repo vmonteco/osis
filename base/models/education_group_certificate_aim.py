@@ -33,7 +33,7 @@ from osis_common.models.osis_model_admin import OsisModelAdmin
 class EducationGroupCertificateAimAdmin(OsisModelAdmin):
     list_display = ('education_group_year', 'certificate_aim', 'changed')
     search_fields = ('education_group_year__acronym', 'certificate_aim__description')
-    list_filter = ('certificate_aim__section',)
+    list_filter = ('certificate_aim__section', 'education_group_year__academic_year')
     ordering = ('education_group_year__acronym',)
 
 

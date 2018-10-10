@@ -402,6 +402,7 @@ class EducationGroupYear(models.Model):
         "base.CertificateAim",
         through="EducationGroupCertificateAim",
         related_name="education_group_years",
+        blank=True,
     )
 
     def __str__(self):
