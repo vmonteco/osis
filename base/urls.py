@@ -226,8 +226,8 @@ urlpatterns = [
         url(r'^$', organization.OrganizationSearch.as_view(), name='organizations'),
         url(r'^search$', organization.OrganizationSearch.as_view(), name='organizations_search'),
         url(r'^(?P<organization_id>[0-9]+)/', include([
-            url(r'^$', organization.DetailOrganizationVersion.as_view(), name='organization_read'),
-            url(r'^edit/$', organization.UpdateOrganizationVersion.as_view(), name='organization_edit'),
+            url(r'^$', organization.DetailOrganization.as_view(), name='organization_read'),
+            url(r'^edit/$', organization.UpdateOrganization.as_view(), name='organization_edit'),
         ])),
     ])),
 

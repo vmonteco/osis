@@ -35,6 +35,7 @@ from base.models.organization import Organization
 from base.models.organization_address import OrganizationAddress
 from base.tests.factories.organization import OrganizationFactory
 from base.tests.factories.organization_address import OrganizationAddressFactory
+from base.tests.factories.organization_version import OrganizationVersionFactory
 from base.tests.factories.user import SuperUserFactory
 from django.utils.translation import ugettext_lazy as _
 
@@ -43,12 +44,12 @@ class OrganizationViewTestCase(TestCase):
 
     def setUp(self):
         self.organization = OrganizationFactory()
+        OrganizationVersionFactory(organization=self.organization)
         self.a_superuser = SuperUserFactory()
         self.client.force_login(self.a_superuser)
 
     def test_organization_save(self):
-        from base.views.organization import organization_save
-        url = reverse(organization_save, args=[self.organization.id])
+        url = reverse("organization_edit", args=[self.organization.id])
         response = self.client.post(url, data=get_form_organization_save())
         self.organization.refresh_from_db()
         self.assertEqual(response.status_code, 302)
@@ -132,24 +133,16 @@ class OrganizationViewTestCase(TestCase):
         organization_address_new(request)
         self.assertEqual(str(request._messages._queued_messages[0]), _("organization_address_save_error"))
 
-    @mock.patch('base.views.layout.render')
-    def test_organizations_search(self, mock_render):
-        from base.views.organization import organizations_search
-        request_factory = RequestFactory()
-        request = request_factory.get(reverse(organizations_search), data={
+    def test_organizations_search(self):
+        response = self.client.get(reverse('organizations_search'), data={
             'acronym':  self.organization.acronym[:2]
         })
-        request.user = mock.Mock()
-        organizations_search(request)
 
-        self.assertTrue(mock_render.called)
-        request, template, context = mock_render.call_args[0]
-        self.assertEqual(template, "organizations.html")
-        self.assertEqual(context["organizations"][0], self.organization)
+        self.assertTemplateUsed(response, "organization/organizations.html")
+        self.assertEqual(response.context["filter.qs"][0], self.organization)
 
     @mock.patch('base.views.layout.render')
     def test_organization_create(self, mock_render):
-        from base.views.organization import organization_create
         request_factory = RequestFactory()
         request = request_factory.get(reverse(organization_create))
         request.user = mock.Mock()
@@ -162,7 +155,6 @@ class OrganizationViewTestCase(TestCase):
 
     @mock.patch('base.views.layout.render')
     def test_organization_edit(self, mock_render):
-        from base.views.organization import organization_edit
         request_factory = RequestFactory()
         request = request_factory.get(reverse(organization_edit, args=[self.organization.id]))
         request.user = mock.Mock()
@@ -175,12 +167,7 @@ class OrganizationViewTestCase(TestCase):
 
 
 def get_form_organization_save():
-    return {
-        "acronym": "NYU",
-        "name": "NEW-YORK UNIVERSITY",
-        "website": "www.nyu.edu",
-        "prefix": "NYUA"
-    }
+    return
 
 
 def get_form_organization_address_save():

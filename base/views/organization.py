@@ -31,36 +31,27 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
-from django.views.generic import ListView, DetailView, UpdateView
+from django.views.generic import DetailView, UpdateView
+from django_filters.views import FilterView
 
 from base import models as mdl
-from base.models.organization_version import OrganizationVersion
 from base.forms.organization import OrganizationFilter
+from base.models.organization import Organization
 from reference import models as mdlref
 
 
-class OrganizationSearch(PermissionRequiredMixin, ListView):
-    model = OrganizationVersion
+class OrganizationSearch(PermissionRequiredMixin, FilterView):
+    model = Organization
     paginate_by = 20
     template_name = "organization/organizations.html"
 
-    filter_search = OrganizationFilter
+    filterset_class = OrganizationFilter
     permission_required = 'base.can_access_organization'
     raise_exception = True
-    _org_filter = None
-
-    def get_queryset(self):
-        self._org_filter = self.filter_search(self.request.GET)
-        return self._org_filter.qs
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["filter"] = self._org_filter
-        return context
 
 
-class DetailOrganizationVersion(PermissionRequiredMixin, DetailView):
-    model = OrganizationVersion
+class DetailOrganization(PermissionRequiredMixin, DetailView):
+    model = Organization
     template_name = "organization/organization.html"
 
     permission_required = 'base.can_access_organization'
@@ -69,8 +60,8 @@ class DetailOrganizationVersion(PermissionRequiredMixin, DetailView):
     pk_url_kwarg = "organization_id"
 
 
-class UpdateOrganizationVersion(PermissionRequiredMixin, UpdateView):
-    model = OrganizationVersion
+class UpdateOrganization(PermissionRequiredMixin, UpdateView):
+    model = Organization
     fields = ("acronym", "name", "website", "prefix", "start_date", "end_date", "logo")
     template_name = "organization/organization_form.html"
     pk_url_kwarg = "organization_id"

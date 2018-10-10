@@ -26,21 +26,14 @@
 from django.db import models
 from django.utils.functional import cached_property
 
+from base.models.entity_version import EntityVersion
 from base.models.enums import organization_type
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
 
 
 class OrganizationAdmin(SerializableModelAdmin):
-    list_display = ('name', 'acronym', 'type', 'changed')
-    search_fields = ['acronym', 'name']
-
-
-class OrganizationWithVersionManager(models.Manager):
-    """
-    This manager will automatically load all related version of this organization
-    """
-    def get_queryset(self):
-        return super().get_queryset().prefetch_related("organizationversion_set")
+    list_display = ('title', 'acronym', 'type', 'changed')
+    search_fields = ['acronym', 'title']
 
 
 class Organization(SerializableModel):
@@ -53,11 +46,10 @@ class Organization(SerializableModel):
         choices=organization_type.ORGANIZATION_TYPE,
     )
 
-    objects = OrganizationWithVersionManager()
-
     @cached_property
     def latest_version(self):
-        return self.organizationversion_set.order_by("start_date").last()
+        return EntityVersion.objects.filter(parent__isnull=True, entity__organization=self)\
+            .order_by("start_date").last()
 
     def __str__(self):
         return "{}".format(self.latest_version)
@@ -68,8 +60,8 @@ class Organization(SerializableModel):
         )
 
     @cached_property
-    def name(self):
-        return getattr(self.latest_version, "name", "")
+    def title(self):
+        return getattr(self.latest_version, "title", "")
 
     @cached_property
     def logo(self):
@@ -78,10 +70,6 @@ class Organization(SerializableModel):
     @cached_property
     def acronym(self):
         return getattr(self.latest_version, "acronym", "")
-
-    @cached_property
-    def website(self):
-        return getattr(self.latest_version, "website", "")
 
     @property
     def country(self):

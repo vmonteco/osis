@@ -32,6 +32,7 @@ from django.db.models import Q
 from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.timezone import now
+from django.utils.translation import ugettext_lazy as _
 
 from base.models.entity import Entity
 from base.models.enums import entity_type
@@ -165,6 +166,7 @@ class EntityVersion(SerializableModel):
     parent = models.ForeignKey('Entity', related_name='parent_of', blank=True, null=True)
     start_date = models.DateField(db_index=True)
     end_date = models.DateField(db_index=True, blank=True, null=True)
+    logo = models.ImageField(verbose_name=_("logo"), blank=True, null=True)
 
     objects = EntityVersionQuerySet.as_manager()
 
