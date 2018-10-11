@@ -99,10 +99,6 @@ def search(acronym=None, title=None, type=None):
     return queryset
 
 
-def find_by_organization(organization):
-    return Structure.objects.filter(organization=organization, part_of__isnull=True)
-
-
 def find_by_type(type):
     return Structure.objects.filter(type__icontains=type)
 
