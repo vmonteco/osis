@@ -28,19 +28,16 @@ from django import forms
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
-from django.utils.functional import lazy
 from django.utils.html import format_html
 from django.utils.translation import ugettext_lazy as _
 from waffle.decorators import waffle_flag
 
+from base import models as mdl_base
 from base.forms.education_group.common import EducationGroupModelForm
 from base.forms.education_group.group import GroupForm
 from base.forms.education_group.mini_training import MiniTrainingForm
 from base.forms.education_group.training import TrainingForm
-from base import models as mdl_base
-from base.forms.utils.choice_field import BLANK_CHOICE, add_blank
 from base.models.certificate_aim import CertificateAim
-from base.models.education_group_certificate_aim import EducationGroupCertificateAim
 from base.models.education_group_year import EducationGroupYear
 from base.models.enums import education_group_categories
 from base.views import layout
@@ -97,9 +94,9 @@ def _common_success_redirect(request, form, root):
 
 
 def _get_success_message_for_update_education_group_year(root_id, education_group_year):
-    MSG_KEY = "Education group year <a href='%(link)s'> %(acronym)s (%(academic_year)s) </a> successfuly updated."
+    msg_key = "Education group year <a href='%(link)s'> %(acronym)s (%(academic_year)s) </a> successfuly updated."
     link = reverse("education_group_read", args=[root_id, education_group_year.id])
-    return _(MSG_KEY) % {
+    return _(msg_key) % {
         "link": link,
         "acronym": education_group_year.acronym,
         "academic_year": education_group_year.academic_year,

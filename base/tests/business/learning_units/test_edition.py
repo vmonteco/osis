@@ -96,7 +96,9 @@ class LearningUnitEditionTestCase(TestCase):
         LearningComponentYearFactory(acronym="PP", learning_container_year=a_learning_container_year)
         link_type = random.choice(ENTITY_TYPES_VOLUME)
 
-        business_edition.update_or_create_entity_container_year_with_components(an_entity, a_learning_container_year, link_type)
+        business_edition.update_or_create_entity_container_year_with_components(
+            an_entity, a_learning_container_year, link_type
+        )
         self.assertEqual(EntityContainerYear.objects.filter(
             learning_container_year=a_learning_container_year).count(), 1)
         self.assertEqual(EntityComponentYear.objects.filter(
@@ -112,7 +114,8 @@ class LearningUnitEditionTestCase(TestCase):
         LearningComponentYearFactory(acronym="PP", learning_container_year=a_learning_container_year)
         link_type = entity_container_year_link_type.ALLOCATION_ENTITY
 
-        business_edition.update_or_create_entity_container_year_with_components(an_entity, a_learning_container_year, link_type)
+        business_edition.update_or_create_entity_container_year_with_components(an_entity, a_learning_container_year,
+                                                                                link_type)
         self.assertEqual(EntityContainerYear.objects.filter(
             learning_container_year=a_learning_container_year).count(), 1)
         self.assertEqual(EntityComponentYear.objects.filter(
@@ -288,7 +291,7 @@ class LearningUnitEditionTestCase(TestCase):
 
         # No diff found
         error_list = business_edition._check_postponement_conflict_on_entity_container_year(
-            self.learning_container_year,another_learning_container_year
+            self.learning_container_year, another_learning_container_year
         )
         self.assertIsInstance(error_list, list)
         self.assertFalse(error_list)
@@ -506,11 +509,11 @@ class LearningUnitEditionTestCase(TestCase):
         self.assertEqual(len(error_list), 1)
         error_expected = _("There is not %(component_type)s for the learning unit %(acronym)s - %(year)s but exist "
                            "in %(existing_year)s") % {
-                            'component_type': _(learning_component_year_type.LECTURING),
-                            'acronym': self.learning_container_year.acronym,
-                            'year': self.next_academic_year,
-                            'existing_year': self.learning_container_year.academic_year
-                        }
+                             'component_type': _(learning_component_year_type.LECTURING),
+                             'acronym': self.learning_container_year.acronym,
+                             'year': self.next_academic_year,
+                             'existing_year': self.learning_container_year.academic_year
+                         }
         self.assertIn(error_expected, error_list)
 
     def test_check_postponement_conflict_on_volumes_case_no_practical_exercise_component_current_year(self):
@@ -551,12 +554,12 @@ class LearningUnitEditionTestCase(TestCase):
         self.assertIsInstance(error_list, list)
         self.assertEqual(len(error_list), 1)
         error_expected = _("There is not %(component_type)s for the learning unit %(acronym)s - %(year)s but exist "
-                               "in %(existing_year)s") % {
-                                'component_type': _(learning_component_year_type.PRACTICAL_EXERCISES),
-                                'acronym': self.learning_container_year.acronym,
-                                'year': self.learning_container_year.academic_year,
-                                'existing_year': self.next_academic_year
-                            }
+                           "in %(existing_year)s") % {
+                             'component_type': _(learning_component_year_type.PRACTICAL_EXERCISES),
+                             'acronym': self.learning_container_year.acronym,
+                             'year': self.learning_container_year.academic_year,
+                             'existing_year': self.next_academic_year
+                         }
         self.assertIn(error_expected, error_list)
 
     def test_check_postponement_conflict_on_all_sections(self):
@@ -588,7 +591,8 @@ class LearningUnitEditionTestCase(TestCase):
         self.assertEqual(len(error_list), 6)
 
 
-def _create_learning_unit_year_with_components(l_container, create_lecturing_component=True, create_pratical_component=True):
+def _create_learning_unit_year_with_components(l_container, create_lecturing_component=True,
+                                               create_pratical_component=True):
     language = LanguageFactory(code='EN', name='English')
     a_learning_unit_year = LearningUnitYearFactory(learning_container_year=l_container,
                                                    acronym=l_container.acronym,
@@ -642,8 +646,8 @@ def _create_entity_component_year(luy, component_type, entity_container_year, re
 
 
 def _delete_components(luy, component_type):
-    LearningUnitComponent.objects.filter(learning_unit_year=luy,learning_component_year__type=component_type)\
-                                 .delete()
+    LearningUnitComponent.objects.filter(learning_unit_year=luy, learning_component_year__type=component_type) \
+        .delete()
 
 
 def _build_copy(instance):
