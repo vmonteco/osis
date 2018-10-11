@@ -31,8 +31,8 @@ from django.test import TestCase
 from base.tests.factories.user import UserFactory
 from base.utils.cache import cache
 from base.utils.notifications import make_notifications_cache_key, are_notifications_already_loaded, \
-    get_notifications_last_date_read_for_user, set_notifications_last_read_as_today_for_user, clear_user_notifications, \
-    get_notifications_in_cache, get_user_notifications
+    get_notifications_last_date_read_for_user, set_notifications_last_read_as_today_for_user, \
+    clear_user_notifications, get_notifications_in_cache, get_user_notifications
 
 
 class TestNotificationsBaseClass(TestCase):
@@ -54,6 +54,7 @@ class TestNotificationsBaseClass(TestCase):
 
     def tearDown(self):
         cache.clear()
+
 
 class TestGetUserNotifications(TestNotificationsBaseClass):
     def test_when_data_in_cache(self):

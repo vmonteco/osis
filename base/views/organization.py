@@ -168,6 +168,7 @@ def organization_address_new(request):
         messages.error(request, _("organization_address_save_error"))
         return redirect('organizations')
 
+
 @login_required
 @permission_required('base.can_access_organization', raise_exception=True)
 def organization_address_create(request, organization_address_id):

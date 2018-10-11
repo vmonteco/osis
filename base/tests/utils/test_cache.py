@@ -38,7 +38,7 @@ class TestClearCachedFilter(TestCase):
         self.user = UserFactory()
 
         request_factory = RequestFactory()
-        self.request = request_factory.post(reverse("clear_filter"), data={'current_url':  self.url_cached})
+        self.request = request_factory.post(reverse("clear_filter"), data={'current_url': self.url_cached})
         self.request.user = self.user
 
     def tearDown(self):
@@ -60,7 +60,7 @@ class TestSaveAndRestoreFilterFromCache(TestCase):
     def setUp(self):
         cache.clear()
         self.data_cached = {
-            "name":"Axandre",
+            "name": "Axandre",
             "city": "City25",
         }
         self.user = UserFactory()
@@ -77,7 +77,7 @@ class TestSaveAndRestoreFilterFromCache(TestCase):
 
     def test_use_default_values_if_nothing_in_cache(self):
         default_values = {
-            "name":"A name",
+            "name": "A name",
             "city": "A city",
         }
         _restore_filter_from_cache(self.request_without_get_data, **default_values)
