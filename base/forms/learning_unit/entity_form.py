@@ -100,7 +100,9 @@ class RequirementEntityContainerYearModelForm(EntityContainerYearModelForm):
         field.widget.attrs = {
             'onchange': (
                 'updateAdditionalEntityEditability(this.value, "id_additional_requirement_entity_1", false);'
+                'updateAdditionalEntityEditability(this.value, "id_additional_requirement_entity_1_country", false);'
                 'updateAdditionalEntityEditability(this.value, "id_additional_requirement_entity_2", true);'
+                'updateAdditionalEntityEditability(this.value, "id_additional_requirement_entity_2_country", true);'
             ), 'id': 'id_requirement_entity'}
 
 
@@ -121,11 +123,15 @@ class Additional1EntityContainerYearModelForm(EntityContainerYearModelForm):
         field = self.fields['entity']
         field.required = False
         field.widget.attrs = {
-            'onchange':
-                'updateAdditionalEntityEditability(this.value, "id_additional_requirement_entity_2", false)',
-            'disable': 'disable',
+            'onchange': (
+                'updateAdditionalEntityEditability(this.value, "id_additional_requirement_entity_2", false);'
+                'updateAdditionalEntityEditability(this.value, "id_additional_requirement_entity_2_country", false);'
+            ),
             'id': 'id_additional_requirement_entity_1'
         }
+        country = self.fields['country']
+        country.required = False
+        country.widget.attrs = {'id': 'id_additional_requirement_entity_1_country'}
 
 
 class Additional2EntityContainerYearModelForm(EntityContainerYearModelForm):
@@ -135,7 +141,10 @@ class Additional2EntityContainerYearModelForm(EntityContainerYearModelForm):
         super().__init__(*args, **kwargs)
         field = self.fields['entity']
         field.required = False
-        field.widget.attrs = {'disable': 'disable', 'id': 'id_additional_requirement_entity_2'}
+        field.widget.attrs = {'id': 'id_additional_requirement_entity_2'}
+        country = self.fields['country']
+        country.required = False
+        country.widget.attrs = {'id': 'id_additional_requirement_entity_2_country'}
 
 
 class EntityContainerBaseForm:
