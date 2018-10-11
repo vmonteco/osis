@@ -130,7 +130,6 @@ class Additional1EntityContainerYearModelForm(EntityContainerYearModelForm):
             'id': 'id_additional_requirement_entity_1'
         }
         country = self.fields['country']
-        country.required = False
         country.widget.attrs = {'id': 'id_additional_requirement_entity_1_country'}
 
 
@@ -143,7 +142,6 @@ class Additional2EntityContainerYearModelForm(EntityContainerYearModelForm):
         field.required = False
         field.widget.attrs = {'id': 'id_additional_requirement_entity_2'}
         country = self.fields['country']
-        country.required = False
         country.widget.attrs = {'id': 'id_additional_requirement_entity_2_country'}
 
 
