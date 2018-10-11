@@ -39,7 +39,7 @@ class EntitiesVersionChoiceField(forms.ModelChoiceField):
     entity_version = None
 
     def label_from_instance(self, obj):
-        return obj.acronym
+        return obj.verbose_title
 
     def clean(self, value):
         ev_data = super().clean(value)
