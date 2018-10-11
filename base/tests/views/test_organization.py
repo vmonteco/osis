@@ -130,10 +130,6 @@ class OrganizationViewTestCase(TestCase):
         self.assertEqual(response.context["object_list"][0], self.organization)
 
 
-def get_form_organization_save():
-    return
-
-
 def get_form_organization_address_save():
     return {
         "organization_address_label": "Building",
