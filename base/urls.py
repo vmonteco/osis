@@ -47,8 +47,6 @@ from base.views.learning_units.external.search import filter_cities_by_country, 
 from base.views.learning_units.pedagogy.read import learning_unit_pedagogy
 from base.views.learning_units.pedagogy.update import learning_unit_pedagogy_edit, toggle_summary_locked
 from base.views.learning_units.proposal import create, update
-from base.views.learning_units.update import update_learning_unit, learning_unit_edition_end_date
-
 urlpatterns = [
     url(r'^$', common.home, name='home'),
 
@@ -261,10 +259,15 @@ urlpatterns = [
     ])),
     url(r'^ajax_select/', include(ajax_select_urls)),
     url(r'^clear_filter/$', base.views.search.clear_filter, name="clear_filter"),
-    url(r'^notifications/clear/$', base.views.notifications.clear_user_notifications, name="clear_notifications"),
-    url(r'^notifications/mark_as_read/$', base.views.notifications.mark_notifications_as_read, name="mark_notifications_as_read")
+    url(r'^notifications/', include([
+        url(r'^clear/$', base.views.notifications.clear_user_notifications, name="clear_notifications"),
+        url(r'^mark_as_read/$', base.views.notifications.mark_notifications_as_read, name="mark_notifications_as_read"),
+    ])),
+
 
 ]
+from base.views.learning_units.update import update_learning_unit, learning_unit_edition_end_date
+
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

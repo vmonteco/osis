@@ -33,6 +33,7 @@ CACHE_NOTIFICATIONS_TIMEOUT = 300  # seconds -> 5 min
 NOTIFICATIONS_KEY = "notifications_unread_user_{}"
 NOTIFICATIONS_TIMESTAMP = "notifications_last_read_user_{}"
 
+
 def cache_queryset_function(function):
     def wrapper(user, *args, **kwargs):
         cache_key = make_notifications_cache_key(user)
