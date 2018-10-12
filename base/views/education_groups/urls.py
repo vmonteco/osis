@@ -25,12 +25,13 @@
 ##############################################################################
 from django.conf.urls import url, include
 
-from base.views import education_group
+from base.views import education_group, coorganization
 from base.views.education_groups.group_element_year.read import pdf_content
 from base.views.education_groups.learning_unit import detail as learning_unit_detail, update as learning_unit_update
 from base.views.education_groups.select import education_group_select, learning_unit_select
 from . import search, create, detail, update, delete, group_element_year
 from .achievement.urls import urlpatterns as urlpatterns_achievement
+import base.views.filter
 
 urlpatterns = [
 
@@ -110,6 +111,8 @@ urlpatterns = [
         url(r'^delete/$', delete.DeleteGroupEducationView.as_view(), name="delete_education_group"),
         url(r'^group_content/', group_element_year.read.ReadEducationGroupTypeView.as_view(), name="group_content"),
         url(r'^pdf_content/(?P<language>[a-z\-]+)', pdf_content, name="pdf_content"),
+        url(r'^coorganization/create/$', coorganization.create, name="coorganization_create"),
+
     ])),
     url(r'^(?P<root_id>[0-9]+)/(?P<learning_unit_year_id>[0-9]+)/learning_unit/', include([
         url(r'^utilization/$',
@@ -122,4 +125,6 @@ urlpatterns = [
             learning_unit_update.LearningUnitPrerequisite.as_view(),
             name='learning_unit_prerequisite_update'),
     ])),
+    url(r'^filter_organizations_by_country$', base.views.filter.filter_organizations_by_country,
+        name='filter_organizations_by_country'),
 ]

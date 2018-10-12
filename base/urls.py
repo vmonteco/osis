@@ -43,7 +43,7 @@ from base.views import learning_unit, offer, common, institution, organization, 
     my_osis, entity, student, notifications
 from base.views import teaching_material
 from base.views.learning_units.external import create as create_external
-from base.views.learning_units.external.search import filter_cities_by_country, filter_campus_by_city
+from base.views.filter import filter_cities_by_country, filter_campus_by_city
 from base.views.learning_units.pedagogy.read import learning_unit_pedagogy
 from base.views.learning_units.pedagogy.update import learning_unit_pedagogy_edit, toggle_summary_locked
 from base.views.learning_units.proposal import create, update

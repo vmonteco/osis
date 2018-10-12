@@ -4021,3 +4021,6 @@ msgstr "Diplôme avec l'UCL"
 
 msgid "Reference institution"
 msgstr "Institution de référence"
+
+msgid "Coorganization"
+msgstr "Coorganization"

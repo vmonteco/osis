@@ -126,7 +126,7 @@
                         </tr>
                         {% for c in education_group_year.coorganizations %}
                             <tr>
-                                <td>
+                                <td><input type="hidden" id="coorganization_id_" value="{{ c.id }}">
                                     {{ c.address.country.name }} - {{ c.address.city }}<br>
                                     {{ c.organization.name }}
                                 </td>
@@ -184,8 +184,34 @@
                         {% endfor %}
                     </table>
                 {% endif %}
+                <a class="btn btn-info btn-sm coorganization-edit-btn" href="#"
+                   id="btn_edit"
+                   data-form="{% url 'coorganization_create' root_id=root.pk education_group_year_id=education_group_year.id %}"
+                   title="{% trans 'create' %}"
+                   style="margin-top:10px;">
+                    {% trans 'add_another' %}
+                </a>
+
+
+
             </div>
         </div>
     {% endwith %}
+    <div class="modal fade" id="coorganization_edit" role="dialog" data-backdrop="static"></div>
+{% endblock %}
+{% block script %}
+    <script>
+        $(document).ready(function(){
 
+        $(".coorganization-edit-btn").click(function(ev) {
+            ev.preventDefault();
+            var url = $(this).data("form");
+            var coorganization_edit_modal = $("#coorganization_edit");
+            coorganization_edit_modal.load(url, function () { // load the url into the modal
+                $(this).modal('show');
+            });
+            return false;
+        });
+        });
+    </script>
 {% endblock %}
