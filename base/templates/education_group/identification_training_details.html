@@ -131,7 +131,7 @@
                                 <tr>
                                     <td>
                                         {{ c.address.country.name }} - {{ c.address.city }}<br>
-                                        {{ c.organization.name }}
+                                        {{ c.organization.title }}
                                     </td>
                                     <td>{% if c.organization.logo %}
                                         <img src="{{ c.organization.logo.url }}" width="50px"/>
@@ -160,7 +160,7 @@
                                 <tr class="text-primary">
                                     <td>
                                         {{ c.address.country.name }} - {{ c.address.city }}<br>
-                                        {{ c.organization.name }}
+                                        {{ c.organization.title }}
                                     </td>
                                     <td>{% if c.organization.logo %}
                                         <img src="{{ c.organization.logo.url }}" width="50px"/>
