@@ -127,61 +127,61 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {% for c in education_group_year.coorganizations %}
+                            {% for coorganization in education_group_year.coorganizations %}
                                 <tr>
                                     <td>
-                                        {{ c.address.country.name }} - {{ c.address.city }}<br>
-                                        {{ c.organization.title }}
+                                        {{ coorganization.address.country.name }} - {{ coorganization.address.city }}<br>
+                                        {{ coorganization.organization.title }}
                                     </td>
-                                    <td>{% if c.organization.logo %}
-                                        <img src="{{ c.organization.logo.url }}" width="50px"/>
+                                    <td>{% if coorganization.organization.logo %}
+                                        <img src="{{ coorganization.organization.logo.url }}" width="50px"/>
                                     {% endif %}
                                     </td>
                                     <td>
-                                        {{ c.all_students | yesno | title}}
+                                        {{ coorganization.all_students | yesno | title}}
                                     </td>
                                     <td>
-                                        {{ c.enrollment_place | yesno | title}}
+                                        {{ coorganization.enrollment_place | yesno | title}}
                                     </td>
                                     <td>
-                                        {% if c.diploma and c.diploma != 'NOT_CONCERNED' %}
-                                            {% trans c.diploma %}
+                                        {% if coorganization.diploma %}
+                                            {% trans coorganization.diploma %}
                                         {% endif %}
                                     </td>
                                     <td>
-                                        {{ c.is_producing_cerfificate | yesno |title}}
+                                        {{ coorganization.is_producing_cerfificate | yesno |title}}
                                     </td>
                                     <td>
-                                        {{ c.is_producing_annexe | yesno | title}}
+                                        {{ coorganization.is_producing_annexe | yesno | title}}
                                     </td>
                                 </tr>
                             {% endfor %}
-                            {% for c in parent.coorganizations %}
+                            {% for coorganization in parent.coorganizations %}
                                 <tr class="text-primary">
                                     <td>
-                                        {{ c.address.country.name }} - {{ c.address.city }}<br>
-                                        {{ c.organization.title }}
+                                        {{ coorganization.address.country.name }} - {{ coorganization.address.city }}<br>
+                                        {{ coorganization.organization.title }}
                                     </td>
-                                    <td>{% if c.organization.logo %}
-                                        <img src="{{ c.organization.logo.url }}" width="50px"/>
+                                    <td>{% if coorganization.organization.logo %}
+                                        <img src="{{ coorganization.organization.logo.url }}" width="50px"/>
                                     {% endif %}
                                     </td>
                                     <td>
-                                        {{ c.all_students | yesno | title}}
+                                        {{ coorganization.all_students | yesno | title}}
                                     </td>
                                     <td>
-                                        {{ c.enrollment_place | yesno | title}}
+                                        {{ coorganization.enrollment_place | yesno | title}}
                                     </td>
                                     <td>
-                                        {% if c.diploma and c.diploma != 'NOT_CONCERNED' %}
-                                            {% trans c.diploma %}
+                                        {% if coorganization.diploma and coorganization.diploma %}
+                                            {% trans coorganization.diploma %}
                                         {% endif %}
                                     </td>
                                     <td>
-                                        {{ c.is_producing_cerfificate | yesno |title}}
+                                        {{ coorganization.is_producing_cerfificate | yesno |title}}
                                     </td>
                                     <td>
-                                        {{ c.is_producing_annexe | yesno | title}}
+                                        {{ coorganization.is_producing_annexe | yesno | title}}
                                     </td>
                                 </tr>
                             {% endfor %}
