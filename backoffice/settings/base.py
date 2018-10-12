@@ -416,8 +416,3 @@ if CACHE_ENABLED:
     }
 
 WAFFLE_FLAG_DEFAULT = os.environ.get("WAFFLE_FLAG_DEFAULT", "False").lower() == 'true'
-
-
-DJANGO_NOTIFICATIONS_CONFIG = {
-    'SOFT_DELETE': True
-}

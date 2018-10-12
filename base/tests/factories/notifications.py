@@ -15,7 +15,7 @@
 #
 #    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 #    GNU General Public License for more details.
 #
 #    A copy of this license - GNU General Public License - is available
@@ -23,27 +23,32 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse
-from django.views.decorators.http import require_POST
+import operator
 
-from base.utils import notifications
-from osis_common.decorators.ajax import ajax_required
+import factory.fuzzy
+import notifications.models
+from django.contrib.contenttypes.models import ContentType
+from factory.django import DjangoModelFactory
+from faker import Faker
 
+from base.tests.factories.academic_calendar import AcademicCalendarFactory
+from base.tests.factories.user import UserFactory
 
-@login_required
-@ajax_required
-@require_POST
-def clear_user_notifications(request):
-    user = request.user
-    notifications.clear_user_notifications(user)
-    return HttpResponse()
+fake = Faker()
 
 
-@login_required
-@ajax_required
-@require_POST
-def mark_notifications_as_read(request):
-    user = request.user
-    notifications.mark_notifications_as_read(user)
-    return HttpResponse()
+class NotificationFactory(DjangoModelFactory):
+    class Meta:
+        model = "notifications.Notification"
+        exclude = ['actor_obj']
+
+    level = factory.Iterator(notifications.models.Notification.LEVELS, getter=operator.itemgetter(0))
+
+    recipient = factory.SubFactory(UserFactory)
+    unread = True
+    actor_obj = factory.SubFactory(AcademicCalendarFactory)
+    actor_content_type = factory.LazyAttribute(lambda notif_obj: ContentType.objects.get_for_model(notif_obj.actor_obj))
+    actor_object_id = factory.LazyAttribute(lambda notif_obj: notif_obj.actor_obj.pk)
+
+    verb = "an action"
+    description = "a description"
