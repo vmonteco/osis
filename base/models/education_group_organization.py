@@ -24,6 +24,7 @@
 #
 ##############################################################################
 from django.db import models
+from django.utils.functional import cached_property
 
 from base.models import organization_address
 from base.models.enums import diploma_coorganization
@@ -49,13 +50,9 @@ class EducationGroupOrganization(models.Model):
     is_producing_cerfificate = models.BooleanField(default=False)
     is_producing_annexe = models.BooleanField(default=False)
 
-    _address = None
-
-    @property
+    @cached_property
     def address(self):
-        if not self._address:
-            self._address = organization_address.find_by_organization(self.organization).first()
-        return self._address
+        return organization_address.find_by_organization(self.organization).first()
 
 
 def search(**kwargs):

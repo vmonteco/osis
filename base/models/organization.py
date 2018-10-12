@@ -24,37 +24,52 @@
 #
 ##############################################################################
 from django.db import models
+from django.utils.functional import cached_property
 
+from base.models.entity_version import EntityVersion
 from base.models.enums import organization_type
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
 
 
 class OrganizationAdmin(SerializableModelAdmin):
-    list_display = ('name', 'acronym', 'prefix', 'type', 'changed')
-    search_fields = ['acronym', 'name']
+    list_display = ('title', 'acronym', 'type', 'changed')
+    search_fields = ['acronym', 'title']
 
 
 class Organization(SerializableModel):
     external_id = models.CharField(max_length=100, blank=True, null=True, db_index=True)
     changed = models.DateTimeField(null=True, auto_now=True)
-    name = models.CharField(max_length=255)
-    code = models.CharField(max_length=50, blank=True, null=True)
-    acronym = models.CharField(max_length=20, blank=True, null=True)
-    website = models.URLField(max_length=255, blank=True, null=True)
-    type = models.CharField(max_length=30, blank=True, null=True, choices=organization_type.ORGANIZATION_TYPE,
-                            default='UNKNOWN')
-    start_date = models.DateTimeField(null=True)
-    end_date = models.DateTimeField(null=True)
-    prefix = models.CharField(max_length=30, blank=True, null=True)
-    logo = models.ImageField(upload_to='organization_logos', null=True, blank=True)
+
+    type = models.CharField(
+        max_length=30,
+        blank=True,
+        choices=organization_type.ORGANIZATION_TYPE,
+    )
+
+    @cached_property
+    def latest_version(self):
+        return EntityVersion.objects.filter(parent__isnull=True, entity__organization=self)\
+            .order_by("start_date").last()
 
     def __str__(self):
-        return self.name
+        return "{}".format(self.latest_version)
 
     class Meta:
         permissions = (
             ("can_access_organization", "Can access organization"),
         )
+
+    @cached_property
+    def title(self):
+        return getattr(self.latest_version, "title", "")
+
+    @cached_property
+    def logo(self):
+        return getattr(self.latest_version, "logo", None)
+
+    @cached_property
+    def acronym(self):
+        return getattr(self.latest_version, "acronym", "")
 
     @property
     def country(self):
@@ -67,22 +82,3 @@ class Organization(SerializableModel):
 
 def find_by_id(organization_id):
     return Organization.objects.get(pk=organization_id)
-
-
-def search(acronym=None, name=None, type=None):
-    out = None
-    queryset = Organization.objects
-
-    if acronym:
-        queryset = queryset.filter(acronym__icontains=acronym)
-
-    if name:
-        queryset = queryset.filter(name__icontains=name)
-
-    if type:
-        queryset = queryset.filter(type=type)
-
-    if acronym or name or type:
-        out = queryset
-
-    return out
