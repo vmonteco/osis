@@ -10,7 +10,19 @@
         </div>
         {% bootstrap_field learning_unit_year_form.campus %}
         {% for form in entity_container_form.forms %}
-            {% bootstrap_field form.entity %}
+            {% if forloop.first %}
+                <div class="row">
+                    {% bootstrap_field entity_container_form.0.entity form_group_class="col-md-9" %}
+                    {% bootstrap_field entity_container_form.0.country form_group_class="col-md-3" %}
+                </div>
+            {% else %}
+                <div class="row">
+                    {% bootstrap_field form.entity form_group_class="col-md-9" %}
+                    <br>
+                    {% bootstrap_field form.country show_label=False form_group_class="col-md-3" %}
+                </div>
+            {% endif %}
+            <br>
         {% endfor %}
         {% bootstrap_field learning_unit_year_form.academic_year %}
     </div>
