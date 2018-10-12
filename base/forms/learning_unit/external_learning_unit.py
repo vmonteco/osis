@@ -50,7 +50,7 @@ from reference.models.country import Country
 
 class CampusChoiceField(ModelChoiceField):
     def label_from_instance(self, obj):
-        return "{}".format(obj.organization.name)
+        return "{}".format(obj.organization.title)
 
 
 class LearningContainerYearExternalModelForm(LearningContainerYearModelForm):
@@ -126,7 +126,8 @@ class ExternalLearningUnitBaseForm(LearningUnitBaseForm):
         super().__init__(instances_data, *args, **kwargs)
         self.learning_unit_year_form.fields['acronym'] = ExternalAcronymField()
         self.learning_unit_year_form.fields['campus'] = CampusChoiceField(
-            queryset=Campus.objects.order_by('organization__name').distinct('organization__name')
+            queryset=Campus.objects.order_by('organization__entity__entityversion__title')
+                                   .distinct('organization__entity__entityversion__title')
         )
 
     @property

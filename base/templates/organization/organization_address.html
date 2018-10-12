@@ -73,7 +73,7 @@
                class="btn btn-primary" role="button" id="lnk_organization_delete">
                 <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> {% trans 'delete'%}
             </a>
-            <a href="{% url 'organization_read' organization_id=organization_address.organization.id %}"
+            <a href="{% url 'organization_read' organization_id=organization_address.organization.pk %}"
                id="lnk_organization_read_{{organization_address.organization.id}}"  title="{%trans 'back'%}"
                class="btn btn-default" role="button" ><span class="glyphicon glyphicon-step-backward" aria-hidden="true"></span> {% trans 'back'%}</a>
         </div>

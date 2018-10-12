@@ -45,11 +45,7 @@
                         <br>
 
                         <label>{% trans 'university_certificate_desc' %}</label><br>
-                        {% if education_group_year.university_certificate %}
-                            {% trans 'yes'%}
-                        {% else %}
-                            {% trans 'no'%}
-                        {% endif %}
+                        {{ education_group_year.joint_diploma|yesno|title }}
 
                         <br><br>
 

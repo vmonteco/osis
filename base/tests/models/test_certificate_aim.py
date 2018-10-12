@@ -1,6 +1,6 @@
 ##############################################################################
 #
-# OSIS stands for Open Student Information System. It's an application
+#    OSIS stands for Open Student Information System. It's an application
 #    designed to manage the core business of higher education institutions,
 #    such as universities, faculties, institutes and professional schools.
 #    The core business involves the administration of students, teachers,
@@ -23,16 +23,19 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import factory
-from base.models.enums import organization_type
-from osis_common.utils.datetime import get_tzinfo
+from django.test import TestCase
+from base.tests.factories.certificate_aim import CertificateAimFactory
 
 
-class OrganizationFactory(factory.DjangoModelFactory):
-    class Meta:
-        model = 'base.Organization'
+class TestCertificateAim(TestCase):
+    def setUp(self):
+        self.certificate_aim = CertificateAimFactory(
+            section=9,
+            code=987,
+            description="Description of the certificate aim"
+        )
 
-    external_id = factory.Faker('text', max_nb_chars=100)
-    changed = factory.Faker('date_time_this_month', tzinfo=get_tzinfo())
-
-    type = factory.Iterator(organization_type.ORGANIZATION_TYPE, getter=lambda c: c[0])
+    def test__str__(self):
+        error_msg = "This __str__ representation is used into MultipleSelect (Django-autocomplete-light) " \
+                    "into view 'EducationGroupDiplomas.as_view()'"
+        self.assertEqual(str(self.certificate_aim), "9 - 987 Description of the certificate aim", error_msg)
