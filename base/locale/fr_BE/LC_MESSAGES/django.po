@@ -4027,3 +4027,6 @@ msgstr "Institution de référence"
 
 msgid "Coorganization"
 msgstr "Coorganization"
+
+msgid "Are you sure you want to delete the coorganization?"
+msgstr "Êtes-vous certain de vouloir supprimer la coorganisation"

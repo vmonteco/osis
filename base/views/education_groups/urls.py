@@ -118,6 +118,7 @@ urlpatterns = [
         url(r'^group_content/', group_element_year.read.ReadEducationGroupTypeView.as_view(), name="group_content"),
         url(r'^pdf_content/(?P<language>[a-z\-]+)', pdf_content, name="pdf_content"),
         url(r'^coorganization/create/$', coorganization.create, name="coorganization_create"),
+        url(r'^coorganization/delete/(?P<coorganization_id>[0-9]+)/$', coorganization.delete, name="coorganization_delete"),
 
     ])),
     url(r'^(?P<root_id>[0-9]+)/(?P<learning_unit_year_id>[0-9]+)/learning_unit/', include([

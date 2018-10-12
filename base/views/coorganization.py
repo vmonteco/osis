@@ -24,18 +24,22 @@
 #
 ##############################################################################
 
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import get_object_or_404
 
 from base.models.education_group_year import EducationGroupYear
+from base.models.education_group_organization import EducationGroupOrganization
 from base.forms.education_group.coorganization import CoorganizationEditForm
 from . import layout
 from django.http import HttpResponseRedirect
 from django.urls import reverse
+from django.shortcuts import redirect
+from django.utils.decorators import method_decorator
 HTML_ANCHOR = "#coorganization_id_"
 
 
 @login_required
+@permission_required('base.can_access_education_group', raise_exception=True)
 def create(request, root_id, education_group_year_id):
     education_group_yr = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
 
@@ -60,3 +64,13 @@ def _save_and_redirect(form, root_id, education_group_year_id):
                                                 'education_group_year_id': education_group_year_id}) + "{}{}".format(
         HTML_ANCHOR,
         coorganization.id))
+
+
+@login_required
+def delete(request, root_id, education_group_year_id, coorganization_id):
+    education_group_organization = get_object_or_404(EducationGroupOrganization, pk=coorganization_id)
+    education_group_organization.delete()
+
+    return HttpResponseRedirect(reverse('education_group_read',
+                                        kwargs={'root_id': root_id,
+                                                'education_group_year_id': education_group_year_id}) )
