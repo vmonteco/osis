@@ -30,7 +30,7 @@ from notifications.signals import notify
 
 from base.models.academic_calendar import AcademicCalendar
 from base.utils.notifications import get_notifications_last_time_read_for_user, \
-    set_notifications_last_read_as_now_for_user
+    set_notifications_last_read_as_now_for_user, apply_function_if_data_not_in_cache
 
 ALERT_WEEK = 2
 
@@ -47,6 +47,7 @@ class NotificationMiddleware(object):
         return response
 
 
+@apply_function_if_data_not_in_cache
 def send_academic_calendar_notifications(user):
     time_last_read = get_notifications_last_time_read_for_user(user)
     ac_qs = AcademicCalendar.objects.starting_within(weeks=ALERT_WEEK).order_by("start_date", "end_date")

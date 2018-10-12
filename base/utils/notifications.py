@@ -29,7 +29,7 @@ import pickle
 import time
 
 from base.utils.cache import cache
-CACHE_NOTIFICATIONS_TIMEOUT = 300  # seconds -> 30 min
+CACHE_NOTIFICATIONS_TIMEOUT = 300  # seconds -> 5 min
 NOTIFICATIONS_KEY = "notifications_unread_user_{}"
 NOTIFICATIONS_TIMESTAMP = "notifications_last_read_user_{}"
 
@@ -51,6 +51,15 @@ def invalidate_cache(function):
     def wrapper(user, *args, **kwargs):
         cache_key = make_notifications_cache_key(user)
         cache.delete(cache_key)
+        return function(user, *args, **kwargs)
+    return wrapper
+
+
+def apply_function_if_data_not_in_cache(function):
+    def wrapper(user, *args, **kwargs):
+        cache_key = make_notifications_cache_key(user)
+        if cache.get(cache_key) is not None:
+            return None
         return function(user, *args, **kwargs)
     return wrapper
 
