@@ -24,7 +24,6 @@
 #
 ##############################################################################
 import logging
-import pickle
 from functools import wraps
 
 from django.conf import settings
