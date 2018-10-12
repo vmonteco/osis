@@ -47,6 +47,8 @@ from base.views.learning_units.external.search import filter_cities_by_country, 
 from base.views.learning_units.pedagogy.read import learning_unit_pedagogy
 from base.views.learning_units.pedagogy.update import learning_unit_pedagogy_edit, toggle_summary_locked
 from base.views.learning_units.proposal import create, update
+from base.views.learning_units.update import update_learning_unit, learning_unit_edition_end_date
+
 urlpatterns = [
     url(r'^$', common.home, name='home'),
 
@@ -266,7 +268,6 @@ urlpatterns = [
 
 
 ]
-from base.views.learning_units.update import update_learning_unit, learning_unit_edition_end_date
 
 
 if settings.DEBUG:
