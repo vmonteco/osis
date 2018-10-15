@@ -25,14 +25,12 @@
 ##############################################################################
 from attribution.models import attribution_charge_new
 from base.models import learning_unit_component
+from base.models.learning_component_year import LearningComponentYear
 
 
 def find_attribution_charge_new_by_learning_unit_year(learning_unit_year):
-    learning_unit_components = learning_unit_component.find_by_learning_unit_year(learning_unit_year)\
-        .select_related('learning_component_year')
-    attribution_charges = attribution_charge_new.AttributionChargeNew.objects\
-        .filter(learning_component_year__in=[component.learning_component_year
-                                             for component in learning_unit_components])\
+    attribution_charges = attribution_charge_new.AttributionChargeNew.objects \
+        .filter(learning_component_year__learningunitcomponent__learning_unit_year=learning_unit_year) \
         .select_related('learning_component_year', 'attribution__tutor__person')
     return create_attributions_dictionary(attribution_charges)
 
@@ -49,3 +47,13 @@ def create_attributions_dictionary(attribution_charges):
         attributions.setdefault(key, attribution_dict)\
             .update({attribution_charge.learning_component_year.type: attribution_charge.allocation_charge})
     return attributions
+
+def find_attributions_for_add_partim(learning_unit_year_parent, learning_unit_year_child):
+    learning_component_year = LearningComponentYear.objects.filter(
+        learningunitcomponent__learning_unit_year=learning_unit_year_child
+    )
+    attribution_charges = attribution_charge_new.AttributionChargeNew.objects \
+        .filter(learning_component_year__learningunitcomponent__learning_unit_year=learning_unit_year_parent) \
+        .exclude(attribution__attributionchargenew__learning_component_year__in=learning_component_year) \
+        .select_related('learning_component_year', 'attribution__tutor__person')
+    return create_attributions_dictionary(attribution_charges)

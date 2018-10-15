@@ -15,7 +15,7 @@
 #
 #    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #    GNU General Public License for more details.
 #
 #    A copy of this license - GNU General Public License - is available
@@ -23,25 +23,22 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import operator
-import string
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
 
-import factory.fuzzy
-from factory.django import DjangoModelFactory
-
-from base.models.enums import component_type
-from base.tests.factories.learning_component_year import LearningComponentYearFactory
-from base.tests.factories.learning_unit_year import LearningUnitYearFakerFactory
+from attribution.business import attribution_charge_new
+from base.models.learning_unit_year import LearningUnitYear
+from base.views import layout
 
 
-class LearningUnitComponentFactory(DjangoModelFactory):
-    class Meta:
-        model = "base.LearningUnitComponent"
+@login_required
+def add_partim_attribution(request, learning_unit_year_id):
+    partim_learning_unit_year = get_object_or_404(LearningUnitYear,
+                                                  id=learning_unit_year_id)
+    full_learning_unit_year = partim_learning_unit_year.parent
+    context = {}
+    context["attributions"] = attribution_charge_new.find_attributions_for_add_partim(full_learning_unit_year,
+                                                                                      partim_learning_unit_year)
+    return layout.render(request, "learning_unit/add_attribution.html", context)
 
-    external_id = factory.fuzzy.FuzzyText(length=10, chars=string.digits)
-
-    learning_unit_year = factory.SubFactory(LearningUnitYearFakerFactory)
-    learning_component_year = factory.LazyAttribute(
-        lambda obj: LearningComponentYearFactory(learning_container_year=obj.learning_unit_year.learning_container_year)
-    )
-    type = factory.Iterator(component_type.COMPONENT_TYPES, getter=operator.itemgetter(0))
