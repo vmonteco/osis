@@ -34,8 +34,6 @@ from base.models.entity import Entity
 
 
 class CoorganizationEditForm(forms.ModelForm):
-    # Country.objects.filter(organizationaddress__isnull=False).distinct().order_by('name')
-
     country = ModelChoiceField(
         queryset=Country.objects.filter(entity__isnull=False).distinct().order_by('name'),
         required=True,
@@ -54,16 +52,28 @@ class CoorganizationEditForm(forms.ModelForm):
                   'all_students', 'enrollment_place', 'diploma', 'is_producing_cerfificate', 'is_producing_annexe']
 
     def __init__(self, data=None, initial=None, **kwargs):
+        print('init')
         initial = initial or {}
         if initial and initial.get('education_group_year'):
             self.education_group_year_id = initial.get('education_group_year')
 
         super().__init__(data, initial=initial, **kwargs)
 
-        if data and data.get('organization_institution'):
-            self.fields['organization_institution'].queryset = Organization.objects\
-                .filter(pk=data.get('organization_institution'))
-            self.organization_institution = find_by_id(data.get('organization_institution'))
+        if self.instance:
+            print('instance')
+            print(self.instance.organization.id)
+            entity = self.instance.organization.latest_version.entity
+
+            self.fields['country'].initial = entity.country
+
+            if self.instance.organization:
+                print('ici')
+                self.set_organization_data(self.instance.organization.id, entity.country.id)
+        else:
+            print('no instance')
+            if data and data.get('organization_institution'):
+                print('if')
+                self.set_organization_data(data.get('organization_institution'), entity.country.id)
 
     def clean_all_students(self):
         data_cleaned = self.cleaned_data.get('all_students')
@@ -89,10 +99,39 @@ class CoorganizationEditForm(forms.ModelForm):
             return data_cleaned
         return False
 
+    def clean_organization_institution(self):
+        print('clean_organization_institution')
+        data_cleaned = self.cleaned_data.get('organization_institution')
+        print(data_cleaned)
+        print(type(data_cleaned))
+        print(data_cleaned.id)
+        return data_cleaned
+
     def save(self, commit=True):
+        print('save')
         instance = super(CoorganizationEditForm, self).save(commit=False)
+        print(instance.organization.id)
         if commit:
             instance.education_group_year = self.education_group_year_id
             instance.organization = self.organization_institution
             instance.save()
         return instance
+
+    def set_organization_data(self, organization_id, country_id):
+        print(organization_id)
+        print(organization_id)
+
+        if country_id:
+            organizations = Entity.objects.filter(country__pk=country_id).distinct('organization')
+            list_orgs = []
+
+            for i in organizations:
+                list_orgs.append(i.organization.id)
+            # organizations = Entity.objects.filter(country__pk=country_id).distinct('organization')
+            # print(organizations)
+            self.fields['organization_institution'].queryset = Organization.objects.filter(id__in=list_orgs)
+        else:
+            self.fields['organization_institution'].queryset = Organization.objects \
+                .filter(pk=organization_id)
+        self.fields['organization_institution'].initial = find_by_id(organization_id)
+        self.organization_institution = find_by_id(organization_id)

@@ -119,6 +119,7 @@ urlpatterns = [
         url(r'^pdf_content/(?P<language>[a-z\-]+)', pdf_content, name="pdf_content"),
         url(r'^coorganization/create/$', coorganization.create, name="coorganization_create"),
         url(r'^coorganization/delete/$', coorganization.delete, name="coorganization_delete"),
+        url(r'^coorganization/edit/(?P<coorganization_id>[0-9]+)/$', coorganization.edit, name="coorganization_edit"),
 
     ])),
     url(r'^(?P<root_id>[0-9]+)/(?P<learning_unit_year_id>[0-9]+)/learning_unit/', include([

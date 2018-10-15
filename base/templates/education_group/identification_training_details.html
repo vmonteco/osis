@@ -125,6 +125,7 @@
                                 <th>{% trans 'Producing certificat' %}</th>
                                 <th>{% trans 'Producing annexe' %}</th>
                                 <th></th>
+                                <th></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -156,13 +157,21 @@
                                         {{ coorganization.is_producing_annexe | yesno | title}}
                                     </td>
                                     <td>
-                                        <a class="btn btn-info btn-sm coorganization-delete-btn" href="#"
+                                        <a href="#" title="{%trans 'edit'%}"
+                                           class="btn coorganization-edit-btn" role="button" id="bt_cooorganization_edit"
+                                           data-form="{% url 'coorganization_edit' root_id=root.pk education_group_year_id=education_group_year.id  coorganization_id=coorganization.id %}">
+                                            <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <a class="btn coorganization-delete-btn" href="#"
                                            data-toggle="modal" data-target="#modalDeleteEducationGroupOrganization"
                                            id="btn_delete_coorganization_{{ coorganization.id }}"
                                            title="{% trans 'delete' %}"
-                                           style="margin-top:10px;">
+                                           >
                                             <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
                                         </a>
+
                                     </td>
                                 </tr>
                             {% endfor %}
@@ -194,11 +203,18 @@
                                         {{ coorganization.is_producing_annexe | yesno | title}}
                                     </td>
                                     <td>
-                                        <a class="btn btn-info btn-sm coorganization-delete-btn" href="#"
+                                        <a href="#" title="{%trans 'edit'%}"
+                                           class="btn coorganization-edit-btn" role="button" id="bt_cooorganization_edit"
+                                           data-form="{% url 'coorganization_edit' root_id=root.pk education_group_year_id=education_group_year.id coorganization_id=coorganization.id %}">
+                                            <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <a class="btn coorganization-delete-btn" href="#"
                                            data-toggle="modal" data-target="#modalDeleteEducationGroupOrganization"
                                            id="btn_delete_coorganization_{{ coorganization.id }}"
                                            title="{% trans 'delete' %}"
-                                           style="margin-top:10px;">
+                                           >
                                             <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
                                         </a>
                                     </td>
@@ -229,7 +245,8 @@
                     columnDefs: [
                         { targets: 0, type: 'diacritics-neutralise'},
                         { targets: 3, type: 'diacritics-neutralise'},
-                        { targets: 6, orderable: false},
+                        { targets: 7, orderable: false},
+                        { targets: 8, orderable: false},
                     ],
                     "stateSave": true,
                     "paging" : false,

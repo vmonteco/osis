@@ -52,7 +52,7 @@ class Organization(SerializableModel):
             .order_by("start_date").last()
 
     def __str__(self):
-        return "{}".format(self.latest_version)
+        return "{}".format(self.latest_version.title)
 
     class Meta:
         permissions = (

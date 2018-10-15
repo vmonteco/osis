@@ -60,5 +60,6 @@ def filter_campus_by_city(request):
 def filter_organizations_by_country(request):
     country_id = request.GET.get('country')
     organizations = Entity.objects.filter(country__pk=country_id).distinct('organization')\
-        .values('organization__pk', 'organization__name')
-    return JsonResponse(sorted(list(organizations), key=itemgetter('organization__name')), safe=False)
+        .values('organization__pk', 'organization__entity__entityversion__title')
+    print(organizations)
+    return JsonResponse(sorted(list(organizations), key=itemgetter('organization__entity__entityversion__title')), safe=False)
