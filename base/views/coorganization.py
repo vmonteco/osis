@@ -26,15 +26,14 @@
 
 from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import get_object_or_404
+from django.http import HttpResponseRedirect
+from django.urls import reverse
 
 from base.models.education_group_year import EducationGroupYear
 from base.models.education_group_organization import EducationGroupOrganization
-from base.forms.education_group.coorganization import CoorganizationEditForm
+from base.forms.education_group.organization import OrganizationEditForm
 from . import layout
-from django.http import HttpResponseRedirect
-from django.urls import reverse
-from django.shortcuts import redirect
-from django.utils.decorators import method_decorator
+
 HTML_ANCHOR = "#coorganization_id_"
 
 
@@ -43,7 +42,7 @@ HTML_ANCHOR = "#coorganization_id_"
 def create(request, root_id, education_group_year_id):
     education_group_yr = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
 
-    form = CoorganizationEditForm(request.POST or None)
+    form = OrganizationEditForm(request.POST or None)
 
     if form.is_valid():
         return _save_and_redirect(form, root_id, education_group_year_id)
@@ -53,7 +52,7 @@ def create(request, root_id, education_group_year_id):
                'form': form,
                'create': True}
 
-    return layout.render(request, "education_group/coorganization_edit.html", context)
+    return layout.render(request, "education_group/organization_edit.html", context)
 
 
 def _save_and_redirect(form, root_id, education_group_year_id):
@@ -81,7 +80,7 @@ def edit(request, root_id, education_group_year_id, coorganization_id):
     education_group_yr = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
     education_group_organization = get_object_or_404(EducationGroupOrganization, pk=coorganization_id)
 
-    form = CoorganizationEditForm(request.POST or None, instance=education_group_organization)
+    form = OrganizationEditForm(request.POST or None, instance=education_group_organization)
 
     if request.POST:
         if form.is_valid():
@@ -94,4 +93,4 @@ def edit(request, root_id, education_group_year_id, coorganization_id):
                'coorganization': education_group_organization
                }
 
-    return layout.render(request, "education_group/coorganization_edit.html", context)
+    return layout.render(request, "education_group/organization_edit.html", context)

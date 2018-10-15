@@ -34,7 +34,7 @@ from base.models.organization import Organization, find_by_id
 from base.models.entity import Entity
 
 
-class CoorganizationEditForm(forms.ModelForm):
+class OrganizationEditForm(forms.ModelForm):
     country = ModelChoiceField(
         queryset=Country.objects.filter(entity__isnull=False).distinct().order_by('name'),
         required=True,
