@@ -161,7 +161,7 @@ class EducationGroupGeneralInformation(EducationGroupGenericDetailView):
         context.update({
             'is_common_education_group_year': is_common_education_group_year,
             'sections_with_translated_labels': self.get_sections_with_translated_labels(is_common_education_group_year),
-            'can_edit_information': is_eligible_to_edit_general_information(context['person'],context['object'])
+            'can_edit_information': is_eligible_to_edit_general_information(context['person'], context['object']),
         })
 
         return context
