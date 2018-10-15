@@ -82,7 +82,8 @@ def is_eligible_to_delete_education_group(person, education_group, raise_excepti
            _is_eligible_education_group(person, education_group, raise_exception)
 
 
-def is_academic_calendar_opened(education_group, raise_exception=False, type=academic_calendar_type.EDUCATION_GROUP_EDITION):
+def is_academic_calendar_opened(education_group, raise_exception=False, \
+                                type=academic_calendar_type.EDUCATION_GROUP_EDITION):
     result = False
 
     ac = AcademicCalendar.objects.filter(reference=type).open_calendars()
@@ -175,6 +176,7 @@ def get_education_group_year_eligible_management_entities(education_group):
 
     return eligible_entities
 
+
 def is_eligible_to_edit_general_information(person, education_group, raise_exception=False):
     return check_permission(person, 'base.can_edit_educationgroup_pedagogy', raise_exception) and \
            _is_eligible_to_edit_general_information(person, education_group, raise_exception)
@@ -182,5 +184,6 @@ def is_eligible_to_edit_general_information(person, education_group, raise_excep
 
 def _is_eligible_to_edit_general_information(person, education_group, raise_exception):
     return (check_link_to_management_entity(education_group, person, raise_exception) and
-            (person.is_central_manager() or is_academic_calendar_opened(education_group, raise_exception, type=academic_calendar_type.EDITION_OF_GENERAL_INFORMATION))
+            (person.is_central_manager() or is_academic_calendar_opened(education_group, raise_exception, \
+                                                                        type=academic_calendar_type.EDITION_OF_GENERAL_INFORMATION))
             )
