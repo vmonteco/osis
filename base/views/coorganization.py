@@ -43,8 +43,7 @@ HTML_ANCHOR = "#coorganization_id_"
 def create(request, root_id, education_group_year_id):
     education_group_yr = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
 
-    form = CoorganizationEditForm(request.POST or None,
-                                  initial={'education_group_year': education_group_yr})
+    form = CoorganizationEditForm(request.POST or None)
 
     if form.is_valid():
         return _save_and_redirect(form, root_id, education_group_year_id)
@@ -58,8 +57,8 @@ def create(request, root_id, education_group_year_id):
 
 
 def _save_and_redirect(form, root_id, education_group_year_id):
-    print('_save_and_redirect')
-    coorganization = form.save()
+    coorganization = form.save_coorganization(education_group_year_id)
+
     return HttpResponseRedirect(reverse('education_group_read',
                                         kwargs={'root_id': root_id,
                                                 'education_group_year_id': education_group_year_id}) + "{}{}".format(
@@ -76,34 +75,23 @@ def delete(request, root_id, education_group_year_id):
                                         kwargs={'root_id': root_id,
                                                 'education_group_year_id': education_group_year_id}))
 
+
 @login_required
 def edit(request, root_id, education_group_year_id, coorganization_id):
-    print('edit')
     education_group_yr = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
     education_group_organization = get_object_or_404(EducationGroupOrganization, pk=coorganization_id)
 
-    form = CoorganizationEditForm(request.POST or None, instance=education_group_organization,
-                                  initial={'education_group_year': education_group_yr,
-                                           'organization_institution': education_group_organization.organization.id})
+    form = CoorganizationEditForm(request.POST or None, instance=education_group_organization)
 
     if request.POST:
-        print('ost')
-
-        print(form.errors)
-
         if form.is_valid():
-            print('valid')
             return _save_and_redirect(form, root_id, education_group_year_id)
-        else:
-            print(form.errors)
-
-            print('invalid')
 
     context = {'education_group_year': education_group_yr,
                'root_id': root_id,
                'form': form,
                'create': False,
-               'coorganization' :education_group_organization
+               'coorganization': education_group_organization
                }
 
     return layout.render(request, "education_group/coorganization_edit.html", context)
