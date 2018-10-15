@@ -41,13 +41,13 @@ class EducationGroupAchievementForm(forms.ModelForm):
     french_text = forms.CharField(
         widget=CKEditorWidget(config_name='minimal'),
         required=False,
-        label=_('text in French')
+        label=_('French')
     )
 
     english_text = forms.CharField(
         widget=CKEditorWidget(config_name='minimal'),
         required=False,
-        label=_('text in English')
+        label=_('English')
     )
 
     class Meta:

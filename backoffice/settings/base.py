@@ -80,6 +80,7 @@ INSTALLED_APPS = (
     'django_celery_beat',
     'django_celery_results',
     'notifications',
+    'django_filters',
 )
 
 MIDDLEWARE = (
@@ -415,8 +416,3 @@ if CACHE_ENABLED:
     }
 
 WAFFLE_FLAG_DEFAULT = os.environ.get("WAFFLE_FLAG_DEFAULT", "False").lower() == 'true'
-
-
-DJANGO_NOTIFICATIONS_CONFIG = {
-    'SOFT_DELETE': True
-}

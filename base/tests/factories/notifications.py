@@ -1,6 +1,6 @@
 ##############################################################################
 #
-# OSIS stands for Open Student Information System. It's an application
+#    OSIS stands for Open Student Information System. It's an application
 #    designed to manage the core business of higher education institutions,
 #    such as universities, faculties, institutes and professional schools.
 #    The core business involves the administration of students, teachers,
@@ -23,16 +23,32 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import factory
-from base.models.enums import organization_type
-from osis_common.utils.datetime import get_tzinfo
+import operator
+
+import factory.fuzzy
+import notifications.models
+from django.contrib.contenttypes.models import ContentType
+from factory.django import DjangoModelFactory
+from faker import Faker
+
+from base.tests.factories.academic_calendar import AcademicCalendarFactory
+from base.tests.factories.user import UserFactory
+
+fake = Faker()
 
 
-class OrganizationFactory(factory.DjangoModelFactory):
+class NotificationFactory(DjangoModelFactory):
     class Meta:
-        model = 'base.Organization'
+        model = "notifications.Notification"
+        exclude = ['actor_obj']
 
-    external_id = factory.Faker('text', max_nb_chars=100)
-    changed = factory.Faker('date_time_this_month', tzinfo=get_tzinfo())
+    level = factory.Iterator(notifications.models.Notification.LEVELS, getter=operator.itemgetter(0))
 
-    type = factory.Iterator(organization_type.ORGANIZATION_TYPE, getter=lambda c: c[0])
+    recipient = factory.SubFactory(UserFactory)
+    unread = True
+    actor_obj = factory.SubFactory(AcademicCalendarFactory)
+    actor_content_type = factory.LazyAttribute(lambda notif_obj: ContentType.objects.get_for_model(notif_obj.actor_obj))
+    actor_object_id = factory.LazyAttribute(lambda notif_obj: notif_obj.actor_obj.pk)
+
+    verb = "an action"
+    description = "a description"

@@ -223,14 +223,10 @@ urlpatterns = [
     url(r'^offer_year_calendars/([0-9]+)/$', offer.offer_year_calendar_read, name='offer_year_calendar_read'),
 
     url(r'^organizations/', include([
-        url(r'^$', organization.organizations, name='organizations'),
-        url(r'^search$', organization.organizations_search, name='organizations_search'),
-        url(r'^save/$', organization.organization_new, name='organization_save_new'),
-        url(r'^create/$', organization.organization_create, name='organization_create'),
+        url(r'^$', organization.OrganizationSearch.as_view(), name='organizations'),
+        url(r'^search$', organization.OrganizationSearch.as_view(), name='organizations_search'),
         url(r'^(?P<organization_id>[0-9]+)/', include([
-            url(r'^$', organization.organization_read, name='organization_read'),
-            url(r'^edit/$', organization.organization_edit, name='organization_edit'),
-            url(r'^save/$', organization.organization_save, name='organization_save'),
+            url(r'^$', organization.DetailOrganization.as_view(), name='organization_read'),
         ])),
     ])),
 
@@ -265,9 +261,14 @@ urlpatterns = [
     ])),
     url(r'^ajax_select/', include(ajax_select_urls)),
     url(r'^clear_filter/$', base.views.search.clear_filter, name="clear_filter"),
-    url(r'^notifications/clear/$', base.views.notifications.clear_user_notifications, name="clear_notifications")
+    url(r'^notifications/', include([
+        url(r'^clear/$', base.views.notifications.clear_user_notifications, name="clear_notifications"),
+        url(r'^mark_as_read/$', base.views.notifications.mark_notifications_as_read, name="mark_notifications_as_read"),
+    ])),
+
 
 ]
+
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

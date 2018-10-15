@@ -33,13 +33,14 @@ from base.models.entity_version import find_pedagogical_entities_version, get_la
 from base.models.enums.entity_container_year_link_type import REQUIREMENT_ENTITY, ALLOCATION_ENTITY, \
     ADDITIONAL_REQUIREMENT_ENTITY_1, ADDITIONAL_REQUIREMENT_ENTITY_2, ENTITY_TYPE_LIST
 from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES_MUST_HAVE_SAME_ENTITIES
+from reference.models.country import Country
 
 
 class EntitiesVersionChoiceField(forms.ModelChoiceField):
     entity_version = None
 
     def label_from_instance(self, obj):
-        return obj.acronym
+        return obj.verbose_title
 
     def clean(self, value):
         ev_data = super().clean(value)
@@ -50,6 +51,9 @@ class EntitiesVersionChoiceField(forms.ModelChoiceField):
 class EntityContainerYearModelForm(forms.ModelForm):
     entity = EntitiesVersionChoiceField(queryset=find_pedagogical_entities_version())
     entity_type = ''
+    country = forms.ModelChoiceField(queryset=Country.objects.filter(entity__isnull=False)
+                                     .distinct().order_by('name'),
+                                     required=False, label=_("country"))
 
     def __init__(self, *args, **kwargs):
         self.person = kwargs.pop('person')
@@ -96,7 +100,9 @@ class RequirementEntityContainerYearModelForm(EntityContainerYearModelForm):
         field.widget.attrs = {
             'onchange': (
                 'updateAdditionalEntityEditability(this.value, "id_additional_requirement_entity_1", false);'
+                'updateAdditionalEntityEditability(this.value, "id_additional_requirement_entity_1_country", false);'
                 'updateAdditionalEntityEditability(this.value, "id_additional_requirement_entity_2", true);'
+                'updateAdditionalEntityEditability(this.value, "id_additional_requirement_entity_2_country", true);'
             ), 'id': 'id_requirement_entity'}
 
 
@@ -117,11 +123,14 @@ class Additional1EntityContainerYearModelForm(EntityContainerYearModelForm):
         field = self.fields['entity']
         field.required = False
         field.widget.attrs = {
-            'onchange':
-                'updateAdditionalEntityEditability(this.value, "id_additional_requirement_entity_2", false)',
-                'disable': 'disable',
-                'id': 'id_additional_requirement_entity_1'
-            }
+            'onchange': (
+                'updateAdditionalEntityEditability(this.value, "id_additional_requirement_entity_2", false);'
+                'updateAdditionalEntityEditability(this.value, "id_additional_requirement_entity_2_country", false);'
+            ),
+            'id': 'id_additional_requirement_entity_1'
+        }
+        country = self.fields['country']
+        country.widget.attrs = {'id': 'id_additional_requirement_entity_1_country'}
 
 
 class Additional2EntityContainerYearModelForm(EntityContainerYearModelForm):
@@ -131,7 +140,9 @@ class Additional2EntityContainerYearModelForm(EntityContainerYearModelForm):
         super().__init__(*args, **kwargs)
         field = self.fields['entity']
         field.required = False
-        field.widget.attrs = {'disable': 'disable', 'id': 'id_additional_requirement_entity_2'}
+        field.widget.attrs = {'id': 'id_additional_requirement_entity_2'}
+        country = self.fields['country']
+        country.widget.attrs = {'id': 'id_additional_requirement_entity_2_country'}
 
 
 class EntityContainerBaseForm:

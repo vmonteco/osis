@@ -23,11 +23,16 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.forms import ModelForm
-from base.models import organization
+import django_filters
+from django.utils.translation import ugettext_lazy as _
+
+from base.models.organization import Organization
 
 
-class OrganizationForm(ModelForm):
+class OrganizationFilter(django_filters.FilterSet):
+    entity__entityversion__acronym = django_filters.CharFilter(lookup_expr='icontains', label=_('acronym'))
+    entity__entityversion__title = django_filters.CharFilter(lookup_expr='icontains', label=_('title'))
+
     class Meta:
-        model = organization.Organization
-        fields = ['acronym', 'name', 'website', 'prefix']
+        model = Organization
+        fields = ['entity__entityversion__acronym', 'entity__entityversion__title', 'type']
