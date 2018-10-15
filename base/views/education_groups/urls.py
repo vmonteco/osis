@@ -25,7 +25,8 @@
 ##############################################################################
 from django.conf.urls import url, include
 
-from base.views import education_group, coorganization
+from base.views import education_group
+from base.views.education_groups import coorganization
 from base.views.education_groups.group_element_year.read import pdf_content
 from base.views.education_groups.learning_unit import detail as learning_unit_detail, update as learning_unit_update
 from base.views.education_groups.select import education_group_select, learning_unit_select

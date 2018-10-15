@@ -32,7 +32,7 @@ from django.urls import reverse
 from base.models.education_group_year import EducationGroupYear
 from base.models.education_group_organization import EducationGroupOrganization
 from base.forms.education_group.organization import OrganizationEditForm
-from . import layout
+from base.views import layout
 
 HTML_ANCHOR = "#coorganization_id_"
 
@@ -40,13 +40,19 @@ HTML_ANCHOR = "#coorganization_id_"
 @login_required
 @permission_required('base.can_access_education_group', raise_exception=True)
 def create(request, root_id, education_group_year_id):
+    print('create')
+    print(request.POST)
     education_group_yr = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
 
     form = OrganizationEditForm(request.POST or None)
 
     if form.is_valid():
+        print('is_val')
         return _save_and_redirect(form, root_id, education_group_year_id)
-
+    print('else')
+    print(education_group_yr)
+    print(root_id)
+    print(form)
     context = {'education_group_year': education_group_yr,
                'root_id': root_id,
                'form': form,
@@ -66,6 +72,7 @@ def _save_and_redirect(form, root_id, education_group_year_id):
 
 
 @login_required
+@permission_required('base.can_access_education_group', raise_exception=True)
 def delete(request, root_id, education_group_year_id):
     coorganization_id = request.POST.get('coorganization_id_to_delete')
     education_group_organization = get_object_or_404(EducationGroupOrganization, pk=coorganization_id)
@@ -76,6 +83,7 @@ def delete(request, root_id, education_group_year_id):
 
 
 @login_required
+@permission_required('base.can_access_education_group', raise_exception=True)
 def edit(request, root_id, education_group_year_id, coorganization_id):
     education_group_yr = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
     education_group_organization = get_object_or_404(EducationGroupOrganization, pk=coorganization_id)
