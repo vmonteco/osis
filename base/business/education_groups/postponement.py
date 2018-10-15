@@ -31,7 +31,6 @@ from django.utils.translation import ugettext as _
 from base import models as mdl_base
 from base.models.academic_year import AcademicYear
 from base.models.education_group_year import EducationGroupYear
-from osis_common.models.serializable_model import SerializableQuerySet
 
 EDUCATION_GROUP_MAX_POSTPONE_YEARS = 6
 
