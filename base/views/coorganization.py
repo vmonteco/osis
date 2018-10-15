@@ -67,10 +67,11 @@ def _save_and_redirect(form, root_id, education_group_year_id):
 
 
 @login_required
-def delete(request, root_id, education_group_year_id, coorganization_id):
+def delete(request, root_id, education_group_year_id):
+    print('delete')
+    coorganization_id = request.POST.get('coorganization_id_to_delete')
     education_group_organization = get_object_or_404(EducationGroupOrganization, pk=coorganization_id)
     education_group_organization.delete()
-
     return HttpResponseRedirect(reverse('education_group_read',
                                         kwargs={'root_id': root_id,
-                                                'education_group_year_id': education_group_year_id}) )
+                                                'education_group_year_id': education_group_year_id}))

@@ -159,7 +159,6 @@
                                         <a class="btn btn-info btn-sm coorganization-delete-btn" href="#"
                                            data-toggle="modal" data-target="#modalDeleteEducationGroupOrganization"
                                            id="btn_delete_coorganization_{{ coorganization.id }}"
-                                           data-form="{% url 'coorganization_delete' root_id=root.pk education_group_year_id=education_group_year.id coorganization_id=coorganization.id %}"
                                            title="{% trans 'delete' %}"
                                            style="margin-top:10px;">
                                             <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
@@ -198,7 +197,6 @@
                                         <a class="btn btn-info btn-sm coorganization-delete-btn" href="#"
                                            data-toggle="modal" data-target="#modalDeleteEducationGroupOrganization"
                                            id="btn_delete_coorganization_{{ coorganization.id }}"
-                                           data-form="{% url 'coorganization_delete' root_id=root.pk education_group_year_id=education_group_year.id coorganization_id=coorganization.id %}"
                                            title="{% trans 'delete' %}"
                                            style="margin-top:10px;">
                                             <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
@@ -209,6 +207,7 @@
                         </tbody>
                     </table>
                 {% endif %}
+                <br>
                 <a class="btn btn-info btn-sm coorganization-edit-btn" href="#"
                    id="btn_edit"
                    data-form="{% url 'coorganization_create' root_id=root.pk education_group_year_id=education_group_year.id %}"
@@ -257,25 +256,15 @@
 
         });
 
-
         $(".coorganization-delete-btn").click(function(ev) {
-            console.log('coorganization-delete-btn');
             ev.preventDefault();
-            var url = $(this).data("form"); // get the contact form url
-            console.log(url);
-            var coorganization_edit_modal = $("#modalDeleteEducationGroupOrganization");
-            console.log('avt load');
-            $('form_delete_coorganization').attr("action", url);
-           //coorganization_edit_modal.load(url, function() { // load the url into the modal
-               //console.log('sdfqsdfqf')
-              //$(this).modal('show');
-           //});
-           // $("#modalDeleteEducationGroupOrganization").show();
-            //$(this).modal('show');
-            console.log($('form_delete_coorganization').action);
+            var id = this.id;
+            var coorganization_id_to_delete = id.replace('btn_delete_coorganization_', '');
+            $('#hdn_coorganization_id_to_delete').val(coorganization_id_to_delete);
+            console.log(coorganization_id_to_delete);
+            $("#modalDeleteEducationGroupOrganization").modal('show');
             return false;
         });
-
 
 
 
