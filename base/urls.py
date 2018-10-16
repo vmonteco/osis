@@ -261,9 +261,14 @@ urlpatterns = [
     ])),
     url(r'^ajax_select/', include(ajax_select_urls)),
     url(r'^clear_filter/$', base.views.search.clear_filter, name="clear_filter"),
-    url(r'^notifications/clear/$', base.views.notifications.clear_user_notifications, name="clear_notifications")
+    url(r'^notifications/', include([
+        url(r'^clear/$', base.views.notifications.clear_user_notifications, name="clear_notifications"),
+        url(r'^mark_as_read/$', base.views.notifications.mark_notifications_as_read, name="mark_notifications_as_read"),
+    ])),
+
 
 ]
+
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

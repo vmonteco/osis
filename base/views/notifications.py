@@ -38,3 +38,12 @@ def clear_user_notifications(request):
     user = request.user
     notifications.clear_user_notifications(user)
     return HttpResponse()
+
+
+@login_required
+@ajax_required
+@require_POST
+def mark_notifications_as_read(request):
+    user = request.user
+    notifications.mark_notifications_as_read(user)
+    return HttpResponse()

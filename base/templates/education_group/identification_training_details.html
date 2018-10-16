@@ -168,11 +168,11 @@
                                            data-toggle="modal" data-target="#modalDeleteEducationGroupOrganization"
                                            id="btn_delete_coorganization_{{ coorganization.id }}"
                                            title="{% trans 'delete' %}"
-                                           >
+                                                >
                                             <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
                                         </a>
 
-                                    </td>
+                                    </td>                                
                                 </tr>
                             {% endfor %}
                             {% for coorganization in parent.coorganizations %}
@@ -214,10 +214,10 @@
                                            data-toggle="modal" data-target="#modalDeleteEducationGroupOrganization"
                                            id="btn_delete_coorganization_{{ coorganization.id }}"
                                            title="{% trans 'delete' %}"
-                                           >
+                                                >
                                             <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
                                         </a>
-                                    </td>
+                                    </td>                                
                                 </tr>
                             {% endfor %}
                         </tbody>
@@ -236,30 +236,32 @@
     {% endwith %}
     <div class="modal fade" id="coorganization_edit" role="dialog" data-backdrop="static"></div>
     {% include "education_group/blocks/modal/modal_organization_confirm_delete.html" %}
+
 {% endblock %}
 {% block script %}
     <script>
-        $(document).ready(function(){
+        $(document).ready(function() {
             $('#tbl_coorganization').DataTable(
-                {
-                    columnDefs: [
-                        { targets: 0, type: 'diacritics-neutralise'},
-                        { targets: 3, type: 'diacritics-neutralise'},
-                        { targets: 7, orderable: false},
-                        { targets: 8, orderable: false},
-                    ],
-                    "stateSave": true,
-                    "paging" : false,
-                    "ordering" : true,
-                    "info"  : false,
-                    "searching" : false,
-                    "language": {
-                        "oAria": {
-                            "sSortAscending":  "{% trans 'datatable_sortascending'%}",
-                            "sSortDescending": "{% trans 'datatable_sortdescending'%}"
+                    {
+                        columnDefs: [
+                            { targets: 0, type: 'diacritics-neutralise'},
+                            { targets: 3, type: 'diacritics-neutralise'},
+                            { targets: 1, orderable: false},
+                            { targets: 7, orderable: false},
+                            { targets: 8, orderable: false},
+                        ],
+                        "stateSave": true,
+                        "paging" : false,
+                        "ordering" : true,
+                        "info"  : false,
+                        "searching" : false,
+                        "language": {
+                            "oAria": {
+                                "sSortAscending":  "{% trans 'datatable_sortascending'%}",
+                                "sSortDescending": "{% trans 'datatable_sortdescending'%}"
+                            }
                         }
-                    }
-                });
+                    });
             $(".coorganization-edit-btn").click(function(ev) {
                 ev.preventDefault();
                 var url = $(this).data("form");
