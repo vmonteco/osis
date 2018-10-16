@@ -254,7 +254,7 @@ class TestPermissionField(TestCase):
 
         FieldReferenceFactory(
             content_type=ContentType.objects.get(app_label="base", model="educationgroupyear"),
-            field_name="main_teaching_campus",
+            field_name= "main_teaching_campus",
             context=TRAINING_DAILY_MANAGEMENT,
             permissions=self.permissions,
         )

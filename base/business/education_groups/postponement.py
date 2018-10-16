@@ -71,7 +71,7 @@ def _postpone_m2m(education_group_year, postponed_egy):
             continue
         m2m_cls = f.rel.through
 
-        # Remove records of posptponed_egy
+        # Remove records of postponed_egy
         m2m_cls.objects.all().filter(education_group_year=postponed_egy).delete()
 
         # Recreate records
@@ -99,7 +99,8 @@ def duplicate_education_group_year(old_education_group_year, new_academic_year, 
     # During the update, we need to check if the postponed object has been modify
     else:
         dict_postponed_egy = model_to_dict_fk(postponed_egy, exclude=FIELD_TO_EXCLUDE)
-        differences = compare_objects(dict_initial_egy, dict_postponed_egy)
+        differences = compare_objects(dict_initial_egy, dict_postponed_egy) \
+            if dict_initial_egy and dict_postponed_egy else {}
 
         if differences:
             raise ConsistencyError(postponed_egy, differences)
@@ -117,6 +118,7 @@ class PostponementEducationGroupYearMixin:
 
     If one of the future year is already modified, it will stop the postponement and append a warning message
     """
+    field_to_exclude = FIELD_TO_EXCLUDE
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -146,7 +148,9 @@ class PostponementEducationGroupYearMixin:
         for academic_year in AcademicYear.objects.filter(year__gt=self.postpone_start_year,
                                                          year__lte=self.postpone_end_year):
             try:
-                postponed_egy = duplicate_education_group_year(education_group_year, academic_year, dict_new_value)
+                postponed_egy = duplicate_education_group_year(
+                    education_group_year, academic_year, dict_new_value, self.dict_initial_egy
+                )
                 self.education_group_year_postponed.append(postponed_egy)
 
             except ConsistencyError as e:
