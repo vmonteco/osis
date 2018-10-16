@@ -62,7 +62,9 @@
                                     <a href="#"
                                        class="btn btn-primary charge-repartition-btn"
                                        role="button"
-                                       data-form="{% url "add_charge_repartition" learning_unit_year.id key %}">{% trans "add" %}</a>
+                                       data-form="{% url "add_charge_repartition" learning_unit_year.id key %}">
+                                        {% trans "add" %}
+                                    </a>
                                 </td>
                             </tr>
                         {% endfor %}
@@ -92,14 +94,6 @@
             formAjaxSubmit('#form-modal-body form', '#form-modal');
         });
         return false;
-    });
-
-    $("#{{ click_id }}:enabled, #{{ click_id }}:not('.disabled')").click(function (e) {
-        $('#form-modal-content').load('{{ modal_url }}', function () {
-            $('#form-modal').modal('toggle');
-            bindTextArea();
-            formAjaxSubmit('#form-modal-body form', '#form-modal');
-        });
     });
 </script>
 
