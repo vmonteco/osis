@@ -48,7 +48,7 @@ from base.views.learning_units.pedagogy.read import learning_unit_pedagogy
 from base.views.learning_units.pedagogy.update import learning_unit_pedagogy_edit, toggle_summary_locked
 from base.views.learning_units.proposal import create, update
 from base.views.learning_units.update import update_learning_unit, learning_unit_edition_end_date
-from base.views.learning_units.attributions import add_partim_attribution
+from base.views.learning_units.attributions import add_partim_attribution, AddChargeRepartition
 
 urlpatterns = [
     url(r'^$', common.home, name='home'),
@@ -135,7 +135,8 @@ urlpatterns = [
             ])),
             url(r'^attributions/', include([
                 url(r'^$', learning_unit.learning_unit_attributions, name="learning_unit_attributions"),
-                url(r'^add/$', add_partim_attribution, name="add_partim_attribution"),
+                url(r'^select/$', add_partim_attribution, name="add_partim_attribution"),
+                url(r'^add/(?P<attribution_charge_new_id>[0-9]+)/$', AddChargeRepartition.as_view(), name="add_charge_repartition"),
             ])) ,
             url(r'^proposal/', include([
                 url(r'^modification/$', update.learning_unit_modification_proposal,

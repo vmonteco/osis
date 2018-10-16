@@ -24,7 +24,6 @@
 #
 ##############################################################################
 from attribution.models import attribution_charge_new
-from base.models import learning_unit_component
 from base.models.learning_component_year import LearningComponentYear
 
 
@@ -48,12 +47,13 @@ def create_attributions_dictionary(attribution_charges):
             .update({attribution_charge.learning_component_year.type: attribution_charge.allocation_charge})
     return attributions
 
+
 def find_attributions_for_add_partim(learning_unit_year_parent, learning_unit_year_child):
-    learning_component_year = LearningComponentYear.objects.filter(
+    components_year = LearningComponentYear.objects.filter(
         learningunitcomponent__learning_unit_year=learning_unit_year_child
     )
     attribution_charges = attribution_charge_new.AttributionChargeNew.objects \
         .filter(learning_component_year__learningunitcomponent__learning_unit_year=learning_unit_year_parent) \
-        .exclude(attribution__attributionchargenew__learning_component_year__in=learning_component_year) \
+        .exclude(attribution__attributionchargenew__learning_component_year__in=components_year) \
         .select_related('learning_component_year', 'attribution__tutor__person')
     return create_attributions_dictionary(attribution_charges)

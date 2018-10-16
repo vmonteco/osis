@@ -57,7 +57,6 @@ class TestAddPartimAttribution(TestCase):
         )
         return attribution_charge_new
 
-
     def setUp(self):
         self.client.force_login(self.person.user)
 
@@ -100,5 +99,41 @@ class TestAddPartimAttribution(TestCase):
             len(self.attributions[1:])
         )
 
-    def test_post_request(self):
-        response = self.client.post(self.url)
+
+class TestAddChargeRepartition(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.learning_unit_year_parent = LearningUnitYearFullFactory()
+        cls.learning_unit_year_child = LearningUnitYearPartimFactory(
+            learning_container_year=cls.learning_unit_year_parent.learning_container_year
+        )
+
+        cls.attribution = cls.create_attribution_charge_for_specific_learning_unit_year(cls.learning_unit_year_parent)
+
+        cls.person = PersonFactory()
+        cls.url = reverse("add_charge_repartition", args=[cls.learning_unit_year_child.id, cls.attribution.id])
+
+    @staticmethod
+    def create_attribution_charge_for_specific_learning_unit_year(luy):
+        attribution_charge_new = AttributionChargeNewFactory(
+            learning_component_year__learning_container_year=luy.learning_container_year
+        )
+        learning_unit_component = LearningUnitComponentFactory(
+            learning_component_year=attribution_charge_new.learning_component_year,
+            learning_unit_year=luy
+        )
+        return attribution_charge_new
+
+    def setUp(self):
+        self.client.force_login(self.person.user)
+
+    def test_login_required(self):
+        self.client.logout()
+
+        response = self.client.get(self.url)
+        self.assertRedirects(response,  '/login/?next={}'.format(self.url))
+
+    def test_template_used(self):
+        response = self.client.get(self.url)
+
+        self.assertTemplateUsed(response, "learning_unit/add_charge_repartition.html")

@@ -37,32 +37,7 @@
         {% include "learning_unit/blocks/tabs.html" %}
         <div class="tab-content" id="tab_content">
             <div role="tabpanel" class="tab-pane active" id="attributions">
-                <table class="table">
-                    <thead>
-                        <th>{% trans 'tutor' %}</th>
-                        <th>{% trans 'function' %}</th>
-                        <th>{% trans 'start' %}</th>
-                        <th>{% trans 'duration' %}</th>
-                        <th>Volume 1</th>
-                        <th>Volume 2</th>
-                        <th>{% trans 'substitute' %}</th>
-                        <th></th>
-                    </thead>
-                    <tbody>
-                        {% for key,value in attributions.items %}
-                            <tr>
-                                <td>{{ value.person }}</td>
-                                <td>{% trans value.function %}</td>
-                                <td>{{ value.start_year | default_if_none:'' }}</td>
-                                <td>{{ value.duration | default_if_none:'' }}</td>
-                                <td>{{ value.LECTURING | default_if_none:0 | floatformat:2 }}</td>
-                                <td>{{ value.PRACTICAL_EXERCISES | default_if_none:0 | floatformat:2 }}</td>
-                                <td>{{ value.substitute | default_if_none:'' }}</td>
-                                <td><a href="{% url "add_partim_attribution" learning_unit_year.id %}" class="btn btn-primary" role="button" methods="POST">{% trans "add" %}</a> </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                {% include "learning_unit/add_attribution_inner.html" %}
             </div>
         </div>
     </div>
