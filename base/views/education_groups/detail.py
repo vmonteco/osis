@@ -357,7 +357,7 @@ class EducationGroupYearAdmissionCondition(EducationGroupGenericDetailView):
 
         context.update({
             'admission_condition_form': admission_condition_form,
-            'can_edit_information': self.request.user.has_perm('base.can_edit_educationgroup_pedagogy'),
+            'can_edit_information': is_eligible_to_edit_general_information(context['person'], context['object']),
             'info': {
                 'is_specific': is_specific,
                 'is_common': is_common,
