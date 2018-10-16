@@ -64,7 +64,7 @@ class TestPerms(TestCase):
         self.assertFalse(
             is_academic_calendar_opened(
                 education_group,
-                academic_calendar_type.EDITION_OF_GENERAL_INFORMATION
+                academic_calendar_type.EDUCATION_GROUP_EDITION
             )
         )
 
@@ -76,7 +76,7 @@ class TestPerms(TestCase):
         self.assertFalse(
             is_academic_calendar_opened(
                 education_group,
-                academic_calendar_type.EDITION_OF_GENERAL_INFORMATION
+                academic_calendar_type.EDUCATION_GROUP_EDITION
             )
         )
 
@@ -86,7 +86,7 @@ class TestPerms(TestCase):
         self.assertTrue(
             is_academic_calendar_opened(
                 education_group,
-                academic_calendar_type.EDITION_OF_GENERAL_INFORMATION,
+                academic_calendar_type.EDUCATION_GROUP_EDITION,
                 raise_exception=True
             )
         )

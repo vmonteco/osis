@@ -82,10 +82,10 @@ def is_eligible_to_delete_education_group(person, education_group, raise_excepti
            _is_eligible_education_group(person, education_group, raise_exception)
 
 
-def is_academic_calendar_opened(education_group, type, raise_exception=False):
+def is_academic_calendar_opened(education_group, type_academic_calendar, raise_exception=False):
     result = False
 
-    ac = AcademicCalendar.objects.filter(reference=type).open_calendars()
+    ac = AcademicCalendar.objects.filter(reference=type_academic_calendar).open_calendars()
 
     # Check if the edition period is open
     if not ac:
