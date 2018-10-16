@@ -100,3 +100,5 @@ class TestAddPartimAttribution(TestCase):
             len(self.attributions[1:])
         )
 
+    def test_post_request(self):
+        response = self.client.post(self.url)
