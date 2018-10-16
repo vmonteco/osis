@@ -647,9 +647,9 @@ class TestEntityAutocomplete(TestCase):
 
     def test_with_filter_by_section(self):
         self.client.force_login(user=self.super_user)
-        response = self.client.get(self.url,
-                                   data={'forward': '{"country": "%s"}' % self.entity_version.entity.country.name}
-                                   )
+        response = self.client.get(
+            self.url, data={'forward': '{"country": "%s"}' % self.entity_version.entity.country.name}
+        )
         self._assert_result_is_correct(response)
 
     def _assert_result_is_correct(self, response):
