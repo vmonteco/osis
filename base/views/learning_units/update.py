@@ -40,7 +40,7 @@ from base.forms.learning_unit.edition import LearningUnitEndDateForm
 from base.forms.learning_unit.edition_volume import VolumeEditionFormsetContainer
 from base.forms.learning_unit.learning_unit_postponement import LearningUnitPostponementForm
 from base.models.entity_version import find_pedagogical_entities_version, \
-    find_all_current_entities_version
+    find_all_current_entities_version, EntityVersion
 from base.models.enums import learning_unit_year_subtypes
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.person import Person
@@ -182,6 +182,8 @@ def _save_form_and_display_messages(request, form):
 
 class EntityAutocomplete(autocomplete.Select2QuerySetView):
     def get_queryset(self):
+        if not self.request.user.is_authenticated():
+            return EntityVersion.objects.none()
         country = self.forwarded.get('country', None)
         if country:
             qs = find_all_current_entities_version().filter(entity__country__name=country)
