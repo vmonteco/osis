@@ -30,8 +30,8 @@ from base.business.education_groups.postponement import duplicate_education_grou
 from base.models.academic_year import compute_max_academic_year_adjournment, AcademicYear
 from base.models.education_group_year import EducationGroupYear
 from base.models.enums.education_group_categories import GROUP
-from base.utils.send_mail import send_mail_before_annual_procedure_of_automatic_postponement, \
-    send_mail_after_annual_procedure_of_automatic_postponement
+from base.utils.send_mail import send_mail_before_annual_procedure_of_automatic_postponement_of_egy, \
+    send_mail_after_annual_procedure_of_automatic_postponement_of_egy
 
 
 def fetch_education_group_to_postpone(queryset=None):
@@ -52,13 +52,13 @@ def fetch_education_group_to_postpone(queryset=None):
     egys_to_duplicate = qs_egy.difference(egys_already_duplicated, egys_to_not_duplicate)
 
     # send statistics to the managers
-    send_mail_before_annual_procedure_of_automatic_postponement(last_academic_year, egys_to_duplicate,
+    send_mail_before_annual_procedure_of_automatic_postponement_of_egy(last_academic_year, egys_to_duplicate,
                                                                 egys_already_duplicated, egys_to_not_duplicate)
 
     result, errors = extend_education_groups_until_last_academic_year(last_academic_year, egys_to_duplicate)
 
     # send statistics with results to the managers
-    send_mail_after_annual_procedure_of_automatic_postponement(last_academic_year, result, egys_already_duplicated,
+    send_mail_after_annual_procedure_of_automatic_postponement_of_egy(last_academic_year, result, egys_already_duplicated,
                                                                egys_to_not_duplicate, errors)
 
     return result, errors

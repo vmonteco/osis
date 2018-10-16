@@ -28,6 +28,7 @@ from unittest.mock import patch
 from django.core.mail.message import EmailMultiAlternatives
 from django.test import TestCase
 
+from base.models.education_group_year import EducationGroupYear
 from base.models.learning_unit_year import LearningUnitYear
 from base.tests.factories.learning_unit_year import LearningUnitYearFactory
 from base.tests.factories.person import PersonWithPermissionsFactory
@@ -72,6 +73,10 @@ class TestSendMessage(TestCase):
             'The class TEST_B_C2 has been deleted for the year '+str(self.academic_year.year),
             'The learning unit TEST has been successfully deleted for all years'
         ]
+
+        self.egys_to_postpone = EducationGroupYear.objects.all()
+        self.egys_already_existing = EducationGroupYear.objects.all()
+        self.egys_ending_this_year = EducationGroupYear.objects.all()
 
         self.luys_to_postpone = LearningUnitYear.objects.all()
         self.luys_already_existing = LearningUnitYear.objects.all()
@@ -130,10 +135,9 @@ class TestSendMessage(TestCase):
         mock_class.send.return_value = None
         self.assertIsInstance(mock_class, EmailMultiAlternatives)
         send_mail.send_mail_before_annual_procedure_of_automatic_postponement_of_egy(self.academic_year,
-                                                                             self.egys_to_postpone,
-                                                                             self.egys_already_existing,
-                                                                             self.egys_ending_this_year,
-                                                                             self.msg_list)
+                                                                                     self.egys_to_postpone,
+                                                                                     self.egys_already_existing,
+                                                                                     self.egys_ending_this_year)
         call_args = mock_class.call_args
         recipients = call_args[0][3]
         attachments = call_args[1]
@@ -145,10 +149,10 @@ class TestSendMessage(TestCase):
         mock_class.send.return_value = None
         self.assertIsInstance(mock_class, EmailMultiAlternatives)
         send_mail.send_mail_after_annual_procedure_of_automatic_postponement_of_egy(self.academic_year,
-                                                                             self.egys_to_postpone,
-                                                                             self.egys_already_existing,
-                                                                             self.egys_ending_this_year,
-                                                                             self.msg_list)
+                                                                                    self.egys_to_postpone,
+                                                                                    self.egys_already_existing,
+                                                                                    self.egys_ending_this_year,
+                                                                                    self.msg_list)
         call_args = mock_class.call_args
         recipients = call_args[0][3]
         attachments = call_args[1]

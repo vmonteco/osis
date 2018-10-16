@@ -29,8 +29,8 @@ from django.db import transaction, Error
 from base.business.learning_units.edition import duplicate_learning_unit_year
 from base.models.academic_year import compute_max_academic_year_adjournment, AcademicYear
 from base.models.learning_unit_year import LearningUnitYear
-from base.utils.send_mail import send_mail_before_annual_procedure_of_automatic_postponement, \
-    send_mail_after_annual_procedure_of_automatic_postponement
+from base.utils.send_mail import send_mail_before_annual_procedure_of_automatic_postponement_of_luy, \
+    send_mail_after_annual_procedure_of_automatic_postponement_of_luy
 
 
 def fetch_learning_unit_to_postpone(queryset=None):
@@ -50,14 +50,15 @@ def fetch_learning_unit_to_postpone(queryset=None):
     luys_to_duplicate = qs_luy.difference(luys_already_duplicated, luys_to_not_duplicate)
 
     # send statistics to the managers
-    send_mail_before_annual_procedure_of_automatic_postponement(last_academic_year, luys_to_duplicate,
-                                                                luys_already_duplicated, luys_to_not_duplicate)
+    send_mail_before_annual_procedure_of_automatic_postponement_of_luy(last_academic_year, luys_to_duplicate,
+                                                                       luys_already_duplicated, luys_to_not_duplicate)
 
     result, errors = extend_learning_units_until_last_academic_year(last_academic_year, luys_to_duplicate)
 
     # send statistics with results to the managers
-    send_mail_after_annual_procedure_of_automatic_postponement(last_academic_year, result, luys_already_duplicated,
-                                                               luys_to_not_duplicate, errors)
+    send_mail_after_annual_procedure_of_automatic_postponement_of_luy(last_academic_year, result,
+                                                                      luys_already_duplicated,
+                                                                      luys_to_not_duplicate, errors)
 
     return result, errors
 
