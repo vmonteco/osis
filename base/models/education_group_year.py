@@ -30,7 +30,7 @@ from django.db.models import Count, OuterRef, Exists
 from django.urls import reverse
 from django.utils import translation
 from django.utils.functional import cached_property
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ngettext
 
 from backoffice.settings.base import LANGUAGE_CODE_EN
 from base.models import entity_version
@@ -52,6 +52,33 @@ class EducationGroupYearAdmin(OsisModelAdmin):
     raw_id_fields = ('education_group_type', 'academic_year', 'education_group', 'enrollment_campus',
                      'main_teaching_campus', 'primary_language')
     search_fields = ['acronym']
+
+    actions = [
+        'resend_messages_to_queue',
+        'apply_education_group_year_postponement'
+    ]
+
+    def apply_education_group_year_postponement(self, request, queryset):
+        # Potential circular imports
+        from base.business.education_groups.automatic_postponement import fetch_education_group_to_postpone
+        from base.views.common import display_success_messages, display_error_messages
+
+        result, errors = fetch_education_group_to_postpone(queryset)
+        count = len(result)
+        display_success_messages(
+            request, ngettext(
+                '%(count)d education group has been postponed with success',
+                '%(count)d education groups have been postponed with success', count
+            ) % {'count': count}
+        )
+        if errors:
+            display_error_messages(request, "{} : {}".format(
+                _("The following education groups ended with error"),
+                ", ".join([str(error) for error in errors])
+            ))
+
+    apply_education_group_year_postponement.short_description = _("Apply postponement on education group year")
+
 
 
 class EducationGroupYearManager(models.Manager):
