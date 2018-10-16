@@ -48,7 +48,7 @@ def create_attributions_dictionary(attribution_charges):
     return attributions
 
 
-def find_attributions_for_add_partim(learning_unit_year_parent, learning_unit_year_child):
+def find_attributions_for_add_partim(learning_unit_year_parent, learning_unit_year_child, attribution=None):
     components_year = LearningComponentYear.objects.filter(
         learningunitcomponent__learning_unit_year=learning_unit_year_child
     )
@@ -56,4 +56,6 @@ def find_attributions_for_add_partim(learning_unit_year_parent, learning_unit_ye
         .filter(learning_component_year__learningunitcomponent__learning_unit_year=learning_unit_year_parent) \
         .exclude(attribution__attributionchargenew__learning_component_year__in=components_year) \
         .select_related('learning_component_year', 'attribution__tutor__person')
+    if attribution:
+        attribution_charges = attribution_charges.filter(attribution=attribution)
     return create_attributions_dictionary(attribution_charges)

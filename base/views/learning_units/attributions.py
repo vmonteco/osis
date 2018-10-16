@@ -29,7 +29,8 @@ from django.utils.decorators import method_decorator
 from django.views.generic import FormView
 
 from attribution.business import attribution_charge_new
-from base.forms.learning_unit.attribution_charge_repartition import AttributionChargeRepartitionForm
+from base.forms.learning_unit.attribution_charge_repartition import AttributionChargeRepartitionForm, \
+    AttributionChargeRepartitionFormSet
 from base.models.learning_unit_year import LearningUnitYear
 from base.views import layout
 from base.views.mixins import AjaxTemplateMixin
@@ -49,9 +50,15 @@ def add_partim_attribution(request, learning_unit_year_id):
 @method_decorator(login_required, name='dispatch')
 class AddChargeRepartition(AjaxTemplateMixin, FormView):
     template_name = "learning_unit/add_charge_repartition.html"
-    form_class = AttributionChargeRepartitionForm
+    form_class = AttributionChargeRepartitionFormSet
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["learning_unit_year"] = get_object_or_404(LearningUnitYear, id=self.kwargs["learning_unit_year_id"])
+        partim_learning_unit_year = get_object_or_404(LearningUnitYear, id=self.kwargs["learning_unit_year_id"])
+        full_learning_unit_year = partim_learning_unit_year.parent
+        context["learning_unit_year"] = partim_learning_unit_year
+        context["attribution"] = attribution_charge_new.find_attributions_for_add_partim(full_learning_unit_year,
+                                                                                         partim_learning_unit_year,
+                                                                                         self.kwargs["attribution_id"]).popitem()[1]
+        context["formset"] = context["form"]
         return context

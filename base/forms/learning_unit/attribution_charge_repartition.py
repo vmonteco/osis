@@ -23,7 +23,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.forms import ModelForm
+from django.forms import ModelForm, formset_factory
 
 from attribution.models.attribution_charge_new import AttributionChargeNew
 from base.models.learning_component_year import LearningComponentYear
@@ -56,3 +56,8 @@ class AttributionChargeRepartitionForm(ModelForm):
         learning_unit_component.save()
 
         return attribution_charge_obj
+
+AttributionChargeRepartitionFormSet = formset_factory(AttributionChargeRepartitionForm,
+                                                           extra=2,
+                                                           max_num=2,
+                                                           min_num=2)

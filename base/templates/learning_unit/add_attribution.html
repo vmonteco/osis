@@ -58,7 +58,12 @@
                                 <td>{{ value.LECTURING | default_if_none:0 | floatformat:2 }}</td>
                                 <td>{{ value.PRACTICAL_EXERCISES | default_if_none:0 | floatformat:2 }}</td>
                                 <td>{{ value.substitute | default_if_none:'' }}</td>
-                                <td><a href="{% url "add_partim_attribution" learning_unit_year.id %}" class="btn btn-primary" role="button" methods="POST">{% trans "add" %}</a> </td>
+                                <td>
+                                    <a href="#"
+                                       class="btn btn-primary charge-repartition-btn"
+                                       role="button"
+                                       data-form="{% url "add_charge_repartition" learning_unit_year.id key %}">{% trans "add" %}</a>
+                                </td>
                             </tr>
                         {% endfor %}
                     </tbody>
@@ -67,4 +72,35 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="form-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog" id="modal_dialog_id">
+      <div class="modal-content" id="form-modal-content">
+
+     </div>
+   </div>
+ </div>
+
+<script type="text/javascript" src="{% static "js/modal_form_submit.js" %}"></script>
+<script type="application/javascript">
+    $(".charge-repartition-btn").click(function(ev) {
+        ev.preventDefault();
+        var url = $(this).data("form"); // get the contact form url
+        $('#form-modal-content').load(url, function () {
+            $('#form-modal').modal('toggle');
+            bindTextArea();
+            formAjaxSubmit('#form-modal-body form', '#form-modal');
+        });
+        return false;
+    });
+
+    $("#{{ click_id }}:enabled, #{{ click_id }}:not('.disabled')").click(function (e) {
+        $('#form-modal-content').load('{{ modal_url }}', function () {
+            $('#form-modal').modal('toggle');
+            bindTextArea();
+            formAjaxSubmit('#form-modal-body form', '#form-modal');
+        });
+    });
+</script>
+
 {% endblock %}

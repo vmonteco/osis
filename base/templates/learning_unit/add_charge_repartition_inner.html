@@ -32,6 +32,16 @@
             <form method="post" id="form_charge_repartition" action="{{ request.path }}">
                 {% csrf_token %}
                 <table class="table">
+                    <thead>
+                        <th>{% trans 'tutor' %}</th>
+                        <th>{% trans 'function' %}</th>
+                        <th>{% trans 'start' %}</th>
+                        <th>{% trans 'duration' %}</th>
+                        <th>Volume 1</th>
+                        <th>Volume 2</th>
+                        <th>{% trans 'substitute' %}</th>
+                        <th></th>
+                    </thead>
                     <tbody>
                         <tr>
                             <td>{{ attribution.person }}</td>
@@ -39,7 +49,7 @@
                             <td>{{ attribution.start_year | default_if_none:'' }}</td>
                             <td>{{ attribution.duration | default_if_none:'' }}</td>
                             {% for form in formset %}
-                            <td>{% bootstrap_field form.allocation_charge %}</td>
+                            <td>{% bootstrap_field form.allocation_charge show_label=False %}</td>
                             {% endfor %}
                             <td>{{ value.PRACTICAL_EXERCISES | default_if_none:0 | floatformat:2 }}</td>
                             <td>{{ attribution.substitute | default_if_none:'' }}</td>
