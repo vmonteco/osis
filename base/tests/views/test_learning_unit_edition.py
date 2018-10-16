@@ -637,13 +637,6 @@ class TestEntityAutocomplete(TestCase):
             acronym="DRT"
         )
 
-    def test_user_not_logged(self):
-        self.client.logout()
-        response = self.client.get(self.url, data={'q': 'drt'})
-        json_response = str(response.content, encoding='utf8')
-        results = json.loads(json_response)['results']
-        self.assertEqual(results, [])
-
     def test_when_param_is_digit_assert_searching_on_code(self):
         # When searching on "code"
         self.client.force_login(user=self.super_user)
