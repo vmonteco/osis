@@ -35,24 +35,18 @@ from base.forms.education_group.organization import OrganizationEditForm
 from base.views import layout
 
 HTML_ANCHOR = "#coorganization_id_"
+HTML_ANCHOR_TABLE_COORGANIZATIONS = "#tbl_coorganization"
 
 
 @login_required
 @permission_required('base.can_access_education_group', raise_exception=True)
 def create(request, root_id, education_group_year_id):
-    print('create')
-    print(request.POST)
     education_group_yr = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
 
     form = OrganizationEditForm(request.POST or None)
 
     if form.is_valid():
-        print('is_val')
         return _save_and_redirect(form, root_id, education_group_year_id)
-    print('else')
-    print(education_group_yr)
-    print(root_id)
-    print(form)
     context = {'education_group_year': education_group_yr,
                'root_id': root_id,
                'form': form,
@@ -62,24 +56,24 @@ def create(request, root_id, education_group_year_id):
 
 
 def _save_and_redirect(form, root_id, education_group_year_id):
-    coorganization = form.save_coorganization(education_group_year_id)
-
+    co_organization = form.save_co_organization(education_group_year_id)
     return HttpResponseRedirect(reverse('education_group_read',
                                         kwargs={'root_id': root_id,
                                                 'education_group_year_id': education_group_year_id}) + "{}{}".format(
         HTML_ANCHOR,
-        coorganization.id))
+        co_organization.id))
 
 
 @login_required
 @permission_required('base.can_access_education_group', raise_exception=True)
 def delete(request, root_id, education_group_year_id):
-    coorganization_id = request.POST.get('coorganization_id_to_delete')
-    education_group_organization = get_object_or_404(EducationGroupOrganization, pk=coorganization_id)
+    co_organization_id = request.POST.get('co_organization_id_to_delete')
+    education_group_organization = get_object_or_404(EducationGroupOrganization, pk=co_organization_id)
     education_group_organization.delete()
     return HttpResponseRedirect(reverse('education_group_read',
                                         kwargs={'root_id': root_id,
-                                                'education_group_year_id': education_group_year_id}))
+                                                'education_group_year_id': education_group_year_id}) + "{}".format(
+        HTML_ANCHOR_TABLE_COORGANIZATIONS))
 
 
 @login_required
@@ -98,7 +92,7 @@ def edit(request, root_id, education_group_year_id, coorganization_id):
                'root_id': root_id,
                'form': form,
                'create': False,
-               'coorganization': education_group_organization
+               'co_organization': education_group_organization
                }
 
     return layout.render(request, "education_group/organization_edit.html", context)

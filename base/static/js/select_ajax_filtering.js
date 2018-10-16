@@ -37,7 +37,8 @@ jQuery.fn.filterOrganizationByCountry = function(country_node, organization_node
             organization_node.html('');
             let options = '';
             for (let i = 0; i < j.length; i++) {
-                console.log(i);
+                console.log(j[i].organization__pk);
+                console.log(j[i].organization__entity__entityversion__title);
                 options += '<option value="' + j[i].organization__pk + '">' + j[i].organization__entity__entityversion__title + '</option>';
             }
             organization_node.html(options);

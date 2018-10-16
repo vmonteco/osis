@@ -55,16 +55,15 @@ class OrganizationEditForm(forms.ModelForm):
     def __init__(self, data=None, initial=None, **kwargs):
 
         super().__init__(data, initial=initial, **kwargs)
+
         if data:
             self.fields['organization'].queryset = Organization.objects \
                 .filter(pk=data['organization'])
-
             self.organization = find_by_id(data['organization'])
         else:
             if self.instance and self.instance.pk:
                 country_id = None
                 if self.instance.organization:
-
                     entity = self.instance.organization.latest_version.entity
                     self.fields['country'].initial = entity.country
                     if entity.country:
@@ -101,7 +100,6 @@ class OrganizationEditForm(forms.ModelForm):
         if country_id:
             organizations = Entity.objects.filter(country__pk=country_id).distinct('organization')
             list_orgs = []
-
             for i in organizations:
                 list_orgs.append(i.organization.id)
             self.fields['organization'].queryset = Organization.objects.filter(id__in=list_orgs)
@@ -111,6 +109,6 @@ class OrganizationEditForm(forms.ModelForm):
         self.fields['organization'].initial = find_by_id(organization_id)
         self.organization = find_by_id(organization_id)
 
-    def save_coorganization(self, education_group_year_id, *args, **kwargs):
+    def save_co_organization(self, education_group_year_id, *args, **kwargs):
         self.instance.education_group_year = EducationGroupYear.objects.get(pk=education_group_year_id)
         return self.save(*args, **kwargs)

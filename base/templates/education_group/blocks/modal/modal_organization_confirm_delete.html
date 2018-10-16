@@ -31,7 +31,7 @@
           action="{% url 'coorganization_delete' root_id=root.pk education_group_year_id=education_group_year.id %}">
         {% csrf_token %}
         <div class="modal-body">
-            <input type="hidden" id="hdn_coorganization_id_to_delete"  name="coorganization_id_to_delete">
+            <input type="hidden" id="hdn_co_organization_id_to_delete"  name="co_organization_id_to_delete">
             {% trans "Are you sure you want to delete the coorganization?" %}
          </div>
          <div class="modal-footer">

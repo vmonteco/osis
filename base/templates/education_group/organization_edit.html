@@ -32,7 +32,7 @@
               {% if create %}
                 action="{% url 'coorganization_create' root_id=root_id education_group_year_id=education_group_year.id %}"
               {% else %}
-                action="{% url 'coorganization_edit' root_id=root_id education_group_year_id=education_group_year.id coorganization_id=coorganization.id%}"
+                action="{% url 'coorganization_edit' root_id=root_id education_group_year_id=education_group_year.id coorganization_id=co_organization.id%}"
               {% endif %}>
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">×</button>
