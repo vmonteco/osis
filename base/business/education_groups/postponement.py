@@ -23,6 +23,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+
 from django import forms
 from django.db import Error
 from django.utils.translation import ugettext as _
@@ -82,6 +83,9 @@ def _postpone_m2m(education_group_year, postponed_egy):
 
 def duplicate_education_group_year(old_education_group_year, new_academic_year, dict_new_value=None,
                                    dict_initial_egy=None):
+    if not dict_new_value:
+        dict_new_value = model_to_dict_fk(old_education_group_year, exclude=FIELD_TO_EXCLUDE)
+
     defaults_values = {x: v for x, v in dict_new_value.items() if not isinstance(v, list)}
 
     postponed_egy, created = EducationGroupYear.objects.get_or_create(
@@ -119,6 +123,7 @@ class PostponementEducationGroupYearMixin:
     If one of the future year is already modified, it will stop the postponement and append a warning message
     """
     field_to_exclude = FIELD_TO_EXCLUDE
+    dict_initial_egy = {}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

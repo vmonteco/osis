@@ -79,7 +79,7 @@ def extend_education_groups_until_last_academic_year(last_academic_year, egys_to
     return result, errors
 
 
-MSG_RESULT = "%s learning unit(s) extended and %s error(s)"
+MSG_RESULT = "%s education group(s) extended and %s error(s)"
 
 
 def serialize_postponement_results(result, errors):

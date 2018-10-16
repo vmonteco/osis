@@ -80,7 +80,6 @@ class EducationGroupYearAdmin(OsisModelAdmin):
     apply_education_group_year_postponement.short_description = _("Apply postponement on education group year")
 
 
-
 class EducationGroupYearManager(models.Manager):
     def look_for_common(self, **kwargs):
         return self.filter(acronym__startswith='common-', **kwargs)
