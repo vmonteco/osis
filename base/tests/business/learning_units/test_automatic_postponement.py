@@ -30,7 +30,7 @@ from django.db import Error
 from django.test import TestCase
 
 from base.business.learning_units.automatic_postponement import fetch_learning_unit_to_postpone, \
-    serialize_postponement_results, MSG_RESULT
+    serialize_luy_postponement_results, MSG_RESULT
 from base.models.learning_unit_year import LearningUnitYear
 from base.tests.factories.academic_year import AcademicYearFactory, get_current_year
 from base.tests.factories.learning_unit import LearningUnitFactory
@@ -103,21 +103,21 @@ class TestSerializePostponement(TestCase):
         cls.luys = [LearningUnitYearFactory() for _ in range(10)]
 
     def test_empty_results_and_errors(self):
-        result_dict = serialize_postponement_results([], [])
+        result_dict = serialize_luy_postponement_results([], [])
         self.assertDictEqual(result_dict, {
             "msg": MSG_RESULT % (len([]), len([])),
             "errors": []
         })
 
     def test_empty_errors(self):
-        result_dict = serialize_postponement_results(self.luys, [])
+        result_dict = serialize_luy_postponement_results(self.luys, [])
         self.assertDictEqual(result_dict, {
             "msg": MSG_RESULT % (len(self.luys), len([])),
             "errors": []
         })
 
     def test_with_errors_and_results(self):
-        result_dict = serialize_postponement_results(self.luys[:5], self.luys[5:])
+        result_dict = serialize_luy_postponement_results(self.luys[:5], self.luys[5:])
         self.assertDictEqual(result_dict, {
             "msg": MSG_RESULT % (len(self.luys[:5]), len(self.luys[5:])),
             "errors": [str(luy) for luy in self.luys[5:]]

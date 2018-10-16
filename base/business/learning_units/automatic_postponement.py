@@ -79,7 +79,7 @@ def extend_learning_units_until_last_academic_year(last_academic_year, luys_to_d
 MSG_RESULT = "%s learning unit(s) extended and %s error(s)"
 
 
-def serialize_postponement_results(result, errors):
+def serialize_luy_postponement_results(result, errors):
     return {
         "msg": MSG_RESULT % (len(result), len(errors)),
         "errors": [str(luy) for luy in errors]

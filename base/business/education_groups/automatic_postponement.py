@@ -82,7 +82,7 @@ def extend_education_groups_until_last_academic_year(last_academic_year, egys_to
 MSG_RESULT = "%s education group(s) extended and %s error(s)"
 
 
-def serialize_postponement_results(result, errors):
+def serialize_egy_postponement_results(result, errors):
     return {
         "msg": MSG_RESULT % (len(result), len(errors)),
         "errors": [str(egy) for egy in errors]

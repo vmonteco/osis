@@ -29,7 +29,7 @@ from unittest.mock import Mock
 from django.db import Error
 from django.test import TestCase
 
-from base.business.education_groups.automatic_postponement import serialize_postponement_results, MSG_RESULT, \
+from base.business.education_groups.automatic_postponement import serialize_egy_postponement_results, MSG_RESULT, \
     fetch_education_group_to_postpone
 from base.models.education_group_year import EducationGroupYear
 from base.tests.factories.academic_year import AcademicYearFactory, get_current_year
@@ -103,21 +103,21 @@ class TestSerializePostponement(TestCase):
         cls.egys = [EducationGroupYearFactory() for _ in range(10)]
 
     def test_empty_results_and_errors(self):
-        result_dict = serialize_postponement_results([], [])
+        result_dict = serialize_egy_postponement_results([], [])
         self.assertDictEqual(result_dict, {
             "msg": MSG_RESULT % (len([]), len([])),
             "errors": []
         })
 
     def test_empty_errors(self):
-        result_dict = serialize_postponement_results(self.egys, [])
+        result_dict = serialize_egy_postponement_results(self.egys, [])
         self.assertDictEqual(result_dict, {
             "msg": MSG_RESULT % (len(self.egys), len([])),
             "errors": []
         })
 
     def test_with_errors_and_results(self):
-        result_dict = serialize_postponement_results(self.egys[:5], self.egys[5:])
+        result_dict = serialize_egy_postponement_results(self.egys[:5], self.egys[5:])
         self.assertDictEqual(result_dict, {
             "msg": MSG_RESULT % (len(self.egys[:5]), len(self.egys[5:])),
             "errors": [str(egy) for egy in self.egys[5:]]
