@@ -629,7 +629,6 @@ class TestEntityAutocomplete(TestCase):
     def setUp(self):
         self.super_user = SuperUserFactory()
         self.url = reverse("entity_autocomplete")
-        self.entity = EntityAutocomplete()
         today = datetime.date.today()
         self.entity_version = EntityVersionFactory(entity_type=entity_type.SCHOOL,
                                                    start_date=today.replace(year=1900),
@@ -638,7 +637,7 @@ class TestEntityAutocomplete(TestCase):
 
     def test_user_not_logged(self):
         self.client.logout()
-        response = self.client.get(self.url, data={'q': 'DRT'})
+        response = self.client.get(self.url, data={'q': 'drt'})
         json_response = str(response.content, encoding='utf8')
         results = json.loads(json_response)['results']
         self.assertEqual(results, [])
@@ -646,7 +645,11 @@ class TestEntityAutocomplete(TestCase):
     def test_when_param_is_digit_assert_searching_on_code(self):
         # When searching on "code"
         self.client.force_login(user=self.super_user)
-        response = self.client.get(self.url, data={'q': 'DRT'})
+        response = self.client.get(self.url,
+                                   data={'q': 'DRT',
+                                         'forward': '{"country": "%s"}' % self.entity_version.entity.country.name
+                                         }
+                                   )
         self._assert_result_is_correct(response)
 
     def test_with_filter_by_section(self):
