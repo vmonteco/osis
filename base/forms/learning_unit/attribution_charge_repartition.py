@@ -57,7 +57,4 @@ class AttributionChargeRepartitionForm(ModelForm):
 
         return attribution_charge_obj
 
-AttributionChargeRepartitionFormSet = formset_factory(AttributionChargeRepartitionForm,
-                                                           extra=2,
-                                                           max_num=2,
-                                                           min_num=2)
+AttributionChargeRepartitionFormSet = formset_factory(AttributionChargeRepartitionForm, max_num=2, min_num=2)

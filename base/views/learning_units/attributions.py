@@ -25,12 +25,15 @@
 ##############################################################################
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
+from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.generic import FormView
 
 from attribution.business import attribution_charge_new
+from attribution.models.attribution_new import AttributionNew
 from base.forms.learning_unit.attribution_charge_repartition import AttributionChargeRepartitionForm, \
     AttributionChargeRepartitionFormSet
+from base.models.enums import learning_component_year_type
 from base.models.learning_unit_year import LearningUnitYear
 from base.views import layout
 from base.views.mixins import AjaxTemplateMixin
@@ -62,3 +65,35 @@ class AddChargeRepartition(AjaxTemplateMixin, FormView):
                                                                                          self.kwargs["attribution_id"]).popitem()[1]
         context["formset"] = context["form"]
         return context
+
+    def get_initial(self):
+        partim_learning_unit_year = get_object_or_404(LearningUnitYear, id=self.kwargs["learning_unit_year_id"])
+        full_learning_unit_year = partim_learning_unit_year.parent
+        attribution = attribution_charge_new.find_attributions_for_add_partim(full_learning_unit_year,
+                                                                              partim_learning_unit_year,
+                                                                              self.kwargs["attribution_id"]).popitem()[1]
+        initial_data = [
+            {
+                "allocation_charge": attribution.get(learning_component_year_type.LECTURING)
+            },
+            {
+                "allocation_charge": attribution.get(learning_component_year_type.PRACTICAL_EXERCISES)
+            }
+        ]
+        return initial_data
+
+    def form_valid(self, formset):
+        attribution = get_object_or_404(AttributionNew, id=self.kwargs["attribution_id"])
+        attribution_copy = attribution
+        attribution_copy.id = None
+        attribution_copy.save()
+        luy = get_object_or_404(LearningUnitYear, id=self.kwargs["learning_unit_year_id"])
+        types = (learning_component_year_type.LECTURING, learning_component_year_type.PRACTICAL_EXERCISES)
+        for form, component_type in zip(formset, types):
+            form.save(attribution_copy, luy, component_type)
+
+        return super().form_valid(formset)
+
+    def get_success_url(self):
+        return reverse("learning_unit_attributions", args=[self.kwargs["learning_unit_year_id"]])
+
