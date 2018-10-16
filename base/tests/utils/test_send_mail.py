@@ -97,10 +97,10 @@ class TestSendMessage(TestCase):
         self.assertIsNone(attachments['attachments'])
 
     @patch("osis_common.messaging.send_message.EmailMultiAlternatives", autospec=True)
-    def test_send_mail_before_annual_procedure_of_automatic_postponement(self, mock_class):
+    def test_send_mail_before_annual_procedure_of_automatic_postponement_of_luy(self, mock_class):
         mock_class.send.return_value = None
         self.assertIsInstance(mock_class, EmailMultiAlternatives)
-        send_mail.send_mail_before_annual_procedure_of_automatic_postponement(self.academic_year,
+        send_mail.send_mail_before_annual_procedure_of_automatic_postponement_of_luy(self.academic_year,
                                                                               self.luys_to_postpone,
                                                                               self.luys_already_existing,
                                                                               self.luys_ending_this_year)
@@ -111,13 +111,43 @@ class TestSendMessage(TestCase):
         self.assertIsNone(attachments['attachments'])
 
     @patch("osis_common.messaging.send_message.EmailMultiAlternatives", autospec=True)
-    def test_send_mail_after_annual_procedure_of_automatic_postponement(self, mock_class):
+    def test_send_mail_after_annual_procedure_of_automatic_postponement_of_luy(self, mock_class):
         mock_class.send.return_value = None
         self.assertIsInstance(mock_class, EmailMultiAlternatives)
-        send_mail.send_mail_after_annual_procedure_of_automatic_postponement(self.academic_year,
+        send_mail.send_mail_after_annual_procedure_of_automatic_postponement_of_luy(self.academic_year,
                                                                              self.luys_to_postpone,
                                                                              self.luys_already_existing,
                                                                              self.luys_ending_this_year,
+                                                                             self.msg_list)
+        call_args = mock_class.call_args
+        recipients = call_args[0][3]
+        attachments = call_args[1]
+        self.assertEqual(len(recipients), 1)
+        self.assertIsNone(attachments['attachments'])
+
+    @patch("osis_common.messaging.send_message.EmailMultiAlternatives", autospec=True)
+    def test_send_mail_before_annual_procedure_of_automatic_postponement_of_egy(self, mock_class):
+        mock_class.send.return_value = None
+        self.assertIsInstance(mock_class, EmailMultiAlternatives)
+        send_mail.send_mail_before_annual_procedure_of_automatic_postponement_of_egy(self.academic_year,
+                                                                             self.egys_to_postpone,
+                                                                             self.egys_already_existing,
+                                                                             self.egys_ending_this_year,
+                                                                             self.msg_list)
+        call_args = mock_class.call_args
+        recipients = call_args[0][3]
+        attachments = call_args[1]
+        self.assertEqual(len(recipients), 1)
+        self.assertIsNone(attachments['attachments'])
+
+    @patch("osis_common.messaging.send_message.EmailMultiAlternatives", autospec=True)
+    def test_send_mail_after_annual_procedure_of_automatic_postponement_of_egy(self, mock_class):
+        mock_class.send.return_value = None
+        self.assertIsInstance(mock_class, EmailMultiAlternatives)
+        send_mail.send_mail_after_annual_procedure_of_automatic_postponement_of_egy(self.academic_year,
+                                                                             self.egys_to_postpone,
+                                                                             self.egys_already_existing,
+                                                                             self.egys_ending_this_year,
                                                                              self.msg_list)
         call_args = mock_class.call_args
         recipients = call_args[0][3]
