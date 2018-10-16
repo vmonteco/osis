@@ -25,6 +25,7 @@
 ##############################################################################
 from dal import autocomplete
 from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import IntegrityError
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -180,10 +181,8 @@ def _save_form_and_display_messages(request, form):
     return records
 
 
-class EntityAutocomplete(autocomplete.Select2QuerySetView):
+class EntityAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView):
     def get_queryset(self):
-        if not self.request.user.is_authenticated():
-            return EntityVersion.objects.none()
         country = self.forwarded.get('country', None)
         if country:
             qs = find_all_current_entities_version().filter(entity__country__name=country)
