@@ -30,7 +30,7 @@ from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 
-from base.business.education_groups.postponement import _model_to_dict
+from base.business.utils.model import model_to_dict_fk
 from base.forms.education_group.training import TrainingForm, TrainingEducationGroupYearForm
 from base.models.education_group_type import EducationGroupType
 from base.models.education_group_year import EducationGroupYear
@@ -119,7 +119,7 @@ class TestPostponementEducationGroupYearMixin(TestCase):
     def test_init(self):
         # In case of creation
         form = TrainingForm({}, user=UserFactory(), education_group_type=self.education_group_type)
-        self.assertFalse(hasattr(form, "dict_initial_egy"))
+        self.assertFalse(form, "dict_initial_egy")
 
         # In case of update
         form = TrainingForm(
@@ -127,7 +127,7 @@ class TestPostponementEducationGroupYearMixin(TestCase):
             user=UserFactory(),
             instance=self.education_group_year
         )
-        dict_initial_egy = _model_to_dict(
+        dict_initial_egy = model_to_dict_fk(
             self.education_group_year, exclude=form.field_to_exclude
         )
 
@@ -254,7 +254,7 @@ class TestPermissionField(TestCase):
 
         FieldReferenceFactory(
             content_type=ContentType.objects.get(app_label="base", model="educationgroupyear"),
-            field_name="main_teaching_campus",
+            field_name= "main_teaching_campus",
             context=TRAINING_DAILY_MANAGEMENT,
             permissions=self.permissions,
         )
