@@ -26,8 +26,8 @@
 from django.forms import model_to_dict
 from django.test import TestCase
 
-from base.business.education_groups.postponement import EDUCATION_GROUP_MAX_POSTPONE_YEARS, _compute_end_year, \
-    _model_to_dict
+from base.business.education_groups.postponement import EDUCATION_GROUP_MAX_POSTPONE_YEARS, _compute_end_year
+from base.business.utils.model import model_to_dict_fk
 from base.models.education_group_year import EducationGroupYear
 from base.models.enums import entity_type
 from base.models.enums import organization_type
@@ -124,7 +124,7 @@ class TestComputeEndPostponement(EducationGroupPostponementTestCase):
         # Create data in future
         lastest_academic_year = self.generated_ac_years.academic_years[-1]
         field_to_exclude = ['id', 'external_id', 'academic_year', 'languages', 'secondary_domains', 'certificate_aims']
-        defaults = _model_to_dict(self.education_group_year, exclude=field_to_exclude)
+        defaults = model_to_dict_fk(self.education_group_year, exclude=field_to_exclude)
         EducationGroupYear.objects.update_or_create(
             education_group=self.education_group_year.education_group,
             academic_year=lastest_academic_year,
