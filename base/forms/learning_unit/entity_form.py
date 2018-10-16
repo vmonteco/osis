@@ -32,7 +32,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from base.forms.utils.choice_field import add_blank
 from base.models.entity_container_year import EntityContainerYear
-from base.models.entity_version import get_last_version, find_pedagogical_entities_version
+from base.models.entity_version import get_last_version, find_all_current_entities_version
 from base.models.enums.entity_container_year_link_type import REQUIREMENT_ENTITY, ALLOCATION_ENTITY, \
     ADDITIONAL_REQUIREMENT_ENTITY_1, ADDITIONAL_REQUIREMENT_ENTITY_2, ENTITY_TYPE_LIST
 from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES_MUST_HAVE_SAME_ENTITIES
@@ -63,7 +63,7 @@ class EntityContainerYearModelForm(forms.ModelForm):
             attrs={'data-html': True},
             forward=['country']
         ),
-        queryset=find_pedagogical_entities_version()
+        queryset=find_all_current_entities_version()
     )
     entity_type = ''
     country = forms.ChoiceField(choices=lazy(_get_section_choices, list), required=False, label=_("country"))
