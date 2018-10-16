@@ -645,11 +645,9 @@ class TestEntityAutocomplete(TestCase):
     def test_when_param_is_digit_assert_searching_on_code(self):
         # When searching on "code"
         self.client.force_login(user=self.super_user)
-        response = self.client.get(self.url,
-                                   data={'q': 'DRT',
-                                         'forward': '{"country": "%s"}' % self.entity_version.entity.country.name
-                                         }
-                                   )
+        response = self.client.get(
+            self.url,data={'q': 'DRT', 'forward': '{"country": "%s"}' % self.entity_version.entity.country.name}
+        )
         self._assert_result_is_correct(response)
 
     def test_with_filter_by_section(self):
