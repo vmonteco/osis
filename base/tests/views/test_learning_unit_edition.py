@@ -630,10 +630,12 @@ class TestEntityAutocomplete(TestCase):
         self.super_user = SuperUserFactory()
         self.url = reverse("entity_autocomplete")
         today = datetime.date.today()
-        self.entity_version = EntityVersionFactory(entity_type=entity_type.SCHOOL,
-                                                   start_date=today.replace(year=1900),
-                                                   end_date=None,
-                                                   acronym="DRT")
+        self.entity_version = EntityVersionFactory(
+            entity_type=entity_type.SCHOOL,
+            start_date=today.replace(year=1900),
+            end_date=None,
+            acronym="DRT"
+        )
 
     def test_user_not_logged(self):
         self.client.logout()
@@ -646,7 +648,7 @@ class TestEntityAutocomplete(TestCase):
         # When searching on "code"
         self.client.force_login(user=self.super_user)
         response = self.client.get(
-            self.url,data={'q': 'DRT', 'forward': '{"country": "%s"}' % self.entity_version.entity.country.name}
+            self.url, data={'q': 'DRT', 'forward': '{"country": "%s"}' % self.entity_version.entity.country.name}
         )
         self._assert_result_is_correct(response)
 

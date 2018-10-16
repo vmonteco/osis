@@ -11,8 +11,8 @@
         {% bootstrap_field learning_unit_year_form.campus %}
         {% for form in entity_container_form.forms %}
             {% if forloop.first %}
-                <div class="row">
-                    {% bootstrap_field form.entity form_group_class="col-md-9" %}
+                <div>
+                    {% bootstrap_field form.entity %}
                 </div>
             {% elif forloop.counter == 2 %}
                 <div class="row">

@@ -57,11 +57,14 @@ class EntitiesVersionChoiceField(forms.ModelChoiceField):
 
 
 class EntityContainerYearModelForm(forms.ModelForm):
-    entity = EntitiesVersionChoiceField(widget=autocomplete.ModelSelect2(
-        url='entity_autocomplete',
-        attrs={'data-html': True},
-        forward=['country'],
-    ), queryset=find_pedagogical_entities_version())
+    entity = EntitiesVersionChoiceField(
+        widget=autocomplete.ModelSelect2(
+            url='entity_autocomplete',
+            attrs={'data-html': True},
+            forward=['country']
+        ),
+        queryset=find_pedagogical_entities_version()
+    )
     entity_type = ''
     country = forms.ChoiceField(choices=lazy(_get_section_choices, list), required=False, label=_("country"))
 
