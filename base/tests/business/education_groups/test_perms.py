@@ -112,16 +112,19 @@ class TestPerms(TestCase):
         next_ac = AcademicYearFactory(year=current_ac.year + 1)
 
         # The period is closed
-        self.assertFalse(is_academic_calendar_opened(education_group))
+        self.assertFalse(is_academic_calendar_opened(education_group,
+                                                     type=academic_calendar_type.EDITION_OF_GENERAL_INFORMATION))
 
         opened_period = closed_period
         opened_period.start_date = today
         opened_period.save()
 
         # It is open the academic_year does not match
-        self.assertFalse(is_academic_calendar_opened(education_group))
+        self.assertFalse(is_academic_calendar_opened(education_group,
+                                                     type=academic_calendar_type.EDITION_OF_GENERAL_INFORMATION))
 
         # It is open and the education_group is in N+1 academic_year
         education_group.academic_year = next_ac
         education_group.save()
-        self.assertTrue(is_academic_calendar_opened(education_group, raise_exception=True, type=academic_calendar_type.EDITION_OF_GENERAL_INFORMATION))
+        self.assertTrue(is_academic_calendar_opened(education_group, raise_exception=True,
+                                                    type=academic_calendar_type.EDITION_OF_GENERAL_INFORMATION))
