@@ -29,8 +29,7 @@ from unittest.mock import Mock
 from django.db import Error
 from django.test import TestCase
 
-from base.business.education_groups.automatic_postponement import serialize_egy_postponement_results, MSG_RESULT, \
-    fetch_education_group_to_postpone
+from base.business.education_groups.automatic_postponement import EducationGroupAutomaticPostponement
 from base.models.education_group_year import EducationGroupYear
 from base.tests.factories.academic_year import AcademicYearFactory, get_current_year
 from base.tests.factories.education_group import EducationGroupFactory
@@ -50,7 +49,7 @@ class TestFetchEducationGroupToPostpone(TestCase):
         )
 
         self.assertEqual(EducationGroupYear.objects.count(), 1)
-        result, errors = fetch_education_group_to_postpone()
+        result, errors = EducationGroupAutomaticPostponement().postpone()
         self.assertEqual(len(result), 1)
         self.assertFalse(errors)
 
@@ -64,7 +63,7 @@ class TestFetchEducationGroupToPostpone(TestCase):
             academic_year=self.academic_years[-2],
         )
         self.assertEqual(EducationGroupYear.objects.count(), 1)
-        result, errors = fetch_education_group_to_postpone()
+        result, errors = EducationGroupAutomaticPostponement().postpone()
         self.assertEqual(len(result), 0)
         self.assertFalse(errors)
 
@@ -78,7 +77,7 @@ class TestFetchEducationGroupToPostpone(TestCase):
             academic_year=self.academic_years[-1],
         )
         self.assertEqual(EducationGroupYear.objects.count(), 2)
-        result, errors = fetch_education_group_to_postpone()
+        result, errors = EducationGroupAutomaticPostponement().postpone()
         self.assertEqual(len(result), 0)
         self.assertFalse(errors)
 
@@ -92,7 +91,7 @@ class TestFetchEducationGroupToPostpone(TestCase):
         )
         self.assertEqual(EducationGroupYear.objects.count(), 1)
 
-        result, errors = fetch_education_group_to_postpone()
+        result, errors = EducationGroupAutomaticPostponement().postpone()
         self.assertEqual(errors, [egy_with_error])
         self.assertEqual(len(result), 0)
 

@@ -60,10 +60,10 @@ class EducationGroupYearAdmin(OsisModelAdmin):
 
     def apply_education_group_year_postponement(self, request, queryset):
         # Potential circular imports
-        from base.business.education_groups.automatic_postponement import fetch_education_group_to_postpone
+        from base.business.education_groups.automatic_postponement import EducationGroupAutomaticPostponement
         from base.views.common import display_success_messages, display_error_messages
 
-        result, errors = fetch_education_group_to_postpone(queryset)
+        result, errors = EducationGroupAutomaticPostponement(queryset).postpone()
         count = len(result)
         display_success_messages(
             request, ngettext(
