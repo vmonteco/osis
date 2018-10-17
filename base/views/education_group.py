@@ -156,7 +156,6 @@ def education_group_year_pedagogy_edit_get(request, education_group_year_id):
 @permission_required('base.can_edit_educationgroup_pedagogy', raise_exception=True)
 @require_http_methods(['GET', 'POST'])
 def education_group_year_pedagogy_edit(request, root_id, education_group_year_id):
-    print(request)
     if request.method == 'POST':
         return education_group_year_pedagogy_edit_post(request, education_group_year_id, root_id)
 
