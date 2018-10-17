@@ -174,7 +174,7 @@ class CertificateAimAutocomplete(autocomplete.Select2QuerySetView):
         return qs
 
     def get_result_label(self, result):
-        return format_html('<p>{} - {} {}</p>', result.section, result.code, result.description)
+        return format_html('{} - {} {}', result.section, result.code, result.description)
 
 
 def _update_mini_training(request, education_group_year, root):

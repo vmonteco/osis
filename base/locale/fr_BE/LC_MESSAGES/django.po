@@ -1049,6 +1049,9 @@ msgstr "Notes sauvegardées, le bouton sauvegarder n'est plus présent"
 msgid "scores_must_be_between_0_and_20"
 msgstr "Les notes doivent être comprise entre 0 et 20"
 
+msgid "Search..."
+msgstr "Recherche..."
+
 msgid "search_for_a_file"
 msgstr "Recherche d'un fichier"
 
@@ -4024,3 +4027,6 @@ msgstr "Diplôme avec l'UCL"
 
 msgid "Reference institution"
 msgstr "Institution de référence"
+
+msgid "EDITION_OF_GENERAL_INFORMATION"
+msgstr "Modification des informations générales"

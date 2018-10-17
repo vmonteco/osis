@@ -87,7 +87,6 @@ class TestTrainingEducationGroupYearForm(EducationGroupYearModelFormMixin):
 
 class TestPostponementEducationGroupYearMixin(TestCase):
     def setUp(self):
-
         self.education_group_year = TrainingFactory(academic_year=create_current_academic_year())
         self.education_group_type = EducationGroupTypeFactory(
             category=education_group_categories.TRAINING
@@ -95,7 +94,7 @@ class TestPostponementEducationGroupYearMixin(TestCase):
 
         EntityVersionFactory(entity=self.education_group_year.administration_entity)
         EntityVersionFactory(entity=self.education_group_year.management_entity)
-        self.list_acs = GenerateAcademicYear(get_current_year(), get_current_year()+40).academic_years
+        self.list_acs = GenerateAcademicYear(get_current_year(), get_current_year() + 40).academic_years
 
         self.data = {
             'title': 'Métamorphose',
@@ -119,7 +118,7 @@ class TestPostponementEducationGroupYearMixin(TestCase):
     def test_init(self):
         # In case of creation
         form = TrainingForm({}, user=UserFactory(), education_group_type=self.education_group_type)
-        self.assertFalse(form, "dict_initial_egy")
+        self.assertFalse(form.dict_initial_egy)
 
         # In case of update
         form = TrainingForm(
@@ -146,9 +145,7 @@ class TestPostponementEducationGroupYearMixin(TestCase):
         self.assertEqual(len(form.education_group_year_postponed), 6)
 
         self.assertEqual(
-            EducationGroupYear.objects
-                .filter(education_group=self.education_group_year.education_group)
-                .count(), 7
+            EducationGroupYear.objects.filter(education_group=self.education_group_year.education_group).count(), 7
         )
         self.assertEqual(len(form.warnings), 0)
 
@@ -208,9 +205,7 @@ class TestPostponementEducationGroupYearMixin(TestCase):
         self.assertEqual(len(form.education_group_year_postponed), 6)
 
         self.assertEqual(
-            EducationGroupYear.objects
-                .filter(education_group=self.education_group_year.education_group)
-                .count(), 7
+            EducationGroupYear.objects.filter(education_group=self.education_group_year.education_group).count(), 7
         )
         last = EducationGroupYear.objects.filter(education_group=self.education_group_year.education_group
                                                  ).order_by('academic_year').last()
@@ -236,9 +231,7 @@ class TestPostponementEducationGroupYearMixin(TestCase):
         self.assertEqual(len(form.education_group_year_postponed), 5)
 
         self.assertEqual(
-            EducationGroupYear.objects
-                .filter(education_group=self.education_group_year.education_group)
-                .count(), 7
+            EducationGroupYear.objects.filter(education_group=self.education_group_year.education_group).count(), 7
         )
         last.refresh_from_db()
         self.education_group_year.refresh_from_db()
@@ -254,7 +247,7 @@ class TestPermissionField(TestCase):
 
         FieldReferenceFactory(
             content_type=ContentType.objects.get(app_label="base", model="educationgroupyear"),
-            field_name= "main_teaching_campus",
+            field_name="main_teaching_campus",
             context=TRAINING_DAILY_MANAGEMENT,
             permissions=self.permissions,
         )

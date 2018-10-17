@@ -60,10 +60,10 @@ class EducationGroupYearAdmin(OsisModelAdmin):
 
     def apply_education_group_year_postponement(self, request, queryset):
         # Potential circular imports
-        from base.business.education_groups.automatic_postponement import fetch_education_group_to_postpone
+        from base.business.education_groups.automatic_postponement import EducationGroupAutomaticPostponement
         from base.views.common import display_success_messages, display_error_messages
 
-        result, errors = fetch_education_group_to_postpone(queryset)
+        result, errors = EducationGroupAutomaticPostponement(queryset).postpone()
         count = len(result)
         display_success_messages(
             request, ngettext(
@@ -244,9 +244,10 @@ class EducationGroupYear(models.Model):
         max_length=320,
         blank=True,
         default="",
+        verbose_name=_('professionnal_title')
     )
 
-    joint_diploma = models.BooleanField(default=False)
+    joint_diploma = models.BooleanField(default=False, verbose_name=_('university_certificate_desc'))
 
     diploma_printing_orientation = models.CharField(
         max_length=30,
@@ -259,6 +260,7 @@ class EducationGroupYear(models.Model):
         max_length=140,
         blank=True,
         default="",
+        verbose_name=_('diploma_title')
     )
 
     inter_organization_information = models.CharField(
