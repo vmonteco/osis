@@ -53,7 +53,8 @@ from base.views.learning_units.attributions import add_partim_attribution, AddCh
 
 urlpatterns = [
     url(r'^$', common.home, name='home'),
-
+    url(r'^entity_autocomplete/$', base.views.learning_units.update.EntityAutocomplete.as_view(),
+        name='entity_autocomplete'),
     url(r'^academic_actors/$', institution.academic_actors, name='academic_actors'),
 
     url(r'^academic_calendars/', include([
@@ -274,9 +275,7 @@ urlpatterns = [
         url(r'^mark_as_read/$', base.views.notifications.mark_notifications_as_read, name="mark_notifications_as_read"),
     ])),
 
-
 ]
-
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -132,6 +132,7 @@ def education_group_year_pedagogy_edit_get(request, education_group_year_id):
         'education_group_year': education_group_year,
     }
     label_name = request.GET.get('label')
+    context['label'] = label_name
     initial_values = {'label': label_name}
     fr_text = TranslatedText.objects.filter(reference=str(education_group_year_id),
                                             text_label__label=label_name,
