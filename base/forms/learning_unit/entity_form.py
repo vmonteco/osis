@@ -35,7 +35,6 @@ from base.models.entity_container_year import EntityContainerYear
 from base.models.entity_version import get_last_version, find_all_current_entities_version
 from base.models.enums.entity_container_year_link_type import REQUIREMENT_ENTITY, ALLOCATION_ENTITY, \
     ADDITIONAL_REQUIREMENT_ENTITY_1, ADDITIONAL_REQUIREMENT_ENTITY_2, ENTITY_TYPE_LIST
-from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES_MUST_HAVE_SAME_ENTITIES
 from reference.models.country import Country
 
 
@@ -207,19 +206,6 @@ class EntityContainerBaseForm:
     def post_clean(self, container_type, academic_year):
         for form in self.forms:
             form.post_clean(academic_year.start_date)
-
-        requirement_entity_version = self.forms[0].entity_version
-        allocation_entity_version = self.forms[1].entity_version
-        requirement_faculty = requirement_entity_version.find_faculty_version(academic_year)
-        allocation_faculty = allocation_entity_version.find_faculty_version(academic_year)
-
-        if container_type in LEARNING_CONTAINER_YEAR_TYPES_MUST_HAVE_SAME_ENTITIES:
-            if requirement_faculty != allocation_faculty:
-                self.forms[1].add_error(
-                    "entity", _("Requirement and allocation entities must be linked to the same "
-                                "faculty for this learning unit type.")
-                )
-
         return not any(form.errors for form in self.forms)
 
     def is_valid(self):
