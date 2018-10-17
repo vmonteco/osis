@@ -35,7 +35,8 @@ from attribution.business import attribution_charge_new
 from attribution.business.attribution_charge_new import delete_attribution
 from attribution.models.attribution_charge_new import AttributionChargeNew
 from attribution.models.attribution_new import AttributionNew
-from base.forms.learning_unit.attribution_charge_repartition import AttributionChargeRepartitionFormSet
+from base.forms.learning_unit.attribution_charge_repartition import AttributionChargeRepartitionFormSet, \
+    AttributionChargeNewFormSet
 from base.models.enums import learning_component_year_type
 from base.models.learning_unit_year import LearningUnitYear
 from base.views import layout
@@ -96,6 +97,45 @@ class AddChargeRepartition(AjaxTemplateMixin, FormView):
             form.save(attribution_copy, self.learning_unit_year_obj, component_type)
 
         return super().form_valid(formset)
+
+    def get_success_url(self):
+        return reverse("learning_unit_attributions", args=[self.kwargs["learning_unit_year_id"]])
+
+
+@method_decorator(login_required, name='dispatch')
+class EditChargeRepartition(AjaxTemplateMixin, FormView):
+    template_name = "learning_unit/add_charge_repartition.html"
+    form_class = AttributionChargeNewFormSet
+
+    @cached_property
+    def learning_unit_year_obj(self):
+        return get_object_or_404(LearningUnitYear, id=self.kwargs["learning_unit_year_id"])
+
+    @cached_property
+    def attribution_new_obj(self):
+        return attribution_charge_new.find_attributions_for_add_partim(self.learning_unit_year_obj,
+                                                                       self.kwargs["attribution_id"]).popitem()[1]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["learning_unit_year"] = self.learning_unit_year_obj
+        context["attribution"] = self.attribution_new_obj
+        context["formset"] = context["form"]
+        return context
+
+    def get_form_kwargs(self):
+        form_kwargs = super().get_form_kwargs()
+        form_kwargs["form_kwargs"] = {
+            "instances": [attributioncharge for attributioncharge in AttributionChargeNew.objects.filter(attribution=self.kwargs["attribution_id"]).order_by("learning_component_year__type")]
+        }
+        return form_kwargs
+
+
+    def form_valid(self, formset):
+        for form in formset:
+            form.save()
+        return super().form_valid(formset)
+
 
     def get_success_url(self):
         return reverse("learning_unit_attributions", args=[self.kwargs["learning_unit_year_id"]])
