@@ -29,70 +29,71 @@ from unittest.mock import Mock
 from django.db import Error
 from django.test import TestCase
 
-from base.business.learning_units.automatic_postponement import LearningUnitAutomaticPostponement
-from base.models.learning_unit_year import LearningUnitYear
+from base.business.education_groups.automatic_postponement import EducationGroupAutomaticPostponement
+from base.models.education_group_year import EducationGroupYear
 from base.tests.factories.academic_year import AcademicYearFactory, get_current_year
-from base.tests.factories.learning_unit import LearningUnitFactory
-from base.tests.factories.learning_unit_year import LearningUnitYearFactory
+from base.tests.factories.education_group import EducationGroupFactory
+from base.tests.factories.education_group_year import EducationGroupYearFactory
 
 
-class TestFetchLearningUnitToPostpone(TestCase):
+class TestFetchEducationGroupToPostpone(TestCase):
     def setUp(self):
         current_year = get_current_year()
         self.academic_years = [AcademicYearFactory(year=i) for i in range(current_year, current_year+7)]
-        self.learning_unit = LearningUnitFactory(end_year=None)
+        self.education_group = EducationGroupFactory(end_year=None)
 
-    def test_fetch_learning_unit_to_postpone_to_N6(self):
-        LearningUnitYearFactory(
-            learning_unit=self.learning_unit,
+    def test_fetch_education_group_to_postpone_to_N6(self):
+        EducationGroupYearFactory(
+            education_group=self.education_group,
             academic_year=self.academic_years[-2],
         )
 
-        self.assertEqual(LearningUnitYear.objects.count(), 1)
-        result, errors = LearningUnitAutomaticPostponement().postpone()
+        self.assertEqual(EducationGroupYear.objects.count(), 1)
+        result, errors = EducationGroupAutomaticPostponement().postpone()
         self.assertEqual(len(result), 1)
         self.assertFalse(errors)
 
-    def test_luy_to_not_duplicated(self):
+    def test_egy_to_not_duplicated(self):
         # The learning unit is over
-        self.learning_unit.end_year = self.academic_years[-2].year
-        self.learning_unit.save()
+        self.education_group.end_year = self.academic_years[-2].year
+        self.education_group.save()
 
-        LearningUnitYearFactory(
-            learning_unit=self.learning_unit,
+        EducationGroupYearFactory(
+            education_group=self.education_group,
             academic_year=self.academic_years[-2],
         )
-        self.assertEqual(LearningUnitYear.objects.count(), 1)
-        result, errors = LearningUnitAutomaticPostponement().postpone()
+        self.assertEqual(EducationGroupYear.objects.count(), 1)
+        result, errors = EducationGroupAutomaticPostponement().postpone()
         self.assertEqual(len(result), 0)
         self.assertFalse(errors)
 
-    def test_luy_already_duplicated(self):
-        LearningUnitYearFactory(
-            learning_unit=self.learning_unit,
+    def test_egy_already_duplicated(self):
+        EducationGroupYearFactory(
+            education_group=self.education_group,
             academic_year=self.academic_years[-2],
         )
-        LearningUnitYearFactory(
-            learning_unit=self.learning_unit,
+        EducationGroupYearFactory(
+            education_group=self.education_group,
             academic_year=self.academic_years[-1],
         )
-        self.assertEqual(LearningUnitYear.objects.count(), 2)
-        result, errors = LearningUnitAutomaticPostponement().postpone()
+        self.assertEqual(EducationGroupYear.objects.count(), 2)
+        result, errors = EducationGroupAutomaticPostponement().postpone()
         self.assertEqual(len(result), 0)
         self.assertFalse(errors)
 
-    @mock.patch('base.business.learning_units.automatic_postponement.LearningUnitAutomaticPostponement.extend_obj')
-    def test_luy_to_duplicate_with_error(self, mock_method):
+    @mock.patch('base.business.education_groups.automatic_postponement.EducationGroupAutomaticPostponement.extend_obj')
+    def test_egy_to_duplicate_with_error(self, mock_method):
         mock_method.side_effect = Mock(side_effect=Error("test error"))
 
-        luy_with_error = LearningUnitYearFactory(
-            learning_unit=self.learning_unit,
+        egy_with_error = EducationGroupYearFactory(
+            education_group=self.education_group,
             academic_year=self.academic_years[-2],
         )
-        self.assertEqual(LearningUnitYear.objects.count(), 1)
+        self.assertEqual(EducationGroupYear.objects.count(), 1)
 
-        result, errors = LearningUnitAutomaticPostponement().postpone()
-        self.assertEqual(errors, [luy_with_error])
+        result, errors = EducationGroupAutomaticPostponement().postpone()
+        self.assertTrue(mock_method.called)
+        self.assertEqual(errors, [egy_with_error])
         self.assertEqual(len(result), 0)
 
 
@@ -101,33 +102,32 @@ class TestSerializePostponement(TestCase):
     def setUpTestData(cls):
         current_year = get_current_year()
         cls.academic_years = [AcademicYearFactory(year=i) for i in range(current_year, current_year+7)]
-        cls.luys = [LearningUnitYearFactory() for _ in range(10)]
+        cls.egys = [EducationGroupYearFactory() for _ in range(10)]
 
     def test_empty_results_and_errors(self):
-
-        result_dict = LearningUnitAutomaticPostponement().serialize_postponement_results()
+        result_dict = EducationGroupAutomaticPostponement().serialize_postponement_results()
         self.assertDictEqual(result_dict, {
-            "msg": LearningUnitAutomaticPostponement.msg_result % (len([]), len([])),
+            "msg": EducationGroupAutomaticPostponement.msg_result % (len([]), len([])),
             "errors": []
         })
 
     def test_empty_errors(self):
-        postponement = LearningUnitAutomaticPostponement()
+        postponement = EducationGroupAutomaticPostponement()
 
-        postponement.result = self.luys
+        postponement.result = self.egys
 
         result_dict = postponement.serialize_postponement_results()
         self.assertDictEqual(result_dict, {
-            "msg": postponement.msg_result % (len(self.luys), 0),
+            "msg": postponement.msg_result % (len(self.egys), 0),
             "errors": []
         })
 
     def test_with_errors_and_results(self):
-        postponement = LearningUnitAutomaticPostponement()
-        postponement.result = self.luys[:5]
-        postponement.errors = [str(luy) for luy in self.luys[5:]]
+        postponement = EducationGroupAutomaticPostponement()
+        postponement.result = self.egys[:5]
+        postponement.errors = [str(egy) for egy in self.egys[5:]]
         result_dict = postponement.serialize_postponement_results()
         self.assertDictEqual(result_dict, {
-            "msg": postponement.msg_result % (len(self.luys[:5]), len(self.luys[5:])),
-            "errors": [str(luy) for luy in self.luys[5:]]
+            "msg": postponement.msg_result % (len(self.egys[:5]), len(self.egys[5:])),
+            "errors": [str(egy) for egy in self.egys[5:]]
         })
