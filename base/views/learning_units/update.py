@@ -184,11 +184,10 @@ def _save_form_and_display_messages(request, form):
 class EntityAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView):
     def get_queryset(self):
         country = self.forwarded.get('country', None)
-        if country:
-            if country == "all":
-                qs = find_all_current_entities_version().order_by('acronym')
-            else:
-                qs = find_all_current_entities_version().filter(entity__country__id=country).order_by('acronym')
+        if country and country == "all":
+            qs = find_all_current_entities_version().order_by('acronym')
+        elif country:
+            qs = find_all_current_entities_version().filter(entity__country__id=country).order_by('acronym')
         else:
             qs = find_pedagogical_entities_version()
         if self.q:
