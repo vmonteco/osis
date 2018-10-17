@@ -65,13 +65,14 @@ class AutomaticPostponement(ABC):
 
     def postpone(self):
         # send statistics to the managers
-        self.send_before.__func__(self.last_academic_year, self.to_duplicate, self.already_duplicated, self.to_not_duplicate)
+        self.send_before.__func__(self.last_academic_year, self.to_duplicate,
+                                  self.already_duplicated, self.to_not_duplicate)
 
         self._extend_objects()
 
         # send statistics with results to the managers
         self.send_after.__func__(self.last_academic_year, self.result, self.already_duplicated,
-                        self.to_not_duplicate, self.errors)
+                                 self.to_not_duplicate, self.errors)
 
         return self.result, self.errors
 
