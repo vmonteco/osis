@@ -24,7 +24,6 @@
 #
 ##############################################################################
 import datetime
-import random
 from unittest import mock
 
 import factory.fuzzy
@@ -57,7 +56,6 @@ from base.models.enums import learning_container_year_types, organization_type
 from base.models.enums import learning_unit_year_periodicity
 from base.models.enums import learning_unit_year_session
 from base.models.enums import learning_unit_year_subtypes
-from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES_MUST_HAVE_SAME_ENTITIES
 from base.models.enums.learning_unit_year_subtypes import FULL
 from base.models.person import FACULTY_MANAGER_GROUP
 from base.tests.factories.academic_year import AcademicYearFactory, create_current_academic_year
@@ -1144,12 +1142,6 @@ class LearningUnitViewTestCase(TestCase):
     def get_empty_acronym(self):
         faulty_dict = dict(self.get_valid_data())
         faulty_dict["acronym"] = ""
-        return faulty_dict
-
-    def get_faulty_allocation_entity(self):
-        faulty_dict = dict(self.get_valid_data())
-        faulty_dict["container_type"] = random.choice(LEARNING_CONTAINER_YEAR_TYPES_MUST_HAVE_SAME_ENTITIES)
-        faulty_dict["allocation_entity"] = self.entity_version_2.id
         return faulty_dict
 
     def get_faulty_requirement_entity(self):

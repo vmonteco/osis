@@ -4027,3 +4027,6 @@ msgstr "Diplôme avec l'UCL"
 
 msgid "Reference institution"
 msgstr "Institution de référence"
+
+msgid "EDITION_OF_GENERAL_INFORMATION"
+msgstr "Modification des informations générales"

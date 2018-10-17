@@ -41,6 +41,7 @@ from base import models as mdl
 from base.business.education_group import assert_category_of_education_group_year, can_user_edit_administrative_data
 from base.business.education_groups import perms
 from base.business.education_groups.group_element_year_tree import NodeBranchJsTree
+from base.business.education_groups.perms import is_eligible_to_edit_general_information
 from base.models.admission_condition import AdmissionCondition, AdmissionConditionLine
 from base.models.certificate_aim import CertificateAim
 from base.models.education_group_certificate_aim import EducationGroupCertificateAim
@@ -160,7 +161,7 @@ class EducationGroupGeneralInformation(EducationGroupGenericDetailView):
         context.update({
             'is_common_education_group_year': is_common_education_group_year,
             'sections_with_translated_labels': self.get_sections_with_translated_labels(is_common_education_group_year),
-            'can_edit_information': self.request.user.has_perm('base.can_edit_educationgroup_pedagogy'),
+            'can_edit_information': is_eligible_to_edit_general_information(context['person'], context['object']),
         })
 
         return context
@@ -356,7 +357,7 @@ class EducationGroupYearAdmissionCondition(EducationGroupGenericDetailView):
 
         context.update({
             'admission_condition_form': admission_condition_form,
-            'can_edit_information': self.request.user.has_perm('base.can_edit_educationgroup_pedagogy'),
+            'can_edit_information': is_eligible_to_edit_general_information(context['person'], context['object']),
             'info': {
                 'is_specific': is_specific,
                 'is_common': is_common,
