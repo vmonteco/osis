@@ -119,7 +119,7 @@ class TestPostponementEducationGroupYearMixin(TestCase):
     def test_init(self):
         # In case of creation
         form = TrainingForm({}, user=UserFactory(), education_group_type=self.education_group_type)
-        self.assertFalse(form, "dict_initial_egy")
+        self.assertFalse(hasattr(form, "dict_initial_egy"))
 
         # In case of update
         form = TrainingForm(

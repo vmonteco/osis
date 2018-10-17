@@ -79,11 +79,15 @@ class AutomaticPostponement(ABC):
         for obj in self.to_duplicate:
             try:
                 with transaction.atomic():
-                    self.result.append(self.extend_method.__func__(obj, self.last_academic_year))
+                    self.result.append(self.extend_obj(obj, self.last_academic_year))
 
             # General catch to be sure to not stop the rest of the duplication
             except (Error, ObjectDoesNotExist, MultipleObjectsReturned, ConsistencyError):
                 self.errors.append(obj)
+
+    @classmethod
+    def extend_obj(cls, obj, last_academic_year):
+        return cls.extend_method(obj, last_academic_year)
 
     def get_queryset(self, queryset=None):
         """ Override if you need to add additional filters"""
