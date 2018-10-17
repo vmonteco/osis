@@ -42,7 +42,7 @@ class LearningUnitAutomaticPostponement(AutomaticPostponement):
     msg_result = _("%s learning unit(s) extended and %s error(s)")
 
     def get_queryset(self, queryset=None):
-        return super().get_queryset().filter(learning_container_year__isnull=False)
+        return super().get_queryset(queryset).filter(learning_container_year__isnull=False)
 
     def get_already_duplicated(self):
         return self.queryset.filter(learning_unit__learningunityear__academic_year=self.last_academic_year)

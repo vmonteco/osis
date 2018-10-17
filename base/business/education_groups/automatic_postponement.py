@@ -42,7 +42,7 @@ class EducationGroupAutomaticPostponement(AutomaticPostponement):
     msg_result = _("%s education group(s) extended and %s error(s)")
 
     def get_queryset(self, queryset=None):
-        return super().get_queryset().exclude(education_group_type__category=GROUP)
+        return super().get_queryset(queryset).exclude(education_group_type__category=GROUP)
 
     def get_already_duplicated(self):
         return self.queryset.filter(education_group__educationgroupyear__academic_year=self.last_academic_year)
