@@ -105,7 +105,6 @@ class TestSerializePostponement(TestCase):
         cls.egys = [EducationGroupYearFactory() for _ in range(10)]
 
     def test_empty_results_and_errors(self):
-
         result_dict = EducationGroupAutomaticPostponement().serialize_postponement_results()
         self.assertDictEqual(result_dict, {
             "msg": EducationGroupAutomaticPostponement.msg_result % (len([]), len([])),
