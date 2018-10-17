@@ -127,7 +127,6 @@ class TestSerializePostponement(TestCase):
         postponement = EducationGroupAutomaticPostponement()
         postponement.result = self.egys[:5]
         postponement.errors = [str(egy) for egy in self.egys[5:]]
-        self.maxDiff = None
         result_dict = postponement.serialize_postponement_results()
         self.assertDictEqual(result_dict, {
             "msg": postponement.msg_result % (len(self.egys[:5]), len(self.egys[5:])),
