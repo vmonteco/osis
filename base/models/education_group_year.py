@@ -244,9 +244,10 @@ class EducationGroupYear(models.Model):
         max_length=320,
         blank=True,
         default="",
+        verbose_name=_('professionnal_title')
     )
 
-    joint_diploma = models.BooleanField(default=False)
+    joint_diploma = models.BooleanField(default=False, verbose_name=_('university_certificate_desc'))
 
     diploma_printing_orientation = models.CharField(
         max_length=30,
@@ -259,6 +260,7 @@ class EducationGroupYear(models.Model):
         max_length=140,
         blank=True,
         default="",
+        verbose_name=_('diploma_title')
     )
 
     inter_organization_information = models.CharField(
