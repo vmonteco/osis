@@ -24,13 +24,16 @@
 #
 ##############################################################################
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.utils.functional import cached_property
-from django.views.generic import FormView
+from django.views.generic import FormView, DeleteView
 
 from attribution.business import attribution_charge_new
+from attribution.business.attribution_charge_new import delete_attribution
+from attribution.models.attribution_charge_new import AttributionChargeNew
 from attribution.models.attribution_new import AttributionNew
 from base.forms.learning_unit.attribution_charge_repartition import AttributionChargeRepartitionFormSet
 from base.models.enums import learning_component_year_type
@@ -93,6 +96,27 @@ class AddChargeRepartition(AjaxTemplateMixin, FormView):
             form.save(attribution_copy, self.learning_unit_year_obj, component_type)
 
         return super().form_valid(formset)
+
+    def get_success_url(self):
+        return reverse("learning_unit_attributions", args=[self.kwargs["learning_unit_year_id"]])
+
+
+@method_decorator(login_required, name='dispatch')
+class RemoveChargeRepartition(AjaxTemplateMixin, DeleteView):
+    model = AttributionNew
+    template_name = "learning_unit/remove_charge_repartition_confirmation.html"
+
+    def delete(self, request, *args, **kwargs):
+        delete_attribution(self.kwargs["pk"])
+        success_url = self.get_success_url()
+        return HttpResponseRedirect(success_url)
+
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["learning_unit_year"] = get_object_or_404(LearningUnitYear, id=self.kwargs["learning_unit_year_id"])
+        context["attribution"] = get_object_or_404(AttributionNew, pk=self.kwargs["pk"])
+        return context
 
     def get_success_url(self):
         return reverse("learning_unit_attributions", args=[self.kwargs["learning_unit_year_id"]])

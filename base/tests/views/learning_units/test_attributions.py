@@ -137,3 +137,40 @@ class TestAddChargeRepartition(TestCase):
         response = self.client.get(self.url)
 
         self.assertTemplateUsed(response, "learning_unit/add_charge_repartition.html")
+
+
+class TestRemoveChargeRepartition(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.learning_unit_year = LearningUnitYearFullFactory()
+        cls.person = PersonFactory()
+
+    def setUp(self):
+        self.attribution = self.create_attribution_charge_for_specific_learning_unit_year(self.learning_unit_year)
+
+
+        self.url = reverse("remove_charge_repartition", args=[self.learning_unit_year.id, self.attribution.id])
+        self.client.force_login(self.person.user)
+
+    @staticmethod
+    def create_attribution_charge_for_specific_learning_unit_year(luy):
+        attribution_charge_new = AttributionChargeNewFactory(
+            learning_component_year__learning_container_year=luy.learning_container_year
+        )
+        learning_unit_component = LearningUnitComponentFactory(
+            learning_component_year=attribution_charge_new.learning_component_year,
+            learning_unit_year=luy
+        )
+        return attribution_charge_new
+
+
+    def test_login_required(self):
+        self.client.logout()
+
+        response = self.client.get(self.url)
+        self.assertRedirects(response,  '/login/?next={}'.format(self.url))
+
+    def test_template_used(self):
+        response = self.client.get(self.url)
+
+        self.assertTemplateUsed(response, "learning_unit/remove_charge_repartition_confirmation.html")
