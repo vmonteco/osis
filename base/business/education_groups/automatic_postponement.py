@@ -29,15 +29,15 @@ from base.business.education_groups.postponement import duplicate_education_grou
 from base.business.utils.postponement import AutomaticPostponement
 from base.models.education_group_year import EducationGroupYear
 from base.models.enums.education_group_categories import GROUP
-from base.utils.send_mail import send_mail_before_annual_procedure_of_automatic_postponement, \
-    send_mail_after_annual_procedure_of_automatic_postponement
+from base.utils.send_mail import send_mail_before_annual_procedure_of_automatic_postponement_of_egy, \
+    send_mail_after_annual_procedure_of_automatic_postponement_of_egy
 
 
 class EducationGroupAutomaticPostponement(AutomaticPostponement):
     model = EducationGroupYear
 
-    send_before = send_mail_before_annual_procedure_of_automatic_postponement
-    send_after = send_mail_after_annual_procedure_of_automatic_postponement
+    send_before = send_mail_before_annual_procedure_of_automatic_postponement_of_egy
+    send_after = send_mail_after_annual_procedure_of_automatic_postponement_of_egy
     extend_method = duplicate_education_group_year
     msg_result = _("%s education group(s) extended and %s error(s)")
 

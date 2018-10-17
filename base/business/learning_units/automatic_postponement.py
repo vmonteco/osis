@@ -29,15 +29,15 @@ from django.utils.translation import ugettext as _
 from base.business.learning_units.edition import duplicate_learning_unit_year
 from base.business.utils.postponement import AutomaticPostponement
 from base.models.learning_unit_year import LearningUnitYear
-from base.utils.send_mail import send_mail_before_annual_procedure_of_automatic_postponement, \
-    send_mail_after_annual_procedure_of_automatic_postponement
+from base.utils.send_mail import send_mail_before_annual_procedure_of_automatic_postponement_of_luy, \
+    send_mail_after_annual_procedure_of_automatic_postponement_of_luy
 
 
 class LearningUnitAutomaticPostponement(AutomaticPostponement):
     model = LearningUnitYear
 
-    send_before = send_mail_before_annual_procedure_of_automatic_postponement
-    send_after = send_mail_after_annual_procedure_of_automatic_postponement
+    send_before = send_mail_before_annual_procedure_of_automatic_postponement_of_luy
+    send_after = send_mail_after_annual_procedure_of_automatic_postponement_of_luy
     extend_method = duplicate_learning_unit_year
     msg_result = _("%s learning unit(s) extended and %s error(s)")
 
