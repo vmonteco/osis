@@ -100,7 +100,7 @@ def send_mail_after_the_learning_unit_year_deletion(managers, acronym, academic_
     return message_service.send_messages(message_content)
 
 
-def send_mail_before_annual_procedure_of_automatic_postponement(
+def send_mail_before_annual_procedure_of_automatic_postponement_of_luy(
         end_academic_year, luys_to_postpone, luys_already_existing, luys_ending_this_year):
     html_template_ref = 'luy_before_auto_postponement_html'
     txt_template_ref = 'luy_before_auto_postponement_txt'
@@ -121,7 +121,7 @@ def send_mail_before_annual_procedure_of_automatic_postponement(
     return message_service.send_messages(message_content)
 
 
-def send_mail_after_annual_procedure_of_automatic_postponement(
+def send_mail_after_annual_procedure_of_automatic_postponement_of_luy(
         end_academic_year, luys_postponed, luys_already_existing, luys_ending_this_year, luys_with_errors):
     html_template_ref = 'luy_after_auto_postponement_html'
     txt_template_ref = 'luy_after_auto_postponement_txt'
@@ -137,6 +137,49 @@ def send_mail_after_annual_procedure_of_automatic_postponement(
                           'luys_already_existing': luys_already_existing.count(),
                           'luys_ending_this_year': luys_ending_this_year.count(),
                           'luys_with_errors': luys_with_errors
+                          }
+    message_content = message_config.create_message_content(html_template_ref, txt_template_ref, None, receivers,
+                                                            template_base_data, None, None)
+    return message_service.send_messages(message_content)
+
+
+def send_mail_before_annual_procedure_of_automatic_postponement_of_egy(
+        end_academic_year, egys_to_postpone, egys_already_existing, egys_ending_this_year):
+    html_template_ref = 'egy_before_auto_postponement_html'
+    txt_template_ref = 'egy_before_auto_postponement_txt'
+
+    permission = Permission.objects.filter(codename='can_receive_emails_about_automatic_postponement')
+    managers = Person.objects.filter(Q(user__groups__permissions=permission) | Q(user__user_permissions=permission)) \
+        .distinct()
+
+    receivers = [message_config.create_receiver(manager.id, manager.email, manager.language) for manager in managers]
+    template_base_data = {'academic_year': current_academic_year().year,
+                          'end_academic_year': end_academic_year.year,
+                          'egys_to_postpone': egys_to_postpone.count(),
+                          'egys_already_existing': egys_already_existing.count(),
+                          'egys_ending_this_year': egys_ending_this_year.count(),
+                          }
+    message_content = message_config.create_message_content(html_template_ref, txt_template_ref, None, receivers,
+                                                            template_base_data, None, None)
+    return message_service.send_messages(message_content)
+
+
+def send_mail_after_annual_procedure_of_automatic_postponement_of_egy(
+        end_academic_year, egys_postponed, egys_already_existing, egys_ending_this_year, egys_with_errors):
+    html_template_ref = 'egy_after_auto_postponement_html'
+    txt_template_ref = 'egy_after_auto_postponement_txt'
+
+    permission = Permission.objects.filter(codename='can_receive_emails_about_automatic_postponement')
+    managers = Person.objects.filter(Q(user__groups__permissions=permission) | Q(user__user_permissions=permission)) \
+        .distinct()
+
+    receivers = [message_config.create_receiver(manager.id, manager.email, manager.language) for manager in managers]
+    template_base_data = {'academic_year': current_academic_year().year,
+                          'end_academic_year': end_academic_year.year,
+                          'egys_postponed': len(egys_postponed),
+                          'egys_already_existing': egys_already_existing.count(),
+                          'egys_ending_this_year': egys_ending_this_year.count(),
+                          'egys_with_errors': egys_with_errors
                           }
     message_content = message_config.create_message_content(html_template_ref, txt_template_ref, None, receivers,
                                                             template_base_data, None, None)

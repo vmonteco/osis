@@ -1035,6 +1035,9 @@ msgstr "Scores must be between 0 and 20"
 msgid "search_for_a_file"
 msgstr "Search for a file"
 
+msgid "Search..."
+msgstr ""
+
 msgid "search_for_an_entity"
 msgstr "Search for an entity"
 
