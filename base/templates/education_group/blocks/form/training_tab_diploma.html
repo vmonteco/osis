@@ -60,10 +60,7 @@
 {{ form_education_group_year.media }}
 
 <style>
-    /* Overrided to get items in list */
-    .select2-container .select2-selection--multiple {
-        width: 53%;
-    }
+
     .select2-container--default .select2-selection--multiple .select2-selection__rendered{
         display: grid;
         padding: 0 0 5px 0;
@@ -74,9 +71,21 @@
         display:none;
     }
 
-    {# To align dropdown list to the width of selected elements #}
+    /* Overrided to get items in list */
+    .select2-container .select2-selection--multiple,
     .select2-container--open .select2-dropdown--above {
-        max-width: 311%;
+        max-width: 870px;
+        min-width: 870px;
     }
+
+    @media screen and (max-width: 960px) {
+        {# To align dropdown list to the width of selected elements #}
+        .select2-container--open .select2-dropdown--above,
+        .select2-container .select2-selection--multiple {
+            max-width: 500px;
+            min-width: 500px;
+        }
+    }
+
 
 </style>
