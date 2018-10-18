@@ -203,8 +203,22 @@ class TestPostpone(TestCase):
         self.assertEqual(new_child_branch.acronym, self.current_group_element_year.child_branch.acronym)
         self.assertEqual(new_child_branch.academic_year, self.next_academic_year)
 
-    def test_postpone_with_child_branches(self):
+    def test_postpone_with_child_branch_existing_in_N1(self):
+        n1_child_branch = EducationGroupYearFactory(
+            education_group=self.current_group_element_year.child_branch.education_group,
+            academic_year=self.next_academic_year
+        )
 
+        self.postponer = PostponeContent(self.current_education_group_year)
+
+        new_root = self.postponer.postpone()
+        self.assertEqual(new_root, self.next_education_group_year)
+        self.assertEqual(new_root.groupelementyear_set.count(), 1)
+        new_child_branch = new_root.groupelementyear_set.get().child_branch
+        self.assertEqual(new_child_branch, n1_child_branch)
+        self.assertEqual(new_child_branch.academic_year, self.next_academic_year)
+
+    def test_postpone_with_child_branches(self):
         sub_group = GroupElementYearFactory(parent=self.current_group_element_year.child_branch)
 
         self.postponer = PostponeContent(self.current_education_group_year)

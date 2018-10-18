@@ -68,7 +68,7 @@ class PostponeContent:
             new_gr = update_related_object(gr, "parent", next_instance)
             if new_gr.child_leaf:
                 self._postpone_child_leaf(gr, new_gr)
-            elif new_gr.child_branch:
+            else:
                 self._postpone_child_branch(gr, new_gr)
 
             self.result.append(new_gr)
