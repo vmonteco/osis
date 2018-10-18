@@ -217,8 +217,7 @@ class LearningUnitYear(SerializableModel, ExtraManagerLearningUnitYear):
 
     def get_learning_unit_next_year(self):
         try:
-            return LearningUnitYear.objects.get(learning_unit=self.learning_unit,
-                                                academic_year__year=(self.academic_year.year + 1))
+            return self.learning_unit.learningunityear_set.get(academic_year__year=(self.academic_year.year + 1))
         except LearningUnitYear.DoesNotExist:
             return None
 
