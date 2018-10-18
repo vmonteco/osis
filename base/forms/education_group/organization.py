@@ -62,15 +62,17 @@ class OrganizationEditForm(forms.ModelForm):
             self.organization = find_by_id(data['organization'])
         else:
             if self.instance and self.instance.pk:
-                country_id = None
-                if self.instance.organization:
-                    entity = self.instance.organization.latest_version.entity
-                    self.fields['country'].initial = entity.country
-                    if entity.country:
-                        country_id = entity.country.id
+                self._prepare_select_fields_for_update()
 
-                if self.instance.organization:
-                    self.set_organization_data(self.instance.organization.id, country_id)
+    def _prepare_select_fields_for_update(self):
+        country_id = None
+        if self.instance.organization:
+            entity = self.instance.organization.latest_version.entity
+            self.fields['country'].initial = entity.country
+            if entity.country:
+                country_id = entity.country.id
+        if self.instance.organization:
+            self.set_organization_data(self.instance.organization.id, country_id)
 
     def clean_all_students(self):
         data_cleaned = self.cleaned_data.get('all_students')
