@@ -213,6 +213,7 @@ class GenericUpdateGroupElementYearMixin(FlagMixin, RulesRequiredMixin, SuccessM
 
 
 class PostponeGroupElementYearView(GenericUpdateGroupElementYearMixin, UpdateView):
+    # TODO
     pass
 
 

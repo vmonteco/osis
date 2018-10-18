@@ -35,22 +35,20 @@ from base.tests.factories.person import CentralManagerFactory
 
 @override_flag('education_group_update', active=True)
 class TestPostpone(TestCase):
-    @classmethod
-    def setUpTestData(cls):
-        cls.education_group_year = EducationGroupYearFactory()
-        cls.group_element_year = GroupElementYearFactory(parent=cls.education_group_year)
-        cls.person = CentralManagerFactory()
-        cls.url = reverse(
-            "postpone_education_group",
-            kwargs={
-                "root_id": cls.education_group_year.pk,
-                "education_group_year_id": cls.education_group_year.pk,
-                "group_element_year_id": cls.group_element_year.pk
-            }
-        )
 
     def setUp(self):
         self.client.force_login(self.person.user)
+        self.education_group_year = EducationGroupYearFactory()
+        self.group_element_year = GroupElementYearFactory(parent=self.education_group_year)
+        self.person = CentralManagerFactory()
+        self.url = reverse(
+            "postpone_education_group",
+            kwargs={
+                "root_id": self.education_group_year.pk,
+                "education_group_year_id": self.education_group_year.pk,
+                "group_element_year_id": self.group_element_year.pk
+            }
+        )
 
     def test_postpone_case_user_not_logged(self):
         self.client.logout()
