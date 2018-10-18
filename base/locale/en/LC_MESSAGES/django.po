@@ -4035,3 +4035,6 @@ msgstr ""
 
 msgid "Manage repartition"
 msgstr ""
+
+msgid "No attributions exist for the parent learning unit"
+msgstr ""

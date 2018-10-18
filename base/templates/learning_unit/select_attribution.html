@@ -37,6 +37,7 @@
         {% include "learning_unit/blocks/tabs.html" %}
         <div class="tab-content" id="tab_content">
             <div role="tabpanel" class="tab-pane active" id="attributions">
+                {% if attributions %}
                 <table class="table">
                     <thead>
                         <th>{% trans 'tutor' %}</th>
@@ -70,6 +71,12 @@
                         {% endfor %}
                     </tbody>
                 </table>
+                {% else %}
+                    <br>
+                        <p class="text-center">
+                            <strong>{% trans "No attributions exist for the parent learning unit" %}</strong>
+                        </p>
+                {% endif %}
             </div>
         </div>
     </div>

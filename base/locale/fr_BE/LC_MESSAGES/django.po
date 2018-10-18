@@ -4042,3 +4042,6 @@ msgstr "répartition supprimée"
 
 msgid "Manage repartition"
 msgstr "Gérer la répartition"
+
+msgid "No attributions exist for the parent learning unit"
+msgstr "Aucune attribution n’existe pour le cours parent"

@@ -23,7 +23,6 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from unittest import skip
 from unittest.mock import patch
 
 from django.http import HttpResponse
@@ -34,10 +33,10 @@ from attribution.models.attribution_charge_new import AttributionChargeNew
 from attribution.models.attribution_new import AttributionNew
 from attribution.tests.factories.attribution_charge_new import AttributionChargeNewFactory
 from attribution.tests.factories.attribution_new import AttributionNewFactory
-from base.tests.factories.learning_unit_component import LearningUnitComponentFactory, \
-    LecturingLearningUnitComponentFactory, PracticalLearningUnitComponentFactory
+from base.tests.factories.learning_unit_component import LecturingLearningUnitComponentFactory, \
+    PracticalLearningUnitComponentFactory
 from base.tests.factories.learning_unit_year import LearningUnitYearFullFactory, LearningUnitYearPartimFactory
-from base.tests.factories.person import PersonFactory, PersonWithPermissionsFactory
+from base.tests.factories.person import PersonWithPermissionsFactory
 
 
 class TestSelectAttributionView(TestCase):
