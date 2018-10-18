@@ -53,7 +53,7 @@ class OrganizationEditForm(forms.ModelForm):
                   'all_students', 'enrollment_place', 'diploma', 'is_producing_cerfificate', 'is_producing_annexe']
 
     def __init__(self, data=None, initial=None, **kwargs):
-
+        self.education_group_yr = kwargs.pop('education_group_yr', None)
         super().__init__(data, initial=initial, **kwargs)
 
         if data:
@@ -114,3 +114,16 @@ class OrganizationEditForm(forms.ModelForm):
     def save_co_organization(self, education_group_year_id, *args, **kwargs):
         self.instance.education_group_year = EducationGroupYear.objects.get(pk=education_group_year_id)
         return self.save(*args, **kwargs)
+
+    def unique_on_education_grp_yr_and_organization(self):
+        if self.instance and self.instance.pk:
+            id_to_exclude = self.instance.pk
+            if EducationGroupOrganization.objects.filter(education_group_year=self.education_group_yr, organization=self.cleaned_data['organization']).exclude(id=id_to_exclude).exists():
+                return False
+        else:
+            if EducationGroupOrganization.objects.filter(education_group_year=self.education_group_yr, organization=self.cleaned_data['organization']).exists():
+                return False
+        return True
+
+    def is_valid(self):
+        return super(OrganizationEditForm, self).is_valid() and self.unique_on_education_grp_yr_and_organization()

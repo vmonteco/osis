@@ -43,7 +43,7 @@ HTML_ANCHOR_TABLE_COORGANIZATIONS = "#tbl_coorganization"
 def create(request, root_id, education_group_year_id):
     education_group_yr = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
 
-    form = OrganizationEditForm(request.POST or None)
+    form = OrganizationEditForm(request.POST or None, education_group_yr=education_group_yr)
 
     if form.is_valid():
         return _save_and_redirect(form, root_id, education_group_year_id)
@@ -82,7 +82,9 @@ def edit(request, root_id, education_group_year_id, coorganization_id):
     education_group_yr = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
     education_group_organization = get_object_or_404(EducationGroupOrganization, pk=coorganization_id)
 
-    form = OrganizationEditForm(request.POST or None, instance=education_group_organization)
+    form = OrganizationEditForm(request.POST or None,
+                                instance=education_group_organization,
+                                education_group_yr=education_group_yr)
 
     if request.POST:
         if form.is_valid():
