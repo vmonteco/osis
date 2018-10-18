@@ -4020,3 +4020,12 @@ msgstr ""
 
 msgid "EDITION_OF_GENERAL_INFORMATION"
 msgstr "Edition of general information"
+
+msgid "repartition added"
+msgstr ""
+
+msgid "repartition edited"
+msgstr ""
+
+msgid "repartition removed"
+msgstr ""

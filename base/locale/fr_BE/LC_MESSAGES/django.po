@@ -4027,3 +4027,12 @@ msgstr "Institution de référence"
 
 msgid "EDITION_OF_GENERAL_INFORMATION"
 msgstr "Modification des informations générales"
+
+msgid "repartition added"
+msgstr "répartition ajoutée"
+
+msgid "repartition edited"
+msgstr "répartition modifiée"
+
+msgid "repartition removed"
+msgstr "répartition supprimée"

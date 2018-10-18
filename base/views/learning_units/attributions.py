@@ -25,10 +25,13 @@
 ##############################################################################
 import itertools
 
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.contrib.messages.views import SuccessMessageMixin
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
+from django.utils.translation import ugettext_lazy as _
 from django.utils.decorators import method_decorator
 from django.utils.functional import cached_property
 from django.views.generic import FormView, DeleteView
@@ -85,9 +88,10 @@ class SelectAttributionView(ChargeRepartitionBaseView, TemplateView):
 
 
 @method_decorator(login_required, name='dispatch')
-class AddChargeRepartition(ChargeRepartitionBaseView, AjaxTemplateMixin, FormView):
+class AddChargeRepartition(ChargeRepartitionBaseView, AjaxTemplateMixin, SuccessMessageMixin, FormView):
     template_name = "learning_unit/add_charge_repartition.html"
     form_class = AttributionChargeRepartitionFormSet
+    success_message = _("repartition added")
 
     @cached_property
     def attribution_charges(self):
@@ -111,7 +115,7 @@ class AddChargeRepartition(ChargeRepartitionBaseView, AjaxTemplateMixin, FormVie
         return initial_data
 
     def form_valid(self, formset):
-        attribution_copy, _, _ = self.tuple_attribution_charges[0]
+        attribution_copy, lecturing_charge, practical_charge = self.tuple_attribution_charges[0]
         attribution_copy.id = None
         attribution_copy.save()
 
@@ -123,9 +127,10 @@ class AddChargeRepartition(ChargeRepartitionBaseView, AjaxTemplateMixin, FormVie
 
 
 @method_decorator(login_required, name='dispatch')
-class EditChargeRepartition(ChargeRepartitionBaseView, AjaxTemplateMixin, FormView):
+class EditChargeRepartition(ChargeRepartitionBaseView, AjaxTemplateMixin, SuccessMessageMixin, FormView):
     template_name = "learning_unit/add_charge_repartition.html"
     form_class = AttributionChargeNewFormSet
+    success_message = _("repartition edited")
 
     @cached_property
     def attribution_charges(self):
@@ -155,10 +160,11 @@ class EditChargeRepartition(ChargeRepartitionBaseView, AjaxTemplateMixin, FormVi
 
 
 @method_decorator(login_required, name='dispatch')
-class RemoveChargeRepartition(ChargeRepartitionBaseView, AjaxTemplateMixin, DeleteView):
+class RemoveChargeRepartition(ChargeRepartitionBaseView, AjaxTemplateMixin, SuccessMessageMixin, DeleteView):
     model = AttributionNew
     template_name = "learning_unit/remove_charge_repartition_confirmation.html"
     pk_url_kwarg = "attribution_id"
+    success_message = _("repartition removed")
 
     @cached_property
     def attribution_charges(self):
@@ -171,6 +177,8 @@ class RemoveChargeRepartition(ChargeRepartitionBaseView, AjaxTemplateMixin, Dele
     def delete(self, request, *args, **kwargs):
         delete_attribution(self.kwargs["attribution_id"])
         success_url = self.get_success_url()
+        # TODO check why no messages
+        messages.success(self.request, self.success_message)
         return HttpResponseRedirect(success_url)
 
 
