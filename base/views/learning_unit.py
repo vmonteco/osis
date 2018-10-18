@@ -121,7 +121,7 @@ def learning_unit_attributions(request, learning_unit_year_id):
     context = get_common_context_learning_unit_year(learning_unit_year_id,
                                                     get_object_or_404(Person, user=request.user))
     context['attribution_charge_news'] = \
-        attribution_charge_new.find_attribution_charge_new_by_learning_unit_year(
+        attribution_charge_new.find_attribution_charge_new_by_learning_unit_year_as_dict(
             learning_unit_year=learning_unit_year_id)
     context['experimental_phase'] = True
     return layout.render(request, "learning_unit/attributions.html", context)

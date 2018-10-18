@@ -42,14 +42,14 @@ from base.views import learning_achievement, search, education_groups
 from base.views import learning_unit, offer, common, institution, organization, academic_calendar, \
     my_osis, entity, student, notifications
 from base.views import teaching_material
+from base.views.learning_units.attributions import AddChargeRepartition, \
+    RemoveChargeRepartition, EditChargeRepartition, SelectAttributionView
 from base.views.learning_units.external import create as create_external
 from base.views.learning_units.external.search import filter_cities_by_country, filter_campus_by_city
 from base.views.learning_units.pedagogy.read import learning_unit_pedagogy
 from base.views.learning_units.pedagogy.update import learning_unit_pedagogy_edit, toggle_summary_locked
 from base.views.learning_units.proposal import create, update
 from base.views.learning_units.update import update_learning_unit, learning_unit_edition_end_date
-from base.views.learning_units.attributions import add_partim_attribution, AddChargeRepartition, \
-    RemoveChargeRepartition, EditChargeRepartition
 
 urlpatterns = [
     url(r'^$', common.home, name='home'),
@@ -137,7 +137,7 @@ urlpatterns = [
             ])),
             url(r'^attributions/', include([
                 url(r'^$', learning_unit.learning_unit_attributions, name="learning_unit_attributions"),
-                url(r'^select/$', add_partim_attribution, name="add_partim_attribution"),
+                url(r'^select/$', SelectAttributionView.as_view(), name="select_attribution"),
                 url(r'^add/(?P<attribution_id>[0-9]+)/$', AddChargeRepartition.as_view(), name="add_charge_repartition"),
                 url(r'^edit/(?P<attribution_id>[0-9]+)/$', EditChargeRepartition.as_view(), name="edit_charge_repartition"),
                 url(r'^remove/(?P<pk>[0-9]+)/$', RemoveChargeRepartition.as_view(), name="remove_charge_repartition"),

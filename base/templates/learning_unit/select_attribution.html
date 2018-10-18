@@ -49,20 +49,20 @@
                         <th></th>
                     </thead>
                     <tbody>
-                        {% for key,value in attributions.items %}
+                        {% for attribution,lecturing_charge,practical_charge in attributions %}
                             <tr>
-                                <td>{{ value.person }}</td>
-                                <td>{% trans value.function %}</td>
-                                <td>{{ value.start_year | default_if_none:'' }}</td>
-                                <td>{{ value.duration | default_if_none:'' }}</td>
-                                <td>{{ value.LECTURING | default_if_none:0 | floatformat:2 }}</td>
-                                <td>{{ value.PRACTICAL_EXERCISES | default_if_none:0 | floatformat:2 }}</td>
-                                <td>{{ value.substitute | default_if_none:'' }}</td>
+                                <td>{{ attribution.tutor.person }}</td>
+                                <td>{% trans attribution.function %}</td>
+                                <td>{{ attribution.start_year | default_if_none:'' }}</td>
+                                <td>{{ attribution.duration | default_if_none:'' }}</td>
+                                <td>{{ lecturing_charge.allocation_charge | default_if_none:0 | floatformat:2 }}</td>
+                                <td>{{ practical_charge.allocation_charge | default_if_none:0 | floatformat:2 }}</td>
+                                <td>{{ attribution.substitute | default_if_none:'' }}</td>
                                 <td>
                                     <a href="#"
                                        class="btn btn-primary charge-repartition-btn"
                                        role="button"
-                                       data-form="{% url "add_charge_repartition" learning_unit_year.id key %}">
+                                       data-form="{% url "add_charge_repartition" learning_unit_year.id attribution.id %}">
                                         {% trans "add" %}
                                     </a>
                                 </td>

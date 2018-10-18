@@ -23,16 +23,18 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+
 from attribution.models import attribution_charge_new
-from attribution.models.attribution_new import AttributionNew
-from base.models.learning_component_year import LearningComponentYear
-from base.models.learning_unit_component import LearningUnitComponent
 
 
-def find_attribution_charge_new_by_learning_unit_year(learning_unit_year):
-    attribution_charges = attribution_charge_new.AttributionChargeNew.objects \
+def find_attribution_charge_new(learning_unit_year):
+    return attribution_charge_new.AttributionChargeNew.objects \
         .filter(learning_component_year__learningunitcomponent__learning_unit_year=learning_unit_year) \
         .select_related('learning_component_year', 'attribution__tutor__person')
+
+
+def find_attribution_charge_new_by_learning_unit_year_as_dict(learning_unit_year):
+    attribution_charges = find_attribution_charge_new(learning_unit_year)
     return create_attributions_dictionary(attribution_charges)
 
 
@@ -48,39 +50,3 @@ def create_attributions_dictionary(attribution_charges):
         attributions.setdefault(key, attribution_dict) \
             .update({attribution_charge.learning_component_year.type: attribution_charge.allocation_charge})
     return attributions
-
-
-def find_attributions_for_add_partim(learning_unit_year_parent, learning_unit_year_child=None, attribution=None):
-    components_year = LearningComponentYear.objects.filter(
-        learningunitcomponent__learning_unit_year=learning_unit_year_child
-    )
-    attribution_charges = attribution_charge_new.AttributionChargeNew.objects \
-        .filter(learning_component_year__learningunitcomponent__learning_unit_year=learning_unit_year_parent) \
-        .select_related('learning_component_year', 'attribution__tutor__person')
-    if learning_unit_year_child:
-        attribution_charges = attribution_charges.\
-            exclude(attribution__attributionchargenew__learning_component_year__in=components_year)
-    if attribution:
-        attribution_charges = attribution_charges.filter(attribution=attribution)
-    return create_attributions_dictionary(attribution_charges)
-
-
-def delete_attribution(attribution_pk):
-    attribution = AttributionNew.objects.get(pk=attribution_pk)
-
-    attribution_charges = attribution_charge_new.AttributionChargeNew.objects.filter(attribution=attribution_pk). \
-        select_related("learning_component_year")
-    components_year = [charge.learning_component_year for charge in attribution_charges]
-    components = LearningUnitComponent.objects.filter(learning_component_year__in=components_year)
-
-    for component in components:
-        component.delete()
-
-    for component_year in components_year:
-        component_year.delete()
-
-    for charge in attribution_charges:
-        charge.delete()
-
-    attribution.delete()
-
