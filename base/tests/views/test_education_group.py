@@ -1023,6 +1023,7 @@ class AdmissionConditionEducationGroupYearTest(TestCase):
         info = {
             'section': 'free',
             'language': 'fr',
+            'title': 'Free Text',
         }
         request = RequestFactory().get('/?{}'.format(urllib.parse.urlencode(info)))
         request.user = mock.Mock()
