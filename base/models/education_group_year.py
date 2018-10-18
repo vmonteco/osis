@@ -490,6 +490,7 @@ class EducationGroupYear(models.Model):
 
     class Meta:
         verbose_name = _("education group year")
+        unique_together = ("academic_year", "education_group")
 
     def get_absolute_url(self):
         return reverse("education_group_read", args=[self.pk])
