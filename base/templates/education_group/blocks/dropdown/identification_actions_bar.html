@@ -82,6 +82,11 @@
                     {% li_with_deletion_perm "#" _('Delete') %}
                 {% endflag %}
 
+                {% flag "education_group_update" %}
+                    <li class="divider"></li>
+                    {% li_with_postpone_perm_training "#" _('Postpone Training') %}
+                {% endflag %}
+
                 {% flag "pdf_content" %}
                     <li class="divider"></li>
                     {% link_pdf_content_education_group %}
