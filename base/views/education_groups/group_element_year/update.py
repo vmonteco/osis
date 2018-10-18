@@ -24,6 +24,7 @@
 #
 ##############################################################################
 import abc
+from gettext import ngettext
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.messages.views import SuccessMessageMixin
@@ -34,20 +35,22 @@ from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_http_methods
-from django.views.generic import DeleteView
+from django.views.generic import DeleteView, FormView, DetailView
 from django.views.generic import UpdateView
+from django.views.generic.base import View
 from waffle.decorators import waffle_flag
 
 from base.business import group_element_years
 from base.business.group_element_years.management import SELECT_CACHE_KEY, select_education_group_year, \
     select_learning_unit_year
+from base.business.group_element_years.postponement import NotPostponeError, PostponeContent
 from base.forms.education_group.group_element_year import UpdateGroupElementYearForm
 from base.models.education_group_year import EducationGroupYear
 from base.models.exceptions import IncompatiblesTypesException
 from base.models.group_element_year import GroupElementYear
 from base.models.learning_unit_year import LearningUnitYear
 from base.models.utils.utils import get_object_or_none
-from base.views.common import display_success_messages, display_warning_messages
+from base.views.common import display_success_messages, display_warning_messages, display_error_messages
 from base.views.mixins import AjaxTemplateMixin, FlagMixin, RulesRequiredMixin
 from base.views.education_groups import perms
 from base.views.education_groups.select import build_success_message, build_success_json_response
@@ -212,9 +215,24 @@ class GenericUpdateGroupElementYearMixin(FlagMixin, RulesRequiredMixin, SuccessM
         return get_object_or_404(EducationGroupYear, pk=self.kwargs.get("root_id"))
 
 
-class PostponeGroupElementYearView(GenericUpdateGroupElementYearMixin, UpdateView):
-    # TODO
-    pass
+class PostponeGroupElementYearView(GenericUpdateGroupElementYearMixin, View):
+    template_name = "education_group/confirm_postpone_content.html"
+
+    def post(self):
+        try:
+            postponer = PostponeContent(self.get_root())
+            result = postponer.postpone()
+            display_success_messages()
+            count = len(result)
+            display_success_messages(
+                self.request, ngettext(
+                    '%(count)d education group has been postponed with success',
+                    '%(count)d education groups have been postponed with success', count
+                ) % {'count': count}
+            )
+        except (TypeError, NotPostponeError) as e:
+            display_error_messages(self.request, str(e))
+        return reverse("education_group_content", args=[self.kwargs["root_id"], self.education_group_year.pk])
 
 
 class UpdateGroupElementYearView(GenericUpdateGroupElementYearMixin, UpdateView):
