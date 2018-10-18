@@ -39,7 +39,7 @@ from base.business.education_group import can_user_edit_administrative_data
 from base.business.education_groups.perms import is_eligible_to_delete_education_group, \
     is_eligible_to_change_education_group, is_eligible_to_add_training, \
     is_eligible_to_add_mini_training, is_eligible_to_add_group, is_eligible_to_change_achievement, \
-    is_eligible_to_delete_achievement
+    is_eligible_to_delete_achievement, is_eligible_to_postpone_education_group
 from base.models.enums.learning_unit_year_periodicity import BIENNIAL_EVEN, BIENNIAL_ODD, ANNUAL
 
 OPTIONAL_PNG = base.STATIC_URL + 'img/education_group_year/optional.png'
@@ -161,6 +161,11 @@ def li_with_create_perm_mini_training(context, url, message, url_id="link_create
 @register.simple_tag(takes_context=True)
 def li_with_create_perm_group(context, url, message, url_id="link_create_group"):
     return li_with_permission(context, is_eligible_to_add_group, url, message, url_id)
+
+
+@register.simple_tag(takes_context=True)
+def li_with_postpone_perm_training(context, url, message, url_id="link_postpone_training"):
+    return li_with_permission(context, is_eligible_to_postpone_education_group, url, message, url_id)
 
 
 def li_with_permission(context, permission, url, message, url_id):
