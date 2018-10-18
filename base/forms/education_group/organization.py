@@ -67,7 +67,7 @@ class OrganizationEditForm(forms.ModelForm):
     def _prepare_select_fields_for_update(self):
         country_id = None
         if self.instance.organization:
-            entity = self.instance.organization.latest_version.entity
+            entity = Entity.objects.filter(organization=self.instance.organization).first()
             self.fields['country'].initial = entity.country
             if entity.country:
                 country_id = entity.country.id
