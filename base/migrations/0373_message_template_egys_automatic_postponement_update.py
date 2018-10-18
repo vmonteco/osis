@@ -8,7 +8,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('base', '0371_message_template_egys_automatic_postponement_update'),
+        ('base', '0372_auto_20181017_1601'),
     ]
 
     operations = [
