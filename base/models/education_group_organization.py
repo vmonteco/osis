@@ -52,6 +52,9 @@ class EducationGroupOrganization(models.Model):
     is_producing_cerfificate = models.BooleanField(default=False, verbose_name=_('Producing certificat'))
     is_producing_annexe = models.BooleanField(default=False, verbose_name=_('Producing annexe'))
 
+    class Meta:
+        unique_together = ('education_group_year', 'organization', )
+
     @cached_property
     def address(self):
         return organization_address.find_by_organization(self.organization).first()
