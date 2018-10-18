@@ -37,11 +37,11 @@ class NotPostponeError(Error):
 
 
 class PostponeContent:
-    model = EducationGroupYear
+    """ Duplicate the content of a education group year content to the next academic year """
 
     def __init__(self, instance):
-        if not isinstance(instance, self.model) and not instance.is_training():
-            raise TypeError('invalid instance')
+        if not isinstance(instance, EducationGroupYear) or not instance.is_training():
+            raise TypeError(_('The education group is not a training'))
 
         self.instance = instance
 
@@ -60,9 +60,11 @@ class PostponeContent:
     def postpone(self, instance=None):
         if not instance:
             instance = self.instance
+            next_instance = self.instance_n1
+        else:
+            next_instance = self.get_instance_n1(instance)
 
-        next_instance = self.get_instance_n1(instance)
-        for gr in self.instance.groupelementyear_set.all():
+        for gr in instance.groupelementyear_set.all():
             new_gr = update_related_object(gr, "parent", next_instance)
             if new_gr.child_leaf:
                 self._postpone_child_leaf(gr, new_gr)
@@ -106,7 +108,7 @@ class PostponeContent:
 
         if not new_egy:
             new_egy = duplicate_education_group_year(old_egy, self.next_academic_year)
-            self.postpone(new_egy)
+            self.postpone(old_egy)
 
         new_gr.child_branch = new_egy
         return new_gr.save()
