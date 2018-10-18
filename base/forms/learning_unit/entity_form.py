@@ -30,7 +30,7 @@ from django import forms
 from django.utils.functional import lazy
 from django.utils.translation import ugettext_lazy as _
 
-from base.forms.utils.choice_field import add_blank
+from base.forms.utils.choice_field import add_blank, add_all
 from base.models.entity_container_year import EntityContainerYear
 from base.models.entity_version import get_last_version, find_all_current_entities_version
 from base.models.enums.entity_container_year_link_type import REQUIREMENT_ENTITY, ALLOCATION_ENTITY, \
@@ -39,8 +39,9 @@ from reference.models.country import Country
 
 
 def _get_section_choices():
-    return add_blank(Country.objects.filter(entity__isnull=False).values_list('name', 'name')
-                     .distinct().order_by('name'))
+    return add_blank(
+        add_all(Country.objects.filter(entity__isnull=False).values_list('id', 'name') .distinct().order_by('name'))
+    )
 
 
 class EntitiesVersionChoiceField(forms.ModelChoiceField):
