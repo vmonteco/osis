@@ -116,6 +116,10 @@ urlpatterns = [
         url(r'^delete/$', delete.DeleteGroupEducationView.as_view(), name="delete_education_group"),
         url(r'^group_content/', group_element_year.read.ReadEducationGroupTypeView.as_view(), name="group_content"),
         url(r'^pdf_content/(?P<language>[a-z\-]+)', pdf_content, name="pdf_content"),
+
+        url(r'^postpone/(?P<group_element_year_id>[0-9]+)/',
+            group_element_year.update.PostponeGroupElementYearView.as_view(),
+            name="postpone_education_group"),
     ])),
     url(r'^(?P<root_id>[0-9]+)/(?P<learning_unit_year_id>[0-9]+)/learning_unit/', include([
         url(r'^utilization/$',
