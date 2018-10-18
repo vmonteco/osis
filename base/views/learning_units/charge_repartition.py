@@ -27,6 +27,7 @@ import itertools
 
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
+from django.db.models.functions import Concat
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
@@ -62,8 +63,14 @@ class ChargeRepartitionBaseViewMixin(RulesRequiredMixin):
 
     @cached_property
     def attribution_charges(self):
+        child_attributions = AttributionChargeNew.objects \
+            .filter(learning_component_year__learningunitcomponent__learning_unit_year=self.luy) \
+            .annotate(id_text=Concat("attribution__tutor__person__global_id", "attribution__function")) \
+            .values_list("id_text", flat=True)
         return AttributionChargeNew.objects \
             .filter(learning_component_year__learningunitcomponent__learning_unit_year=self.parent_luy) \
+            .annotate(id_text=Concat("attribution__tutor__person__global_id", "attribution__function")) \
+            .exclude(id_text__in=child_attributions) \
             .order_by("attribution", "learning_component_year__type") \
             .select_related("attribution__tutor__person", "learning_component_year")
 
@@ -88,7 +95,6 @@ class ChargeRepartitionBaseViewMixin(RulesRequiredMixin):
 
 class SelectAttributionView(ChargeRepartitionBaseViewMixin, TemplateView):
     template_name = "learning_unit/select_attribution.html"
-
 
 
 class AddChargeRepartition(ChargeRepartitionBaseViewMixin, AjaxTemplateMixin, SuccessMessageMixin, FormView):
