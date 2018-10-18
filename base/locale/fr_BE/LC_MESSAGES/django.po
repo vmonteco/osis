@@ -1049,6 +1049,9 @@ msgstr "Notes sauvegardées, le bouton sauvegarder n'est plus présent"
 msgid "scores_must_be_between_0_and_20"
 msgstr "Les notes doivent être comprise entre 0 et 20"
 
+msgid "Search..."
+msgstr "Recherche..."
+
 msgid "search_for_a_file"
 msgstr "Recherche d'un fichier"
 
@@ -4033,5 +4036,3 @@ msgstr "Coorganization"
 
 msgid "Are you sure you want to delete the coorganization?"
 msgstr "Êtes-vous certain de vouloir supprimer la coorganisation"
-
-

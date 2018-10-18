@@ -25,15 +25,23 @@
 ##############################################################################
 from collections.__init__ import OrderedDict
 
+from dal import autocomplete
 from django import forms
+from django.utils.functional import lazy
 from django.utils.translation import ugettext_lazy as _
 
+from base.forms.utils.choice_field import add_blank, add_all
 from base.models.entity_container_year import EntityContainerYear
-from base.models.entity_version import find_pedagogical_entities_version, get_last_version
+from base.models.entity_version import get_last_version, find_all_current_entities_version
 from base.models.enums.entity_container_year_link_type import REQUIREMENT_ENTITY, ALLOCATION_ENTITY, \
     ADDITIONAL_REQUIREMENT_ENTITY_1, ADDITIONAL_REQUIREMENT_ENTITY_2, ENTITY_TYPE_LIST
-from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES_MUST_HAVE_SAME_ENTITIES
 from reference.models.country import Country
+
+
+def _get_section_choices():
+    return add_blank(
+        add_all(Country.objects.filter(entity__isnull=False).values_list('id', 'name') .distinct().order_by('name'))
+    )
 
 
 class EntitiesVersionChoiceField(forms.ModelChoiceField):
@@ -49,11 +57,16 @@ class EntitiesVersionChoiceField(forms.ModelChoiceField):
 
 
 class EntityContainerYearModelForm(forms.ModelForm):
-    entity = EntitiesVersionChoiceField(queryset=find_pedagogical_entities_version())
+    entity = EntitiesVersionChoiceField(
+        widget=autocomplete.ModelSelect2(
+            url='entity_autocomplete',
+            attrs={'data-html': True},
+            forward=['country']
+        ),
+        queryset=find_all_current_entities_version()
+    )
     entity_type = ''
-    country = forms.ModelChoiceField(queryset=Country.objects.filter(entity__isnull=False)
-                                     .distinct().order_by('name'),
-                                     required=False, label=_("country"))
+    country = forms.ChoiceField(choices=lazy(_get_section_choices, list), required=False, label=_("country"))
 
     def __init__(self, *args, **kwargs):
         self.person = kwargs.pop('person')
@@ -68,7 +81,7 @@ class EntityContainerYearModelForm(forms.ModelForm):
 
     class Meta:
         model = EntityContainerYear
-        fields = ['entity']
+        fields = ['entity', 'country']
 
     def pre_save(self, learning_container_year):
         self.instance.learning_container_year = learning_container_year
@@ -194,19 +207,6 @@ class EntityContainerBaseForm:
     def post_clean(self, container_type, academic_year):
         for form in self.forms:
             form.post_clean(academic_year.start_date)
-
-        requirement_entity_version = self.forms[0].entity_version
-        allocation_entity_version = self.forms[1].entity_version
-        requirement_faculty = requirement_entity_version.find_faculty_version(academic_year)
-        allocation_faculty = allocation_entity_version.find_faculty_version(academic_year)
-
-        if container_type in LEARNING_CONTAINER_YEAR_TYPES_MUST_HAVE_SAME_ENTITIES:
-            if requirement_faculty != allocation_faculty:
-                self.forms[1].add_error(
-                    "entity", _("Requirement and allocation entities must be linked to the same "
-                                "faculty for this learning unit type.")
-                )
-
         return not any(form.errors for form in self.forms)
 
     def is_valid(self):

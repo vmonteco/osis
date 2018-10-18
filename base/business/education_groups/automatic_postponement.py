@@ -23,29 +23,29 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-
 from django.utils.translation import ugettext as _
 
-from base.business.learning_units.edition import duplicate_learning_unit_year
+from base.business.education_groups.postponement import duplicate_education_group_year
 from base.business.utils.postponement import AutomaticPostponement
-from base.models.learning_unit_year import LearningUnitYear
-from base.utils.send_mail import send_mail_before_annual_procedure_of_automatic_postponement_of_luy, \
-    send_mail_after_annual_procedure_of_automatic_postponement_of_luy
+from base.models.education_group_year import EducationGroupYear
+from base.models.enums.education_group_categories import GROUP
+from base.utils.send_mail import send_mail_before_annual_procedure_of_automatic_postponement_of_egy, \
+    send_mail_after_annual_procedure_of_automatic_postponement_of_egy
 
 
-class LearningUnitAutomaticPostponement(AutomaticPostponement):
-    model = LearningUnitYear
+class EducationGroupAutomaticPostponement(AutomaticPostponement):
+    model = EducationGroupYear
 
-    send_before = send_mail_before_annual_procedure_of_automatic_postponement_of_luy
-    send_after = send_mail_after_annual_procedure_of_automatic_postponement_of_luy
-    extend_method = duplicate_learning_unit_year
-    msg_result = _("%s learning unit(s) extended and %s error(s)")
+    send_before = send_mail_before_annual_procedure_of_automatic_postponement_of_egy
+    send_after = send_mail_after_annual_procedure_of_automatic_postponement_of_egy
+    extend_method = duplicate_education_group_year
+    msg_result = _("%s education group(s) extended and %s error(s)")
 
     def get_queryset(self, queryset=None):
-        return super().get_queryset(queryset).filter(learning_container_year__isnull=False)
+        return super().get_queryset(queryset).exclude(education_group_type__category=GROUP)
 
     def get_already_duplicated(self):
-        return self.queryset.filter(learning_unit__learningunityear__academic_year=self.last_academic_year)
+        return self.queryset.filter(education_group__educationgroupyear__academic_year=self.last_academic_year)
 
     def get_to_not_duplicated(self):
-        return self.queryset.filter(learning_unit__end_year__lt=self.last_academic_year.year)
+        return self.queryset.filter(education_group__end_year__lt=self.last_academic_year.year)

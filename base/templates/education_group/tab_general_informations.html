@@ -57,7 +57,7 @@
                                                    {% if label.type == 'common' %}class="education_group_year-common italic"{% endif %}>{{ label.translation }}</label>
                                             {% if label.type == 'specific' and can_edit_information %}
                                                 <a class="pedagogy-edit-btn pull-right" href="#"
-                                                   data-form="{{ post_url }}?label={{ label.label }}"
+                                                   data-form="{{ post_url }}?label={{ label.translation.split|join:"%20"}}"
                                                    title="{% trans 'edit' %}">
                                                     <span class="glyphicon glyphicon-edit"
                                                           aria-hidden="true"></span>
