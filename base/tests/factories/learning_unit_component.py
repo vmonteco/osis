@@ -42,6 +42,15 @@ class LearningUnitComponentFactory(DjangoModelFactory):
 
     learning_unit_year = factory.SubFactory(LearningUnitYearFakerFactory)
     learning_component_year = factory.LazyAttribute(
-        lambda obj: LearningComponentYearFactory(learning_container_year=obj.learning_unit_year.learning_container_year)
+        lambda obj: LearningComponentYearFactory(learning_container_year=obj.learning_unit_year.learning_container_year,
+                                                 type=obj.type)
     )
     type = factory.Iterator(component_type.COMPONENT_TYPES, getter=operator.itemgetter(0))
+
+
+class LecturingLearningUnitComponentFactory(LearningUnitComponentFactory):
+    type = component_type.LECTURING
+
+
+class PracticalLearningUnitComponentFactory(LearningUnitComponentFactory):
+    type = component_type.PRACTICAL_EXERCISES

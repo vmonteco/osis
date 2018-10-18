@@ -158,6 +158,9 @@ def _is_person_eligible_to_modify_end_date_based_on_container_type(learning_unit
 
 
 def is_eligible_to_manage_charge_repartition(learning_unit_year, person):
+    return _is_eligible_to_manage_charge_repartition(learning_unit_year, person)
+
+def _is_eligible_to_manage_charge_repartition(learning_unit_year, person):
     return _has_person_the_right_to_manage_charge_repartition(person) and \
            is_learning_unit_year_a_partim(learning_unit_year, person) and \
            person.is_linked_to_entity_in_charge_of_learning_unit_year(learning_unit_year)
