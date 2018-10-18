@@ -34,10 +34,11 @@
             </div>
             <div class="modal-body">
                 {% csrf_token %}
-                <div id="modification_access">
-                    <b>{% trans 'Access' %}</b>
-                    {% bootstrap_field form.access show_label=False  %}
+                <div class="row" id="modification_access">
+                    <div class="col-md-1" style="padding-top: 7px;"><b>{% trans 'Access' %}</b></div>
+                    <div class="col-md-8" style="padding-left: 0">{% bootstrap_field form.access show_label=False %}</div>
                 </div>
+                <br>
                 <ul class="nav nav-tabs" id="modification_tabs" role="tablist">
                     <li role="presentation" class="active"><a href="#modification_diploma">{% trans 'Diploma' %}</a></li>
                     <li role="presentation"><a href="#modification_conditions">{% trans 'Conditions' %}</a></li>
