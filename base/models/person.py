@@ -129,6 +129,7 @@ class Person(SerializableModel):
             ("is_administrator", "Is administrator"),
             ("is_institution_administrator", "Is institution administrator "),
             ("can_edit_education_group_administrative_data", "Can edit education group administrative data"),
+            ("can_manage_charge_repartition", "Can manage charge repartition"),
         )
 
     def is_linked_to_entity_in_charge_of_learning_unit_year(self, learning_unit_year):

@@ -118,11 +118,14 @@ def learning_unit_components(request, learning_unit_year_id):
 @login_required
 @permission_required('base.can_access_learningunit', raise_exception=True)
 def learning_unit_attributions(request, learning_unit_year_id):
+    person = get_object_or_404(Person, user=request.user)
     context = get_common_context_learning_unit_year(learning_unit_year_id,
-                                                    get_object_or_404(Person, user=request.user))
+                                                    person)
     context['attribution_charge_news'] = \
         attribution_charge_new.find_attribution_charge_new_by_learning_unit_year_as_dict(
             learning_unit_year=learning_unit_year_id)
+    context["can_manage_charge_repartition"] = \
+        business_perms.is_eligible_to_manage_charge_repartition(context["learning_unit_year"], person)
     context['experimental_phase'] = True
     return layout.render(request, "learning_unit/attributions.html", context)
 

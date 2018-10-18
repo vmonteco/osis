@@ -26,27 +26,32 @@
 import itertools
 
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
-from django.utils.translation import ugettext_lazy as _
-from django.utils.decorators import method_decorator
 from django.utils.functional import cached_property
+from django.utils.translation import ugettext_lazy as _
 from django.views.generic import FormView, DeleteView
 from django.views.generic.base import TemplateView
 
 from attribution.models.attribution_charge_new import AttributionChargeNew
 from attribution.models.attribution_new import AttributionNew
+from base.business.learning_units import perms
 from base.forms.learning_unit.attribution_charge_repartition import AttributionChargeRepartitionFormSet, \
     AttributionChargeNewFormSet
 from base.models.enums import learning_component_year_type
 from base.models.learning_unit_year import LearningUnitYear
-from base.views.mixins import AjaxTemplateMixin
+from base.models.person import Person
+from base.views.mixins import AjaxTemplateMixin, RulesRequiredMixin
 
 
-class ChargeRepartitionBaseView():
+class ChargeRepartitionBaseViewMixin(RulesRequiredMixin):
+    rules = [perms.is_eligible_to_manage_charge_repartition]
+
+    def _call_rule(self, rule):
+        return rule(self.luy, get_object_or_404(Person, user=self.request.user))
+
     @cached_property
     def luy(self):
         return get_object_or_404(LearningUnitYear, id=self.kwargs["learning_unit_year_id"])
@@ -81,14 +86,12 @@ class ChargeRepartitionBaseView():
         return reverse("learning_unit_attributions", args=[self.kwargs["learning_unit_year_id"]])
 
 
-@method_decorator(login_required, name='dispatch')
-class SelectAttributionView(ChargeRepartitionBaseView, TemplateView):
+class SelectAttributionView(ChargeRepartitionBaseViewMixin, TemplateView):
     template_name = "learning_unit/select_attribution.html"
 
 
 
-@method_decorator(login_required, name='dispatch')
-class AddChargeRepartition(ChargeRepartitionBaseView, AjaxTemplateMixin, SuccessMessageMixin, FormView):
+class AddChargeRepartition(ChargeRepartitionBaseViewMixin, AjaxTemplateMixin, SuccessMessageMixin, FormView):
     template_name = "learning_unit/add_charge_repartition.html"
     form_class = AttributionChargeRepartitionFormSet
     success_message = _("repartition added")
@@ -126,8 +129,7 @@ class AddChargeRepartition(ChargeRepartitionBaseView, AjaxTemplateMixin, Success
         return super().form_valid(formset)
 
 
-@method_decorator(login_required, name='dispatch')
-class EditChargeRepartition(ChargeRepartitionBaseView, AjaxTemplateMixin, SuccessMessageMixin, FormView):
+class EditChargeRepartition(ChargeRepartitionBaseViewMixin, AjaxTemplateMixin, SuccessMessageMixin, FormView):
     template_name = "learning_unit/add_charge_repartition.html"
     form_class = AttributionChargeNewFormSet
     success_message = _("repartition edited")
@@ -159,8 +161,7 @@ class EditChargeRepartition(ChargeRepartitionBaseView, AjaxTemplateMixin, Succes
         return super().form_valid(formset)
 
 
-@method_decorator(login_required, name='dispatch')
-class RemoveChargeRepartition(ChargeRepartitionBaseView, AjaxTemplateMixin, SuccessMessageMixin, DeleteView):
+class RemoveChargeRepartition(ChargeRepartitionBaseViewMixin, AjaxTemplateMixin, SuccessMessageMixin, DeleteView):
     model = AttributionNew
     template_name = "learning_unit/remove_charge_repartition_confirmation.html"
     pk_url_kwarg = "attribution_id"

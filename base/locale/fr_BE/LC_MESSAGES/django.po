@@ -4039,3 +4039,6 @@ msgstr "répartition modifiée"
 
 msgid "repartition removed"
 msgstr "répartition supprimée"
+
+msgid "Manage repartition"
+msgstr "Gérer la répartition"

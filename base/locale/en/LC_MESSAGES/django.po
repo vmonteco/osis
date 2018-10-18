@@ -4032,3 +4032,6 @@ msgstr ""
 
 msgid "repartition removed"
 msgstr ""
+
+msgid "Manage repartition"
+msgstr ""
