@@ -37,10 +37,10 @@ from base.tests.factories.person import CentralManagerFactory
 class TestPostpone(TestCase):
 
     def setUp(self):
+        self.person = CentralManagerFactory()
         self.client.force_login(self.person.user)
         self.education_group_year = EducationGroupYearFactory()
         self.group_element_year = GroupElementYearFactory(parent=self.education_group_year)
-        self.person = CentralManagerFactory()
         self.url = reverse(
             "postpone_education_group",
             kwargs={
