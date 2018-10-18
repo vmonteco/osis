@@ -40,34 +40,46 @@ from base.tests.factories.learning_unit_year import LearningUnitYearFullFactory,
 from base.tests.factories.person import PersonFactory, PersonWithPermissionsFactory
 
 
-@skip
 class TestSelectAttributionView(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.learning_unit_year_parent = LearningUnitYearFullFactory()
-        cls.learning_unit_year_child = LearningUnitYearPartimFactory(
-            learning_container_year=cls.learning_unit_year_parent.learning_container_year
+        cls.learning_unit_year = LearningUnitYearPartimFactory()
+        cls.full_learning_unit_year = LearningUnitYearFullFactory(
+            learning_container_year=cls.learning_unit_year.learning_container_year,
+            academic_year=cls.learning_unit_year.academic_year
         )
-
-        cls.attributions = [cls.create_attribution_charge_for_specific_learning_unit_year(cls.learning_unit_year_parent)
-                            for _ in range(3)]
-
-        cls.person = PersonFactory()
-        cls.url = reverse("add_partim_attribution", args=[cls.learning_unit_year_child.id])
-
-    @staticmethod
-    def create_attribution_charge_for_specific_learning_unit_year(luy):
-        attribution_charge_new = AttributionChargeNewFactory(
-            learning_component_year__learning_container_year=luy.learning_container_year
+        cls.lecturing_unit_component_full = LecturingLearningUnitComponentFactory(
+            learning_unit_year=cls.full_learning_unit_year
         )
-        learning_unit_component = LearningUnitComponentFactory(
-            learning_component_year=attribution_charge_new.learning_component_year,
-            learning_unit_year=luy
+        cls.practical_unit_component_full = PracticalLearningUnitComponentFactory(
+            learning_unit_year=cls.full_learning_unit_year
         )
-        return attribution_charge_new
+        cls.lecturing_unit_component = LecturingLearningUnitComponentFactory(learning_unit_year=cls.learning_unit_year)
+        cls.practical_unit_component = PracticalLearningUnitComponentFactory(learning_unit_year=cls.learning_unit_year)
+        cls.person = PersonWithPermissionsFactory('can_access_learningunit')
 
     def setUp(self):
+        self.attribution_full = AttributionNewFactory(
+            learning_container_year=self.learning_unit_year.learning_container_year
+        )
+        self.charge_lecturing_full = AttributionChargeNewFactory(
+            attribution=self.attribution_full,
+            learning_component_year=self.lecturing_unit_component_full.learning_component_year
+        )
+        self.charge_practical_full = AttributionChargeNewFactory(
+            attribution=self.attribution_full,
+            learning_component_year=self.practical_unit_component_full.learning_component_year
+        )
+
+        self.url = reverse("select_attribution", args=[self.learning_unit_year.id])
         self.client.force_login(self.person.user)
+
+        self.patcher = patch("base.business.learning_units.perms._is_eligible_to_manage_charge_repartition",
+                             return_value=True)
+        self.mocked_permission_function = self.patcher.start()
+
+    def tearDown(self):
+        self.patcher.stop()
 
     def test_login_required(self):
         self.client.logout()
@@ -78,64 +90,60 @@ class TestSelectAttributionView(TestCase):
     def test_template_used(self):
         response = self.client.get(self.url)
 
-        self.assertTemplateUsed(response, "learning_unit/add_attribution.html")
+        self.mocked_permission_function.assert_called_once_with(self.learning_unit_year, self.person)
+        self.assertEqual(response.status_code, HttpResponse.status_code)
+        self.assertTemplateUsed(response, "learning_unit/select_attribution.html")
 
     def test_should_give_all_attributions_of_parent_if_no_attribution_in_child(self):
         response = self.client.get(self.url)
 
         context = response.context
-        self.assertEqual(
-            len(context["attributions"]),
-            len(self.attributions)
-        )
-
-    def test_should_not_show_attributions_of_child(self):
-        attribution = AttributionChargeNewFactory(
-            attribution=self.attributions[0].attribution,
-            learning_component_year__learning_container_year=self.learning_unit_year_child.learning_container_year
-        )
-
-        LearningUnitComponentFactory(
-            learning_unit_year=self.learning_unit_year_child,
-            learning_component_year=attribution.learning_component_year
-        )
-
-        response = self.client.get(self.url)
-
-        context = response.context
-        self.assertEqual(
-            len(context["attributions"]),
-            len(self.attributions[1:])
+        self.assertListEqual(
+            context["attributions"],
+            [(self.attribution_full, self.charge_lecturing_full, self.charge_practical_full)]
         )
 
 
-@skip
 class TestAddChargeRepartition(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.learning_unit_year_parent = LearningUnitYearFullFactory()
-        cls.learning_unit_year_child = LearningUnitYearPartimFactory(
-            learning_container_year=cls.learning_unit_year_parent.learning_container_year
+        cls.learning_unit_year = LearningUnitYearPartimFactory()
+        cls.full_learning_unit_year = LearningUnitYearFullFactory(
+            learning_container_year=cls.learning_unit_year.learning_container_year,
+            academic_year=cls.learning_unit_year.academic_year
         )
-
-        cls.attribution = cls.create_attribution_charge_for_specific_learning_unit_year(cls.learning_unit_year_parent)
-
-        cls.person = PersonFactory()
-        cls.url = reverse("add_charge_repartition", args=[cls.learning_unit_year_child.id, cls.attribution.id])
-
-    @staticmethod
-    def create_attribution_charge_for_specific_learning_unit_year(luy):
-        attribution_charge_new = AttributionChargeNewFactory(
-            learning_component_year__learning_container_year=luy.learning_container_year
+        cls.lecturing_unit_component_full = LecturingLearningUnitComponentFactory(
+            learning_unit_year=cls.full_learning_unit_year
         )
-        learning_unit_component = LearningUnitComponentFactory(
-            learning_component_year=attribution_charge_new.learning_component_year,
-            learning_unit_year=luy
+        cls.practical_unit_component_full = PracticalLearningUnitComponentFactory(
+            learning_unit_year=cls.full_learning_unit_year
         )
-        return attribution_charge_new
+        cls.lecturing_unit_component = LecturingLearningUnitComponentFactory(learning_unit_year=cls.learning_unit_year)
+        cls.practical_unit_component = PracticalLearningUnitComponentFactory(learning_unit_year=cls.learning_unit_year)
+        cls.person = PersonWithPermissionsFactory('can_access_learningunit')
 
     def setUp(self):
+        self.attribution_full = AttributionNewFactory(
+            learning_container_year=self.learning_unit_year.learning_container_year
+        )
+        self.charge_lecturing_full = AttributionChargeNewFactory(
+            attribution=self.attribution_full,
+            learning_component_year=self.lecturing_unit_component_full.learning_component_year
+        )
+        self.charge_practical_full = AttributionChargeNewFactory(
+            attribution=self.attribution_full,
+            learning_component_year=self.practical_unit_component_full.learning_component_year
+        )
+
+        self.url = reverse("add_charge_repartition", args=[self.learning_unit_year.id, self.attribution_full.id])
         self.client.force_login(self.person.user)
+
+        self.patcher = patch("base.business.learning_units.perms._is_eligible_to_manage_charge_repartition",
+                             return_value=True)
+        self.mocked_permission_function = self.patcher.start()
+
+    def tearDown(self):
+        self.patcher.stop()
 
     def test_login_required(self):
         self.client.logout()
@@ -143,40 +151,64 @@ class TestAddChargeRepartition(TestCase):
         response = self.client.get(self.url)
         self.assertRedirects(response,  '/login/?next={}'.format(self.url))
 
-    def test_template_used(self):
+    def test_template_used_with_get(self):
         response = self.client.get(self.url)
 
+        self.mocked_permission_function.assert_called_once_with(self.learning_unit_year, self.person)
+        self.assertEqual(response.status_code, HttpResponse.status_code)
         self.assertTemplateUsed(response, "learning_unit/add_charge_repartition.html")
 
+    def test_post(self):
+        data = {
+            'form-TOTAL_FORMS': '2',
+            'form-INITIAL_FORMS': '2',
+            'form-MAX_NUM_FORMS': '2',
+            'form-MIN_NUM_FORMS': '2',
+            'form-0-allocation_charge': 50,  # Lecturing
+            'form-1-allocation_charge': 10  # Practical
+        }
+        response = self.client.post(self.url, data=data)
+
+        AttributionChargeNew.objects.get(learning_component_year=self.lecturing_unit_component.learning_component_year,
+                                         allocation_charge=50)
+        AttributionChargeNew.objects.get(learning_component_year=self.practical_unit_component.learning_component_year,
+                                         allocation_charge=10)
+        AttributionNew.objects.exclude(id=self.attribution_full.id).get(tutor=self.attribution_full.tutor)
+
+        self.assertRedirects(response,
+                             reverse("learning_unit_attributions", args=[self.learning_unit_year.id]))
 
 
-@skip
 class TestEditChargeRepartition(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.learning_unit_year_parent = LearningUnitYearFullFactory()
-        cls.learning_unit_year_child = LearningUnitYearPartimFactory(
-            learning_container_year=cls.learning_unit_year_parent.learning_container_year
-        )
-
-        cls.attribution = cls.create_attribution_charge_for_specific_learning_unit_year(cls.learning_unit_year_parent)
-
-        cls.person = PersonFactory()
-        cls.url = reverse("add_charge_repartition", args=[cls.learning_unit_year_child.id, cls.attribution.id])
-
-    @staticmethod
-    def create_attribution_charge_for_specific_learning_unit_year(luy):
-        attribution_charge_new = AttributionChargeNewFactory(
-            learning_component_year__learning_container_year=luy.learning_container_year
-        )
-        learning_unit_component = LearningUnitComponentFactory(
-            learning_component_year=attribution_charge_new.learning_component_year,
-            learning_unit_year=luy
-        )
-        return attribution_charge_new
+        cls.learning_unit_year = LearningUnitYearPartimFactory()
+        cls.lecturing_unit_component = LecturingLearningUnitComponentFactory(learning_unit_year=cls.learning_unit_year)
+        cls.practical_unit_component = PracticalLearningUnitComponentFactory(learning_unit_year=cls.learning_unit_year)
+        cls.person = PersonWithPermissionsFactory('can_access_learningunit')
 
     def setUp(self):
+        self.attribution = AttributionNewFactory(
+            learning_container_year=self.learning_unit_year.learning_container_year
+        )
+        self.charge_lecturing = AttributionChargeNewFactory(
+            attribution=self.attribution,
+            learning_component_year=self.lecturing_unit_component.learning_component_year
+        )
+        self.charge_practical = AttributionChargeNewFactory(
+            attribution=self.attribution,
+            learning_component_year=self.practical_unit_component.learning_component_year
+        )
+
+        self.url = reverse("edit_charge_repartition", args=[self.learning_unit_year.id, self.attribution.id])
         self.client.force_login(self.person.user)
+
+        self.patcher = patch("base.business.learning_units.perms._is_eligible_to_manage_charge_repartition",
+                             return_value=True)
+        self.mocked_permission_function = self.patcher.start()
+
+    def tearDown(self):
+        self.patcher.stop()
 
     def test_login_required(self):
         self.client.logout()
@@ -184,16 +216,37 @@ class TestEditChargeRepartition(TestCase):
         response = self.client.get(self.url)
         self.assertRedirects(response,  '/login/?next={}'.format(self.url))
 
-    def test_template_used(self):
+    def test_template_used_with_get(self):
         response = self.client.get(self.url)
 
+        self.mocked_permission_function.assert_called_once_with(self.learning_unit_year, self.person)
+        self.assertEqual(response.status_code, HttpResponse.status_code)
         self.assertTemplateUsed(response, "learning_unit/add_charge_repartition.html")
+
+    def test_post(self):
+        data = {
+            'form-TOTAL_FORMS': '2',
+            'form-INITIAL_FORMS': '2',
+            'form-MAX_NUM_FORMS': '2',
+            'form-MIN_NUM_FORMS': '2',
+            'form-0-allocation_charge': 50,  # Lecturing
+            'form-1-allocation_charge': 10  # Practical
+        }
+        response = self.client.post(self.url, data=data)
+
+        self.charge_lecturing.refresh_from_db()
+        self.charge_practical.refresh_from_db()
+        self.assertEqual(self.charge_lecturing.allocation_charge, 50)
+        self.assertEqual(self.charge_practical.allocation_charge, 10)
+
+        self.assertRedirects(response,
+                             reverse("learning_unit_attributions", args=[self.learning_unit_year.id]))
 
 
 class TestRemoveChargeRepartition(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.learning_unit_year = LearningUnitYearFullFactory()
+        cls.learning_unit_year = LearningUnitYearPartimFactory()
         cls.lecturing_unit_component = LecturingLearningUnitComponentFactory(learning_unit_year=cls.learning_unit_year)
         cls.practical_unit_component = PracticalLearningUnitComponentFactory(learning_unit_year=cls.learning_unit_year)
         cls.person = PersonWithPermissionsFactory('can_access_learningunit')
