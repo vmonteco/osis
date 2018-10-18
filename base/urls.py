@@ -140,7 +140,7 @@ urlpatterns = [
                 url(r'^select/$', SelectAttributionView.as_view(), name="select_attribution"),
                 url(r'^add/(?P<attribution_id>[0-9]+)/$', AddChargeRepartition.as_view(), name="add_charge_repartition"),
                 url(r'^edit/(?P<attribution_id>[0-9]+)/$', EditChargeRepartition.as_view(), name="edit_charge_repartition"),
-                url(r'^remove/(?P<pk>[0-9]+)/$', RemoveChargeRepartition.as_view(), name="remove_charge_repartition"),
+                url(r'^remove/(?P<attribution_id>[0-9]+)/$', RemoveChargeRepartition.as_view(), name="remove_charge_repartition"),
             ])) ,
             url(r'^proposal/', include([
                 url(r'^modification/$', update.learning_unit_modification_proposal,

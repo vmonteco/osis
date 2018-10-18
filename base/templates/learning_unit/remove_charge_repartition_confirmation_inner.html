@@ -30,10 +30,11 @@
 
             <form method="post" id="form_delete_attribution" action="{{ request.path }}">
                 {% csrf_token %}
-                <p>{% blocktrans %}Are you sure you want to delete {{ attribution }}?{% endblocktrans %}</p>
-                {#                Can display the list objects to delete #}
-                {#                <p>{% blocktrans %}It will delete also this following objects{% endblocktrans %}</p>#}
-                {#                <ul>{{ deletable_objects|unordered_list }}</ul>#}
+                {% for attribution, lecturing_charge, practical_charge in attributions %}
+                    <p>{% trans "delete" %} {{ attribution.tutor.person }} ({% trans attribution.function  %})</p>
+                {% endfor %}
+                <p>{%trans "are_you_sure" %}</p>
+
                 {% if not request.is_ajax %}
                     <input type="submit" value="{% trans "i_confirm" %}" class="btn btn-danger"/>
                 {% endif %}

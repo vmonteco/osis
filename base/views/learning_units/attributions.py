@@ -74,6 +74,9 @@ class ChargeRepartitionBaseView():
         context["attributions"] = self.tuple_attribution_charges
         return context
 
+    def get_success_url(self):
+        return reverse("learning_unit_attributions", args=[self.kwargs["learning_unit_year_id"]])
+
 
 @method_decorator(login_required, name='dispatch')
 class SelectAttributionView(ChargeRepartitionBaseView, TemplateView):
@@ -118,35 +121,30 @@ class AddChargeRepartition(ChargeRepartitionBaseView, AjaxTemplateMixin, FormVie
 
         return super().form_valid(formset)
 
-    def get_success_url(self):
-        return reverse("learning_unit_attributions", args=[self.kwargs["learning_unit_year_id"]])
-
 
 @method_decorator(login_required, name='dispatch')
-class EditChargeRepartition(AjaxTemplateMixin, FormView):
+class EditChargeRepartition(ChargeRepartitionBaseView, AjaxTemplateMixin, FormView):
     template_name = "learning_unit/add_charge_repartition.html"
     form_class = AttributionChargeNewFormSet
 
     @cached_property
-    def learning_unit_year_obj(self):
-        return get_object_or_404(LearningUnitYear, id=self.kwargs["learning_unit_year_id"])
-
-    @cached_property
-    def attribution_new_obj(self):
-        return find_attributions_for_add_partim(self.learning_unit_year_obj,
-                                                self.kwargs["attribution_id"]).popitem()[1]
+    def attribution_charges(self):
+        return AttributionChargeNew.objects \
+            .filter(learning_component_year__learningunitcomponent__learning_unit_year=self.luy) \
+            .filter(attribution=self.kwargs["attribution_id"]) \
+            .order_by("attribution", "learning_component_year__type") \
+            .select_related("attribution__tutor__person", "learning_component_year")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["learning_unit_year"] = self.learning_unit_year_obj
-        context["attribution"] = self.attribution_new_obj
         context["formset"] = context["form"]
         return context
 
     def get_form_kwargs(self):
+        attribution, lecturing_charge, practical_charge = self.tuple_attribution_charges[0]
         form_kwargs = super().get_form_kwargs()
         form_kwargs["form_kwargs"] = {
-            "instances": [attributioncharge for attributioncharge in AttributionChargeNew.objects.filter(attribution=self.kwargs["attribution_id"]).order_by("learning_component_year__type")]
+            "instances": [lecturing_charge, practical_charge]
         }
         return form_kwargs
 
@@ -155,37 +153,30 @@ class EditChargeRepartition(AjaxTemplateMixin, FormView):
             form.save()
         return super().form_valid(formset)
 
-    def get_success_url(self):
-        return reverse("learning_unit_attributions", args=[self.kwargs["learning_unit_year_id"]])
-
 
 @method_decorator(login_required, name='dispatch')
-class RemoveChargeRepartition(AjaxTemplateMixin, DeleteView):
+class RemoveChargeRepartition(ChargeRepartitionBaseView, AjaxTemplateMixin, DeleteView):
     model = AttributionNew
     template_name = "learning_unit/remove_charge_repartition_confirmation.html"
+    pk_url_kwarg = "attribution_id"
+
+    @cached_property
+    def attribution_charges(self):
+        return AttributionChargeNew.objects \
+            .filter(learning_component_year__learningunitcomponent__learning_unit_year=self.luy) \
+            .filter(attribution=self.kwargs["attribution_id"]) \
+            .order_by("attribution", "learning_component_year__type") \
+            .select_related("attribution__tutor__person", "learning_component_year")
 
     def delete(self, request, *args, **kwargs):
-        delete_attribution(self.kwargs["pk"])
+        delete_attribution(self.kwargs["attribution_id"])
         success_url = self.get_success_url()
         return HttpResponseRedirect(success_url)
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["learning_unit_year"] = get_object_or_404(LearningUnitYear, id=self.kwargs["learning_unit_year_id"])
-        context["attribution"] = get_object_or_404(AttributionNew, pk=self.kwargs["pk"])
-        return context
-
-    def get_success_url(self):
-        return reverse("learning_unit_attributions", args=[self.kwargs["learning_unit_year_id"]])
-
 
 def delete_attribution(attribution_pk):
-    attribution = AttributionNew.objects.get(pk=attribution_pk)
-
-    attribution_charges = AttributionChargeNew.objects.filter(attribution=attribution_pk). \
-        select_related("learning_component_year")
-
+    attribution_charges = AttributionChargeNew.objects.filter(attribution=attribution_pk)
     for charge in attribution_charges:
         charge.delete()
 
-    attribution.delete()
+    AttributionNew.objects.get(pk=attribution_pk).delete()
