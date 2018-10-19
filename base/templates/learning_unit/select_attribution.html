@@ -97,7 +97,6 @@
         var url = $(this).data("form"); // get the contact form url
         $('#form-modal-content').load(url, function () {
             $('#form-modal').modal('toggle');
-            bindTextArea();
             formAjaxSubmit('#form-modal-body form', '#form-modal');
         });
         return false;
