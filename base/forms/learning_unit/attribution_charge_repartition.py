@@ -48,6 +48,7 @@ class AttributionChargeRepartitionForm(ModelForm):
 
         return attribution_charge_obj
 
+
 AttributionChargeRepartitionFormSet = formset_factory(AttributionChargeRepartitionForm, max_num=2, min_num=2)
 
 
@@ -63,6 +64,7 @@ class BaseAttributionChargeNewFormSet(BaseFormSet):
         kwargs["instance"] = kwargs["instances"][index]
         del kwargs["instances"]
         return kwargs
+
 
 AttributionChargeNewFormSet = formset_factory(AttributionChargeNewForm, formset=BaseAttributionChargeNewFormSet,
                                               max_num=2,
