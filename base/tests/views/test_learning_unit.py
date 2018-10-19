@@ -59,7 +59,7 @@ from base.models.enums import learning_unit_year_periodicity
 from base.models.enums import learning_unit_year_session
 from base.models.enums import learning_unit_year_subtypes
 from base.models.enums.learning_unit_year_subtypes import FULL
-from base.models.person import FACULTY_MANAGER_GROUP
+from base.models.person import FACULTY_MANAGER_GROUP, Person
 from base.tests.factories.academic_year import AcademicYearFactory, create_current_academic_year
 from base.tests.factories.business.learning_units import GenerateContainer, GenerateAcademicYear
 from base.tests.factories.campus import CampusFactory
@@ -86,7 +86,7 @@ from base.tests.factories.person import PersonFactory
 from base.tests.factories.person_entity import PersonEntityFactory
 from base.tests.factories.user import SuperUserFactory, UserFactory
 from base.views.learning_unit import learning_unit_components, learning_class_year_edit, learning_unit_specifications, \
-    learning_unit_formations, get_charge_repartition_warning_messages
+    learning_unit_formations, get_charge_repartition_warning_messages, CHARGE_REPARTITION_WARNING_MESSAGE
 from base.views.learning_unit import learning_unit_identification, learning_unit_comparison
 from base.views.learning_units.create import create_partim_form
 from base.views.learning_units.pedagogy.read import learning_unit_pedagogy
@@ -1605,4 +1605,9 @@ class TestGetChargeRepartitionWarningMessage(TestCase):
         self.charge_lecturing_1.save()
 
         msgs = get_charge_repartition_warning_messages(self.full_luy.learning_container_year)
-        self.assertEqual(len(msgs), 1)
+        tutor_name = Person.get_str(self.attribution_full.tutor.person.first_name,
+                                    self.attribution_full.tutor.person.middle_name,
+                                    self.attribution_full.tutor.person.last_name)
+        tutor_name_with_function = "{} ({})".format(tutor_name, self.attribution_full.function)
+        self.assertListEqual(msgs,
+                             [_(CHARGE_REPARTITION_WARNING_MESSAGE) % {"tutor":tutor_name_with_function}])

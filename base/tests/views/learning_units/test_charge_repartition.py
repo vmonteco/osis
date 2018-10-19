@@ -99,6 +99,7 @@ class TestChargeRepartitionMixin:
         self.charge_lecturing.delete()
         self.attribution.delete()
 
+
 class TestSelectAttributionView(TestChargeRepartitionMixin, TestCase):
     def setUp(self):
         super().setUp()

@@ -321,6 +321,10 @@ def _has_changed(data_reference, data_1, data_2, key):
     return data_reference.get(key) != data_1.get(key) or data_reference.get(key) != data_2.get(key)
 
 
+CHARGE_REPARTITION_WARNING_MESSAGE =  "The sum of volumes for the partims for professor %(tutor)s is superior to the " \
+                                      "volume of parent learning unit for this professor"
+
+
 def get_charge_repartition_warning_messages(learning_container_year):
     total_charges_by_attribution_and_learning_subtype = AttributionChargeNew.objects \
         .filter(attribution__learning_container_year=learning_container_year) \
@@ -351,7 +355,6 @@ def get_charge_repartition_warning_messages(learning_container_year):
                                         charges[0]["attribution__tutor__person__last_name"])
             tutor_name_with_function = "{} ({})".format(tutor_name,
                                                         charges[0]["attribution__function"])
-            msg = _("The sum of volumes for the partims for professor %(tutor)s is superior to the volume of parent "
-                    "learning unit for this professor") % {"tutor": tutor_name_with_function}
+            msg = _(CHARGE_REPARTITION_WARNING_MESSAGE) % {"tutor": tutor_name_with_function}
             msgs.append(msg)
     return msgs
