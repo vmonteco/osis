@@ -20,7 +20,7 @@ def extend_learning_units():
 
 
 celery_app.conf.beat_schedule.update({
-    'Extend learning units': {
+    'Extend education groups': {
         'task': 'base.tasks.extend_education_groups',
         'schedule': crontab(minute=0, hour=2, day_of_month=15, month_of_year=7)
     },
