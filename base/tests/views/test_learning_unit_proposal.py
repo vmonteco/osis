@@ -741,7 +741,7 @@ def _test_entities_equal(learning_container_year, entities_values_dict):
 def _create_proposal_learning_unit():
     an_entity = EntityFactory()
     EntityVersionFactory(entity=an_entity)
-    a_learning_unit_year = LearningUnitYearFakerFactory(acronym="LOSIS1212", subtype=learning_unit_year_subtypes.FULL)
+    a_learning_unit_year = LearningUnitYearFactory(acronym="LOSIS1212", subtype=learning_unit_year_subtypes.FULL)
     an_entity_container_year = EntityContainerYearFactory(
         learning_container_year=a_learning_unit_year.learning_container_year,
         type=entity_container_year_link_type.REQUIREMENT_ENTITY,
