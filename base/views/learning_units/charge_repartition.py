@@ -101,7 +101,7 @@ class SelectAttributionView(ChargeRepartitionBaseViewMixin, TemplateView):
 class AddChargeRepartition(ChargeRepartitionBaseViewMixin, AjaxTemplateMixin, SuccessMessageMixin, FormView):
     template_name = "learning_unit/add_charge_repartition.html"
     form_class = AttributionChargeRepartitionFormSet
-    success_message = _("repartition added")
+    success_message = _("Repartition added")
 
     @cached_property
     def attribution_charges(self):
@@ -139,7 +139,7 @@ class AddChargeRepartition(ChargeRepartitionBaseViewMixin, AjaxTemplateMixin, Su
 class EditChargeRepartition(ChargeRepartitionBaseViewMixin, AjaxTemplateMixin, SuccessMessageMixin, FormView):
     template_name = "learning_unit/add_charge_repartition.html"
     form_class = AttributionChargeNewFormSet
-    success_message = _("repartition edited")
+    success_message = _("Repartition edited")
 
     @cached_property
     def attribution_charges(self):
@@ -172,7 +172,7 @@ class RemoveChargeRepartition(ChargeRepartitionBaseViewMixin, AjaxTemplateMixin,
     model = AttributionNew
     template_name = "learning_unit/remove_charge_repartition_confirmation.html"
     pk_url_kwarg = "attribution_id"
-    success_message = _("repartition removed")
+    success_message = _("Repartition removed")
 
     @cached_property
     def attribution_charges(self):

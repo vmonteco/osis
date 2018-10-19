@@ -4031,14 +4031,14 @@ msgstr "Institution de référence"
 msgid "EDITION_OF_GENERAL_INFORMATION"
 msgstr "Modification des informations générales"
 
-msgid "repartition added"
-msgstr "répartition ajoutée"
+msgid "Repartition added"
+msgstr "Répartition ajoutée"
 
-msgid "repartition edited"
-msgstr "répartition modifiée"
+msgid "Repartition edited"
+msgstr "Répartition modifiée"
 
-msgid "repartition removed"
-msgstr "répartition supprimée"
+msgid "Repartition removed"
+msgstr "Répartition supprimée"
 
 msgid "Manage repartition"
 msgstr "Gérer la répartition"
