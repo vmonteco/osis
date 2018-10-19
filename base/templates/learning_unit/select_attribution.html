@@ -37,7 +37,7 @@
         {% include "learning_unit/blocks/tabs.html" %}
         <div class="tab-content" id="tab_content">
             <div role="tabpanel" class="tab-pane active" id="attributions">
-
+                {% if attributions %}
                 <table class="table">
                     <thead>
                         <th>{% trans 'tutor' %}</th>
@@ -50,27 +50,32 @@
                         <th></th>
                     </thead>
                     <tbody>
-                        {% for key,value in attribution_charge_news.items %}
+                        {% for attribution,lecturing_charge,practical_charge in attributions %}
                             <tr>
-                                <td>{{ value.person }}</td>
-                                <td>{% trans value.function %}</td>
-                                <td>{{ value.start_year | default_if_none:'' }}</td>
-                                <td>{{ value.duration | default_if_none:'' }}</td>
-                                <td>{{ value.LECTURING | default_if_none:0 | floatformat:2 }}</td>
-                                <td>{{ value.PRACTICAL_EXERCISES | default_if_none:0 | floatformat:2 }}</td>
-                                <td>{{ value.substitute | default_if_none:'' }}</td>
+                                <td>{{ attribution.tutor.person }}</td>
+                                <td>{% trans attribution.function %}</td>
+                                <td>{{ attribution.start_year | default_if_none:'' }}</td>
+                                <td>{{ attribution.duration | default_if_none:'' }}</td>
+                                <td>{{ lecturing_charge.allocation_charge | default_if_none:0 | floatformat:2 }}</td>
+                                <td>{{ practical_charge.allocation_charge | default_if_none:0 | floatformat:2 }}</td>
+                                <td>{{ attribution.substitute | default_if_none:'' }}</td>
                                 <td>
-                                    <a href="#" class="remove-attribution-btn" data-form="{% url "edit_charge_repartition" learning_unit_year.id key %}"><span class="glyphicon glyphicon-edit"></span> </a>
-                                    <a href="#" class="remove-attribution-btn" data-form="{% url "remove_charge_repartition" learning_unit_year.id key %}"><span class="glyphicon glyphicon-trash"></span> </a>
+                                    <a href="#"
+                                       class="btn btn-primary charge-repartition-btn"
+                                       role="button"
+                                       data-form="{% url "add_charge_repartition" learning_unit_year.id attribution.id %}">
+                                        {% trans "add" %}
+                                    </a>
                                 </td>
                             </tr>
                         {% endfor %}
                     </tbody>
                 </table>
-                {% if can_manage_charge_repartition %}
-                <a href="{% url "select_attribution" learning_unit_year.id %}" class="btn btn-default" role="button">
-                    {% trans "Manage repartition" %}
-                </a>
+                {% else %}
+                    <br>
+                        <p class="text-center">
+                            <strong>{% trans "No attributions exist for the parent learning unit" %}</strong>
+                        </p>
                 {% endif %}
             </div>
         </div>
@@ -87,9 +92,9 @@
 
 <script type="text/javascript" src="{% static "js/modal_form_submit.js" %}"></script>
 <script type="application/javascript">
-    $(".remove-attribution-btn").click(function(ev) {
+    $(".charge-repartition-btn").click(function(ev) {
         ev.preventDefault();
-        var url = $(this).data("form");
+        var url = $(this).data("form"); // get the contact form url
         $('#form-modal-content').load(url, function () {
             $('#form-modal').modal('toggle');
             formAjaxSubmit('#form-modal-body form', '#form-modal');
@@ -97,4 +102,5 @@
         return false;
     });
 </script>
+
 {% endblock %}
