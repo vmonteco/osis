@@ -39,10 +39,13 @@ from base.tests.factories.learning_unit_year import LearningUnitYearFullFactory,
 from base.tests.factories.person import PersonWithPermissionsFactory
 
 
-class TestSelectAttributionView(TestCase):
+class TestChargeRepartitionMixin:
     @classmethod
     def setUpTestData(cls):
         cls.learning_unit_year = LearningUnitYearPartimFactory()
+        cls.lecturing_unit_component = LecturingLearningUnitComponentFactory(learning_unit_year=cls.learning_unit_year)
+        cls.practical_unit_component = PracticalLearningUnitComponentFactory(learning_unit_year=cls.learning_unit_year)
+
         cls.full_learning_unit_year = LearningUnitYearFullFactory(
             learning_container_year=cls.learning_unit_year.learning_container_year,
             academic_year=cls.learning_unit_year.academic_year
@@ -53,10 +56,32 @@ class TestSelectAttributionView(TestCase):
         cls.practical_unit_component_full = PracticalLearningUnitComponentFactory(
             learning_unit_year=cls.full_learning_unit_year
         )
-        cls.lecturing_unit_component = LecturingLearningUnitComponentFactory(learning_unit_year=cls.learning_unit_year)
-        cls.practical_unit_component = PracticalLearningUnitComponentFactory(learning_unit_year=cls.learning_unit_year)
         cls.person = PersonWithPermissionsFactory('can_access_learningunit')
 
+    def setUp(self):
+        self.attribution = AttributionNewFactory(
+            learning_container_year=self.learning_unit_year.learning_container_year
+        )
+        self.charge_lecturing = AttributionChargeNewFactory(
+            attribution=self.attribution,
+            learning_component_year=self.lecturing_unit_component.learning_component_year
+        )
+        self.charge_practical = AttributionChargeNewFactory(
+            attribution=self.attribution,
+            learning_component_year=self.practical_unit_component.learning_component_year
+        )
+
+        self.client.force_login(self.person.user)
+
+        self.patcher = patch("base.business.learning_units.perms._is_eligible_to_manage_charge_repartition",
+                             return_value=True)
+        self.mocked_permission_function = self.patcher.start()
+
+    def addCleanup(self, function, *args, **kwargs):
+        self.patcher.stop()
+
+
+class TestSelectAttributionView(TestChargeRepartitionMixin, TestCase):
     def setUp(self):
         self.attribution_full = AttributionNewFactory(
             learning_container_year=self.learning_unit_year.learning_container_year
@@ -77,7 +102,7 @@ class TestSelectAttributionView(TestCase):
                              return_value=True)
         self.mocked_permission_function = self.patcher.start()
 
-    def tearDown(self):
+    def addCleanup(self, function, *args, **kwargs):
         self.patcher.stop()
 
     def test_login_required(self):
@@ -125,24 +150,7 @@ class TestSelectAttributionView(TestCase):
         )
 
 
-class TestAddChargeRepartition(TestCase):
-    @classmethod
-    def setUpTestData(cls):
-        cls.learning_unit_year = LearningUnitYearPartimFactory()
-        cls.full_learning_unit_year = LearningUnitYearFullFactory(
-            learning_container_year=cls.learning_unit_year.learning_container_year,
-            academic_year=cls.learning_unit_year.academic_year
-        )
-        cls.lecturing_unit_component_full = LecturingLearningUnitComponentFactory(
-            learning_unit_year=cls.full_learning_unit_year
-        )
-        cls.practical_unit_component_full = PracticalLearningUnitComponentFactory(
-            learning_unit_year=cls.full_learning_unit_year
-        )
-        cls.lecturing_unit_component = LecturingLearningUnitComponentFactory(learning_unit_year=cls.learning_unit_year)
-        cls.practical_unit_component = PracticalLearningUnitComponentFactory(learning_unit_year=cls.learning_unit_year)
-        cls.person = PersonWithPermissionsFactory('can_access_learningunit')
-
+class TestAddChargeRepartition(TestChargeRepartitionMixin, TestCase):
     def setUp(self):
         self.attribution_full = AttributionNewFactory(
             learning_container_year=self.learning_unit_year.learning_container_year
@@ -163,7 +171,7 @@ class TestAddChargeRepartition(TestCase):
                              return_value=True)
         self.mocked_permission_function = self.patcher.start()
 
-    def tearDown(self):
+    def addCleanup(self, function, *args, **kwargs):
         self.patcher.stop()
 
     def test_login_required(self):
@@ -200,36 +208,10 @@ class TestAddChargeRepartition(TestCase):
                              reverse("learning_unit_attributions", args=[self.learning_unit_year.id]))
 
 
-class TestEditChargeRepartition(TestCase):
-    @classmethod
-    def setUpTestData(cls):
-        cls.learning_unit_year = LearningUnitYearPartimFactory()
-        cls.lecturing_unit_component = LecturingLearningUnitComponentFactory(learning_unit_year=cls.learning_unit_year)
-        cls.practical_unit_component = PracticalLearningUnitComponentFactory(learning_unit_year=cls.learning_unit_year)
-        cls.person = PersonWithPermissionsFactory('can_access_learningunit')
-
+class TestEditChargeRepartition(TestChargeRepartitionMixin, TestCase):
     def setUp(self):
-        self.attribution = AttributionNewFactory(
-            learning_container_year=self.learning_unit_year.learning_container_year
-        )
-        self.charge_lecturing = AttributionChargeNewFactory(
-            attribution=self.attribution,
-            learning_component_year=self.lecturing_unit_component.learning_component_year
-        )
-        self.charge_practical = AttributionChargeNewFactory(
-            attribution=self.attribution,
-            learning_component_year=self.practical_unit_component.learning_component_year
-        )
-
+        super().setUp()
         self.url = reverse("edit_charge_repartition", args=[self.learning_unit_year.id, self.attribution.id])
-        self.client.force_login(self.person.user)
-
-        self.patcher = patch("base.business.learning_units.perms._is_eligible_to_manage_charge_repartition",
-                             return_value=True)
-        self.mocked_permission_function = self.patcher.start()
-
-    def tearDown(self):
-        self.patcher.stop()
 
     def test_login_required(self):
         self.client.logout()
@@ -264,36 +246,10 @@ class TestEditChargeRepartition(TestCase):
                              reverse("learning_unit_attributions", args=[self.learning_unit_year.id]))
 
 
-class TestRemoveChargeRepartition(TestCase):
-    @classmethod
-    def setUpTestData(cls):
-        cls.learning_unit_year = LearningUnitYearPartimFactory()
-        cls.lecturing_unit_component = LecturingLearningUnitComponentFactory(learning_unit_year=cls.learning_unit_year)
-        cls.practical_unit_component = PracticalLearningUnitComponentFactory(learning_unit_year=cls.learning_unit_year)
-        cls.person = PersonWithPermissionsFactory('can_access_learningunit')
-
+class TestRemoveChargeRepartition(TestChargeRepartitionMixin, TestCase):
     def setUp(self):
-        self.attribution = AttributionNewFactory(
-            learning_container_year=self.learning_unit_year.learning_container_year
-        )
-        self.charge_lecturing = AttributionChargeNewFactory(
-            attribution=self.attribution,
-            learning_component_year=self.lecturing_unit_component.learning_component_year
-        )
-        self.charge_practical = AttributionChargeNewFactory(
-            attribution=self.attribution,
-            learning_component_year=self.practical_unit_component.learning_component_year
-        )
-
+        super().setUp()
         self.url = reverse("remove_charge_repartition", args=[self.learning_unit_year.id, self.attribution.id])
-        self.client.force_login(self.person.user)
-
-        self.patcher = patch("base.business.learning_units.perms._is_eligible_to_manage_charge_repartition",
-                             return_value=True)
-        self.mocked_permission_function = self.patcher.start()
-
-    def tearDown(self):
-        self.patcher.stop()
 
     def test_login_required(self):
         self.client.logout()
