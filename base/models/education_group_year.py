@@ -49,8 +49,11 @@ from osis_common.models.osis_model_admin import OsisModelAdmin
 class EducationGroupYearAdmin(OsisModelAdmin):
     list_display = ('acronym', 'title', 'academic_year', 'education_group_type', 'changed')
     list_filter = ('academic_year', 'education_group_type')
-    raw_id_fields = ('education_group_type', 'academic_year', 'education_group', 'enrollment_campus',
-                     'main_teaching_campus', 'primary_language')
+    raw_id_fields = (
+        'education_group_type', 'academic_year',
+        'education_group', 'enrollment_campus',
+        'main_teaching_campus', 'primary_language'
+    )
     search_fields = ['acronym']
 
     actions = [
@@ -637,6 +640,12 @@ class EducationGroupYear(models.Model):
             raise ValidationError({'duration': _("field_is_required")})
         elif self.duration is not None and self.duration_unit is None:
             raise ValidationError({'duration_unit': _("field_is_required")})
+
+    def next_year(self):
+        try:
+            return self.education_group.educationgroupyear_set.get(academic_year__year=(self.academic_year.year + 1))
+        except EducationGroupYear.DoesNotExist:
+            return None
 
 
 def find_by_id(an_id):
