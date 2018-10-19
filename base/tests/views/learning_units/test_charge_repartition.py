@@ -62,6 +62,7 @@ class TestChargeRepartitionMixin:
         self.attribution = AttributionNewFactory(
             learning_container_year=self.learning_unit_year.learning_container_year
         )
+        attribution_id = self.attribution.id
         self.charge_lecturing = AttributionChargeNewFactory(
             attribution=self.attribution,
             learning_component_year=self.lecturing_unit_component.learning_component_year
@@ -71,21 +72,9 @@ class TestChargeRepartitionMixin:
             learning_component_year=self.practical_unit_component.learning_component_year
         )
 
-        self.client.force_login(self.person.user)
-
-        self.patcher = patch("base.business.learning_units.perms._is_eligible_to_manage_charge_repartition",
-                             return_value=True)
-        self.mocked_permission_function = self.patcher.start()
-
-    def addCleanup(self, function, *args, **kwargs):
-        self.patcher.stop()
-
-
-class TestSelectAttributionView(TestChargeRepartitionMixin, TestCase):
-    def setUp(self):
-        self.attribution_full = AttributionNewFactory(
-            learning_container_year=self.learning_unit_year.learning_container_year
-        )
+        self.attribution_full = self.attribution
+        self.attribution_full.id = None
+        self.attribution_full.save()
         self.charge_lecturing_full = AttributionChargeNewFactory(
             attribution=self.attribution_full,
             learning_component_year=self.lecturing_unit_component_full.learning_component_year
@@ -95,7 +84,7 @@ class TestSelectAttributionView(TestChargeRepartitionMixin, TestCase):
             learning_component_year=self.practical_unit_component_full.learning_component_year
         )
 
-        self.url = reverse("select_attribution", args=[self.learning_unit_year.id])
+        self.attribution = AttributionNew.objects.get(id=attribution_id)
         self.client.force_login(self.person.user)
 
         self.patcher = patch("base.business.learning_units.perms._is_eligible_to_manage_charge_repartition",
@@ -104,6 +93,17 @@ class TestSelectAttributionView(TestChargeRepartitionMixin, TestCase):
 
     def addCleanup(self, function, *args, **kwargs):
         self.patcher.stop()
+
+    def clean_partim_charges(self):
+        self.charge_practical.delete()
+        self.charge_lecturing.delete()
+        self.attribution.delete()
+
+class TestSelectAttributionView(TestChargeRepartitionMixin, TestCase):
+    def setUp(self):
+        super().setUp()
+        self.clean_partim_charges()
+        self.url = reverse("select_attribution", args=[self.learning_unit_year.id])
 
     def test_login_required(self):
         self.client.logout()
@@ -152,27 +152,9 @@ class TestSelectAttributionView(TestChargeRepartitionMixin, TestCase):
 
 class TestAddChargeRepartition(TestChargeRepartitionMixin, TestCase):
     def setUp(self):
-        self.attribution_full = AttributionNewFactory(
-            learning_container_year=self.learning_unit_year.learning_container_year
-        )
-        self.charge_lecturing_full = AttributionChargeNewFactory(
-            attribution=self.attribution_full,
-            learning_component_year=self.lecturing_unit_component_full.learning_component_year
-        )
-        self.charge_practical_full = AttributionChargeNewFactory(
-            attribution=self.attribution_full,
-            learning_component_year=self.practical_unit_component_full.learning_component_year
-        )
-
+        super().setUp()
+        self.clean_partim_charges()
         self.url = reverse("add_charge_repartition", args=[self.learning_unit_year.id, self.attribution_full.id])
-        self.client.force_login(self.person.user)
-
-        self.patcher = patch("base.business.learning_units.perms._is_eligible_to_manage_charge_repartition",
-                             return_value=True)
-        self.mocked_permission_function = self.patcher.start()
-
-    def addCleanup(self, function, *args, **kwargs):
-        self.patcher.stop()
 
     def test_login_required(self):
         self.client.logout()
