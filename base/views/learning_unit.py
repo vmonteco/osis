@@ -321,8 +321,8 @@ def _has_changed(data_reference, data_1, data_2, key):
     return data_reference.get(key) != data_1.get(key) or data_reference.get(key) != data_2.get(key)
 
 
-CHARGE_REPARTITION_WARNING_MESSAGE =  "The sum of volumes for the partims for professor %(tutor)s is superior to the " \
-                                      "volume of parent learning unit for this professor"
+CHARGE_REPARTITION_WARNING_MESSAGE = "The sum of volumes for the partims for professor %(tutor)s is superior to the " \
+                                     "volume of parent learning unit for this professor"
 
 
 def get_charge_repartition_warning_messages(learning_container_year):
