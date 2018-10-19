@@ -52,6 +52,7 @@ from cms import models as mdl_cms
 from cms.enums import entity_name
 from cms.models.translated_text import TranslatedText
 from cms.models.translated_text_label import TranslatedTextLabel
+from base.models.admission_condition import CONDITION_ADMISSION_ACCESSES
 
 SECTIONS_WITH_TEXT = (
     'ucl_bachelors',
@@ -350,10 +351,13 @@ class EducationGroupYearAdmissionCondition(EducationGroupGenericDetailView):
         admission_condition_form = AdmissionConditionForm()
         admission_condition, created = AdmissionCondition.objects.get_or_create(education_group_year=self.object)
 
+        admission_condition_dict = dict(CONDITION_ADMISSION_ACCESSES)
         record = {}
         for section in SECTIONS_WITH_TEXT:
             record[section] = AdmissionConditionLine.objects.filter(admission_condition=admission_condition,
                                                                     section=section)
+            for line in record[section]:
+                line.access = admission_condition_dict[line.access]
 
         context.update({
             'admission_condition_form': admission_condition_form,
