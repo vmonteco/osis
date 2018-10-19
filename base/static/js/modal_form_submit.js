@@ -50,3 +50,12 @@ function CKupdate(){
         CKEDITOR.instances[instance].updateElement();
 }
 
+
+$(".trigger_modal").click(function () {
+    var url = $(this).data("url");
+    $('#form-modal-content').load(url, function () {
+        $('#form-ajax-modal').modal('toggle');
+        bindTextArea();
+        formAjaxSubmit('#form-modal-body form', '#form-modal');
+    });
+});

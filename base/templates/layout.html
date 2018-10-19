@@ -287,13 +287,23 @@
         {% endif %}
 
         {% include "template_messages.html" %}
-    
+
         {% block header_content %}
         {% endblock %}
+
         {% block content %}
         {% endblock %}
+
+
         {% block modal %}
         {% endblock %}
+        <div class="modal fade" id="form-ajax-modal" tabindex="-1" role="dialog">
+            <div class="modal-dialog" id="modal_dialog_id">
+                <div class="modal-content" id="form-modal-content">
+
+                </div>
+            </div>
+        </div>
         <br>
         <br>
     </div>
@@ -320,6 +330,8 @@
 
     {% block script %}
     {% endblock %}
+    <script type="text/javascript" src="{% static "js/modal_form_submit.js" %}"></script>
+
     {% analytical_body_bottom %}
 </body>
 </html>
