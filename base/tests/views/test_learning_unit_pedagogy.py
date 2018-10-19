@@ -106,7 +106,7 @@ class LearningUnitPedagogyTestCase(TestCase):
 
         request = request_factory.get(self.url)
         request.user = self.faculty_user
-        self._create_learning_unit_year_for_entity(self.an_entity)
+        self._create_learning_unit_year_for_entity(self.an_entity, "LBIR1100")
         self.client.force_login(self.faculty_user)
 
         learning_units_summary_list(request)
