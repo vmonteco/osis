@@ -160,7 +160,7 @@ def li_with_create_perm_group(context, url, message, url_id="link_create_group")
 
 @register.inclusion_tag('blocks/button/li_template.html', takes_context=True)
 def li_with_postpone_perm_training(context, url, message, url_id="link_postpone_training"):
-    return li_with_permission(context, is_eligible_to_postpone_education_group, url, message, url_id)
+    return li_with_permission(context, is_eligible_to_postpone_education_group, url, message, url_id, True)
 
 
 def li_with_permission(context, permission, url, message, url_id, load_modal=False):

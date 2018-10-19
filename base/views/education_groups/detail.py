@@ -36,6 +36,7 @@ from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import DetailView
+from django.views.generic.detail import SingleObjectTemplateResponseMixin
 
 from base import models as mdl
 from base.business.education_group import assert_category_of_education_group_year, can_user_edit_administrative_data
@@ -85,6 +86,8 @@ class EducationGroupGenericDetailView(PermissionRequiredMixin, DetailView):
 
     limited_by_category = None
 
+    with_tree = True
+
     def get_person(self):
         return get_object_or_404(Person, user=self.request.user)
 
@@ -97,12 +100,14 @@ class EducationGroupGenericDetailView(PermissionRequiredMixin, DetailView):
         # This objects are mandatory for all education group views
         context['person'] = self.get_person()
 
-        root = self.get_root()
+        self.root = self.get_root()
         # TODO same param
-        context['root'] = root
-        context['root_id'] = root.pk
-        context['parent'] = root
-        context['tree'] = json.dumps(NodeBranchJsTree(root).to_json())
+        context['root'] = self.root
+        context['root_id'] = self.root.pk
+        context['parent'] = self.root
+
+        if self.with_tree:
+            context['tree'] = json.dumps(NodeBranchJsTree(self.root).to_json())
 
         context['group_to_parent'] = self.request.GET.get("group_to_parent") or '0'
         context['can_change_education_group'] = perms.is_eligible_to_change_education_group(
@@ -112,11 +117,6 @@ class EducationGroupGenericDetailView(PermissionRequiredMixin, DetailView):
         context['enums'] = mdl.enums.education_group_categories
 
         return context
-
-    def get(self, request, *args, **kwargs):
-        if self.limited_by_category:
-            assert_category_of_education_group_year(self.get_object(), self.limited_by_category)
-        return super().get(request, *args, **kwargs)
 
 
 class EducationGroupRead(EducationGroupGenericDetailView):

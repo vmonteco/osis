@@ -80,10 +80,13 @@ class AjaxTemplateMixin:
         return template_names
 
     def _convert_template_name_to_ajax_template_name(self, template_name):
-        split = template_name.split('.html')
-        split[-1] = '_inner'
-        split.append('.html')
-        return "".join(split)
+        if not "_inner.html" in template_name:
+            split = template_name.split('.html')
+            split[-1] = '_inner'
+            split.append('.html')
+            return "".join(split)
+        else:
+            return template_name
 
     def form_valid(self, form):
         redirect = super().form_valid(form)

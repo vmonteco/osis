@@ -59,7 +59,7 @@ class WarningFormMixin:
     Mixin for Form
 
     Add error if the field has warning at True and the user has not confirmed it.
-    You must include confirmation_modal.html in the template
+    You must include confirmation_warning_modal.html in the template
     """
 
     def __init__(self, *args, **kwargs):
