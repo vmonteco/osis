@@ -3066,6 +3066,11 @@
                 "delete_proposallearningunit",
                 "base",
                 "proposallearningunit"
+            ],
+            [
+                "can_manage_charge_repartition",
+                "base",
+                "person"
             ]
         ]
     }
