@@ -4038,3 +4038,7 @@ msgstr ""
 
 msgid "No attributions exist for the parent learning unit"
 msgstr ""
+
+msgid "The sum of volumes for the partims for professor %(tutor)s is superior to the volume of parent learning unit "
+      "for this professor"
+msgstr ""

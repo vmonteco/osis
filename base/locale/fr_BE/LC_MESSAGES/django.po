@@ -4045,3 +4045,8 @@ msgstr "Gérer la répartition"
 
 msgid "No attributions exist for the parent learning unit"
 msgstr "Aucune attribution n’existe pour le cours parent"
+
+msgid "The sum of volumes for the partims for professor %(tutor)s is superior to the volume of parent learning unit "
+      "for this professor"
+msgstr "La somme des volumes des partims pour le professeur %(tutor)s est supérieure au volume horaire du cours parent "
+       "pour ce professeur"
