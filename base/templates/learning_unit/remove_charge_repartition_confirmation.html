@@ -1,3 +1,6 @@
+{% extends "layout.html" %}
+{% load staticfiles %}
+{% load i18n %}
 {% comment "License" %}
 * OSIS stands for Open Student Information System. It's an application
 * designed to manage the core business of higher education institutions,
@@ -21,33 +24,22 @@
 * at the root of the source code of this program.  If not,
 * see http://www.gnu.org/licenses/.
 {% endcomment %}
-{% load i18n %}
 
-<div id="{{ section }}">
-    <h3>{{ text }}{% if can_edit_information %}
-        {% url 'education_group_year_admission_condition_update_text' root.pk education_group_year.pk as update_text_url %}
-        <a href="#" role="button"
-           class="button modify-text-btn"
-           data-form="{{ update_text_url }}?section={{ section_name }}&title={{ text.split|join:"%20" }}">
-            <span class="glyphicon glyphicon-edit" style="font-size: 16px;" aria-hidden="true"></span>
-        </a>
-    {% endif %}
-    </h3>
-    <div class="row">
-        <div class="col-md-6" id="text_{{ section }}_fr">
-            {% if field %}
-                {{ field|safe }}
-            {% else %}
-                <span class="italic">{% trans 'Add the French content of this paragraph' %}</span>
-            {% endif %}
-        </div>
-        <div class="col-md-6" id="text_{{ section }}_en">
-            {% if field_en %}
-                {{ field_en|safe }}
-            {% else %}
-                <span class="italic">{% trans 'Add the English content of this paragraph' %}</span>
-            {% endif %}
+{% block breadcrumb %}
+{% include "learning_unit/breadcrumb.html" %}
+{% endblock %}
+
+{% block content %}
+
+{% include "learning_unit/blocks/header.html" %}
+<div class="panel panel-default" >
+    <div class="panel-body" id="tabs" >
+        {% include "learning_unit/blocks/tabs.html" %}
+        <div class="tab-content" id="tab_content">
+            <div role="tabpanel" class="tab-pane active" id="attributions">
+                {% include "learning_unit/remove_charge_repartition_confirmation_inner.html" %}
+            </div>
         </div>
     </div>
-    <hr/>
 </div>
+{% endblock %}
