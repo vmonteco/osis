@@ -52,7 +52,6 @@ from cms import models as mdl_cms
 from cms.enums import entity_name
 from cms.models.translated_text import TranslatedText
 from cms.models.translated_text_label import TranslatedTextLabel
-from base.models.admission_condition import CONDITION_ADMISSION_ACCESSES
 
 SECTIONS_WITH_TEXT = (
     'ucl_bachelors',
