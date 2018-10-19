@@ -63,6 +63,7 @@ class ChargeRepartitionBaseViewMixin(RulesRequiredMixin):
 
     @cached_property
     def attribution_charges(self):
+        # FIXME Find a better approach to compare attributions of parent and child
         child_attributions = AttributionChargeNew.objects \
             .filter(learning_component_year__learningunitcomponent__learning_unit_year=self.luy) \
             .annotate(id_text=Concat("attribution__tutor__person__global_id", "attribution__function")) \

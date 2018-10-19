@@ -102,6 +102,28 @@ class TestSelectAttributionView(TestCase):
             [(self.attribution_full, self.charge_lecturing_full, self.charge_practical_full)]
         )
 
+    def test_should_exclude_attributions_for_which_repartition_has_been_done(self):
+        attribution = self.attribution_full
+        attribution.id = None
+        attribution.save()
+
+        charge_lecturing = AttributionChargeNewFactory(
+            attribution=attribution,
+            learning_component_year=self.lecturing_unit_component.learning_component_year
+        )
+        charge_practical = AttributionChargeNewFactory(
+            attribution=attribution,
+            learning_component_year=self.practical_unit_component.learning_component_year
+        )
+
+        response = self.client.get(self.url)
+
+        context = response.context
+        self.assertListEqual(
+            context["attributions"],
+            []
+        )
+
 
 class TestAddChargeRepartition(TestCase):
     @classmethod
