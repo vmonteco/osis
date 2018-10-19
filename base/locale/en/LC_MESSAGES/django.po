@@ -4035,3 +4035,6 @@ msgstr ""
 
 msgid "There is already a coorganization with this organization"
 msgstr ""
+
+msgid "The coorganization has been created"
+msgstr ""

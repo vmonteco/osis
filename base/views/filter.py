@@ -61,6 +61,5 @@ def filter_organizations_by_country(request):
     country_id = request.GET.get('country')
     organizations = Entity.objects.filter(country__pk=country_id).distinct('organization')\
         .values('organization__pk', 'organization__name')
-    print(organizations)
     return JsonResponse(sorted(list(organizations), key=itemgetter('organization__name')),
                         safe=False)

@@ -27,27 +27,28 @@ import datetime
 from unittest import mock
 from http import HTTPStatus
 
-from django.contrib.auth.models import Permission
-
-from django.test import TestCase, RequestFactory
-
+from django.test import TestCase
 from django.urls import reverse
 from django.http import HttpResponseForbidden
+from django.contrib.auth.models import Permission
 
 from base.models.enums import education_group_categories
+from base.models.education_group_organization import EducationGroupOrganization
 from base.tests.factories.academic_year import AcademicYearFactory
 from base.tests.factories.education_group_type import EducationGroupTypeFactory
 from base.tests.factories.education_group_year import EducationGroupYearFactory
 from base.tests.factories.entity_version import EntityVersionFactory
 from base.tests.factories.person import PersonFactory
-from base.tests.factories.user import UserFactory
-from base.forms.education_group.organization import OrganizationEditForm
-from base.tests.factories.organization import OrganizationFactory
 from base.tests.factories.education_group_organization import EducationGroupOrganizationFactory
 from base.tests.factories.entity import EntityFactory
 from reference.tests.factories.country import CountryFactory
-from base.models.education_group_organization import EducationGroupOrganization
-from base.views.education_groups.coorganization import HTML_ANCHOR_TABLE_COORGANIZATIONS
+from base.tests.factories.user import UserFactory
+from base.tests.factories.person import CentralManagerFactory
+from base.tests.factories.organization import OrganizationFactory
+
+DELETE_URL_NAME = "coorganization_delete"
+EDIT_URL_NAME = "coorganization_edit"
+CREATE_URL_NAME = "coorganization_create"
 
 DIPLOMA = "UNIQUE"
 
@@ -61,57 +62,59 @@ class TestOrganizationViewPermission(TestCase):
 
         self.education_group_parent = EducationGroupYearFactory(acronym="Parent", academic_year=academic_year)
         self.education_group_child_1 = EducationGroupYearFactory(acronym="Child_1", academic_year=academic_year)
+        self.person = CentralManagerFactory()
+        self.person.user.user_permissions.add(Permission.objects.get(codename="can_access_education_group"))
 
-        self.user = PersonFactory().user
-
-        self.education_group_yr = EducationGroupYearFactory(
+        education_group_yr = EducationGroupYearFactory(
             academic_year=academic_year,
             education_group_type=EducationGroupTypeFactory(category=education_group_categories.TRAINING),
             management_entity=EntityFactory()
         )
 
-        self.entity = EntityFactory(country=CountryFactory())
-        organization = self.entity.organization
-        EntityVersionFactory(entity=self.entity,
+        entity = EntityFactory(country=CountryFactory())
+        organization = entity.organization
+        EntityVersionFactory(entity=entity,
                              title="ROOT_V",
                              start_date=academic_year.start_date,
                              parent=None)
         education_group_organization = EducationGroupOrganizationFactory(
             organization=organization,
-            education_group_year=self.education_group_yr,
+            education_group_year=education_group_yr,
             diploma=DIPLOMA,
             all_students=True,
         )
-        self.url_create = reverse("coorganization_create",
+        self._set_urls(education_group_organization.id)
+        self.client.force_login(self.person.user)
+
+    def _set_urls(self, education_group_organization_id):
+        self.url_create = reverse(CREATE_URL_NAME,
                                   args=[self.education_group_parent.id, self.education_group_child_1.id])
-        self.url_edit = reverse("coorganization_edit",
+        self.url_edit = reverse(EDIT_URL_NAME,
                                 args=[self.education_group_parent.id, self.education_group_child_1.id,
-                                      education_group_organization.id])
+                                      education_group_organization_id])
         self.urls = [self.url_create,
                      self.url_edit,
-                     reverse("coorganization_delete",
+                     reverse(DELETE_URL_NAME,
                              args=[self.education_group_parent.id, self.education_group_child_1.id])]
 
     def test_when_not_logged(self):
         self.client.logout()
         for url in self.urls:
             response = self.client.get(url)
-
             self.assertRedirects(response, "/login/?next={}".format(url))
 
     def test_user_without_permission(self):
         an_other_user = UserFactory()
+        PersonFactory(user=an_other_user)
         self.client.force_login(an_other_user)
         for url in self.urls:
             response = self.client.get(url)
-
             self.assertTemplateUsed(response, "access_denied.html")
             self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
 
-    def test_user_with_permission(self):
-        self.user.user_permissions.add(Permission.objects.get(codename="can_access_education_group"))
-        self.client.force_login(self.user)
-
+    @mock.patch("base.business.education_groups.perms.is_eligible_to_change_education_group", return_value=True)
+    def test_user_with_permission(self, mock_permission):
+        self.client.force_login(self.person.user)
         response = self.client.get(self.url_create)
         self.assertTemplateUsed(response, "education_group/organization_edit.html")
 
@@ -127,7 +130,7 @@ class TestOrganizationView(TestCase):
         self.user.user_permissions.add(Permission.objects.get(codename="can_access_education_group"))
 
         today = datetime.date.today()
-        self.academic_year = AcademicYearFactory(start_date=today, 
+        self.academic_year = AcademicYearFactory(start_date=today,
                                                  end_date=today.replace(year=today.year + 1),
                                                  year=today.year)
 
@@ -149,40 +152,36 @@ class TestOrganizationView(TestCase):
                              end_date=None,
                              parent=None)
 
-    @mock.patch('base.views.layout.render')
-    def test_create_get(self, mock_render):
-        simple_url = reverse('education_group_read', kwargs={
-            'root_id': self.root_id,
-            'education_group_year_id': self.education_group_yr.id,
-        })
+    @mock.patch("base.business.education_groups.perms.is_eligible_to_change_education_group", return_value=True)
+    def test_create_get(self, mock_permissions):
+        response = self.client.post(
+            reverse(
+                CREATE_URL_NAME,
+                args=[
+                    self.root_id,
+                    self.education_group_yr.id,
+                ]), data={}
+        )
 
-        request_factory = RequestFactory()
-        request = request_factory.get(simple_url)
+        self.assertEqual(response.status_code, HTTPStatus.OK)
 
-        request.user = self.user
-
-        from base.views.education_groups.coorganization import create
-        create(request, self.root_id, self.education_group_yr.id)
-        self.assertTrue(mock_render.called)
-        request, template, context = mock_render.call_args[0]
-
-        self.assertEqual(template, 'education_group/organization_edit.html')
-        self.assertIsInstance(context['form'], OrganizationEditForm)
-        self.assertEqual(context['education_group_year'], self.education_group_yr)
-        self.assertEqual(context['root_id'], self.root_id)
-        self.assertTrue(context['create'])
-
-    def test_create_post(self):
+    @mock.patch("base.business.education_groups.perms.is_eligible_to_change_education_group", return_value=True)
+    def test_create_post(self, mock_permissions):
         data = {
             "country": self.country_be.id,
             "organization": self.organization.id,
             "diploma": DIPLOMA,
             "all_students": "on",
         }
-        response = self.client.post(reverse('coorganization_create', kwargs={
-            'root_id': self.root_id,
-            'education_group_year_id': self.education_group_yr.id
-        }), data=data)
+        response = self.client.post(
+            reverse(
+                CREATE_URL_NAME,
+                args=[
+                    self.root_id,
+                    self.education_group_yr.id,
+                ]), data=data
+        )
+
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
         education_group_organization_created = EducationGroupOrganization.objects.all().first()
         self.assertEqual(education_group_organization_created.education_group_year_id, self.education_group_yr.id)
@@ -199,10 +198,9 @@ class TestOrganizationView(TestCase):
         http_referer = reverse('education_group_read', args=[
             self.root_id,
             self.education_group_yr.id
-        ]) + "{}".format(
-            HTML_ANCHOR_TABLE_COORGANIZATIONS)
+        ]) + "#tbl_coorganization"
 
-        response = self.client.post(reverse('coorganization_delete', args=[self.root_id, self.education_group_yr.id]),
+        response = self.client.post(reverse(DELETE_URL_NAME, args=[self.root_id, self.education_group_yr.id]),
                                     data={'co_organization_id_to_delete': education_group_organization_to_delete.id})
         self.assertRedirects(response, http_referer)
         with self.assertRaises(EducationGroupOrganization.DoesNotExist):

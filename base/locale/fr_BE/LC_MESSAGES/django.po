@@ -4042,3 +4042,6 @@ msgstr "Les données de la coorganisation ont été sauvegardées"
 
 msgid "There is already a coorganization with this organization"
 msgstr "Il y a déjà une co-organisation avec cette institution"
+
+msgid "The coorganization has been created"
+msgstr "La nouvelle coorganisation a bien été créee"

@@ -62,6 +62,7 @@
         let country_node = $("select#id_country");
         let organization_node = $("select#id_organization");
         country_node.filterOrganizationByCountry(country_node, organization_node, "{% url "filter_organizations_by_country" %}");
+
         });
 
     </script>

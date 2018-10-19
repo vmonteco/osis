@@ -211,7 +211,8 @@
                                     </td>
                                     <td>
                                         <a href="#" title="{%trans 'edit'%}"
-                                           class="btn coorganization-edit-btn" role="button" id="{{ "btn_coorganization_edit_"|db_table_with_pk:coorganization }}">
+                                           class="btn coorganization-edit-btn" role="button"
+                                           id="{{ "btn_coorganization_edit_"|db_table_with_pk:coorganization }}">
                                             <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
                                         </a>
                                     </td>
@@ -234,20 +235,20 @@
                 {% endif %}
                 <br>
                 <a class="btn btn-info btn-sm coorganization-edit-btn" href="#"
-                   id="btn_edit"
+                   id="btn_coorganization_create"
                    data-form="{% url 'coorganization_create' root_id=root.pk education_group_year_id=education_group_year.id %}"
                    title="{% trans 'create' %}"
                    style="margin-top:10px;">
                     {% trans 'add_another' %}
                 </a>
+                {% url 'coorganization_create' root_id=root.pk education_group_year_id=education_group_year.id as create_url  %}
+                {% include "blocks/modal/modal_ajax.html" with modal_url=create_url click_id="btn_coorganization_create" form_id="coorganization-form" %}
+
             </div>
         </div>
     {% endwith %}
 
     {% include "education_group/blocks/modal/modal_organization_confirm_delete.html" %}
-
-
-
 
 {% endblock %}
 {% block script %}

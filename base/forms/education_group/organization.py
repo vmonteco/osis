@@ -53,6 +53,7 @@ class OrganizationEditForm(forms.ModelForm):
                   'all_students', 'enrollment_place', 'diploma', 'is_producing_cerfificate', 'is_producing_annexe']
 
     def __init__(self, data=None, initial=None, **kwargs):
+
         self.education_group_yr = kwargs.pop('education_group_yr', None)
         super().__init__(data, initial=initial, **kwargs)
 
@@ -117,7 +118,7 @@ class OrganizationEditForm(forms.ModelForm):
     def unique_on_education_grp_yr_and_organization(self):
         if self.instance and self.instance.pk:
             id_to_exclude = self.instance.pk
-            if EducationGroupOrganization.objects.filter(education_group_year=self.education_group_yr,
+            if EducationGroupOrganization.objects.filter(education_group_year=self.instance.education_group_year,
                                                          organization=self.cleaned_data['organization'])\
                     .exclude(id=id_to_exclude).exists():
                 self.add_error('organization', _('There is already a coorganization with this organization'))
@@ -127,7 +128,6 @@ class OrganizationEditForm(forms.ModelForm):
                                                          organization=self.cleaned_data['organization']).exists():
                 self.add_error('organization', _('There is already a coorganization with this organization'))
                 return False
-
         return True
 
     def is_valid(self):
