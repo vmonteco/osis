@@ -436,6 +436,9 @@ class EducationGroupYear(models.Model):
         blank=True,
     )
 
+    class Meta:
+        unique_together = ('acronym', 'academic_year',)
+
     def __str__(self):
         return "{} - {} - {}".format(
             self.partial_acronym,
