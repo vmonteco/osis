@@ -34,6 +34,7 @@
 <script type="text/javascript" src="{% static "js/modal_form_submit.js" %}"></script>
 <script type="application/javascript">
     $("#{{ click_id }}:enabled, #{{ click_id }}:not('.disabled')").click(function (e) {
+        console.log('click_id');
         $('#form-modal-content').load('{{ modal_url }}', function () {
             $('#form-modal').modal('toggle');
             bindTextArea();

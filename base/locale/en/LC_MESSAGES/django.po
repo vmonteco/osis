@@ -4029,3 +4029,9 @@ msgstr ""
 
 msgid "Are you sure you want to delete the coorganization?"
 msgstr ""
+
+msgid "The coorganization modifications has been saved"
+msgstr ""
+
+msgid "There is already a coorganization with this organization"
+msgstr ""

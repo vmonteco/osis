@@ -33,9 +33,35 @@ from base.models.education_group_year import EducationGroupYear
 from base.models.education_group_organization import EducationGroupOrganization
 from base.forms.education_group.organization import OrganizationEditForm
 from base.views import layout
+from base.views.mixins import AjaxTemplateMixin
+from django.views.generic import UpdateView
+from django.views.generic.detail import SingleObjectMixin
+from django.contrib.messages.views import SuccessMessageMixin
+from django.utils.translation import ugettext_lazy as _
 
 HTML_ANCHOR = "#coorganization_id_"
 HTML_ANCHOR_TABLE_COORGANIZATIONS = "#tbl_coorganization"
+
+
+class UpdateEducationGroupOrganizationView(AjaxTemplateMixin, SuccessMessageMixin, UpdateView):
+    # SingleObjectMixin
+    model = EducationGroupOrganization
+    context_object_name = "coorganization"
+    pk_url_kwarg = 'coorganization_id'
+    # UpdateView
+    form_class = OrganizationEditForm
+    template_name = "education_group/organization_edit.html"
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["education_group_yr"] = self.kwargs["education_group_year_id"]
+        return kwargs
+
+    def get_success_message(self, cleaned_data):
+        return _("The coorganization modifications has been saved")
+
+    def get_success_url(self):
+        return reverse("education_group_read", args=[self.kwargs["root_id"], self.object.education_group_year.pk])
 
 
 @login_required
@@ -74,27 +100,3 @@ def delete(request, root_id, education_group_year_id):
                                         kwargs={'root_id': root_id,
                                                 'education_group_year_id': education_group_year_id}) + "{}".format(
         HTML_ANCHOR_TABLE_COORGANIZATIONS))
-
-
-@login_required
-@permission_required('base.can_access_education_group', raise_exception=True)
-def edit(request, root_id, education_group_year_id, coorganization_id):
-    education_group_yr = get_object_or_404(EducationGroupYear, pk=education_group_year_id)
-    education_group_organization = get_object_or_404(EducationGroupOrganization, pk=coorganization_id)
-
-    form = OrganizationEditForm(request.POST or None,
-                                instance=education_group_organization,
-                                education_group_yr=education_group_yr)
-
-    if request.POST:
-        if form.is_valid():
-            return _save_and_redirect(form, root_id, education_group_year_id)
-
-    context = {'education_group_year': education_group_yr,
-               'root_id': root_id,
-               'form': form,
-               'create': False,
-               'co_organization': education_group_organization
-               }
-
-    return layout.render(request, "education_group/organization_edit.html", context)

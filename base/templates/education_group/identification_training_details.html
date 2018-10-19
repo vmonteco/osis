@@ -160,8 +160,8 @@
                                     </td>
                                     <td>
                                         <a href="#" title="{%trans 'edit'%}"
-                                           class="btn coorganization-edit-btn" role="button" id="bt_cooorganization_edit"
-                                           data-form="{% url 'coorganization_edit' root_id=root.pk education_group_year_id=education_group_year.id  coorganization_id=coorganization.id %}">
+                                           class="btn coorganization-edit-btn" role="button"
+                                           id="{{ "btn_coorganization_edit_"|db_table_with_pk:coorganization }}">
                                             <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
                                         </a>
                                     </td>
@@ -176,6 +176,9 @@
 
                                     </td>                                
                                 </tr>
+                                {% url 'coorganization_edit' root_id=root.pk education_group_year_id=education_group_year.id coorganization_id=coorganization.id  as update_url  %}
+                                {% include "blocks/modal/modal_ajax.html" with modal_url=update_url click_id="btn_coorganization_edit_"|db_table_with_pk:coorganization form_id="coorganization-form" %}
+
                             {% endfor %}
                             {% for coorganization in parent.coorganizations %}
                                 <tr class="text-primary">
@@ -208,8 +211,7 @@
                                     </td>
                                     <td>
                                         <a href="#" title="{%trans 'edit'%}"
-                                           class="btn coorganization-edit-btn" role="button" id="bt_cooorganization_edit"
-                                           data-form="{% url 'coorganization_edit' root_id=root.pk education_group_year_id=education_group_year.id coorganization_id=coorganization.id %}">
+                                           class="btn coorganization-edit-btn" role="button" id="{{ "btn_coorganization_edit_"|db_table_with_pk:coorganization }}">
                                             <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
                                         </a>
                                     </td>
@@ -223,6 +225,9 @@
                                         </a>
                                     </td>                                
                                 </tr>
+                                {% url 'coorganization_edit' root_id=root.pk education_group_year_id=education_group_year.id coorganization_id=coorganization.id  as update_url  %}
+                                {% include "blocks/modal/modal_ajax.html" with modal_url=update_url click_id="btn_coorganization_edit_"|db_table_with_pk:coorganization form_id="coorganization-form" %}
+
                             {% endfor %}
                         </tbody>
                     </table>
@@ -238,8 +243,11 @@
             </div>
         </div>
     {% endwith %}
-    <div class="modal fade" id="coorganization_edit" role="dialog" data-backdrop="static"></div>
+
     {% include "education_group/blocks/modal/modal_organization_confirm_delete.html" %}
+
+
+
 
 {% endblock %}
 {% block script %}

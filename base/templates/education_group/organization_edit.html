@@ -26,39 +26,6 @@
 {% endcomment %}
 
 {% block content %}
-<div class="modal-dialog" role="document" style="width:850px;">
-    <div class="modal-content">
-        <form id="coorganization-form" role="form" method="POST"
-              {% if create %}
-                action="{% url 'coorganization_create' root_id=root_id education_group_year_id=education_group_year.id %}"
-              {% else %}
-                action="{% url 'coorganization_edit' root_id=root_id education_group_year_id=education_group_year.id coorganization_id=co_organization.id%}"
-              {% endif %}>
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">×</button>
-                <h4>{% trans 'Coorganization' %}</h4>
-            </div>
-            <div class="modal-body">
-                {% csrf_token %}
-                {% bootstrap_form_errors form %}
-                {% bootstrap_form form %}
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-primary" type="submit"><span class="glyphicon glyphicon-floppy-save" aria-hidden="true"></span> {% trans 'save' %}</button>
-                <button type="submit" class="btn" data-dismiss="modal">{% trans 'cancel' %} </button>
-          </div>
-        </form>
-    </div>
-</div>
+    {% include 'education_group/organization_edit_inner.html' %}
 {% endblock %}
 
-{% block script %}
-    <script src="{% static 'js/select_ajax_filtering.js' %}"></script>
-    <script>
-        let country_node = $("select#id_country");
-        let organization_node = $("select#id_organization");
-        country_node.filterOrganizationByCountry(country_node, organization_node, "{% url "filter_organizations_by_country" %}");
-
-
-    </script>
-{% endblock %}

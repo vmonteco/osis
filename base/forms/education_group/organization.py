@@ -57,22 +57,21 @@ class OrganizationEditForm(forms.ModelForm):
         super().__init__(data, initial=initial, **kwargs)
 
         if data:
-            self.fields['organization'].queryset = Organization.objects \
-                .filter(pk=data['organization'])
             self.organization = find_by_id(data['organization'])
+            self._prepare_select_fields_for_update(self.organization)
         else:
             if self.instance and self.instance.pk:
-                self._prepare_select_fields_for_update()
+                self._prepare_select_fields_for_update(self.instance.organization)
 
-    def _prepare_select_fields_for_update(self):
+    def _prepare_select_fields_for_update(self, an_organization):
         country_id = None
-        if self.instance.organization:
-            entity = Entity.objects.filter(organization=self.instance.organization).first()
+        if an_organization:
+            entity = Entity.objects.filter(organization=an_organization).first()
             self.fields['country'].initial = entity.country
             if entity.country:
                 country_id = entity.country.id
-        if self.instance.organization:
-            self.set_organization_data(self.instance.organization.id, country_id)
+        if an_organization:
+            self.set_organization_data(an_organization.id, country_id)
 
     def clean_all_students(self):
         data_cleaned = self.cleaned_data.get('all_students')
@@ -118,11 +117,17 @@ class OrganizationEditForm(forms.ModelForm):
     def unique_on_education_grp_yr_and_organization(self):
         if self.instance and self.instance.pk:
             id_to_exclude = self.instance.pk
-            if EducationGroupOrganization.objects.filter(education_group_year=self.education_group_yr, organization=self.cleaned_data['organization']).exclude(id=id_to_exclude).exists():
+            if EducationGroupOrganization.objects.filter(education_group_year=self.education_group_yr,
+                                                         organization=self.cleaned_data['organization'])\
+                    .exclude(id=id_to_exclude).exists():
+                self.add_error('organization', _('There is already a coorganization with this organization'))
                 return False
         else:
-            if EducationGroupOrganization.objects.filter(education_group_year=self.education_group_yr, organization=self.cleaned_data['organization']).exists():
+            if EducationGroupOrganization.objects.filter(education_group_year=self.education_group_yr,
+                                                         organization=self.cleaned_data['organization']).exists():
+                self.add_error('organization', _('There is already a coorganization with this organization'))
                 return False
+
         return True
 
     def is_valid(self):
