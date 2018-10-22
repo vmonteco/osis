@@ -60,7 +60,7 @@ class ModelChoiceFieldWithData(forms.ModelChoiceField):
         self.widget.data_attrs = self.queryset.in_bulk()
 
 
-class EducationGroupFilter(BootstrapForm):
+class EducationGroupFilter(forms.Form):
 
     academic_year = forms.ModelChoiceField(
         queryset=academic_year.find_academic_years(),
