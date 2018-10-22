@@ -309,8 +309,11 @@ class SimplifiedVolumeForm(forms.ModelForm):
             self.instance.planned_classes = 0
         else:
             self.instance.planned_classes = 1
-        instance = super().save(commit)
-        LearningUnitComponent.objects.get_or_create(
+        instance, created = LearningComponentYear.objects.update_or_create(
+            learning_container_year=self.instance.learning_container_year,
+            type=self.instance.type
+        )
+        LearningUnitComponent.objects.update_or_create(
             learning_unit_year=self._learning_unit_year,
             learning_component_year=instance
         )
@@ -325,10 +328,11 @@ class SimplifiedVolumeForm(forms.ModelForm):
 
     def _create_entity_component_years(self, learning_unit_components, requirement_entity_container):
         for learning_unit_component in learning_unit_components:
-            EntityComponentYear.objects.get_or_create(
+            object, created = EntityComponentYear.objects.get_or_create(
                 entity_container_year=requirement_entity_container,
                 learning_component_year=learning_unit_component.learning_component_year
             )
+            test = "test"
 
     def _get_initial_volume_data(self):
         self.instance.hourly_volume_total_annual = self.initial.get('hourly_volume_total_annual')
