@@ -73,7 +73,7 @@ class TestMiniTrainingModelForm(EducationGroupYearModelFormMixin):
         context = self.form_class(
             parent=self.parent_education_group_year,
             education_group_type=self.education_group_type,
-            user=UserFactory(),
+            user=self.user,
         ).get_context()
         self.assertTrue(context, MINI_TRAINING_DAILY_MANAGEMENT)
 
@@ -88,6 +88,6 @@ class TestMiniTrainingModelForm(EducationGroupYearModelFormMixin):
         context = self.form_class(
             parent=self.parent_education_group_year,
             education_group_type=self.education_group_type,
-            user=UserFactory(),
+            user=self.user,
         ).get_context()
         self.assertTrue(context, MINI_TRAINING_PGRM_ENCODING_PERIOD)

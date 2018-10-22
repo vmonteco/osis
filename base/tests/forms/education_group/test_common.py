@@ -46,7 +46,8 @@ from base.tests.factories.education_group_type import EducationGroupTypeFactory
 from base.tests.factories.education_group_year import EducationGroupYearFactory
 from base.tests.factories.entity_version import MainEntityVersionFactory, EntityVersionFactory
 from base.tests.factories.group_element_year import GroupElementYearFactory
-from base.tests.factories.user import UserFactory
+from base.tests.factories.person import PersonFactory
+from base.tests.factories.person_entity import PersonEntityFactory
 
 
 class EducationGroupYearModelFormMixin(TestCase):
@@ -77,8 +78,16 @@ class EducationGroupYearModelFormMixin(TestCase):
         if self.education_group_type.category == TRAINING:
             EntityVersionFactory(entity=self.parent_education_group_year.administration_entity)
 
+        # Create user and attached it to management entity
+        person = PersonFactory()
+        PersonEntityFactory(
+            person=person,
+            entity=self.parent_education_group_year.management_entity
+        )
+        self.user = person.user
+
     def _test_fields(self, form_class, fields):
-        form = form_class(parent=None, user=UserFactory(), education_group_type=self.education_group_type)
+        form = form_class(parent=None, user=self.user, education_group_type=self.education_group_type)
         self.assertCountEqual(tuple(form.fields.keys()), fields)
 
     @patch('base.forms.education_group.common.find_authorized_types')
@@ -87,7 +96,7 @@ class EducationGroupYearModelFormMixin(TestCase):
         form = form_class(
             parent=self.parent_education_group_year,
             education_group_type=self.education_group_type,
-            user=UserFactory(),
+            user=self.user,
         )
 
         academic_year_field = form.fields["academic_year"]
@@ -102,7 +111,7 @@ class EducationGroupYearModelFormMixin(TestCase):
         form_class(
             parent=self.parent_education_group_year,
             education_group_type=self.education_group_type,
-            user=UserFactory()
+            user=self.user
         )
 
         self.assertTrue(mock_authorized_types.called)
@@ -113,7 +122,7 @@ class EducationGroupYearModelFormMixin(TestCase):
         mock_authorized_types.assert_called_with(*expected_args)
 
     def _test_preselect_entity_version_from_entity_value(self, form_class):
-        form = form_class(instance=self.parent_education_group_year, user=UserFactory())
+        form = form_class(instance=self.parent_education_group_year, user=self.user)
         educ_group_entity = self.parent_education_group_year.management_entity
         expected_entity_version = EntityVersion.objects.filter(entity=educ_group_entity).latest('start_date')
         self.assertEqual(form.initial['management_entity'], expected_entity_version.id)
@@ -126,7 +135,12 @@ class TestCommonBaseFormIsValid(TestCase):
         self.category = education_group_categories.MINI_TRAINING  # Could take GROUP or TRAINING, the result is the same
         fake_educ_group_year, self.post_data = _get_valid_post_data(self.category)
         self.egt = fake_educ_group_year.education_group_type
-        self.user = UserFactory()
+
+        # Create user and attached it to management entity
+        person = PersonFactory()
+        PersonEntityFactory(person=person, entity=fake_educ_group_year.management_entity)
+        self.user = person.user
+
         self.education_group_year_form = MiniTrainingYearModelForm(
             self.post_data,
             user=self.user,
@@ -142,7 +156,7 @@ class TestCommonBaseFormIsValid(TestCase):
         self.assertFalse(
             CommonBaseForm(
                 self.post_data,
-                user=UserFactory(),
+                user=self.user,
                 education_group_type=self.egt
             ).is_valid()
         )
@@ -152,7 +166,7 @@ class TestCommonBaseFormIsValid(TestCase):
         self.assertFalse(
             MiniTrainingForm(
                 self.post_data,
-                user=UserFactory(),
+                user=self.user,
                 education_group_type=self.egt
             ).is_valid()
         )
@@ -164,7 +178,7 @@ class TestCommonBaseFormIsValid(TestCase):
         self.assertTrue(
             MiniTrainingForm(
                 self.post_data,
-                user=UserFactory(),
+                user=self.user,
                 education_group_type=self.egt
             ).is_valid()
         )
@@ -175,7 +189,7 @@ class TestCommonBaseFormIsValid(TestCase):
         wrong_post_data['end_year'] = "some text"
         wrong_post_data["max_constraint"] = expected_educ_group_year.min_constraint - 1
 
-        form = MiniTrainingForm(wrong_post_data, education_group_type=self.egt, user=UserFactory())
+        form = MiniTrainingForm(wrong_post_data, education_group_type=self.egt, user=self.user)
         self.assertFalse(form.is_valid(), form.errors)
         self.assertEqual(len(form.errors), 3, form.errors)
 
@@ -188,6 +202,11 @@ class TestCommonBaseFormSave(TestCase):
         self.form_class = MiniTrainingForm  # Could also take GROUP or TRAINING, the result is the same
         self.expected_educ_group_year, self.post_data = _get_valid_post_data(category)
         self.education_group_type = self.expected_educ_group_year.education_group_type
+
+        # Create user and attached it to management entity
+        person = PersonFactory()
+        PersonEntityFactory(person=person, entity=self.expected_educ_group_year.management_entity)
+        self.user = person.user
 
     def _assert_all_fields_correctly_saved(self, education_group_year_saved):
         for field_name in self.post_data.keys():
@@ -211,7 +230,7 @@ class TestCommonBaseFormSave(TestCase):
             data=self.post_data,
             instance=initial_educ_group_year,
             parent=None,
-            user=UserFactory()
+            user=self.user
         )
         self.assertTrue(form.is_valid(), form.errors)
         updated_educ_group_year = form.save()
@@ -229,7 +248,7 @@ class TestCommonBaseFormSave(TestCase):
             data=self.post_data,
             parent=None,
             education_group_type=self.education_group_type,
-            user=UserFactory()
+            user=self.user
         )
         self.assertTrue(form.is_valid(), form.errors)
         created_education_group_year = form.save()
@@ -250,7 +269,7 @@ class TestCommonBaseFormSave(TestCase):
             data=self.post_data,
             parent=parent,
             education_group_type=self.education_group_type,
-            user=UserFactory()
+            user=self.user
         )
 
         self.assertTrue(form.is_valid(), form.errors)
@@ -277,7 +296,7 @@ class TestCommonBaseFormSave(TestCase):
             data=self.post_data,
             instance=initial_educ_group_year,
             parent=parent,
-            user=UserFactory()
+            user=self.user
         )
         self.assertTrue(form.is_valid(), form.errors)
         updated_education_group_year = form.save()
@@ -294,7 +313,7 @@ class TestCommonBaseFormSave(TestCase):
             data=self.post_data,
             parent=None,
             education_group_type=self.education_group_type,
-            user=UserFactory()
+            user=self.user
         )
         self.assertTrue(form.is_valid(), form.errors)
         created_education_group_year = form.save()
