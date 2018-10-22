@@ -53,7 +53,7 @@ class PostponeContent:
             raise NotPostponeError(_("The end date of the education group is smaller than the year of postponement"))
 
         if not self.instance.groupelementyear_set.exists():
-            raise NotPostponeError(_("This training has no  content to postpone."))
+            raise NotPostponeError(_("This training has no content to postpone."))
 
         self.result = []
         self.instance_n1 = self.get_instance_n1(self.instance)

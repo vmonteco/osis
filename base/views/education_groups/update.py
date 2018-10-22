@@ -28,7 +28,7 @@ from gettext import ngettext
 from dal import autocomplete
 from django import forms
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseRedirect, JsonResponse
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.utils.html import format_html
@@ -219,7 +219,7 @@ class PostponeGroupElementYearView(RulesRequiredMixin, AjaxTemplateMixin, Educat
         }
         return context
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request, **kwargs):
         try:
             postponer = PostponeContent(self.get_root())
             postponer.postpone()
