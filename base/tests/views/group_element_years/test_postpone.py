@@ -46,7 +46,6 @@ class TestPostpone(TestCase):
             kwargs={
                 "root_id": self.education_group_year.pk,
                 "education_group_year_id": self.education_group_year.pk,
-                "group_element_year_id": self.group_element_year.pk
             }
         )
 

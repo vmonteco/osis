@@ -31,12 +31,11 @@ from django import forms
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import PermissionRequiredMixin
-from django.db.models import F, Case, When, Prefetch
+from django.db.models import F, Case, When
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import DetailView
-from django.views.generic.detail import SingleObjectTemplateResponseMixin
 
 from base import models as mdl
 from base.business.education_group import assert_category_of_education_group_year, can_user_edit_administrative_data
@@ -44,8 +43,6 @@ from base.business.education_groups import perms
 from base.business.education_groups.group_element_year_tree import NodeBranchJsTree
 from base.business.education_groups.perms import is_eligible_to_edit_general_information
 from base.models.admission_condition import AdmissionCondition, AdmissionConditionLine
-from base.models.certificate_aim import CertificateAim
-from base.models.education_group_certificate_aim import EducationGroupCertificateAim
 from base.models.education_group_year import EducationGroupYear
 from base.models.enums import education_group_categories, academic_calendar_type, education_group_types
 from base.models.person import Person
@@ -117,6 +114,11 @@ class EducationGroupGenericDetailView(PermissionRequiredMixin, DetailView):
         context['enums'] = mdl.enums.education_group_categories
 
         return context
+
+    def get(self, request, *args, **kwargs):
+        if self.limited_by_category:
+            assert_category_of_education_group_year(self.get_object(), self.limited_by_category)
+        return super().get(request, *args, **kwargs)
 
 
 class EducationGroupRead(EducationGroupGenericDetailView):
