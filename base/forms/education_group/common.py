@@ -318,9 +318,7 @@ class EducationGroupTypeForm(forms.Form):
             parents=parent
         )
 
-        self.fields["name"].label = _("Which type of %(category)s do you want to create ?") % {
-            "category": _(category)
-        }
+        self.fields["name"].label = _("Which type of %(category)s do you want to create ?") % {"category": _(category)}
 
 
 class SelectLanguage(forms.Form):
