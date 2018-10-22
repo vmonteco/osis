@@ -80,7 +80,7 @@ class AjaxTemplateMixin:
         return template_names
 
     def _convert_template_name_to_ajax_template_name(self, template_name):
-        if not "_inner.html" in template_name:
+        if "_inner.html" not in template_name:
             split = template_name.split('.html')
             split[-1] = '_inner'
             split.append('.html')
