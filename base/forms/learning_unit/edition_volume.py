@@ -309,6 +309,7 @@ class SimplifiedVolumeForm(forms.ModelForm):
             self.instance.planned_classes = 0
         else:
             self.instance.planned_classes = 1
+        # FIXME: Use Instance in formset
         instance, created = LearningComponentYear.objects.update_or_create(
             learning_container_year=self.instance.learning_container_year,
             type=self.instance.type,
