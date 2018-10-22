@@ -24,6 +24,7 @@
 #
 ##############################################################################
 from django import forms
+from django.core.exceptions import ImproperlyConfigured
 from django.forms import ModelChoiceField
 from django.utils.translation import ugettext_lazy as _
 
@@ -49,13 +50,16 @@ class OrganizationEditForm(forms.ModelForm):
 
     class Meta:
         model = EducationGroupOrganization
-        fields = ['country', 'organization',
-                  'all_students', 'enrollment_place', 'diploma', 'is_producing_cerfificate', 'is_producing_annexe']
+        fields = ['country', 'organization', 'all_students', 'enrollment_place', 'diploma',
+                  'is_producing_cerfificate', 'is_producing_annexe']
 
-    def __init__(self, data=None, initial=None, **kwargs):
+    def __init__(self, data=None, education_group_year=None, *args, **kwargs):
+        if not education_group_year and not kwargs.get('instance'):
+            raise ImproperlyConfigured("Provide an education_group_year or an instance")
 
-        self.education_group_yr = kwargs.pop('education_group_yr', None)
-        super().__init__(data, initial=initial, **kwargs)
+        super().__init__(data, *args, **kwargs)
+        if not kwargs.get('instance'):
+            self.instance.education_group_year = education_group_year
 
         if data:
             self.organization = find_by_id(data['organization'])
@@ -111,24 +115,19 @@ class OrganizationEditForm(forms.ModelForm):
         self.fields['organization'].initial = find_by_id(organization_id)
         self.organization = find_by_id(organization_id)
 
-    def save_co_organization(self, education_group_year_id, *args, **kwargs):
-        self.instance.education_group_year = EducationGroupYear.objects.get(pk=education_group_year_id)
-        return self.save(*args, **kwargs)
-
-    def unique_on_education_grp_yr_and_organization(self):
+    def check_unique_constraint_between_education_group_year_organization(self):
+        qs = EducationGroupOrganization.objects.filter(
+            education_group_year=self.instance.education_group_year,
+            organization=self.cleaned_data['organization'],
+        )
         if self.instance and self.instance.pk:
-            id_to_exclude = self.instance.pk
-            if EducationGroupOrganization.objects.filter(education_group_year=self.instance.education_group_year,
-                                                         organization=self.cleaned_data['organization'])\
-                    .exclude(id=id_to_exclude).exists():
-                self.add_error('organization', _('There is already a coorganization with this organization'))
-                return False
-        else:
-            if EducationGroupOrganization.objects.filter(education_group_year=self.education_group_yr,
-                                                         organization=self.cleaned_data['organization']).exists():
-                self.add_error('organization', _('There is already a coorganization with this organization'))
-                return False
+            qs = qs.exclude(id=self.instance.pk)
+
+        if qs.exists():
+            self.add_error('organization', _('There is already a coorganization with this organization'))
+            return False
         return True
 
     def is_valid(self):
-        return super(OrganizationEditForm, self).is_valid() and self.unique_on_education_grp_yr_and_organization()
+        return super(OrganizationEditForm, self).is_valid() and \
+               self.check_unique_constraint_between_education_group_year_organization()
