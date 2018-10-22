@@ -4042,3 +4042,18 @@ msgstr ""
 msgid "The sum of volumes for the partims for professor %(tutor)s is superior to the volume of parent learning unit "
       "for this professor"
 msgstr ""
+
+msgid "Coorganization"
+msgstr ""
+
+msgid "Are you sure you want to delete the coorganization?"
+msgstr ""
+
+msgid "The coorganization modifications has been saved"
+msgstr ""
+
+msgid "There is already a coorganization with this organization"
+msgstr ""
+
+msgid "The coorganization has been created"
+msgstr ""
