@@ -101,7 +101,6 @@ class EducationGroupYearModelFormMixin(TestCase):
 
         academic_year_field = form.fields["academic_year"]
         self.assertTrue(academic_year_field.disabled)
-        self.assertTrue(academic_year_field.disabled)
         self.assertTrue(academic_year_field.initial, self.academic_year)
 
     @patch('base.forms.education_group.common.find_authorized_types')
@@ -126,6 +125,20 @@ class EducationGroupYearModelFormMixin(TestCase):
         educ_group_entity = self.parent_education_group_year.management_entity
         expected_entity_version = EntityVersion.objects.filter(entity=educ_group_entity).latest('start_date')
         self.assertEqual(form.initial['management_entity'], expected_entity_version.id)
+
+    @patch('base.forms.education_group.common.find_authorized_types')
+    def _test_preselect_management_entity_from_training_parent(self, form_class, mock_authorized_types):
+        mock_authorized_types.return_value = EducationGroupType.objects.all()
+
+        form = form_class(
+            parent=self.parent_education_group_year,
+            education_group_type=self.education_group_type,
+            user=self.user
+        )
+        self.assertEqual(
+            form.fields["management_entity"].initial,
+            self.parent_education_group_year.management_entity_version,
+        )
 
 
 class TestCommonBaseFormIsValid(TestCase):

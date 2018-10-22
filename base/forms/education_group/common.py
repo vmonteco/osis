@@ -151,6 +151,9 @@ class EducationGroupYearModelForm(ValidationRuleEducationGroupTypeMixin, Permiss
         if 'primary_language' in self.fields:
             self.fields['primary_language'].initial = Language.objects.filter(code='FR').first()
 
+        if self.parent:
+            self._set_initial_inherit_from_training_parent()
+
     def _filter_education_group_type(self):
         # When the type is already given, we need to disabled the field
         if self.education_group_type:
@@ -173,6 +176,12 @@ class EducationGroupYearModelForm(ValidationRuleEducationGroupTypeMixin, Permiss
         if 'management_entity' in self.fields:
             self.fields['management_entity'].queryset = \
                 self.fields['management_entity'].queryset.filter(entity__in=self.user.person.linked_entities)
+
+    def _set_initial_inherit_from_training_parent(self):
+        """If created in training context, get management entity of TRAINING as initial value"""
+        training_parent = self.parent if self.parent.is_training() else self.parent.parent_by_training
+        if training_parent:
+            self.fields['management_entity'].initial = training_parent.management_entity_version
 
     def _disable_field(self, key, initial_value=None):
         field = self.fields[key]
