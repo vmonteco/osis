@@ -437,6 +437,7 @@ class EducationGroupYear(models.Model):
     )
 
     class Meta:
+        verbose_name = _("education group year")
         unique_together = ('acronym', 'academic_year',)
 
     def __str__(self):
@@ -493,9 +494,6 @@ class EducationGroupYear(models.Model):
         if self.duration and self.duration_unit:
             return "{} {}".format(self.duration, _(self.duration_unit))
         return ""
-
-    class Meta:
-        verbose_name = _("education group year")
 
     def get_absolute_url(self):
         return reverse("education_group_read", args=[self.pk])
