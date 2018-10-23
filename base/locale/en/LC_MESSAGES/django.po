@@ -3228,9 +3228,6 @@ msgstr ""
 msgid "Are you sure you want to delete the teaching material?"
 msgstr ""
 
-msgid "Are you sure you want to delete the coorganization?"
-msgstr ""
-
 msgid "teaching materials"
 msgstr ""
 
