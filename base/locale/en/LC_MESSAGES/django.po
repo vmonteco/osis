@@ -4042,3 +4042,6 @@ msgstr ""
 msgid "The sum of volumes for the partims for professor %(tutor)s is superior to the volume of parent learning unit "
       "for this professor"
 msgstr ""
+
+msgid "Clear notifications"
+msgstr ""

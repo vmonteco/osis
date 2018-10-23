@@ -4050,3 +4050,6 @@ msgid "The sum of volumes for the partims for professor %(tutor)s is superior to
       "for this professor"
 msgstr "La somme des volumes des partims pour le professeur %(tutor)s est supérieure au volume horaire du cours parent "
        "pour ce professeur"
+
+msgid "Clear notifications"
+msgstr "Supprimer notifications"
