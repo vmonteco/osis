@@ -23,12 +23,16 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from operator import itemgetter
 
+from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 
 from base.models.campus import Campus
+from base.models.entity import Entity
 from base.models.organization_address import find_distinct_by_country
 from osis_common.decorators.ajax import ajax_required
+from base.models.entity_version import EntityVersion
 
 
 # TODO :: On peut combiner les différentes vues en faisant passer les paramètres via le GET et en uniformisant
@@ -49,3 +53,13 @@ def filter_campus_by_city(request):
         organization__organizationaddress__city=city
     ).distinct('organization__name').order_by('organization__name').values('pk', 'organization__name')
     return JsonResponse(list(campuses), safe=False)
+
+
+@login_required
+@ajax_required
+def filter_organizations_by_country(request):
+    country_id = request.GET.get('country')
+    organizations = Entity.objects.filter(country__pk=country_id).distinct('organization')\
+        .values('organization__pk', 'organization__name')
+    return JsonResponse(sorted(list(organizations), key=itemgetter('organization__name')),
+                        safe=False)

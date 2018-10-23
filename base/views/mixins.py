@@ -85,8 +85,7 @@ class AjaxTemplateMixin:
             split[-1] = '_inner'
             split.append('.html')
             return "".join(split)
-        else:
-            return template_name
+        return template_name
 
     def form_valid(self, form):
         redirect = super().form_valid(form)
