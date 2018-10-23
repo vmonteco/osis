@@ -38,8 +38,9 @@ from base.models.entity import Entity
 class OrganizationEditForm(forms.ModelForm):
     country = ModelChoiceField(
         queryset=Country.objects.filter(entity__isnull=False).distinct().order_by('name'),
-        required=True,
-        label=_("country")
+        label=_("country"),
+        # TODO the default value should be set with the pk
+        initial=Country.objects.filter(entity__isnull=False, iso_code="BE").first()
     )
 
     organization = ModelChoiceField(
