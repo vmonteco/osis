@@ -4038,3 +4038,22 @@ msgstr ""
 
 msgid "The coorganization has been created"
 msgstr ""
+
+msgid "Repartition added"
+msgstr ""
+
+msgid "Repartition edited"
+msgstr ""
+
+msgid "Repartition removed"
+msgstr ""
+
+msgid "Manage repartition"
+msgstr ""
+
+msgid "No attributions exist for the parent learning unit"
+msgstr ""
+
+msgid "The sum of volumes for the partims for professor %(tutor)s is superior to the volume of parent learning unit "
+      "for this professor"
+msgstr ""
