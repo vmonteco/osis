@@ -34,7 +34,7 @@ from django.contrib.auth.models import Permission
 
 from base.models.enums import education_group_categories
 from base.models.education_group_organization import EducationGroupOrganization
-from base.tests.factories.academic_year import AcademicYearFactory
+from base.tests.factories.academic_year import AcademicYearFactory, create_current_academic_year
 from base.tests.factories.education_group_type import EducationGroupTypeFactory
 from base.tests.factories.education_group_year import EducationGroupYearFactory
 from base.tests.factories.entity_version import EntityVersionFactory
@@ -192,16 +192,58 @@ class TestOrganizationView(TestCase):
         self.assertFalse(education_group_organization_created.is_producing_cerfificate)
         self.assertFalse(education_group_organization_created.is_producing_annexe)
 
-    def test_education_group_organization_delete(self):
+
+class TestOrganizationDeleteView(TestCase):
+    def setUp(self):
+        self.user = UserFactory()
+        self.client.force_login(self.user)
+        self.person = PersonFactory(user=self.user)
+        self.user.user_permissions.add(Permission.objects.get(codename="can_access_education_group"))
+
+        self.academic_year = create_current_academic_year()
+
+        self.education_group_yr = EducationGroupYearFactory(
+            academic_year=self.academic_year,
+            education_group_type=EducationGroupTypeFactory(category=education_group_categories.TRAINING),
+            management_entity=EntityFactory()
+        )
+        self.root_id = self.education_group_yr.id
+        self.organization = OrganizationFactory()
+
+    @mock.patch("base.business.education_groups.perms.is_eligible_to_change_education_group", return_value=True)
+    def test_education_group_organization_delete_get(self, m):
+        education_group_organization_to_delete = EducationGroupOrganizationFactory(organization=self.organization)
+
+        response = self.client.get(
+            reverse(DELETE_URL_NAME,
+                    args=[
+                        self.root_id,
+                        self.education_group_yr.id,
+                        education_group_organization_to_delete.pk
+                    ])
+        )
+        self.assertTemplateUsed(response, "education_group/blocks/modal/modal_organization_confirm_delete_inner.html")
+
+    @mock.patch("base.business.education_groups.perms.is_eligible_to_change_education_group", return_value=True)
+    def test_education_group_organization_delete_post(self, m):
         education_group_organization_to_delete = EducationGroupOrganizationFactory(organization=self.organization)
 
         http_referer = reverse('education_group_read', args=[
             self.root_id,
             self.education_group_yr.id
-        ]) + "#tbl_coorganization"
+        ]).rstrip('/') + "#panel_coorganization"
 
-        response = self.client.post(reverse(DELETE_URL_NAME, args=[self.root_id, self.education_group_yr.id]),
-                                    data={'co_organization_id_to_delete': education_group_organization_to_delete.id})
-        self.assertRedirects(response, http_referer)
+        response = self.client.post(
+            reverse(
+                DELETE_URL_NAME,
+                args=[
+                    self.root_id,
+                    self.education_group_yr.id,
+                    education_group_organization_to_delete.pk
+                ]
+            )
+        )
+
+        self.assertRedirects(response, http_referer, target_status_code=301)
         with self.assertRaises(EducationGroupOrganization.DoesNotExist):
             education_group_organization_to_delete.refresh_from_db()

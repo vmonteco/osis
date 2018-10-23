@@ -28,8 +28,9 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
-from django.views.generic import UpdateView, CreateView
+from django.views.generic import UpdateView, CreateView, DeleteView
 
+from base.business.education_groups.perms import is_eligible_to_change_education_group
 from base.forms.education_group.organization import OrganizationEditForm
 from base.models.education_group_organization import EducationGroupOrganization
 from base.models.education_group_year import EducationGroupYear
@@ -83,10 +84,8 @@ class UpdateEducationGroupOrganizationView(CommonEducationGroupOrganizationView,
         return _("The coorganization modifications has been saved")
 
 
-class CoorganizationDeleteView(DeleteViewWithDependencies):
-    model = EducationGroupOrganization
+class CoorganizationDeleteView(CommonEducationGroupOrganizationView, DeleteView):
     pk_url_kwarg = "coorganization_id"
-
     template_name = "education_group/blocks/modal/modal_organization_confirm_delete_inner.html"
 
     def get_success_url(self):
