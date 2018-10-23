@@ -25,45 +25,55 @@
 * see http://www.gnu.org/licenses/.
 {% endcomment %}
 {% if request.is_ajax %}
-    <div class="modal-content" id="form-modal-content">
+<div class="modal-content" id="form-modal-content">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">×</button>
+        <h4>{% trans 'Coorganization' %}</h4>
+    </div>
 
     <div id="form-modal-body" class="modal-body">
 {% endif %}
 
-        <form id="coorganization-form" role="form" method="POST" action="{{ request.path }}">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">×</button>
-                <h4>{% trans 'Coorganization' %}</h4>
-            </div>
 
-                {% csrf_token %}
-                {% bootstrap_form_errors form %}
-                {% bootstrap_form form %}
+<form id="coorganization-form" role="form" method="POST" action="{{ request.path }}">
+    {% csrf_token %}
+    {% bootstrap_form_errors form %}
+    {% bootstrap_form form %}
 
-                {% if not request.is_ajax %}
-                    <button type="submit" class="btn" data-dismiss="modal">{% trans 'cancel' %} </button>
-                {% endif %}
-
-        </form>
+    {% if not request.is_ajax %}
+        <button type="submit" class="btn" data-dismiss="modal">{% trans 'save' %} </button>
+    {% endif %}
+</form>
 
 {% if request.is_ajax %}
+    </div>
     <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">{% trans 'cancel' %}</button>
         <input type="submit" value="{% trans "save" %}" class="btn btn-primary"
                onclick="$('#coorganization-form').submit();"/>
     </div>
-    </div>
+</div>
 {% endif %}
 
 {% block script %}
     <script src="{% static 'js/select_ajax_filtering.js' %}"></script>
     <script>
+        function initOrganizationFilter() {
+            const countryNode = $("select#id_country");
+            const organizationNode = $("select#id_organization");
+            const ajaxUrl = "{% url "filter_organizations_by_country" %}";
+
+            if (countryNode && organizationNode)
+                countryNode.filterOrganizationByCountry(countryNode, organizationNode, ajaxUrl);
+        }
+
         $(document).ready(function() {
-        let country_node = $("select#id_country");
-        let organization_node = $("select#id_organization");
-        country_node.filterOrganizationByCountry(country_node, organization_node, "{% url "filter_organizations_by_country" %}");
+            initOrganizationFilter();
 
+            const formElem = document.querySelector("#coorganization-form");
+            formElem.addEventListener("formAjaxSubmit:error", function(){
+                initOrganizationFilter();
+            });
         });
-
     </script>
 {% endblock %}

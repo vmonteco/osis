@@ -71,9 +71,12 @@ class CreateEducationGroupOrganizationView(RulesRequiredMixin, AjaxTemplateMixin
     def get_success_url(self):
         return reverse("education_group_read", args=[self.kwargs["root_id"], self.object.education_group_year.pk])
 
-    def form_valid(self, form):
-        form.instance.education_group_year = self.education_group_year
-        return super().form_valid(form)
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        return {
+            'education_group_year': self.education_group_year,
+            **kwargs
+        }
 
 
 class UpdateEducationGroupOrganizationView(RulesRequiredMixin, AjaxTemplateMixin, SuccessMessageMixin, UpdateView):
@@ -104,8 +107,7 @@ class UpdateEducationGroupOrganizationView(RulesRequiredMixin, AjaxTemplateMixin
         return _("The coorganization modifications has been saved")
 
     def get_success_url(self):
-        return reverse("education_group_read", args=[self.kwargs["root_id"],
-                                                     self.object.education_group_year.pk])
+        return reverse("education_group_read", args=[self.kwargs["root_id"], self.object.education_group_year.pk])
 
 
 @login_required

@@ -262,26 +262,26 @@
 {% block script %}
     <script>
         $(document).ready(function() {
-            $('#tbl_coorganization').DataTable(
-                    {
-                        columnDefs: [
-                            { targets: 3, type: 'diacritics-neutralise'},
-                            { targets: 1, orderable: false},
-                            { targets: 7, orderable: false},
-                            { targets: 8, orderable: false},
-                        ],
-                        "stateSave": true,
-                        "paging" : false,
-                        "ordering" : true,
-                        "info"  : false,
-                        "searching" : false,
-                        "language": {
-                            "oAria": {
-                                "sSortAscending":  "{% trans 'datatable_sortascending'%}",
-                                "sSortDescending": "{% trans 'datatable_sortdescending'%}"
-                            }
-                        }
-                    });
+            $('#tbl_coorganization').DataTable({
+                columnDefs: [
+                    { targets: 3, type: 'diacritics-neutralise'},
+                    { targets: 1, orderable: false},
+                    { targets: 7, orderable: false},
+                    { targets: 8, orderable: false}
+                ],
+                "paging" : false,
+                "ordering" : true,
+                "info"  : false,
+                "searching" : false,
+                "language": {
+                    "oAria": {
+                        "sSortAscending":  "{% trans 'datatable_sortascending'%}",
+                        "sSortDescending": "{% trans 'datatable_sortdescending'%}"
+                    }
+                },
+                "order" : [[2, "desc"], [0, "asc"]]
+            });
+
             $(".coorganization-edit-btn").click(function(ev) {
                 ev.preventDefault();
                 var url = $(this).data("form");
@@ -303,6 +303,5 @@
             $("#modalDeleteEducationGroupOrganization").modal('show');
             return false;
         });
-
     </script>
 {% endblock %}
