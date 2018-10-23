@@ -3236,6 +3236,9 @@ msgstr "Les supports de cours ont été mis à jour"
 msgid "Are you sure you want to delete the teaching material?"
 msgstr "Êtes-vous sûr·e de vouloir supprimer le support de cours?"
 
+msgid "Are you sure you want to delete the coorganization?"
+msgstr "Êtes-vous sûr·e de vouloir supprimer la coorganisation?"
+
 msgid "{} successfully updated"
 msgstr "{} modifié(e) avec succès."
 
