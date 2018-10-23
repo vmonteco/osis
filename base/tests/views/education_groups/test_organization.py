@@ -83,6 +83,9 @@ class TestOrganizationViewPermission(TestCase):
             diploma=DIPLOMA,
             all_students=True,
         )
+        self.education_group_organization_to_delete = EducationGroupOrganizationFactory(
+            organization=OrganizationFactory()
+        )
         self._set_urls(education_group_organization.id)
         self.client.force_login(self.person.user)
 
@@ -95,7 +98,12 @@ class TestOrganizationViewPermission(TestCase):
         self.urls = [self.url_create,
                      self.url_edit,
                      reverse(DELETE_URL_NAME,
-                             args=[self.education_group_parent.id, self.education_group_child_1.id])]
+                             args=[
+                                 self.education_group_parent.id,
+                                 self.education_group_child_1.id,
+                                 self.education_group_organization_to_delete.pk
+                             ])
+                     ]
 
     def test_when_not_logged(self):
         self.client.logout()

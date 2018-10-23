@@ -30,12 +30,11 @@ from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import UpdateView, CreateView, DeleteView
 
-from base.business.education_groups.perms import is_eligible_to_change_education_group
 from base.forms.education_group.organization import OrganizationEditForm
 from base.models.education_group_organization import EducationGroupOrganization
 from base.models.education_group_year import EducationGroupYear
 from base.views.education_groups import perms
-from base.views.mixins import RulesRequiredMixin, AjaxTemplateMixin, DeleteViewWithDependencies
+from base.views.mixins import RulesRequiredMixin, AjaxTemplateMixin
 
 
 class CommonEducationGroupOrganizationView(RulesRequiredMixin, AjaxTemplateMixin, SuccessMessageMixin):
