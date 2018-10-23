@@ -4050,3 +4050,18 @@ msgid "The sum of volumes for the partims for professor %(tutor)s is superior to
       "for this professor"
 msgstr "La somme des volumes des partims pour le professeur %(tutor)s est supérieure au volume horaire du cours parent "
        "pour ce professeur"
+
+msgid "Coorganization"
+msgstr "Coorganization"
+
+msgid "Are you sure you want to delete the coorganization?"
+msgstr "Êtes-vous certain de vouloir supprimer la coorganisation"
+
+msgid "The coorganization modifications has been saved"
+msgstr "Les données de la coorganisation ont été sauvegardées"
+
+msgid "There is already a coorganization with this organization"
+msgstr "Il y a déjà une co-organisation avec cette institution"
+
+msgid "The coorganization has been created"
+msgstr "La nouvelle coorganisation a bien été créee"

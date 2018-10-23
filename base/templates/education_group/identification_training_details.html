@@ -124,14 +124,20 @@
                                 <th>{% trans 'UCL Diploma' %}</th>
                                 <th>{% trans 'Producing certificat' %}</th>
                                 <th>{% trans 'Producing annexe' %}</th>
+                                {% if  can_change_education_group %}
+                                    <th></th>
+                                    <th></th>
+                                {% endif %}
                             </tr>
                         </thead>
                         <tbody>
                             {% for coorganization in education_group_year.coorganizations %}
                                 <tr>
                                     <td>
-                                        {{ coorganization.address.country.name }} - {{ coorganization.address.city }}<br>
+                                        <span id="coorganization_id_{{ coorganization.id }}">
+                                            {{ coorganization.address.country.name }} - {{ coorganization.address.city }}<br>
                                         {{ coorganization.organization.name }}
+                                        </span>
                                     </td>
                                     <td>{% if coorganization.organization.logo %}
                                         <img src="{{ coorganization.organization.logo.url }}" width="50px"/>
@@ -154,13 +160,37 @@
                                     <td>
                                         {{ coorganization.is_producing_annexe | yesno | title}}
                                     </td>
+                                    {% if  can_change_education_group %}
+                                        <td>
+                                            <a href="#" title="{%trans 'edit'%}"
+                                               class="btn coorganization-edit-btn" role="button"
+                                               id="{{ "btn_coorganization_edit_"|db_table_with_pk:coorganization }}">
+                                                <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <a class="btn coorganization-delete-btn" href="#"
+                                               data-toggle="modal" data-target="#modalDeleteEducationGroupOrganization"
+                                               id="btn_delete_coorganization_{{ coorganization.id }}"
+                                               title="{% trans 'delete' %}"
+                                                    >
+                                                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                                            </a>
+
+                                        </td>
+                                    {% endif %}
                                 </tr>
+                                {% url 'coorganization_edit' root_id=root.pk education_group_year_id=education_group_year.id coorganization_id=coorganization.id  as update_url  %}
+                                {% include "blocks/modal/modal_ajax.html" with modal_url=update_url click_id="btn_coorganization_edit_"|db_table_with_pk:coorganization form_id="coorganization-form" %}
+
                             {% endfor %}
                             {% for coorganization in parent.coorganizations %}
                                 <tr class="text-primary">
                                     <td>
+                                        <span id="coorganization_id_{{ coorganization.id }}">
                                         {{ coorganization.address.country.name }} - {{ coorganization.address.city }}<br>
-                                        {{ coorganization.organization.title }}
+                                        {{ coorganization.organization.name }}
+                                        </span>
                                     </td>
                                     <td>{% if coorganization.organization.logo %}
                                         <img src="{{ coorganization.organization.logo.url }}" width="50px"/>
@@ -173,7 +203,7 @@
                                         {{ coorganization.enrollment_place | yesno | title}}
                                     </td>
                                     <td>
-                                        {% if coorganization.diploma and coorganization.diploma %}
+                                        {% if coorganization.diploma %}
                                             {% trans coorganization.diploma %}
                                         {% endif %}
                                     </td>
@@ -183,37 +213,95 @@
                                     <td>
                                         {{ coorganization.is_producing_annexe | yesno | title}}
                                     </td>
+                                    {% if  can_change_education_group %}
+                                    <td>
+                                        <a href="#" title="{%trans 'edit'%}"
+                                           class="btn coorganization-edit-btn" role="button"
+                                           id="{{ "btn_coorganization_edit_"|db_table_with_pk:coorganization }}">
+                                            <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <a class="btn coorganization-delete-btn" href="#"
+                                           data-toggle="modal" data-target="#modalDeleteEducationGroupOrganization"
+                                           id="btn_delete_coorganization_{{ coorganization.id }}"
+                                           title="{% trans 'delete' %}"
+                                                >
+                                            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                                        </a>
+                                    </td>
+                                {% endif %}
                                 </tr>
+                                {% url 'coorganization_edit' root_id=root.pk education_group_year_id=education_group_year.id coorganization_id=coorganization.id  as update_url  %}
+                                {% include "blocks/modal/modal_ajax.html" with modal_url=update_url click_id="btn_coorganization_edit_"|db_table_with_pk:coorganization form_id="coorganization-form" %}
+
                             {% endfor %}
                         </tbody>
                     </table>
                 {% endif %}
+                <br>
+                {% if  can_change_education_group %}
+                    <a class="btn btn-info btn-sm coorganization-edit-btn" href="#"
+                       id="btn_coorganization_create"
+                       data-form="{% url 'coorganization_create' root_id=root.pk education_group_year_id=education_group_year.id %}"
+                       title="{% trans 'create' %}"
+                       style="margin-top:10px;">
+                        {% trans 'add_another' %}
+                    </a>
+                    {% url 'coorganization_create' root_id=root.pk education_group_year_id=education_group_year.id as create_url  %}
+                    {% include "blocks/modal/modal_ajax.html" with modal_url=create_url click_id="btn_coorganization_create" form_id="coorganization-form" %}
+                {% endif %}
+
             </div>
         </div>
     {% endwith %}
+
+    {% include "education_group/blocks/modal/modal_organization_confirm_delete.html" %}
 
 {% endblock %}
 {% block script %}
     <script>
         $(document).ready(function() {
-            $('#tbl_coorganization').DataTable(
-                {
-                    columnDefs: [
-                        { targets: 0, type: 'diacritics-neutralise'},
-                        { targets: 3, type: 'diacritics-neutralise'},
-                    ],
-                    "stateSave": true,
-                    "paging" : false,
-                    "ordering" : true,
-                    "info"  : false,
-                    "searching" : false,
-                    "language": {
-                        "oAria": {
-                            "sSortAscending":  "{% trans 'datatable_sortascending'%}",
-                            "sSortDescending": "{% trans 'datatable_sortdescending'%}"
-                        }
+            $('#tbl_coorganization').DataTable({
+                columnDefs: [
+                    { targets: 3, type: 'diacritics-neutralise'},
+                    { targets: 1, orderable: false},
+                    { targets: 7, orderable: false},
+                    { targets: 8, orderable: false}
+                ],
+                "paging" : false,
+                "ordering" : true,
+                "info"  : false,
+                "searching" : false,
+                "language": {
+                    "oAria": {
+                        "sSortAscending":  "{% trans 'datatable_sortascending'%}",
+                        "sSortDescending": "{% trans 'datatable_sortdescending'%}"
                     }
+                },
+                "order" : [[2, "desc"], [0, "asc"]]
+            });
+
+            $(".coorganization-edit-btn").click(function(ev) {
+                ev.preventDefault();
+                var url = $(this).data("form");
+                var coorganization_edit_modal = $("#coorganization_edit");
+                coorganization_edit_modal.load(url, function () { // load the url into the modal
+                    $(this).modal('show');
                 });
+                return false;
+            });
+
+
+        });
+
+        $(".coorganization-delete-btn").click(function(ev) {
+            ev.preventDefault();
+            var id = this.id;
+            var co_organization_id_to_delete = id.replace('btn_delete_coorganization_', '');
+            $('#hdn_co_organization_id_to_delete').val(co_organization_id_to_delete);
+            $("#modalDeleteEducationGroupOrganization").modal('show');
+            return false;
         });
     </script>
 {% endblock %}

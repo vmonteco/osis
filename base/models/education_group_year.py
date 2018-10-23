@@ -562,7 +562,7 @@ class EducationGroupYear(models.Model):
 
     @cached_property
     def coorganizations(self):
-        return self.educationgrouporganization_set.all()
+        return self.educationgrouporganization_set.all().order_by('all_students')
 
     def is_training(self):
         if self.education_group_type:
