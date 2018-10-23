@@ -24,8 +24,7 @@
 #
 ##############################################################################
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse
-from django.views.decorators.http import require_POST, require_GET
+from django.views.decorators.http import require_POST
 
 from base.utils import notifications
 from base.views import layout
