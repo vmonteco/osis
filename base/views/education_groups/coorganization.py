@@ -35,9 +35,8 @@ from django.utils.functional import cached_property
 from base.models.education_group_year import EducationGroupYear
 from base.models.education_group_organization import EducationGroupOrganization
 from base.forms.education_group.organization import OrganizationEditForm
-from base.views.mixins import AjaxTemplateMixin
+from base.views.mixins import RulesRequiredMixin, AjaxTemplateMixin
 from base.views.education_groups import perms
-from base.views.mixins import RulesRequiredMixin
 
 
 class CommonEducationGroupOrganizationView(RulesRequiredMixin, AjaxTemplateMixin, SuccessMessageMixin):
