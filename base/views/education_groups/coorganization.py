@@ -28,7 +28,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponseRedirect
 from django.urls import reverse
-from django.views.generic import UpdateView, CreateView
+from django.views.generic import UpdateView, CreateView, DeleteView
 from django.contrib.messages.views import SuccessMessageMixin
 from django.utils.translation import ugettext_lazy as _
 from django.utils.functional import cached_property
@@ -37,7 +37,7 @@ from django.utils.decorators import method_decorator
 from base.models.education_group_year import EducationGroupYear
 from base.models.education_group_organization import EducationGroupOrganization
 from base.forms.education_group.organization import OrganizationEditForm
-from base.views.mixins import AjaxTemplateMixin
+from base.views.mixins import AjaxTemplateMixin, DeleteViewWithDependencies
 from base.views.education_groups import perms
 from base.views.mixins import RulesRequiredMixin
 
@@ -80,7 +80,6 @@ class CreateEducationGroupOrganizationView(RulesRequiredMixin, AjaxTemplateMixin
 
 
 class UpdateEducationGroupOrganizationView(RulesRequiredMixin, AjaxTemplateMixin, SuccessMessageMixin, UpdateView):
-
     model = EducationGroupOrganization
     context_object_name = "coorganization"
     pk_url_kwarg = 'coorganization_id'
@@ -110,13 +109,13 @@ class UpdateEducationGroupOrganizationView(RulesRequiredMixin, AjaxTemplateMixin
         return reverse("education_group_read", args=[self.kwargs["root_id"], self.object.education_group_year.pk])
 
 
-@login_required
-@permission_required('base.can_access_education_group', raise_exception=True)
-def delete(request, root_id, education_group_year_id):
-    co_organization_id = request.POST.get('co_organization_id_to_delete')
-    education_group_organization = get_object_or_404(EducationGroupOrganization, pk=co_organization_id)
-    education_group_organization.delete()
-    return HttpResponseRedirect(reverse('education_group_read',
-                                        kwargs={'root_id': root_id,
-                                                'education_group_year_id': education_group_year_id}) + "{}".format(
-        "#tbl_coorganization"))
+class CoorganizationDeleteView(DeleteViewWithDependencies):
+    model = EducationGroupOrganization
+    pk_url_kwarg = "coorganization_id"
+
+    template_name = "education_group/blocks/modal/modal_organization_confirm_delete_inner.html"
+
+    def get_success_url(self):
+        return reverse(
+            'education_group_read', args=[self.kwargs["root_id"], self.kwargs["education_group_year_id"]]
+        ).rstrip('/') + "#panel_coorganization"
