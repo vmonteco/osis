@@ -38,8 +38,7 @@ from base.models.entity import Entity
 class OrganizationEditForm(forms.ModelForm):
     country = ModelChoiceField(
         queryset=Country.objects.filter(entity__isnull=False).distinct().order_by('name'),
-        required=True,
-        label=_("country")
+        label=_("country"),
     )
 
     organization = ModelChoiceField(
@@ -67,6 +66,9 @@ class OrganizationEditForm(forms.ModelForm):
             self.fields['organization'].queryset = Organization.objects.filter(entity__country=country)\
                                                                        .distinct()\
                                                                        .order_by('name')
+        else:
+            # TODO the default value should be set with the pk
+            self.fields['country'].initial = Country.objects.filter(entity__isnull=False, iso_code="BE").first()
 
     def check_unique_constraint_between_education_group_year_organization(self):
         qs = EducationGroupOrganization.objects.filter(
