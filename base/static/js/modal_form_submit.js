@@ -52,4 +52,3 @@ function CKupdate(){
     for (let instance in CKEDITOR.instances )
         CKEDITOR.instances[instance].updateElement();
 }
-

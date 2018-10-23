@@ -27,7 +27,7 @@ from django.conf.urls import url, include
 
 from base.views import education_group
 from base.views.education_groups.coorganization import CreateEducationGroupOrganizationView, \
-    UpdateEducationGroupOrganizationView, delete as coorganization_delete
+    UpdateEducationGroupOrganizationView, CoorganizationDeleteView
 from base.views.education_groups.group_element_year.read import pdf_content
 from base.views.education_groups.learning_unit import detail as learning_unit_detail, update as learning_unit_update
 from base.views.education_groups.select import education_group_select, learning_unit_select
@@ -128,7 +128,9 @@ urlpatterns = [
         url(r'^coorganization/edit/(?P<coorganization_id>[0-9]+)/$',
             UpdateEducationGroupOrganizationView.as_view(),
             name="coorganization_edit"),
-        url(r'^coorganization/delete/$', coorganization_delete, name="coorganization_delete"),
+        url(r'^coorganization/delete/(?P<coorganization_id>[0-9]+)$',
+            CoorganizationDeleteView.as_view(),
+            name="coorganization_delete"),
     ])),
     url(r'^(?P<root_id>[0-9]+)/(?P<learning_unit_year_id>[0-9]+)/learning_unit/', include([
         url(r'^utilization/$',

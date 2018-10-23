@@ -23,20 +23,18 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-from django.contrib.auth.decorators import login_required, permission_required
-from django.shortcuts import get_object_or_404
-from django.http import HttpResponseRedirect
-from django.urls import reverse
-from django.views.generic import UpdateView, CreateView
 from django.contrib.messages.views import SuccessMessageMixin
-from django.utils.translation import ugettext_lazy as _
+from django.shortcuts import get_object_or_404
+from django.urls import reverse
 from django.utils.functional import cached_property
+from django.utils.translation import ugettext_lazy as _
+from django.views.generic import UpdateView, CreateView, DeleteView
 
-from base.models.education_group_year import EducationGroupYear
-from base.models.education_group_organization import EducationGroupOrganization
 from base.forms.education_group.organization import OrganizationEditForm
-from base.views.mixins import RulesRequiredMixin, AjaxTemplateMixin
+from base.models.education_group_organization import EducationGroupOrganization
+from base.models.education_group_year import EducationGroupYear
 from base.views.education_groups import perms
+from base.views.mixins import RulesRequiredMixin, AjaxTemplateMixin
 
 
 class CommonEducationGroupOrganizationView(RulesRequiredMixin, AjaxTemplateMixin, SuccessMessageMixin):
@@ -78,19 +76,18 @@ class CreateEducationGroupOrganizationView(CommonEducationGroupOrganizationView,
 
 
 class UpdateEducationGroupOrganizationView(CommonEducationGroupOrganizationView, UpdateView):
+
     pk_url_kwarg = 'coorganization_id'
 
     def get_success_message(self, cleaned_data):
         return _("The coorganization modifications has been saved")
 
 
-@login_required
-@permission_required('base.can_access_education_group', raise_exception=True)
-def delete(request, root_id, education_group_year_id):
-    co_organization_id = request.POST.get('co_organization_id_to_delete')
-    education_group_organization = get_object_or_404(EducationGroupOrganization, pk=co_organization_id)
-    education_group_organization.delete()
-    return HttpResponseRedirect(reverse('education_group_read',
-                                        kwargs={'root_id': root_id,
-                                                'education_group_year_id': education_group_year_id}) + "{}".format(
-        "#tbl_coorganization"))
+class CoorganizationDeleteView(CommonEducationGroupOrganizationView, DeleteView):
+    pk_url_kwarg = "coorganization_id"
+    template_name = "education_group/blocks/modal/modal_organization_confirm_delete_inner.html"
+
+    def get_success_url(self):
+        return reverse(
+            'education_group_read', args=[self.kwargs["root_id"], self.kwargs["education_group_year_id"]]
+        ).rstrip('/') + "#panel_coorganization"
