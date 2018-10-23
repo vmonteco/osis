@@ -23,26 +23,21 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-import abc
-from django.contrib.auth.decorators import login_required, permission_required
-from django.shortcuts import get_object_or_404
-from django.http import HttpResponseRedirect
-from django.urls import reverse
-from django.views.generic import UpdateView, CreateView, DeleteView
 from django.contrib.messages.views import SuccessMessageMixin
-from django.utils.translation import ugettext_lazy as _
+from django.shortcuts import get_object_or_404
+from django.urls import reverse
 from django.utils.functional import cached_property
-from django.utils.decorators import method_decorator
+from django.utils.translation import ugettext_lazy as _
+from django.views.generic import UpdateView, CreateView
 
-from base.models.education_group_year import EducationGroupYear
-from base.models.education_group_organization import EducationGroupOrganization
 from base.forms.education_group.organization import OrganizationEditForm
-from base.views.mixins import AjaxTemplateMixin, DeleteViewWithDependencies
+from base.models.education_group_organization import EducationGroupOrganization
+from base.models.education_group_year import EducationGroupYear
 from base.views.education_groups import perms
-from base.views.mixins import RulesRequiredMixin
+from base.views.mixins import RulesRequiredMixin, AjaxTemplateMixin, DeleteViewWithDependencies
 
 
-class CreateEducationGroupOrganizationView(RulesRequiredMixin, AjaxTemplateMixin, SuccessMessageMixin, CreateView):
+class CommonEducationGroupOrganizationView(RulesRequiredMixin, AjaxTemplateMixin, SuccessMessageMixin):
     model = EducationGroupOrganization
     context_object_name = "coorganization"
 
@@ -51,7 +46,6 @@ class CreateEducationGroupOrganizationView(RulesRequiredMixin, AjaxTemplateMixin
 
     # RulesRequiredMixin
     raise_exception = True
-
     rules = [perms.can_change_education_group]
 
     def _call_rule(self, rule):
@@ -65,11 +59,13 @@ class CreateEducationGroupOrganizationView(RulesRequiredMixin, AjaxTemplateMixin
     def education_group_year(self):
         return get_object_or_404(EducationGroupYear, pk=self.kwargs['education_group_year_id'])
 
-    def get_success_message(self, cleaned_data):
-        return _("The coorganization has been created")
-
     def get_success_url(self):
         return reverse("education_group_read", args=[self.kwargs["root_id"], self.object.education_group_year.pk])
+
+
+class CreateEducationGroupOrganizationView(CommonEducationGroupOrganizationView, CreateView):
+    def get_success_message(self, cleaned_data):
+        return _("The coorganization has been created")
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -79,34 +75,12 @@ class CreateEducationGroupOrganizationView(RulesRequiredMixin, AjaxTemplateMixin
         }
 
 
-class UpdateEducationGroupOrganizationView(RulesRequiredMixin, AjaxTemplateMixin, SuccessMessageMixin, UpdateView):
-    model = EducationGroupOrganization
-    context_object_name = "coorganization"
+class UpdateEducationGroupOrganizationView(CommonEducationGroupOrganizationView, UpdateView):
+
     pk_url_kwarg = 'coorganization_id'
-
-    form_class = OrganizationEditForm
-    template_name = "education_group/organization_edit.html"
-
-    # RulesRequiredMixin
-    raise_exception = True
-    rules = [perms.can_change_education_group]
-
-    def _call_rule(self, rule):
-        return rule(self.person.user, self.education_group_year)
-
-    @cached_property
-    def person(self):
-        return self.request.user.person
-
-    @cached_property
-    def education_group_year(self):
-        return get_object_or_404(EducationGroupYear, pk=self.kwargs['education_group_year_id'])
 
     def get_success_message(self, cleaned_data):
         return _("The coorganization modifications has been saved")
-
-    def get_success_url(self):
-        return reverse("education_group_read", args=[self.kwargs["root_id"], self.object.education_group_year.pk])
 
 
 class CoorganizationDeleteView(DeleteViewWithDependencies):

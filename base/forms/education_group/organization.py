@@ -43,7 +43,7 @@ class OrganizationEditForm(forms.ModelForm):
     )
 
     organization = ModelChoiceField(
-        queryset=Organization.objects.none(),
+        queryset=Organization.objects.filter(entity__country__isnull=False).distinct().order_by('name'),
         required=True,
         label=_("institution")
     )
@@ -61,59 +61,12 @@ class OrganizationEditForm(forms.ModelForm):
         if not kwargs.get('instance'):
             self.instance.education_group_year = education_group_year
 
-        if data:
-            self.organization = find_by_id(data['organization'])
-            self._prepare_select_fields_for_update(self.organization)
-        else:
-            if self.instance and self.instance.pk:
-                self._prepare_select_fields_for_update(self.instance.organization)
-
-    def _prepare_select_fields_for_update(self, an_organization):
-        country_id = None
-        if an_organization:
-            entity = Entity.objects.filter(organization=an_organization).first()
-            self.fields['country'].initial = entity.country
-            if entity.country:
-                country_id = entity.country.id
-        if an_organization:
-            self.set_organization_data(an_organization.id, country_id)
-
-    def clean_all_students(self):
-        data_cleaned = self.cleaned_data.get('all_students')
-        if data_cleaned:
-            return data_cleaned
-        return False
-
-    def clean_enrollment_place(self):
-        data_cleaned = self.cleaned_data.get('enrollment_place')
-        if data_cleaned:
-            return data_cleaned
-        return False
-
-    def clean_is_producing_cerfificate(self):
-        data_cleaned = self.cleaned_data.get('is_producing_cerfificate')
-        if data_cleaned:
-            return data_cleaned
-        return False
-
-    def clean_is_producing_annexe(self):
-        data_cleaned = self.cleaned_data.get('is_producing_annexe')
-        if data_cleaned:
-            return data_cleaned
-        return False
-
-    def set_organization_data(self, organization_id, country_id):
-        if country_id:
-            organizations = Entity.objects.filter(country__pk=country_id).distinct('organization')
-            list_orgs = []
-            for i in organizations:
-                list_orgs.append(i.organization.id)
-            self.fields['organization'].queryset = Organization.objects.filter(id__in=list_orgs)
-        else:
-            self.fields['organization'].queryset = Organization.objects \
-                .filter(pk=organization_id)
-        self.fields['organization'].initial = find_by_id(organization_id)
-        self.organization = find_by_id(organization_id)
+        if self.instance.pk:
+            country = Country.objects.filter(entity__organization=self.instance.organization).first()
+            self.fields['country'].initial = country
+            self.fields['organization'].queryset = Organization.objects.filter(entity__country=country)\
+                                                                       .distinct()\
+                                                                       .order_by('name')
 
     def check_unique_constraint_between_education_group_year_organization(self):
         qs = EducationGroupOrganization.objects.filter(
