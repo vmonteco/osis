@@ -20,9 +20,10 @@
         $.ajax({
           method: "POST",
           url: url_mark_as_read,
+          context: this,
           success: function(result){
-              $("#notifications_content").html(result);
-              $("#notifications_bell").removeClass("notification");
+              $("#notifications_content", this).html(result);
+              $("#notifications_bell", this).removeClass("notification");
           }
         })
     });
@@ -32,9 +33,10 @@
             $.ajax({
               method: "POST",
               url: url_clear_notifications,
+              context: $("#notifications_dropdown"),
               success: function(result){
-                  $("#notifications_content").html(result);
-                  $("#notifications_bell").removeClass("notification");
+                  $("#notifications_content", this).html(result);
+                  $("#notifications_bell", this).removeClass("notification");
               }
             })
         });
