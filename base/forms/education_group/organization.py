@@ -43,7 +43,7 @@ class OrganizationEditForm(forms.ModelForm):
     )
 
     organization = ModelChoiceField(
-        queryset=Organization.objects.filter(entity__country__isnull=False).distinct(),
+        queryset=Organization.objects.filter(entity__country__isnull=False).distinct().order_by('name'),
         required=True,
         label=_("institution")
     )
@@ -64,7 +64,9 @@ class OrganizationEditForm(forms.ModelForm):
         if self.instance.pk:
             country = Country.objects.filter(entity__organization=self.instance.organization).first()
             self.fields['country'].initial = country
-            self.fields['organization'].queryset = Organization.objects.filter(entity__country=country).distinct()
+            self.fields['organization'].queryset = Organization.objects.filter(entity__country=country)\
+                                                                       .distinct()\
+                                                                       .order_by('name')
 
     def check_unique_constraint_between_education_group_year_organization(self):
         qs = EducationGroupOrganization.objects.filter(
