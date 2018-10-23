@@ -53,11 +53,11 @@ class OrganizationEditForm(forms.ModelForm):
         fields = ['country', 'organization', 'all_students', 'enrollment_place', 'diploma',
                   'is_producing_cerfificate', 'is_producing_annexe']
 
-    def __init__(self, data=None, education_group_year=None, *args, **kwargs):
+    def __init__(self, education_group_year=None, *args, **kwargs):
         if not education_group_year and not kwargs.get('instance'):
             raise ImproperlyConfigured("Provide an education_group_year or an instance")
 
-        super().__init__(data, *args, **kwargs)
+        super().__init__(*args, **kwargs)
         if not kwargs.get('instance'):
             self.instance.education_group_year = education_group_year
 
