@@ -62,6 +62,11 @@ def is_eligible_to_change_education_group(person, education_group, raise_excepti
            _is_eligible_education_group(person, education_group, raise_exception)
 
 
+def is_eligible_to_postpone_education_group(person, education_group, raise_exception=False):
+    return check_permission(person, "base.change_educationgroup", raise_exception) and \
+           _is_eligible_education_group(person, education_group, raise_exception)
+
+
 def is_eligible_to_add_achievement(person, education_group, raise_exception=False):
     return check_permission(person, "base.add_educationgroupachievement", raise_exception) and \
            check_link_to_management_entity(education_group, person, raise_exception)
@@ -82,10 +87,10 @@ def is_eligible_to_delete_education_group(person, education_group, raise_excepti
            _is_eligible_education_group(person, education_group, raise_exception)
 
 
-def is_education_group_creation_period_opened(education_group, raise_exception=False):
+def is_academic_calendar_opened(education_group, type_academic_calendar, raise_exception=False):
     result = False
 
-    ac = AcademicCalendar.objects.filter(reference=academic_calendar_type.EDUCATION_GROUP_EDITION).open_calendars()
+    ac = AcademicCalendar.objects.filter(reference=type_academic_calendar).open_calendars()
 
     # Check if the edition period is open
     if not ac:
@@ -105,7 +110,13 @@ def is_education_group_creation_period_opened(education_group, raise_exception=F
 
 def _is_eligible_education_group(person, education_group, raise_exception):
     return (check_link_to_management_entity(education_group, person, raise_exception) and
-            (person.is_central_manager() or is_education_group_creation_period_opened(education_group, raise_exception))
+            (person.is_central_manager() or
+             is_academic_calendar_opened(
+                 education_group,
+                 academic_calendar_type.EDUCATION_GROUP_EDITION,
+                 raise_exception
+             )
+             )
             )
 
 
@@ -174,3 +185,20 @@ def get_education_group_year_eligible_management_entities(education_group):
         eligible_entities += get_education_group_year_eligible_management_entities(group.parent)
 
     return eligible_entities
+
+
+def is_eligible_to_edit_general_information(person, education_group, raise_exception=False):
+    return check_permission(person, 'base.can_edit_educationgroup_pedagogy', raise_exception) and \
+           _is_eligible_to_edit_general_information(person, education_group, raise_exception)
+
+
+def _is_eligible_to_edit_general_information(person, education_group, raise_exception):
+    return (check_link_to_management_entity(education_group, person, raise_exception) and
+            (person.is_central_manager() or
+             is_academic_calendar_opened(
+                 education_group,
+                 academic_calendar_type.EDITION_OF_GENERAL_INFORMATION,
+                 raise_exception
+             )
+             )
+            )

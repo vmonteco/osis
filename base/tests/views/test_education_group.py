@@ -278,6 +278,7 @@ class EducationGroupGeneralInformations(TestCase):
     @classmethod
     def setUpTestData(cls):
         academic_year = AcademicYearFactory()
+
         type_training = EducationGroupTypeFactory(category=education_group_categories.TRAINING)
         cls.education_group_parent = EducationGroupYearFactory(acronym="Parent", academic_year=academic_year,
                                                                education_group_type=type_training)
@@ -341,9 +342,9 @@ class EducationGroupGeneralInformations(TestCase):
         self.assertEqual(context["parent"], self.education_group_parent)
         self.assertEqual(context["education_group_year"], self.education_group_child)
 
-    def test_user_has_link_to_edit_pedagogy(self):
+    @mock.patch('base.views.education_groups.detail.is_eligible_to_edit_general_information', side_effect=lambda p, o: True)
+    def test_user_has_link_to_edit_pedagogy(self, mock_is_eligible):
         self.user.user_permissions.add(Permission.objects.get(codename='can_edit_educationgroup_pedagogy'))
-
         response = self.client.get(self.url)
 
         self.assertEqual(response.status_code, HttpResponse.status_code)
@@ -1022,6 +1023,7 @@ class AdmissionConditionEducationGroupYearTest(TestCase):
         info = {
             'section': 'free',
             'language': 'fr',
+            'title': 'Free Text',
         }
         request = RequestFactory().get('/?{}'.format(urllib.parse.urlencode(info)))
         request.user = mock.Mock()

@@ -115,77 +115,105 @@
                 <label>{% trans 'program_coorganization' %}</label>
                 {% if education_group_year.coorganizations %}
                     <table class="table" id="tbl_coorganization">
-                        <tr>
-                            <th>{% trans 'institution' %}</th>
-                            <th></th>
-                            <th>{% trans 'for_all_students' %}</th>
-                            <th>{% trans 'Reference institution' %}</th>
-                            <th>{% trans 'UCL Diploma' %}</th>
-                            <th>{% trans 'Producing certificat' %}</th>
-                            <th>{% trans 'Producing annexe' %}</th>
-                        </tr>
-                        {% for c in education_group_year.coorganizations %}
+                        <thead>
                             <tr>
-                                <td>
-                                    {{ c.address.country.name }} - {{ c.address.city }}<br>
-                                    {{ c.organization.name }}
-                                </td>
-                                <td>{% if c.organization.logo %}
-                                    <img src="{{ c.organization.logo.url }}" width="50px"/>
-                                {% endif %}
-                                </td>
-                                <td>
-                                    {{ c.all_students | yesno | title}}
-                                </td>
-                                <td>
-                                    {{ c.enrollment_place | yesno | title}}
-                                </td>
-                                <td>
-                                    {% if c.diploma and c.diploma != 'NOT_CONCERNED' %}
-                                        {% trans c.diploma %}
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    {{ c.is_producing_cerfificate | yesno |title}}
-                                </td>
-                                <td>
-                                    {{ c.is_producing_annexe | yesno | title}}
-                                </td>
+                                <th>{% trans 'institution' %}</th>
+                                <th></th>
+                                <th>{% trans 'for_all_students' %}</th>
+                                <th>{% trans 'Reference institution' %}</th>
+                                <th>{% trans 'UCL Diploma' %}</th>
+                                <th>{% trans 'Producing certificat' %}</th>
+                                <th>{% trans 'Producing annexe' %}</th>
                             </tr>
-                        {% endfor %}
-                        {% for c in parent.coorganizations %}
-                            <tr class="text-primary">
-                                <td>
-                                    {{ c.address.country.name }} - {{ c.address.city }}<br>
-                                    {{ c.organization.name }}
-                                </td>
-                                <td>{% if c.organization.logo %}
-                                    <img src="{{ c.organization.logo.url }}" width="50px"/>
-                                {% endif %}
-                                </td>
-                                <td>
-                                    {{ c.all_students | yesno | title}}
-                                </td>
-                                <td>
-                                    {{ c.enrollment_place | yesno | title}}
-                                </td>
-                                <td>
-                                    {% if c.diploma and c.diploma != 'NOT_CONCERNED' %}
-                                        {% trans c.diploma %}
+                        </thead>
+                        <tbody>
+                            {% for coorganization in education_group_year.coorganizations %}
+                                <tr>
+                                    <td>
+                                        {{ coorganization.address.country.name }} - {{ coorganization.address.city }}<br>
+                                        {{ coorganization.organization.name }}
+                                    </td>
+                                    <td>{% if coorganization.organization.logo %}
+                                        <img src="{{ coorganization.organization.logo.url }}" width="50px"/>
                                     {% endif %}
-                                </td>
-                                <td>
-                                    {{ c.is_producing_cerfificate | yesno |title}}
-                                </td>
-                                <td>
-                                    {{ c.is_producing_annexe | yesno | title}}
-                                </td>
-                            </tr>
-                        {% endfor %}
+                                    </td>
+                                    <td>
+                                        {{ coorganization.all_students | yesno | title}}
+                                    </td>
+                                    <td>
+                                        {{ coorganization.enrollment_place | yesno | title}}
+                                    </td>
+                                    <td>
+                                        {% if coorganization.diploma %}
+                                            {% trans coorganization.diploma %}
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {{ coorganization.is_producing_cerfificate | yesno |title}}
+                                    </td>
+                                    <td>
+                                        {{ coorganization.is_producing_annexe | yesno | title}}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            {% for coorganization in parent.coorganizations %}
+                                <tr class="text-primary">
+                                    <td>
+                                        {{ coorganization.address.country.name }} - {{ coorganization.address.city }}<br>
+                                        {{ coorganization.organization.title }}
+                                    </td>
+                                    <td>{% if coorganization.organization.logo %}
+                                        <img src="{{ coorganization.organization.logo.url }}" width="50px"/>
+                                    {% endif %}
+                                    </td>
+                                    <td>
+                                        {{ coorganization.all_students | yesno | title}}
+                                    </td>
+                                    <td>
+                                        {{ coorganization.enrollment_place | yesno | title}}
+                                    </td>
+                                    <td>
+                                        {% if coorganization.diploma and coorganization.diploma %}
+                                            {% trans coorganization.diploma %}
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {{ coorganization.is_producing_cerfificate | yesno |title}}
+                                    </td>
+                                    <td>
+                                        {{ coorganization.is_producing_annexe | yesno | title}}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
                     </table>
                 {% endif %}
             </div>
         </div>
     {% endwith %}
 
+{% endblock %}
+{% block script %}
+    <script>
+        $(document).ready(function() {
+            $('#tbl_coorganization').DataTable(
+                {
+                    columnDefs: [
+                        { targets: 0, type: 'diacritics-neutralise'},
+                        { targets: 3, type: 'diacritics-neutralise'},
+                    ],
+                    "stateSave": true,
+                    "paging" : false,
+                    "ordering" : true,
+                    "info"  : false,
+                    "searching" : false,
+                    "language": {
+                        "oAria": {
+                            "sSortAscending":  "{% trans 'datatable_sortascending'%}",
+                            "sSortDescending": "{% trans 'datatable_sortdescending'%}"
+                        }
+                    }
+                });
+        });
+    </script>
 {% endblock %}

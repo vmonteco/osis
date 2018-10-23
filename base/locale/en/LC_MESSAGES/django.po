@@ -1035,6 +1035,9 @@ msgstr "Scores must be between 0 and 20"
 msgid "search_for_a_file"
 msgstr "Search for a file"
 
+msgid "Search..."
+msgstr ""
+
 msgid "search_for_an_entity"
 msgstr "Search for an entity"
 
@@ -4016,4 +4019,26 @@ msgid "UCL Diploma"
 msgstr ""
 
 msgid "Reference institution"
+msgstr ""
+
+msgid "EDITION_OF_GENERAL_INFORMATION"
+msgstr "Edition of general information"
+
+msgid "Repartition added"
+msgstr ""
+
+msgid "Repartition edited"
+msgstr ""
+
+msgid "Repartition removed"
+msgstr ""
+
+msgid "Manage repartition"
+msgstr ""
+
+msgid "No attributions exist for the parent learning unit"
+msgstr ""
+
+msgid "The sum of volumes for the partims for professor %(tutor)s is superior to the volume of parent learning unit "
+      "for this professor"
 msgstr ""

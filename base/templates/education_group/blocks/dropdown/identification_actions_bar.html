@@ -69,11 +69,22 @@
 
                 {% flag "education_group_update" %}
                     {% url 'update_education_group' root.pk education_group_year.pk as update_url %}
-                    {% li_with_update_perm update_url _('Modify') %}
+                    {% if tab_to_show %}
+                        {% with update_url|add:"?tab_to_show="|add:tab_to_show as update_url %}
+                            {% li_with_update_perm update_url _('Modify') %}
+                        {% endwith %}
+                    {% else %}
+                        {% li_with_update_perm update_url _('Modify') %}
+                    {% endif %}
                 {% endflag %}
 
                 {% flag "education_group_delete" %}
                     {% li_with_deletion_perm "#" _('Delete') %}
+                {% endflag %}
+
+                {% flag "education_group_update" %}
+                    <li class="divider"></li>
+                    {% li_with_postpone_perm_training "#" _('Postpone Training') %}
                 {% endflag %}
 
                 {% flag "pdf_content" %}
