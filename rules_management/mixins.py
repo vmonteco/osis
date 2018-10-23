@@ -46,6 +46,7 @@ class PermissionFieldMixin(ModelFormMixin):
     """
     model_permission = FieldReference
     context = ""
+    user = None
 
     def __init__(self, *args, user=None, **kwargs):
         if user:
