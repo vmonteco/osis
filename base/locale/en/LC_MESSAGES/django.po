@@ -3326,6 +3326,9 @@ msgstr ""
 msgid "The content has already been postponed."
 msgstr ""
 
+msgid "Copy the content"
+msgstr ""
+
 msgid "detach"
 msgstr ""
 

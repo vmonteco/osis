@@ -3319,6 +3319,9 @@ msgstr "La racine n'existe pas dans l'anné academique suivante."
 msgid "The content has already been postponed."
 msgstr "Le contenu a déjà été reporté."
 
+msgid "Copy the content"
+msgstr "Recopier le contenu"
+
 msgid "detach"
 msgstr "détacher"
 
