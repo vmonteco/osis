@@ -1,6 +1,6 @@
 <!doctype html>
 {% load staticfiles i18n %}
-{% load analytical %}
+{% load analytical hijack_tags %}
 
 {% comment "License" %}
 * OSIS stands for Open Student Information System. It's an application
@@ -40,8 +40,6 @@
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
     <link rel="shortcut icon" href="
-
-
             {% if environment == 'LOCAL' %}{% static 'img/favicon_blue.ico' %}{% else %}{% static 'img/favicon.ico' %}{% endif %}"/>
     <link rel="stylesheet" href="{% static 'css/armata.css' %}" type='text/css'>
     <link rel="stylesheet" href="{% static 'css/jquery-ui.css' %}">
@@ -52,6 +50,7 @@
     <link rel="stylesheet" href="{% static 'css/tree.css' %}">
     <link rel="stylesheet" href="{% static 'css/jstree.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/dataTables.bootstrap.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'hijack/hijack-styles.css' %}"/>
 
     <script src="{% static 'js/jquery-2.1.4.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/jquery-ui.js' %}"></script>
@@ -93,6 +92,7 @@
 {% elif environment == 'LOCAL' %} class="localmode"
 {% elif environment == 'QA' %} class="qamode"
 {% endif %}>
+{% hijack_notification %}
 {% analytical_body_top %}
 {% block layout_navbar_top %}
     <nav class="navbar navbar-default navbar-fixed-top">
