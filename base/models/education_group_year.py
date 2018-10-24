@@ -323,7 +323,6 @@ class EducationGroupYear(models.Model):
         db_index=True,
         null=True,
         verbose_name=_("code"),
-        validators=[RegexValidator(regex="^([A-Z]{3,5})([0-9]{3})([A-Z])$")]
     )
 
     # TODO :: rename credits into expected_credits
