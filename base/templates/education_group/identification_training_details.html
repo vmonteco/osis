@@ -124,24 +124,23 @@
                             <th>{% trans 'UCL Diploma' %}</th>
                             <th>{% trans 'Producing certificat' %}</th>
                             <th>{% trans 'Producing annexe' %}</th>
-                            {% if  can_change_education_group %}
-                                <th></th>
-                                <th></th>
-                            {% endif %}
+                            <th></th>
+                            <th></th>
                         </tr>
                         </thead>
                         <tbody>
                         {% for coorganization in education_group_year.coorganizations %}
                             <tr>
                                 <td>
-                                        <span id="coorganization_id_{{ coorganization.id }}">
-                                            {{ coorganization.address.country.name }} - {{ coorganization.address.city }}<br>
-                                        {{ coorganization.organization.name }}
-                                        </span>
+                                    <span id="coorganization_id_{{ coorganization.id }}">
+                                        {{ coorganization.address.country.name }} - {{ coorganization.address.city }}<br>
+                                    {{ coorganization.organization.name }}
+                                    </span>
                                 </td>
-                                <td>{% if coorganization.organization.logo %}
-                                    <img src="{{ coorganization.organization.logo.url }}" width="50px"/>
-                                {% endif %}
+                                <td>
+                                    {% if coorganization.organization.logo %}
+                                        <img src="{{ coorganization.organization.logo.url }}" width="50px"/>
+                                    {% endif %}
                                 </td>
                                 <td>
                                     {{ coorganization.all_students | yesno | title }}
@@ -160,23 +159,25 @@
                                 <td>
                                     {{ coorganization.is_producing_annexe | yesno | title }}
                                 </td>
-                                {% if  can_change_education_group %}
-                                    <td>
-                                        <a href="#" title="{% trans 'edit' %}"
-                                           class="btn coorganization-edit-btn" role="button"
-                                           id="{{ "btn_coorganization_edit_"|db_table_with_pk:coorganization }}">
-                                            <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
-                                        </a>
-                                    </td>
-                                    <td>
-                                        <a class="trigger_modal btn"
-                                           data-url="{% url 'coorganization_delete' root.pk education_group_year.id coorganization.pk %}"
-                                           id="btn_delete_coorganization_{{ coorganization.id }}"
-                                           title="{% trans 'delete' %}">
-                                            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-                                        </a>
-                                    </td>
-                                {% endif %}
+                                <td>
+                                    {% if  can_change_education_group %}
+                                    <a href="#" title="{% trans 'edit' %}"
+                                       class="btn coorganization-edit-btn" role="button"
+                                       id="{{ "btn_coorganization_edit_"|db_table_with_pk:coorganization }}">
+                                        <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+                                    </a>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if  can_change_education_group %}
+                                    <a class="trigger_modal btn"
+                                       data-url="{% url 'coorganization_delete' root.pk education_group_year.id coorganization.pk %}"
+                                       id="btn_delete_coorganization_{{ coorganization.id }}"
+                                       title="{% trans 'delete' %}">
+                                        <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                                    </a>
+                                    {% endif %}
+                                </td>
                             </tr>
                             {% url 'coorganization_edit' root_id=root.pk education_group_year_id=education_group_year.id coorganization_id=coorganization.id  as update_url %}
                             {% include "blocks/modal/modal_ajax.html" with modal_url=update_url click_id="btn_coorganization_edit_"|db_table_with_pk:coorganization form_id="coorganization-form" %}
@@ -190,9 +191,10 @@
                                         {{ coorganization.organization.name }}
                                         </span>
                                 </td>
-                                <td>{% if coorganization.organization.logo %}
-                                    <img src="{{ coorganization.organization.logo.url }}" width="50px"/>
-                                {% endif %}
+                                <td>
+                                    {% if coorganization.organization.logo %}
+                                        <img src="{{ coorganization.organization.logo.url }}" width="50px"/>
+                                    {% endif %}
                                 </td>
                                 <td>
                                     {{ coorganization.all_students | yesno | title }}
@@ -211,33 +213,34 @@
                                 <td>
                                     {{ coorganization.is_producing_annexe | yesno | title }}
                                 </td>
-                                {% if  can_change_education_group %}
-                                    <td>
-                                        <a href="#" title="{% trans 'edit' %}"
-                                           class="btn coorganization-edit-btn" role="button"
-                                           id="{{ "btn_coorganization_edit_"|db_table_with_pk:coorganization }}">
-                                            <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
-                                        </a>
-                                    </td>
-                                    <td>
-                                        <a class="trigger_modal btn"
-                                           data-url="{% url 'coorganization_delete' root.pk education_group_year.id coorganization.pk %}"
-                                           id="btn_delete_coorganization_{{ coorganization.id }}"
-                                           title="{% trans 'delete' %}">
-                                            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-                                        </a>
-                                    </td>
-                                {% endif %}
+                                <td>
+                                    {% if  can_change_education_group %}
+                                    <a href="#" title="{% trans 'edit' %}"
+                                       class="btn coorganization-edit-btn" role="button"
+                                       id="{{ "btn_coorganization_edit_"|db_table_with_pk:coorganization }}">
+                                        <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+                                    </a>
+                                     {% endif %}
+                                </td>
+                                <td>
+                                    {% if  can_change_education_group %}
+                                    <a class="trigger_modal btn"
+                                       data-url="{% url 'coorganization_delete' root.pk education_group_year.id coorganization.pk %}"
+                                       id="btn_delete_coorganization_{{ coorganization.id }}"
+                                       title="{% trans 'delete' %}">
+                                        <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                                    </a>
+                                    {% endif %}
+                                </td>
                             </tr>
                             {% url 'coorganization_edit' root_id=root.pk education_group_year_id=education_group_year.id coorganization_id=coorganization.id  as update_url %}
                             {% include "blocks/modal/modal_ajax.html" with modal_url=update_url click_id="btn_coorganization_edit_"|db_table_with_pk:coorganization form_id="coorganization-form" %}
-
                         {% endfor %}
                         </tbody>
                     </table>
                 {% endif %}
                 <br>
-                {% if  can_change_education_group %}
+                {% if can_change_education_group %}
                     <a class="btn btn-info btn-sm coorganization-edit-btn"
                        id="btn_coorganization_create"
                        data-form="{% url 'coorganization_create' root_id=root.pk education_group_year_id=education_group_year.id %}"
