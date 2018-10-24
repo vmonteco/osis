@@ -16,7 +16,7 @@ base.validationrule,base_educationgroupyear.acronym.osis.education_group_type_3D
 base.validationrule,base_educationgroupyear.acronym.osis.education_group_type_3FP,REQUIRED,3FP,^(.*)(3)([Ff])([Pp])$,
 base.validationrule,base_educationgroupyear.acronym.osis.education_group_type_JY,REQUIRED,JY,^(.*)([Jj])([Yy])$,
 base.validationrule,base_educationgroupyear.acronym.osis.education_group_type_2M120,REQUIRED,2M,^(.*)(2)([Mm])$,
-base.validationrule,base_educationgroupyear.acronym.osis.education_group_type_2MA120,REQUIRED,2MA,^(.*)(2)([Mm]([Aa])$,
+base.validationrule,base_educationgroupyear.acronym.osis.education_group_type_2MA120,REQUIRED,2MA,^(.*)(2)([Mm])([Aa])$,
 base.validationrule,base_educationgroupyear.acronym.osis.education_group_type_2MD120,REQUIRED,2MD,^(.*)(2)([Mm])([Dd])$,
 base.validationrule,base_educationgroupyear.acronym.osis.education_group_type_2MS120,REQUIRED,2MS/,^(.*)(2)([Mm])([Ss])(\/)(.*)$,
 base.validationrule,base_educationgroupyear.acronym.osis.education_group_type_2M180,REQUIRED,2M,^(.*)(2)([Mm])$,
