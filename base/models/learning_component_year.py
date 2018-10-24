@@ -91,8 +91,7 @@ class LearningComponentYear(SerializableModel):
 
     @property
     def learning_unit_year(self):
-        learn_unit_year = self.learningunitcomponent_set.all().get().select_related('learning_unit_year')
-        return learn_unit_year.learning_unit_year
+        return self.learningunitcomponent_set.all().select_related('learning_unit_year').get().learning_unit_year
 
     @property
     def real_classes(self):
