@@ -388,6 +388,7 @@ class EducationGroupGeneralInformations(TestCase):
     @mock.patch('base.views.layout.render')
     def test_education_group_year_pedagogy_edit_get(self, mock_render):
         request = RequestFactory().get('/')
+        request.user = UserFactory()
 
         from base.views.education_group import education_group_year_pedagogy_edit_get
         education_group_year_pedagogy_edit_get(request, self.education_group_child.id)
@@ -409,6 +410,7 @@ class EducationGroupGeneralInformations(TestCase):
                                                          language='en')
 
         request = RequestFactory().get('/?label={}'.format(fr_translated_text.text_label.label))
+        request.user = UserFactory()
 
         from base.views.education_group import education_group_year_pedagogy_edit_get
         education_group_year_pedagogy_edit_get(request, self.education_group_child.id)

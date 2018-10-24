@@ -67,8 +67,9 @@ def search(text_entity, labels=None, language=None):
 
 
 def get_label_translation(text_entity, label, language):
-    return search(
+    translated_text_label = search(
         text_entity=text_entity,
         labels=[label],
         language=language
-    ).get().label
+    )
+    return translated_text_label.get().label if translated_text_label else label
