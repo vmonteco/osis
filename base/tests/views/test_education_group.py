@@ -609,8 +609,8 @@ class EducationGroupAdministrativedata(TestCase):
                       args=[mini_training_education_group_year.id, mini_training_education_group_year.id])
         response = self.client.get(url)
 
-        self.assertTemplateUsed(response, "access_denied.html")
         self.assertEqual(response.status_code, HttpResponseForbidden.status_code)
+        self.assertTemplateUsed(response, "access_denied.html")
 
     def test_with_education_group_year_of_type_group(self):
         group_education_group_year = EducationGroupYearFactory()

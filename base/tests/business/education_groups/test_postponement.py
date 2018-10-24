@@ -189,7 +189,7 @@ class TestPostpone(TestCase):
         self.current_education_group_year.education_group_type.category = GROUP
         self.current_education_group_year.education_group_type.save()
 
-        with self.assertRaises(TypeError) as cm:
+        with self.assertRaises(NotPostponeError) as cm:
             self.postponer = PostponeContent(self.current_education_group_year)
         self.assertEqual(str(cm.exception), _("The education group is not a training"))
 

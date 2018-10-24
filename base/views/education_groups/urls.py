@@ -31,7 +31,7 @@ from base.views.education_groups.coorganization import CreateEducationGroupOrgan
 from base.views.education_groups.group_element_year.read import pdf_content
 from base.views.education_groups.learning_unit import detail as learning_unit_detail, update as learning_unit_update
 from base.views.education_groups.select import education_group_select, learning_unit_select
-from base.views.education_groups.update import CertificateAimAutocomplete
+from base.views.education_groups.update import CertificateAimAutocomplete, PostponeGroupElementYearView
 from . import search, create, detail, update, delete, group_element_year
 from .achievement.urls import urlpatterns as urlpatterns_achievement
 import base.views.filter
@@ -120,9 +120,8 @@ urlpatterns = [
         url(r'^group_content/', group_element_year.read.ReadEducationGroupTypeView.as_view(), name="group_content"),
         url(r'^pdf_content/(?P<language>[a-z\-]+)', pdf_content, name="pdf_content"),
 
-        url(r'^postpone/(?P<group_element_year_id>[0-9]+)/',
-            group_element_year.update.PostponeGroupElementYearView.as_view(),
-            name="postpone_education_group"),
+        url(r'^postpone/', PostponeGroupElementYearView.as_view(), name="postpone_education_group"),
+
         url(r'^coorganization/create/$', CreateEducationGroupOrganizationView.as_view(),
             name="coorganization_create"),
         url(r'^coorganization/edit/(?P<coorganization_id>[0-9]+)/$',
