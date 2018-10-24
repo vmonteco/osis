@@ -28,8 +28,6 @@
 {% if "base" in perms %}
     {% features_or "education_group_create" "education_group_update" "education_group_delete" as show_button %}
 
-
-
     {% if show_button %}
         <div class="dropdown {{ dropdirection }}">
 
