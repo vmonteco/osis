@@ -34,7 +34,7 @@ from osis_common.models.serializable_model import SerializableModel, Serializabl
 
 
 class LearningComponentYearAdmin(SerializableModelAdmin):
-    list_display = ('learning_container_year', 'acronym', 'type', 'comment')
+    list_display = ('learning_container_year', 'learning_unit_year',  'acronym', 'type', 'comment', 'changed')
     search_fields = ['acronym', 'learning_container_year__acronym']
     list_filter = ('learning_container_year__academic_year',)
 
@@ -88,6 +88,11 @@ class LearningComponentYear(SerializableModel):
             return '{}/PM'.format(learning_unit_acronym)
         else:
             return '{}/{}'.format(learning_unit_acronym, self.acronym)
+
+    @property
+    def learning_unit_year(self):
+        learn_unit_year = self.learningunitcomponent_set.all().get().select_related('learning_unit_year')
+        return learn_unit_year.learning_unit_year
 
     @property
     def real_classes(self):
