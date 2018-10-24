@@ -28,9 +28,8 @@ from unittest import mock
 
 from django.contrib.auth.models import Permission
 from django.core.cache import cache
-from django.core.handlers.wsgi import WSGIRequest
 from django.http import HttpResponseForbidden
-from django.test import TestCase, RequestFactory
+from django.test import TestCase
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
@@ -44,7 +43,6 @@ from base.tests.factories.entity import EntityFactory
 from base.tests.factories.entity_version import EntityVersionFactory
 from base.tests.factories.person import PersonFactory
 from base.tests.factories.user import UserFactory
-from base.views.education_groups import search
 
 FILTER_DATA = {"acronym": "LBIR", "title": "dummy filter"}
 
