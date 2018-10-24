@@ -3302,7 +3302,7 @@ msgstr "Êtes-vous sûr·e de vouloir reporter le contenu de %(root)s?"
 msgid "%(count)d education group has been postponed with success"
 msgid_plural "%(count)d education groups have been postponed with success"
 msgstr[0] "%(count)d formation a été reportée avec succès"
-msgstr[1] "%(count)d formtions ont été reportées avec succès"
+msgstr[1] "%(count)d formations ont été reportées avec succès"
 
 msgid "The education group is not a training."
 msgstr "L'organisation de formation n'est pas une formation."
@@ -3311,7 +3311,7 @@ msgid "The end date of the education group is smaller than the year of postponem
 msgstr "La date de fin de la formation est plus petite que l'année de report."
 
 msgid "This training has no content to postpone."
-msgstr "La formatioin n'a pas de contenu à reporter."
+msgstr "La formation n'a pas de contenu à reporter."
 
 msgid "The root does not exist in the next academic year."
 msgstr "La racine n'existe pas dans l'anné academique suivante."
