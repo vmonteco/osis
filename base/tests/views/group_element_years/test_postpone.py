@@ -24,10 +24,8 @@
 #
 ##############################################################################
 from django.contrib.auth.models import Permission
-from django.contrib.messages import get_messages
 from django.test import TestCase
 from django.urls import reverse
-from django.utils.encoding import force_text
 from django.utils.translation import ugettext as _
 from waffle.testutils import override_flag
 
