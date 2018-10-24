@@ -23,23 +23,46 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
-
+from django.contrib.auth.models import Permission
 from django.test import TestCase
 from django.urls import reverse
+from django.utils.encoding import force_text
+from django.utils.translation import ugettext_lazy as _
 from waffle.testutils import override_flag
 
-from base.tests.factories.education_group_year import EducationGroupYearFactory
+from base.tests.factories.academic_year import create_current_academic_year, AcademicYearFactory
+from base.tests.factories.education_group import EducationGroupFactory
+from base.tests.factories.education_group_year import TrainingFactory
 from base.tests.factories.group_element_year import GroupElementYearFactory
 from base.tests.factories.person import CentralManagerFactory
+from base.tests.factories.person_entity import PersonEntityFactory
 
 
 @override_flag('education_group_update', active=True)
 class TestPostpone(TestCase):
 
     def setUp(self):
+        self.current_academic_year = create_current_academic_year()
+        self.next_academic_year = AcademicYearFactory(year=self.current_academic_year.year + 1)
+
         self.person = CentralManagerFactory()
+        self.person.user.user_permissions.add(Permission.objects.get(codename="change_educationgroup"))
+        self.person.user.user_permissions.add(Permission.objects.get(codename="can_access_education_group"))
+
         self.client.force_login(self.person.user)
-        self.education_group_year = EducationGroupYearFactory()
+
+        self.education_group = EducationGroupFactory(end_year=self.next_academic_year.year)
+        self.education_group_year = TrainingFactory(academic_year=self.current_academic_year,
+                                                    education_group=self.education_group)
+
+        self.nex_education_group_year = TrainingFactory(
+            academic_year=self.next_academic_year,
+            education_group=self.education_group,
+            management_entity=self.education_group_year.management_entity
+        )
+
+        PersonEntityFactory(person=self.person, entity=self.education_group_year.management_entity)
+
         self.group_element_year = GroupElementYearFactory(parent=self.education_group_year)
         self.url = reverse(
             "postpone_education_group",
@@ -54,3 +77,36 @@ class TestPostpone(TestCase):
         response = self.client.get(self.url)
 
         self.assertRedirects(response, '/login/?next={}'.format(self.url))
+
+    def test_get(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.context["warning_message"],
+            _("Are you sure you want to postpone the content of %(root)s?") % {"root": self.education_group_year}
+        )
+
+    def test_post_with_error(self):
+        self.nex_education_group_year.delete()
+        response = self.client.post(self.url)
+        self.assertEqual(response.status_code, 200)
+        self.assertJSONEqual(
+            force_text(response.content),
+            {
+                "success": True,
+                "error_msg": 'The root does not exist in the next academic year.',
+                "success_msg": ""
+            }
+        )
+
+    def test_post_with_success(self):
+        response = self.client.post(self.url)
+        self.assertEqual(response.status_code, 200)
+        self.assertJSONEqual(
+            force_text(response.content),
+            {
+                "success": True,
+                "error_msg": '',
+                "success_msg": "1 education group has been postponed with success"
+            }
+        )

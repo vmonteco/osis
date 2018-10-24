@@ -220,17 +220,19 @@ class PostponeGroupElementYearView(RulesRequiredMixin, AjaxTemplateMixin, Educat
         return context
 
     def post(self, request, **kwargs):
+        success = ""
+        error = ""
         try:
             postponer = PostponeContent(self.get_root())
             postponer.postpone()
             count = len(postponer.result)
-            display_success_messages(
-                request, ngettext(
-                    '%(count)d education group has been postponed with success',
-                    '%(count)d education groups have been postponed with success', count
-                ) % {'count': count}
-            )
+            success = ngettext(
+                '%(count)d education group has been postponed with success',
+                '%(count)d education groups have been postponed with success', count
+            ) % {'count': count}
+            display_success_messages(request, success)
         except NotPostponeError as e:
-            display_error_messages(request, str(e))
+            error = str(e)
+            display_error_messages(request, error)
 
-        return JsonResponse({"success": True})
+        return JsonResponse({"success": True, "error_msg": error, "success_msg": success})
