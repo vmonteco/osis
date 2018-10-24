@@ -216,8 +216,6 @@ def _duplicate_learning_unit_component(new_component, new_learn_unit_year):
                                                               a_learning_unit_year=new_learn_unit_year.copied_from):
         new_luc = update_related_object(old_learn_unit_comp, 'learning_unit_year', new_learn_unit_year)
         new_luc.learning_component_year = new_component
-        if not new_luc.learning_unit_year or not new_luc.learning_component_year:
-            print('ERROR')
         new_luc.save()
 
 
