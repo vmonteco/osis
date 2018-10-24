@@ -235,4 +235,10 @@ class PostponeGroupElementYearView(RulesRequiredMixin, AjaxTemplateMixin, Educat
             error = str(e)
             display_error_messages(request, error)
 
-        return JsonResponse({"success": True, "error_msg": error, "success_msg": success})
+        return redirect(reverse(
+                "education_group_read",
+                args=[
+                    kwargs["root_id"],
+                    kwargs["education_group_year_id"]
+                ]
+            ))

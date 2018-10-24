@@ -24,10 +24,11 @@
 #
 ##############################################################################
 from django.contrib.auth.models import Permission
+from django.contrib.messages import get_messages
 from django.test import TestCase
 from django.urls import reverse
 from django.utils.encoding import force_text
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext as _
 from waffle.testutils import override_flag
 
 from base.tests.factories.academic_year import create_current_academic_year, AcademicYearFactory
@@ -72,6 +73,9 @@ class TestPostpone(TestCase):
             }
         )
 
+        self.redirect_url = reverse("education_group_read",
+                                    args=[self.education_group_year.pk, self.education_group_year.pk])
+
     def test_postpone_case_user_not_logged(self):
         self.client.logout()
         response = self.client.get(self.url)
@@ -88,25 +92,17 @@ class TestPostpone(TestCase):
 
     def test_post_with_error(self):
         self.nex_education_group_year.delete()
-        response = self.client.post(self.url)
-        self.assertEqual(response.status_code, 200)
-        self.assertJSONEqual(
-            force_text(response.content),
-            {
-                "success": True,
-                "error_msg": 'The root does not exist in the next academic year.',
-                "success_msg": ""
-            }
-        )
+        response = self.client.post(self.url, follow=True)
+        self.assertRedirects(response, self.redirect_url)
+
+        message = list(response.context.get('messages'))[0]
+        self.assertEqual(message.tags, "error")
+        self.assertTrue(_("The root does not exist in the next academic year.") in message.message)
 
     def test_post_with_success(self):
-        response = self.client.post(self.url)
-        self.assertEqual(response.status_code, 200)
-        self.assertJSONEqual(
-            force_text(response.content),
-            {
-                "success": True,
-                "error_msg": '',
-                "success_msg": "1 education group has been postponed with success"
-            }
-        )
+        response = self.client.post(self.url, follow=True)
+        self.assertRedirects(response, self.redirect_url)
+
+        message = list(response.context.get('messages'))[0]
+        self.assertEqual(message.tags, "success")
+        self.assertTrue(_("1 education group has been postponed with success") in message.message)

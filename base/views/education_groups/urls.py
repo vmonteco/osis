@@ -121,6 +121,7 @@ urlpatterns = [
         url(r'^pdf_content/(?P<language>[a-z\-]+)', pdf_content, name="pdf_content"),
 
         url(r'^postpone/', PostponeGroupElementYearView.as_view(), name="postpone_education_group"),
+
         url(r'^coorganization/create/$', CreateEducationGroupOrganizationView.as_view(),
             name="coorganization_create"),
         url(r'^coorganization/edit/(?P<coorganization_id>[0-9]+)/$',
