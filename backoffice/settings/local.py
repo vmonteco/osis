@@ -34,6 +34,7 @@ OPTIONAL_APPS = (
     'assessments',
     'cms',
     'webservices',
+    'partnership',
 )
 OPTIONAL_MIDDLEWARES = ()
 OPTIONAL_INTERNAL_IPS = ()
@@ -43,8 +44,27 @@ if os.environ.get("ENABLE_DEBUG_TOOLBAR", "False").lower() == "true":
     OPTIONAL_MIDDLEWARES += ('debug_toolbar.middleware.DebugToolbarMiddleware',)
     OPTIONAL_INTERNAL_IPS += ('127.0.0.1',)
 
-
 INSTALLED_APPS += OPTIONAL_APPS
 APPS_TO_TEST += OPTIONAL_APPS
 MIDDLEWARE += OPTIONAL_MIDDLEWARES
 INTERNAL_IPS += OPTIONAL_INTERNAL_IPS
+
+FIXTURE_DIRS = ['fixtures/',]
+
+if DEBUG:
+    INSTALLED_APPS = INSTALLED_APPS + (
+        'django_extensions',
+        'debug_toolbar',
+    )
+
+    MIDDLEWARE = MIDDLEWARE + (
+        'debug_toolbar.middleware.DebugToolbarMiddleware',
+    )
+
+    INTERNAL_IPS = ('127.0.0.1',)
+
+    DEBUG_TOOLBAR_CONFIG = {
+        'INTERCEPT_REDIRECTS': False,
+    }
+
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

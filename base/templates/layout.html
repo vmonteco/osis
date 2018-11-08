@@ -201,7 +201,7 @@
                                 {% endif %}
                                 <li><a href="{% url 'partnerships:partners:list' %}"
                                        id="lnk_dropdown_partners">{% trans 'partners' %}</a></li>
-                                <li><a href="{% url 'partnerships:list' %}?agreeements=1"
+                                <li><a href="{% url 'partnerships:list' %}?agreements=1"
                                        id="lnk_dropdown_agreements">{% trans 'agreements' %}</a></li>
                                 {% if perms.partnership.change_partnershipconfiguration %}
                                   <li><a href="{% url 'partnerships:configuration_update' %}"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-04-22 15:14+0200\n"
+"POT-Creation-Date: 2018-10-25 17:56+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,1544 +16,139 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-msgid "Create a xls file while activity\\"
-msgstr ""
-
-msgid "Get xls"
-msgstr ""
-
-msgid "ID"
-msgstr "ID"
-
-msgid "Legend : values allowed for 'justification'"
-msgstr ""
-
-msgid "Line"
-msgstr "Row"
-
-msgid "Note already submitted"
-msgstr ""
-
-msgid "OSIS"
-msgstr "OSIS"
-
-msgid "Print scores for all activities"
-msgstr ""
-
-msgid "Save"
-msgstr ""
-
-msgid "absent"
-msgstr "Absent"
-
-msgid "absent_pdf_legend"
-msgstr "A=Absent"
-
-msgid "academic_calendar"
-msgstr "Academic calendar"
-
 msgid "academic_year_small"
 msgstr "Ac yr."
-
-msgid "academic_calendar_management"
-msgstr "Academic calendar management"
-
-msgid "academic_calendar_offer_year_calendar_end_date_error"
-msgstr "The closure's date of '%s' of the academic calendar can't be lower than %s "
-       "(end date of '%s' of the program '%s')"
-
-msgid "academic_calendar_offer_year_calendar_start_date_error"
-msgstr "The opening's date of scores' encodings of the academic calendar can't be greater than %s "
-       "(start date of scores' encodings of the program '%s')"
-
-msgid "academic_calendars"
-msgstr "Academic calendars"
-
-msgid "academic_year_not_exist"
-msgstr "Academic year (%d) doesn't exist"
-
-msgid "acces_denied"
-msgstr "Access denied"
-
-msgid "acronym"
-msgstr "Acronym"
-
-msgid "activity"
-msgstr "Activity"
-
-msgid "activity_code"
-msgstr "Activity code"
-
-msgid "activity_not_exit"
-msgstr "The activity %s doesn't exist"
-
-msgid "add_an_address_to_the_organization"
-msgstr "Add an address to the organization"
-
-msgid "add"
-msgstr "Add"
-
-msgid "address(ses)"
-msgstr "Address(es)"
-
-msgid "addresses"
-msgstr "Addresses"
-
-msgid "administration"
-msgstr "Administration"
-
-msgid "after_submission_a_message_must_be_sent"
-msgstr "If scores are submitted , a message is sent to all the professors of the learning unit"
-
-msgid "aim number"
-msgstr ""
-
-msgid "all"
-msgstr "All"
-
-msgid "all_learning_units_must_be_shown"
-msgstr "All learning units must be shown"
-
-msgid "application_management"
-msgstr "Application management"
-
-msgid "are_you_sure"
-msgstr "Are you sure?"
-
-msgid "assistants"
-msgstr ""
-
-msgid "attributions"
-msgstr "Attributions"
-
-msgid "authorized_decimal_for_this_activity"
-msgstr "Decimals authorized for this learning unit"
-
-msgid "bachelor"
-msgstr "Bachelor"
-
-msgid "back"
-msgstr "Back"
-
-msgid "begin_date_lt_end_date"
-msgstr "The start date must be equals or lower than the end date"
-
-msgid "birth_date"
-msgstr "Birth Date"
-
-msgid "btn_messages_history_search"
-msgstr "Search in the messages history"
-
-msgid "btn_my_message_action_execute"
-msgstr "Execute selected action"
-
-msgid "btn_send_message_again_title"
-msgstr "Send again the message to the recipient"
-
-msgid "by_learning_unit"
-msgstr "By Learning Unit"
-
-msgid "by_specific_criteria"
-msgstr "By Specific Criteria"
-
-msgid "cancel"
-msgstr "Cancel"
-
-msgid "catalogue"
-msgstr "Catalogue"
-
-msgid "certificate aims"
-msgstr ""
-
-msgid "chair_of_the_exam_board"
-msgstr "Chair of the exam board"
-
-msgid "cheating_pdf_legend"
-msgstr "T=Cheating"
-
-msgid "unjustified_absence_export_legend"
-msgstr "S=Unjustified Absence"
-
-msgid "justified_absence_export_legend"
-msgstr "M=Justified Absence"
-
-msgid "attached_entities"
-msgstr "Attached entities"
-
-msgid "choose_file"
-msgstr "Choose file"
-
-msgid "city"
-msgstr "City"
-
-msgid "close"
-msgstr "Close"
-
-msgid "closed"
-msgstr "Closed"
 
 msgid "code"
 msgstr "Code"
 
-msgid "compare"
-msgstr "Compare"
-
-msgid "complete"
-msgstr "Complete"
-
-msgid "constraint_score_other_score"
-msgstr "You can't encode a 'score' and a 'justification' together"
-
-msgid "coordinator"
-msgstr "Coordinator"
-
-msgid "coordinators_can_submit_partial_encoding"
-msgstr "Coordinators can submit partial encoding"
-
-msgid "country"
-msgstr "Country"
-
-msgid "create_an_organization"
-msgstr "Create an organization"
-
-msgid "creation_date"
-msgstr "Creation date"
-
-msgid "credits"
-msgstr "Credits"
-
-msgid "customized"
-msgstr "Customized"
-
-msgid "data"
-msgstr "Data"
-
-msgid "data_maintenance"
-msgstr "Data Maintenance"
-
-msgid "data_management"
-msgstr "Data Management"
-
-msgid "date"
-msgstr "Date"
-
-msgid "date_not_passed"
-msgstr "Date not passed"
-
-msgid "day"
-msgstr "day"
-
-msgid "days"
-msgstr "days"
-
-msgid "decimal_score_allowed"
-msgstr "Decimal score allowed"
-
-msgid "decimal_score_not_allowed"
-msgstr "Decimal score NOT allowed"
-
-msgid "decimal_values_accepted"
-msgstr "Decimal values in scores are accepted."
-
-msgid "decimal_values_ignored"
-msgstr ""
-"Decimal values in scores are NOT accepted. If you try to put decimal values, "
-"it will be ignored."
-
-msgid "score_have_more_than_2_decimal_places"
-msgstr "Score cannot have more than two decimal places"
-
-msgid "definitive_save"
-msgstr "Definitive submission (Submit to faculty)"
-
-msgid "delete"
-msgstr "Delete"
-
-msgid "delete_selected_messages"
-msgstr "Delete selected messages"
-
-msgid "desc_assistants"
-msgstr "Mandats des assistants académiques et de recherche."
-
-msgid "desc_lnk_academic_year"
-msgstr "Management of the annualized program."
-
-msgid "desc_lnk_assessments"
-msgstr "This process helps tutors while scores encoding."
-
-msgid "desc_lnk_data_maintenance"
-msgstr "Maintenance of data with the SQL language"
-
-msgid "desc_lnk_data_management"
-msgstr "Management of data by entity"
-
-msgid "desc_lnk_entities"
-msgstr "Management of organizational structure."
-
-msgid "desc_lnk_files"
-msgstr "Consultation of files managed by the application"
-
-msgid "desc_lnk_home_catalog"
-msgstr "Elaboration and management of the formation catalogue."
-
-msgid "desc_lnk_home_institution"
-msgstr "Management of the institution."
-
-msgid "desc_lnk_home_studies"
-msgstr ""
-"Management of students' path from their registration until their diploma."
-
-msgid "desc_lnk_internships"
-msgstr "This process controls students internships."
-
-msgid "desc_lnk_my_osis"
-msgstr "Your personal details, configurations and other information related to you."
-
-msgid "desc_lnk_learning_units"
-msgstr ""
-"Management of learning units, formations and others activities of the "
-"program."
-
-msgid "desc_lnk_offers"
-msgstr "Management of programs."
-
-msgid "desc_lnk_organizations"
-msgstr "Management of organizations"
-
-msgid "desc_lnk_score_encoding"
-msgstr "This process helps tutor while encoding notes for the exams sessions."
-
-msgid "desc_lnk_storage"
-msgstr "Monitoring of the storage capacity"
-
-msgid "desc_messages_history"
-msgstr "Message history allow you to access sent emails"
-
-msgid "desc_messages_template"
-msgstr "Messages templating allow you to edit email messages dynamically"
-
-msgid "desc_my_messages"
-msgstr "The messages sent by the application to you"
-
-msgid "desc_profile"
-msgstr "The configuration of you user profile"
-
-msgid "description"
-msgstr "Description"
-
-msgid "details"
-msgstr "Details"
-
-msgid "display_scores_for_one_learning_unit"
-msgstr "Display scores for this learning unit"
-
-msgid "display_tutors"
-msgstr "Display all tutors for this learning unit"
-
-msgid "DOCTORAL_COMMISSION"
-msgstr "Doctoral commmission"
-
-msgid "documentation"
-msgstr "Documentation"
-
-msgid "double_encoding"
-msgstr "Double encoding"
-
-msgid "double_encoding_test"
-msgstr "Scores double encoding"
-
-msgid "dubble_encoding"
-msgstr "Dubble encoding"
-
-msgid "dubble_online_scores_encoding"
-msgstr "Dubble online scores encoding"
-
-msgid "edit"
-msgstr "Edit"
-
-msgid "empty_note_pdf_legend"
-msgstr "(empty)=No score yet"
-
-msgid "encode"
-msgstr "Encode"
-
-msgid "encode_as_coordinator"
-msgstr "Encode as scores responsible"
-
-msgid "encode_as_pgm"
-msgstr "Encode as program manager"
-
-msgid "encode_as_professor"
-msgstr "Encode as professor"
-
-msgid "encoding"
-msgstr "Encoding"
-
-msgid "encoding_status_ended"
-msgstr "All the scores are encoded."
-
-msgid "encoding_status_notended"
-msgstr "It remains notes to encode."
-
-msgid "end_date"
-msgstr "End date"
-
-msgid "end_date_teacher"
-msgstr "Teacher Deadline"
-
-msgid "enrollment_activity_not_exist"
-msgstr "The enrollment to the activity %s doesn't exist"
-
-msgid "enrollment_exam_not_exists"
-msgstr "The enrollment to the activity %s doesn't exist"
-
-msgid "enrollments"
-msgstr "Enrollments"
-
-msgid "entities"
-msgstr "Entities"
-
-msgid "entity"
-msgstr "Entity"
-
-msgid "versions"
-msgstr "Versions"
-
-msgid "evaluations"
-msgstr "Evaluations"
-
-msgid "event"
-msgstr "Event"
-
-msgid "exam_board_secretary"
-msgstr "Exam board secretary"
-
-msgid "execute"
-msgstr "Execute"
-
-msgid "FACULTY"
-msgstr "Faculty"
-
-msgid "female"
-msgstr "Female"
-
-msgid "file"
-msgstr "File"
-
-msgid "file_must_be_xlsx"
-msgstr "The file must be a valid 'XLSX' excel file"
-
-msgid "file_production_date"
-msgstr "Excel file production date"
-
-msgid "filter by section"
-msgstr ""
-
-msgid "students_deliberated_are_not_shown"
-msgstr "Students deliberated are not shown"
-
-msgid "files"
-msgstr "Files"
-
-msgid "final"
-msgstr "Final"
-
-msgid "fixed_line_phone"
-msgstr "Fixed-line phone"
-
-msgid "focuses"
-msgstr "Focuses"
-
-msgid "formation_catalogue"
-msgstr "Formation catalogue"
-
-msgid "function"
-msgstr "Function"
-
-msgid "gender"
-msgstr "Gender"
-
-msgid "general_informations"
-msgstr "General informations"
-
-msgid "get_excel_file"
-msgstr "Get Excel File"
-
-msgid "global_identifiant"
-msgstr "Global identifiant"
-
-msgid "fgs"
-msgstr "FGS"
-
-msgid "go"
-msgstr "Go"
-
-msgid "grade"
-msgstr "Grade"
-
-msgid "help_pnl_selectedfiles"
-msgstr "Please select an XLS file for injection"
-
-msgid "help_submission_scores_label"
-msgstr "You will submit %s notes to faculty(ies). Warning : submitted scores <b>can't be modified anymore.</b>"
-
-msgid "highlight_description"
-msgstr "Highlight description"
-
-msgid "highlight_shortcut"
-msgstr "Highlight shortcut"
-
-msgid "highlight_title"
-msgstr "Highlight title"
-
-msgid "home"
-msgstr "Home page"
-
-msgid "html_message"
-msgstr "HTML Message"
-
-msgid "identification"
-msgstr "Identification"
-
-msgid "idle"
-msgstr "Idle"
-
-msgid "ill"
-msgstr "Ill"
-
-msgid "ill_pdf_legend"
-msgstr "I=Ill"
-
-msgid "incomplete"
-msgstr "Incomplete"
-
-msgid "info_address_changed_for_papersheet"
-msgstr "If you customize one of the field below, it only change the address displayed on the scores' encodings sheets for the program %s. "
-       "It will never change the address of any Structure. The structure's list below is to help you to pre-fill in the form"
-
-msgid "inject"
-msgstr "Inject"
-
-msgid "inject_xls_file"
-msgstr "Inject XLS file"
-
-msgid "INSTITUTE"
-msgstr "Institute"
-
-msgid "institution"
-msgstr "Institution"
-
-msgid "international_title"
-msgstr "international title"
-
-msgid "internships"
-msgstr "Internships"
-
-msgid "invalid_file"
-msgstr "Invalid file"
-
-msgid "javascript_is_disabled"
-msgstr "JavaScript is disabled on your browser, but OSIS does not work without JavaScript."
-
-msgid "justification_invalid"
-msgstr "Invalid justification"
-
-msgid "justifications"
-msgstr "Justifications"
-
-msgid "justification_invalid_value"
-msgstr "Invalid justification value"
-
-msgid "absence_justified_to_unjustified_invalid"
-msgstr "Absence justified cannot be remplaced by absence unjustified"
-
-msgid "justification_values_accepted"
-msgstr "Accepted value: %s "
-
-msgid "justification_other_values"
-msgstr "Other values: %s "
-
-msgid "label"
-msgstr "Label"
-
-msgid "label_jumbotron_details_academic_cal"
-msgstr "As displayed on the home page"
-
-msgid "language"
-msgstr "Language"
-
-
-msgid "last_synchronization"
-msgstr "Last synchronization"
-
-msgid "learning_unit"
-msgstr "Learning unit"
-
-msgid "learning_unit_not_access"
-msgstr "You don't have access rights to this learning unit"
-
-msgid "learning_unit_not_access_or_not_exist"
-msgstr "You don't have access rights for this learning unit or it doesn't exist in our database"
-
-msgid "learning_unit_responsible"
-msgstr "Learning unit's responsible"
-
-msgid "learning_unit_search"
-msgstr "Learning unit search"
-
-msgid "learning_units"
-msgstr "Learning units"
-
-msgid "learning_units_in"
-msgstr "learning units in"
-
-msgid "lnk_message_history_read_title"
-msgstr "See the message"
-
-msgid "location"
-msgstr "Location"
-
-msgid "log-in"
-msgstr "Log-in"
-
-msgid "login"
-msgstr "Login"
-
-msgid "logistic"
-msgstr "Logistic"
-
-msgid "logout"
-msgstr "Logout"
-
-msgid "lu_could_contain_decimal_scores"
-msgstr "This learning unit year could contain decimal scores"
-
-msgid "lu_must_not_contain_decimal_scores"
-msgstr "This learning unit year must not contain decimal scores"
-
-msgid "male"
-msgstr "Male"
-
-msgid "managed_programs"
-msgstr "Managed programs"
-
-msgid "mandates"
-msgstr "Mandates"
-
-msgid "mark_selected_messages_as_read"
-msgstr "Mark selected messages as read"
-
-msgid "master"
-msgstr "Master"
-
-msgid "message"
-msgstr "Message"
-
-msgid "message_address_papersheet"
-msgstr "Reuse the address of an entity linked to the program or inform the posting address for the papersheet."
-
-msgid "message_not_resent_no_email"
-msgstr "The message can't be sent again, no email provided."
-
-msgid "message_resent_ok"
-msgstr "The message xas sent again."
-
-msgid "messages"
-msgstr "Messages"
-
-msgid "messages_history"
-msgstr "Messages History"
-
-msgid "messages_templates"
-msgstr "Messages templates"
-
-msgid "minimum_one_criteria"
-msgstr "Please choose at least one criteria!"
-
-msgid "miss"
-msgstr "Miss"
-
-msgid "missing_column_session"
-msgstr "Please fill in the 'session' column with the correct session's number."
-
-msgid "mister"
-msgstr "Mister"
-
-msgid "mobile_phone"
-msgstr "Mobile phone"
-
-msgid "more_than_one_academic_year_error"
-msgstr "There are more than 1 academic year in your excel file. Please correct your file. Only one academic year "
-      "could be present in the 'Academic year' column."
-
-msgid "more_than_one_exam_enrol_for_one_learn_unit"
-msgstr "This student has multiple enrollments for a same exam. "
-       "(he's enrolled to a same learning unit in 2 different programs. "
-       "Please encode this score in the 'online' tab in the interface."
-
-msgid "more_than_one_learning_unit_error"
-msgstr "You encoded scores for more than 1 learning unit in your excel file (column 'Learning unit'). "
-       "Please make one excel file by learning unit."
-
-msgid "more_than_one_session_error"
-msgstr "There are more than 1 session in your excel file. Please correct your file. Only one session's number "
-      "could be present in the 'Session' column."
-
-msgid "msg_error_username_password_not_matching"
-msgstr "Your username and password didn't match. Please try again."
-
-msgid "my_messages"
-msgstr "My Messages"
-
-msgid "my_osis"
-msgstr "My OSIS"
-
-msgid "my_studies"
-msgstr "My studies"
-
-msgid "name"
-msgstr "Name"
-
-msgid "full_name"
-msgstr "Full name"
-
-msgid "national_register"
-msgstr "National register's number"
-
-msgid "no_current_entity_version_found"
-msgstr "The selected entity no longer exists today (end date passed)."
-
-msgid "no_data_for_this_academic_year"
-msgstr "No data for this academic year"
-
-msgid "no_dubble_score_encoded_comparison_impossible"
-msgstr "No dubble score encoded ; nothing to compare."
-
-msgid "no_entity_address_found"
-msgstr "No address found for the selected entity."
-
-msgid "no_exam_session_opened_for_the_moment"
-msgstr "No scores' encoding session opened for the moment."
-
-msgid "no_student_to_encode_xls"
-msgstr "No students to encode by excel"
-
-msgid "no_file_submitted"
-msgstr "You have to select a file to upload."
-
-msgid "no_messages"
-msgstr "No Messages"
-
-msgid "no_result"
-msgstr "No result!"
-
-msgid "no_receiver_error"
-msgstr "No receiver for this message"
-
-msgid "no_score_encoded_double_encoding_impossible"
-msgstr "No new scores encoded. The double encoding needs new scores."
-
-msgid "no_score_injected"
-msgstr "No scores injected"
-
-msgid "no_score_to_encode"
-msgstr "You haven't any score to encode."
-
-msgid "no_valid_academic_year_error"
-msgstr "No valid academic year found in your xls file. The date should be formatted like '2015-2016' or '2015'."
-
-msgid "deadline_reached"
-msgstr "Deadline reached"
-
-msgid "not_passed"
-msgstr "Not passed"
-
-msgid "not_sent"
-msgstr "Not Sent"
-
-msgid "number_of_enrollments"
-msgstr "Number of enrollments"
-
-msgid "number_session"
-msgstr "No. Session"
-
-msgid "numbered_score"
-msgstr "Numbered scores"
-
-msgid "offer"
-msgstr "Program"
-
-msgid "offer_enrollment_not_exist"
-msgstr "There are any enrollment to this program"
-
-msgid "offer_year_calendar"
-msgstr "Calendar of the annual program"
-
-msgid "offer_year_calendar_academic_calendar_end_date_error"
-msgstr "The end date of your program can't be greater than the closure's date of scores' encodings in the academic calendar"
-
-msgid "offer_year_calendar_academic_calendar_start_date_error"
-msgstr "The start date of your program can't be lower than the opening's date of scores' encodings in the academic calendar"
-
-msgid "offer_year_not_access_or_not_exist"
-msgstr "You don't have access rights for this offer or it doesn't exist in our database"
-
-msgid "offer_year_not_exist"
-msgstr "The program (%s) (%d) - doesn't exist"
-
-msgid "offer_year_search"
-msgstr "Search of annual programs"
-
-msgid "offers"
-msgstr "Programs"
-
-msgid "old_browser_warning"
-msgstr "Your browser is out of date. This can lead to unknown behaviour."
-
-msgid "online"
-msgstr "Online"
-
-msgid "online_encoding"
-msgstr "Online encoding"
-
-msgid "online_scores_encoding"
-msgstr "Online scores encoding"
-
-msgid "only_submited_scores_can_be_double_encoded"
-msgstr "Only submitted scores can be bouble encoded"
-
-msgid "open"
-msgstr "Open"
-
-msgid "campus"
-msgstr "Campus"
-
-msgid "organization_address"
-msgstr "Organization address"
-
-msgid "organization"
-msgstr "Organization"
-
-msgid "organizations"
-msgstr "Organizations"
-
-msgid "origin"
-msgstr "From"
-
-msgid "other_score"
-msgstr "Other scores"
-
-msgid "other_sibling_offers"
-msgstr "Other sibling programs"
-
-msgid "other_sibling_orientations"
-msgstr "Other sibling orientations"
-
-msgid "score_encoding_period_not_open"
-msgstr "The period of scores' encoding is not opened"
-
-msgid "outside_scores_encodings_period_latest_session"
-msgstr "The period of scores' encoding %s is closed since %s"
-
-msgid "outside_scores_encodings_period_closest_session"
-msgstr "The period of scores' encoding %s will be open %s"
-
-msgid "page_not_found"
-msgstr "Page not found."
-
-msgid "method_not_allowed"
-msgstr "Method not allowed"
-
-msgid "password"
-msgstr "Password"
-
-msgid "person"
-msgstr ""
-
-msgid "ph_d"
-msgstr "Ph.D"
-
-msgid "plain"
-msgstr "Plain"
-
-msgid "plain_and_html"
-msgstr "Plain and HTML"
-
-msgid "please_enable_javascript"
-msgstr "Please <a href='http://enable-javascript.com' target='_blank'>enable JavaScript</a> to use this application."
-
-msgid "POLE"
-msgstr "Pole"
-
-msgid "postal_code"
-msgstr "postal code"
-
-msgid "preferences"
-msgstr "Preferences"
-
-msgid "presence_note_pdf_legend"
-msgstr "0=Presence note"
-
-msgid "print"
-msgstr "Print"
-
-msgid "print_all_courses"
-msgstr "Print all courses"
-
-msgid "print_warning_and_info_messages"
-msgstr ""
-
-msgid "printable_title"
-msgstr "Printable title"
-
-msgid "printing_date"
-msgstr "Printing date"
-
-msgid "professional"
-msgstr "Professional"
-
-msgid "professors_must_not_submit_scores"
-msgstr "Proffessors must not submit scores"
-
-msgid "profile"
-msgstr "Profile"
-
-msgid "program_commission"
-msgstr "Program commission"
-
-msgid "program_managers"
-msgstr "Program Managers"
-
-msgid "program_s"
-msgstr "program(s)"
-
-msgid "programs"
-msgstr "Programs"
-
-msgid "progress"
-msgstr "Progress"
-
-msgid "received_on"
-msgstr "Received on"
-
-msgid "recipient"
-msgstr "Recipient"
-
-msgid "redirect_to_login"
-msgstr "Click to reconnect"
-
-msgid "reference"
-msgstr "Reference"
-
-msgid "refresh_list"
-msgstr "Search/update the list"
-
-msgid "registration_id"
-msgstr "Registration ID"
-
-msgid "registration_id_does_not_match_email"
-msgstr "Registration ID does not match email"
-
-msgid "identification_number"
-msgstr "Number ID"
-
-msgid "registration_id_not_access_or_not_exist"
-msgstr "Student not registered for exam"
-
-msgid "research_center"
-msgstr "Research center"
-
-msgid "residential"
-msgstr ""
-
-msgid "responsible"
-msgstr "Responsible"
-
-msgid "return_doc_to_administrator"
-msgstr "Please return this document to the administrative office before %s."
-
-msgid "reuse_address_entity"
-msgstr "Reuse the address of"
-
-msgid "save"
-msgstr "Save"
-
-msgid "saved"
-msgstr "Saved"
-
-msgid "saving"
-msgstr "Saving"
-
-msgid "score"
-msgstr "Score"
-
-msgid "score_already_submitted"
-msgstr "Score already submitted"
-
-msgid "score_decimal_not_allowed"
-msgstr "The score seems to be incorrect. Decimales NOT allowed"
-
-msgid "score_invalid"
-msgstr "Score invalid"
-
-msgid "scores_responsible"
-msgstr "Scores Responsible"
-
-msgid "scores_responsible_title"
-msgstr "Scores Responsible"
-
-msgid "score_saved"
-msgstr "score Saved"
-
-msgid "score_submitted"
-msgstr "Submitted"
-
-msgid "scores"
-msgstr "Scores"
-
-msgid "scores_encoding"
-msgstr "Scores encoding"
-
-msgid "scores_encoding_tests"
-msgstr "Scores encoding tests"
-
-msgid "scores_gt_0_lt_20"
-msgstr "The score seems to be incorrect (it must be >=0 and <=20)"
-
-msgid "scores_injection"
-msgstr "Scores injection"
-
-msgid "scores_saved"
-msgstr "score(s) saved"
-
-msgid "scores_saved_cannot_be_saved_anymore"
-msgstr "Sore saved, button save not available anymore"
-
-msgid "scores_must_be_between_0_and_20"
-msgstr "Scores must be between 0 and 20"
-
-msgid "search_for_a_file"
-msgstr "Search for a file"
-
-msgid "Search..."
-msgstr ""
-
-msgid "search_for_an_entity"
-msgstr "Search for an entity"
-
-msgid "search_for_an_organization"
-msgstr "Search for an organization"
-
-msgid "section"
-msgstr ""
-
-msgid "SECTOR"
-msgstr "Sector"
-
-msgid "select"
-msgstr "Select"
-
-msgid "select_a_xls_file_from_which_to_inject_scores"
-msgstr ""
-
-msgid "select_an_encoding_type"
-msgstr "Select an encoding type"
-
-msgid "send_message_again"
-msgstr "Send again"
-
-msgid "sent"
-msgstr "Sent"
-
-msgid "server_error"
-msgstr "A server error occured."
-
-msgid "server_error_message"
-msgstr "We will fix this as soon as possible"
-
-msgid "short_title"
-msgstr "Short title"
-
-msgid "size"
-msgstr "Size"
-
-msgid "source_code"
-msgstr "Source code"
-
-msgid "stages"
-msgstr "Stages"
-
-msgid "start_date"
-msgstr "Start date"
-
-msgid "state"
-msgstr "State"
-
-msgid "status"
-msgstr "Status"
-
-msgid "storage"
-msgstr "Storage"
-
-msgid "storage_duration"
-msgstr "Storage duration"
-
-msgid "structure"
-msgstr "Structure"
-
-msgid "student_not_exist"
-msgstr "The student (%s) doesn't exist"
-
-msgid "student_path"
-msgstr "Students' path"
-
-msgid "students"
-msgstr "students"
-
-msgid "studies"
-msgstr "Studies"
-
-msgid "subject"
-msgstr "Subject"
-
-msgid "submission"
-msgstr "Submission"
-
-msgid "submission_date"
-msgstr "Submission date"
-
-msgid "submission_of_scores_for"
-msgstr "Submission of scores for {0}."
-
-msgid "submitted"
-msgstr "Submitted"
-
-msgid "submitted_scores_cannot_be_encoded_anymore"
-msgstr "Submitted scores cannot be encoded anymore"
-
-msgid "succesfull_logout"
-msgstr "You are succesfully logout."
-
-msgid "technologic_platform"
-msgstr "Technologic platform"
-
-msgid "template_error"
-msgstr "No message was sent : the message template {} does not exist."
-
-msgid "temporary_save"
-msgstr "Temporary save (not submitted to the faculty yet)"
-
-msgid "the_coordinator_must_still_submit_scores"
-msgstr "The coordinator must still submit the scores"
-
-msgid "text"
-msgstr "Text"
-
 msgid "title"
 msgstr "Title"
-
-msgid "learning_unit_title"
-msgstr "Learning unit title"
-
-msgid "too_many_results"
-msgstr "Too many results! Please be more specific."
-
-msgid "tooltip_delete_message"
-msgstr "Delete message"
-
-msgid "tooltip_double_encode_for"
-msgstr "Double encode scores"
-
-msgid "tooltip_double_encode_no_more_possible_for"
-msgstr "All the scores were submitted.It is not possible to double encode scores anymore"
-
-msgid "tooltip_dowload_excel_file"
-msgstr "Download the excel file"
-
-msgid "tooltip_encode_for"
-msgstr "Encode scores"
-
-msgid "tooltip_encode_no_more_possible_for"
-msgstr "All the scores were submitted.It is not possible to encode scores anymore"
-
-msgid "tooltip_inject_excel_no_more_possible_for"
-msgstr "All the scores were submitted.It is not possible inject excell file anymore"
-
-msgid "tooltip_my_message_read"
-msgstr "Show message"
-
-msgid "tooltip_print_scores"
-msgstr "Print the scores"
-
-msgid "tooltip_scores_encodings_progress_bar"
-msgstr "Represents the quantity of scores submitted to the administration. The number surrounded by parenthesis is the "
-       "number of scores encoded by the tutor that aren't submitted yet ('draft' state)"
-
-msgid "tooltip_select_action"
-msgstr "Select action to execute"
-
-msgid "tooltip_select_all_messages"
-msgstr "Select all the messages"
-
-msgid "tooltip_select_excel_file_to_inject_scores"
-msgstr "Select an excel file to inject scores."
-
-msgid "tooltip_to_my_messages"
-msgstr "Back to messages"
-
-msgid "tutor"
-msgstr "Tutor"
-
-msgid "tutors"
-msgstr "Tutors"
-
-msgid "other_tutors"
-msgstr "Other Tutors"
-
-msgid "txt_message"
-msgstr "Text Message"
-
-msgid "txt_origin_title"
-msgstr "Sender of the message"
-
-msgid "txt_recipient_title"
-msgstr "Recipient of the message (email or last name or username)"
-
-msgid "txt_reference_title"
-msgstr "Template reference of the message"
-
-msgid "txt_subject_title"
-msgstr "Subject of the messages"
 
 msgid "type"
 msgstr "Type"
 
-msgid "types"
-msgstr "Types"
+msgid "entity"
+msgstr "Entity"
 
-msgid "undated_events"
-msgstr "Unscheduled events"
+#, python-format
+msgid "%s education group(s) extended and %s error(s)"
+msgstr ""
 
-msgid "undefined"
-msgstr "Undefined"
+#, python-format
+msgid "The user has not permission to create a %(category)s."
+msgstr ""
 
-msgid "unknown"
-msgstr "Unknown"
+#, python-format
+msgctxt "female"
+msgid ""
+"No type of %(child_category)s can be created as child of %(category)s of "
+"type %(type)s"
+msgstr ""
 
-msgid "user"
-msgstr "User"
+#, python-format
+msgid "%(col_name)s has been already modified."
+msgstr ""
 
-msgid "user_interface_language"
-msgstr "User interface language"
+#, python-format
+msgid "Consistency error in %(academic_year)s : %(error)s"
+msgstr ""
 
-msgid "user_is_not_program_manager"
-msgstr "You're not a program manager. Therefore you dont have access to this page."
+#, python-format
+msgid "Cannot set end year to %(end_year)s :"
+msgstr ""
 
-msgid "validated_double_encoding_cannot_be_validated_anymore"
-msgstr "Validated double encoding cannot be validated anymore"
+#, python-format
+msgid "%(count_enrollment)d student is enrolled in the offer."
+msgid_plural "%(count_enrollment)d students are enrolled in the offer."
+msgstr[0] ""
+msgstr[1] ""
 
-msgid "validation_dubble_encoding_mandatory"
-msgstr "Please enter a final validation for scores' differences detected after the dubble encoding "
-       "(below). If you leave, your dubble encoding will be lost."
+msgid "The content of the education group is not empty."
+msgstr ""
 
-msgid "via_excel"
-msgstr "Via Excel"
+#, python-format
+msgid ""
+"You cannot attach \"%(child)s\" (type \"%(child_type)s\") to \"%(parent)s"
+"\" (type \"%(parent_type)s\")"
+msgstr ""
 
-msgid "via_paper"
-msgstr "Via paper"
+msgid "The education group is not a training"
+msgstr ""
 
-msgid "warning_all_scores_not_sumitted_yet"
-msgstr "Warning : some registered scores have not been submitted yet"
+msgid ""
+"The end date of the education group is smaller than the year of postponement"
+msgstr ""
 
-msgid "website"
-msgstr "Website"
+msgid "The root does not exist in the next academic year."
+msgstr ""
 
-msgid "without_attribution"
-msgstr "Without attribution"
+msgid "The content has already been postponed."
+msgstr ""
 
-msgid "xls_columns_structure_error"
-msgstr "Your excel file isn't well structured. Please follow the structure of the excel file provided "
-       "(button '{}')"
+msgid "Volumes are inconsistent"
+msgstr ""
 
-msgid "you_manage"
-msgstr "You manage"
+msgid ""
+"At least a partim volume value is greater than corresponding volume of parent"
+msgstr ""
 
-msgid "order"
-msgstr "Order"
+msgid "subtype"
+msgstr "Subtype"
 
-msgid "options"
-msgstr "Options"
+msgid "requirement_entity_small"
+msgstr "Req. Entity"
 
-msgid "required"
-msgstr "Required"
+msgid "proposal_type"
+msgstr "Proposal type"
 
-msgid "question"
-msgstr "Question"
+msgid "proposal_status"
+msgstr "Status proposal"
 
-msgid "questions"
-msgstr "Questions"
+msgid "credits"
+msgstr "Credits"
 
-msgid "value"
-msgstr "Value"
+msgid "allocation_entity_small"
+msgstr "Alloc. Ent."
 
-msgid "short_input_text"
-msgstr "Short input text"
-
-msgid "long_input_text"
-msgstr "Long input text"
-
-msgid "radio_button"
-msgstr "Radio button"
-
-msgid "checkbox"
-msgstr "Checkbox"
-
-msgid "upload_button"
-msgstr "Upload button"
-
-msgid "download_link"
-msgstr "Download link"
-
-msgid "dropdown_list"
-msgstr "Dropdown list"
-
-msgid "http_link"
-msgstr "HTTP link"
-
-msgid "BACHELOR"
-msgstr "Bachelor"
-
-msgid "MASTER_60"
-msgstr "Master 60"
-
-msgid "MASTER_120"
-msgstr "Master 120"
-
-msgid "MASTER_180_OR_240"
-msgstr "Master 180 or 240"
-
-msgid "ADVANCED_MASTER"
-msgstr "Advanced master"
-
-msgid "TRAINING_CERTIFICATE"
-msgstr "Training certificate"
-
-msgid "CERTIFICATE"
-msgstr "Certificate"
-
-msgid "DOCTORATE"
-msgstr "Doctorate"
-
-msgid "CAPAES"
-msgstr "CAPAES"
-
-msgid "start_date_must_be_lower_than_end_date"
-msgstr "Start date must be lower than end date"
-
-msgid "DEPUTY_AUTHORITY"
-msgstr "Deputy authority"
-
-msgid "DEPUTY_SABBATICAL"
-msgstr "Deputy sabbatical"
-
-msgid "DEPUTY_TEMPORARY"
-msgstr "Deputy temporary"
-
-msgid "INTERNSHIP_SUPERVISOR"
-msgstr "Internship supervisor"
-
-msgid "INTERNSHIP_CO_SUPERVISOR"
-msgstr "Internship co-supervisor"
-
-msgid "PROFESSOR"
-msgstr "Professor"
-
-msgid "COORDINATOR"
-msgstr "Coordinator"
-
-msgid "HOLDER"
-msgstr "Holder"
-
-msgid "CO_HOLDER"
-msgstr "Co-holder"
-
-msgid "DEPUTY"
-msgstr "Deputy"
-
-msgid "scores_responsible_can_submit_partial_encoding"
-msgstr "Scores responsible can submit partial encoding"
-
-msgid "the_scores_responsible_must_still_submit_scores"
-msgstr "The scores responsible must still submit the scores"
-
-msgid "NONE"
-msgstr "NONE"
-
-msgid "keyword"
-msgstr "keyword"
-
-msgid "VALID"
-msgstr "Valid"
-
-msgid "INVALID"
-msgstr "Invalid"
-
-msgid "COURSE"
-msgstr "Course"
-
-msgid "MASTER_THESIS"
-msgstr "Master thesis"
-
-msgid "INTERNSHIP"
-msgstr "Internship"
-
-msgid "OTHER_COLLECTIVE"
-msgstr "Other collective"
-
-msgid "OTHER_INDIVIDUAL"
-msgstr "Other individual"
-
-msgid "EXTERNAL"
-msgstr "External"
-
-msgid "TEACHING_INTERNSHIP"
-msgstr "Teaching internship"
-
-msgid "CLINICAL_INTERNSHIP"
-msgstr "Clinical internship"
-
-msgid "PROFESSIONAL_INTERNSHIP"
-msgstr "Professional internship"
-
-msgid "RESEARCH_INTERNSHIP"
-msgstr "Research internship"
-
-msgid "ANNUAL"
-msgstr "Annual"
-
-msgid "BIENNIAL_EVEN"
-msgstr "Biennial even"
-
-msgid "BIENNIAL_ODD"
-msgstr "Biennial odd"
-
-msgid "LU_ERRORS_REQUIRED"
-msgstr "This field is required."
-
-msgid "LU_ERRORS_INVALID"
-msgstr "'Enter a valid value."
-
-msgid "LU_ERRORS_INVALID_SEARCH"
-msgstr "Please, inform at least two filters in your searches"
-
-msgid "LU_ERRORS_ACADEMIC_YEAR_REQUIRED"
-msgstr "Please specify an academic year"
-
-msgid "LU_ERRORS_YEAR_WITH_ACRONYM"
-msgstr "Please specify an academic year or enter a valid acronym."
-
-msgid "LU_ERRORS_INVALID_REGEX_SYNTAX"
-msgstr "Invalid regular expression!"
-
-msgid "no_valid_m_justification_error"
-msgstr "You can't encode a JUSTIFIED ABSENCE (M) via the XLS injection"
-
-msgid "abscence_justified_preserved"
-msgstr "Justified abscence already encoded and preserved"
-
-msgid "tutors_of_course"
-msgstr "Tutors of the course"
-
-msgid "academic_actors"
-msgstr "Academic actors"
-
-msgid "academic_start_date_error"
-msgstr "The start date should be between the start/end dates of the academic year"
-
-msgid "academic_end_date_error"
-msgstr "The end date should be between the start/end dates of the academic year"
-
-msgid "end_start_date_error"
-msgstr "Start date must be lower than end date"
-
-msgid "dates_mandatory_error"
-msgstr "Start date and end date are mandatory"
-
-msgid "date_format"
-msgstr "%m/%d/%Y"
-
-msgid "date_format_string"
-msgstr "m/d/Y"
-
-msgid "format_date"
-msgstr "mm/dd/yyyy"
-
-msgid "desc_lnk_academic_actors"
-msgstr "Academic actors management"
-
-msgid "all_years"
-msgstr "All years"
-
-msgid "trainings"
-msgstr "Trainings"
-
-msgid "components"
-msgstr "Components"
-
-msgid "educational_information"
-msgstr "Educational information"
-
-msgid "propositions"
-msgstr "Propositions"
-
-msgid "tutor_attributions"
-msgstr "Tutors - attributions"
-
-msgid "proposal"
-msgstr "Proposal"
-
-msgid "academic_calendar_offer_year_calendar_start_date_end_date_error"
-msgstr "The start's date of '%s' of the academic calendar can't be higher than %s "
-       "(end date of '%s' of the program '%s')"
-
-msgid "component_type"
-msgstr "Component type"
-
-msgid "vol_q1"
-msgstr "Vol. q1"
-
-msgid "vol_q2"
-msgstr "Vol. q2"
-
-msgid "volume"
-msgstr "Volume"
-
-msgid "schedules_conformity"
-msgstr "Sched. conform. "
-
-msgid "planned_classrooms"
-msgstr "Planned classrooms"
-
-msgid "real_on_planned_classrooms"
-msgstr "Real/Planned classrooms"
-
-msgid "classes"
-msgstr "Classes"
-
-msgid "class"
-msgstr "Class"
-
-msgid "learning_unit_code"
-msgstr "Learning unit code"
-
-msgid "partims"
-msgstr "Partims"
+msgid "title_in_english"
+msgstr "Title in English"
 
 msgid "periodicity"
 msgstr "Periodicity"
 
-msgid "nominal_credits"
-msgstr "Credits"
+msgid "active_title"
+msgstr "Active"
+
+msgid "Hourly vol."
+msgstr ""
+
+msgid "ANNUAL"
+msgstr "Annual"
+
+msgid "1st quadri"
+msgstr ""
+
+msgid "2nd quadri"
+msgstr ""
+
+msgid "PLANNED_CLASSES"
+msgstr "Planned classes"
+
+msgid "quadrimester"
+msgstr "Quadrimester"
+
+msgid "session_title"
+msgstr "Session derogation"
+
+msgid "language"
+msgstr "Language"
+
+msgid "Absolute credits"
+msgstr ""
+
+msgid "?"
+msgstr ""
 
 msgid "active"
 msgstr "Active"
@@ -1561,83 +156,97 @@ msgstr "Active"
 msgid "inactive"
 msgstr "Inactive"
 
-msgid "MASTER_DISSERTATION"
-msgstr "Master Dissertation"
+msgid "A report has been sent."
+msgstr ""
 
-msgid "FULL"
-msgstr "Full"
+msgid "Proposal is neither accepted nor refused."
+msgstr ""
 
-msgid "MOBILITY"
-msgstr "Mobility"
+msgid "List of teachers"
+msgstr ""
 
-msgid "OTHER"
-msgstr "Other"
+#, fuzzy
+#| msgid "programs"
+msgid "Programs"
+msgstr "Programs"
 
-msgid "PARTIM"
-msgstr "Partim"
+msgid "fac. level"
+msgstr ""
 
-msgid "PHD_THESIS"
-msgstr "PhD Thesis"
+msgid "Legend"
+msgstr ""
 
-msgid "selected"
-msgstr "selected"
+msgid "proposal_creation"
+msgstr "Proposal of creation"
 
-msgid "learning_unit_specifications"
-msgstr "Specifications"
+msgid "Proposal for modification"
+msgstr ""
 
-msgid "LECTURING_COMPLETE"
-msgstr "Complete lecturing"
+msgid "Suppression proposal"
+msgstr ""
 
-msgid "LECTURING_INCOMPLETE"
-msgstr "Incomplete lecturing"
+msgid "Transformation proposal"
+msgstr ""
 
-msgid "PRACTICAL_EXERCISES_COMPLETE"
-msgstr "Complete practical exercises"
+msgid "Transformation/modification proposal"
+msgstr ""
 
-msgid "PRACTICAL_EXERCISES_INCOMPLETE"
-msgstr "Incomplete practical exercises"
+msgid "function"
+msgstr "Function"
 
-msgid "LECTURING"
-msgstr "Lecturing"
+msgid "substitute"
+msgstr "Substitute"
 
-msgid "STAGE"
-msgstr "Stage"
+msgid "Beg. of attribution"
+msgstr ""
 
-msgid "DISSERTATION"
-msgstr "Dissertation"
+msgid "Attribution duration"
+msgstr ""
 
-msgid "PRACTICAL_EXERCISES"
-msgstr "Practical exercises"
+msgid "Attrib. vol1"
+msgstr ""
 
-msgid "lecturing"
-msgstr "Lecturing"
+msgid "Attrib. vol2"
+msgstr ""
 
-msgid "PE"
-msgstr "PE"
+#, python-format
+msgid "%s learning unit(s) extended and %s error(s)"
+msgstr ""
 
-msgid "subtype"
-msgstr "Subtype"
+#, fuzzy
+#| msgid "types"
+msgid "yes"
+msgstr "Types"
 
-msgid "start"
-msgstr "Start"
+msgid "no"
+msgstr ""
 
-msgid "duration"
-msgstr "Duration"
+msgid "ACTIVE"
+msgstr "Active"
 
-msgid "experimental_phase"
-msgstr "This feature is in testing phase"
+msgid "parent_greater_than_partim"
+msgstr ""
+"The selected end year (%(partim_end_year)s) is greater than the end year of "
+"the parent %(lu_parent)s"
 
-msgid "title_1"
-msgstr "Title common with partims(Part 1)"
+     Updated: 2018/10/25 17:57:04 by vmonteco         ###   ########.fr         
+msgstr "Learning unit {acronym} successfully updated."
 
-msgid "common_title"
-msgstr "Common title"
+msgid "Entity_not_exist"
+msgstr ""
+"The entity %(entity_acronym)s does not exist for the selected academic year "
+"%(academic_year)s"
 
-msgid "common_english_title"
-msgstr "Common English title"
+msgid "partim_greater_than_parent"
+msgstr ""
+"The learning unit %(learning_unit)s has a partim %(partim)s with an end year "
+"greater than %(year)s"
 
-msgid "title_2"
-msgstr "Title (Part 2, specific to each partim)"
+msgid "error_modification_learning_unit"
+msgstr "An error occured when updating the learning unit."
+
+msgid "acronym"
+msgstr "Acronym"
 
 msgid "title_proper_to_UE"
 msgstr "Title proper"
@@ -1645,592 +254,87 @@ msgstr "Title proper"
 msgid "english_title_proper_to_UE"
 msgstr "English title proper"
 
-msgid "title_in_english"
-msgstr "Title in English"
-
-msgid "title_in_english_1"
-msgstr "(Part 1, common with partims)"
-
-msgid "title_in_english_2"
-msgstr "(Part 2, specific to each partim)"
-
-msgid "scores_responsibles"
-msgstr "Scores responsibles"
-
-msgid "SCHOOL"
-msgstr "Ecole"
-
-msgid "PLATFORM"
-msgstr "Platform"
-
-msgid "LOGISTICS_ENTITY"
-msgstr "Logistics entity"
-
-msgid "organogram"
-msgstr "Organogram"
-
-msgid "attached_to"
-msgstr "Attached to"
-
-msgid "ACADEMIC_PARTNER"
-msgstr "Academic partner"
-
-msgid "INDUSTRIAL_PARTNER"
-msgstr "Industrial partner"
-
-msgid "SERVICE_PARTNER"
-msgstr "Service partner"
-
-msgid "COMMERCE_PARTNER"
-msgstr "Commerce partner"
-
-msgid "PUBLIC_PARTNER"
-msgstr "Public partner"
-
-msgid "requirement_entity"
-msgstr "Requirement entity"
-
-msgid "allocation_entity"
-msgstr "Allocation entity"
-
-msgid "additional_requirement_entity"
-msgstr "Additional requirement entity"
-
-msgid "additional_requirement_entity_1"
-msgstr "Additional requirement entity 1"
-
-msgid "additional_requirement_entity_2"
-msgstr "Additional requirement entity 2"
-
-msgid "requirement_entity_small"
-msgstr "Req. Entity"
-
-msgid "allocation_entity_small"
-msgstr "Alloc. Ent."
-
-msgid "with_entity_subordinated_small"
-msgstr "With subord. ent."
-
-msgid "academic_end_year"
-msgstr "Academic end year"
-
-msgid "academic_start_year"
-msgstr "Academic start year"
-
-msgid "organization_name"
-msgstr "Name"
-
-msgid "partial"
-msgstr "Q1"
-
-msgid "remaining"
-msgstr "Q2"
-
-msgid "partial_remaining"
-msgstr "Q1&2"
-
-msgid "partial_or_remaining"
-msgstr "Q1|2"
-
-msgid "volume_partial"
-msgstr "Vol. Q1"
-
-msgid "volume_remaining"
-msgstr "Vol. Q2"
-
-msgid "quadrimester"
-msgstr "Quadrimester"
-
-msgid "composition"
-msgstr "Composition"
-
-msgid "real_classes"
-msgstr "Real classes"
-
-msgid "LU"
-msgstr ""
-
-msgid "academic_years"
-msgstr "Academic years"
-
-msgid "from"
-msgstr "From"
-
-msgid "to"
-msgstr "to"
-
-msgid "since"
-msgstr "Since"
-
-msgid "editing"
-msgstr "Edition"
-
-msgid "component"
-msgstr "Component"
-
-msgid "used_by"
-msgstr "Used by learning unit"
-
-msgid "offers_enrollments"
-msgstr "Offers enrollments"
-
-msgid "learning_units_enrollments"
-msgstr "Learning units enrollments"
-
-msgid "exams_enrollments"
-msgstr "Exams Enrollments"
-
-msgid "average"
-msgstr "Average"
-
-msgid "global_average"
-msgstr "Global average"
-
-msgid "result"
-msgstr "Result"
-
-msgid "enrollment_date"
-msgstr "Enrollment date"
-
-msgid "students_title"
-msgstr "Students"
-
-msgid "student_title"
-msgstr "Student"
-
-msgid "classe"
-msgstr "Classe"
-
-msgid "localization"
-msgstr "Localization"
-
 msgid "internship_subtype"
 msgstr "Internship subtype"
 
-msgid "part1"
-msgstr "part 1"
+msgid "status"
+msgstr "Status"
 
-msgid "part2"
-msgstr "part 2"
+msgid "campus"
+msgstr "Campus"
 
-msgid "title_official"
-msgstr "Official title"
+msgid "common_title"
+msgstr "Common title"
 
-msgid "create_learning_unit"
-msgstr "Create Learning Unit"
+msgid "common_english_title"
+msgstr "Common English title"
 
-msgid "existed_acronym"
-msgstr "Existed code for "
+msgid "team_management"
+msgstr "Team management"
 
-msgid "existing_acronym"
-msgstr "Existing code in "
-
-msgid "invalid_acronym"
-msgstr "Invalid code"
-
-msgid "acronym_rules"
-msgstr "Site with one letter\n"
-       "Acronym with min 2 et max 4 letters\n"
-       "Number Code with 4 digit"
-
-msgid "end_year_title"
-msgstr "End year"
-
-msgid "active_title"
-msgstr "Active"
-
-msgid "titles"
-msgstr "Titles"
-
-msgid "fixtures_build"
-msgstr "Build anonymized fixtures"
-
-msgid "desc_lnk_fixtures_build"
-msgstr "Build a json file with anonymized fixtures"
-
-msgid "partial_volume_1"
-msgstr "Volume Q1"
-
-msgid "partial_volume_2"
-msgstr "Volume Q2"
-
-msgid "partial_volume_1Q"
-msgstr "Q1"
-
-msgid "partial_volume_2Q"
-msgstr "Q2"
-
-msgid "planned_classes"
-msgstr "Classes prévues"
-
-msgid "planned_classes_pc"
-msgstr "P.C."
-
-msgid "total_volume_voltot"
-msgstr "Vol.tot"
-
-msgid "volumes_management"
-msgstr "Volumes management"
-
-msgid "volumes_validation_success"
-msgstr "Filled data fit the hourly volumes calculation rules."
-
-msgid "end_date_gt_begin_date"
-msgstr "The end year must be equals or upper than the start year"
-
-msgid "session_title"
-msgstr "Session derogation"
-
-msgid "remarks_title"
-msgstr "Remarks"
-
-msgid "faculty_remark"
-msgstr "Faculty remark"
-
-msgid "other_remark"
-msgstr "Other remark"
-
-msgid "new_learning_unit"
-msgstr "New learning unit"
-
-msgid "previous"
-msgstr "Previous"
-
-msgid "next"
-msgstr "Next"
-
-msgid "learning_location"
-msgstr "Learning location"
-
-msgid "NON_ACADEMIC"
-msgstr "Non academic"
-
-msgid "NON_ACADEMIC_CREF"
-msgstr "Non academic CREF"
-
-msgid "ACADEMIC"
-msgstr "Academic"
-
-msgid "ACTIVE"
-msgstr "Active"
-
-msgid "INACTIVE"
-msgstr "Inactive"
-
-msgid "RE_REGISTRATION"
-msgstr "Active only for re-registration"
-
-msgid "OPTIONAL"
-msgstr "Optional"
-
-msgid "NO_PRINT"
-msgstr "No printing"
-
-msgid "IN_HEADING_2_OF_DIPLOMA"
+#, python-format
+msgid ""
+"The value of field '%(field)s' is different between year %(year)s - "
+"%(value)s and year %(next_year)s - %(next_value)s"
 msgstr ""
 
-msgid "IN_EXPECTED_FORM"
+#, fuzzy
+#| msgid "data"
+msgid "no_data"
+msgstr "Data"
+
+msgid "learning_unit_in_proposal_cannot_save"
+msgstr ""
+"The learning unit %(luy)s is in proposal, can not save the change from the "
+"year %(academic_year)s"
+
+#, python-format
+msgid "The entity '%(acronym)s' doesn't exist anymore in %(year)s"
 msgstr ""
 
-msgid "FEE_1"
-msgstr "Role"
-
-msgid "FEE_2"
-msgstr "Role + exam"
-
-msgid "FEE_3"
-msgstr "AESS, CAPAES or end-of-cycle"
-
-msgid "FEE_4"
-msgstr "School fees without any exam"
-
-msgid "FEE_5"
-msgstr "Full school fees"
-
-msgid "FEE_6"
-msgstr "University certificate"
-
-msgid "FEE_7"
-msgstr "Complementary master with medical specialization"
-
-msgid "FEE_8"
-msgstr "Admission exam"
-
-msgid "FEE_10"
-msgstr "CU 30 credits"
-
-msgid "FEE_11"
-msgstr "Medical skills certificate"
-
-msgid "FEE_12"
-msgstr "ISA offers: 12BA et 21MS"
-
-msgid "FEE_13"
-msgstr "ISA offers: 13BA et 22MS"
-
-msgid "DAILY"
-msgstr "Daily"
-
-msgid "SHIFTED"
-msgstr "Shifted"
-
-msgid "ADAPTED"
-msgstr "Adapted"
-
-msgid "academic_calendar_type"
-msgstr "Type of event"
-
-msgid "DELIBERATION"
-msgstr "Deliberation"
-
-msgid "DISSERTATION_SUBMISSION"
-msgstr "Submission of disserations"
-
-msgid "EXAM_ENROLLMENTS"
-msgstr "Exam enrollments"
-
-msgid "SCORES_EXAM_DIFFUSION"
-msgstr "Diffusion of exam scores"
-
-msgid "SCORES_EXAM_SUBMISSION"
-msgstr "Submission of exam scores"
-
-msgid "TEACHING_CHARGE_APPLICATION"
-msgstr "Teaching charge application"
-
-msgid "TESTING"
-msgstr "Testing"
-
-msgid "RELEASE"
-msgstr "Release"
-
-msgid "field_is_required"
-msgstr "This field is required"
-
-msgid "associated_entity"
-msgstr "Associated entity"
-
-msgid "LU_WARNING_INVALID_ACRONYM"
-msgstr "The acronym, if it is entered, must at least count 3 characters"
-
-msgid "title_in_french"
-msgstr "Title in French"
-
-msgid "schedule_type"
-msgstr "Schedule type"
-
-msgid "enrollment_campus"
-msgstr "Enrollment campus"
-
-msgid "other_campus_activities"
-msgstr "Activities on other campus"
-
-msgid "unspecified"
-msgstr "Unspecified"
-
-msgid "university_certificate"
-msgstr "University certificate"
-
-msgid "studies_domain"
-msgstr "Studies domain"
-
-msgid "main domain"
+#, python-format
+msgid "There is not the learning unit %(acronym)s - %(next_year)s"
 msgstr ""
 
-msgid "secondary domains"
+#, python-format
+msgid ""
+"The value of field '%(field)s' for the learning unit %(acronym)s "
+"(%(component_type)s) is different between year %(year)s - %(value)s and year "
+"%(next_year)s - %(next_value)s"
 msgstr ""
 
-msgid "primary_language"
-msgstr "Primary language"
-
-msgid "other_language_activities"
-msgstr "Other languages activities"
-
-msgid "funding"
-msgstr "Funding"
-
-msgid "funding_cud"
-msgstr "Funding international cooperation CCD/CUD"
-
-msgid "funding_direction"
-msgstr "Funding direction"
-
-msgid "cud_funding_direction"
-msgstr "Funding international cooperation CCD/CUD direction"
-
-msgid "active_status"
-msgstr "Active"
-
-msgid "partial_deliberation"
-msgstr "Partial deliberation"
-
-msgid "admission_exam"
-msgstr "Admission exam"
-
-msgid "academic_type"
-msgstr "Academic type"
-
-msgid "keywords"
-msgstr "Keywords"
-
-msgid "training_type"
-msgstr "Type of training"
-
-msgid "QUADRIMESTER"
-msgstr "Quadrimester(s)"
-
-msgid "TRIMESTER"
-msgstr "Trimester(s)"
-
-msgid "MONTH"
-msgstr "Month(s)"
-
-msgid "WEEK"
-msgstr "Week(s)"
-
-msgid "DAY"
-msgstr "Day(s)"
-
-msgid "administration_entity"
-msgstr "Administration entity"
-
-msgid "management_entity"
-msgstr "Management entity"
-
-msgid "enrollment_enabled"
-msgstr "Enrollment enabled"
-
-msgid "formations"
-msgstr "Formations"
-
-msgid "formations_lnk"
-msgstr "Formations"
-
-msgid "desc_lnk_formations"
-msgstr "Organization of formations"
-
-msgid "education_groups"
-msgstr "Education groups"
-
-msgid "entity_management"
-msgstr "Entity management"
-
-msgid "of_category"
-msgstr "Education group type"
-
-msgid "activity_search"
-msgstr "Learning unit"
-
-msgid "service_course_search"
-msgstr "Service courses"
-
-msgid "TRAINING"
-msgstr "Training"
-
-msgid "MINI_TRAINING"
-msgstr "Mini training"
-
-msgid "GROUP"
-msgstr "Group"
-
-msgid "PRIMARY_LANGUAGE"
-msgstr "Primary anguage"
-
-msgid "OR"
-msgstr "Or"
-
-msgid "AND"
-msgstr "And"
-
-msgid "language_association"
-msgstr "Primary language operator"
-
-msgid "prolong_or_create_learning_unit_message"
-msgstr "<p>The acronym <b>already exists</b>.</p>"
-       "<p>You have the choice between:"
-       "<ul><li><b>create</b> a new learning unit using that acronym</li>"
-       "<li><b>prolong</b> the learning unit of the same acronym</li></ul>"
-
-msgid "confirm_your_action"
-msgstr "Confirm your action."
-
-msgid "create"
-msgstr "Create"
-
-msgid "prolong"
-msgstr "Prolong"
-
-msgid "diplomas_certificates"
-msgstr "Diplomas /  Certificates"
-
-msgid "diploma_title"
-msgstr "Diploma title"
-
-msgid "professionnal_title"
-msgstr "Professionnal title"
-
-msgid "university_certificate_desc"
-msgstr "University certificate"
-
-msgid "program_coorganization"
-msgstr "Program organized with other institutes"
-
-msgid "for_all_students"
-msgstr "For all students"
-
-msgid "diploma"
-msgstr "Diploma"
-
-msgid "UNIQUE"
-msgstr "Unique diploma"
-
-msgid "SEPARATE"
-msgstr "Separate diploma"
-
-msgid "NOT_CONCERNED"
-msgstr "Not concerned"
-
-msgid "organization_address_save_error"
-msgstr "Impossible to save the organization address"
-
-msgid "i_confirm"
-msgstr "Yes, I confirm."
-
-msgid "msg_warning_delete_learning_unit"
-msgstr "This operation is <strong>permanent</strong> and cannot be undone. You will lose for ever"
-       " the data linked to the learning unit <strong>%s</strong>."
-
-msgid "The learning unit %(acronym)s has been successfully deleted for all years."
+#, python-format
+msgid ""
+"There is not %(component_type)s for the learning unit %(acronym)s - %(year)s "
+"but exist in %(existing_year)s"
 msgstr ""
 
-msgid "cannot_delete_learning_unit_year"
-msgstr "Could not delete the LU <strong>%(learning_unit)s</strong> from the year %(year)s for the following reasons :"
-
-msgid "cannot_delete_learning_unit"
-msgstr "Could not delete the LU <strong>%(learning_unit)s</strong> for the following reasons :"
-
-msgid "There is %(count)d enrollments in %(subtype)s %(acronym)s for the year %(year)s"
+msgid "You are not summary responsible for this learning unit."
 msgstr ""
 
-msgid "%(subtype)s %(acronym)s is assigned to %(tutor)s for the year %(year)s"
+msgid "The learning unit is not summary editable."
 msgstr ""
 
-msgid "%(subtype)s %(acronym)s is assigned to the assistant %(assistant)s for the year %(year)s"
+msgid "Not in period to edit educational information."
 msgstr ""
 
-msgid "The learning unit %(acronym)s is related to the internship speciality %(speciality)s"
+#, python-format
+msgid ""
+"%(subtype)s %(acronym)s is assigned to the assistant %(assistant)s for the "
+"year %(year)s"
 msgstr ""
 
 msgid "lu_included_in_group"
-msgstr "%(subtype)s %(acronym)s is included in the group %(group)s for the year %(year)s"
+msgstr ""
+"%(subtype)s %(acronym)s is included in the group %(group)s for the year "
+"%(year)s"
 
-msgid "%(subtype)s %(acronym)s has been deleted for the year %(year)s"
+#, python-format
+msgid "%(subtype)s %(acronym)s is assigned to %(tutor)s for the year %(year)s"
 msgstr ""
 
+#, python-format
 msgid "The class %(acronym)s has been deleted for the year %(year)s"
-msgstr ""
-
-msgid "the partim"
 msgstr ""
 
 msgid "The partim"
@@ -2239,71 +343,155 @@ msgstr ""
 msgid "The learning unit"
 msgstr ""
 
-msgid "the learning unit"
+#, python-format
+msgid ""
+"There is %(count)d enrollments in %(subtype)s %(acronym)s for the year "
+"%(year)s"
 msgstr ""
 
-msgid "You asked the deletion of the learning unit %(acronym)s from the year %(year)s"
+msgid "learning_unit_successfuly_deleted"
+msgstr "Learning unit {acronym} ({academic_year}) successfuly deleted."
+
+msgid "list_learning_units_comparison"
+msgstr "Comparison of learning units"
+
+msgid "Internship subtype"
 msgstr ""
 
-msgid "Delete from this academic year"
+msgid "Req. Entities"
 msgstr ""
 
-msgid "Delete the learning unit for all academic years"
+msgid "Add. requ. ent. 1"
 msgstr ""
 
-msgid "publish_attribution_to_portal"
-msgstr "Publish attribution to portal"
+msgid "Add. requ. ent. 2"
+msgstr ""
 
-msgid "RESEVED_FOR_INTERNS"
-msgstr "Reserved for interns"
+msgid "Profes. integration"
+msgstr ""
 
-msgid "OPEN_FOR_EXTERNS"
-msgstr "Open to externs"
+msgid "institution"
+msgstr "Institution"
 
-msgid "EXCEPTIONAL_PROCEDURE"
-msgstr "Exceptional procedure"
+msgid "learning_location"
+msgstr "Learning location"
 
-msgid "VACANT_NOT_PUBLISH"
-msgstr "Vacant but do not publish"
+msgid "partims"
+msgstr "Partims"
 
-msgid "DO_NOT_ASSIGN"
-msgstr "Do not assign"
+msgid "volume_partial"
+msgstr "Vol. Q1"
 
-msgid "folder"
-msgstr "Folder"
+msgid "volume_remaining"
+msgstr "Vol. Q2"
 
-msgid "introduced_by"
-msgstr "Introduced by"
+msgid "Vol. annual"
+msgstr ""
 
-msgid "the"
-msgstr "The"
+msgid "real_classes"
+msgstr "Real classes"
 
-msgid "proposal_management"
-msgstr "Proposal management"
+msgid "planned_classes"
+msgstr "Classes prévues"
+
+msgid "vol_global"
+msgstr "Vol.global"
+
+msgid "bibliography"
+msgstr ""
+
+msgid "teaching materials"
+msgstr ""
+
+msgid "online resources"
+msgstr ""
+
+msgid "Teaching material"
+msgstr ""
+
+msgid "folder_num"
+msgstr "Folder num."
+
+msgid "type_declaration_vacant"
+msgstr "Decision"
+
+msgid "proposal_date"
+msgstr "Proposals date"
+
+#, python-format
+msgid "%s object(s) extended and %s error(s)"
+msgstr ""
+
+msgid "academic events"
+msgstr ""
+
+msgid "project events"
+msgstr ""
+
+msgid "ad hoc events"
+msgstr ""
+
+msgid "date_format"
+msgstr "%m/%d/%Y"
+
+msgid "academic_calendar_offer_year_calendar_end_date_error"
+msgstr ""
+"The closure's date of '%s' of the academic calendar can't be lower than %s "
+"(end date of '%s' of the program '%s')"
+
+msgid "start_date_must_be_lower_than_end_date"
+msgstr "Start date must be lower than end date"
+
+msgid "dates_mandatory_error"
+msgstr "Start date and end date are mandatory"
+
+msgid "This field is empty"
+msgstr ""
+
+msgid "French"
+msgstr ""
+
+msgid "English"
+msgstr ""
+
+msgid "training_type"
+msgstr "Type of training"
+
+#, python-format
+msgid "Which type of %(category)s do you want to create ?"
+msgstr ""
+
+msgid "Select a language"
+msgstr ""
+
+msgid "country"
+msgstr "Country"
+
+msgid "There is already a coorganization with this organization"
+msgstr ""
+
+msgid "secondary domains"
+msgstr ""
+
+msgid "Search..."
+msgstr ""
+
+msgid "Enter text to search"
+msgstr ""
+
+#, fuzzy
+#| msgid "label"
+msgid "all_label"
+msgstr "Label"
 
 msgid "category"
 msgstr "Category"
 
-msgid "PRESIDENT"
-msgstr "President"
-
-msgid "SECRETARY"
-msgstr "Secretary"
-
-msgid "SIGNATORY"
-msgstr "Signatory"
-
-msgid "administrative_data"
-msgstr "Administrative data"
-
-msgid "jury"
-msgstr "Jury"
-
-msgid "signatory_qualification"
-msgstr "Signatory's qualification"
-
 msgid "course_enrollment"
 msgstr "Course enrollment"
+
+msgid "EXAM_ENROLLMENTS"
+msgstr "Exam enrollments"
 
 msgid "marks_presentation"
 msgstr "Marks presentation"
@@ -2311,77 +499,414 @@ msgstr "Marks presentation"
 msgid "dissertation_presentation"
 msgstr "Dissertation présentation"
 
+msgid "DELIBERATION"
+msgstr "Deliberation"
+
 msgid "scores_diffusion"
 msgstr "Scores diffusion"
 
-msgid "session"
-msgstr "session"
+msgid "Educational information opening"
+msgstr ""
 
-msgid "at"
-msgstr "at"
+msgid "Educational information ending"
+msgstr ""
 
-msgid "learning_unit_years_to_delete"
-msgstr "You will definitely delete the following learning units"
+msgid "Choose academic years"
+msgstr ""
 
-msgid "type_must_be_full"
-msgstr "Type of learning unit must be full"
+msgid "not_end_year"
+msgstr "no planned end"
 
-msgid "learning_unit_type_is_not_internship"
-msgstr "Learning unit is not of type internship."
+msgid "academic_end_year"
+msgstr "Academic end year"
 
-msgid "CREATION"
+msgid "partial_volume_1Q"
+msgstr "Q1"
+
+msgid "partial_volume_1"
+msgstr "Volume Q1"
+
+msgid "partial_volume_2Q"
+msgstr "Q2"
+
+msgid "partial_volume_2"
+msgstr "Volume Q2"
+
+msgid "The annual volume must be equal to the sum of the volumes Q1 and Q2"
+msgstr ""
+
+msgid "Volume total annual"
+msgstr ""
+
+msgid "planned_classes_pc"
+msgstr "P.C."
+
+msgid "volume_global"
+msgstr "volume total global"
+
+msgid "city"
+msgstr "City"
+
+msgid "requesting_entity"
+msgstr "Requesting entity"
+
+msgid ""
+"The linked entity does not exist at the start date of the academic year "
+"linked to this learning unit"
+msgstr ""
+
+msgid "official_title_proper_to_partim"
+msgstr "Title proper to the partim"
+
+msgid "official_english_title_proper_to_partim"
+msgstr "English title proper to the partim"
+
+#, fuzzy, python-brace-format
+#| msgid "Ensure this value is less than %(limit_value)s."
+msgid "Ensure this value is less than or equal to {max_value}."
+msgstr "Ensure this value is less than %(limit_value)s."
+
+msgid "This field cannot be set"
+msgstr ""
+
+msgid "must_set_common_title_or_specific_title"
+msgstr "You must either set the common title or the specific title"
+
+msgid "end_year_title"
+msgstr "End year"
+
+#, python-format
+msgid "The learning unit has been updated until %(year)s."
+msgstr ""
+
+#, python-format
+msgid ""
+"The repartition volume of %(col_name)s has been already modified. "
+"({%(new_value)s} instead of {%(current_value)s})"
+msgstr ""
+
+#, python-format
+msgid ""
+"%(col_name)s has been already modified. ({%(new_value)s} instead of "
+"{%(current_value)s})"
+msgstr ""
+
+msgid "tutor"
+msgstr "Tutor"
+
+#, fuzzy
+#| msgid "scores_responsible"
+msgid "summary_responsible"
+msgstr "Scores Responsible"
+
+msgid "with_entity_subordinated_small"
+msgstr "With subord. ent."
+
+msgid "faculty_borrowing"
+msgstr "Faculty borrowing"
+
+msgid "LU_ERRORS_INVALID_REGEX_SYNTAX"
+msgstr "Invalid regular expression!"
+
+msgid "minimum_one_criteria"
+msgstr "Please choose at least one criteria!"
+
+#, fuzzy
+#| msgid "mark_selected_messages_as_read"
+msgid "mark_selected_as_read"
+msgstr "Mark selected messages as read"
+
+#, fuzzy
+#| msgid "delete_selected_messages"
+msgid "delete_selected"
+msgstr "Delete selected messages"
+
+msgid "name"
+msgstr "Name"
+
+msgid "prerequisites_syntax_rules"
+msgstr ""
+"<b>Syntax rules</b>:<ul><li>No double parentheses.</li><li>Valid operators "
+"are OU or ET.</li><li>The operator must be the same inside all parentheses "
+"(groups).</li><li>The operator that linked groups must be different than the "
+"one that linked LU inside groups (parentheses).</li><li>The LU code cannot "
+"include spaces (ex: LDROI1001 and not LDROI&nbsp;1001).</li></ul></"
+"p><p><b>Examples</b>:<ul><li>A OU B OU C: valid</li><li>A ET B ET C : valid</"
+"li><li>A ET (B OU C) ET (D OU E): valid</li><li>A ET (B OU C) OU (D OU E): "
+"not valid</li><li>A ET (B ET C) ET (D ET E): not valid</li><li>A ET (B OU C) "
+"ET (D ET E): not valid</li></ul>"
+
+msgid "folder_entity"
+msgstr "Folder entity"
+
+msgid "The format of the range date is not valid"
+msgstr ""
+
+msgid "text"
+msgstr "Text"
+
+msgid "end_start_date_error"
+msgstr "Start date must be lower than end date"
+
+msgid "text in English"
+msgstr ""
+
+msgid "text in French"
+msgstr ""
+
+msgid "On the file: direct access or access with additional training"
+msgstr ""
+
+msgid "Direct Access"
+msgstr ""
+
+msgid "Access with additional training"
+msgstr ""
+
+#, python-format
+msgid "%s is not an accepted value"
+msgstr ""
+
+msgid "aim number"
+msgstr ""
+
+msgid "section"
+msgstr ""
+
+msgid "description"
+msgstr "Description"
+
+msgid "start"
+msgstr "Start"
+
+#, fuzzy
+#| msgid "encode"
+msgid "end"
+msgstr "Encode"
+
+#, python-format
+msgid "%(max)s must be greater or equals than %(min)s"
+msgstr ""
+
+#, fuzzy
+#| msgid "education_groups"
+msgid "education group year"
+msgstr "Education groups"
+
+msgid "education group achievement"
+msgstr ""
+
+msgid "education group detailed achievement"
+msgstr ""
+
+msgid "for_all_students"
+msgstr "For all students"
+
+msgid "Reference institution"
+msgstr ""
+
+msgid "UCL Diploma"
+msgstr ""
+
+msgid "Producing certificat"
+msgstr ""
+
+msgid "Producing annexe"
+msgstr ""
+
+#, python-format
+msgid "%(count)d education group has been postponed with success"
+msgid_plural "%(count)d education groups have been postponed with success"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "The following education groups ended with error"
+msgstr ""
+
+msgid "Apply postponement on education group year"
+msgstr ""
+
+msgid "title_in_french"
+msgstr "Title in French"
+
+msgid "validity"
+msgstr ""
+
+msgid "partial_deliberation"
+msgstr "Partial deliberation"
+
+msgid "admission_exam"
+msgstr "Admission exam"
+
+msgid "funding"
+msgstr "Funding"
+
+msgid "funding_direction"
+msgstr "Funding direction"
+
+msgid "funding_cud"
+msgstr "Funding international cooperation CCD/CUD"
+
+msgid "cud_funding_direction"
+msgstr "Funding international cooperation CCD/CUD direction"
+
+msgid "academic_type"
+msgstr "Academic type"
+
+msgid "university_certificate"
+msgstr "University certificate"
+
+msgid "enrollment_campus"
+msgstr "Enrollment campus"
+
+#, fuzzy
+#| msgid "duration"
+msgid "dissertation"
+msgstr "Duration"
+
+#, fuzzy
+#| msgid "internships"
+msgid "internship"
+msgstr "Internships"
+
+msgid "schedule_type"
+msgstr "Schedule type"
+
+msgid "activities in English"
+msgstr ""
+
+msgid "other_language_activities"
+msgstr "Other languages activities"
+
+msgid "other_campus_activities"
+msgstr "Activities on other campus"
+
+msgid "professionnal_title"
+msgstr "Professionnal title"
+
+msgid "university_certificate_desc"
+msgstr "University certificate"
+
+msgid "diploma_title"
+msgstr "Diploma title"
+
+msgid "primary_language"
+msgstr "Primary language"
+
+msgid "keywords"
+msgstr "Keywords"
+
+msgid "duration"
+msgstr "Duration"
+
+msgid "duration unit"
+msgstr ""
+
+msgid "enrollment_enabled"
+msgstr "Enrollment enabled"
+
+msgid "remark"
+msgstr "Remark"
+
+msgid "remark_english"
+msgstr "Remark in english"
+
+msgid "minimum constraint"
+msgstr ""
+
+msgid "maximum constraint"
+msgstr ""
+
+msgid "type of constraint"
+msgstr ""
+
+msgid "main domain"
+msgstr ""
+
+msgid "management_entity"
+msgstr "Management entity"
+
+msgid "administration_entity"
+msgstr "Administration entity"
+
+msgid "Weighting"
+msgstr ""
+
+msgid "Default learning unit enrollment"
+msgstr ""
+
+msgid "Decree category"
+msgstr ""
+
+msgid "Rate code"
+msgstr ""
+
+msgid "comment (internal)"
+msgstr ""
+
+#, fuzzy, python-format
+#| msgid "%(acronym)s %(title)s [%(volumes)s] (%(credits)s credits)"
+msgid "%(title)s (%(credits)s credits)"
+msgstr "%(acronym)s %(title)s [%(volumes)s] (%(credits)s credits)"
+
+#, fuzzy, python-format
+#| msgid "titles"
+msgid "%(title)s"
+msgstr "Titles"
+
+msgid "field_is_required"
+msgstr "This field is required"
+
+#, python-format
+msgid ""
+"The linked %(entity)s does not exist at the start date of the academic year "
+"linked to this learning unit"
+msgstr ""
+
+#, fuzzy
+#| msgid "logout"
+msgid "logo"
+msgstr "Logout"
+
+msgid "Number of elements"
+msgstr ""
+
+msgid "ABSENCE_UNJUSTIFIED"
+msgstr ""
+
+msgid "ABSENCE_JUSTIFIED"
+msgstr ""
+
+#, fuzzy
+#| msgid "CREATION"
+msgid "CHEATING"
 msgstr "Creation"
 
-msgid "MODIFICATION"
-msgstr "Modification"
+msgid "ENROLLED"
+msgstr ""
 
-msgid "TRANSFORMATION"
-msgstr "Transformation"
+#, fuzzy
+#| msgid "NOT_CONCERNED"
+msgid "NOT_ENROLLED"
+msgstr "Not concerned"
 
-msgid "TRANSFORMATION_AND_MODIFICATION"
-msgstr "Transformation and modification"
+msgid "absent"
+msgstr "Absent"
 
-msgid "SUPPRESSION"
-msgstr "Suppression"
+msgid "absent_pdf_legend"
+msgstr "A=Absent"
 
-msgid "CENTRAL"
-msgstr "Central"
+msgid "cheating_pdf_legend"
+msgstr "T=Cheating"
 
-msgid "SUSPENDED"
-msgstr "Suspended"
+msgid "external_code"
+msgstr "External code"
 
-msgid "ACCEPTED"
-msgstr "Accepted"
+msgid "local_credits"
+msgstr "Local credits"
 
-msgid "REFUSED"
-msgstr "Refused"
-
-msgid "success_modification_proposal"
-msgstr "You proposed a modification of type {} for the learning unit {}."
-
-msgid "proposal_edited_successfully"
-msgstr "Proposal edited successfully"
-
-msgid "proposals_cancelled_successfully"
-msgstr "Proposals cancelled successfully"
-
-msgid "proposals_consolidated_successfully"
-msgstr "Proposals consolidated successfully"
-
-msgid "content"
-msgstr "Content"
-
-msgid "code_scs"
-msgstr "Code SCS"
-
-msgid "title_code_formation"
-msgstr "Title / Formation's code"
-
-msgid "absolute_credits"
-msgstr "Abs. credits"
-
-msgid "relative_target_credits"
-msgstr "Relative target's credits"
+msgid "url of the learning unit"
+msgstr "URL of the learning unit"
 
 msgid "relative credits"
 msgstr ""
@@ -2398,646 +923,26 @@ msgstr "Mandatory"
 msgid "block"
 msgstr "Block"
 
-msgid "current_order"
-msgstr "Current order"
-
-msgid "sessions_derogation"
-msgstr "Sessions in derogation"
-
-msgid "own_comment"
-msgstr "Own comment"
-
-msgid "SESSION_1"
-msgstr "1"
-
-msgid "SESSION_2"
-msgstr "2"
-
-msgid "SESSION_3"
-msgstr "3"
-
-msgid "SESSION_1_2"
-msgstr "12"
-
-msgid "SESSION_1_3"
-msgstr "13"
-
-msgid "SESSION_2_3"
-msgstr "23"
-
-msgid "SESSION_1_2_3"
-msgstr "123"
-
-msgid "SESSION_UNDEFINED"
-msgstr "Undefined session"
-
-msgid "SESSION_PARTIAL_2_3"
-msgstr "p23"
-
-msgid "Put in proposal"
-msgstr ""
-
-msgid "Put in suppression proposal"
-msgstr ""
-
-msgid "Proposal for modification"
-msgstr ""
-
-msgid "End of teaching"
-msgstr ""
-
-msgid "academic_entity_small"
-msgstr "Academic ent."
-
-msgid "academic_entity"
-msgstr "Academic entity"
-
-msgid "folder_number"
-msgstr "Folder n°{}"
-
-msgid "produce_xls_lus"
-msgstr "The learning units"
-
-msgid "%(date)s must be set within %(start_date)s and %(end_date)s"
-msgstr ""
-
-msgid "Cancel the proposal"
-msgstr ""
-
-msgid "Edit the proposal"
-msgstr ""
-
-msgid "Consolidate the proposal"
-msgstr ""
-
-msgid "msg_confirm_cancel_proposal"
-msgstr "Are you certain that you want to cancel the learning unit proposal ?"
-
-msgid "The administrative data has been successfully modified"
-msgstr ""
-
-msgid "vacant"
-msgstr "Vacant"
-
-msgid "team_management"
-msgstr "Team management"
-
-msgid "type_declaration_vacant"
-msgstr "Decision"
-
-msgid "procedure"
-msgstr "Procedure"
-
-msgid "educational_information_management"
-msgstr "Management of educational information"
-
-msgid "SUMMARY_COURSE_SUBMISSION"
-msgstr "Summary course submission"
-
-msgid "INTERNAL_TEAM"
-msgstr "Internal/team"
-
-msgid "substitute"
-msgstr "Substitute"
-
-msgid "not_end_year"
-msgstr "no planned end"
-
-msgid "Modify"
-msgstr ""
-
-msgid "Edit learning unit end date"
-msgstr ""
-
-msgid "Modify end date"
-msgstr ""
-
-msgid "learning_unit_successfuly_created"
-msgstr "Learning unit <a href='%(link)s'> %(acronym)s (%(academic_year)s) </a> successfuly created."
-
-msgid "learning_unit_successfuly_deleted"
-msgstr "Learning unit {acronym} ({academic_year}) successfuly deleted."
-
-msgid "learning_unit_creation_academic_year_max_error"
-msgstr "Please select an academic year lower than {}."
-
-msgid "parent_greater_than_partim"
-msgstr "The selected end year (%(partim_end_year)s) is greater than the end year of the parent %(lu_parent)s"
-
-msgid "learning_unit_created"
-msgstr "Learning unit %(learning_unit)s created for the academic year %(academic_year)s"
-
-msgid "learning_unit_updated"
-msgstr "Learning unit {acronym} successfully updated."
-
-msgid "partim_greater_than_parent"
-msgstr "The learning unit %(learning_unit)s has a partim %(partim)s with an end year greater than %(year)s"
-
-msgid "partim"
-msgstr "Partim"
-
-msgid "partim_character_rules"
-msgstr "One letter or digit mandatory"
-
-msgid "invalid_partim_character"
-msgstr "Character already used"
-
-msgid "remark"
-msgstr "Remark"
-
-msgid "remark_english"
-msgstr "Remark in english"
-
-msgid "Ensure this value is less than %(limit_value)s."
-msgstr "Ensure this value is less than %(limit_value)s."
-
-msgid "Ensure this value is greater than %(limit_value)s."
-msgstr "Ensure this value is greater than %(limit_value)s."
-
-msgid "Entity_not_exist"
-msgstr "The entity %(entity_acronym)s does not exist for the selected academic year %(academic_year)s"
-
-msgid "Edit the learning unit"
-msgstr ""
-
-msgid "requirement_entity_end_date_too_short"
-msgstr "The requirement entity lifetime is too short."
-
-msgid "Requirement and allocation entities must be linked to the same faculty for this learning unit type."
-msgstr ""
-
-msgid "success_modification_learning_unit"
-msgstr "The learning unit has been updated."
-
-msgid "error_modification_learning_unit"
-msgstr "An error occured when updating the learning unit."
-
-msgid "cannot_set_internship_subtype_for_type_other_than_internship"
-msgstr "Internship subtype cannot bet set for learning unit type other than internship."
-
-msgid "%(subtype)s %(acronym)s is in proposal for the year %(year)s"
-msgstr ""
-
-msgid "volume_have_more_than_2_decimal_places"
-msgstr "The volume have more than 2 decimal places"
-
-msgid "Site"
-msgstr "Site"
-
-msgid "proposal_type"
-msgstr "Proposal type"
-
-msgid "proposal_status"
-msgstr "Status proposal"
-
-msgid "folder_entity"
-msgstr "Folder entity"
-
-msgid "proposals_search"
-msgstr "Proposals"
-
-msgid "folder_num"
-msgstr "Folder num."
-
-msgid "ask_to_report_modification"
-msgstr "Do you want to report the modifications done to the next years ?"
-
-msgid "proposal_learning_unit_successfuly_created"
-msgstr "Proposal learning unit <a href='%(link)s'> %(acronym)s (%(academic_year)s) </a> successfuly created."
-
-msgid "new_learning_unit_proposal"
-msgstr "New learning unit proposal"
-
-msgid "proposal_creation"
-msgstr "Proposal of creation"
-
-msgid "proposal_update"
-msgstr "Proposal update"
-
-msgid "value_before_proposal"
-msgstr "Value before proposal"
-
-msgid "entity_not_found"
-msgstr "Entity not found.  Pershaps an error in the data"
-
-msgid "min_for_field"
-msgstr "Please enter a value greater than or equal to 0."
-
-msgid "max_for_field"
-msgstr "Please enter a value less than or equal to 500."
-
-msgid "force_state"
-msgstr "Force state"
-
-msgid "do_you_want_change_status_proposals"
-msgstr "Do you want to change the status of this proposals?"
-
-msgid "are_you_sure_to_change_state_from"
-msgstr "Are you sure to change the state from"
-
-msgid "must_set_common_title_or_specific_title"
-msgstr "You must either set the common title or the specific title"
-
-msgid "learning_unit_in_proposal_cannot_save"
-msgstr "The learning unit %(luy)s is in proposal, can not save the change from the year %(academic_year)s"
-
-msgid "by"
-msgstr "By"
-
-msgid "in_proposal"
-msgstr "Existing proposal"
-
-msgid "summary_locked"
-msgstr "blocked update for tutor"
-
-msgid "get_back_to_initial"
-msgstr "Get back to initial data"
-
-msgid "do_you_want_to_get_back_to_initial"
-msgstr "Do you want to get back to initial data?"
-
-msgid "error_proposal_suppression_to_initial"
-msgstr "An error occured when getting back to initial state one of the selected proposal is not in SUPPRESSION type. Nothing has been done"
-
-msgid "error_proposal_no_data"
-msgstr "An error occured when getting back to initial state. No valid data to submit"
-
-msgid "msg_confirm_delete_luy"
-msgstr "Are you certain that you want to delete the learning unit ?"
-
-msgid "already_existing_acronym"
-msgstr "Existing acronym"
-
-msgid "The value of field '%(field)s' is different between year %(year)s - %(value)s and year %(next_year)s - %(next_value)s"
-msgstr ""
-
-msgid "There is not the learning unit %(acronym)s - %(next_year)s"
-msgstr ""
-
-msgid "The value of field '%(field)s' for the learning unit %(acronym)s (%(component_type)s) is different between year %(year)s - %(value)s and year %(next_year)s - %(next_value)s"
-msgstr ""
-
-msgid "There is not %(component_type)s for the learning unit %(acronym)s - %(year)s but exist in %(existing_year)s"
-msgstr ""
-
-msgid "Educational information opening"
-msgstr ""
-
-msgid "Educational information ending"
-msgstr ""
-
-msgid "official_title_proper_to_partim"
-msgstr "Title proper to the partim"
-
-msgid "official_english_title_proper_to_partim"
-msgstr "English title proper to the partim"
-
-msgid "Educational information submission dates updated"
-msgstr ""
-
-msgid "The credits value of the partim %(acronym)s is greater or equal than the credits value of the parent learning unit."
-msgstr ""
-
-msgid "The learning unit has been updated until %(year)s."
-msgstr ""
-
-msgid "Prohibition to delete a learning unit before 2015."
-msgstr ""
-
-msgid "The entity '%(acronym)s' doesn't exist anymore in %(year)s"
-msgstr ""
-
-msgid "updated"
-msgstr "Updated"
-
-msgid "unupdated"
-msgstr "Unupdated"
-
-msgid "summary_list"
-msgstr "Education information status"
-
-msgctxt "teachingmaterial"
-msgid "title"
-msgstr ""
-
-msgctxt "teachingmaterial"
-msgid "mandatory"
-msgstr ""
-
-msgid "Bibliography"
-msgstr ""
-
-msgid "bibliography"
-msgstr ""
-
-msgid "Teaching material"
-msgstr ""
-
-msgid "Mobility"
-msgstr ""
-
-msgid "The periodicity of the parent and the partims do not match"
-msgstr ""
-
-msgid "educational_information_update_reminder"
-msgstr "Mail to remind educational information update"
-
-msgid "do_you_want_to_sent_email"
-msgstr "Do you want to sent email to remind to update the educational informations?"
-
-msgid "desc_mail_reminder"
-msgstr "Sent email to remind to update educational information"
-
-msgid "success_mail_reminder"
-msgstr "Reminding mails sent"
-
-msgid "consolidate"
-msgstr "Consolidate"
-
-msgid "do_you_want_to_consolidate"
-msgstr "Do you want to consolidate ?"
-
-msgid "need_no_reminder"
-msgstr "Need no reminder"
-
-msgid "Proposal %(acronym)s (%(academic_year)s) cannot be consolidated."
-msgstr ""
-
-msgid "Proposal %(acronym)s (%(academic_year)s) successfully consolidated."
-msgstr ""
-
-msgid "Proposal %(acronym)s (%(academic_year)s) cannot be canceled."
-msgstr ""
-
-msgid "Proposal %(acronym)s (%(academic_year)s) successfully canceled."
-msgstr ""
-
-msgid "A report has been sent."
-msgstr ""
-
-msgid "Success"
-msgstr ""
-
-msgid "Failure"
-msgstr ""
-
-msgid "Remarks"
-msgstr ""
-
-msgid "Learning unit"
-msgstr ""
-
-msgid "Research criteria"
-msgstr ""
-
-msgid "The learning unit %(acronym)s is included in the following education groups"
-msgstr ""
-
-msgid "type_code_formation"
-msgstr "Formation's type"
-
-msgid "absolute_and_relative_credits"
-msgstr "Relative / Absolute <br>credits"
-
-msgid "Proposal is neither accepted nor refused."
-msgstr ""
-
-msgid "learning_achievements"
-msgstr "Learning achievements"
-
-msgid "up"
-msgstr "Up"
-
-msgid "down"
-msgstr "Down"
-
-msgid "learning_achievements_headline"
-msgstr "At the end of this learning unit, the student is able to:"
-
-msgid "User %(person)s do not have rights on this proposal."
-msgstr ""
-
-msgid "Enrollments to learning unit"
-msgstr ""
-
-msgid "Training"
-msgstr ""
-
-msgid "Enrollments to training"
-msgstr ""
-
-msgid "Enrolled to learning unit"
-msgstr "Enrollments to learning unit"
-
-msgid "No proposals was selected."
-msgstr ""
-
-msgid "Proposal %(acronym)s (%(academic_year)s) successfully changed state."
-msgstr ""
-
-msgid "Proposal %(acronym)s (%(academic_year)s) cannot be changed state."
-msgstr ""
-
-msgid "cancellation"
-msgstr ""
-
-msgid "consolidation"
-msgstr "consolidation"
-
-msgid "borrowed_course_search"
-msgstr "Borrowed courses"
-
-msgid "add_another"
-msgstr "Add another"
-
-msgid "The parent is inactive and there is at least one partim active"
-msgstr ""
-
-msgid "This partim is active and the parent is inactive"
-msgstr ""
-
-msgid "faculty_borrowing"
-msgstr "Faculty borrowing"
-
-msgid "The value of this attribute is inherited from the parent UE"
-msgstr ""
-
-msgid "to_complete"
-msgstr "To complete"
-
-msgid "The value of this attribute is not annualized"
-msgstr ""
-
-msgid "start_year"
-msgstr "Starting year"
-
-msgid "produce_xls_attributions"
-msgstr "The learning units and attributions"
-
-msgid "produce_xls_proposals"
-msgstr "Xls with proposals"
-
-msgid "proposal_date"
-msgstr "Proposals date"
-
-msgid "search_type"
-msgstr "Search type"
-
-msgid "The linked %(entity)s does not exist at the start date of the academic year linked to this learning unit"
-msgstr ""
-
-msgid "COURSE_ENROLLMENT"
-msgstr "Course enrollment"
-
-msgid "vol_global"
-msgstr "Vol.global"
-
-msgid "volume_global"
-msgstr "volume total global"
-
-msgid "Vol. annual"
-msgstr ""
-
-msgid "Volume annual"
-msgstr ""
-
-msgid "missing_internship_subtype"
-msgstr "It is necessary to indicate the internship subtype"
-
-msgid "different_status_with_parent"
-msgstr "The learning unit's parent is inactive"
-
-msgid "new_external_learning_unit"
-msgstr "Create a new external learning unit"
-
-msgid "external"
-msgstr "External"
-
-msgid "comment_title"
-msgstr "Comment"
-
 msgid "comment"
 msgstr ""
 
 msgid "english comment"
 msgstr ""
 
-msgid "The comments of %(acronym)s has been updated"
+msgid "Quadrimester derogation"
 msgstr ""
 
-msgid "requesting_entity"
-msgstr "Requesting entity"
-
-msgid "local_credits"
-msgstr "Local credits"
-
-msgid "Consistency error in %(academic_year)s : %(error)s"
+msgid "Link type"
 msgstr ""
 
-msgid "%(col_name)s has been already modified. ({%(new_value)s} instead of {%(current_value)s})"
-msgstr ""
+#, python-format
+msgid "%(acronym)s %(title)s [%(volumes)s] (%(credits)s credits)"
+msgstr "%(acronym)s %(title)s [%(volumes)s] (%(credits)s credits)"
 
-msgid "%(col_name)s has been already modified."
-msgstr ""
-
-msgid "external_code"
-msgstr "External code"
-
-msgid "Proposals"
-msgstr ""
-
-msgid "learning_units_and_attributions_filename"
-msgstr "learning_units_and_attributions"
-
-msgid "attribution_list"
-msgstr "List of attributions"
-
-msgid "List_proposals"
-msgstr "List of proposals"
-
-msgid "List_activities"
-msgstr "List of activities"
-
-msgid "learning_units_filename"
-msgstr "learning_units"
-
-msgid "warnings_detected"
-msgstr "We detected inconsistencies in the following data :"
-
-msgid "Volumes are inconsistent"
-msgstr ""
-
-msgid "Volumes of {} are inconsistent"
-msgstr ""
-
-msgid "planned classes cannot be 0 while volume is greater than 0"
-msgstr ""
-
-msgid "Vol_tot is not equal to vol_q1 + vol_q2"
-msgstr ""
-
-msgid "Vol_global is not equal to Vol_tot * planned_classes"
-msgstr "The overall volume must be equal to the annual volume multiplied by the number of classes"
-
-msgid "At least a partim volume value is greater than corresponding volume of parent"
-msgstr ""
-
-msgid "planned classes cannot be greather than 0 while volume is equal to 0"
-msgstr ""
-
-msgid "url of the learning unit"
-msgstr "URL of the learning unit"
-
-msgid "professional_integration"
-msgstr "Professional integration"
-
-msgid "external_search"
-msgstr "Externals"
-
-msgid "formerly"
-msgstr "Formerly"
-
-msgid "title_1_in_english"
-msgstr "Title common title with partims (part 1) in English"
-
-msgid "title_2_in_english"
-msgstr "Title specific with partim (part 2) in English"
-
-msgid "Manage volumes"
-msgstr ""
-
-msgid "New external learning unit"
-msgstr ""
-
-msgid "New partim"
-msgstr ""
-
-msgid "middle_name"
-msgstr "Middle name"
-
-msgid "Select the missing term for the offer"
-msgstr "Select the missing term for the offer"
-
-msgid "Remove the term"
-msgstr "Remove the term"
-
-msgid "Do you want to remove this term?"
-msgstr "Do you want to remove this term?"
-
-msgid "Sorry but you can not remove the term of an offer"
-msgstr "Sorry but you can not remove the term of an offer"
-
-msgid "Do you want to remove the term?"
-msgstr "Do you want to remove the term?"
-
-msgid "Export"
-msgstr ""
-
-msgid "produce_xls_lus_desc"
-msgstr "Produce xls with a list of learning units"
-
-msgid "produce_xls_attributions_desc"
-msgstr "Produce xls with a list of learning units and attributions"
+#, fuzzy
+#| msgid "learning_unit_search"
+msgid "learning unit year"
+msgstr "Learning unit search"
 
 msgid "hourly volume total annual"
 msgstr ""
@@ -3051,19 +956,371 @@ msgstr ""
 msgid "volume declared vacant"
 msgstr ""
 
-msgid "Xls with education groups"
+msgid "Volumes of {} are inconsistent"
 msgstr ""
 
-msgid "education_groups_filename"
-msgstr "education_groups"
-
-msgid "list_education_groups"
-msgstr "Education group's list"
-
-msgid "Q1 and Q2"
+msgid "Vol_tot is not equal to vol_q1 + vol_q2"
 msgstr ""
 
-msgid "Q1 or Q2"
+msgid "Vol_global is not equal to Vol_tot * planned_classes"
+msgstr ""
+"The overall volume must be equal to the annual volume multiplied by the "
+"number of classes"
+
+msgid "planned classes cannot be 0 while volume is greater than 0"
+msgstr ""
+
+msgid "planned classes cannot be greather than 0 while volume is equal to 0"
+msgstr ""
+
+msgid "vacant"
+msgstr "Vacant"
+
+msgid "start_year"
+msgstr "Starting year"
+
+msgid "faculty_remark"
+msgstr "Faculty remark"
+
+msgid "other_remark"
+msgstr "Other remark"
+
+msgid "Prohibition to delete a learning unit before 2015."
+msgstr ""
+
+msgid "learning_unit_creation_academic_year_max_error"
+msgstr "Please select an academic year lower than {}."
+
+#, python-format
+msgid "%(count)d learning unit has been postponed with success"
+msgid_plural "%(count)d learning units have been postponed with success"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "The following learning units ended with error"
+msgstr ""
+
+msgid "Apply postponement on learning unit year"
+msgstr ""
+
+#, fuzzy
+#| msgid "academic_years"
+msgid "academic_year"
+msgstr "Academic years"
+
+msgid "procedure"
+msgstr "Procedure"
+
+msgid "summary_locked"
+msgstr "blocked update for tutor"
+
+msgid "professional_integration"
+msgstr "Professional integration"
+
+msgid "to_complete"
+msgstr "To complete"
+
+msgid "already_existing_acronym"
+msgstr "Existing acronym"
+
+msgid "invalid_acronym"
+msgstr "Invalid code"
+
+msgid "The credits value should be an integer"
+msgstr ""
+
+#, python-format
+msgid ""
+"The credits value of the partim %(acronym)s is greater or equal than the "
+"credits value of the parent learning unit."
+msgstr ""
+
+msgid "missing_internship_subtype"
+msgstr "It is necessary to indicate the internship subtype"
+
+msgid "This partim is active and the parent is inactive"
+msgstr ""
+
+msgid "The parent is inactive and there is at least one partim active"
+msgstr ""
+
+#, python-format
+msgid ""
+"This partim is %(partim_periodicity)s and the parent is %(parent_periodicty)s"
+msgstr ""
+
+#, python-format
+msgid ""
+"The parent is %(parent_periodicty)s and there is at least one partim which "
+"is not %(parent_periodicty)s"
+msgstr ""
+
+msgid "bachelor"
+msgstr "Bachelor"
+
+msgid "master"
+msgstr "Master"
+
+msgid "ph_d"
+msgstr "Ph.D"
+
+#, python-format
+msgid "%(date)s must be set within %(start_date)s and %(end_date)s"
+msgstr ""
+
+msgid "female"
+msgstr "Female"
+
+msgid "male"
+msgstr "Male"
+
+msgid "unknown"
+msgstr "Unknown"
+
+msgid "Prerequisites are invalid"
+msgstr "<p>Prerequisites are invalid</p>"
+
+msgid "state"
+msgstr "State"
+
+msgid "teachingmaterial"
+msgstr ""
+
+#, fuzzy
+#| msgid "reference"
+msgid "field reference"
+msgstr "Reference"
+
+msgid "initial value"
+msgstr ""
+
+msgid "regex rule"
+msgstr ""
+
+#, fuzzy
+#| msgid "server_error_message"
+msgid "regex error message"
+msgstr "We will fix this as soon as possible"
+
+#, fuzzy
+#| msgid "evaluations"
+msgid "validation rule"
+msgstr "Evaluations"
+
+msgid "academic_actors"
+msgstr "Academic actors"
+
+#, fuzzy
+#| msgid "program_managers"
+msgid "pgm_managers"
+msgstr "Program Managers"
+
+#, fuzzy
+#| msgid "desc_lnk_data_management"
+msgid "desc_lnk_pgm_managers"
+msgstr "Management of data by entity"
+
+msgid "scores_responsibles"
+msgstr "Scores responsibles"
+
+#, fuzzy
+#| msgid "desc_lnk_storage"
+msgid "desc_lnk_srm_managers"
+msgstr "Monitoring of the storage capacity"
+
+#, fuzzy
+#| msgid "scores_responsibles"
+msgid "summary_responsibles"
+msgstr "Scores responsibles"
+
+#, fuzzy
+#| msgid "desc_lnk_my_osis"
+msgid "desc_lnk_summary_responsible"
+msgstr ""
+"Your personal details, configurations and other information related to you."
+
+msgid "formation_catalogue"
+msgstr "Formation catalogue"
+
+msgid "academic_calendars"
+msgstr "Academic calendars"
+
+msgid "event"
+msgstr "Event"
+
+msgid "start_date"
+msgstr "Start date"
+
+msgid "end_date"
+msgstr "End date"
+
+msgid "label_jumbotron_details_academic_cal"
+msgstr "As displayed on the home page"
+
+msgid "go"
+msgstr "Go"
+
+msgid "delete"
+msgstr "Delete"
+
+msgid "edit"
+msgstr "Edit"
+
+msgid "academic_calendar"
+msgstr "Academic calendar"
+
+msgid "format_date"
+msgstr "mm/dd/yyyy"
+
+msgid "academic_calendar_type"
+msgstr "Type of event"
+
+msgid "highlight_title"
+msgstr "Highlight title"
+
+msgid "highlight_shortcut"
+msgstr "Highlight shortcut"
+
+msgid "highlight_description"
+msgstr "Highlight description"
+
+msgid "save"
+msgstr "Save"
+
+msgid "cancel"
+msgstr "Cancel"
+
+msgid "no_result"
+msgstr "No result!"
+
+msgid "undated_events"
+msgstr "Unscheduled events"
+
+msgid "day"
+msgstr "day"
+
+msgid "days"
+msgstr "days"
+
+msgid "details"
+msgstr "Details"
+
+msgid "Are you sure you want to delete the event"
+msgstr ""
+
+msgid "academic_calendar_management"
+msgstr "Academic calendar management"
+
+msgid "acces_denied"
+msgstr "Access denied"
+
+msgid "administration"
+msgstr "Administration"
+
+msgid "data"
+msgstr "Data"
+
+msgid "data_management"
+msgstr "Data Management"
+
+msgid "desc_lnk_data_management"
+msgstr "Management of data by entity"
+
+msgid "data_maintenance"
+msgstr "Data Maintenance"
+
+msgid "desc_lnk_data_maintenance"
+msgstr "Maintenance of data with the SQL language"
+
+msgid "storage"
+msgstr "Storage"
+
+msgid "desc_lnk_storage"
+msgstr "Monitoring of the storage capacity"
+
+msgid "sql_command"
+msgstr ""
+
+msgid "execute"
+msgstr "Execute"
+
+msgid "reset"
+msgstr ""
+
+msgid "result"
+msgstr "Result"
+
+msgid "are_you_sure"
+msgstr "Are you sure?"
+
+#, fuzzy
+#| msgid "Actions"
+msgid "actions"
+msgstr "Actions"
+
+msgid "new_learning_unit"
+msgstr "New learning unit"
+
+msgid "new_external_learning_unit"
+msgstr "Create a new external learning unit"
+
+msgid "add"
+msgstr "Add"
+
+msgid "learning_unit_search"
+msgstr "Learning unit search"
+
+msgid "There are warnings in the form."
+msgstr ""
+
+msgid "Do you want to continue ?"
+msgstr ""
+
+#, python-format
+msgid "%(number_notifications)s unread notification(s)"
+msgstr ""
+
+#, fuzzy
+#| msgid "identification"
+msgid "Clear notifications"
+msgstr "Identification"
+
+msgid "offers"
+msgstr "Programs"
+
+msgid "desc_lnk_offers"
+msgstr "Management of programs."
+
+msgid "learning_units"
+msgstr "Learning units"
+
+msgid "desc_lnk_learning_units"
+msgstr ""
+"Management of learning units, formations and others activities of the "
+"program."
+
+msgid "desc_lnk_academic_year"
+msgstr "Management of the annualized program."
+
+msgid "formations_lnk"
+msgstr "Formations"
+
+msgid "desc_lnk_formations"
+msgstr "Organization of formations"
+
+msgid "Add the French content of this paragraph"
+msgstr ""
+
+msgid "Add the English content of this paragraph"
+msgstr ""
+
+msgid "up"
+msgstr "Up"
+
+msgid "down"
+msgstr "Down"
+
+msgid "Detach"
 msgstr ""
 
 msgid "New Education Group"
@@ -3075,65 +1332,50 @@ msgstr ""
 msgid "New Mini-Training"
 msgstr ""
 
-msgid "untyped"
+msgid "Select"
 msgstr ""
 
-msgid "validity"
+msgid "Attach"
 msgstr ""
 
-msgid "Education group year <a href='%(link)s'> %(acronym)s (%(academic_year)s) </a> successfuly created."
+msgid "Modify"
 msgstr ""
 
-msgid "minimum constraint"
+#, fuzzy
+#| msgid "delete"
+msgid "Delete"
+msgstr "Delete"
+
+#, fuzzy
+#| msgid "trainings"
+msgid "Postpone Training"
+msgstr "Trainings"
+
+#, fuzzy
+#| msgid "updated"
+msgid "update"
+msgstr "Updated"
+
+msgid "i_confirm"
+msgstr "Yes, I confirm."
+
+msgid "identification"
+msgstr "Identification"
+
+msgid "diplomas_certificates"
+msgstr "Diplomas /  Certificates"
+
+msgid "certificate aims"
 msgstr ""
 
-msgid "maximum constraint"
+msgid "filter by section"
 msgstr ""
 
-msgid "type of constraint"
+msgid "Add/Modify a line"
 msgstr ""
 
-msgid "EDUCATION_GROUP_EDITION"
-msgstr "Edition group edition"
-
-msgid "The learning unit %(acronym)s is not included in any education group"
-msgstr ""
-
-msgid "No enrollment for this learning unit"
-msgstr ""
-
-msgid "Changed"
-msgstr ""
-
-msgid "Other teacher(s)"
-msgstr ""
-
-msgid "Summary responsible(s)"
-msgstr ""
-
-msgid "The annual volume must be equal to the sum of the volumes Q1 and Q2"
-msgstr ""
-
-msgid "The global volume corresponding to the product of the annual volume and the number of planned classes must be equal to the sum of the volumes for each entity"
-msgstr ""
-
-msgid "This partim is %(partim_periodicity)s and the parent is %(parent_periodicty)s"
-msgstr ""
-
-msgid "The parent is %(parent_periodicty)s and there is at least one partim which is not %(parent_periodicty)s"
-msgstr ""
-
-msgid "Admission Conditions for Bachelors"
-msgstr "Admission Conditions for Bachelors"
-
-msgid "Alert Message"
-msgstr "Alert Message"
-
-msgid "Free Text"
-msgstr "Free Text"
-
-msgid "University Bachelors"
-msgstr "University Bachelors"
+msgid "Access"
+msgstr "Access"
 
 msgid "Diploma"
 msgstr "Diploma"
@@ -3141,8 +1383,231 @@ msgstr "Diploma"
 msgid "Conditions"
 msgstr "Conditions"
 
-msgid "Access"
-msgstr "Access"
+msgid "Remarks"
+msgstr ""
+
+#, python-format
+msgid "Are you sure you want to delete the coorganization : %(object)s ?"
+msgstr ""
+
+msgid "on successful completion of this program, each student is able to"
+msgstr ""
+
+msgid "create"
+msgstr "Create"
+
+msgid "Cred. rel./abs."
+msgstr ""
+
+msgid "yes,no"
+msgstr ""
+
+#, python-format
+msgid "Are you sure you want to delete %(education_group_year)s?"
+msgstr ""
+
+msgid "Are you sure you want to detach this content?"
+msgstr ""
+
+msgid "required"
+msgstr "Required"
+
+#, fuzzy
+#| msgid "min_credits"
+msgid "minimum credits"
+msgstr "Min. credits"
+
+#, fuzzy
+#| msgid "max_credits"
+msgid "maximum credits"
+msgstr "Max. credits"
+
+msgid "unspecified"
+msgstr "Unspecified"
+
+msgid "program_coorganization"
+msgstr "Program organized with other institutes"
+
+msgid "add_another"
+msgstr "Add another"
+
+msgid "datatable_sortascending"
+msgstr ""
+
+#, fuzzy
+#| msgid "online_scores_encoding"
+msgid "datatable_sortdescending"
+msgstr "Online scores encoding"
+
+msgid "formations"
+msgstr "Formations"
+
+msgid "has the following prerequisites"
+msgstr ""
+
+msgid "Prerequisite"
+msgid_plural "Prerequisites"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "Modify prerequisites"
+msgstr ""
+
+msgid "Save"
+msgstr ""
+
+msgid "is using in"
+msgstr "is using in :"
+
+msgid "Utilizations"
+msgstr ""
+
+msgid "Coorganization"
+msgstr ""
+
+msgid "Registration form for the content of"
+msgstr ""
+
+msgid "This form must be submitted to the secretariat of your faculty"
+msgstr ""
+
+msgid "The registration form is available at the Secretariat of"
+msgstr ""
+
+msgid ""
+"This form must be signed by the designated authority and delivered to the "
+"secretariat of your faculty."
+msgstr ""
+
+msgid "Student's contact information"
+msgstr ""
+
+msgid "training"
+msgstr ""
+
+msgid "mobile_phone"
+msgstr "Mobile phone"
+
+#, fuzzy
+#| msgid "full_name"
+msgid "first_name"
+msgstr "Full name"
+
+msgid "email"
+msgstr ""
+
+msgid "faculty number"
+msgstr ""
+
+msgid "registration_id"
+msgstr "Registration ID"
+
+msgid "(optional)"
+msgstr ""
+
+msgid "Add potential courses"
+msgstr ""
+
+msgid "Made in"
+msgstr ""
+
+msgid "on"
+msgstr ""
+
+msgid "For approval"
+msgstr ""
+
+msgid "Student's signature"
+msgstr ""
+
+msgid "Name of the teacher responsible"
+msgstr ""
+
+msgid "You can not delete this object because some dependencies are protected"
+msgstr ""
+
+msgid "education_groups"
+msgstr "Education groups"
+
+msgid "academic_entity_small"
+msgstr "Academic ent."
+
+msgid "Export"
+msgstr ""
+
+msgid "Produce xls with a list of education groups"
+msgstr ""
+
+msgid "List of trainings"
+msgstr ""
+
+msgid "List of trainings with administrative data"
+msgstr ""
+
+msgid "from"
+msgstr "From"
+
+msgid "to"
+msgstr "to"
+
+msgid "Session"
+msgstr ""
+
+msgid "exams_enrollments"
+msgstr "Exams Enrollments"
+
+msgid "at"
+msgstr "at"
+
+msgid "Additional info"
+msgstr ""
+
+msgid "jury"
+msgstr "Jury"
+
+msgid "signatory_qualification"
+msgstr "Signatory's qualification"
+
+#, fuzzy
+#| msgid "administration"
+msgid "pgm_mgr_administration"
+msgstr "Administration"
+
+msgid "Alert Message"
+msgstr "Alert Message"
+
+msgid "General Conditions"
+msgstr ""
+
+#, fuzzy
+#| msgid "Conditions"
+msgid "Specific Conditions"
+msgstr "Conditions"
+
+#, fuzzy
+#| msgid "language"
+msgid "Language Exam"
+msgstr "Language"
+
+#, fuzzy
+#| msgid "Conditions"
+msgid "Special Conditions"
+msgstr "Conditions"
+
+msgid "Free Text"
+msgstr "Free Text"
+
+msgid "French language proficiency examination"
+msgstr ""
+
+msgid "Reduction"
+msgstr ""
+
+msgid "Opening to Adults"
+msgstr ""
+
+msgid "University Bachelors"
+msgstr "University Bachelors"
 
 msgid "Actions"
 msgstr "Actions"
@@ -3165,6 +1630,16 @@ msgstr "Non university Bachelors"
 msgid "Holders of a 2nd cycle University degree"
 msgstr "Holders of a 2nd cycle University degree"
 
+#, fuzzy
+#| msgid "mandates"
+msgid "Graduates"
+msgstr "Mandates"
+
+#, fuzzy
+#| msgid "master"
+msgid "Masters"
+msgstr "Master"
+
 msgid "Holders of a non-University 2nd cycle degree"
 msgstr "Holders of a non-University 2nd cycle degree"
 
@@ -3177,771 +1652,284 @@ msgstr "Personalized access"
 msgid "Admission and Enrolment Procedures for general registration"
 msgstr "Admission and Enrolment Procedures for general registration"
 
-msgid "Modify text"
-msgstr "Modify text"
+msgid "code_scs"
+msgstr "Code SCS"
 
-msgid "Add a new line"
-msgstr "Add a new line"
-
-msgid "Modify an existing line"
-msgstr "Modify an existing line"
-
-msgid "Are you sure you want to delete %(education_group_year)s?"
-msgstr ""
-
-msgid "You are not summary responsible for this learning unit."
-msgstr ""
-
-msgid "The learning unit is not summary editable."
-msgstr ""
-
-msgid "Submission dates are not set."
-msgstr ""
-
-msgid "Not in period to edit educational information."
-msgstr ""
-
-msgid "Modification made"
-msgstr ""
-
-msgid "You can not delete this object because some dependencies are protected"
-msgstr ""
-
-msgid "It will delete also this following objects"
-msgstr ""
-
-msgid "The education group edition period is not open."
-msgstr ""
-
-msgid "this education group is not editable during this period."
-msgstr ""
-
-msgid "The user has not permission to delete education groups."
-msgstr ""
-
-msgid "The teaching material has been deleted"
-msgstr ""
-
-msgid "Teaching materials has been updated"
-msgstr ""
-
-msgid "Are you sure you want to delete the teaching material?"
-msgstr ""
-
-msgid "teaching materials"
-msgstr ""
-
-msgid "online resources"
-msgstr ""
-
-msgid "{} successfully updated"
-msgstr ""
-
-msgid "duration unit"
-msgstr ""
-
-msgid "Enter text to search"
-msgstr ""
-
-msgid "Mobility has been updated"
-msgstr ""
-
-msgid "lock"
-msgstr ""
-
-msgid "unlock"
-msgstr ""
-
-msgid "Update for teacher unlocked"
-msgstr ""
-
-msgid "Update for teacher locked"
-msgstr ""
-
-msgid "lock update for teacher"
-msgstr ""
-
-msgid "unlock update for teacher"
-msgstr ""
-
-msgid "The education group has been deleted."
-msgstr ""
-
-msgid "The %(acronym)s has been moved"
-msgstr ""
-
-msgid "\"%(child)s\" has been detached from \"%(parent)s\""
-msgstr ""
-
-msgid "Additional info"
-msgstr ""
-
-msgid "Weighting"
-msgstr ""
-
-msgid "Default learning unit enrollment"
-msgstr ""
-
-msgid "Session"
-msgstr ""
-
-msgid "Attach"
-msgstr ""
-
-msgid "Detach"
-msgstr ""
-
-msgid "Select"
-msgstr ""
-
-msgid "The user is not attached to the management entity"
-msgstr ""
-
-msgid "Help"
-msgstr ""
-
-msgid "Are you sure you want to detach this content?"
-msgstr ""
-
-msgid "detach"
-msgstr ""
-
-msgid "Abs. cred."
-msgstr ""
-
-msgid "Sess. derog."
-msgstr ""
-
-msgid "%(count_enrollment)d student is enrolled in the offer."
-msgid_plural "%(count_enrollment)d students are enrolled in the offer."
-msgstr[0] ""
-msgstr[1] ""
-
-msgid "The content of the education group is not empty."
-msgstr ""
-
-msgid "Cred. rel./abs."
-msgstr ""
-
-msgid "Decree category"
-msgstr ""
-
-msgid "Rate code"
-msgstr ""
-
-msgid "NO_ADDITIONAL_FEES"
-msgstr "No additional fees"
-
-msgid "AESS_CAPAES"
-msgstr "AESS and CAPAES"
-
-msgid "MINERVAL_COMPLETE"
-msgstr "Minerval complete"
-
-msgid "UNIVERSITY_CERTIFICATE"
-msgstr "University certificate"
-
-msgid "ADVANCED_MASTER_IN_MEDICAL_SPECIALIZATION"
-msgstr "Advanced master in medical specialization"
-
-msgid "ACCESS_CONTEST"
-msgstr "Access contest"
-
-msgid "UNIVERSITY_CERTIFICATE_30_CREDITS"
-msgstr "University certificate 30 credits"
-
-msgid "CERTIFICATE_MEDECINE_COMPETENCE"
-msgstr "Certificate medecine competence"
-
-msgid "Generate pdf"
-msgstr ""
-
-msgid "%(acronym)s %(title)s [%(volumes)s] (%(credits)s credits)"
-msgstr "%(acronym)s %(title)s [%(volumes)s] (%(credits)s credits)"
-
-msgid "Link type"
-msgstr ""
-
-msgid "REFERENCE"
-msgstr "Reference"
-
-msgid "Quadrimester derogation"
-msgstr ""
+msgid "title_code_formation"
+msgstr "Title / Formation's code"
 
 msgid "Quad. derog."
 msgstr ""
 
-msgid "No type of %(child_category)s can be created as child of %(category)s of type %(type)s"
-msgstr ""
+msgid "own_comment"
+msgstr "Own comment"
 
-msgid "Produce xls with a list of education groups"
-msgstr ""
+msgid "comment_title"
+msgstr "Comment"
 
-msgid "Produce xls of trainings with administrative data"
-msgstr ""
+msgid "MODIFICATION"
+msgstr "Modification"
 
-msgid "Begining of course registration"
-msgstr ""
+msgid "focuses"
+msgstr "Focuses"
 
-msgid "Ending of course registration"
-msgstr ""
-
-msgid "Begining of exam registration"
-msgstr ""
-
-msgid "Ending of exam registration"
-msgstr ""
-
-msgid "Exam board signatory"
-msgstr ""
-
-msgid "List of trainings, with administrative data"
-msgstr ""
-
-msgid "List of trainings"
-msgstr ""
-
-msgid "List of trainings with administrative data"
-msgstr ""
-
-msgid "Validity"
-msgstr ""
-
-msgid "Please Select or Move an item before Attach it"
-msgstr ""
-
-msgid "Used by an other education group"
-msgstr ""
-
-msgid "The user has not permission to change education groups."
-msgstr ""
-
-msgid "It is not possible to move the root element."
-msgstr ""
-
-msgid "It is not possible to detach the root element."
-msgstr ""
-
-msgid "Attached to \"%(acronym)s\""
-msgstr ""
-
-msgid "Learning units comparison"
-msgstr ""
-
-msgid "specific_title"
-msgstr "Title"
-
-msgid "specific_title_english"
-msgstr "English title"
-
-msgid "attribution_procedure"
-msgstr "Procedure"
-
-msgid "No difference"
-msgstr ""
-
-msgid "is_vacant"
-msgstr "Vacant"
-
-msgid "team"
-msgstr "Team management"
-
-msgid "Selected element"
-msgstr ""
-
-msgid "English"
-msgstr ""
-
-msgid "French"
-msgstr ""
-
-msgid "Which type of %(category)s do you want to create ?"
-msgstr ""
-
-msgid "Select a language"
-msgstr ""
-
-msgid "VOLUME_Q1"
-msgstr "Volume partial"
-
-msgid "VOLUME_Q2"
-msgstr "Volume remaining"
-
-msgid "VOLUME_TOTAL"
-msgstr "Vol. annual"
-
-msgid "PLANNED_CLASSES"
-msgstr "Planned classes"
-
-msgid "REAL_CLASSES"
-msgstr "Real classes"
-
-msgid "VOLUME_REQUIREMENT_ENTITY"
-msgstr "Requirement entity"
-
-msgid "VOLUME_ALLOCATION_ENTITY"
-msgstr "Allocation entity"
-
-msgid "VOLUME_ADDITIONAL_REQUIREMENT_ENTITY_1"
-msgstr "Additional requirement entity 1"
-
-msgid "VOLUME_ADDITIONAL_REQUIREMENT_ENTITY_2"
-msgstr "Additional requirement entity 2"
-
-msgid "This field is empty"
-msgstr ""
-
-msgid "Do you want to continue ?"
-msgstr ""
-
-msgid "There are warnings in the form."
-msgstr ""
-
-msgid "Number of elements"
-msgstr ""
-
-msgid "Education group year <a href='%(link)s'> %(acronym)s (%(academic_year)s) </a> successfuly updated."
-msgstr ""
-
-msgid "%(max)s must be greater or equals than %(min)s"
-msgstr ""
-
-msgid "Education group year %(acronym)s (%(academic_year)s) successfuly deleted."
-msgstr ""
-
-msgid "VOLUME_GLOBAL"
-msgstr "Vol. global"
-
-msgid "Produce xls of comparison"
-msgstr ""
-
-msgid "List of learning_units with comparison"
-msgstr ""
-
-msgid "Choose academic years"
-msgstr ""
-
-msgid "Produce Xls"
-msgstr ""
-
-msgid "Internship subtype"
-msgstr ""
-
-msgid "Add. requ. ent. 1"
-msgstr ""
-
-msgid "Add. requ. ent. 2"
-msgstr ""
-
-msgid "Profes. integration"
-msgstr ""
-
-msgid "Req. Entities"
-msgstr ""
-
-msgid "list_learning_units_comparison"
-msgstr "Comparison of learning units"
-
-msgid "Utilizations"
-msgstr ""
-
-msgid "You cannot attach \"%(child)s\" (type \"%(child_type)s\") to \"%(parent)s\" (type \"%(parent_type)s\")"
-msgstr ""
-
-msgid "is using in"
-msgstr "is using in :"
-
-msgid "Prerequisite"
-msgid_plural "Prerequisites"
-msgstr[0] ""
-msgstr[1] ""
-
-msgid "has the following prerequisites"
-msgstr ""
-
-msgid "Cannot set end year to %(end_year)s :"
-msgstr ""
-
-msgid "You cannot attach an element to a learning unit year"
-msgstr ""
-
-msgid "It is forbidden to save a GroupElementYear with a child branch and a child leaf."
-msgstr ""
-
-msgid "It is forbidden to attach an element to itself."
-msgstr ""
-
-msgid "It is forbidden to attach an element to one of its included elements."
-msgstr ""
-
-msgid "Modify prerequisites"
-msgstr ""
-
-msgid "Prerequisites are invalid"
-msgstr "<p>Prerequisites are invalid</p>"
-
-msgid "prerequisites_syntax_rules"
-msgstr "<b>Syntax rules</b>:"
-       "<ul><li>No double parentheses.</li>"
-       "<li>Valid operators are OU or ET.</li>"
-       "<li>The operator must be the same inside all parentheses (groups).</li>"
-       "<li>The operator that linked groups must be different than the one that linked LU inside groups (parentheses).</li>"
-       "<li>The LU code cannot include spaces (ex: LDROI1001 and not LDROI&nbsp;1001).</li></ul></p>"
-       "<p><b>Examples</b>:"
-       "<ul><li>A OU B OU C: valid</li>"
-       "<li>A ET B ET C : valid</li>"
-       "<li>A ET (B OU C) ET (D OU E): valid</li>"
-       "<li>A ET (B OU C) OU (D OU E): not valid</li>"
-       "<li>A ET (B ET C) ET (D ET E): not valid</li>"
-       "<li>A ET (B OU C) ET (D ET E): not valid</li></ul>"
-
-msgid "Prerequisites saved."
-msgstr ""
-
-msgid "The credits value should be an integer"
-msgstr ""
-
-msgid "The prerequisites %s for the learning unit %s are not inside the selected formation %s"
-msgstr ""
-
-msgid "This form must be submitted to the secretariat of your faculty"
-msgstr ""
-
-msgid "This form must be signed by the designated authority and delivered to the secretariat of your faculty."
-msgstr ""
-
-msgid "The registration form is available at the Secretariat of"
-msgstr ""
-
-msgid "training"
-msgstr ""
-
-msgid "faculty number"
-msgstr ""
-
-msgid "(optional)"
-msgstr ""
-
-msgid "Agregation"
-msgstr ""
-
-msgid "Certificate of participation"
-msgstr ""
-
-msgid "Certificate of success"
-msgstr ""
-
-msgid "Certificate of holding credits"
-msgstr ""
-
-msgid "Bachelor"
-msgstr ""
-
-msgid "Certificat"
-msgstr ""
-
-msgid "Research certificat"
-msgstr ""
-
-msgid "University first cycle certificat"
-msgstr ""
-
-msgid "University second cycle certificat"
-msgstr ""
-
-msgid "Access contest"
-msgstr ""
-
-msgid "Language classes"
-msgstr ""
-
-msgid "Isoldated classes"
-msgstr ""
-
-msgid "PHD"
-msgstr ""
-
-msgid "Formation PHD"
-msgstr ""
-
-msgid "Junior year"
-msgstr ""
-
-msgid "Program master 120"
-msgstr ""
-
-msgid "Master MA 120"
-msgstr ""
-
-msgid "Master MD 120"
-msgstr ""
-
-msgid "Master MS 120"
-msgstr ""
-
-msgid "Program master 180-240"
-msgstr ""
-
-msgid "Master MA 180-240"
-msgstr ""
-
-msgid "Master MD 180-240"
-msgstr ""
-
-msgid "Master MS 180-240"
-msgstr ""
-
-msgid "Master in 60 credits"
-msgstr ""
-
-msgid "Master of specialist"
-msgstr ""
-
-msgid "Internship"
-msgstr ""
-
-msgid "Deepening"
-msgstr ""
-
-msgid "Sociaty minor"
-msgstr ""
-
-msgid "Access minor"
-msgstr ""
-
-msgid "Open minor"
-msgstr ""
-
-msgid "Disciplinary complement minor"
-msgstr ""
-
-msgid "FSA speciality"
-msgstr ""
-
-msgid "Option"
-msgstr ""
-
-msgid "Mobility partnership"
-msgstr ""
-
-msgid "Common core"
-msgstr ""
-
-msgid "Minor list choice"
-msgstr ""
-
-msgid "Major list choice"
-msgstr ""
-
-msgid "Option list choice"
-msgstr ""
-
-msgid "Finality 120 list choice"
-msgstr ""
-
-msgid "Finality 180 list choice"
-msgstr ""
-
-msgid "Mobility partnership list choice"
-msgstr ""
-
-msgid "Complementary module"
-msgstr ""
-
-msgid "Sub group"
-msgstr ""
-
-msgid "The user has not permission to create a %(category)s."
-msgstr ""
-
-msgid "from %(min)s to %(max)s among"
-msgstr ""
-
-msgid "from %(min)s to %(max)s credits among"
-msgstr ""
-
-#: backoffice/settings/base.py:402
-msgid "Teaching profile"
-msgstr ""
-
-#: backoffice/settings/base.py:403
-msgid "Learning outcomes"
-msgstr ""
-
-#: backoffice/settings/base.py:404
-msgid "Programme structure"
-msgstr ""
-
-#: backoffice/settings/base.py:406
-msgid "Detailed programme"
-msgstr ""
-
-#: backoffice/settings/base.py:407
-msgid "Options courses"
-msgstr ""
-
-#: backoffice/settings/base.py:408
-msgid "The programme's courses and learning outcomes"
-msgstr ""
-
-#: backoffice/settings/base.py:410
-msgid "Admission"
-msgstr ""
-
-#: backoffice/settings/base.py:412
-msgid "Preparatory module"
-msgstr ""
-
-#: backoffice/settings/base.py:414
-msgid "Benefits and organization"
-msgstr ""
-
-#: backoffice/settings/base.py:415
-msgid "Pedagogy"
-msgstr ""
-
-#: backoffice/settings/base.py:416
-msgid "Course evaluation methods"
-msgstr ""
-
-#: backoffice/settings/base.py:417
-msgid "Mobility and/or Internationalisation outlook"
-msgstr ""
-
-#: backoffice/settings/base.py:418
-msgid "Then after, Further degree programs"
-msgstr ""
-
-#: backoffice/settings/base.py:419
-msgid "Certificates"
-msgstr ""
-
-#: backoffice/settings/base.py:421
-msgid "In practice"
-msgstr ""
-
-#: backoffice/settings/base.py:422
-msgid "Curriculum Management and contacts"
-msgstr ""
-
-msgid "Welcome"
-msgstr ""
-
-msgid "Add the French content of this paragraph"
-msgstr ""
-
-msgid "Add the English content of this paragraph"
-msgstr ""
-
-msgid "Add potential courses"
-msgstr ""
-
-msgid "Made in"
-msgstr ""
-
-msgid "on"
-msgstr ""
-
-msgid "For approval"
-msgstr ""
-
-msgid "Legend"
-msgstr ""
-
-msgid "Registration form for the content of"
-msgstr ""
-
-msgid "Student's contact information"
-msgstr ""
-
-msgid "Student's signature"
-msgstr ""
-
-msgid "Own components"
-msgstr ""
-
-msgid "list of required teaching material"
-msgstr ""
-
-msgid "the list to generate is empty."
-msgstr ""
-
-msgid "Only program managers of the education group OR central manager linked to entity can edit."
-msgstr ""
-
-msgid "Add/Modify a line"
-msgstr ""
-
-msgid "Update the text"
-msgstr ""
-
-msgid "General Conditions"
-msgstr ""
-
-msgid "French language proficiency examination"
-msgstr ""
-
-msgid "Reduction"
-msgstr ""
-
-msgid "Opening to Adults"
-msgstr ""
-
-msgid "comment (internal)"
-msgstr ""
-
-msgid "activities in English"
-msgstr ""
-
-msgid "education group achievement"
-msgstr ""
-
-msgid "education group detailed achievement"
-msgstr ""
-
-msgid "text in English"
-msgstr ""
-
-msgid "text in French"
-msgstr ""
-
-msgid "on successful completion of this program, each student is able to"
-msgstr ""
-
-msgid "the program aims"
-msgstr ""
-
-msgid "additional informations"
-msgstr ""
+msgid "general_informations"
+msgstr "General informations"
 
 msgid "skills and achievements"
 msgstr ""
 
-msgid "academic events"
+msgid "administrative_data"
+msgstr "Administrative data"
+
+msgid "content"
+msgstr "Content"
+
+msgid "entities"
+msgstr "Entities"
+
+msgid "search_for_an_entity"
+msgstr "Search for an entity"
+
+msgid "organization"
+msgstr "Organization"
+
+msgid "attached_to"
+msgstr "Attached to"
+
+msgid "attached_entities"
+msgstr "Attached entities"
+
+msgid "organogram"
+msgstr "Organogram"
+
+msgid "versions"
+msgstr "Versions"
+
+msgid "previous"
+msgstr "Previous"
+
+msgid "next"
+msgstr "Next"
+
+msgid "desc_lnk_home_catalog"
+msgstr "Elaboration and management of the formation catalogue."
+
+msgid "student_path"
+msgstr "Students' path"
+
+msgid "desc_lnk_home_studies"
+msgstr ""
+"Management of students' path from their registration until their diploma."
+
+msgid "desc_lnk_home_institution"
+msgstr "Management of the institution."
+
+msgid "my_osis"
+msgstr "My OSIS"
+
+msgid "desc_lnk_my_osis"
+msgstr ""
+"Your personal details, configurations and other information related to you."
+
+msgid "organizations"
+msgstr "Organizations"
+
+msgid "desc_lnk_organizations"
+msgstr "Management of organizations"
+
+msgid "desc_lnk_entities"
+msgstr "Management of organizational structure."
+
+msgid "desc_lnk_academic_actors"
+msgstr "Academic actors management"
+
+msgid "evaluations"
+msgstr "Evaluations"
+
+msgid "students_title"
+msgstr "Students"
+
+msgid "internships"
+msgstr "Internships"
+
+#, fuzzy
+#| msgid "internships"
+msgid "partnerships"
+msgstr "Internships"
+
+#, fuzzy
+#| msgid "management_entity"
+msgid "ucl_management_entities"
+msgstr "Management entity"
+
+#, fuzzy
+#| msgid "partims"
+msgid "partners"
+msgstr "Partims"
+
+msgid "agreements"
 msgstr ""
 
-msgid "project events"
+#, fuzzy
+#| msgid "general_informations"
+msgid "general_configuration"
+msgstr "General informations"
+
+msgid "financing_configuration"
+msgstr "Financings"
+
+msgid "Help"
 msgstr ""
 
-msgid "ad hoc events"
+msgid "logout"
+msgstr "Logout"
+
+msgid "login"
+msgstr "Login"
+
+msgid "old_browser_warning"
+msgstr "Your browser is out of date. This can lead to unknown behaviour."
+
+msgid "experimental_phase"
+msgstr "This feature is in testing phase"
+
+msgid "warnings_detected"
+msgstr "We detected inconsistencies in the following data :"
+
+msgid "documentation"
+msgstr "Documentation"
+
+msgid "website"
+msgstr "Website"
+
+msgid "source_code"
+msgstr "Source code"
+
+msgid "learning_achievements"
+msgstr "Learning achievements"
+
+msgid "learning_achievements_headline"
+msgstr "At the end of this learning unit, the student is able to:"
+
+msgid "Manage repartition"
 msgstr ""
 
-msgid "%(count)d learning unit has been postponed with success"
-msgid_plural "%(count)d learning units have been postponed with success"
-msgstr[0] ""
-msgstr[1] ""
+msgid "acronym_rules"
+msgstr ""
+"Site with one letter\n"
+"Acronym with min 2 et max 4 letters\n"
+"Number Code with 4 digit"
 
-msgid "The following learning units ended with error"
+msgid "Learning units comparison"
 msgstr ""
 
-msgid "Apply postponement on learning unit year"
+msgid "New partim"
 msgstr ""
 
-msgid "Produce a customizable xls of learning units"
+msgid "Edit the learning unit"
 msgstr ""
 
-msgid "Configurable list of learning units"
+msgid "Edit learning unit end date"
 msgstr ""
+
+msgid "Modify end date"
+msgstr ""
+
+msgid "Put in proposal"
+msgstr ""
+
+msgid "Put in suppression proposal"
+msgstr ""
+
+msgid "Edit the proposal"
+msgstr ""
+
+msgid "Cancel the proposal"
+msgstr ""
+
+msgid "Consolidate the proposal"
+msgstr ""
+
+msgid "Delete the learning unit for all academic years"
+msgstr ""
+
+msgid "msg_confirm_cancel_proposal"
+msgstr "Are you certain that you want to cancel the learning unit proposal ?"
+
+msgid "close"
+msgstr "Close"
+
+#, fuzzy
+#| msgid "i_confirm"
+msgid "confirm"
+msgstr "Yes, I confirm."
+
+msgid "Xls"
+msgstr ""
+
+#, fuzzy
+#| msgid "produce_xls_lus"
+msgid "produce_xls"
+msgstr "The learning units"
+
+msgid "produce_xls_proposals"
+msgstr "Xls with proposals"
+
+#, fuzzy
+#| msgid "search_type"
+msgid "search"
+msgstr "Search type"
+
+msgid "components"
+msgstr "Components"
+
+msgid "volume"
+msgstr "Volume"
+
+msgid "proposal_management"
+msgstr "Proposal management"
+
+#, fuzzy
+#| msgid "learning_unit_created"
+msgid "learning_unit_create"
+msgstr ""
+"Learning unit %(learning_unit)s created for the academic year "
+"%(academic_year)s"
+
+msgid "Manage volumes"
+msgstr ""
+
+msgid "do_you_want_to_get_back_to_initial"
+msgstr "Do you want to get back to initial data?"
+
+msgid "Produce Xls"
+msgstr ""
+
+msgid "msg_confirm_delete_luy"
+msgstr "Are you certain that you want to delete the learning unit ?"
+
+msgid "do_you_want_to_consolidate"
+msgstr "Do you want to consolidate ?"
+
+msgid "do_you_want_change_status_proposals"
+msgstr "Do you want to change the status of this proposals?"
+
+msgid "do_you_want_to_sent_email"
+msgstr ""
+"Do you want to sent email to remind to update the educational informations?"
+
+msgid "responsible"
+msgstr "Responsible"
+
+msgid "desc_mail_reminder"
+msgstr "Sent email to remind to update educational information"
+
+msgid "ask_to_report_modification"
+msgstr "Do you want to report the modifications done to the next years ?"
+
+msgid "are_you_sure_to_change_state_from"
+msgstr "Are you sure to change the state from"
 
 msgid "Do you want to export the following informations"
 msgstr ""
@@ -3949,94 +1937,643 @@ msgstr ""
 msgid "Programs/gathering"
 msgstr ""
 
-msgid "List of teachers"
+msgid "tutors"
+msgstr "Tutors"
+
+msgid "confirm_your_action"
+msgstr "Confirm your action."
+
+msgid "prolong_or_create_learning_unit_message"
+msgstr ""
+"<p>The acronym <b>already exists</b>.</p><p>You have the choice between:"
+"<ul><li><b>create</b> a new learning unit using that acronym</"
+"li><li><b>prolong</b> the learning unit of the same acronym</li></ul>"
+
+msgid "prolong"
+msgstr "Prolong"
+
+msgid "Summary responsible(s)"
 msgstr ""
 
-msgid "Beg. of attribution"
+msgid "None"
 msgstr ""
 
-msgid "Attribution duration"
+msgid "Other teacher(s)"
 msgstr ""
 
-msgid "Attrib. vol1"
+msgid "Mobility"
 msgstr ""
 
-msgid "Attrib. vol2"
+msgid "proposal"
+msgstr "Proposal"
+
+msgid "folder"
+msgstr "Folder"
+
+msgid "introduced_by"
+msgstr "Introduced by"
+
+msgid "the"
+msgstr "The"
+
+msgid "by"
+msgstr "By"
+
+msgid "unlock update for teacher"
 msgstr ""
 
-msgid "Absolute credits"
+msgid "unlock"
 msgstr ""
 
-msgid "Hourly vol."
+msgid "lock update for teacher"
 msgstr ""
 
-msgid "1st quadri"
+msgid "lock"
 msgstr ""
 
-msgid "2nd quadri"
+msgid "Update for teacher locked"
 msgstr ""
 
-msgid "Suppression proposal"
+msgid "Update for teacher unlocked"
 msgstr ""
 
-msgid "Transformation proposal"
+msgid "educational_information"
+msgstr "Educational information"
+
+msgid "learning_unit_specifications"
+msgstr "Specifications"
+
+msgid "trainings"
+msgstr "Trainings"
+
+msgid "learning_unit"
+msgstr "Learning unit"
+
+msgid "produce_xls_lus_desc"
+msgstr "Produce xls with a list of learning units"
+
+msgid "produce_xls_lus"
+msgstr "The learning units"
+
+msgid "produce_xls_attributions_desc"
+msgstr "Produce xls with a list of learning units and attributions"
+
+msgid "produce_xls_attributions"
+msgstr "The learning units and attributions"
+
+msgid "Produce a customizable xls of learning units"
 msgstr ""
 
-msgid "Transformation/modification proposal"
+msgid "Configurable list of learning units"
 msgstr ""
 
-msgid "fac. level"
+msgid "List of learning_units with comparison"
 msgstr ""
 
-msgid "Are you sure you want to delete the event"
+msgid "in_proposal"
+msgstr "Existing proposal"
+
+msgid "force_state"
+msgstr "Force state"
+
+msgid "get_back_to_initial"
+msgstr "Get back to initial data"
+
+msgid "consolidate"
+msgstr "Consolidate"
+
+#, fuzzy
+#| msgid "invalid_file"
+msgid "validite"
+msgstr "Invalid file"
+
+msgid "classe"
+msgstr "Classe"
+
+msgid "used_by"
+msgstr "Used by learning unit"
+
+msgid "No difference"
 msgstr ""
 
+msgid "component"
+msgstr "Component"
+
+msgid "LECTURING"
+msgstr "Lecturing"
+
+msgid "LU"
+msgstr ""
+
+msgid "real_on_planned_classrooms"
+msgstr "Real/Planned classrooms"
+
+#, fuzzy
+#| msgid "classes"
+msgid "Classes"
+msgstr "Classes"
+
+msgid ""
+"The global volume corresponding to the product of the annual volume and the "
+"number of planned classes must be equal to the sum of the volumes for each "
+"entity"
+msgstr ""
+
+#, fuzzy
+#| msgid "vol_global"
+msgid "Vol. global"
+msgstr "Vol.global"
+
+msgid "classes"
+msgstr "Classes"
+
+msgid "Own components"
+msgstr ""
+
+msgid "learning_unit_years_to_delete"
+msgstr "You will definitely delete the following learning units"
+
+#, python-format
+msgid ""
+"The learning unit %(acronym)s is included in the following education groups"
+msgstr ""
+
+msgid "type_code_formation"
+msgstr "Formation's type"
+
+msgid "absolute_and_relative_credits"
+msgstr "Relative / Absolute <br>credits"
+
+#, python-format
+msgid "The learning unit %(acronym)s is not included in any education group"
+msgstr ""
+
+msgid "Enrollments to learning unit"
+msgstr ""
+
+msgid "Training"
+msgstr ""
+
+msgid "Enrollments to training"
+msgstr ""
+
+msgid "Enrolled to learning unit"
+msgstr "Enrollments to learning unit"
+
+msgid "No enrollment for this learning unit"
+msgstr ""
+
+msgid "formerly"
+msgstr "Formerly"
+
+msgid "YES,NO"
+msgstr ""
+
+#, fuzzy
+#| msgid "identification"
+msgid "modification"
+msgstr "Identification"
+
+msgid "academic_start_year"
+msgstr "Academic start year"
+
+msgid "No attributions exist for the parent learning unit"
+msgstr ""
+
+msgid "New external learning unit"
+msgstr ""
+
+msgid "need_no_reminder"
+msgstr "Need no reminder"
+
+msgid "educational_information_update_reminder"
+msgstr "Mail to remind educational information update"
+
+msgid "list of required teaching material"
+msgstr ""
+
+msgid "Modification made"
+msgstr ""
+
+msgid "Are you sure you want to delete the teaching material?"
+msgstr ""
+
+msgid "volumes_management"
+msgstr "Volumes management"
+
+msgid "activity_search"
+msgstr "Learning unit"
+
+msgid "service_course_search"
+msgstr "Service courses"
+
+msgid "borrowed_course_search"
+msgstr "Borrowed courses"
+
+msgid "proposals_search"
+msgstr "Proposals"
+
+msgid "external_search"
+msgstr "Externals"
+
+msgid "summary_list"
+msgstr "Education information status"
+
+msgid "succesfull_logout"
+msgstr "You are succesfully logout."
+
+msgid "redirect_to_login"
+msgstr "Click to reconnect"
+
+msgid "mandates"
+msgstr "Mandates"
+
+msgid "assistants"
+msgstr ""
+
+msgid "desc_assistants"
+msgstr "Mandats des assistants académiques et de recherche."
+
+msgid "method_not_allowed"
+msgstr "Method not allowed"
+
+msgid "profile"
+msgstr "Profile"
+
+msgid "desc_profile"
+msgstr "The configuration of you user profile"
+
+msgid "messages"
+msgstr "Messages"
+
+msgid "desc_my_messages"
+msgstr "The messages sent by the application to you"
+
+msgid "message"
+msgstr "Message"
+
+msgid "received_on"
+msgstr "Received on"
+
+msgid "tooltip_to_my_messages"
+msgstr "Back to messages"
+
+msgid "tooltip_delete_message"
+msgstr "Delete message"
+
+msgid "my_messages"
+msgstr "My Messages"
+
+msgid "tooltip_select_action"
+msgstr "Select action to execute"
+
+msgid "mark_selected_messages_as_read"
+msgstr "Mark selected messages as read"
+
+msgid "delete_selected_messages"
+msgstr "Delete selected messages"
+
+#, fuzzy
+#| msgid "tooltip_to_my_messages"
+msgid "tooltip_execute_my_message_action"
+msgstr "Back to messages"
+
+msgid "tooltip_select_all_messages"
+msgstr "Select all the messages"
+
+msgid "subject"
+msgstr "Subject"
+
+msgid "tooltip_my_message_read"
+msgstr "Show message"
+
+msgid "attributions"
+msgstr "Attributions"
+
+msgid "programs"
+msgstr "Programs"
+
+msgid "preferences"
+msgstr "Preferences"
+
+msgid "fgs"
+msgstr "FGS"
+
+#, fuzzy
+#| msgid "name"
+msgid "firstname"
+msgstr "Name"
+
+#, fuzzy
+#| msgid "name"
+msgid "lastname"
+msgstr "Name"
+
+msgid "gender"
+msgstr "Gender"
+
+msgid "fixed_line_phone"
+msgstr "Fixed-line phone"
+
+msgid "addresses"
+msgstr "Addresses"
+
+msgid "managed_programs"
+msgstr "Managed programs"
+
+msgid "user_interface_language"
+msgstr "User interface language"
+
+msgid "javascript_is_disabled"
+msgstr ""
+"JavaScript is disabled on your browser, but OSIS does not work without "
+"JavaScript."
+
+msgid "please_enable_javascript"
+msgstr ""
+"Please <a href='http://enable-javascript.com' target='_blank'>enable "
+"JavaScript</a> to use this application."
+
+msgid "home"
+msgstr "Home page"
+
+msgid "structure"
+msgstr "Structure"
+
+msgid "international_title"
+msgstr "international title"
+
+msgid "short_title"
+msgstr "Short title"
+
+msgid "printable_title"
+msgstr "Printable title"
+
+msgid "grade"
+msgstr "Grade"
+
+msgid "person"
+msgstr ""
+
+msgid "program_managers"
+msgstr "Program Managers"
+
+msgid "scores_encoding"
+msgstr "Scores encoding"
+
+msgid "offer_year_calendar"
+msgstr "Calendar of the annual program"
+
+msgid "offer_year_search"
+msgstr "Search of annual programs"
+
+msgid "organization_name"
+msgstr "Name"
+
+msgid "address(ses)"
+msgstr "Address(es)"
+
+msgid "organization_address"
+msgstr "Organization address"
+
+msgid "label"
+msgstr "Label"
+
+msgid "location"
+msgstr "Location"
+
+msgid "postal_code"
+msgstr "postal code"
+
+msgid "back"
+msgstr "Back"
+
+msgid "search_for_an_organization"
+msgstr "Search for an organization"
+
+msgid "page_not_found"
+msgstr "Page not found."
+
+msgid "log-in"
+msgstr "Log-in"
+
+msgid "msg_error_username_password_not_matching"
+msgstr "Your username and password didn't match. Please try again."
+
+msgid "user"
+msgstr "User"
+
+msgid "password"
+msgstr "Password"
+
+#, fuzzy
+#| msgid "full_name"
+msgid "last_name"
+msgstr "Full name"
+
+msgid "server_error"
+msgstr "A server error occured."
+
+msgid "server_error_message"
+msgstr "We will fix this as soon as possible"
+
+msgid "number_session"
+msgstr "No. Session"
+
+msgid "enrollment_date"
+msgstr "Enrollment date"
+
+msgid "student_title"
+msgstr "Student"
+
+msgid "full_name"
+msgstr "Full name"
+
+msgid "identification_number"
+msgstr "Number ID"
+
+msgid "birth_date"
+msgstr "Birth Date"
+
+msgid "offers_enrollments"
+msgstr "Offers enrollments"
+
+msgid "learning_units_enrollments"
+msgstr "Learning units enrollments"
+
+#, fuzzy
+#| msgid "student_path"
+msgid "student_search"
+msgstr "Students' path"
+
+msgid "desc_lnk_assessments"
+msgstr "This process helps tutors while scores encoding."
+
+msgid "desc_lnk_internships"
+msgstr "This process controls students internships."
+
+msgid ""
+"Only program managers of the education group OR central manager linked to "
+"entity can edit."
+msgstr ""
+
+msgid "The user has not permission to change education groups."
+msgstr ""
+
+#, python-brace-format
+msgid "It is not possible to {action} the root element."
+msgstr ""
+
+msgid "date_format_string"
+msgstr "m/d/Y"
+
+msgid "value_before_proposal"
+msgstr "Value before proposal"
+
+#, python-format
+msgid "%(subtype)s %(acronym)s is in proposal for the year %(year)s"
+msgstr ""
+
+#, python-format
+msgid "Proposal %(acronym)s (%(academic_year)s) successfully consolidated."
+msgstr ""
+
+msgid "CO_HOLDER"
+msgstr "Co-holder"
+
+msgid "requirement_entity"
+msgstr "Requirement entity"
+
+msgid "additional_requirement_entity_2"
+msgstr "Additional requirement entity 2"
+
+#, fuzzy
+#| msgid "list_education_groups"
+msgid "delete education group"
+msgstr "Education group's list"
+
+msgid "The education group edition period is not open."
+msgstr ""
+
+msgid "It is not possible to detach the root element."
+msgstr ""
+
+msgid "Generate pdf"
+msgstr ""
+
+msgid "It is forbidden to attach an element to one of its included elements."
+msgstr ""
+
+msgid "Please Select or Move an item before Attach it"
+msgstr ""
+
+msgid "too_many_results"
+msgstr "Too many results! Please be more specific."
+
+msgid "the list to generate is empty."
+msgstr ""
+
+msgid "success_modification_proposal"
+msgstr "You proposed a modification of type {} for the learning unit {}."
+
+msgid "No proposals was selected."
+msgstr ""
+
+#, python-format
+msgid "Proposal %(acronym)s (%(academic_year)s) successfully canceled."
+msgstr ""
+
+msgid "organization_address_save_error"
+msgstr "Impossible to save the organization address"
+
+msgid "encoding_status_ended"
+msgstr "All the scores are encoded."
+
+msgid "encoding_status_notended"
+msgstr "It remains notes to encode."
+
+msgid "Success"
+msgstr ""
+
+msgid "Failure"
+msgstr ""
+
+msgid "parameters"
+msgstr ""
+
+msgid "author"
+msgstr ""
+
+msgid "date"
+msgstr "Date"
+
+#, fuzzy
+#| msgid "duration"
+msgid "Operation"
+msgstr "Duration"
+
+msgid "Research criteria"
+msgstr ""
+
+#, fuzzy
+#| msgid "scores_saved"
+msgid "scores_sheet"
+msgstr "score(s) saved"
+
+msgid "no_receiver_error"
+msgstr "No receiver for this message"
+
+#, python-format
 msgid "The event \"%(event)s\" has been deleted successfully"
 msgstr ""
 
-msgid "Name of the teacher responsible"
+msgid "The administrative data has been successfully modified"
 msgstr ""
 
-msgid "On the file: direct access or access with additional training"
-msgstr ""
+#, fuzzy
+#| msgid "invalid_acronym"
+msgid "Invalid action"
+msgstr "Invalid code"
 
-msgid "Direct Access"
-msgstr ""
-
-msgid "Access with additional training"
-msgstr ""
-
-msgid "%(number_notifications)s unread notification(s)"
-msgstr ""
-
-msgid "Producing certificat"
-msgstr ""
-
-msgid "Producing annexe"
-msgstr ""
-
-msgid "UCL Diploma"
-msgstr ""
-
-msgid "Reference institution"
-msgstr ""
-
-msgid "EDITION_OF_GENERAL_INFORMATION"
-msgstr "Edition of general information"
-
-msgid "Coorganization"
-msgstr ""
-
-msgid "Are you sure you want to delete the coorganization?"
+msgid "The coorganization has been created"
 msgstr ""
 
 msgid "The coorganization modifications has been saved"
 msgstr ""
 
-msgid "There is already a coorganization with this organization"
+#, python-format
+msgid "This label %s does not exist"
 msgstr ""
 
-msgid "The coorganization has been created"
+#, python-format
+msgid "The %(acronym)s has been moved"
+msgstr ""
+
+#, python-format
+msgid "Attached to \"%(acronym)s\""
+msgstr ""
+
+#, python-format
+msgid "The comments of %(acronym)s has been updated"
+msgstr ""
+
+#, python-format
+msgid "\"%(child)s\" has been detached from \"%(parent)s\""
+msgstr ""
+
+#, python-format
+msgid ""
+"The prerequisites %s for the learning unit %s are not inside the selected "
+"formation %s"
+msgstr ""
+
+msgid "Prerequisites saved."
+msgstr ""
+
+msgid "Selected element"
+msgstr ""
+
+msgid "Educational information submission dates updated"
 msgstr ""
 
 msgid "Repartition added"
@@ -4048,12 +2585,1608 @@ msgstr ""
 msgid "Repartition removed"
 msgstr ""
 
-msgid "Manage repartition"
+#, python-format
+msgid ""
+"The learning unit %(acronym)s has been successfully deleted for all years."
 msgstr ""
 
-msgid "No attributions exist for the parent learning unit"
-msgstr ""
+msgid "success_mail_reminder"
+msgstr "Reminding mails sent"
 
-msgid "The sum of volumes for the partims for professor %(tutor)s is superior to the volume of parent learning unit "
-      "for this professor"
-msgstr ""
+msgid "search_type"
+msgstr "Search type"
+
+msgid "success_modification_learning_unit"
+msgstr "The learning unit has been updated."
+
+msgid "no_messages"
+msgstr "No Messages"
+
+msgid "message_not_resent_no_email"
+msgstr "The message can't be sent again, no email provided."
+
+msgid "message_resent_ok"
+msgstr "The message xas sent again."
+
+#~ msgid "ID"
+#~ msgstr "ID"
+
+#~ msgid "Line"
+#~ msgstr "Row"
+
+#~ msgid "OSIS"
+#~ msgstr "OSIS"
+
+#~ msgid "academic_calendar_offer_year_calendar_start_date_error"
+#~ msgstr ""
+#~ "The opening's date of scores' encodings of the academic calendar can't be "
+#~ "greater than %s (start date of scores' encodings of the program '%s')"
+
+#~ msgid "academic_year_not_exist"
+#~ msgstr "Academic year (%d) doesn't exist"
+
+#~ msgid "activity"
+#~ msgstr "Activity"
+
+#~ msgid "activity_code"
+#~ msgstr "Activity code"
+
+#~ msgid "activity_not_exit"
+#~ msgstr "The activity %s doesn't exist"
+
+#~ msgid "add_an_address_to_the_organization"
+#~ msgstr "Add an address to the organization"
+
+#~ msgid "after_submission_a_message_must_be_sent"
+#~ msgstr ""
+#~ "If scores are submitted , a message is sent to all the professors of the "
+#~ "learning unit"
+
+#~ msgid "all"
+#~ msgstr "All"
+
+#~ msgid "all_learning_units_must_be_shown"
+#~ msgstr "All learning units must be shown"
+
+#~ msgid "application_management"
+#~ msgstr "Application management"
+
+#~ msgid "authorized_decimal_for_this_activity"
+#~ msgstr "Decimals authorized for this learning unit"
+
+#~ msgid "begin_date_lt_end_date"
+#~ msgstr "The start date must be equals or lower than the end date"
+
+#~ msgid "btn_messages_history_search"
+#~ msgstr "Search in the messages history"
+
+#~ msgid "btn_my_message_action_execute"
+#~ msgstr "Execute selected action"
+
+#~ msgid "btn_send_message_again_title"
+#~ msgstr "Send again the message to the recipient"
+
+#~ msgid "by_learning_unit"
+#~ msgstr "By Learning Unit"
+
+#~ msgid "by_specific_criteria"
+#~ msgstr "By Specific Criteria"
+
+#~ msgid "catalogue"
+#~ msgstr "Catalogue"
+
+#~ msgid "chair_of_the_exam_board"
+#~ msgstr "Chair of the exam board"
+
+#~ msgid "unjustified_absence_export_legend"
+#~ msgstr "S=Unjustified Absence"
+
+#~ msgid "justified_absence_export_legend"
+#~ msgstr "M=Justified Absence"
+
+#~ msgid "choose_file"
+#~ msgstr "Choose file"
+
+#~ msgid "closed"
+#~ msgstr "Closed"
+
+#~ msgid "compare"
+#~ msgstr "Compare"
+
+#~ msgid "complete"
+#~ msgstr "Complete"
+
+#~ msgid "constraint_score_other_score"
+#~ msgstr "You can't encode a 'score' and a 'justification' together"
+
+#~ msgid "coordinator"
+#~ msgstr "Coordinator"
+
+#~ msgid "coordinators_can_submit_partial_encoding"
+#~ msgstr "Coordinators can submit partial encoding"
+
+#~ msgid "create_an_organization"
+#~ msgstr "Create an organization"
+
+#~ msgid "creation_date"
+#~ msgstr "Creation date"
+
+#~ msgid "customized"
+#~ msgstr "Customized"
+
+#~ msgid "date_not_passed"
+#~ msgstr "Date not passed"
+
+#~ msgid "decimal_score_allowed"
+#~ msgstr "Decimal score allowed"
+
+#~ msgid "decimal_score_not_allowed"
+#~ msgstr "Decimal score NOT allowed"
+
+#~ msgid "decimal_values_accepted"
+#~ msgstr "Decimal values in scores are accepted."
+
+#~ msgid "decimal_values_ignored"
+#~ msgstr ""
+#~ "Decimal values in scores are NOT accepted. If you try to put decimal "
+#~ "values, it will be ignored."
+
+#~ msgid "score_have_more_than_2_decimal_places"
+#~ msgstr "Score cannot have more than two decimal places"
+
+#~ msgid "definitive_save"
+#~ msgstr "Definitive submission (Submit to faculty)"
+
+#~ msgid "desc_lnk_files"
+#~ msgstr "Consultation of files managed by the application"
+
+#~ msgid "desc_lnk_score_encoding"
+#~ msgstr ""
+#~ "This process helps tutor while encoding notes for the exams sessions."
+
+#~ msgid "desc_messages_history"
+#~ msgstr "Message history allow you to access sent emails"
+
+#~ msgid "desc_messages_template"
+#~ msgstr "Messages templating allow you to edit email messages dynamically"
+
+#~ msgid "display_scores_for_one_learning_unit"
+#~ msgstr "Display scores for this learning unit"
+
+#~ msgid "display_tutors"
+#~ msgstr "Display all tutors for this learning unit"
+
+#~ msgid "DOCTORAL_COMMISSION"
+#~ msgstr "Doctoral commmission"
+
+#~ msgid "double_encoding"
+#~ msgstr "Double encoding"
+
+#~ msgid "double_encoding_test"
+#~ msgstr "Scores double encoding"
+
+#~ msgid "dubble_encoding"
+#~ msgstr "Dubble encoding"
+
+#~ msgid "dubble_online_scores_encoding"
+#~ msgstr "Dubble online scores encoding"
+
+#~ msgid "empty_note_pdf_legend"
+#~ msgstr "(empty)=No score yet"
+
+#~ msgid "encode_as_coordinator"
+#~ msgstr "Encode as scores responsible"
+
+#~ msgid "encode_as_pgm"
+#~ msgstr "Encode as program manager"
+
+#~ msgid "encode_as_professor"
+#~ msgstr "Encode as professor"
+
+#~ msgid "encoding"
+#~ msgstr "Encoding"
+
+#~ msgid "end_date_teacher"
+#~ msgstr "Teacher Deadline"
+
+#~ msgid "enrollment_activity_not_exist"
+#~ msgstr "The enrollment to the activity %s doesn't exist"
+
+#~ msgid "enrollment_exam_not_exists"
+#~ msgstr "The enrollment to the activity %s doesn't exist"
+
+#~ msgid "enrollments"
+#~ msgstr "Enrollments"
+
+#~ msgid "exam_board_secretary"
+#~ msgstr "Exam board secretary"
+
+#~ msgid "FACULTY"
+#~ msgstr "Faculty"
+
+#~ msgid "file"
+#~ msgstr "File"
+
+#~ msgid "file_must_be_xlsx"
+#~ msgstr "The file must be a valid 'XLSX' excel file"
+
+#~ msgid "file_production_date"
+#~ msgstr "Excel file production date"
+
+#~ msgid "students_deliberated_are_not_shown"
+#~ msgstr "Students deliberated are not shown"
+
+#~ msgid "files"
+#~ msgstr "Files"
+
+#~ msgid "final"
+#~ msgstr "Final"
+
+#~ msgid "get_excel_file"
+#~ msgstr "Get Excel File"
+
+#~ msgid "global_identifiant"
+#~ msgstr "Global identifiant"
+
+#~ msgid "help_pnl_selectedfiles"
+#~ msgstr "Please select an XLS file for injection"
+
+#~ msgid "help_submission_scores_label"
+#~ msgstr ""
+#~ "You will submit %s notes to faculty(ies). Warning : submitted scores "
+#~ "<b>can't be modified anymore.</b>"
+
+#~ msgid "html_message"
+#~ msgstr "HTML Message"
+
+#~ msgid "idle"
+#~ msgstr "Idle"
+
+#~ msgid "ill"
+#~ msgstr "Ill"
+
+#~ msgid "ill_pdf_legend"
+#~ msgstr "I=Ill"
+
+#~ msgid "incomplete"
+#~ msgstr "Incomplete"
+
+#~ msgid "info_address_changed_for_papersheet"
+#~ msgstr ""
+#~ "If you customize one of the field below, it only change the address "
+#~ "displayed on the scores' encodings sheets for the program %s. It will "
+#~ "never change the address of any Structure. The structure's list below is "
+#~ "to help you to pre-fill in the form"
+
+#~ msgid "inject"
+#~ msgstr "Inject"
+
+#~ msgid "inject_xls_file"
+#~ msgstr "Inject XLS file"
+
+#~ msgid "INSTITUTE"
+#~ msgstr "Institute"
+
+#~ msgid "justification_invalid"
+#~ msgstr "Invalid justification"
+
+#~ msgid "justifications"
+#~ msgstr "Justifications"
+
+#~ msgid "justification_invalid_value"
+#~ msgstr "Invalid justification value"
+
+#~ msgid "absence_justified_to_unjustified_invalid"
+#~ msgstr "Absence justified cannot be remplaced by absence unjustified"
+
+#~ msgid "justification_values_accepted"
+#~ msgstr "Accepted value: %s "
+
+#~ msgid "justification_other_values"
+#~ msgstr "Other values: %s "
+
+#~ msgid "last_synchronization"
+#~ msgstr "Last synchronization"
+
+#~ msgid "learning_unit_not_access"
+#~ msgstr "You don't have access rights to this learning unit"
+
+#~ msgid "learning_unit_not_access_or_not_exist"
+#~ msgstr ""
+#~ "You don't have access rights for this learning unit or it doesn't exist "
+#~ "in our database"
+
+#~ msgid "learning_unit_responsible"
+#~ msgstr "Learning unit's responsible"
+
+#~ msgid "learning_units_in"
+#~ msgstr "learning units in"
+
+#~ msgid "lnk_message_history_read_title"
+#~ msgstr "See the message"
+
+#~ msgid "logistic"
+#~ msgstr "Logistic"
+
+#~ msgid "lu_could_contain_decimal_scores"
+#~ msgstr "This learning unit year could contain decimal scores"
+
+#~ msgid "lu_must_not_contain_decimal_scores"
+#~ msgstr "This learning unit year must not contain decimal scores"
+
+#~ msgid "message_address_papersheet"
+#~ msgstr ""
+#~ "Reuse the address of an entity linked to the program or inform the "
+#~ "posting address for the papersheet."
+
+#~ msgid "messages_history"
+#~ msgstr "Messages History"
+
+#~ msgid "messages_templates"
+#~ msgstr "Messages templates"
+
+#~ msgid "miss"
+#~ msgstr "Miss"
+
+#~ msgid "missing_column_session"
+#~ msgstr ""
+#~ "Please fill in the 'session' column with the correct session's number."
+
+#~ msgid "mister"
+#~ msgstr "Mister"
+
+#~ msgid "more_than_one_academic_year_error"
+#~ msgstr ""
+#~ "There are more than 1 academic year in your excel file. Please correct "
+#~ "your file. Only one academic year could be present in the 'Academic year' "
+#~ "column."
+
+#~ msgid "more_than_one_exam_enrol_for_one_learn_unit"
+#~ msgstr ""
+#~ "This student has multiple enrollments for a same exam. (he's enrolled to "
+#~ "a same learning unit in 2 different programs. Please encode this score in "
+#~ "the 'online' tab in the interface."
+
+#~ msgid "more_than_one_learning_unit_error"
+#~ msgstr ""
+#~ "You encoded scores for more than 1 learning unit in your excel file "
+#~ "(column 'Learning unit'). Please make one excel file by learning unit."
+
+#~ msgid "more_than_one_session_error"
+#~ msgstr ""
+#~ "There are more than 1 session in your excel file. Please correct your "
+#~ "file. Only one session's number could be present in the 'Session' column."
+
+#~ msgid "my_studies"
+#~ msgstr "My studies"
+
+#~ msgid "national_register"
+#~ msgstr "National register's number"
+
+#~ msgid "no_current_entity_version_found"
+#~ msgstr "The selected entity no longer exists today (end date passed)."
+
+#~ msgid "no_data_for_this_academic_year"
+#~ msgstr "No data for this academic year"
+
+#~ msgid "no_dubble_score_encoded_comparison_impossible"
+#~ msgstr "No dubble score encoded ; nothing to compare."
+
+#~ msgid "no_entity_address_found"
+#~ msgstr "No address found for the selected entity."
+
+#~ msgid "no_exam_session_opened_for_the_moment"
+#~ msgstr "No scores' encoding session opened for the moment."
+
+#~ msgid "no_student_to_encode_xls"
+#~ msgstr "No students to encode by excel"
+
+#~ msgid "no_file_submitted"
+#~ msgstr "You have to select a file to upload."
+
+#~ msgid "no_score_encoded_double_encoding_impossible"
+#~ msgstr "No new scores encoded. The double encoding needs new scores."
+
+#~ msgid "no_score_injected"
+#~ msgstr "No scores injected"
+
+#~ msgid "no_score_to_encode"
+#~ msgstr "You haven't any score to encode."
+
+#~ msgid "no_valid_academic_year_error"
+#~ msgstr ""
+#~ "No valid academic year found in your xls file. The date should be "
+#~ "formatted like '2015-2016' or '2015'."
+
+#~ msgid "deadline_reached"
+#~ msgstr "Deadline reached"
+
+#~ msgid "not_passed"
+#~ msgstr "Not passed"
+
+#~ msgid "not_sent"
+#~ msgstr "Not Sent"
+
+#~ msgid "number_of_enrollments"
+#~ msgstr "Number of enrollments"
+
+#~ msgid "numbered_score"
+#~ msgstr "Numbered scores"
+
+#~ msgid "offer"
+#~ msgstr "Program"
+
+#~ msgid "offer_enrollment_not_exist"
+#~ msgstr "There are any enrollment to this program"
+
+#~ msgid "offer_year_calendar_academic_calendar_end_date_error"
+#~ msgstr ""
+#~ "The end date of your program can't be greater than the closure's date of "
+#~ "scores' encodings in the academic calendar"
+
+#~ msgid "offer_year_calendar_academic_calendar_start_date_error"
+#~ msgstr ""
+#~ "The start date of your program can't be lower than the opening's date of "
+#~ "scores' encodings in the academic calendar"
+
+#~ msgid "offer_year_not_access_or_not_exist"
+#~ msgstr ""
+#~ "You don't have access rights for this offer or it doesn't exist in our "
+#~ "database"
+
+#~ msgid "offer_year_not_exist"
+#~ msgstr "The program (%s) (%d) - doesn't exist"
+
+#~ msgid "online"
+#~ msgstr "Online"
+
+#~ msgid "online_encoding"
+#~ msgstr "Online encoding"
+
+#~ msgid "only_submited_scores_can_be_double_encoded"
+#~ msgstr "Only submitted scores can be bouble encoded"
+
+#~ msgid "open"
+#~ msgstr "Open"
+
+#~ msgid "origin"
+#~ msgstr "From"
+
+#~ msgid "other_score"
+#~ msgstr "Other scores"
+
+#~ msgid "other_sibling_offers"
+#~ msgstr "Other sibling programs"
+
+#~ msgid "other_sibling_orientations"
+#~ msgstr "Other sibling orientations"
+
+#~ msgid "score_encoding_period_not_open"
+#~ msgstr "The period of scores' encoding is not opened"
+
+#~ msgid "outside_scores_encodings_period_latest_session"
+#~ msgstr "The period of scores' encoding %s is closed since %s"
+
+#~ msgid "outside_scores_encodings_period_closest_session"
+#~ msgstr "The period of scores' encoding %s will be open %s"
+
+#~ msgid "plain"
+#~ msgstr "Plain"
+
+#~ msgid "plain_and_html"
+#~ msgstr "Plain and HTML"
+
+#~ msgid "POLE"
+#~ msgstr "Pole"
+
+#~ msgid "presence_note_pdf_legend"
+#~ msgstr "0=Presence note"
+
+#~ msgid "print"
+#~ msgstr "Print"
+
+#~ msgid "print_all_courses"
+#~ msgstr "Print all courses"
+
+#~ msgid "printing_date"
+#~ msgstr "Printing date"
+
+#~ msgid "professional"
+#~ msgstr "Professional"
+
+#~ msgid "professors_must_not_submit_scores"
+#~ msgstr "Proffessors must not submit scores"
+
+#~ msgid "program_commission"
+#~ msgstr "Program commission"
+
+#~ msgid "program_s"
+#~ msgstr "program(s)"
+
+#~ msgid "progress"
+#~ msgstr "Progress"
+
+#~ msgid "recipient"
+#~ msgstr "Recipient"
+
+#~ msgid "refresh_list"
+#~ msgstr "Search/update the list"
+
+#~ msgid "registration_id_does_not_match_email"
+#~ msgstr "Registration ID does not match email"
+
+#~ msgid "registration_id_not_access_or_not_exist"
+#~ msgstr "Student not registered for exam"
+
+#~ msgid "research_center"
+#~ msgstr "Research center"
+
+#~ msgid "return_doc_to_administrator"
+#~ msgstr "Please return this document to the administrative office before %s."
+
+#~ msgid "reuse_address_entity"
+#~ msgstr "Reuse the address of"
+
+#~ msgid "saved"
+#~ msgstr "Saved"
+
+#~ msgid "saving"
+#~ msgstr "Saving"
+
+#~ msgid "score"
+#~ msgstr "Score"
+
+#~ msgid "score_already_submitted"
+#~ msgstr "Score already submitted"
+
+#~ msgid "score_decimal_not_allowed"
+#~ msgstr "The score seems to be incorrect. Decimales NOT allowed"
+
+#~ msgid "score_invalid"
+#~ msgstr "Score invalid"
+
+#~ msgid "scores_responsible_title"
+#~ msgstr "Scores Responsible"
+
+#~ msgid "score_saved"
+#~ msgstr "score Saved"
+
+#~ msgid "score_submitted"
+#~ msgstr "Submitted"
+
+#~ msgid "scores"
+#~ msgstr "Scores"
+
+#~ msgid "scores_encoding_tests"
+#~ msgstr "Scores encoding tests"
+
+#~ msgid "scores_gt_0_lt_20"
+#~ msgstr "The score seems to be incorrect (it must be >=0 and <=20)"
+
+#~ msgid "scores_injection"
+#~ msgstr "Scores injection"
+
+#~ msgid "scores_saved_cannot_be_saved_anymore"
+#~ msgstr "Sore saved, button save not available anymore"
+
+#~ msgid "scores_must_be_between_0_and_20"
+#~ msgstr "Scores must be between 0 and 20"
+
+#~ msgid "search_for_a_file"
+#~ msgstr "Search for a file"
+
+#~ msgid "SECTOR"
+#~ msgstr "Sector"
+
+#~ msgid "select"
+#~ msgstr "Select"
+
+#~ msgid "select_an_encoding_type"
+#~ msgstr "Select an encoding type"
+
+#~ msgid "send_message_again"
+#~ msgstr "Send again"
+
+#~ msgid "sent"
+#~ msgstr "Sent"
+
+#~ msgid "size"
+#~ msgstr "Size"
+
+#~ msgid "stages"
+#~ msgstr "Stages"
+
+#~ msgid "storage_duration"
+#~ msgstr "Storage duration"
+
+#~ msgid "student_not_exist"
+#~ msgstr "The student (%s) doesn't exist"
+
+#~ msgid "students"
+#~ msgstr "students"
+
+#~ msgid "studies"
+#~ msgstr "Studies"
+
+#~ msgid "submission"
+#~ msgstr "Submission"
+
+#~ msgid "submission_date"
+#~ msgstr "Submission date"
+
+#~ msgid "submission_of_scores_for"
+#~ msgstr "Submission of scores for {0}."
+
+#~ msgid "submitted"
+#~ msgstr "Submitted"
+
+#~ msgid "submitted_scores_cannot_be_encoded_anymore"
+#~ msgstr "Submitted scores cannot be encoded anymore"
+
+#~ msgid "technologic_platform"
+#~ msgstr "Technologic platform"
+
+#~ msgid "template_error"
+#~ msgstr "No message was sent : the message template {} does not exist."
+
+#~ msgid "temporary_save"
+#~ msgstr "Temporary save (not submitted to the faculty yet)"
+
+#~ msgid "the_coordinator_must_still_submit_scores"
+#~ msgstr "The coordinator must still submit the scores"
+
+#~ msgid "learning_unit_title"
+#~ msgstr "Learning unit title"
+
+#~ msgid "tooltip_double_encode_for"
+#~ msgstr "Double encode scores"
+
+#~ msgid "tooltip_double_encode_no_more_possible_for"
+#~ msgstr ""
+#~ "All the scores were submitted.It is not possible to double encode scores "
+#~ "anymore"
+
+#~ msgid "tooltip_dowload_excel_file"
+#~ msgstr "Download the excel file"
+
+#~ msgid "tooltip_encode_for"
+#~ msgstr "Encode scores"
+
+#~ msgid "tooltip_encode_no_more_possible_for"
+#~ msgstr ""
+#~ "All the scores were submitted.It is not possible to encode scores anymore"
+
+#~ msgid "tooltip_inject_excel_no_more_possible_for"
+#~ msgstr ""
+#~ "All the scores were submitted.It is not possible inject excell file "
+#~ "anymore"
+
+#~ msgid "tooltip_print_scores"
+#~ msgstr "Print the scores"
+
+#~ msgid "tooltip_scores_encodings_progress_bar"
+#~ msgstr ""
+#~ "Represents the quantity of scores submitted to the administration. The "
+#~ "number surrounded by parenthesis is the number of scores encoded by the "
+#~ "tutor that aren't submitted yet ('draft' state)"
+
+#~ msgid "tooltip_select_excel_file_to_inject_scores"
+#~ msgstr "Select an excel file to inject scores."
+
+#~ msgid "other_tutors"
+#~ msgstr "Other Tutors"
+
+#~ msgid "txt_message"
+#~ msgstr "Text Message"
+
+#~ msgid "txt_origin_title"
+#~ msgstr "Sender of the message"
+
+#~ msgid "txt_recipient_title"
+#~ msgstr "Recipient of the message (email or last name or username)"
+
+#~ msgid "txt_reference_title"
+#~ msgstr "Template reference of the message"
+
+#~ msgid "txt_subject_title"
+#~ msgstr "Subject of the messages"
+
+#~ msgid "undefined"
+#~ msgstr "Undefined"
+
+#~ msgid "user_is_not_program_manager"
+#~ msgstr ""
+#~ "You're not a program manager. Therefore you dont have access to this page."
+
+#~ msgid "validated_double_encoding_cannot_be_validated_anymore"
+#~ msgstr "Validated double encoding cannot be validated anymore"
+
+#~ msgid "validation_dubble_encoding_mandatory"
+#~ msgstr ""
+#~ "Please enter a final validation for scores' differences detected after "
+#~ "the dubble encoding (below). If you leave, your dubble encoding will be "
+#~ "lost."
+
+#~ msgid "via_excel"
+#~ msgstr "Via Excel"
+
+#~ msgid "via_paper"
+#~ msgstr "Via paper"
+
+#~ msgid "warning_all_scores_not_sumitted_yet"
+#~ msgstr "Warning : some registered scores have not been submitted yet"
+
+#~ msgid "without_attribution"
+#~ msgstr "Without attribution"
+
+#~ msgid "xls_columns_structure_error"
+#~ msgstr ""
+#~ "Your excel file isn't well structured. Please follow the structure of the "
+#~ "excel file provided (button '{}')"
+
+#~ msgid "you_manage"
+#~ msgstr "You manage"
+
+#~ msgid "order"
+#~ msgstr "Order"
+
+#~ msgid "options"
+#~ msgstr "Options"
+
+#~ msgid "question"
+#~ msgstr "Question"
+
+#~ msgid "questions"
+#~ msgstr "Questions"
+
+#~ msgid "value"
+#~ msgstr "Value"
+
+#~ msgid "short_input_text"
+#~ msgstr "Short input text"
+
+#~ msgid "long_input_text"
+#~ msgstr "Long input text"
+
+#~ msgid "radio_button"
+#~ msgstr "Radio button"
+
+#~ msgid "checkbox"
+#~ msgstr "Checkbox"
+
+#~ msgid "upload_button"
+#~ msgstr "Upload button"
+
+#~ msgid "download_link"
+#~ msgstr "Download link"
+
+#~ msgid "dropdown_list"
+#~ msgstr "Dropdown list"
+
+#~ msgid "http_link"
+#~ msgstr "HTTP link"
+
+#~ msgid "BACHELOR"
+#~ msgstr "Bachelor"
+
+#~ msgid "MASTER_60"
+#~ msgstr "Master 60"
+
+#~ msgid "MASTER_120"
+#~ msgstr "Master 120"
+
+#~ msgid "MASTER_180_OR_240"
+#~ msgstr "Master 180 or 240"
+
+#~ msgid "ADVANCED_MASTER"
+#~ msgstr "Advanced master"
+
+#~ msgid "TRAINING_CERTIFICATE"
+#~ msgstr "Training certificate"
+
+#~ msgid "CERTIFICATE"
+#~ msgstr "Certificate"
+
+#~ msgid "DOCTORATE"
+#~ msgstr "Doctorate"
+
+#~ msgid "CAPAES"
+#~ msgstr "CAPAES"
+
+#~ msgid "DEPUTY_AUTHORITY"
+#~ msgstr "Deputy authority"
+
+#~ msgid "DEPUTY_SABBATICAL"
+#~ msgstr "Deputy sabbatical"
+
+#~ msgid "DEPUTY_TEMPORARY"
+#~ msgstr "Deputy temporary"
+
+#~ msgid "INTERNSHIP_SUPERVISOR"
+#~ msgstr "Internship supervisor"
+
+#~ msgid "INTERNSHIP_CO_SUPERVISOR"
+#~ msgstr "Internship co-supervisor"
+
+#~ msgid "PROFESSOR"
+#~ msgstr "Professor"
+
+#~ msgid "COORDINATOR"
+#~ msgstr "Coordinator"
+
+#~ msgid "HOLDER"
+#~ msgstr "Holder"
+
+#~ msgid "DEPUTY"
+#~ msgstr "Deputy"
+
+#~ msgid "scores_responsible_can_submit_partial_encoding"
+#~ msgstr "Scores responsible can submit partial encoding"
+
+#~ msgid "the_scores_responsible_must_still_submit_scores"
+#~ msgstr "The scores responsible must still submit the scores"
+
+#~ msgid "NONE"
+#~ msgstr "NONE"
+
+#~ msgid "keyword"
+#~ msgstr "keyword"
+
+#~ msgid "VALID"
+#~ msgstr "Valid"
+
+#~ msgid "INVALID"
+#~ msgstr "Invalid"
+
+#~ msgid "COURSE"
+#~ msgstr "Course"
+
+#~ msgid "MASTER_THESIS"
+#~ msgstr "Master thesis"
+
+#~ msgid "INTERNSHIP"
+#~ msgstr "Internship"
+
+#~ msgid "OTHER_COLLECTIVE"
+#~ msgstr "Other collective"
+
+#~ msgid "OTHER_INDIVIDUAL"
+#~ msgstr "Other individual"
+
+#~ msgid "EXTERNAL"
+#~ msgstr "External"
+
+#~ msgid "TEACHING_INTERNSHIP"
+#~ msgstr "Teaching internship"
+
+#~ msgid "CLINICAL_INTERNSHIP"
+#~ msgstr "Clinical internship"
+
+#~ msgid "PROFESSIONAL_INTERNSHIP"
+#~ msgstr "Professional internship"
+
+#~ msgid "RESEARCH_INTERNSHIP"
+#~ msgstr "Research internship"
+
+#~ msgid "BIENNIAL_EVEN"
+#~ msgstr "Biennial even"
+
+#~ msgid "BIENNIAL_ODD"
+#~ msgstr "Biennial odd"
+
+#~ msgid "LU_ERRORS_REQUIRED"
+#~ msgstr "This field is required."
+
+#~ msgid "LU_ERRORS_INVALID"
+#~ msgstr "'Enter a valid value."
+
+#~ msgid "LU_ERRORS_INVALID_SEARCH"
+#~ msgstr "Please, inform at least two filters in your searches"
+
+#~ msgid "LU_ERRORS_ACADEMIC_YEAR_REQUIRED"
+#~ msgstr "Please specify an academic year"
+
+#~ msgid "LU_ERRORS_YEAR_WITH_ACRONYM"
+#~ msgstr "Please specify an academic year or enter a valid acronym."
+
+#~ msgid "no_valid_m_justification_error"
+#~ msgstr "You can't encode a JUSTIFIED ABSENCE (M) via the XLS injection"
+
+#~ msgid "abscence_justified_preserved"
+#~ msgstr "Justified abscence already encoded and preserved"
+
+#~ msgid "tutors_of_course"
+#~ msgstr "Tutors of the course"
+
+#~ msgid "academic_start_date_error"
+#~ msgstr ""
+#~ "The start date should be between the start/end dates of the academic year"
+
+#~ msgid "academic_end_date_error"
+#~ msgstr ""
+#~ "The end date should be between the start/end dates of the academic year"
+
+#~ msgid "all_years"
+#~ msgstr "All years"
+
+#~ msgid "propositions"
+#~ msgstr "Propositions"
+
+#~ msgid "tutor_attributions"
+#~ msgstr "Tutors - attributions"
+
+#~ msgid "academic_calendar_offer_year_calendar_start_date_end_date_error"
+#~ msgstr ""
+#~ "The start's date of '%s' of the academic calendar can't be higher than %s "
+#~ "(end date of '%s' of the program '%s')"
+
+#~ msgid "component_type"
+#~ msgstr "Component type"
+
+#~ msgid "vol_q1"
+#~ msgstr "Vol. q1"
+
+#~ msgid "vol_q2"
+#~ msgstr "Vol. q2"
+
+#~ msgid "schedules_conformity"
+#~ msgstr "Sched. conform. "
+
+#~ msgid "planned_classrooms"
+#~ msgstr "Planned classrooms"
+
+#~ msgid "class"
+#~ msgstr "Class"
+
+#~ msgid "learning_unit_code"
+#~ msgstr "Learning unit code"
+
+#~ msgid "nominal_credits"
+#~ msgstr "Credits"
+
+#~ msgid "MASTER_DISSERTATION"
+#~ msgstr "Master Dissertation"
+
+#~ msgid "FULL"
+#~ msgstr "Full"
+
+#~ msgid "MOBILITY"
+#~ msgstr "Mobility"
+
+#~ msgid "OTHER"
+#~ msgstr "Other"
+
+#~ msgid "PARTIM"
+#~ msgstr "Partim"
+
+#~ msgid "PHD_THESIS"
+#~ msgstr "PhD Thesis"
+
+#~ msgid "selected"
+#~ msgstr "selected"
+
+#~ msgid "LECTURING_COMPLETE"
+#~ msgstr "Complete lecturing"
+
+#~ msgid "LECTURING_INCOMPLETE"
+#~ msgstr "Incomplete lecturing"
+
+#~ msgid "PRACTICAL_EXERCISES_COMPLETE"
+#~ msgstr "Complete practical exercises"
+
+#~ msgid "PRACTICAL_EXERCISES_INCOMPLETE"
+#~ msgstr "Incomplete practical exercises"
+
+#~ msgid "STAGE"
+#~ msgstr "Stage"
+
+#~ msgid "DISSERTATION"
+#~ msgstr "Dissertation"
+
+#~ msgid "PRACTICAL_EXERCISES"
+#~ msgstr "Practical exercises"
+
+#~ msgid "lecturing"
+#~ msgstr "Lecturing"
+
+#~ msgid "PE"
+#~ msgstr "PE"
+
+#~ msgid "title_1"
+#~ msgstr "Title common with partims(Part 1)"
+
+#~ msgid "title_2"
+#~ msgstr "Title (Part 2, specific to each partim)"
+
+#~ msgid "title_in_english_1"
+#~ msgstr "(Part 1, common with partims)"
+
+#~ msgid "title_in_english_2"
+#~ msgstr "(Part 2, specific to each partim)"
+
+#~ msgid "SCHOOL"
+#~ msgstr "Ecole"
+
+#~ msgid "PLATFORM"
+#~ msgstr "Platform"
+
+#~ msgid "LOGISTICS_ENTITY"
+#~ msgstr "Logistics entity"
+
+#~ msgid "ACADEMIC_PARTNER"
+#~ msgstr "Academic partner"
+
+#~ msgid "INDUSTRIAL_PARTNER"
+#~ msgstr "Industrial partner"
+
+#~ msgid "SERVICE_PARTNER"
+#~ msgstr "Service partner"
+
+#~ msgid "COMMERCE_PARTNER"
+#~ msgstr "Commerce partner"
+
+#~ msgid "PUBLIC_PARTNER"
+#~ msgstr "Public partner"
+
+#~ msgid "allocation_entity"
+#~ msgstr "Allocation entity"
+
+#~ msgid "additional_requirement_entity"
+#~ msgstr "Additional requirement entity"
+
+#~ msgid "additional_requirement_entity_1"
+#~ msgstr "Additional requirement entity 1"
+
+#~ msgid "partial"
+#~ msgstr "Q1"
+
+#~ msgid "remaining"
+#~ msgstr "Q2"
+
+#~ msgid "partial_remaining"
+#~ msgstr "Q1&2"
+
+#~ msgid "partial_or_remaining"
+#~ msgstr "Q1|2"
+
+#~ msgid "composition"
+#~ msgstr "Composition"
+
+#~ msgid "since"
+#~ msgstr "Since"
+
+#~ msgid "editing"
+#~ msgstr "Edition"
+
+#~ msgid "average"
+#~ msgstr "Average"
+
+#~ msgid "global_average"
+#~ msgstr "Global average"
+
+#~ msgid "localization"
+#~ msgstr "Localization"
+
+#~ msgid "part1"
+#~ msgstr "part 1"
+
+#~ msgid "part2"
+#~ msgstr "part 2"
+
+#~ msgid "title_official"
+#~ msgstr "Official title"
+
+#~ msgid "create_learning_unit"
+#~ msgstr "Create Learning Unit"
+
+#~ msgid "existed_acronym"
+#~ msgstr "Existed code for "
+
+#~ msgid "existing_acronym"
+#~ msgstr "Existing code in "
+
+#~ msgid "fixtures_build"
+#~ msgstr "Build anonymized fixtures"
+
+#~ msgid "desc_lnk_fixtures_build"
+#~ msgstr "Build a json file with anonymized fixtures"
+
+#~ msgid "total_volume_voltot"
+#~ msgstr "Vol.tot"
+
+#~ msgid "volumes_validation_success"
+#~ msgstr "Filled data fit the hourly volumes calculation rules."
+
+#~ msgid "end_date_gt_begin_date"
+#~ msgstr "The end year must be equals or upper than the start year"
+
+#~ msgid "remarks_title"
+#~ msgstr "Remarks"
+
+#~ msgid "NON_ACADEMIC"
+#~ msgstr "Non academic"
+
+#~ msgid "NON_ACADEMIC_CREF"
+#~ msgstr "Non academic CREF"
+
+#~ msgid "ACADEMIC"
+#~ msgstr "Academic"
+
+#~ msgid "INACTIVE"
+#~ msgstr "Inactive"
+
+#~ msgid "RE_REGISTRATION"
+#~ msgstr "Active only for re-registration"
+
+#~ msgid "OPTIONAL"
+#~ msgstr "Optional"
+
+#~ msgid "NO_PRINT"
+#~ msgstr "No printing"
+
+#~ msgid "FEE_1"
+#~ msgstr "Role"
+
+#~ msgid "FEE_2"
+#~ msgstr "Role + exam"
+
+#~ msgid "FEE_3"
+#~ msgstr "AESS, CAPAES or end-of-cycle"
+
+#~ msgid "FEE_4"
+#~ msgstr "School fees without any exam"
+
+#~ msgid "FEE_5"
+#~ msgstr "Full school fees"
+
+#~ msgid "FEE_6"
+#~ msgstr "University certificate"
+
+#~ msgid "FEE_7"
+#~ msgstr "Complementary master with medical specialization"
+
+#~ msgid "FEE_8"
+#~ msgstr "Admission exam"
+
+#~ msgid "FEE_10"
+#~ msgstr "CU 30 credits"
+
+#~ msgid "FEE_11"
+#~ msgstr "Medical skills certificate"
+
+#~ msgid "FEE_12"
+#~ msgstr "ISA offers: 12BA et 21MS"
+
+#~ msgid "FEE_13"
+#~ msgstr "ISA offers: 13BA et 22MS"
+
+#~ msgid "DAILY"
+#~ msgstr "Daily"
+
+#~ msgid "SHIFTED"
+#~ msgstr "Shifted"
+
+#~ msgid "ADAPTED"
+#~ msgstr "Adapted"
+
+#~ msgid "DISSERTATION_SUBMISSION"
+#~ msgstr "Submission of disserations"
+
+#~ msgid "SCORES_EXAM_DIFFUSION"
+#~ msgstr "Diffusion of exam scores"
+
+#~ msgid "SCORES_EXAM_SUBMISSION"
+#~ msgstr "Submission of exam scores"
+
+#~ msgid "TEACHING_CHARGE_APPLICATION"
+#~ msgstr "Teaching charge application"
+
+#~ msgid "TESTING"
+#~ msgstr "Testing"
+
+#~ msgid "RELEASE"
+#~ msgstr "Release"
+
+#~ msgid "associated_entity"
+#~ msgstr "Associated entity"
+
+#~ msgid "LU_WARNING_INVALID_ACRONYM"
+#~ msgstr "The acronym, if it is entered, must at least count 3 characters"
+
+#~ msgid "studies_domain"
+#~ msgstr "Studies domain"
+
+#~ msgid "active_status"
+#~ msgstr "Active"
+
+#~ msgid "QUADRIMESTER"
+#~ msgstr "Quadrimester(s)"
+
+#~ msgid "TRIMESTER"
+#~ msgstr "Trimester(s)"
+
+#~ msgid "MONTH"
+#~ msgstr "Month(s)"
+
+#~ msgid "WEEK"
+#~ msgstr "Week(s)"
+
+#~ msgid "DAY"
+#~ msgstr "Day(s)"
+
+#~ msgid "entity_management"
+#~ msgstr "Entity management"
+
+#~ msgid "of_category"
+#~ msgstr "Education group type"
+
+#~ msgid "TRAINING"
+#~ msgstr "Training"
+
+#~ msgid "MINI_TRAINING"
+#~ msgstr "Mini training"
+
+#~ msgid "GROUP"
+#~ msgstr "Group"
+
+#~ msgid "PRIMARY_LANGUAGE"
+#~ msgstr "Primary anguage"
+
+#~ msgid "OR"
+#~ msgstr "Or"
+
+#~ msgid "AND"
+#~ msgstr "And"
+
+#~ msgid "language_association"
+#~ msgstr "Primary language operator"
+
+#~ msgid "diploma"
+#~ msgstr "Diploma"
+
+#~ msgid "UNIQUE"
+#~ msgstr "Unique diploma"
+
+#~ msgid "SEPARATE"
+#~ msgstr "Separate diploma"
+
+#~ msgid "msg_warning_delete_learning_unit"
+#~ msgstr ""
+#~ "This operation is <strong>permanent</strong> and cannot be undone. You "
+#~ "will lose for ever the data linked to the learning unit <strong>%s</"
+#~ "strong>."
+
+#~ msgid "cannot_delete_learning_unit_year"
+#~ msgstr ""
+#~ "Could not delete the LU <strong>%(learning_unit)s</strong> from the year "
+#~ "%(year)s for the following reasons :"
+
+#~ msgid "cannot_delete_learning_unit"
+#~ msgstr ""
+#~ "Could not delete the LU <strong>%(learning_unit)s</strong> for the "
+#~ "following reasons :"
+
+#~ msgid "publish_attribution_to_portal"
+#~ msgstr "Publish attribution to portal"
+
+#~ msgid "RESEVED_FOR_INTERNS"
+#~ msgstr "Reserved for interns"
+
+#~ msgid "OPEN_FOR_EXTERNS"
+#~ msgstr "Open to externs"
+
+#~ msgid "EXCEPTIONAL_PROCEDURE"
+#~ msgstr "Exceptional procedure"
+
+#~ msgid "VACANT_NOT_PUBLISH"
+#~ msgstr "Vacant but do not publish"
+
+#~ msgid "DO_NOT_ASSIGN"
+#~ msgstr "Do not assign"
+
+#~ msgid "PRESIDENT"
+#~ msgstr "President"
+
+#~ msgid "SECRETARY"
+#~ msgstr "Secretary"
+
+#~ msgid "SIGNATORY"
+#~ msgstr "Signatory"
+
+#~ msgid "session"
+#~ msgstr "session"
+
+#~ msgid "type_must_be_full"
+#~ msgstr "Type of learning unit must be full"
+
+#~ msgid "learning_unit_type_is_not_internship"
+#~ msgstr "Learning unit is not of type internship."
+
+#~ msgid "TRANSFORMATION"
+#~ msgstr "Transformation"
+
+#~ msgid "TRANSFORMATION_AND_MODIFICATION"
+#~ msgstr "Transformation and modification"
+
+#~ msgid "SUPPRESSION"
+#~ msgstr "Suppression"
+
+#~ msgid "CENTRAL"
+#~ msgstr "Central"
+
+#~ msgid "SUSPENDED"
+#~ msgstr "Suspended"
+
+#~ msgid "ACCEPTED"
+#~ msgstr "Accepted"
+
+#~ msgid "REFUSED"
+#~ msgstr "Refused"
+
+#~ msgid "proposal_edited_successfully"
+#~ msgstr "Proposal edited successfully"
+
+#~ msgid "proposals_cancelled_successfully"
+#~ msgstr "Proposals cancelled successfully"
+
+#~ msgid "proposals_consolidated_successfully"
+#~ msgstr "Proposals consolidated successfully"
+
+#~ msgid "absolute_credits"
+#~ msgstr "Abs. credits"
+
+#~ msgid "relative_target_credits"
+#~ msgstr "Relative target's credits"
+
+#~ msgid "current_order"
+#~ msgstr "Current order"
+
+#~ msgid "sessions_derogation"
+#~ msgstr "Sessions in derogation"
+
+#~ msgid "SESSION_1"
+#~ msgstr "1"
+
+#~ msgid "SESSION_2"
+#~ msgstr "2"
+
+#~ msgid "SESSION_3"
+#~ msgstr "3"
+
+#~ msgid "SESSION_1_2"
+#~ msgstr "12"
+
+#~ msgid "SESSION_1_3"
+#~ msgstr "13"
+
+#~ msgid "SESSION_2_3"
+#~ msgstr "23"
+
+#~ msgid "SESSION_1_2_3"
+#~ msgstr "123"
+
+#~ msgid "SESSION_UNDEFINED"
+#~ msgstr "Undefined session"
+
+#~ msgid "SESSION_PARTIAL_2_3"
+#~ msgstr "p23"
+
+#~ msgid "academic_entity"
+#~ msgstr "Academic entity"
+
+#~ msgid "folder_number"
+#~ msgstr "Folder n°{}"
+
+#~ msgid "educational_information_management"
+#~ msgstr "Management of educational information"
+
+#~ msgid "SUMMARY_COURSE_SUBMISSION"
+#~ msgstr "Summary course submission"
+
+#~ msgid "INTERNAL_TEAM"
+#~ msgstr "Internal/team"
+
+#~ msgid "learning_unit_successfuly_created"
+#~ msgstr ""
+#~ "Learning unit <a href='%(link)s'> %(acronym)s (%(academic_year)s) </a> "
+#~ "successfuly created."
+
+#~ msgid "partim"
+#~ msgstr "Partim"
+
+#~ msgid "partim_character_rules"
+#~ msgstr "One letter or digit mandatory"
+
+#~ msgid "invalid_partim_character"
+#~ msgstr "Character already used"
+
+#~ msgid "Ensure this value is greater than %(limit_value)s."
+#~ msgstr "Ensure this value is greater than %(limit_value)s."
+
+#~ msgid "requirement_entity_end_date_too_short"
+#~ msgstr "The requirement entity lifetime is too short."
+
+#~ msgid "cannot_set_internship_subtype_for_type_other_than_internship"
+#~ msgstr ""
+#~ "Internship subtype cannot bet set for learning unit type other than "
+#~ "internship."
+
+#~ msgid "volume_have_more_than_2_decimal_places"
+#~ msgstr "The volume have more than 2 decimal places"
+
+#~ msgid "Site"
+#~ msgstr "Site"
+
+#~ msgid "proposal_learning_unit_successfuly_created"
+#~ msgstr ""
+#~ "Proposal learning unit <a href='%(link)s'> %(acronym)s "
+#~ "(%(academic_year)s) </a> successfuly created."
+
+#~ msgid "new_learning_unit_proposal"
+#~ msgstr "New learning unit proposal"
+
+#~ msgid "proposal_update"
+#~ msgstr "Proposal update"
+
+#~ msgid "entity_not_found"
+#~ msgstr "Entity not found.  Pershaps an error in the data"
+
+#~ msgid "min_for_field"
+#~ msgstr "Please enter a value greater than or equal to 0."
+
+#~ msgid "max_for_field"
+#~ msgstr "Please enter a value less than or equal to 500."
+
+#~ msgid "error_proposal_suppression_to_initial"
+#~ msgstr ""
+#~ "An error occured when getting back to initial state one of the selected "
+#~ "proposal is not in SUPPRESSION type. Nothing has been done"
+
+#~ msgid "error_proposal_no_data"
+#~ msgstr ""
+#~ "An error occured when getting back to initial state. No valid data to "
+#~ "submit"
+
+#~ msgid "unupdated"
+#~ msgstr "Unupdated"
+
+#~ msgid "consolidation"
+#~ msgstr "consolidation"
+
+#~ msgid "COURSE_ENROLLMENT"
+#~ msgstr "Course enrollment"
+
+#~ msgid "different_status_with_parent"
+#~ msgstr "The learning unit's parent is inactive"
+
+#~ msgid "external"
+#~ msgstr "External"
+
+#~ msgid "learning_units_and_attributions_filename"
+#~ msgstr "learning_units_and_attributions"
+
+#~ msgid "attribution_list"
+#~ msgstr "List of attributions"
+
+#~ msgid "List_proposals"
+#~ msgstr "List of proposals"
+
+#~ msgid "List_activities"
+#~ msgstr "List of activities"
+
+#~ msgid "learning_units_filename"
+#~ msgstr "learning_units"
+
+#~ msgid "title_1_in_english"
+#~ msgstr "Title common title with partims (part 1) in English"
+
+#~ msgid "title_2_in_english"
+#~ msgstr "Title specific with partim (part 2) in English"
+
+#~ msgid "middle_name"
+#~ msgstr "Middle name"
+
+#~ msgid "Select the missing term for the offer"
+#~ msgstr "Select the missing term for the offer"
+
+#~ msgid "Remove the term"
+#~ msgstr "Remove the term"
+
+#~ msgid "Do you want to remove this term?"
+#~ msgstr "Do you want to remove this term?"
+
+#~ msgid "Sorry but you can not remove the term of an offer"
+#~ msgstr "Sorry but you can not remove the term of an offer"
+
+#~ msgid "Do you want to remove the term?"
+#~ msgstr "Do you want to remove the term?"
+
+#~ msgid "education_groups_filename"
+#~ msgstr "education_groups"
+
+#~ msgid "EDUCATION_GROUP_EDITION"
+#~ msgstr "Edition group edition"
+
+#~ msgid "Admission Conditions for Bachelors"
+#~ msgstr "Admission Conditions for Bachelors"
+
+#~ msgid "Modify text"
+#~ msgstr "Modify text"
+
+#~ msgid "Add a new line"
+#~ msgstr "Add a new line"
+
+#~ msgid "Modify an existing line"
+#~ msgstr "Modify an existing line"
+
+#~ msgid "NO_ADDITIONAL_FEES"
+#~ msgstr "No additional fees"
+
+#~ msgid "AESS_CAPAES"
+#~ msgstr "AESS and CAPAES"
+
+#~ msgid "MINERVAL_COMPLETE"
+#~ msgstr "Minerval complete"
+
+#~ msgid "UNIVERSITY_CERTIFICATE"
+#~ msgstr "University certificate"
+
+#~ msgid "ADVANCED_MASTER_IN_MEDICAL_SPECIALIZATION"
+#~ msgstr "Advanced master in medical specialization"
+
+#~ msgid "ACCESS_CONTEST"
+#~ msgstr "Access contest"
+
+#~ msgid "UNIVERSITY_CERTIFICATE_30_CREDITS"
+#~ msgstr "University certificate 30 credits"
+
+#~ msgid "CERTIFICATE_MEDECINE_COMPETENCE"
+#~ msgstr "Certificate medecine competence"
+
+#~ msgid "REFERENCE"
+#~ msgstr "Reference"
+
+#~ msgid "specific_title"
+#~ msgstr "Title"
+
+#~ msgid "specific_title_english"
+#~ msgstr "English title"
+
+#~ msgid "attribution_procedure"
+#~ msgstr "Procedure"
+
+#~ msgid "is_vacant"
+#~ msgstr "Vacant"
+
+#~ msgid "team"
+#~ msgstr "Team management"
+
+#~ msgid "VOLUME_Q1"
+#~ msgstr "Volume partial"
+
+#~ msgid "VOLUME_Q2"
+#~ msgstr "Volume remaining"
+
+#~ msgid "VOLUME_TOTAL"
+#~ msgstr "Vol. annual"
+
+#~ msgid "REAL_CLASSES"
+#~ msgstr "Real classes"
+
+#~ msgid "VOLUME_REQUIREMENT_ENTITY"
+#~ msgstr "Requirement entity"
+
+#~ msgid "VOLUME_ALLOCATION_ENTITY"
+#~ msgstr "Allocation entity"
+
+#~ msgid "VOLUME_ADDITIONAL_REQUIREMENT_ENTITY_1"
+#~ msgstr "Additional requirement entity 1"
+
+#~ msgid "VOLUME_ADDITIONAL_REQUIREMENT_ENTITY_2"
+#~ msgstr "Additional requirement entity 2"
+
+#~ msgid "VOLUME_GLOBAL"
+#~ msgstr "Vol. global"
+
+#~ msgid "EDITION_OF_GENERAL_INFORMATION"
+#~ msgstr "Edition of general information"
